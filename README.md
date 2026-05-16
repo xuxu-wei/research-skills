@@ -1,6 +1,6 @@
-# Hermes Research Skills
+# Research Skills
 
-`my-hermes-skills` 是一个面向 Codex / Hermes 的研究工作流技能库。当前有效的技能来源是 `research-skills/`；`legacy/` 仅作为历史归档和对照，不再作为主要维护对象。
+`research-skills` 是一个研究工作流技能库。当前有效的技能来源是 `research-skills/`。
 
 这个仓库不是把所有能力写进一个巨型 prompt，而是把研究任务拆成可组合的技能包。每个技能包包含：
 
@@ -10,6 +10,39 @@
 - `scripts/`：用于检索、转换、审计或一致性检查的辅助脚本。
 
 核心设计目标是：让复杂研究任务可以被分层拆解、隔离评估、循环修订、保留版本血缘，并最终组装成可审阅的研究产物。
+
+## 技能包归属
+
+本仓库中的技能包分为两类：**Xuxu 开发的技能包**和**外部依赖技能包**。
+
+### Xuxu 开发的技能包
+
+**`research/` 下的通用研究技能（4 个）：**
+
+| 技能包 | 用途 |
+| --- | --- |
+| `academic-language-assessor` | 评估学术语言、语域、母语干扰和可投稿表达问题 |
+| `medical-journal-review` | 从医学期刊编辑和审稿标准出发评估研究设计或稿件 |
+| `methodology-statistics-preflight` | 在进入 proposal、SAP 或 manuscript 前检查方法学和统计分析可行性 |
+| `research-opportunity-mapper` | 把文献、指南、数据机会或临床问题转成 evidence map / opportunity map |
+
+**研究工作流技能包（4 个顶级目录，含全部子技能）：**
+
+| 技能包目录 | 目标产物 |
+| --- | --- |
+| `research-idea/` | Research Idea Portfolio |
+| `research-proposal/` | Proposal / SAP / Final Proposal Package |
+| `research-article/` | Manuscript / Submission Package |
+| `research-perspective/` | Perspective / Viewpoint / Commentary |
+
+### 外部依赖技能包
+
+以下技能包非 Xuxu 开发，但为上述工作流提供基础能力支撑，是潜在依赖：
+
+- **`research/` 下的其余技能：** `academic-deep-search`、`arxiv`、`blogwatcher`、`llm-wiki`、`polymarket`、`pubmed` — 提供文献检索、知识整理和数据源查询能力。
+- **`data-science/`：** `jupyter-live-kernel`、`python-environments` — 提供 Python 环境和 Jupyter 交互支持。
+- **`office-toolkit/`：** Office 文档处理入口。
+- **`productivity/`：** `maps`、`nano-pdf`、`ocr-and-documents`、`powerpoint` — 提供文档处理、OCR、演示文稿等通用工具能力。
 
 ## 仓库分层
 

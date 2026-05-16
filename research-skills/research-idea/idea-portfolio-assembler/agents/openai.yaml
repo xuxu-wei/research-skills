@@ -1,0 +1,6 @@
+interface:
+  display_name: "Idea Portfolio Assembler"
+  short_description: "Assemble PI-reviewable research idea portfolios"
+  default_prompt: "Use $idea-portfolio-assembler to assemble evaluated research ideas into a PI-reviewable portfolio."
+policy:
+  allow_implicit_invocation: true

@@ -1,0 +1,7 @@
+interface:
+  display_name: "Perspective Evaluator"
+  short_description: "Independently evaluate Perspective drafts"
+  default_prompt: "Use $perspective-evaluator to independently evaluate this Perspective draft."
+policy:
+  allow_implicit_invocation: true
+

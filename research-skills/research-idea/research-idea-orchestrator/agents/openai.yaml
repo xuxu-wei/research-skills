@@ -1,0 +1,6 @@
+interface:
+  display_name: "Research Idea Orchestrator"
+  short_description: "Orchestrate evidence-grounded research idea portfolios"
+  default_prompt: "Use $research-idea-orchestrator to turn my rough research direction into a PI-reviewable idea portfolio."
+policy:
+  allow_implicit_invocation: true

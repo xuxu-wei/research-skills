@@ -1,0 +1,7 @@
+interface:
+  display_name: "Perspective Drafter"
+  short_description: "Draft or revise Perspective manuscripts from an argument skeleton"
+  default_prompt: "Use $perspective-drafter to draft or revise my Perspective manuscript from the approved skeleton."
+policy:
+  allow_implicit_invocation: true
+

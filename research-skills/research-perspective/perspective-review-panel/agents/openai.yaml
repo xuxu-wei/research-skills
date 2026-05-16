@@ -1,0 +1,7 @@
+interface:
+  display_name: "Perspective Review Panel"
+  short_description: "Run isolated Perspective reviewer panels"
+  default_prompt: "Use $perspective-review-panel to run a simulated review panel on this Perspective draft."
+policy:
+  allow_implicit_invocation: true
+

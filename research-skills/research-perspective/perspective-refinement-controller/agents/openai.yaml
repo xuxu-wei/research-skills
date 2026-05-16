@@ -1,0 +1,7 @@
+interface:
+  display_name: "Perspective Refinement Controller"
+  short_description: "Plan and route targeted Perspective revisions"
+  default_prompt: "Use $perspective-refinement-controller to turn evaluator feedback into a targeted revision plan."
+policy:
+  allow_implicit_invocation: true
+

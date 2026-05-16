@@ -1,0 +1,6 @@
+interface:
+  display_name: "Idea Evaluator"
+  short_description: "Independently score and gate research ideas"
+  default_prompt: "Use $idea-evaluator to independently evaluate these candidate research ideas against the six-dimension rubric."
+policy:
+  allow_implicit_invocation: true

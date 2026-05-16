@@ -1,0 +1,7 @@
+interface:
+  display_name: "Perspective Argument Architect"
+  short_description: "Turn Perspective claims into an argument skeleton"
+  default_prompt: "Use $perspective-argument-architect to build an argument skeleton for my Perspective article."
+policy:
+  allow_implicit_invocation: true
+

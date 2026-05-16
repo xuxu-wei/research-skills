@@ -1,0 +1,7 @@
+interface:
+  display_name: "Perspective Input Builder"
+  short_description: "Normalize Perspective inputs into an input brief"
+  default_prompt: "Use $perspective-input-builder to convert my Perspective topic into a structured input brief."
+policy:
+  allow_implicit_invocation: true
+

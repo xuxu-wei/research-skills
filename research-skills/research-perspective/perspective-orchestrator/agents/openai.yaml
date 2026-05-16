@@ -1,0 +1,7 @@
+interface:
+  display_name: "Perspective Orchestrator"
+  short_description: "Orchestrate Perspective/Viewpoint/Commentary article workflows"
+  default_prompt: "Use $perspective-orchestrator to turn my Perspective idea into a reviewed draft or final manuscript."
+policy:
+  allow_implicit_invocation: true
+

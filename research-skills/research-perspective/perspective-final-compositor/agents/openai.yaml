@@ -1,0 +1,7 @@
+interface:
+  display_name: "Perspective Final Compositor"
+  short_description: "Run final compliance and polishing checks for Perspective manuscripts"
+  default_prompt: "Use $perspective-final-compositor to perform final compliance checks and non-substantive polish."
+policy:
+  allow_implicit_invocation: true
+

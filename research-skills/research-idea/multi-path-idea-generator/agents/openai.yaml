@@ -1,0 +1,6 @@
+interface:
+  display_name: "Multi-Path Idea Generator"
+  short_description: "Generate candidate research ideas from opportunities"
+  default_prompt: "Use $multi-path-idea-generator to generate candidate research ideas from my context brief and opportunity map."
+policy:
+  allow_implicit_invocation: true

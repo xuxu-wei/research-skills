@@ -1,0 +1,6 @@
+interface:
+  display_name: "Research Context Builder"
+  short_description: "Normalize raw research inputs into context briefs"
+  default_prompt: "Use $research-context-builder to convert my rough research input into a Research Context Brief."
+policy:
+  allow_implicit_invocation: true

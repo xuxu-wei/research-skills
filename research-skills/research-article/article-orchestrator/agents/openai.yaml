@@ -1,0 +1,6 @@
+interface:
+  display_name: "Article Orchestrator"
+  short_description: "Orchestrate manuscript production from research data and results through input governance, evidence-constrained drafting, multi-layer quality control, and submission package assembly"
+  default_prompt: "Use $article-orchestrator to produce a submission-ready manuscript package from existing research data, results, and study design information."
+policy:
+  allow_implicit_invocation: false

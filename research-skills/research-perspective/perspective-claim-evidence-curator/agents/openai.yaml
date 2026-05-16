@@ -1,0 +1,7 @@
+interface:
+  display_name: "Perspective Claim Evidence Curator"
+  short_description: "Build and maintain claim-evidence ledgers for Perspective articles"
+  default_prompt: "Use $perspective-claim-evidence-curator to map my Perspective claims to evidence and risks."
+policy:
+  allow_implicit_invocation: true
+
