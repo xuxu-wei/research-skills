@@ -1,3 +1,31 @@
 __pycache__/
+**/__pycache__/
 *.pyc
 *.pyo
+*.pyd
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Local environments
+.venv/
+venv/
+env/
+.env
+.env.*
+
+# OS and editor files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Local agent/session config
+.claude/
+
+# Generated skill packages
+skills-flatten/
+skills-openai-plugin/
