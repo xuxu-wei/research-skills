@@ -3,7 +3,7 @@ name: llm-wiki
 description: "Build, query, and maintain a Karpathy-style LLM Wiki: an interlinked Markdown knowledge base where raw sources are immutable, agents maintain wiki pages, and AGENTS.md defines the Claude Code collaboration contract. Use when the user asks to create a wiki, ingest sources, query or synthesize wiki knowledge, classify materials, audit links/indexes/metadata, or maintain an Obsidian-compatible research or general knowledge vault."
 metadata:
   hermes:
-    version: 3.2.0
+    version: 3.3.0
     tags: [wiki, knowledge-base, markdown, obsidian, claude-code, research, citation-metadata]
     category: research
     related_skills:
@@ -43,6 +43,7 @@ python scripts/wiki_tools.py init <wiki-path> --domain "AI research"
 python scripts/wiki_tools.py init <wiki-path> --agent-platform claude
 python scripts/wiki_tools.py init <wiki-path> --agent-file CUSTOM_AGENT.md
 python scripts/wiki_tools.py classify <wiki-path> --move
+python scripts/wiki_tools.py classify <wiki-path> --unknown-policy custom --custom-raw-dir raw/protocols --move
 python scripts/wiki_tools.py hash-source <raw-source-path> --write
 python scripts/wiki_tools.py update-index <wiki-path>
 python scripts/wiki_tools.py lint <wiki-path>
@@ -65,6 +66,7 @@ raw/papers/
 raw/transcripts/
 raw/data/
 raw/media/
+raw/derived/
 sources/
 entities/
 concepts/
@@ -77,6 +79,9 @@ _archive/
 
 - `raw/` contains immutable source material. Do not rewrite source files to fix
   interpretation errors; write corrections in wiki pages.
+- `raw/derived/` contains derived text or Markdown created from raw originals,
+  such as PDF extraction, OCR, transcription, or cleaned exports. Keep the
+  original raw file and link derived files back to it.
 - `sources/` contains source summaries and citation metadata.
 - `entities/`, `concepts`, `syntheses`, `comparisons`, and `queries` contain
   agent-maintained wiki pages.
@@ -130,19 +135,24 @@ When ingesting a URL, file, pasted text, paper, book, or dataset:
 
 1. Put the original material in `raw/inbox/` first.
 2. Run or emulate `wiki_tools.py classify` to move it to the correct raw folder.
-3. Hash raw sources when version consistency matters. Text sources use
+   Unknown types stay in `raw/inbox/` by default and require user
+   classification or an explicit `--custom-raw-dir`.
+3. If a PDF, image, audio, video, or other source needs extraction, preserve
+   the original raw file and place the derived Markdown/text in `raw/derived/`
+   with `derived_from`, `derivation_method`, and `derived_at` metadata.
+4. Hash raw sources when version consistency matters. Text sources use
    `sha256_body_v1`: UTF-8 or UTF-8 BOM text, frontmatter excluded, newlines
    normalized to LF, hashed with Python `hashlib.sha256`. Binary sources use
    `sha256_bytes_v1`.
-4. Create or update one `sources/` summary page for each substantive source,
-   including `raw_source`, `raw_hash_scheme`, `raw_sha256`, and
-   `raw_hashed_at` when available.
-5. For papers, books, reports, chapters, and scientific literature, capture
+5. Create or update one `sources/` summary page for each substantive source,
+   including `raw_source`, optional `derived_source`, `raw_hash_scheme`,
+   `raw_sha256`, and `raw_hashed_at` when available.
+6. For papers, books, reports, chapters, and scientific literature, capture
    citation metadata: authors, title, year, journal or publisher, DOI, ISBN,
    URL, and source kind when available.
-6. Search `index.md` and the wiki before creating entity or concept pages.
-7. Update relevant pages with sourced claims and `[[wikilinks]]`.
-8. Run `update-index`, append `log.md`, and report changed files.
+7. Search `index.md` and the wiki before creating entity or concept pages.
+8. Update relevant pages with sourced claims and `[[wikilinks]]`.
+9. Run `update-index`, append `log.md`, and report changed files.
 
 ### Query
 
@@ -182,7 +192,9 @@ Archive instead of deleting when material is superseded or out of scope:
 4. Append an `archive` entry to `log.md`.
 
 Confirm with the user before deletion, schema changes, mass archival, or any
-operation expected to touch more than 10 wiki pages.
+operation expected to touch more than 10 wiki pages. Also confirm before
+creating a new `raw/<category>/` for a document type that cannot be confidently
+classified into existing raw categories.
 
 ## Obsidian Boundary
 

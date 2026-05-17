@@ -69,9 +69,11 @@ proposals, or substitute for an independent evaluator.
 
 For each paper or book:
 
-1. Save raw material in `raw/papers/`.
-2. Create a `sources/` page from `templates/source-summary.md`.
-3. Fill citation metadata.
-4. Extract concepts and entities only when durable.
-5. Link to related sources and pages.
-6. Update `index.md` and `log.md`.
+1. Save original raw material in `raw/papers/`.
+2. If text extraction is needed, save derived Markdown/text in `raw/derived/`
+   with `derived_from`, `derivation_method`, and `derived_at`.
+3. Create a `sources/` page from `templates/source-summary.md`.
+4. Fill citation metadata.
+5. Extract concepts and entities only when durable.
+6. Link to related sources and pages.
+7. Update `index.md` and `log.md`.

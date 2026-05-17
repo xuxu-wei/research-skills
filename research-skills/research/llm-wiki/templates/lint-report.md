@@ -18,6 +18,8 @@ Date: YYYY-MM-DD
 
 - Missing frontmatter:
 - Missing citation metadata:
+- Source provenance issues:
+- Derived metadata gaps:
 - Tag drift:
 
 ## Navigation

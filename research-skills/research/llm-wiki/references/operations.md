@@ -29,19 +29,25 @@ Always orient before changing an existing wiki:
 
 1. Save original material under `raw/inbox/`.
 2. Classify it with `wiki_tools.py classify <wiki-path> --move`, or classify
-   manually using the same folder contract.
-3. Hash raw text files with `wiki_tools.py hash-source <path> --write` when
+   manually using the same folder contract. Unknown types stay in `raw/inbox/`
+   by default; ask whether to use an existing category or create a new
+   `raw/<category>/`.
+3. If extraction is needed, keep the original raw file and save derived
+   Markdown/text under `raw/derived/` with `derived_from`,
+   `derivation_method`, and `derived_at`.
+4. Hash raw text files with `wiki_tools.py hash-source <path> --write` when
    frontmatter hashing is useful. Text hashes use `sha256_body_v1`: UTF-8
    text, frontmatter excluded, newlines normalized to LF. Binary sources use
    `sha256_bytes_v1` and are recorded from the source summary page.
-4. Create or update a `sources/` summary page, recording `raw_source`,
-   `raw_hash_scheme`, `raw_sha256`, and `raw_hashed_at` when available.
-5. Extract durable entities, concepts, claims, methods, dates, and open
+5. Create or update a `sources/` summary page, recording `raw_source`,
+   optional `derived_source`, `raw_hash_scheme`, `raw_sha256`, and
+   `raw_hashed_at` when available.
+6. Extract durable entities, concepts, claims, methods, dates, and open
    questions.
-6. Update existing pages before creating new ones.
-7. Create only pages that meet the wiki's page threshold.
-8. Add internal links, source references, and confidence/status fields.
-9. Run `update-index`, append `log.md`, and report changed files.
+7. Update existing pages before creating new ones.
+8. Create only pages that meet the wiki's page threshold.
+9. Add internal links, source references, and confidence/status fields.
+10. Run `update-index`, append `log.md`, and report changed files.
 
 ## Bulk Ingest
 
@@ -78,6 +84,8 @@ Address:
 - Broken wikilinks.
 - Missing required frontmatter.
 - Missing citation metadata for scientific sources.
+- Source provenance gaps such as `derived_source` without `raw_source`.
+- Derived files missing `derived_from`, `derivation_method`, or `derived_at`.
 - Pages absent from `index.md`.
 - Orphan pages.
 - Raw source hash drift.

@@ -12,6 +12,7 @@ doi: unknown
 isbn: unknown
 url: unknown
 raw_source: raw/inbox/source-file.ext
+derived_source: unknown
 raw_hash_scheme: unknown
 raw_sha256: unknown
 raw_hashed_at: unknown

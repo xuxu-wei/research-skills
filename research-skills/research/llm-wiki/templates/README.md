@@ -17,6 +17,7 @@ raw/papers/        Papers, books, chapters, reports, preprints, PDFs, EPUBs.
 raw/transcripts/   Meetings, interviews, lectures, captions, chats.
 raw/data/          CSV, TSV, JSON, spreadsheets, datasets.
 raw/media/         Images, audio, video, diagrams, attachments.
+raw/derived/       Derived Markdown or text linked to raw originals.
 sources/           Source summaries and citation metadata.
 entities/          People, organizations, products, datasets, tools, projects.
 concepts/          Concepts, methods, phenomena, definitions, topic notes.
@@ -35,13 +36,16 @@ _archive/          Superseded or out-of-scope pages.
    recent `log.md`.
 3. New material goes into `raw/inbox/`.
 4. Agent classifies raw material into `raw/articles/`, `raw/papers/`,
-   `raw/transcripts/`, `raw/data/`, or `raw/media/`.
-5. Agent creates or updates `sources/` summaries.
-6. Agent updates durable pages in `entities/`, `concepts/`, `syntheses/`,
+   `raw/transcripts/`, `raw/data/`, or `raw/media/`. Unknown types stay in
+   `raw/inbox/` until the user chooses a category.
+5. If extraction is needed, agent saves derived Markdown/text in
+   `raw/derived/` and points it back to the original raw file.
+6. Agent creates or updates `sources/` summaries.
+7. Agent updates durable pages in `entities/`, `concepts/`, `syntheses/`,
    `comparisons/`, or `queries/`.
-7. Agent updates `index.md`.
-8. Agent appends an entry to `log.md`.
-9. User reviews the result and resolves any contested interpretations.
+8. Agent updates `index.md`.
+9. Agent appends an entry to `log.md`.
+10. User reviews the result and resolves any contested interpretations.
 
 ## Common Commands
 
@@ -52,6 +56,7 @@ python scripts/wiki_tools.py init <wiki-path> --domain "domain"
 python scripts/wiki_tools.py init <wiki-path> --agent-platform claude
 python scripts/wiki_tools.py init <wiki-path> --agent-file CUSTOM_AGENT.md
 python scripts/wiki_tools.py classify <wiki-path> --move
+python scripts/wiki_tools.py classify <wiki-path> --unknown-policy custom --custom-raw-dir raw/protocols --move
 python scripts/wiki_tools.py hash-source <raw-source-path> --write
 python scripts/wiki_tools.py update-index <wiki-path>
 python scripts/wiki_tools.py lint <wiki-path>

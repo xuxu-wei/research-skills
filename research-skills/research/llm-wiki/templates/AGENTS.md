@@ -31,6 +31,7 @@ See `README.md` for the human-facing description. Required directories:
 - `raw/transcripts/`
 - `raw/data/`
 - `raw/media/`
+- `raw/derived/`
 - `sources/`
 - `entities/`
 - `concepts/`
@@ -46,6 +47,8 @@ See `README.md` for the human-facing description. Required directories:
 - Use Obsidian-style `[[wikilinks]]` for internal links.
 - Use frontmatter on all wiki pages.
 - Keep source summaries separate from synthesis pages.
+- Keep original raw files; put extraction/OCR/transcription Markdown in
+  `raw/derived/` with provenance metadata.
 - Mark low-confidence or contested claims explicitly.
 - Split pages over roughly 200 lines.
 

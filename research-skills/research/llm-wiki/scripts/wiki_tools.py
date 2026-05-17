@@ -26,7 +26,15 @@ PAGE_TYPE_BY_DIR = {
     "comparisons": "comparison",
     "queries": "query",
 }
-RAW_DIRS = ["raw/inbox", "raw/articles", "raw/papers", "raw/transcripts", "raw/data", "raw/media"]
+RAW_DIRS = [
+    "raw/inbox",
+    "raw/articles",
+    "raw/papers",
+    "raw/transcripts",
+    "raw/data",
+    "raw/media",
+    "raw/derived",
+]
 META_DIRS = ["_meta", "_archive"]
 AGENT_CONFIG_FILES = {
     "claude": "CLAUDE.md",
@@ -59,6 +67,13 @@ TEXT_HASH_EXTS = {
     ".yaml",
     ".yml",
 }
+MEDIA_EXTS = {".png", ".jpg", ".jpeg", ".gif", ".webp", ".svg", ".mp3", ".wav", ".mp4", ".mov", ".m4a"}
+PAPER_EXTS = {".pdf", ".epub", ".mobi"}
+DATA_EXTS = {".csv", ".tsv", ".json", ".jsonl", ".xlsx", ".xls", ".parquet", ".sav", ".dta"}
+TRANSCRIPT_EXTS = {".vtt", ".srt"}
+ARTICLE_TEXT_EXTS = {".md", ".txt", ".html", ".htm"}
+KNOWN_SOURCE_EXTS = MEDIA_EXTS | PAPER_EXTS | DATA_EXTS | TRANSCRIPT_EXTS | ARTICLE_TEXT_EXTS
+DERIVED_REQUIRED_FIELDS = ["derived_from", "derivation_method", "derived_at"]
 
 
 def today() -> str:
@@ -270,18 +285,42 @@ def unique_path(path: Path) -> Path:
         index += 1
 
 
-def classify_file(path: Path) -> str:
+def is_derived_text_file(path: Path) -> bool:
+    if path.suffix.lower() not in ARTICLE_TEXT_EXTS:
+        return False
+    try:
+        fm, body, has_fm = frontmatter_block(read_text(path))
+    except OSError:
+        return False
+    if has_fm and any(fm.get(field) for field in ["derived_from", "derivation_method", "source_hash_at_derivation"]):
+        return True
+    head = body[:2000].lower() if has_fm else read_text(path)[:2000].lower()
+    return any(token in head for token in ["derived_from:", "derivation_method:", "ocr text", "transcribed from"])
+
+
+def validate_custom_raw_dir(value: str | None) -> str:
+    rel = normalize_wiki_rel(value)
+    if not rel or not rel.startswith("raw/") or rel in {"raw", "raw/"}:
+        raise ValueError("--custom-raw-dir must be a raw/<category> path")
+    if ".." in Path(rel).parts:
+        raise ValueError("--custom-raw-dir must not contain '..'")
+    return rel.rstrip("/")
+
+
+def classify_file(path: Path) -> str | None:
     suffix = path.suffix.lower()
     name = path.name.lower()
-    if suffix in {".png", ".jpg", ".jpeg", ".gif", ".webp", ".svg", ".mp3", ".wav", ".mp4", ".mov", ".m4a"}:
+    if suffix in MEDIA_EXTS:
         return "raw/media"
-    if suffix in {".pdf", ".epub", ".mobi"}:
+    if suffix in PAPER_EXTS:
         return "raw/papers"
-    if suffix in {".csv", ".tsv", ".json", ".jsonl", ".xlsx", ".xls", ".parquet", ".sav", ".dta"}:
+    if suffix in DATA_EXTS:
         return "raw/data"
-    if suffix in {".vtt", ".srt"} or any(token in name for token in ["transcript", "interview", "meeting", "lecture"]):
+    if suffix in TRANSCRIPT_EXTS or any(token in name for token in ["transcript", "interview", "meeting", "lecture"]):
         return "raw/transcripts"
-    if suffix in {".md", ".txt", ".html", ".htm"}:
+    if suffix in ARTICLE_TEXT_EXTS:
+        if is_derived_text_file(path):
+            return "raw/derived"
         try:
             text = read_text(path)[:4000].lower()
         except OSError:
@@ -291,7 +330,19 @@ def classify_file(path: Path) -> str:
         if any(token in text for token in ["speaker:", "transcript", "interview"]):
             return "raw/transcripts"
         return "raw/articles"
-    return "raw/articles"
+    return None
+
+
+def classification_for_file(path: Path, unknown_policy: str, custom_raw_dir: str | None) -> dict[str, str]:
+    target_rel = classify_file(path)
+    if target_rel:
+        return {"status": "classified", "target_dir": target_rel, "reason": "matched_known_type"}
+    if unknown_policy == "articles":
+        return {"status": "classified_fallback", "target_dir": "raw/articles", "reason": "unknown_type_fallback_articles"}
+    if unknown_policy == "custom":
+        target = validate_custom_raw_dir(custom_raw_dir)
+        return {"status": "classified_custom", "target_dir": target, "reason": "unknown_type_custom_category"}
+    return {"status": "needs_user_classification", "target_dir": "raw/inbox", "reason": "unknown_type"}
 
 
 def iter_page_files(wiki: Path) -> list[Path]:
@@ -405,16 +456,33 @@ def command_classify(args: argparse.Namespace) -> int:
     wiki = Path(args.wiki).expanduser().resolve()
     inbox = wiki / "raw" / "inbox"
     results: list[dict[str, str]] = []
+    if args.unknown_policy == "custom":
+        try:
+            validate_custom_raw_dir(args.custom_raw_dir)
+        except ValueError as exc:
+            print(json.dumps({"wiki": str(wiki), "error": str(exc)}, indent=2))
+            return 2
     if not inbox.exists():
         print(json.dumps({"wiki": str(wiki), "classified": []}, indent=2))
         return 0
     for path in sorted(item for item in inbox.iterdir() if item.is_file()):
-        target_dir = wiki / classify_file(path)
+        classification = classification_for_file(path, args.unknown_policy, args.custom_raw_dir)
+        target_dir = wiki / classification["target_dir"]
         target = unique_path(target_dir / path.name)
-        if args.move:
+        moved = False
+        if args.move and classification["status"] != "needs_user_classification":
             target_dir.mkdir(parents=True, exist_ok=True)
             shutil.move(str(path), str(target))
-        results.append({"source": str(path), "target": str(target), "moved": str(bool(args.move)).lower()})
+            moved = True
+        results.append(
+            {
+                "source": str(path),
+                "target": str(target),
+                "status": classification["status"],
+                "reason": classification["reason"],
+                "moved": str(moved).lower(),
+            }
+        )
     print(json.dumps({"wiki": str(wiki), "classified": results}, indent=2))
     return 0
 
@@ -500,11 +568,13 @@ def lint_wiki(wiki: Path) -> dict[str, list[str]]:
         "missing_fields": [],
         "invalid_types": [],
         "missing_citation_metadata": [],
+        "source_provenance_issues": [],
         "broken_links": [],
         "orphan_pages": [],
         "missing_index_entries": [],
         "tag_drift": [],
         "source_hash_drift": [],
+        "derived_metadata_gaps": [],
         "oversized_pages": [],
         "log_rotation": [],
     }
@@ -541,6 +611,14 @@ def lint_wiki(wiki: Path) -> dict[str, list[str]]:
         if page_type and page_type not in VALID_TYPES:
             issues["invalid_types"].append(f"{rel}: {page_type}")
         if page_type == "source" or path.parent.name == "sources":
+            raw_source = normalize_wiki_rel(fm.get("raw_source"))
+            derived_source = normalize_wiki_rel(fm.get("derived_source"))
+            if derived_source and not raw_source:
+                issues["source_provenance_issues"].append(f"{rel}: derived_source without raw_source")
+            if raw_source and not (wiki / raw_source).is_file():
+                issues["source_provenance_issues"].append(f"{rel}: raw_source not found: {raw_source}")
+            if derived_source and not (wiki / derived_source).is_file():
+                issues["source_provenance_issues"].append(f"{rel}: derived_source not found: {derived_source}")
             kind = str(fm.get("source_kind", "")).lower()
             if kind in SCIENTIFIC_KINDS:
                 missing_citation = [field for field in REQUIRED_CITATION_FIELDS if field not in fm or fm.get(field) in ("", [])]
@@ -571,6 +649,16 @@ def lint_wiki(wiki: Path) -> dict[str, list[str]]:
             issues["orphan_pages"].append(key + ".md")
     raw_root = wiki / "raw"
     if raw_root.exists():
+        derived_root = raw_root / "derived"
+        if derived_root.exists():
+            for path in sorted(derived_root.rglob("*")):
+                if not path.is_file() or path.suffix.lower() not in TEXT_HASH_EXTS:
+                    continue
+                rel = path.relative_to(wiki).as_posix()
+                fm, _body, has_fm = frontmatter_block(read_text(path))
+                missing = [field for field in DERIVED_REQUIRED_FIELDS if not has_fm or fm.get(field) in ("", [], None)]
+                if missing:
+                    issues["derived_metadata_gaps"].append(f"{rel}: {', '.join(missing)}")
         for path in sorted(raw_root.rglob("*")):
             if not path.is_file() or path.suffix.lower() not in TEXT_HASH_EXTS:
                 continue
@@ -866,6 +954,13 @@ def build_parser() -> argparse.ArgumentParser:
     classify = sub.add_parser("classify", help="Classify files from raw/inbox.")
     classify.add_argument("wiki")
     classify.add_argument("--move", action="store_true", help="Move files instead of dry-run classification.")
+    classify.add_argument(
+        "--unknown-policy",
+        choices=["inbox", "articles", "custom"],
+        default="inbox",
+        help="How to handle unknown file types. Default keeps them in raw/inbox for user classification.",
+    )
+    classify.add_argument("--custom-raw-dir", help="Explicit raw/<category> destination for --unknown-policy custom.")
     classify.set_defaults(func=command_classify)
 
     hash_source = sub.add_parser("hash-source", help="Compute or write a source sha256.")

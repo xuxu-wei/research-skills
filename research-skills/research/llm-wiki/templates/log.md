@@ -5,4 +5,4 @@
 
 ## [{{date}}] create | Wiki initialized
 - Domain: {{domain}}
-- Structure: AGENTS.md, README.md, index.md, log.md, raw/, sources/, entities/, concepts/, syntheses/, comparisons/, queries/, _meta/, _archive/
+- Structure: agent config, README.md, index.md, log.md, raw/, raw/derived/, sources/, entities/, concepts/, syntheses/, comparisons/, queries/, _meta/, _archive/

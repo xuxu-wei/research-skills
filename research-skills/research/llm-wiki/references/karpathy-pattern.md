@@ -25,7 +25,8 @@ contradictions, and no source material rewritten as interpretation changes.
 
 ## Three Layers
 
-1. Raw sources: immutable files under `raw/`.
+1. Raw sources: immutable files under `raw/`, with derived Markdown/text under
+   `raw/derived/` linked back to preserved originals.
 2. Wiki pages: source summaries, entities, concepts, syntheses, comparisons,
    and filed queries.
 3. Contract: the selected root agent config (`CLAUDE.md`, `AGENTS.md`, or

@@ -20,6 +20,7 @@ raw/papers/       Papers, books, chapters, reports, preprints, PDFs, EPUBs.
 raw/transcripts/  Meetings, interviews, lectures, captions, chats.
 raw/data/         CSV, TSV, JSON, spreadsheets, datasets.
 raw/media/        Images, audio, video, diagrams, attachments.
+raw/derived/      Derived Markdown or text from preserved raw originals.
 sources/          One source summary per substantive source.
 entities/         People, organizations, products, datasets, tools, projects.
 concepts/         Concepts, methods, phenomena, definitions, topic notes.
@@ -38,6 +39,27 @@ _archive/         Superseded or out-of-scope pages.
 - Do not create pages for passing mentions.
 - Split pages over roughly 200 lines.
 
+## Raw Originals And Derived Text
+
+Keep the most original available file. A PDF, image, audio file, video, EPUB,
+or dataset should remain in the appropriate `raw/` category even if the agent
+also creates Markdown, OCR text, a transcript, or a cleaned export.
+
+Store derived text in `raw/derived/` and include:
+
+```yaml
+---
+derived_from: raw/papers/source-file.pdf
+derivation_method: pdf-text-extraction | ocr | transcription | cleanup | export
+derived_at: YYYY-MM-DD
+source_hash_at_derivation: optional raw source hash
+---
+```
+
+If the incoming document is already the original `.txt`, `.md`, or `.html`
+source, store it directly in the appropriate raw category instead of
+`raw/derived/`.
+
 ## Agent Config Selection
 
 Initialize the root agent contract according to the active ecosystem:
@@ -49,6 +71,12 @@ Initialize the root agent contract according to the active ecosystem:
 
 If the selected config file already exists, append the LLM Wiki contract under
 a marked section instead of overwriting unrelated project instructions.
+
+## Classification Fallback
+
+Do not silently scatter unknown document types into guessed directories.
+Unknown file extensions should remain in `raw/inbox/` until the user chooses an
+existing category or explicitly creates a new `raw/<category>/`.
 
 ## Page Frontmatter
 
@@ -98,6 +126,7 @@ available, record the raw source hash:
 
 ```yaml
 raw_source: raw/papers/source-file.pdf
+derived_source: raw/derived/source-file.md
 raw_hash_scheme: sha256_bytes_v1
 raw_sha256: hex-digest
 raw_hashed_at: YYYY-MM-DD
@@ -149,6 +178,7 @@ affected source summaries and dependent pages before updating knowledge pages.
 
 - `raw/inbox`: unprocessed.
 - classified raw source: preserved original.
+- `raw/derived`: optional derived text linked back to a preserved raw original.
 - `sources/`: source interpreted and bibliographically described.
 - durable page: linked and indexed.
 - synthesis/comparison/query: filed only when reuse value is high.
