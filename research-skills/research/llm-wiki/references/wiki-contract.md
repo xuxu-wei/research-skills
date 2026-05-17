@@ -4,7 +4,8 @@ Use this contract when creating or changing an LLM Wiki.
 
 ## Root Files
 
-- `AGENTS.md`: Claude Code style instructions for agents operating in the wiki.
+- `CLAUDE.md`, `AGENTS.md`, or another root Markdown config file: platform
+  specific instructions for agents operating in the wiki.
 - `README.md`: human-facing guide to structure, workflow, commands, tips, and
   maintenance.
 - `index.md`: generated or maintained catalog of wiki pages.
@@ -36,6 +37,18 @@ _archive/         Superseded or out-of-scope pages.
 - Prefer one page per durable entity or concept.
 - Do not create pages for passing mentions.
 - Split pages over roughly 200 lines.
+
+## Agent Config Selection
+
+Initialize the root agent contract according to the active ecosystem:
+
+- Claude Code: `CLAUDE.md`.
+- Codex/OpenAI agents: `AGENTS.md`.
+- Other agents: use `AGENTS.md` by default, or pass an explicit root Markdown
+  filename when initializing.
+
+If the selected config file already exists, append the LLM Wiki contract under
+a marked section instead of overwriting unrelated project instructions.
 
 ## Page Frontmatter
 

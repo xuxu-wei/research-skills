@@ -11,7 +11,6 @@ metadata:
     related_skills:
       - arxiv
       - pubmed
-      - research-paper-writing
       - llm-wiki
       - research-context-builder
       - proposal-context-brief-builder

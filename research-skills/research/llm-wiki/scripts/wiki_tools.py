@@ -10,6 +10,7 @@ import argparse
 import datetime as dt
 import hashlib
 import json
+import os
 import re
 import shutil
 from pathlib import Path
@@ -27,7 +28,13 @@ PAGE_TYPE_BY_DIR = {
 }
 RAW_DIRS = ["raw/inbox", "raw/articles", "raw/papers", "raw/transcripts", "raw/data", "raw/media"]
 META_DIRS = ["_meta", "_archive"]
-ROOT_FILES = ["AGENTS.md", "README.md", "index.md", "log.md"]
+AGENT_CONFIG_FILES = {
+    "claude": "CLAUDE.md",
+    "codex": "AGENTS.md",
+    "generic": "AGENTS.md",
+}
+AGENT_CONFIG_MARKER = "<!-- llm-wiki-agent-contract -->"
+ROOT_FILES = ["README.md", "index.md", "log.md"]
 VALID_TYPES = {"source", "entity", "concept", "synthesis", "comparison", "query"}
 SCIENTIFIC_KINDS = {"paper", "preprint", "book", "chapter", "report", "thesis", "dataset"}
 REQUIRED_PAGE_FIELDS = ["title", "created", "updated", "type", "tags", "sources", "summary"]
@@ -92,6 +99,49 @@ def render_template(name: str, values: dict[str, str]) -> str:
     for key, value in values.items():
         text = text.replace("{{" + key + "}}", value)
     return text.replace("{{date}}", today())
+
+
+def detect_agent_platform(wiki: Path, requested: str = "auto") -> str:
+    if requested != "auto":
+        return requested
+    if (wiki / "CLAUDE.md").exists():
+        return "claude"
+    if (wiki / "AGENTS.md").exists():
+        return "codex"
+    env_names = {name.upper() for name in os.environ}
+    if any(name.startswith("CLAUDE") or name.startswith("ANTHROPIC") for name in env_names):
+        return "claude"
+    if any(name.startswith("CODEX") or name.startswith("OPENAI") for name in env_names):
+        return "codex"
+    return "generic"
+
+
+def resolve_agent_config_name(wiki: Path, requested_platform: str, requested_file: str | None) -> str:
+    if requested_file:
+        rel = normalize_wiki_rel(requested_file)
+        if not rel or rel.endswith("/") or "/" in rel:
+            raise ValueError("--agent-file must be a root-level Markdown filename")
+        if not rel.lower().endswith(".md"):
+            raise ValueError("--agent-file must end with .md")
+        return rel
+    platform = detect_agent_platform(wiki, requested_platform)
+    return AGENT_CONFIG_FILES[platform]
+
+
+def render_agent_contract(values: dict[str, str]) -> str:
+    return AGENT_CONFIG_MARKER + "\n" + render_template("AGENTS.md", values).rstrip() + "\n"
+
+
+def write_or_append_agent_config(path: Path, text: str, force: bool = False) -> str:
+    if not path.exists() or force:
+        write_text(path, text)
+        return "written"
+    current = read_text(path)
+    if AGENT_CONFIG_MARKER in current or "This directory is an LLM Wiki" in current:
+        return "unchanged"
+    addition = "\n\n## LLM Wiki Agent Contract\n\n" + text.rstrip() + "\n"
+    write_text(path, current.rstrip() + addition)
+    return "appended"
 
 
 def frontmatter_block(text: str) -> tuple[dict[str, Any], str, bool]:
@@ -279,7 +329,7 @@ def first_summary(body: str) -> str:
 
 
 def tags_from_agents(wiki: Path) -> set[str]:
-    path = wiki / "AGENTS.md"
+    path = agent_config_path_for_read(wiki)
     if not path.exists():
         return set()
     text = read_text(path)
@@ -299,11 +349,43 @@ def tags_from_agents(wiki: Path) -> set[str]:
     return tags
 
 
+def agent_config_path_for_read(wiki: Path) -> Path:
+    for name in ["CLAUDE.md", "AGENTS.md"]:
+        path = wiki / name
+        if path.exists():
+            return path
+    for path in sorted(wiki.glob("*.md")):
+        try:
+            if AGENT_CONFIG_MARKER in read_text(path):
+                return path
+        except OSError:
+            continue
+    return wiki / "AGENTS.md"
+
+
+def has_agent_config(wiki: Path) -> bool:
+    if any((wiki / name).exists() for name in AGENT_CONFIG_FILES.values()):
+        return True
+    for path in sorted(wiki.glob("*.md")):
+        try:
+            if AGENT_CONFIG_MARKER in read_text(path):
+                return True
+        except OSError:
+            continue
+    return False
+
+
 def command_init(args: argparse.Namespace) -> int:
     wiki = Path(args.wiki).expanduser().resolve()
     values = {"domain": args.domain}
     for rel in RAW_DIRS + PAGE_DIRS + META_DIRS:
         (wiki / rel).mkdir(parents=True, exist_ok=True)
+    try:
+        agent_config_name = resolve_agent_config_name(wiki, args.agent_platform, args.agent_file)
+    except ValueError as exc:
+        print(json.dumps({"wiki": str(wiki), "error": str(exc)}, indent=2))
+        return 2
+    agent_status = write_or_append_agent_config(wiki / agent_config_name, render_agent_contract(values), args.force)
     for name in ROOT_FILES:
         target = wiki / name
         if target.exists() and not args.force:
@@ -311,11 +393,11 @@ def command_init(args: argparse.Namespace) -> int:
         write_text(target, render_template(name, values))
     if args.research:
         add_on = render_template("research-schema.md", values)
-        agents = wiki / "AGENTS.md"
+        agents = wiki / agent_config_name
         current = read_text(agents)
         if "Research Schema Add-on" not in current:
             write_text(agents, current.rstrip() + "\n\n" + add_on)
-    print(json.dumps({"wiki": str(wiki), "created": True}, indent=2))
+    print(json.dumps({"wiki": str(wiki), "created": True, "agent_config": agent_config_name, "agent_config_status": agent_status}, indent=2))
     return 0
 
 
@@ -412,6 +494,7 @@ def command_update_index(args: argparse.Namespace) -> int:
 def lint_wiki(wiki: Path) -> dict[str, list[str]]:
     issues: dict[str, list[str]] = {
         "missing_root_files": [],
+        "missing_agent_config": [],
         "inbox_files": [],
         "missing_frontmatter": [],
         "missing_fields": [],
@@ -428,6 +511,8 @@ def lint_wiki(wiki: Path) -> dict[str, list[str]]:
     for name in ROOT_FILES:
         if not (wiki / name).exists():
             issues["missing_root_files"].append(name)
+    if not has_agent_config(wiki):
+        issues["missing_agent_config"].append("CLAUDE.md, AGENTS.md, or marked custom root Markdown config")
     inbox = wiki / "raw" / "inbox"
     if inbox.exists():
         issues["inbox_files"].extend(str(path.relative_to(wiki)) for path in sorted(inbox.iterdir()) if path.is_file())
@@ -767,7 +852,14 @@ def build_parser() -> argparse.ArgumentParser:
     init = sub.add_parser("init", help="Create wiki root files and directories.")
     init.add_argument("wiki")
     init.add_argument("--domain", default="general knowledge")
-    init.add_argument("--research", action="store_true", help="Append research schema guidance to AGENTS.md.")
+    init.add_argument("--research", action="store_true", help="Append research schema guidance to the selected agent config file.")
+    init.add_argument(
+        "--agent-platform",
+        choices=["auto", "claude", "codex", "generic"],
+        default="auto",
+        help="Choose the root agent config file: claude=CLAUDE.md, codex/generic=AGENTS.md.",
+    )
+    init.add_argument("--agent-file", help="Override the root agent config Markdown filename.")
     init.add_argument("--force", action="store_true", help="Overwrite root template files if they already exist.")
     init.set_defaults(func=command_init)
 

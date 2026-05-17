@@ -1,5 +1,12 @@
 # Research Skills
 
+## Third-party skills attribution
+
+`research-skills/obsidian-skills/` contains skills derived from
+[`kepano/obsidian-skills`](https://github.com/kepano/obsidian-skills).
+Original author: Steph Ango (@kepano). License: MIT. See
+`research-skills/obsidian-skills/NOTICE.md` for the upstream notice text.
+
 `research-skills` 是一个研究工作流技能库。当前有效的技能来源是 `research-skills/`。
 
 这个仓库不是把所有能力写进一个巨型 prompt，而是把研究任务拆成可组合的技能包。每个技能包包含：

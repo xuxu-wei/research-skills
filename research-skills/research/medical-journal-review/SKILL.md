@@ -7,7 +7,7 @@ license: MIT
 metadata:
   hermes:
     tags: [research, medical-review, clinical-trial, editorial, study-design, journal, peer-review]
-    related_skills: [pubmed, ai-research-paper-writing]
+    related_skills: [pubmed]
 ---
 
 # Medical Journal Research Design Review

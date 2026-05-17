@@ -3,8 +3,11 @@
 ## Create
 
 1. Determine the wiki path.
-2. Create the directory contract from `templates/AGENTS.md`,
+2. Create the directory contract from the selected root agent config file,
    `templates/README.md`, `templates/index.md`, and `templates/log.md`.
+   Use `CLAUDE.md` for Claude Code, `AGENTS.md` for Codex/OpenAI agents, and
+   `--agent-file` for another root Markdown config file. If that file already
+   exists, append the LLM Wiki contract instead of overwriting it.
 3. Customize domain, tag taxonomy, page thresholds, and source rules.
 4. If the wiki is research-heavy, merge the relevant parts of
    `templates/research-schema.md` into `AGENTS.md`.
@@ -15,7 +18,8 @@
 
 Always orient before changing an existing wiki:
 
-1. Read `AGENTS.md`.
+1. Read the configured agent file: `CLAUDE.md`, `AGENTS.md`, or the custom root
+   Markdown file chosen for the wiki.
 2. Read `README.md`.
 3. Read `index.md`.
 4. Read the recent end of `log.md`.

@@ -3,7 +3,7 @@ name: llm-wiki
 description: "Build, query, and maintain a Karpathy-style LLM Wiki: an interlinked Markdown knowledge base where raw sources are immutable, agents maintain wiki pages, and AGENTS.md defines the Claude Code collaboration contract. Use when the user asks to create a wiki, ingest sources, query or synthesize wiki knowledge, classify materials, audit links/indexes/metadata, or maintain an Obsidian-compatible research or general knowledge vault."
 metadata:
   hermes:
-    version: 3.1.0
+    version: 3.2.0
     tags: [wiki, knowledge-base, markdown, obsidian, claude-code, research, citation-metadata]
     category: research
     related_skills:
@@ -13,10 +13,10 @@ metadata:
 # LLM Wiki
 
 Use this skill to create and operate a compounding Markdown wiki based on Andrej
-Karpathy's LLM Wiki pattern. The default runtime model is Claude Code style:
-`AGENTS.md` is the local contract, the human directs scope and review, and the
-agent maintains source summaries, wiki pages, links, indexes, logs, and lint
-reports.
+Karpathy's LLM Wiki pattern. The runtime model is agent-config-file based:
+`CLAUDE.md`, `AGENTS.md`, or another root Markdown config file is the local
+contract, the human directs scope and review, and the agent maintains source
+summaries, wiki pages, links, indexes, logs, and lint reports.
 
 This skill does not create a database, embedding index, or forced Obsidian
 dependency. Obsidian is optional; the wiki is plain files and must work on
@@ -40,6 +40,8 @@ Python standard library:
 
 ```bash
 python scripts/wiki_tools.py init <wiki-path> --domain "AI research"
+python scripts/wiki_tools.py init <wiki-path> --agent-platform claude
+python scripts/wiki_tools.py init <wiki-path> --agent-file CUSTOM_AGENT.md
 python scripts/wiki_tools.py classify <wiki-path> --move
 python scripts/wiki_tools.py hash-source <raw-source-path> --write
 python scripts/wiki_tools.py update-index <wiki-path>
@@ -53,7 +55,7 @@ python scripts/wiki_tools.py append-log <wiki-path> --action ingest --subject "n
 A wiki root contains:
 
 ```text
-AGENTS.md
+CLAUDE.md or AGENTS.md
 README.md
 index.md
 log.md
@@ -78,14 +80,16 @@ _archive/
 - `sources/` contains source summaries and citation metadata.
 - `entities/`, `concepts`, `syntheses`, `comparisons`, and `queries` contain
   agent-maintained wiki pages.
-- `AGENTS.md` is the Claude Code agent contract for the wiki.
+- `CLAUDE.md`, `AGENTS.md`, or another selected root Markdown file is the
+  agent contract for the wiki.
 - `README.md` is the human-facing guide to structure, workflow, commands,
   maintenance, and tips.
 - `index.md` is the content catalog.
 - `log.md` is append-only operational history.
 
-Initialize from `templates/AGENTS.md`, `templates/README.md`,
-`templates/index.md`, and `templates/log.md`. Use `templates/page.md`,
+Initialize the selected agent config from `templates/AGENTS.md`; initialize
+root docs from `templates/README.md`, `templates/index.md`, and
+`templates/log.md`. Use `templates/page.md`,
 `templates/source-summary.md`, `templates/lint-report.md`, and
 `templates/research-schema.md` as needed.
 
@@ -95,7 +99,8 @@ Initialize from `templates/AGENTS.md`, `templates/README.md`,
 
 Before changing an existing wiki:
 
-1. Read `AGENTS.md`.
+1. Read the configured agent file: `CLAUDE.md`, `AGENTS.md`, or the custom root
+   Markdown file chosen for the wiki.
 2. Read `README.md`.
 3. Read `index.md`.
 4. Scan the recent end of `log.md`.
@@ -111,9 +116,13 @@ When creating a wiki:
    `WIKI_PATH`; otherwise use a clearly named local folder.
 2. Ask for the domain only if it cannot be inferred from the user's request.
 3. Run `wiki_tools.py init` or create the same contract manually from templates.
-4. If the wiki is research-oriented, include `templates/research-schema.md`
-   guidance in `AGENTS.md`.
-5. Confirm the root files and raw/wiki directories exist.
+4. Let `init` choose the agent config for the current platform, or specify
+   `--agent-platform claude`, `--agent-platform codex`, or `--agent-file`.
+   If the selected config already exists, append the LLM Wiki contract instead
+   of overwriting unrelated project instructions.
+5. If the wiki is research-oriented, include `templates/research-schema.md`
+   guidance in the selected agent config.
+6. Confirm the root files and raw/wiki directories exist.
 
 ### Ingest
 

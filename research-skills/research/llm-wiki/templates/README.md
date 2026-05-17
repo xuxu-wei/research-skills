@@ -7,7 +7,7 @@ compound across sessions instead of being rediscovered from scratch.
 ## Directory Structure
 
 ```text
-AGENTS.md          Agent collaboration contract and schema.
+CLAUDE.md/AGENTS.md Agent collaboration contract and schema.
 README.md          Human-facing guide to workflow and maintenance.
 index.md           Catalog of wiki pages.
 log.md             Append-only timeline of actions.
@@ -30,8 +30,9 @@ _archive/          Superseded or out-of-scope pages.
 ## Standard User-Agent-Wiki Workflow
 
 1. User provides a goal, question, or source.
-2. Agent orients by reading `AGENTS.md`, this README, `index.md`, and recent
-   `log.md`.
+2. Agent orients by reading the configured agent file (`CLAUDE.md`,
+   `AGENTS.md`, or another root Markdown config), this README, `index.md`, and
+   recent `log.md`.
 3. New material goes into `raw/inbox/`.
 4. Agent classifies raw material into `raw/articles/`, `raw/papers/`,
    `raw/transcripts/`, `raw/data/`, or `raw/media/`.
@@ -48,6 +49,8 @@ Run these from the skill directory or adjust the path to `wiki_tools.py`.
 
 ```bash
 python scripts/wiki_tools.py init <wiki-path> --domain "domain"
+python scripts/wiki_tools.py init <wiki-path> --agent-platform claude
+python scripts/wiki_tools.py init <wiki-path> --agent-file CUSTOM_AGENT.md
 python scripts/wiki_tools.py classify <wiki-path> --move
 python scripts/wiki_tools.py hash-source <raw-source-path> --write
 python scripts/wiki_tools.py update-index <wiki-path>

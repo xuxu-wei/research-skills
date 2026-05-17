@@ -1,4 +1,4 @@
-# AGENTS.md
+# LLM Wiki Agent Contract
 
 This directory is an LLM Wiki. It is designed for Claude Code style agent
 collaboration over plain Markdown files.
@@ -9,8 +9,8 @@ Describe the domain here.
 
 ## Agent Contract
 
-- Orient before changing the wiki: read `AGENTS.md`, `README.md`, `index.md`,
-  and recent `log.md`.
+- Orient before changing the wiki: read this agent config file, `README.md`,
+  `index.md`, and recent `log.md`.
 - Preserve raw sources under `raw/`; do not rewrite them as interpretation
   changes.
 - Prefer updating existing durable pages over creating duplicates.

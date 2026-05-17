@@ -23,8 +23,11 @@ from typing import Iterable
 CORE_PACKAGES = [
     "research-idea",
     "research-proposal",
+    "research-article",
     "research-perspective",
 ]
+
+SKILLS_DIR_NAME = "research-skills"
 
 RESEARCH_DEPENDENCIES = [
     "methodology-statistics-preflight",
@@ -32,9 +35,18 @@ RESEARCH_DEPENDENCIES = [
     "pubmed",
     "arxiv",
     "academic-deep-search",
+    "academic-language-assessor",
     "medical-journal-review",
-    "ai-research-paper-writing",
     "llm-wiki",
+]
+
+OBSIDIAN_DEPENDENCIES = [
+    "obsidian-markdown",
+]
+
+PRODUCTIVITY_DEPENDENCIES = [
+    "ocr-and-documents",
+    "powerpoint",
 ]
 
 PLUGIN_VARIANTS = {
@@ -58,6 +70,10 @@ def repo_root() -> Path:
     return Path(__file__).resolve().parents[1]
 
 
+def skills_root(root: Path) -> Path:
+    return root / SKILLS_DIR_NAME
+
+
 def read_text(path: Path) -> str:
     return path.read_text(encoding="utf-8")
 
@@ -65,6 +81,14 @@ def read_text(path: Path) -> str:
 def write_text(path: Path, content: str) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(content, encoding="utf-8", newline="\n")
+
+
+def try_write_text(path: Path, content: str) -> str | None:
+    try:
+        write_text(path, content)
+    except PermissionError as exc:
+        return f"Could not write {path}: {exc}"
+    return None
 
 
 def parse_frontmatter(text: str) -> dict[str, object]:
@@ -172,14 +196,23 @@ def copy_dir(src: Path, dst: Path) -> None:
     shutil.copytree(src, dst, dirs_exist_ok=True)
 
 
+def copy_file(src: Path, dst: Path) -> None:
+    if not src.exists():
+        raise FileNotFoundError(src)
+    dst.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(src, dst)
+
+
 def discover_leaf_skills(root: Path) -> list[Path]:
     return sorted(path.parent for path in root.rglob("SKILL.md"))
 
 
 def source_packages(root: Path) -> list[Path]:
-    skills_root = root / "skills"
-    paths = [skills_root / package for package in CORE_PACKAGES]
-    paths.extend(skills_root / "research" / name for name in RESEARCH_DEPENDENCIES)
+    root_skills = skills_root(root)
+    paths = [root_skills / package for package in CORE_PACKAGES]
+    paths.extend(root_skills / "research" / name for name in RESEARCH_DEPENDENCIES)
+    paths.extend(root_skills / "obsidian-skills" / name for name in OBSIDIAN_DEPENDENCIES)
+    paths.extend(root_skills / "productivity" / name for name in PRODUCTIVITY_DEPENDENCIES)
     return paths
 
 
@@ -195,7 +228,7 @@ def discover_sources(root: Path) -> list[SkillSource]:
                     name=name,
                     source_dir=skill_dir,
                     package=package_path.name,
-                    relative_source=skill_dir.relative_to(root / "skills").as_posix(),
+                    relative_source=skill_dir.relative_to(skills_root(root)).as_posix(),
                 )
             )
     names = [source.name for source in sources]
@@ -208,7 +241,7 @@ def discover_sources(root: Path) -> list[SkillSource]:
 def plugin_manifest(plugin_name: str) -> dict[str, object]:
     display_name = "Hermes Research Skills" if plugin_name == "skills-openai-plugin" else "Hermes Research Skills Flat"
     description = (
-        "Research idea, proposal, perspective, evidence mapping, and methodology skills converted "
+        "Research idea, proposal, article, perspective, evidence mapping, and methodology skills converted "
         "from my-hermes-skills."
     )
     return {
@@ -230,8 +263,8 @@ def plugin_manifest(plugin_name: str) -> dict[str, object]:
             "displayName": display_name,
             "shortDescription": "Research workflow skills converted from my-hermes-skills",
             "longDescription": (
-                "A local Codex plugin containing the research-idea, research-proposal, and "
-                "research-perspective workflows plus the research support skills they reference "
+                "A local Codex plugin containing the research-idea, research-proposal, "
+                "research-article, and research-perspective workflows plus the research support skills they reference "
                 "for evidence mapping, literature lookup, and methodology/statistics preflight."
             ),
             "developerName": "Xuxu Wei",
@@ -249,7 +282,10 @@ def plugin_manifest(plugin_name: str) -> dict[str, object]:
 
 
 def dependency_package_list() -> str:
-    return "\n".join(f"- `research/{name}`" for name in RESEARCH_DEPENDENCIES)
+    lines = [f"- `research/{name}`" for name in RESEARCH_DEPENDENCIES]
+    lines.extend(f"- `obsidian-skills/{name}`" for name in OBSIDIAN_DEPENDENCIES)
+    lines.extend(f"- `productivity/{name}`" for name in PRODUCTIVITY_DEPENDENCIES)
+    return "\n".join(lines)
 
 
 def plugin_readme(plugin_name: str, sources: list[SkillSource]) -> str:
@@ -268,16 +304,23 @@ This plugin is generated from `my-hermes-skills`.
 
 This is the Codex plugin variant. It preserves the original recursive package layout under `skills/`.
 
-The generated plugin includes the three requested workflow packages plus external research skills that those workflows reference:
+The generated plugin includes the core workflow packages plus external research skills that those workflows reference:
 
 - `research-idea`
 - `research-proposal`
+- `research-article`
 - `research-perspective`
 {dependency_package_list()}
 
 ## Included Skills
 
 {skill_list}
+
+## Third-party Notices
+
+The generated plugin includes `obsidian-markdown` derived from
+`kepano/obsidian-skills` by Steph Ango (@kepano), MIT License. The notice is
+copied to `skills/obsidian-skills/NOTICE.md`.
 
 ## Regenerate And Install
 
@@ -341,12 +384,18 @@ Copy the contents of this directory into the target agent's skills folder, or po
 
 - `research-idea`
 - `research-proposal`
+- `research-article`
 - `research-perspective`
 {dependency_package_list()}
 
 ## Included Skills
 
 {skill_list}
+
+## Third-party Notices
+
+`obsidian-markdown` is derived from `kepano/obsidian-skills` by Steph Ango
+(@kepano), MIT License. The notice is copied to `_notices/`.
 
 ## Regenerate
 
@@ -419,10 +468,18 @@ def build_codex_plugin(root: Path, sources: list[SkillSource]) -> Path:
     target = root / plugin_name
     safe_replace_dir(target, root, [plugin_name])
 
+    root_skills = skills_root(root)
     for package in CORE_PACKAGES:
-        copy_dir(root / "skills" / package, target / "skills" / package)
+        copy_dir(root_skills / package, target / "skills" / package)
     for dependency in RESEARCH_DEPENDENCIES:
-        copy_dir(root / "skills" / "research" / dependency, target / "skills" / "research" / dependency)
+        copy_dir(root_skills / "research" / dependency, target / "skills" / "research" / dependency)
+    for dependency in OBSIDIAN_DEPENDENCIES:
+        copy_dir(root_skills / "obsidian-skills" / dependency, target / "skills" / "obsidian-skills" / dependency)
+    for dependency in PRODUCTIVITY_DEPENDENCIES:
+        copy_dir(root_skills / "productivity" / dependency, target / "skills" / "productivity" / dependency)
+    obsidian_notice = root_skills / "obsidian-skills" / "NOTICE.md"
+    if obsidian_notice.exists():
+        copy_file(obsidian_notice, target / "skills" / "obsidian-skills" / "NOTICE.md")
 
     write_text(target / ".codex-plugin" / "plugin.json", json.dumps(plugin_manifest(plugin_name), indent=2, ensure_ascii=False))
     write_text(target / "README.md", plugin_readme(plugin_name, sources))
@@ -436,11 +493,14 @@ def build_flatten_skills(root: Path, sources: list[SkillSource]) -> Path:
 
     for source in sources:
         copy_dir(source.source_dir, target / source.name)
+    obsidian_notice = skills_root(root) / "obsidian-skills" / "NOTICE.md"
+    if obsidian_notice.exists():
+        copy_file(obsidian_notice, target / "_notices" / "obsidian-skills-NOTICE.md")
 
     # Preserve package-level helper scripts that are not inside leaf skill dirs.
     support_root = target / "_support" / "package-scripts"
     for package in ["research-proposal", "research-perspective"]:
-        scripts_dir = root / "skills" / package / "scripts"
+        scripts_dir = skills_root(root) / package / "scripts"
         if scripts_dir.exists():
             copy_dir(scripts_dir, support_root / package / "scripts")
 
@@ -526,7 +586,9 @@ def validate_variants(root: Path, plugin_dirs: list[Path], sources: list[SkillSo
     }
     for plugin_dir in plugin_dirs:
         write_text(plugin_dir / "reports" / "validation.json", json.dumps(report, indent=2, ensure_ascii=False))
-    write_text(root / "plugin-validation.json", json.dumps(report, indent=2, ensure_ascii=False))
+    warning = try_write_text(root / "plugin-validation.json", json.dumps(report, indent=2, ensure_ascii=False))
+    if warning:
+        report.setdefault("warnings", []).append(warning)  # type: ignore[union-attr]
     return report
 
 
@@ -535,7 +597,9 @@ def validate_codex_plugin(root: Path, plugin_dir: Path, sources: list[SkillSourc
     result = validate_plugin(plugin_dir, expected_names)
     report = {"ok": bool(result["ok"]), "expected_skill_count": len(expected_names), "plugin": result}
     write_text(plugin_dir / "reports" / "validation.json", json.dumps(report, indent=2, ensure_ascii=False))
-    write_text(root / "codex-plugin-validation.json", json.dumps(report, indent=2, ensure_ascii=False))
+    warning = try_write_text(root / "codex-plugin-validation.json", json.dumps(report, indent=2, ensure_ascii=False))
+    if warning:
+        report.setdefault("warnings", []).append(warning)  # type: ignore[union-attr]
     return report
 
 
@@ -544,7 +608,9 @@ def validate_flatten_output(root: Path, flatten_dir: Path, sources: list[SkillSo
     result = validate_flatten(flatten_dir, expected_names)
     report = {"ok": bool(result["ok"]), "expected_skill_count": len(expected_names), "flatten": result}
     write_text(flatten_dir / "_reports" / "validation.json", json.dumps(report, indent=2, ensure_ascii=False))
-    write_text(root / "flatten-validation.json", json.dumps(report, indent=2, ensure_ascii=False))
+    warning = try_write_text(root / "flatten-validation.json", json.dumps(report, indent=2, ensure_ascii=False))
+    if warning:
+        report.setdefault("warnings", []).append(warning)  # type: ignore[union-attr]
     return report
 
 

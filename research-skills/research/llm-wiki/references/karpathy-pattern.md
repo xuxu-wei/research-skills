@@ -28,7 +28,8 @@ contradictions, and no source material rewritten as interpretation changes.
 1. Raw sources: immutable files under `raw/`.
 2. Wiki pages: source summaries, entities, concepts, syntheses, comparisons,
    and filed queries.
-3. Contract: `AGENTS.md`, `README.md`, `index.md`, `log.md`, and `_meta/`
+3. Contract: the selected root agent config (`CLAUDE.md`, `AGENTS.md`, or
+   another Markdown file), `README.md`, `index.md`, `log.md`, and `_meta/`
    files that keep the system navigable.
 
 ## Three Operations
