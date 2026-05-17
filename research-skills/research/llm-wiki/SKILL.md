@@ -3,7 +3,7 @@ name: llm-wiki
 description: "Build, query, and maintain a Karpathy-style LLM Wiki: an interlinked Markdown knowledge base where raw sources are immutable, agents maintain wiki pages, and AGENTS.md defines the Claude Code collaboration contract. Use when the user asks to create a wiki, ingest sources, query or synthesize wiki knowledge, classify materials, audit links/indexes/metadata, or maintain an Obsidian-compatible research or general knowledge vault."
 metadata:
   hermes:
-    version: 3.3.0
+    version: 3.4.0
     tags: [wiki, knowledge-base, markdown, obsidian, claude-code, research, citation-metadata]
     category: research
     related_skills:
@@ -174,8 +174,11 @@ When auditing or maintaining:
    `health` reports `update_required`, `drifted_sources`, and affected source
    and dependent pages; it does not rewrite wiki knowledge.
 3. Fix broken wikilinks, missing index entries, missing frontmatter,
-   unclassified inbox items, citation metadata gaps, source hash drift, orphan
-   pages, and pages over the size threshold.
+   malformed frontmatter, unclassified inbox items, citation metadata gaps,
+   source hash drift, orphan pages, and pages over the size threshold.
+   Frontmatter list fields must use inline bracket syntax such as
+   `tags: [ai-ml, methodology]`, `sources: [sources/paper.md]`, and
+   `authors: ["Smith, John", "Doe, Jane"]`.
 4. When drift occurs, review the affected `sources/` page first, then update
    related wiki pages, links, properties, tags, `index.md`, and `log.md`.
 5. Use `templates/lint-report.md` when the report needs to be filed.

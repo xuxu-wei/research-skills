@@ -99,6 +99,25 @@ status: active | contested | superseded | archived
 `confidence` and `status` are especially important for fast-moving topics,
 single-source claims, or unresolved contradictions.
 
+Use inline bracket syntax for every list-valued field. The helper script uses a
+minimal frontmatter parser and intentionally rejects indented YAML lists.
+
+```yaml
+# Correct
+tags: [ai-ml, methodology]
+sources: [sources/paper.md]
+authors: ["Smith, John", "Doe, Jane"]
+
+# Incorrect
+tags:
+  - ai-ml
+  - methodology
+```
+
+Quote any list item that contains a comma, especially author names in
+`Family, Given` form. `wiki_tools.py lint` and `wiki_tools.py health` report
+these problems under `frontmatter_format`.
+
 ## Scientific Source Metadata
 
 For papers, books, chapters, reports, and other scientific literature, source
@@ -106,7 +125,7 @@ summary pages should include these fields when available:
 
 ```yaml
 source_kind: paper | preprint | book | chapter | report | thesis | dataset
-authors: [Family Name, Given Name]
+authors: ["Family Name, Given Name"]
 year: 2026
 venue: Journal or conference name
 publisher: Publisher name

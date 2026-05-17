@@ -46,6 +46,9 @@ See `README.md` for the human-facing description. Required directories:
 - Use lowercase hyphenated slugs.
 - Use Obsidian-style `[[wikilinks]]` for internal links.
 - Use frontmatter on all wiki pages.
+- Write all list-valued frontmatter fields with inline brackets, for example
+  `tags: [concept]`, `sources: [sources/paper.md]`, and
+  `authors: ["Smith, John", "Doe, Jane"]`. Do not use indented YAML lists.
 - Keep source summaries separate from synthesis pages.
 - Keep original raw files; put extraction/OCR/transcription Markdown in
   `raw/derived/` with provenance metadata.

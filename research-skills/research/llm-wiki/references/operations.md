@@ -83,6 +83,8 @@ Address:
 - Unclassified `raw/inbox/` files.
 - Broken wikilinks.
 - Missing required frontmatter.
+- Malformed frontmatter, especially indented YAML lists instead of inline
+  bracket lists for `tags`, `sources`, `authors`, and other list fields.
 - Missing citation metadata for scientific sources.
 - Source provenance gaps such as `derived_source` without `raw_source`.
 - Derived files missing `derived_from`, `derivation_method`, or `derived_at`.

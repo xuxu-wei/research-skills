@@ -27,7 +27,8 @@ status: active
 
 ## Citation
 
-- Authors: unknown
+- Authors: unknown. In frontmatter, use inline list syntax:
+  `authors: ["Smith, John", "Doe, Jane"]`.
 - Year: unknown
 - Venue or publisher: unknown
 - DOI: unknown

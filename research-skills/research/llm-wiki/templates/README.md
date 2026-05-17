@@ -68,6 +68,8 @@ python scripts/wiki_tools.py append-log <wiki-path> --action ingest --subject "n
 
 - Run lint after bulk ingest or major cleanup.
 - Run health when source drift or update scope matters.
+- Use inline bracket syntax for frontmatter lists, such as `tags: [concept]`,
+  `sources: [sources/paper.md]`, and `authors: ["Smith, John", "Doe, Jane"]`.
 - Keep `raw/inbox/` empty unless work is intentionally pending.
 - Fix broken wikilinks before style issues.
 - Keep `index.md` current.

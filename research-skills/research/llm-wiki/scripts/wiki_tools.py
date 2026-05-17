@@ -7,8 +7,10 @@ The script intentionally uses only the Python standard library.
 from __future__ import annotations
 
 import argparse
+import csv
 import datetime as dt
 import hashlib
+import io
 import json
 import os
 import re
@@ -47,6 +49,19 @@ VALID_TYPES = {"source", "entity", "concept", "synthesis", "comparison", "query"
 SCIENTIFIC_KINDS = {"paper", "preprint", "book", "chapter", "report", "thesis", "dataset"}
 REQUIRED_PAGE_FIELDS = ["title", "created", "updated", "type", "tags", "sources", "summary"]
 REQUIRED_CITATION_FIELDS = ["authors", "year", "venue", "publisher", "doi", "isbn", "url", "source_kind"]
+INLINE_LIST_FIELDS = {
+    "aliases",
+    "authors",
+    "claims",
+    "datasets",
+    "derived_sources",
+    "evidence",
+    "keywords",
+    "related",
+    "related_pages",
+    "sources",
+    "tags",
+}
 HASH_SCHEME_TEXT = "sha256_body_v1"
 HASH_SCHEME_BYTES = "sha256_bytes_v1"
 VALID_HASH_SCHEMES = {HASH_SCHEME_TEXT, HASH_SCHEME_BYTES}
@@ -171,21 +186,16 @@ def frontmatter_block(text: str) -> tuple[dict[str, Any], str, bool]:
 
 def parse_simple_yaml(raw: str) -> dict[str, Any]:
     data: dict[str, Any] = {}
-    current_key: str | None = None
     for line in raw.splitlines():
         if not line.strip() or line.lstrip().startswith("#"):
             continue
-        if line.startswith((" ", "\t")) and current_key and line.strip().startswith("- "):
-            data.setdefault(current_key, [])
-            if isinstance(data[current_key], list):
-                data[current_key].append(clean_scalar(line.strip()[2:]))
+        if line.startswith((" ", "\t")):
             continue
         if ":" not in line:
             continue
         key, value = line.split(":", 1)
         key = key.strip()
         value = value.strip()
-        current_key = key
         data[key] = parse_value(value)
     return data
 
@@ -194,11 +204,16 @@ def parse_value(value: str) -> Any:
     if value == "":
         return ""
     if value.startswith("[") and value.endswith("]"):
-        inner = value[1:-1].strip()
-        if not inner:
-            return []
-        return [clean_scalar(part.strip()) for part in inner.split(",")]
+        return parse_inline_list(value)
     return clean_scalar(value)
+
+
+def parse_inline_list(value: str) -> list[str]:
+    inner = value[1:-1].strip()
+    if not inner:
+        return []
+    reader = csv.reader(io.StringIO(inner), skipinitialspace=True, strict=True)
+    return [clean_scalar(part.strip()) for part in next(reader)]
 
 
 def clean_scalar(value: str) -> str:
@@ -208,6 +223,53 @@ def clean_scalar(value: str) -> str:
     return value
 
 
+def frontmatter_format_issues(text: str, rel: str) -> list[str]:
+    if not text.startswith("---"):
+        return []
+    match = re.match(r"^---\s*\n(.*?)\n---\s*\n?(.*)$", text, re.S)
+    if not match:
+        return [f"{rel}: malformed frontmatter fence"]
+    raw = match.group(1)
+    issues: list[str] = []
+    seen: set[str] = set()
+    current_key: str | None = None
+    for lineno, line in enumerate(raw.splitlines(), start=2):
+        stripped = line.strip()
+        if not stripped or stripped.startswith("#"):
+            continue
+        if line.startswith((" ", "\t")):
+            if stripped.startswith("- "):
+                key = current_key or "<unknown>"
+                issues.append(f"{rel}:{lineno}: {key} uses multiline list; use inline bracket syntax")
+            else:
+                issues.append(f"{rel}:{lineno}: unsupported indented frontmatter line")
+            continue
+        if ":" not in line:
+            issues.append(f"{rel}:{lineno}: frontmatter line has no ':'")
+            current_key = None
+            continue
+        key, value = line.split(":", 1)
+        key = key.strip()
+        value = value.strip()
+        current_key = key
+        if not key:
+            issues.append(f"{rel}:{lineno}: empty frontmatter key")
+            continue
+        if key in seen:
+            issues.append(f"{rel}:{lineno}: duplicate frontmatter key: {key}")
+        seen.add(key)
+        if key in INLINE_LIST_FIELDS and not (value.startswith("[") and value.endswith("]")):
+            issues.append(f"{rel}:{lineno}: {key} must use inline bracket list syntax")
+        if (value.startswith("[") or value.endswith("]")) and not (value.startswith("[") and value.endswith("]")):
+            issues.append(f"{rel}:{lineno}: malformed inline list for {key}")
+        if value.startswith("[") and value.endswith("]"):
+            try:
+                parse_inline_list(value)
+            except csv.Error as exc:
+                issues.append(f"{rel}:{lineno}: malformed inline list for {key}: {exc}")
+    return issues
+
+
 def dump_simple_yaml(data: dict[str, Any]) -> str:
     lines: list[str] = []
     for key, value in data.items():
@@ -215,11 +277,18 @@ def dump_simple_yaml(data: dict[str, Any]) -> str:
             if not value:
                 lines.append(f"{key}: []")
             else:
-                rendered = ", ".join(str(item) for item in value)
+                rendered = ", ".join(render_inline_list_item(item) for item in value)
                 lines.append(f"{key}: [{rendered}]")
         else:
             lines.append(f"{key}: {value}")
     return "\n".join(lines) + "\n"
+
+
+def render_inline_list_item(value: Any) -> str:
+    text = str(value)
+    if not text or any(char in text for char in [",", "#", "[", "]", "{", "}", ":", '"', "'"]) or text != text.strip():
+        return json.dumps(text, ensure_ascii=False)
+    return text
 
 
 def body_hash_for_text(path: Path) -> str:
@@ -565,6 +634,7 @@ def lint_wiki(wiki: Path) -> dict[str, list[str]]:
         "missing_agent_config": [],
         "inbox_files": [],
         "missing_frontmatter": [],
+        "frontmatter_format": [],
         "missing_fields": [],
         "invalid_types": [],
         "missing_citation_metadata": [],
@@ -595,6 +665,7 @@ def lint_wiki(wiki: Path) -> dict[str, list[str]]:
     for path in page_files:
         rel = path.relative_to(wiki).as_posix()
         text = read_text(path)
+        issues["frontmatter_format"].extend(frontmatter_format_issues(text, rel))
         fm, body, has_fm = frontmatter_block(text)
         if not has_fm:
             issues["missing_frontmatter"].append(rel)
@@ -649,23 +720,30 @@ def lint_wiki(wiki: Path) -> dict[str, list[str]]:
             issues["orphan_pages"].append(key + ".md")
     raw_root = wiki / "raw"
     if raw_root.exists():
+        checked_raw_frontmatter: set[Path] = set()
         derived_root = raw_root / "derived"
         if derived_root.exists():
             for path in sorted(derived_root.rglob("*")):
                 if not path.is_file() or path.suffix.lower() not in TEXT_HASH_EXTS:
                     continue
                 rel = path.relative_to(wiki).as_posix()
-                fm, _body, has_fm = frontmatter_block(read_text(path))
+                raw_text = read_text(path)
+                checked_raw_frontmatter.add(path)
+                issues["frontmatter_format"].extend(frontmatter_format_issues(raw_text, rel))
+                fm, _body, has_fm = frontmatter_block(raw_text)
                 missing = [field for field in DERIVED_REQUIRED_FIELDS if not has_fm or fm.get(field) in ("", [], None)]
                 if missing:
                     issues["derived_metadata_gaps"].append(f"{rel}: {', '.join(missing)}")
         for path in sorted(raw_root.rglob("*")):
             if not path.is_file() or path.suffix.lower() not in TEXT_HASH_EXTS:
                 continue
-            fm, _body, has_fm = frontmatter_block(read_text(path))
+            raw_text = read_text(path)
+            rel = path.relative_to(wiki).as_posix()
+            if path not in checked_raw_frontmatter:
+                issues["frontmatter_format"].extend(frontmatter_format_issues(raw_text, rel))
+            fm, _body, has_fm = frontmatter_block(raw_text)
             expected = fm.get("sha256") if has_fm else None
             if expected:
-                rel = path.relative_to(wiki).as_posix()
                 scheme = str(fm.get("hash_scheme") or HASH_SCHEME_TEXT)
                 try:
                     actual, _used_scheme = compute_source_hash(path, scheme)
@@ -858,7 +936,7 @@ def health_report(wiki: Path) -> dict[str, Any]:
     summary_drift, source_reference_issues, source_blocking = collect_source_summary_health(wiki, records)
     drifted_sources = raw_drift + summary_drift
     blocking_issues: list[str] = []
-    for category in ["missing_root_files", "broken_links", "missing_frontmatter", "invalid_types"]:
+    for category in ["missing_root_files", "broken_links", "missing_frontmatter", "frontmatter_format", "invalid_types"]:
         for item in issues.get(category, []):
             blocking_issues.append(f"{category}: {item}")
     blocking_issues.extend(source_blocking)
