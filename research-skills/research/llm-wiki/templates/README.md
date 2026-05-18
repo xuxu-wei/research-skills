@@ -60,7 +60,8 @@ python scripts/wiki_tools.py classify <wiki-path> --unknown-policy custom --cust
 python scripts/wiki_tools.py hash-source <raw-source-path> --write
 python scripts/wiki_tools.py update-index <wiki-path>
 python scripts/wiki_tools.py lint <wiki-path>
-python scripts/wiki_tools.py health <wiki-path>
+python scripts/wiki_tools.py health <wiki-path> --inventory-limit 50
+python scripts/wiki_tools.py fix <wiki-path> --dry-run
 python scripts/wiki_tools.py append-log <wiki-path> --action ingest --subject "new source"
 ```
 
@@ -68,8 +69,12 @@ python scripts/wiki_tools.py append-log <wiki-path> --action ingest --subject "n
 
 - Run lint after bulk ingest or major cleanup.
 - Run health when source drift or update scope matters.
+- Run fix only after reviewing `--dry-run`; it normalizes frontmatter order and
+  inserts placeholders, but does not resolve semantic gaps or hash drift.
 - Use inline bracket syntax for frontmatter lists, such as `tags: [concept]`,
   `sources: [sources/paper.md]`, and `authors: ["Smith, John", "Doe, Jane"]`.
+- Keep source summaries linked to `raw_source`, optional `derived_source`, and
+  source hash fields.
 - Keep `raw/inbox/` empty unless work is intentionally pending.
 - Fix broken wikilinks before style issues.
 - Keep `index.md` current.
@@ -81,8 +86,8 @@ python scripts/wiki_tools.py append-log <wiki-path> --action ingest --subject "n
 ## Scientific Literature Tips
 
 For papers and books, preserve citation metadata in the matching `sources/`
-page: authors, title, year, journal or publisher, DOI, ISBN, URL, and source
-kind. Mark missing fields as `unknown`.
+page: authors, title, year, venue, publisher, DOI, ISBN, URL, and source kind.
+Use `venue` instead of `journal`. Mark missing fields as `unknown`.
 
 ## Extra Tips
 

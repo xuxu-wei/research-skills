@@ -3,6 +3,11 @@ title: Source Title
 created: YYYY-MM-DD
 updated: YYYY-MM-DD
 type: source
+tags: [source]
+sources: []
+summary: One-line source summary for index.md
+confidence: medium
+status: active
 source_kind: article
 authors: []
 year: unknown
@@ -16,11 +21,6 @@ derived_source: unknown
 raw_hash_scheme: unknown
 raw_sha256: unknown
 raw_hashed_at: unknown
-tags: [source]
-sources: []
-summary: One-line source summary for index.md
-confidence: medium
-status: active
 ---
 
 # Source Title
@@ -30,7 +30,8 @@ status: active
 - Authors: unknown. In frontmatter, use inline list syntax:
   `authors: ["Smith, John", "Doe, Jane"]`.
 - Year: unknown
-- Venue or publisher: unknown
+- Venue: unknown
+- Publisher: unknown
 - DOI: unknown
 - ISBN: unknown
 - URL: unknown

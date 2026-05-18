@@ -76,6 +76,9 @@ Confirm first if the batch will touch more than 10 wiki pages.
 
 Run `wiki_tools.py lint <wiki-path>` to locate structural problems and
 `wiki_tools.py health <wiki-path>` when source drift or update scope matters.
+Use `wiki_tools.py fix <wiki-path> --dry-run` to preview automatic frontmatter
+normalization, then run `wiki_tools.py fix <wiki-path>` only when the changes
+are acceptable.
 
 Address:
 
@@ -87,7 +90,13 @@ Address:
   bracket lists for `tags`, `sources`, `authors`, and other list fields.
 - Missing citation metadata for scientific sources.
 - Source provenance gaps such as `derived_source` without `raw_source`.
+- Broken relationships among raw originals, `raw/derived/` files, source
+  summaries, and page `sources` fields.
+- Missing or `unknown` `raw_sha256`, `raw_hash_scheme`, or `raw_hashed_at` on
+  source summaries.
 - Derived files missing `derived_from`, `derivation_method`, or `derived_at`.
+- Frontmatter fields that are present but not in canonical order.
+- Noncanonical metadata names such as `journal` instead of `venue`.
 - Pages absent from `index.md`.
 - Orphan pages.
 - Raw source hash drift.
@@ -98,6 +107,10 @@ When `health` reports `update_required: true`, review the affected `sources/`
 page first, then update dependent wiki pages, links, properties, tags,
 `index.md`, and `log.md`. Hash drift means the source version changed; it does
 not automatically decide the correct interpretation.
+
+Use the `metadata_inventory` section from `health --json` before bulk cleanup or
+ingest. It gives the agent a capped list of existing field names and values so
+new metadata does not introduce avoidable synonyms.
 
 ## Archive
 

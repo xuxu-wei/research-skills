@@ -46,9 +46,55 @@ AGENT_CONFIG_FILES = {
 AGENT_CONFIG_MARKER = "<!-- llm-wiki-agent-contract -->"
 ROOT_FILES = ["README.md", "index.md", "log.md"]
 VALID_TYPES = {"source", "entity", "concept", "synthesis", "comparison", "query"}
+VALID_CONFIDENCE = {"high", "medium", "low", "unknown"}
+VALID_STATUS = {"active", "contested", "superseded", "archived", "unknown"}
 SCIENTIFIC_KINDS = {"paper", "preprint", "book", "chapter", "report", "thesis", "dataset"}
-REQUIRED_PAGE_FIELDS = ["title", "created", "updated", "type", "tags", "sources", "summary"]
+PAPER_KINDS = {"paper", "preprint"}
+COMMON_PAGE_FIELD_ORDER = ["title", "created", "updated", "type", "tags", "sources", "summary", "confidence", "status"]
+SOURCE_EXTRA_FIELD_ORDER = [
+    "source_kind",
+    "authors",
+    "year",
+    "venue",
+    "publisher",
+    "doi",
+    "isbn",
+    "url",
+    "raw_source",
+    "derived_source",
+    "raw_hash_scheme",
+    "raw_sha256",
+    "raw_hashed_at",
+]
+SOURCE_FIELD_ORDER = COMMON_PAGE_FIELD_ORDER + SOURCE_EXTRA_FIELD_ORDER
+RAW_DERIVED_FIELD_ORDER = [
+    "derived_from",
+    "derivation_method",
+    "derived_at",
+    "source_hash_at_derivation",
+    "source_hash_scheme_at_derivation",
+]
+RAW_TEXT_FIELD_ORDER = ["source_url", "ingested", "source_kind", "sha256", "hash_scheme", "hashed_at"]
+REQUIRED_PAGE_FIELDS = COMMON_PAGE_FIELD_ORDER
+REQUIRED_SOURCE_BASE_FIELDS = COMMON_PAGE_FIELD_ORDER + [
+    "source_kind",
+    "raw_source",
+    "raw_hash_scheme",
+    "raw_sha256",
+    "raw_hashed_at",
+]
 REQUIRED_CITATION_FIELDS = ["authors", "year", "venue", "publisher", "doi", "isbn", "url", "source_kind"]
+REQUIRED_SOURCE_HASH_FIELDS = ["raw_source", "raw_hash_scheme", "raw_sha256", "raw_hashed_at"]
+NONCANONICAL_FIELD_ALIASES = {
+    "author": "authors",
+    "journal": "venue",
+    "journal_name": "venue",
+    "publication": "venue",
+    "publication_year": "year",
+    "raw_file": "raw_source",
+    "original_source": "raw_source",
+    "source_file": "raw_source",
+}
 INLINE_LIST_FIELDS = {
     "aliases",
     "authors",
@@ -284,11 +330,115 @@ def dump_simple_yaml(data: dict[str, Any]) -> str:
     return "\n".join(lines) + "\n"
 
 
+def render_markdown_with_frontmatter(fm: dict[str, Any], body: str) -> str:
+    return "---\n" + dump_simple_yaml(fm) + "---\n" + body.lstrip("\n")
+
+
 def render_inline_list_item(value: Any) -> str:
     text = str(value)
     if not text or any(char in text for char in [",", "#", "[", "]", "{", "}", ":", '"', "'"]) or text != text.strip():
         return json.dumps(text, ensure_ascii=False)
     return text
+
+
+def page_type_for_path(path: Path, wiki: Path, fm: dict[str, Any]) -> str:
+    page_type = str(fm.get("type") or "").strip()
+    if page_type:
+        return page_type
+    try:
+        parent = path.relative_to(wiki).parts[0]
+    except ValueError:
+        parent = path.parent.name
+    return PAGE_TYPE_BY_DIR.get(parent, "")
+
+
+def canonical_field_order(path: Path, wiki: Path, fm: dict[str, Any]) -> list[str]:
+    rel = path.relative_to(wiki).as_posix()
+    if rel.startswith("raw/derived/"):
+        return RAW_DERIVED_FIELD_ORDER
+    if rel.startswith("raw/"):
+        return RAW_TEXT_FIELD_ORDER
+    if page_type_for_path(path, wiki, fm) == "source" or path.parent.name == "sources":
+        return SOURCE_FIELD_ORDER
+    return COMMON_PAGE_FIELD_ORDER
+
+
+def required_fields_for_path(path: Path, wiki: Path, fm: dict[str, Any]) -> list[str]:
+    rel = path.relative_to(wiki).as_posix()
+    if rel.startswith("raw/derived/"):
+        return DERIVED_REQUIRED_FIELDS
+    if rel.startswith("raw/"):
+        return []
+    if page_type_for_path(path, wiki, fm) == "source" or path.parent.name == "sources":
+        required = list(REQUIRED_SOURCE_BASE_FIELDS)
+        if str(fm.get("source_kind") or "").strip().lower() in PAPER_KINDS:
+            required.extend(field for field in REQUIRED_CITATION_FIELDS if field not in required)
+        return required
+    return REQUIRED_PAGE_FIELDS
+
+
+def infer_placeholder(field: str, path: Path, wiki: Path, fm: dict[str, Any]) -> Any:
+    page_type = page_type_for_path(path, wiki, fm)
+    if field == "title":
+        return path.stem.replace("-", " ").title()
+    if field in {"created", "updated"}:
+        return today()
+    if field == "type":
+        return page_type or "concept"
+    if field == "tags":
+        inferred = page_type or PAGE_TYPE_BY_DIR.get(path.parent.name, "")
+        return [inferred] if inferred else []
+    if field in {"sources", "authors"}:
+        return []
+    if field == "summary":
+        return "unknown"
+    if field == "confidence":
+        return "medium"
+    if field == "status":
+        return "active"
+    return "unknown"
+
+
+def reorder_frontmatter(fm: dict[str, Any], order: list[str]) -> dict[str, Any]:
+    reordered: dict[str, Any] = {}
+    for key in order:
+        if key in fm:
+            reordered[key] = fm[key]
+    for key, value in fm.items():
+        if key not in reordered:
+            reordered[key] = value
+    return reordered
+
+
+def expected_frontmatter_order(fm: dict[str, Any], order: list[str]) -> list[str]:
+    present_ordered = [key for key in order if key in fm]
+    custom = [key for key in fm if key not in order]
+    return present_ordered + custom
+
+
+def missing_required_fields(path: Path, wiki: Path, fm: dict[str, Any]) -> list[str]:
+    missing: list[str] = []
+    for field in required_fields_for_path(path, wiki, fm):
+        value = fm.get(field)
+        if field not in fm or value == "" or value is None or (field in INLINE_LIST_FIELDS and value == []):
+            missing.append(field)
+    return missing
+
+
+def placeholder_fields(path: Path, wiki: Path, fm: dict[str, Any]) -> list[str]:
+    placeholders: list[str] = []
+    source_kind = str(fm.get("source_kind") or "").strip().lower()
+    for field in required_fields_for_path(path, wiki, fm):
+        value = fm.get(field)
+        if field in REQUIRED_CITATION_FIELDS and source_kind not in SCIENTIFIC_KINDS:
+            continue
+        if field == "sources":
+            continue
+        if isinstance(value, str) and value.strip().lower() == "unknown":
+            placeholders.append(field)
+        if field in INLINE_LIST_FIELDS and value == [] and field not in {"sources"}:
+            placeholders.append(field)
+    return placeholders
 
 
 def body_hash_for_text(path: Path) -> str:
@@ -421,6 +571,17 @@ def iter_page_files(wiki: Path) -> list[Path]:
         if root.exists():
             files.extend(sorted(path for path in root.rglob("*.md") if path.is_file()))
     return sorted(files)
+
+
+def iter_raw_text_files(wiki: Path) -> list[Path]:
+    raw_root = wiki / "raw"
+    if not raw_root.exists():
+        return []
+    return sorted(path for path in raw_root.rglob("*") if path.is_file() and path.suffix.lower() in TEXT_HASH_EXTS)
+
+
+def iter_metadata_files(wiki: Path) -> list[Path]:
+    return sorted({*iter_page_files(wiki), *iter_raw_text_files(wiki)})
 
 
 def wiki_link_target(link: str) -> str:
@@ -671,11 +832,7 @@ def lint_wiki(wiki: Path) -> dict[str, list[str]]:
             issues["missing_frontmatter"].append(rel)
             fm = {}
             body = text
-        missing: list[str] = []
-        for field in REQUIRED_PAGE_FIELDS:
-            value = fm.get(field)
-            if field not in fm or value == "" or (field == "tags" and value == []):
-                missing.append(field)
+        missing = missing_required_fields(path, wiki, fm)
         if missing:
             issues["missing_fields"].append(f"{rel}: {', '.join(missing)}")
         page_type = str(fm.get("type", ""))
@@ -787,6 +944,18 @@ def source_page_records(wiki: Path) -> list[dict[str, Any]]:
     return records
 
 
+def source_page_ref_map(wiki: Path, records: list[dict[str, Any]]) -> dict[str, str]:
+    mapping: dict[str, str] = {}
+    for record in records:
+        path = record["path"]
+        rel = record["rel"]
+        key = page_key(path, wiki)
+        mapping[key] = rel
+        mapping[rel] = rel
+        mapping[path.stem] = rel
+    return mapping
+
+
 def normalized_page_ref(value: Any) -> str:
     rel = normalize_wiki_rel(value)
     return rel[:-3] if rel.endswith(".md") else rel
@@ -815,6 +984,220 @@ def affected_pages_for_source(wiki: Path, source_path: Path) -> list[str]:
         if aliases & source_refs or aliases & wikilinks:
             affected.append(path.relative_to(wiki).as_posix())
     return sorted(affected)
+
+
+def collect_relationship_issues(wiki: Path, records: list[dict[str, Any]]) -> list[str]:
+    issues: list[str] = []
+    source_refs = source_page_ref_map(wiki, records)
+    raw_refs = {normalize_wiki_rel(record["fm"].get("raw_source")) for record in records}
+    raw_refs.discard("")
+    derived_refs = {normalize_wiki_rel(record["fm"].get("derived_source")) for record in records}
+    derived_refs.discard("")
+    for record in records:
+        fm = record["fm"]
+        source_rel = record["rel"]
+        raw_rel = normalize_wiki_rel(fm.get("raw_source"))
+        derived_rel = normalize_wiki_rel(fm.get("derived_source"))
+        if not raw_rel:
+            issues.append(f"{source_rel}: missing raw_source")
+        elif not (wiki / raw_rel).is_file():
+            issues.append(f"{source_rel}: raw_source not found: {raw_rel}")
+        if derived_rel:
+            derived_path = wiki / derived_rel
+            if not derived_rel.startswith("raw/derived/"):
+                issues.append(f"{source_rel}: derived_source must be under raw/derived/: {derived_rel}")
+            if not derived_path.is_file():
+                issues.append(f"{source_rel}: derived_source not found: {derived_rel}")
+            elif derived_path.suffix.lower() in TEXT_HASH_EXTS:
+                derived_fm, _body, has_fm = frontmatter_block(read_text(derived_path))
+                derived_from = normalize_wiki_rel(derived_fm.get("derived_from")) if has_fm else ""
+                if not derived_from:
+                    issues.append(f"{source_rel}: derived_source missing derived_from: {derived_rel}")
+                elif raw_rel and derived_from != raw_rel:
+                    issues.append(f"{source_rel}: derived_source derived_from mismatch: {derived_rel} -> {derived_from}, expected {raw_rel}")
+    for path in iter_page_files(wiki):
+        fm, _body, has_fm = frontmatter_block(read_text(path))
+        page_type = page_type_for_path(path, wiki, fm)
+        if page_type == "source" or path.parent.name == "sources":
+            continue
+        rel = path.relative_to(wiki).as_posix()
+        for ref in list_value(fm.get("sources") if has_fm else []):
+            normalized = normalized_page_ref(ref)
+            if normalized and normalized not in source_refs:
+                issues.append(f"{rel}: source reference not found: {ref}")
+    raw_root = wiki / "raw"
+    if raw_root.exists():
+        for path in sorted(raw_root.rglob("*")):
+            if not path.is_file():
+                continue
+            rel = path.relative_to(wiki).as_posix()
+            if rel.startswith("raw/inbox/"):
+                continue
+            if rel.startswith("raw/derived/"):
+                if path.suffix.lower() in TEXT_HASH_EXTS:
+                    fm, _body, has_fm = frontmatter_block(read_text(path))
+                    derived_from = normalize_wiki_rel(fm.get("derived_from")) if has_fm else ""
+                    if not derived_from:
+                        issues.append(f"{rel}: missing derived_from")
+                    elif not (wiki / derived_from).is_file():
+                        issues.append(f"{rel}: derived_from not found: {derived_from}")
+                    if rel not in derived_refs:
+                        issues.append(f"{rel}: unlinked_derived_source")
+                continue
+            if rel not in raw_refs:
+                issues.append(f"{rel}: unlinked_raw_source")
+    return issues
+
+
+def collect_source_hash_health(wiki: Path, records: list[dict[str, Any]]) -> tuple[list[dict[str, Any]], list[str], list[str]]:
+    drifted: list[dict[str, Any]] = []
+    issues: list[str] = []
+    blocking: list[str] = []
+    for record in records:
+        fm = record["fm"]
+        source_rel = record["rel"]
+        raw_rel = normalize_wiki_rel(fm.get("raw_source"))
+        if not raw_rel or not (wiki / raw_rel).is_file():
+            continue
+        for field in REQUIRED_SOURCE_HASH_FIELDS:
+            value = str(fm.get(field) or "").strip()
+            if not value or value.lower() == "unknown":
+                message = f"{source_rel}: missing {field}"
+                issues.append(message)
+                blocking.append(message)
+        expected = str(fm.get("raw_sha256") or "").strip()
+        scheme = str(fm.get("raw_hash_scheme") or "").strip()
+        if not expected or expected.lower() == "unknown" or not scheme or scheme.lower() == "unknown":
+            continue
+        if scheme not in VALID_HASH_SCHEMES:
+            message = f"{source_rel}: unsupported raw_hash_scheme {scheme!r}"
+            issues.append(message)
+            blocking.append(message)
+            continue
+        raw_path = wiki / raw_rel
+        default_scheme = default_hash_scheme(raw_path)
+        if scheme != default_scheme:
+            issues.append(f"{source_rel}: raw_hash_scheme {scheme} differs from default {default_scheme}")
+        try:
+            actual, used_scheme = compute_source_hash(raw_path, scheme)
+        except (OSError, ValueError) as exc:
+            message = f"{source_rel}: {exc}"
+            issues.append(message)
+            blocking.append(message)
+            continue
+        if expected != actual:
+            message = f"{source_rel}: source_summary_raw_hash_drift"
+            issues.append(message)
+            drifted.append(
+                {
+                    "raw_source": raw_rel,
+                    "source_page": source_rel,
+                    "hash_scheme": used_scheme,
+                    "expected_sha256": expected,
+                    "actual_sha256": actual,
+                    "reason": "source_summary_raw_hash_drift",
+                }
+            )
+    return drifted, issues, blocking
+
+
+def collect_metadata_schema_issues(wiki: Path) -> list[str]:
+    issues: list[str] = []
+    for path in iter_metadata_files(wiki):
+        rel = path.relative_to(wiki).as_posix()
+        text = read_text(path)
+        fm, _body, has_fm = frontmatter_block(text)
+        if not has_fm:
+            if not rel.startswith("raw/") or rel.startswith("raw/derived/"):
+                issues.append(f"{rel}: missing frontmatter")
+            continue
+        missing = missing_required_fields(path, wiki, fm)
+        if missing:
+            issues.append(f"{rel}: missing required fields: {', '.join(missing)}")
+        placeholders = placeholder_fields(path, wiki, fm)
+        if placeholders:
+            issues.append(f"{rel}: placeholder fields need review: {', '.join(placeholders)}")
+        page_type = page_type_for_path(path, wiki, fm)
+        if page_type and not rel.startswith("raw/") and page_type not in VALID_TYPES:
+            issues.append(f"{rel}: invalid type: {page_type}")
+        confidence = str(fm.get("confidence") or "").strip().lower()
+        if confidence and confidence not in VALID_CONFIDENCE:
+            issues.append(f"{rel}: invalid confidence: {confidence}")
+        status = str(fm.get("status") or "").strip().lower()
+        if status and status not in VALID_STATUS:
+            issues.append(f"{rel}: invalid status: {status}")
+        source_kind = str(fm.get("source_kind") or "").strip().lower()
+        if source_kind and source_kind != "unknown" and source_kind not in SCIENTIFIC_KINDS | {"article", "transcript", "media"}:
+            issues.append(f"{rel}: invalid source_kind: {source_kind}")
+        if source_kind in PAPER_KINDS:
+            citation_missing = [
+                field
+                for field in REQUIRED_CITATION_FIELDS
+                if fm.get(field) in ("", [], None) or str(fm.get(field)).strip().lower() == "unknown"
+            ]
+            if citation_missing:
+                issues.append(f"{rel}: paper citation fields need review: {', '.join(citation_missing)}")
+    return issues
+
+
+def collect_field_order_issues(wiki: Path) -> list[str]:
+    issues: list[str] = []
+    for path in iter_metadata_files(wiki):
+        rel = path.relative_to(wiki).as_posix()
+        text = read_text(path)
+        fm, _body, has_fm = frontmatter_block(text)
+        if not has_fm:
+            continue
+        order = canonical_field_order(path, wiki, fm)
+        if not order:
+            continue
+        expected = expected_frontmatter_order(fm, order)
+        actual = list(fm.keys())
+        if actual != expected:
+            issues.append(f"{rel}: expected order {', '.join(expected)}")
+    return issues
+
+
+def collect_noncanonical_fields(wiki: Path) -> list[str]:
+    issues: list[str] = []
+    for path in iter_metadata_files(wiki):
+        text = read_text(path)
+        fm, _body, has_fm = frontmatter_block(text)
+        if not has_fm:
+            continue
+        rel = path.relative_to(wiki).as_posix()
+        for key in fm:
+            canonical = NONCANONICAL_FIELD_ALIASES.get(key)
+            if canonical:
+                issues.append(f"{rel}: {key} -> {canonical}")
+    return issues
+
+
+def collect_metadata_inventory(wiki: Path, limit: int) -> dict[str, dict[str, Any]]:
+    values: dict[str, set[str]] = {}
+    for path in iter_metadata_files(wiki):
+        text = read_text(path)
+        fm, _body, has_fm = frontmatter_block(text)
+        if not has_fm:
+            continue
+        for key, value in fm.items():
+            bucket = values.setdefault(key, set())
+            if isinstance(value, list):
+                if not value:
+                    bucket.add("[]")
+                else:
+                    bucket.update(str(item) for item in value)
+            else:
+                bucket.add(str(value))
+    inventory: dict[str, dict[str, Any]] = {}
+    for key in sorted(values):
+        sorted_values = sorted(values[key])
+        inventory[key] = {
+            "count": len(sorted_values),
+            "values": sorted_values[:limit],
+            "truncated": len(sorted_values) > limit,
+        }
+    return inventory
 
 
 def collect_raw_frontmatter_drift(wiki: Path, records: list[dict[str, Any]]) -> list[dict[str, Any]]:
@@ -873,73 +1256,24 @@ def collect_raw_frontmatter_drift(wiki: Path, records: list[dict[str, Any]]) -> 
             )
     return drifted
 
-
-def collect_source_summary_health(wiki: Path, records: list[dict[str, Any]]) -> tuple[list[dict[str, Any]], list[str], list[str]]:
-    drifted: list[dict[str, Any]] = []
-    blocking: list[str] = []
-    reference_issues: list[str] = []
-    for record in records:
-        fm = record["fm"]
-        source_rel = record["rel"]
-        raw_rel = normalize_wiki_rel(fm.get("raw_source"))
-        if not raw_rel:
-            reference_issues.append(f"{source_rel}: missing raw_source")
-            continue
-        raw_path = wiki / raw_rel
-        if not raw_path.is_file():
-            message = f"{source_rel}: raw_source not found: {raw_rel}"
-            reference_issues.append(message)
-            blocking.append(message)
-            continue
-        expected = str(fm.get("raw_sha256") or "").strip()
-        scheme = str(fm.get("raw_hash_scheme") or "").strip()
-        if not expected or expected.lower() == "unknown":
-            reference_issues.append(f"{source_rel}: missing raw_sha256")
-            continue
-        if not scheme or scheme.lower() == "unknown":
-            reference_issues.append(f"{source_rel}: missing raw_hash_scheme")
-            continue
-        if scheme not in VALID_HASH_SCHEMES:
-            message = f"{source_rel}: unsupported raw_hash_scheme {scheme!r}"
-            reference_issues.append(message)
-            blocking.append(message)
-            continue
-        default_scheme = default_hash_scheme(raw_path)
-        if scheme != default_scheme:
-            reference_issues.append(f"{source_rel}: raw_hash_scheme {scheme} differs from default {default_scheme}")
-        try:
-            actual, used_scheme = compute_source_hash(raw_path, scheme)
-        except (OSError, ValueError) as exc:
-            message = f"{source_rel}: {exc}"
-            reference_issues.append(message)
-            blocking.append(message)
-            continue
-        if expected != actual:
-            drifted.append(
-                {
-                    "raw_source": raw_rel,
-                    "source_page": source_rel,
-                    "hash_scheme": used_scheme,
-                    "expected_sha256": expected,
-                    "actual_sha256": actual,
-                    "reason": "source_summary_raw_hash_drift",
-                }
-            )
-    return drifted, reference_issues, blocking
-
-
-def health_report(wiki: Path) -> dict[str, Any]:
+def health_report(wiki: Path, inventory_limit: int = 50) -> dict[str, Any]:
     issues = lint_wiki(wiki)
     lint_total = sum(len(items) for items in issues.values())
     records = source_page_records(wiki)
     raw_drift = collect_raw_frontmatter_drift(wiki, records)
-    summary_drift, source_reference_issues, source_blocking = collect_source_summary_health(wiki, records)
+    summary_drift, source_hash_issues, source_blocking = collect_source_hash_health(wiki, records)
     drifted_sources = raw_drift + summary_drift
+    relationship_issues = collect_relationship_issues(wiki, records)
+    metadata_schema_issues = collect_metadata_schema_issues(wiki)
+    field_order_issues = collect_field_order_issues(wiki)
+    noncanonical_fields = collect_noncanonical_fields(wiki)
+    metadata_inventory = collect_metadata_inventory(wiki, max(1, inventory_limit))
     blocking_issues: list[str] = []
     for category in ["missing_root_files", "broken_links", "missing_frontmatter", "frontmatter_format", "invalid_types"]:
         for item in issues.get(category, []):
             blocking_issues.append(f"{category}: {item}")
     blocking_issues.extend(source_blocking)
+    blocking_issues.extend(f"relationship_issues: {item}" for item in relationship_issues)
     affected_pages: list[dict[str, Any]] = []
     seen_source_pages: set[str] = set()
     for item in drifted_sources:
@@ -956,21 +1290,34 @@ def health_report(wiki: Path) -> dict[str, Any]:
                 "all_pages": [source_page] + dependents,
             }
         )
+    health_issue_total = (
+        len(relationship_issues)
+        + len(source_hash_issues)
+        + len(metadata_schema_issues)
+        + len(field_order_issues)
+        + len(noncanonical_fields)
+    )
     return {
         "wiki": str(wiki),
         "update_required": bool(drifted_sources),
         "blocking_issues": blocking_issues,
-        "maintenance_recommended": bool(lint_total or drifted_sources or source_reference_issues),
+        "maintenance_recommended": bool(lint_total or drifted_sources or health_issue_total),
         "drifted_sources": drifted_sources,
         "affected_pages": affected_pages,
-        "source_reference_issues": source_reference_issues,
+        "relationship_issues": relationship_issues,
+        "source_hash_issues": source_hash_issues,
+        "metadata_schema_issues": metadata_schema_issues,
+        "field_order_issues": field_order_issues,
+        "metadata_inventory": metadata_inventory,
+        "noncanonical_fields": noncanonical_fields,
+        "source_reference_issues": relationship_issues + source_hash_issues,
         "lint": {"total_issues": lint_total, "issues": issues},
     }
 
 
 def command_health(args: argparse.Namespace) -> int:
     wiki = Path(args.wiki).expanduser().resolve()
-    report = health_report(wiki)
+    report = health_report(wiki, args.inventory_limit)
     if args.json:
         print(json.dumps(report, indent=2))
     else:
@@ -980,19 +1327,72 @@ def command_health(args: argparse.Namespace) -> int:
         print(f"Blocking issues: {len(report['blocking_issues'])}")
         print(f"Drifted sources: {len(report['drifted_sources'])}")
         print(f"Affected source pages: {len(report['affected_pages'])}")
+        print(f"Relationship issues: {len(report['relationship_issues'])}")
+        print(f"Source hash issues: {len(report['source_hash_issues'])}")
+        print(f"Metadata schema issues: {len(report['metadata_schema_issues'])}")
+        print(f"Field order issues: {len(report['field_order_issues'])}")
         if report["drifted_sources"]:
             print("\ndrifted_sources:")
             for item in report["drifted_sources"]:
                 source_page = item.get("source_page") or "unlinked"
                 print(f"- {item['raw_source']} -> {source_page}: {item['reason']}")
-        if report["source_reference_issues"]:
-            print("\nsource_reference_issues:")
-            for item in report["source_reference_issues"]:
+        if report["relationship_issues"]:
+            print("\nrelationship_issues:")
+            for item in report["relationship_issues"]:
+                print(f"- {item}")
+        if report["source_hash_issues"]:
+            print("\nsource_hash_issues:")
+            for item in report["source_hash_issues"]:
                 print(f"- {item}")
     if args.fail_on_update and report["update_required"]:
         return 1
     if args.fail_on_issues and report["maintenance_recommended"]:
         return 1
+    return 0
+
+
+def fix_frontmatter_file(path: Path, wiki: Path, dry_run: bool) -> dict[str, Any] | None:
+    rel = path.relative_to(wiki).as_posix()
+    text = read_text(path)
+    fm, body, has_fm = frontmatter_block(text)
+    is_raw = rel.startswith("raw/")
+    is_derived = rel.startswith("raw/derived/")
+    is_page = not is_raw
+    if is_raw and not is_derived and not has_fm:
+        return None
+    if not has_fm and not (is_page or is_derived):
+        return None
+    order = canonical_field_order(path, wiki, fm)
+    if not order:
+        return None
+    before_keys = list(fm.keys())
+    missing = missing_required_fields(path, wiki, fm)
+    for field in missing:
+        fm[field] = infer_placeholder(field, path, wiki, fm)
+    fixed = reorder_frontmatter(fm, order)
+    new_text = render_markdown_with_frontmatter(fixed, body)
+    changed = new_text != text
+    if changed and not dry_run:
+        write_text(path, new_text)
+    if changed or missing or before_keys != list(fixed.keys()):
+        return {
+            "path": rel,
+            "changed": changed,
+            "missing_fields_added": missing,
+            "field_order_before": before_keys,
+            "field_order_after": list(fixed.keys()),
+        }
+    return None
+
+
+def command_fix(args: argparse.Namespace) -> int:
+    wiki = Path(args.wiki).expanduser().resolve()
+    results: list[dict[str, Any]] = []
+    for path in iter_metadata_files(wiki):
+        result = fix_frontmatter_file(path, wiki, args.dry_run)
+        if result:
+            results.append(result)
+    print(json.dumps({"wiki": str(wiki), "dry_run": args.dry_run, "changed_files": results}, indent=2))
     return 0
 
 
@@ -1059,9 +1459,15 @@ def build_parser() -> argparse.ArgumentParser:
     health = sub.add_parser("health", help="Diagnose wiki health, source drift, and update impact.")
     health.add_argument("wiki")
     health.add_argument("--json", action="store_true")
+    health.add_argument("--inventory-limit", type=int, default=50, help="Maximum unique values returned per frontmatter field.")
     health.add_argument("--fail-on-update", action="store_true")
     health.add_argument("--fail-on-issues", action="store_true")
     health.set_defaults(func=command_health)
+
+    fix = sub.add_parser("fix", help="Normalize frontmatter field order and add safe placeholder fields.")
+    fix.add_argument("wiki")
+    fix.add_argument("--dry-run", action="store_true")
+    fix.set_defaults(func=command_fix)
 
     append_log = sub.add_parser("append-log", help="Append a log.md entry.")
     append_log.add_argument("wiki")

@@ -49,9 +49,14 @@ See `README.md` for the human-facing description. Required directories:
 - Write all list-valued frontmatter fields with inline brackets, for example
   `tags: [concept]`, `sources: [sources/paper.md]`, and
   `authors: ["Smith, John", "Doe, Jane"]`. Do not use indented YAML lists.
+- Keep frontmatter fields in canonical order. Use `wiki_tools.py health` to
+  diagnose order/schema problems and `wiki_tools.py fix` to normalize safe
+  placeholders and field order.
 - Keep source summaries separate from synthesis pages.
 - Keep original raw files; put extraction/OCR/transcription Markdown in
   `raw/derived/` with provenance metadata.
+- Ensure each source summary can trace to its `raw_source`; when it has a
+  `derived_source`, that derived file must point back with `derived_from`.
 - Mark low-confidence or contested claims explicitly.
 - Split pages over roughly 200 lines.
 
@@ -76,7 +81,8 @@ sources, capture citation metadata when available:
 - authors
 - title
 - year
-- venue or publisher
+- venue
+- publisher
 - DOI
 - ISBN
 - URL

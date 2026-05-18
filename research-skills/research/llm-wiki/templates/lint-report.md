@@ -19,6 +19,11 @@ Date: YYYY-MM-DD
 - Missing frontmatter:
 - Missing citation metadata:
 - Source provenance issues:
+- Relationship issues:
+- Source hash issues:
+- Metadata schema issues:
+- Field order issues:
+- Noncanonical fields:
 - Derived metadata gaps:
 - Tag drift:
 
@@ -38,6 +43,7 @@ Date: YYYY-MM-DD
 ## Recommended Actions
 
 1. Fix broken links and missing root files.
-2. Fix missing source and citation metadata.
-3. Update `index.md`.
-4. Resolve or archive orphan and oversized pages.
+2. Run `wiki_tools.py fix <wiki-path> --dry-run` and apply safe metadata normalization if appropriate.
+3. Fix missing source, hash, relationship, and citation metadata.
+4. Update `index.md`.
+5. Resolve or archive orphan and oversized pages.

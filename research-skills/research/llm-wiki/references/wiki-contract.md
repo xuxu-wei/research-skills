@@ -53,6 +53,7 @@ derived_from: raw/papers/source-file.pdf
 derivation_method: pdf-text-extraction | ocr | transcription | cleanup | export
 derived_at: YYYY-MM-DD
 source_hash_at_derivation: optional raw source hash
+source_hash_scheme_at_derivation: optional hash scheme
 ---
 ```
 
@@ -80,7 +81,7 @@ existing category or explicitly creates a new `raw/<category>/`.
 
 ## Page Frontmatter
 
-Wiki pages should use:
+Wiki pages should use this common field order:
 
 ```yaml
 ---
@@ -95,6 +96,10 @@ confidence: high | medium | low
 status: active | contested | superseded | archived
 ---
 ```
+
+`wiki_tools.py health` reports `field_order_issues` when present fields are out
+of canonical order. `wiki_tools.py fix` can reorder fields and insert missing
+safe placeholders without inventing semantic metadata.
 
 `confidence` and `status` are especially important for fast-moving topics,
 single-source claims, or unresolved contradictions.
@@ -124,6 +129,15 @@ For papers, books, chapters, reports, and other scientific literature, source
 summary pages should include these fields when available:
 
 ```yaml
+title: Source Title
+created: YYYY-MM-DD
+updated: YYYY-MM-DD
+type: source
+tags: [source]
+sources: []
+summary: One-line source summary for index.md
+confidence: medium
+status: active
 source_kind: paper | preprint | book | chapter | report | thesis | dataset
 authors: ["Family Name, Given Name"]
 year: 2026
@@ -132,11 +146,20 @@ publisher: Publisher name
 doi: 10.xxxx/yyyy
 isbn: 000-0-00-000000-0
 url: https://example.org/source
+raw_source: raw/papers/source-file.pdf
+derived_source: raw/derived/source-file.md
+raw_hash_scheme: sha256_bytes_v1
+raw_sha256: hex-digest
+raw_hashed_at: YYYY-MM-DD
 ```
 
 Use `venue` for journals, conferences, repositories, and proceedings. Use
 `publisher` for books and formal reports. If a required bibliographic field is
 unknown, write `unknown` rather than inventing it.
+
+For `source_kind: paper` and `source_kind: preprint`, missing or `unknown`
+citation fields are maintenance issues. Missing or `unknown` source hash fields
+are source integrity issues.
 
 ## Source Summary Raw Provenance
 
@@ -154,6 +177,11 @@ raw_hashed_at: YYYY-MM-DD
 Use stable slug/path identifiers for raw files and source summaries. Do not
 introduce sequential integer IDs unless a separate user workflow explicitly
 requires them.
+
+`raw_source`, `raw_hash_scheme`, `raw_sha256`, and `raw_hashed_at` should be
+present on each source summary. If a source has `derived_source`, it must point
+to `raw/derived/`, and the derived file's `derived_from` must point back to the
+same `raw_source`.
 
 ## Raw Source Metadata
 
@@ -179,9 +207,29 @@ Hash drift means the source version changed; it does not by itself prove the
 wiki interpretation is wrong. Use `wiki_tools.py health <wiki-path>` to locate
 affected source summaries and dependent pages before updating knowledge pages.
 
+## Health And Fix Rules
+
+Run `wiki_tools.py health <wiki-path>` for read-only diagnosis. It reports:
+
+- `relationship_issues`: broken or missing raw/source/derived/page references.
+- `source_hash_issues`: missing, unknown, unsupported, mismatched, or drifted
+  source hashes.
+- `metadata_schema_issues`: missing fields, placeholder values, invalid types,
+  and invalid controlled values.
+- `field_order_issues`: frontmatter fields not in canonical order.
+- `metadata_inventory`: capped unique values for all frontmatter fields.
+- `noncanonical_fields`: known alias fields such as `journal -> venue`.
+
+Run `wiki_tools.py fix <wiki-path>` only when automatic frontmatter
+normalization is desired. It reorders fields, inserts safe placeholders, and
+preserves custom fields after canonical fields. It does not resolve hash drift,
+invent citation metadata, or choose between contradictory sources.
+
 ## Link Rules
 
 - Use `[[wikilinks]]` for internal wiki links.
+- Every non-source page `sources` entry should resolve to an existing
+  `sources/*.md` page.
 - New durable pages should link to at least two related pages when such pages
   exist.
 - When a page is archived, remove it from `index.md` and update incoming links.

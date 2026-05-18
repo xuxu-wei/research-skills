@@ -3,7 +3,7 @@ name: llm-wiki
 description: "Build, query, and maintain a Karpathy-style LLM Wiki: an interlinked Markdown knowledge base where raw sources are immutable, agents maintain wiki pages, and AGENTS.md defines the Claude Code collaboration contract. Use when the user asks to create a wiki, ingest sources, query or synthesize wiki knowledge, classify materials, audit links/indexes/metadata, or maintain an Obsidian-compatible research or general knowledge vault."
 metadata:
   hermes:
-    version: 3.4.0
+    version: 3.5.0
     tags: [wiki, knowledge-base, markdown, obsidian, claude-code, research, citation-metadata]
     category: research
     related_skills:
@@ -47,7 +47,8 @@ python scripts/wiki_tools.py classify <wiki-path> --unknown-policy custom --cust
 python scripts/wiki_tools.py hash-source <raw-source-path> --write
 python scripts/wiki_tools.py update-index <wiki-path>
 python scripts/wiki_tools.py lint <wiki-path>
-python scripts/wiki_tools.py health <wiki-path>
+python scripts/wiki_tools.py health <wiki-path> --inventory-limit 50
+python scripts/wiki_tools.py fix <wiki-path> --dry-run
 python scripts/wiki_tools.py append-log <wiki-path> --action ingest --subject "new source"
 ```
 
@@ -171,18 +172,23 @@ When auditing or maintaining:
 
 1. Run `wiki_tools.py lint <wiki-path>`.
 2. Run `wiki_tools.py health <wiki-path>` when drift or update scope matters.
-   `health` reports `update_required`, `drifted_sources`, and affected source
-   and dependent pages; it does not rewrite wiki knowledge.
+   `health` reports `update_required`, `drifted_sources`, affected pages,
+   relationship issues, source hash issues, metadata schema issues, field order
+   issues, and a capped metadata inventory; it does not rewrite wiki knowledge.
 3. Fix broken wikilinks, missing index entries, missing frontmatter,
    malformed frontmatter, unclassified inbox items, citation metadata gaps,
-   source hash drift, orphan pages, and pages over the size threshold.
+   source/derived relationship gaps, source hash drift, orphan pages, and pages
+   over the size threshold.
    Frontmatter list fields must use inline bracket syntax such as
    `tags: [ai-ml, methodology]`, `sources: [sources/paper.md]`, and
    `authors: ["Smith, John", "Doe, Jane"]`.
-4. When drift occurs, review the affected `sources/` page first, then update
+4. Run `wiki_tools.py fix <wiki-path>` only when safe placeholder insertion and
+   frontmatter field reordering are desired. It does not invent semantic
+   metadata or resolve hash drift.
+5. When drift occurs, review the affected `sources/` page first, then update
    related wiki pages, links, properties, tags, `index.md`, and `log.md`.
-5. Use `templates/lint-report.md` when the report needs to be filed.
-6. Append a `lint` or `maintain` entry to `log.md`.
+6. Use `templates/lint-report.md` when the report needs to be filed.
+7. Append a `lint` or `maintain` entry to `log.md`.
 
 ### Archive
 
