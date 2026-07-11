@@ -9,28 +9,36 @@ Roadmap Phase 0 through Phase 4 are complete: reference closure, compact skills,
 native Search/Deep Research routing, auditable state machines, fresh evaluation
 gates, filesystem-observed scenario replays, and negative contract tests are enforced.
 
-## Install from the repository marketplace
+## Install from GitHub Preview
 
-The repository marketplace is `.agents/plugins/marketplace.json`. After cloning
-the repository, register that non-default marketplace once and install the
-plugin by its marketplace-qualified name:
+Register the GitHub repository as the rolling Preview marketplace once, then
+install the marketplace-qualified plugin:
 
 ```powershell
-codex plugin marketplace add <repository-root>
+codex plugin marketplace add xuxu-wei/research-skills --ref main
 codex plugin add research-skills-openai@xuxu-research-preview
 ```
 
 The marketplace uses a `git-subdir` source that tracks the rolling Preview `main`
-branch and the `research-skills-openai` subdirectory.
+branch and the `research-skills-openai` subdirectory. A cloned checkout can be
+registered instead with `codex plugin marketplace add <repository-root>` for
+local marketplace inspection, but that source is not the GitHub update test.
 
 ## Update from GitHub
 
-After the new SemVer is pushed to GitHub `main`, reinstall the marketplace entry
-and start a new Codex task so skill discovery uses the refreshed cache:
+After a new SemVer is pushed to GitHub `main`, refresh the Git marketplace
+snapshot, reinstall, and start a new Codex task:
 
 ```powershell
+codex plugin marketplace upgrade xuxu-research-preview
 codex plugin add research-skills-openai@xuxu-research-preview
 ```
+
+If the standalone CLI is absent, the Codex App bundle can provide the same CLI;
+the current executable path is recorded as `CODEX_CLI_PATH` in the App's
+`~/.codex/config.toml`. Treat that path as App-managed and do not hard-code its
+build-specific directory. If a long-running App process still reports the old
+cache path, restart the App and open another new task before judging discovery.
 
 For every installable behavior change, update the plugin SemVer in
 `.codex-plugin/plugin.json` and keep `workflow-registry.yaml` synchronized.
@@ -66,6 +74,9 @@ python C:\Users\10149\.codex\skills\.system\plugin-creator\scripts\validate_plug
 
 GitHub Actions runs the portable audit, context proxy, fixture, package, release,
 and SemVer-bump checks on pull requests and pushes to `main`.
+
+The verified old-to-new GitHub reinstall and fresh-process discovery trace is in
+`reports/phase5-upgrade-smoke.md`.
 
 The workflow stops at a package prepared for human review and signature. It
 does not submit material to external journals, funders, or other platforms.
