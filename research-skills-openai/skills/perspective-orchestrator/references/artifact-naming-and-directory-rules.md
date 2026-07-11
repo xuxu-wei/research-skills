@@ -1,5 +1,19 @@
 # Perspective Artifact Naming and Directory Rules
 
+## Contents
+
+<!-- toc:start -->
+- [Project Directory Layout](#project-directory-layout)
+- [Directory Rules](#directory-rules)
+- [Cross-Package Version Fields](#cross-package-version-fields)
+- [Draft Naming](#draft-naming)
+- [Revision Naming](#revision-naming)
+- [Evaluation And Panel Naming](#evaluation-and-panel-naming)
+- [Language QA Naming](#language-qa-naming)
+- [Final Naming](#final-naming)
+- [Artifact Index](#artifact-index)
+<!-- toc:end -->
+
 Use this file to keep Perspective/Viewpoint/Commentary workflow artifacts ordered, versioned, and separate across drafting, evaluation, revision, panel review, and final composition.
 
 ## Project Directory Layout

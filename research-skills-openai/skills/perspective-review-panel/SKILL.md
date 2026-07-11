@@ -1,6 +1,6 @@
 ---
 name: perspective-review-panel
-description: "Use when 运行 Perspective 定制化模拟审稿 Panel，通过 Counter-position、Evidence、Narrative 三角色隔离评审，互不知晓且不接触 evaluator reports，并说明 outlet 变化对建议的影响。"
+description: "Independently review a frozen Perspective from one assigned counter-position, evidence, narrative, methodology, clinician, or outlet-fit role without peer-output access."
 ---
 # perspective-review-panel
 
@@ -149,6 +149,6 @@ Orchestrator 等待并收集全部 required individual reviews 后，结合 line
 
 ## References
 
-- `references/reviewer-role-definitions.md`
-- `references/panel-summary-template.md`
-- `references/decision-routing.md`
+- Read `references/reviewer-role-definitions.md` when its named guidance or contract applies.
+- Read `references/panel-summary-template.md` when its named guidance or contract applies.
+- Read `references/decision-routing.md` when its named guidance or contract applies.

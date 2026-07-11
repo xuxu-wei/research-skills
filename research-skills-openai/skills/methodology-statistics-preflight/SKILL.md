@@ -1,6 +1,6 @@
 ---
 name: methodology-statistics-preflight
-description: "Perform a general methodology and statistics preflight for research ideas, proposals, protocols, SAP drafts, study designs, experiments, benchmarks, and analysis plans. Checks endpoint/metric clarity, data-method fit, minimal analysis route, feasibility blockers, and repair directions. Does not score novelty, impact, or overall research value, and does not draft proposal, SAP, or protocol content."
+description: "Independently preflight research designs, ideas, proposals, protocols, or analysis plans for endpoint clarity, data-method fit, feasibility blockers, and minimal repair routes."
 ---
 # methodology-statistics-preflight
 
@@ -101,12 +101,12 @@ endpoint/metric、data route、method）——不得依赖父会话隐含上下�
 
 ## References
 
-- `references/preflight-schema.md`：定义 preflight report 的结构字段、评估维度和输出格式。
-- `references/endpoint-metric-checks.md`：规范 endpoint、outcome 和 metric 的清晰度、可测量性和与 study design 对齐的检查规则。
-- `references/data-method-fit-rules.md`：定义数据特征与统计/实验方法匹配度的检查规则。
-- `references/minimal-analysis-route-rules.md`：定义在资源或数据受限条件下最小可行分析路径的评估规则。
-- `references/feasibility-blockers.md`：定义样本量、数据可得性和资源等维度的可行性阻断检查。
-- `references/domain-specific-checks.md`：按领域（临床、ML/工程、观察性研究、benchmark 等）分类的专项检查规则。
-- `references/downstream-handoff-rules.md`：定义 preflight report 如何交给下游 skill 及 handoff 材料要求。
-- `templates/template-methodology-statistics-preflight-report.md`：Methodology-Statistics Preflight Report 的输出模板。
-- `templates/template-preflight-failure-report.md`：preflight 检查失败时的输出报告模板。
+- Read `references/preflight-schema.md` when its named guidance or contract applies: ：定义 preflight report 的结构字段、评估维度和输出格式。
+- Read `references/endpoint-metric-checks.md` when its named guidance or contract applies: ：规范 endpoint、outcome 和 metric 的清晰度、可测量性和与 study design 对齐的检查规则。
+- Read `references/data-method-fit-rules.md` when its named guidance or contract applies: ：定义数据特征与统计/实验方法匹配度的检查规则。
+- Read `references/minimal-analysis-route-rules.md` when its named guidance or contract applies: ：定义在资源或数据受限条件下最小可行分析路径的评估规则。
+- Read `references/feasibility-blockers.md` when its named guidance or contract applies: ：定义样本量、数据可得性和资源等维度的可行性阻断检查。
+- Read `references/domain-specific-checks.md` when its named guidance or contract applies: ：按领域（临床、ML/工程、观察性研究、benchmark 等）分类的专项检查规则。
+- Read `references/downstream-handoff-rules.md` when its named guidance or contract applies: ：定义 preflight report 如何交给下游 skill 及 handoff 材料要求。
+- Use `templates/template-methodology-statistics-preflight-report.md` when producing its named artifact: ：Methodology-Statistics Preflight Report 的输出模板。
+- Use `templates/template-preflight-failure-report.md` when producing its named artifact: ：preflight 检查失败时的输出报告模板。

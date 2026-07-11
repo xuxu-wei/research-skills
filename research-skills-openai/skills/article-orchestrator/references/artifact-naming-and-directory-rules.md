@@ -1,5 +1,29 @@
 # Artifact Naming and Directory Rules
 
+## Contents
+
+<!-- toc:start -->
+- [Project Directory Layout](#project-directory-layout)
+- [Directory Rules](#directory-rules)
+- [Cross-Package Version Fields](#cross-package-version-fields)
+- [File Naming Conventions](#file-naming-conventions)
+  - [Manuscript Drafts](#manuscript-drafts)
+  - [Supplementary Materials](#supplementary-materials)
+  - [Evaluation Reports](#evaluation-reports)
+  - [Revision Records](#revision-records)
+  - [Language Assessment Reports](#language-assessment-reports)
+  - [Panel Reports](#panel-reports)
+  - [Frontmatter](#frontmatter)
+  - [Cover Letter](#cover-letter)
+  - [Package](#package)
+- [Version Rules](#version-rules)
+  - [When to Create a New Version](#when-to-create-a-new-version)
+  - [Clean Version Rules](#clean-version-rules)
+  - [Overwrite Prohibition](#overwrite-prohibition)
+- [Artifact Index](#artifact-index)
+- [Cross-Skill Loading](#cross-skill-loading)
+<!-- toc:end -->
+
 ## Project Directory Layout
 
 ```

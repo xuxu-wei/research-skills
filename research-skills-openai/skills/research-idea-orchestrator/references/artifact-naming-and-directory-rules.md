@@ -1,5 +1,17 @@
 # Research Idea Artifact Naming and Directory Rules
 
+## Contents
+
+<!-- toc:start -->
+- [Project Directory Layout](#project-directory-layout)
+- [Directory Rules](#directory-rules)
+- [Cross-Package Version Fields](#cross-package-version-fields)
+- [Idea And Round Naming](#idea-and-round-naming)
+- [Portfolio And Handoff Naming](#portfolio-and-handoff-naming)
+- [Revision Record Naming](#revision-record-naming)
+- [Artifact Index](#artifact-index)
+<!-- toc:end -->
+
 Use this file to keep research-idea workflow artifacts ordered, versioned, and traceable across generation rounds, evaluation, adversarial review, portfolio assembly, and proposal handoff.
 
 ## Project Directory Layout

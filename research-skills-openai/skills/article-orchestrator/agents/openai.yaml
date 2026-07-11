@@ -1,6 +1,6 @@
 interface:
   display_name: "Article Orchestrator"
-  short_description: "Orchestrate research-article workflow from existing research data, results, and study design..."
+  short_description: "Orchestrate article drafting, independent review, revision, and human-review packaging."
   default_prompt: "Use $article-orchestrator for this task and follow its workflow and output contract."
 policy:
   allow_implicit_invocation: true

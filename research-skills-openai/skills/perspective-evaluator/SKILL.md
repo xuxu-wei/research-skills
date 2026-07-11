@@ -1,6 +1,6 @@
 ---
 name: perspective-evaluator
-description: "Use when 独立评价 Perspective 文章，包括八维评分、硬性门禁、反模式检测；默认第一遍不依赖 paragraph-map，第二遍用于架构合规检查，必须通过隔离 delegation 派发。"
+description: "Independently evaluate a frozen Perspective across argument, evidence, contribution, narrative, claim discipline, language, and outlet-fit gates without editing source text."
 ---
 # perspective-evaluator
 
@@ -105,3 +105,7 @@ Pre-panel: Thesis ≥4, Argument ≥4, Evidence ≥4, Contribution ≥4, 无 fat
 
 ## Decision Output
 accept / minor_revision / major_revision_draft / argument_rebuild / thesis_redesign / evidence_rebuild / outlet_retarget / reject_not_salvageable
+
+## Conditional Resource
+
+- Read `references/anti-pattern-checklist.md` during Pass 3 when performing the required anti-pattern scan.

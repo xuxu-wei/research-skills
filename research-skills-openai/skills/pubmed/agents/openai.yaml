@@ -1,6 +1,0 @@
-interface:
-  display_name: "Pubmed"
-  short_description: "Search PubMed for biomedical papers by keyword, author, journal, MeSH term, DOI, or PMID."
-  default_prompt: "Use $pubmed for this task and follow its workflow and output contract."
-policy:
-  allow_implicit_invocation: true

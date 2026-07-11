@@ -1,173 +1,39 @@
 ---
 name: article-evaluator
-description: "Use when a frozen manuscript needs a holistic, non-compensatory independent evaluation across seven dimensions and a gated decision of accept, revise, or reject."
+description: "Independently evaluate a frozen manuscript with non-compensatory scientific, evidence-claim, reporting, language, and submission-readiness gates; do not edit source text."
 ---
 # article-evaluator
 
-## Purpose
+## Role
 
-Evaluate the complete manuscript against seven quality dimensions with non-compensatory gates on the most critical dimensions. Apply the stable rubric directly to the frozen manuscript and perform a supplementary materials audit.
-
-This skill does NOT rewrite text, audit claims one by one (that is `article-claim-auditor`'s job), audit methods (that is `article-methods-statistics-auditor`'s job), or make revision plans (that is `article-refinement-controller`'s job). It evaluates and decides.
-
-## Core Rules
-
-- Scientific Validity and Evidence-Claim Alignment are non-compensatory: a high score on Clarity cannot offset a fatal scientific flaw.
-- Language baseline is non-compensatory via hard gates: systematic grammar/register errors block `accept`.
-- Apply the stable language rubric directly to the frozen manuscript without reading `academic-language-assessor` output. The orchestrator separately delegates that specialist review and compares sealed reports only after both return.
-- Perform supplementary audit: check that critical evidence is not buried in supplementary, supplementary content is complete, and journal limits are satisfied.
-- The evaluation is a gate. `reject` means stop. The orchestrator, not the evaluator, compares sealed evaluation reports to determine `stop_no_gain`.
+Evaluate a frozen manuscript holistically with a stable seven-dimension rubric and non-compensatory gates. Do not audit claims one by one, audit methods as a separate reviewer, plan revisions, or edit prose.
 
 ## Independent Execution Contract
 
-- Run only in a fresh independent subagent or delegated thread. Never perform this review in the generator, drafter, revision, or orchestrator context.
-- Receive frozen artifact IDs, file paths, and versions. Treat every source artifact as read-only.
-- Write only the evaluation report. Do not edit, rewrite, polish, or fix any source artifact.
-- Do not access parent hidden reasoning, expected answers, prior evaluation scores or decisions, or outputs from other reviewers.
-- Report `files_read` and `review_scope` in the review report, together with the standard review identity and isolation fields.
-- If a fresh independent subagent or delegated thread cannot be established, return `independent_review_pending` plus a self-contained continuation brief and stop. Never review inline.
+- Run only in a fresh independent subagent or delegated thread, never in generator, drafter, revision, or orchestrator context.
+- Require frozen manuscript, blueprint, and context IDs, paths, and versions. Treat all sources as read-only.
+- Write only `08_evaluations/evaluation-vNNN.md`. Do not edit, draft, rewrite, polish, repair, or fix source artifacts.
+- Do not read parent hidden reasoning, expected conclusions, prior evaluation scores/decisions, audit reports, panel reports, revision records, or other reviewer outputs.
+- Apply the language rubric directly; the separately delegated language assessor remains sealed from this evaluator.
+- In re-evaluation, read only the latest frozen manuscript, stable rubric, necessary factual artifacts, and optionally an anonymized issue list plus delta.
+- Report exact files read, scope, limitations, and reviewer instance ID.
+- If independent execution is unavailable, return `independent_review_pending` with a self-contained continuation brief and stop; never review inline.
 
-```yaml
-review_id:
-reviewer_skill: article-evaluator
-reviewer_instance_id:
-workflow_id:
-round_id:
-input_artifact_ids: []
-input_versions: []
-files_read: []
-isolation_mode: fresh_subagent
-prior_scores_visible: false
-source_edits_performed: false
-decision:
-findings: []
-unresolved_issues: []
-```
+Reviewer sub-delegation is disabled: `may_call: []`.
 
-## I/O Contract
+## Procedure
 
-```yaml
-io_contract:
-  allowed_inputs:
-    - manuscript_draft
-    - article_blueprint
-    - article_context_brief
-  required_outputs:
-    - evaluation_report (with independent language rubric and supplementary_audit)
-  may_read:
-    - "06_drafts/**"
-    - "04_blueprint/**"
-    - "02_context/**"
-  may_write:
-    - "08_evaluations/evaluation-v*.md"
-  must_not_read:
-    - "08_evaluations/**"
-    - "10_panel/**"
-    - "09_revisions/**"
-  must_not_write:
-    - "06_drafts/**"
-    - "04_blueprint/**"
-  may_call: []
-  must_not_call:
-    - article-drafter
-    - article-architect
-    - article-claim-auditor
-  failure_modes:
-    - "required frozen manuscript or blueprint missing → return an evaluation failure report without a decision"
-  escalation_route: "article-orchestrator"
-```
+1. Validate frozen inputs and declared scope.
+2. Score 1–10 with `pass | borderline | fail` for Scientific Validity, Evidence-Claim Alignment, Reporting Completeness, Journal Fit, Clarity/Structure, Language/Academic Register, and Contribution Significance.
+3. Apply non-compensatory scientific-validity gates: methods support the primary claim, primary evidence exists, and no fatal scientific flaw remains.
+4. Apply evidence-claim gates: primary claim has evidence and no unfixable fatal overclaim remains.
+5. Apply language/register gates for systematic grammar density, terminology, tense/voice, and pervasive informal register.
+6. Scan genre/rhetoric failures such as unjustified observational causality, narrative Results, didactic questions, promotional wording, tone mismatch, colloquial register, and undefined abbreviations.
+7. Audit supplementary completeness, evidence burial, orphan/missing items, journal limits, and data/code availability statements.
+8. Record locatable issues with severity, dimension, `must_fix | should_fix | optional`, and `enter_manuscript | response_only | decline` strategy.
+9. Return `accept`, `revise`, or `reject`. Fixable gate failures route to revision; unfixable scientific or core-evidence failures route to reject. Do not derive `stop_no_gain`; the orchestrator compares sealed rounds.
 
-## Seven Dimensions
-
-| Dimension | Compensatory | Assessor |
-|-----------|-------------|----------|
-| Scientific Validity | **Non-compensatory** | Independent evaluation |
-| Evidence-Claim Alignment | **Non-compensatory** | Independent evaluation |
-| Reporting Completeness | Compensatory | Reporting checklist mapping |
-| Journal Fit | Compensatory | Journal adapter comparison |
-| Clarity & Structure | Compensatory | Independent evaluation |
-| Language & Academic Register | **Non-compensatory (gates)**; Compensatory (score) | Independent rubric application; specialist report remains sealed from this evaluator |
-| Contribution Significance | Compensatory | Blueprint + independent evaluation |
-
-Each dimension scored 1–10 with a severity: `pass | borderline | fail`.
-
-## Hard Gates
-
-### Scientific Validity Gates (non-compensatory)
-
-```yaml
-scientific_validity_gates:
-  - methods_support_primary_claim: pass | fail
-  - primary_evidence_exists: pass | fail
-  - no_fatal_scientific_flaw: pass | fail
-```
-
-### Evidence-Claim Gates (non-compensatory)
-
-```yaml
-evidence_claim_gates:
-  - no_fatal_overclaim: pass | fail
-  - primary_claim_has_evidence: pass | fail
-```
-
-### Genre/Rhetoric Gates
-
-```yaml
-genre_rhetoric_gates:
-  - observational_causal_language: pass | fail
-  - narrative_clinical_vignette_in_results: pass | fail
-  - didactic_rhetorical_questions_in_discussion: pass | fail
-  - promotional_overclaim: pass | fail
-  - tone_mismatch_with_journal: pass | fail
-  - informal_colloquial_register: pass | fail
-  - non_standard_abbreviation_undefined: pass | fail
-```
-
-### Language Baseline Gates (non-compensatory, independently applied)
-
-```yaml
-language_baseline_gates:
-  - grammar_error_density: pass | fail
-  - terminology_consistency: pass | fail
-  - tense_systematic_violation: pass | fail
-  - academic_register_pervasive: pass | fail
-```
-
-## Supplementary Audit
-
-```yaml
-supplementary_audit:
-  critical_evidence_buried: []            # primary claims supported only by supplementary evidence
-  missing_supplementary_content: []       # main text references missing supplementary items
-  orphan_supplementary_content: []        # supplementary items not referenced in main text
-  overstuffed_supplementary: []           # excessive supplementary volume approaching duplicate publication
-  journal_limit_compliance: pass | fail
-  data_code_availability_compliance: pass | fail | partial
-```
-
-## Decision
-
-| Decision | Conditions | Route |
-|----------|-----------|-------|
-| `accept` | All non-compensatory gates pass, overall adequate | Review panel or frontmatter |
-| `revise` | Addressable issues found | Refinement controller |
-| `reject` | Fatal flaw, cannot be fixed by writing | **Stop** |
-
-Decision logic:
-- Any `fatal_scientific` gate fail → `reject`
-- Any `language_baseline` gate fail → at least `revise`
-- Any `genre_rhetoric` gate fail → at least `revise`
-- All gates pass + scores adequate → `accept`
-
-Fatal overclaim gate handling:
-- Fixable fatal overclaim gate failure routes to `revise` with `claim_downscaling`, removal, or relocation.
-- Unfixable fatal overclaim gate failure routes to `reject`.
-
-## Output
-
-Write `08_evaluations/evaluation-vNNN.md` containing dimension scores, gate results, supplementary audit, issue list with revision priorities, and decision. In re-evaluation mode, evaluate the frozen latest draft from scratch with the stable rubric. Do not read the prior report, score, or decision. The orchestrator compares sealed reports after this evaluator finishes.
-
-The report must include:
+## Review Report Contract
 
 ```yaml
 review_id:
@@ -185,42 +51,19 @@ source_edits_performed: false
 decision: accept | revise | reject
 findings: []
 unresolved_issues: []
+dimension_scores: {}
+gate_results: {}
+supplementary_audit: {}
 ```
 
-Each issue must include:
+## Conditional Resources
 
-```yaml
-- issue_id: "E001-C003"
-  dimension: ""
-  severity: critical | major | minor
-  description: ""
-  location: ""
-  revision_priority: must_fix | should_fix | optional
-  entry_strategy: enter_manuscript | response_only | decline   # for refinement controller
-```
+- Read `references/evaluation-rubric.md` when assigning seven-dimension scores.
+- Read `references/evaluation-gates.md` when applying scientific, evidence, language, and rhetoric gates.
+- Read `references/supplementary-audit-guide.md` when checking supplementary completeness, evidence placement, and limits.
+- Read `article-orchestrator/references/artifact-review-and-submission-contracts.md` when validating the evaluation report schema.
+- Read `article-orchestrator/references/handoff-validation.md` before returning a refinement or downstream route.
 
-## Pitfalls
+## Completion Check
 
-- Do not compensate a fatal scientific flaw with high Clarity or Language scores.
-- Do not skip the supplementary audit. Critical evidence buried in supplementary is a common failure mode.
-- Do not gate language at native-speaker perfection. Gate at functional academic communication.
-- Do not evaluate claims one by one (that is the claim auditor's job). Evaluate patterns and overall alignment.
-- Do not compare against a prior evaluation in re-evaluation mode. The orchestrator performs the cross-round comparison after receiving sealed reports.
-
-## Verification
-
-- All seven dimensions scored with explicit severity
-- All hard gates assessed, not skipped
-- Language assessment integrated (not a separate report)
-- Supplementary audit complete with all five checks
-- Every issue has a `revision_priority` and `entry_strategy`
-- Decision follows gate logic, not overall impression
-- Re-evaluation used a fresh evaluator instance with `prior_scores_visible: false`
-
-## References
-
-- `references/evaluation-rubric.md`: Detailed 1–10 scoring anchors for each dimension.
-- `references/evaluation-gates.md`: Complete hard gate definitions, thresholds, and consequences.
-- `references/supplementary-audit-guide.md`: Criteria for critical evidence burial, completeness, and journal limit compliance.
-- `article-orchestrator/references/artifact-contracts.md`: Canonical evaluation report schema.
-- `article-orchestrator/references/handoff-validation.md`: Evaluator → refinement controller handoff gates.
+Confirm seven scored dimensions, every gate, supplementary audit, locatable prioritized findings, a gate-consistent decision, prior-score blindness, no reviewer reports read, and unchanged source files.

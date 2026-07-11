@@ -1,5 +1,16 @@
 # Language Hard Gates
 
+## Contents
+
+<!-- toc:start -->
+- [Gate 1: Grammar Error Density](#gate-1-grammar-error-density)
+- [Gate 2: Academic Register — Pervasive Informal Register](#gate-2-academic-register-pervasive-informal-register)
+- [Gate 3: Terminology Incoherence](#gate-3-terminology-incoherence)
+- [Gate 4: Tense Systematic Violation](#gate-4-tense-systematic-violation)
+- [Gate Interaction](#gate-interaction)
+- [Gate Re-assessment](#gate-re-assessment)
+<!-- toc:end -->
+
 Non-compensatory gates for language assessment. A single gate failure constrains the `overall_language_readiness` level regardless of other dimension scores.
 
 ---

@@ -1,5 +1,27 @@
 # ChatGPT Deep Research Continuation Rules
 
+## Contents
+
+<!-- toc:start -->
+- [Core Principles](#core-principles)
+- [Prompt Structure Requirements](#prompt-structure-requirements)
+  - [1. Research Objective (研究目标)](#1-research-objective-研究目标)
+  - [2. Retrieval Strategy (检索规划)](#2-retrieval-strategy-检索规划)
+  - [3. Content Requirements (内容要求)](#3-content-requirements-内容要求)
+  - [4. Output Format (输出格式)](#4-output-format-输出格式)
+  - [5. Constraints (禁止事项)](#5-constraints-禁止事项)
+- [Domain-Specific Adjustments](#domain-specific-adjustments)
+  - [Clinical / Medical](#clinical-medical)
+  - [AI / ML / Engineering](#ai-ml-engineering)
+  - [Broad / Exploratory](#broad-exploratory)
+- [Quality Gates](#quality-gates)
+- [Post-Report Processing](#post-report-processing)
+- [Level-Specific Adjustments](#level-specific-adjustments)
+  - [Standard (S)](#standard-s)
+  - [Divergent (D)](#divergent-d)
+  - [Focused (F)](#focused-f)
+<!-- toc:end -->
+
 Use these rules when creating a self-contained continuation package for ChatGPT Deep Research or when the current task is already running in Deep Research mode.
 
 ## Core Principles

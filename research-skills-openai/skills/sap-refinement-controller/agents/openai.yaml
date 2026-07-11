@@ -1,6 +1,6 @@
 interface:
   display_name: "Sap Refinement Controller"
-  short_description: "Control targeted Statistical Analysis Plan revision loops after independent SAP evaluation."
+  short_description: "Plan and control targeted Statistical Analysis Plan revision after independent evaluation, route..."
   default_prompt: "Use $sap-refinement-controller for this task and follow its workflow and output contract."
 policy:
   allow_implicit_invocation: false

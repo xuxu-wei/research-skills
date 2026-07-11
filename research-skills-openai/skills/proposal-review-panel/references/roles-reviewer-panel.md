@@ -1,5 +1,24 @@
 # Reviewer Panel Roles
 
+## Contents
+
+<!-- toc:start -->
+- [Panel Tiers](#panel-tiers)
+  - [lightweight_panel](#lightweightpanel)
+  - [standard_panel](#standardpanel)
+  - [full_panel](#fullpanel)
+- [Reviewer Role Definitions](#reviewer-role-definitions)
+  - [broad-field reviewer](#broad-field-reviewer)
+  - [narrow-domain reviewer](#narrow-domain-reviewer)
+  - [methodology / statistics reviewer](#methodology-statistics-reviewer)
+  - [cross-disciplinary senior reviewer](#cross-disciplinary-senior-reviewer)
+  - [translational / end-user reviewer](#translational-end-user-reviewer)
+  - [skeptical reviewer](#skeptical-reviewer)
+  - [submission-guard reviewer](#submission-guard-reviewer)
+  - [practicing-clinician reviewer](#practicing-clinician-reviewer)
+- [Role Use Rules](#role-use-rules)
+<!-- toc:end -->
+
 This reference defines the default reviewer roles for `proposal-review-panel`.
 
 ## Panel Tiers

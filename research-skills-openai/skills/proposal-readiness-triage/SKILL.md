@@ -1,6 +1,6 @@
 ---
 name: proposal-readiness-triage
-description: "Evaluate whether an existing research idea is ready to enter proposal"
+description: "Independently determine whether a research idea can enter proposal drafting, identify blocking gaps, and route clarification, idea refinement, or methods preflight."
 ---
 # proposal-readiness-triage
 
@@ -165,6 +165,6 @@ Before returning, check:
 
 - `references/criteria-readiness-triage.md`: detailed readiness criteria and pass / concern / fail guidance.
 - `references/criteria-fatal-flaws.md`: fatal flaw categories that can block proposal drafting.
-- `references/policy-idea-to-proposal-boundary.md`: boundary between idea refinement and proposal drafting.
+- Read `references/policy-idea-to-proposal-boundary.md` when its named guidance or contract applies: boundary between idea refinement and proposal drafting.
 - `references/schema-readiness-report.md`: required fields for the readiness report.
 - `templates/template-readiness-report.md`: concise output format for the readiness report.

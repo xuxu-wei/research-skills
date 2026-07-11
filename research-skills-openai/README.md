@@ -1,9 +1,13 @@
 # Research Skills (Preview)
 
 `research-skills-openai` is a personal, experimental ChatGPT/Codex research
-workflow plugin. It contains 46 skills for research ideas, proposals, articles,
+workflow plugin. It contains 45 skills for research ideas, proposals, articles,
 perspectives, evidence retrieval, and independent review. It is not presented
 as production-stable.
+
+Roadmap Phase 0 and Phase 1 are complete: recursive resource/reference checks,
+auditable workflow edges, conditional resource loading, compact orchestrator
+kernels, and 180-line/8,000-character skill budgets are enforced by audit.
 
 ## Install from the repository marketplace
 
@@ -29,7 +33,7 @@ git pull
 codex plugin add research-skills-openai@xuxu-research-preview
 ```
 
-For a tagged release, update the plugin SemVer in
+For every installable behavior change, update the plugin SemVer in
 `.codex-plugin/plugin.json` and keep `workflow-registry.yaml` synchronized.
 
 ## Local development cachebuster
@@ -43,15 +47,16 @@ python scripts/audit_openai_research_plugin.py
 codex plugin add research-skills-openai@xuxu-research-preview
 ```
 
-The helper preserves the base version and synchronizes the manifest and
-workflow registry, for example
-`0.1.0` to `0.1.0+codex.local-YYYYMMDD-HHMMSS`.
+The helper preserves the base version, including any prerelease identifier, and
+synchronizes the manifest and workflow registry, for example
+`0.3.0-preview.1` to `0.3.0-preview.1+codex.local-YYYYMMDD-HHMMSS`.
 
 ## Validation
 
 ```powershell
 python scripts/audit_openai_research_plugin.py
 python scripts/codex_plugin_converter.py --mode codex --fail-on-invalid
+python C:\Users\10149\.codex\skills\.system\plugin-creator\scripts\validate_plugin.py research-skills-openai
 ```
 
 The workflow stops at a package prepared for human review and signature. It

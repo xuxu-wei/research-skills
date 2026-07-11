@@ -1,6 +1,6 @@
 ---
 name: multi-path-idea-generator
-description: "当 Research Context Brief 与 Opportunity Map 已就绪，需要通过多条生成路径产生候选科研 idea 时使用。本 skill 只负责按路径生成候选 idea、控制重复、保留生成来源和不确定性；不做 evidence mapping、methodology/statistics preflight、idea evaluation、ranking、promote/reject 或 proposal writing。评价必须由 orchestrator 派发给隔离、独立的 idea-evaluator 子 agent。"
+description: "Generate a diverse, non-duplicative set of research ideas from approved context and opportunity maps using selected generation paths; do not evaluate or rank candidates."
 ---
 # Multi-Path Idea Generator
 
@@ -112,12 +112,12 @@ description: "当 Research Context Brief 与 Opportunity Map 已就绪，需要�
 
 - `research-idea-orchestrator/references/artifact-contracts.md`：定义 Candidate Idea、Lineage Record 和跨 skill handoff 的统一字段命名。
 - `research-idea-orchestrator/references/handoff-validation.md`：定义 generator 输出交给 preflight、evaluator 和 assembler 前的最小校验规则。
-- `references/idea-schema.md`：管理候选 idea 的字段、必填项和允许值。
-- `references/generation-paths.md`：定义 10 类 generation paths 的目的、适用场景和输出要求。
-- `references/path-selection-rules.md`：定义如何根据 opportunity type、用户目标、约束和 repair direction 选择路径。
-- `references/novelty-claim-rules.md`：定义 novelty claim 如何受 Evidence Map 限制，以及何时必须标注 unverified。
-- `references/duplicate-control-rules.md`：定义近似重复 idea 的识别、合并、丢弃和 lineage 记录规则。
-- `references/generation-quality-gates.md`：定义 idea 进入 idea pool 前的最低完整性要求。
-- `references/downstream-handoff-rules.md`：定义交付给 preflight、evaluator 和 portfolio assembler 的内容要求。
-- `templates/generated-idea-set.md`：候选 idea 生成结果模板。
-- `templates/generation-failure-report.md`：输入不足或无法可靠生成时的失败报告模板。
+- Read `references/idea-schema.md` when its named guidance or contract applies: ：管理候选 idea 的字段、必填项和允许值。
+- Read `references/generation-paths.md` when its named guidance or contract applies: ：定义 10 类 generation paths 的目的、适用场景和输出要求。
+- Read `references/path-selection-rules.md` when its named guidance or contract applies: ：定义如何根据 opportunity type、用户目标、约束和 repair direction 选择路径。
+- Read `references/novelty-claim-rules.md` when its named guidance or contract applies: ：定义 novelty claim 如何受 Evidence Map 限制，以及何时必须标注 unverified。
+- Read `references/duplicate-control-rules.md` when its named guidance or contract applies: ：定义近似重复 idea 的识别、合并、丢弃和 lineage 记录规则。
+- Read `references/generation-quality-gates.md` when its named guidance or contract applies: ：定义 idea 进入 idea pool 前的最低完整性要求。
+- Read `references/downstream-handoff-rules.md` when its named guidance or contract applies: ：定义交付给 preflight、evaluator 和 portfolio assembler 的内容要求。
+- Use `templates/generated-idea-set.md` when producing its named artifact: ：候选 idea 生成结果模板。
+- Use `templates/generation-failure-report.md` when producing its named artifact: ：输入不足或无法可靠生成时的失败报告模板。

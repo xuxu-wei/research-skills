@@ -1,6 +1,6 @@
 ---
 name: sap-refinement-controller
-description: "Control targeted Statistical Analysis Plan revision loops after independent SAP evaluation. Converts SAP evaluator feedback into revision plans, coordinates sap-writer updates, preserves SAP version lineage, requests independent re-evaluation, and stops when revision produces no methodological gain."
+description: "Plan and control targeted Statistical Analysis Plan revision after independent evaluation, route writing to sap-writer, preserve lineage, and require fresh re-evaluation."
 ---
 # sap-refinement-controller
 

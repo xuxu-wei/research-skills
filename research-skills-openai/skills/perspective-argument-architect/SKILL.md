@@ -1,6 +1,6 @@
 ---
 name: perspective-argument-architect
-description: "Use when 将核心判断展开为可检验的论证骨架，包括问题场构建、贡献类型锚定、论证链设计、叙事策略选择、反方预埋、可争议约束标注；不写文章正文，只输出施工图。"
+description: "Design a contestable Perspective argument chain, contribution type, narrative strategy, paragraph plan, and claim mapping before drafting; do not write prose."
 ---
 # perspective-argument-architect
 
@@ -154,7 +154,7 @@ Escalation Route:
 
 ## References
 
-- `references/contribution-types.md`
-- `references/tension-taxonomy.md`
-- `references/argument-chain-template.md`
-- `references/contestability-constraints.md`
+- Read `references/contribution-types.md` when its named guidance or contract applies.
+- Read `references/tension-taxonomy.md` when its named guidance or contract applies.
+- Read `references/argument-chain-template.md` when its named guidance or contract applies.
+- Read `references/contestability-constraints.md` when its named guidance or contract applies.

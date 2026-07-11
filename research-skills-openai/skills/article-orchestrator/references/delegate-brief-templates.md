@@ -1,5 +1,18 @@
 # Delegate Brief Templates
 
+## Contents
+
+<!-- toc:start -->
+- [General Brief Structure](#general-brief-structure)
+- [Readiness Triage Brief](#readiness-triage-brief)
+- [Methods-Statistics Auditor Brief](#methods-statistics-auditor-brief)
+- [Claim Auditor Brief](#claim-auditor-brief)
+- [Evaluator Brief](#evaluator-brief)
+- [Review Panel — Individual Reviewer Brief (Blind External Simulation)](#review-panel-individual-reviewer-brief-blind-external-simulation)
+- [Review Panel — Methodology Reviewer Brief (Internal Diagnostic)](#review-panel-methodology-reviewer-brief-internal-diagnostic)
+- [Submission Compositor / Verifier Brief](#submission-compositor-verifier-brief)
+<!-- toc:end -->
+
 Templates for isolated subagent delegation briefs used by `article-orchestrator` and `article-refinement-controller`.
 
 ## General Brief Structure

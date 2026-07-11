@@ -1,6 +1,6 @@
 interface:
   display_name: "Perspective Input Builder"
-  short_description: "Use when 生成 Perspective 输入模板，读回用户填写内容并验证，产出结构化 Input Brief 和 Target Outlet..."
+  short_description: "Normalize a Perspective thesis, audience, outlet, evidence, and constraints into an input brief..."
   default_prompt: "Use $perspective-input-builder for this task and follow its workflow and output contract."
 policy:
   allow_implicit_invocation: false

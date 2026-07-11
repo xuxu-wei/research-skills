@@ -1,6 +1,6 @@
 ---
 name: proposal-package-assembler
-description: "Assemble the final proposal package from existing proposal, workflow state, context brief, readiness report, evaluation reports, revision history, panel summary, unresolved issues, and optional SAP materials. Preserves lineage and dissent without rewriting, cleaning, or re-evaluating the proposal."
+description: "Assemble evaluated proposal, state, review, revision, panel, unresolved-issue, and optional SAP artifacts into a human-review package without rewriting or rescoring."
 ---
 # proposal-package-assembler
 
@@ -78,9 +78,9 @@ Partial output is allowed when materials are missing; state missing pieces and l
 ## References
 
 - `references/archival-cleanup.md`: pre-packaging cleanup handoff guide for drafter/refinement, not an assembler-side editing procedure.
-- `references/rules-final-package.md`: defines package assembly rules, included materials, and presentation order.
-- `references/policy-unresolved-issues.md`: defines how unresolved issues are recorded without hiding or softening them.
-- `references/policy-package-scope.md`: defines package material boundaries and prevents scope creep.
-- `references/policy-file-lineage.md`: defines lineage tracking from proposal to final package.
-- `references/schema-final-proposal-package.md`: defines Final Proposal Package structure.
-- `templates/template-final-proposal-package.md`: output template for the final package.
+- Read `references/rules-final-package.md` when its named guidance or contract applies: defines package assembly rules, included materials, and presentation order.
+- Read `references/policy-unresolved-issues.md` when its named guidance or contract applies: defines how unresolved issues are recorded without hiding or softening them.
+- Read `references/policy-package-scope.md` when its named guidance or contract applies: defines package material boundaries and prevents scope creep.
+- Read `references/policy-file-lineage.md` when its named guidance or contract applies: defines lineage tracking from proposal to final package.
+- Read `references/schema-final-proposal-package.md` when its named guidance or contract applies: defines Final Proposal Package structure.
+- Use `templates/template-final-proposal-package.md` when producing its named artifact: output template for the final package.

@@ -1,6 +1,6 @@
 ---
 name: article-readiness-triage
-description: "Assess whether a research study has the minimum conditions to enter the manuscript writing system. Determines readiness status, recommended article type, blocking and nonblocking gaps, target journal realism, and recommended route. Does not normalize input, build context, or draft manuscript content."
+description: "Independently determine whether study materials can enter article workflow, identify article type and blocking gaps, and recommend a route without drafting content."
 ---
 # article-readiness-triage
 
@@ -163,5 +163,5 @@ Return with an incomplete report (not a forced "ready") if:
 
 ## References
 
-- `references/schema-readiness-report.md`: Full YAML schema for the readiness report output.
+- Read `references/schema-readiness-report.md` when its named guidance or contract applies: Full YAML schema for the readiness report output.
 - `article-orchestrator/references/artifact-contracts.md`: Canonical artifact contracts.

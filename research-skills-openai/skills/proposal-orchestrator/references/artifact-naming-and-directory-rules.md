@@ -1,5 +1,21 @@
 # Proposal Artifact Naming and Directory Rules
 
+## Contents
+
+<!-- toc:start -->
+- [Project Root](#project-root)
+- [Directory Layout](#directory-layout)
+- [Cross-Package Version Fields](#cross-package-version-fields)
+- [Proposal Version Naming](#proposal-version-naming)
+- [Revision Round Naming](#revision-round-naming)
+- [Language QA Naming](#language-qa-naming)
+- [Evaluation Naming](#evaluation-naming)
+- [SAP Naming](#sap-naming)
+- [Panel Naming](#panel-naming)
+- [Final Package Naming](#final-package-naming)
+- [Artifact Index](#artifact-index)
+<!-- toc:end -->
+
 Use this file to keep proposal workflow artifacts readable across fast-track entry, multiple revision rounds, SAP branches, review panels, language polishing, and final packaging.
 
 ## Project Root

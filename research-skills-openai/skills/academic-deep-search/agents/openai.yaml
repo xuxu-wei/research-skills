@@ -1,6 +1,6 @@
 interface:
   display_name: "Academic Deep Search"
-  short_description: "Search academic literature and return structured, source-grounded results for questions about..."
+  short_description: "Answer a narrow academic question by finding and carefully reading 2-5 papers."
   default_prompt: "Use $academic-deep-search for this task and follow its workflow and output contract."
 policy:
   allow_implicit_invocation: true

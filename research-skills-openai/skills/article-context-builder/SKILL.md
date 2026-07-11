@@ -1,6 +1,6 @@
 ---
 name: article-context-builder
-description: "Normalize raw research inputs into a structured context brief, classify study type and article type, and select the appropriate reporting standard. Gate output as proceed | proceed_with_assumptions | clarification_stop."
+description: "Normalize research inputs into an article context brief, classify study/article type, select reporting standards, and gate missing information before architecture or drafting."
 ---
 # article-context-builder
 
@@ -153,8 +153,9 @@ Write `02_context/context-brief.md` containing the full context brief YAML plus 
 
 ## References
 
-- `references/study-type-taxonomy.md`: Full study type classification taxonomy with definitions and edge cases.
-- `references/reporting-standard-mapping.md`: Study type → reporting standard mapping rules, multi-standard logic, extension priority, journal override.
+- Read `references/study-type-taxonomy.md` when its named guidance or contract applies: Full study type classification taxonomy with definitions and edge cases.
+- Read `references/reporting-standard-mapping.md` when its named guidance or contract applies: Study type → reporting standard mapping rules, multi-standard logic, extension priority, journal override.
 - `references/reporting-standards/`: Item libraries for CONSORT, STROBE, PRISMA, TRIPOD, STARD, ARRIVE, COREQ, CHEERS, SQUIRE, CARE.
+- Read `references/reporting-standards/README.md` when selecting or locating a reporting-standard item library.
 - `article-orchestrator/references/artifact-contracts.md`: Canonical context brief schema.
 - `article-orchestrator/references/artifact-naming-and-directory-rules.md`: Directory and naming conventions.

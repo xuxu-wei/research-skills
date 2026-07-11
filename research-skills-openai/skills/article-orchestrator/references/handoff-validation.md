@@ -1,5 +1,27 @@
 # Handoff Validation Rules
 
+## Contents
+
+<!-- toc:start -->
+- [Handoff Gates](#handoff-gates)
+  - [Step 0 → Step 1: Orchestrator → Readiness Triage](#step-0-step-1-orchestrator-readiness-triage)
+  - [Step 1 → Step 2: Readiness Triage → Context Builder](#step-1-step-2-readiness-triage-context-builder)
+  - [Step 2 → Step 3: Context Builder → Literature Grounder](#step-2-step-3-context-builder-literature-grounder)
+  - [Step 3 → Step 4: Literature Grounder → Architect](#step-3-step-4-literature-grounder-architect)
+  - [Step 4 → Step 7: Architect → Methods Auditor](#step-4-step-7-architect-methods-auditor)
+  - [Step 7 → Step 8: Methods Auditor → Drafter](#step-7-step-8-methods-auditor-drafter)
+  - [Step 8 → Step 9: Drafter → Claim Auditor](#step-8-step-9-drafter-claim-auditor)
+  - [Step 9 → Step 10: Claim Auditor → Evaluator](#step-9-step-10-claim-auditor-evaluator)
+  - [Step 10 → Step 11: Evaluator → Refinement Controller](#step-10-step-11-evaluator-refinement-controller)
+  - [Step 11 → Step 10 (Re-evaluation): Refinement Controller → Evaluator](#step-11-step-10-re-evaluation-refinement-controller-evaluator)
+  - [Step 10/11 → Step 12: Evaluator → Review Panel](#step-1011-step-12-evaluator-review-panel)
+  - [Step 12 → Step 13: Review Panel → Frontmatter Drafter](#step-12-step-13-review-panel-frontmatter-drafter)
+  - [Step 13/13b → Step 14: Frontmatter/Cover Letter → Submission Compositor](#step-1313b-step-14-frontmattercover-letter-submission-compositor)
+  - [Step 14 → Human Review: Compositor → Author](#step-14-human-review-compositor-author)
+- [Fast-Track Handoff Modifications](#fast-track-handoff-modifications)
+- [Failure Handling](#failure-handling)
+<!-- toc:end -->
+
 Minimum validation checks at each cross-skill handoff boundary in the research-article workflow.
 
 ## Handoff Gates

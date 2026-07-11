@@ -1,5 +1,23 @@
 # Readiness Triage Criteria
 
+## Contents
+
+<!-- toc:start -->
+- [Rating Labels](#rating-labels)
+- [Core Criteria](#core-criteria)
+  - [1. Research Domain](#1-research-domain)
+  - [2. Research Question or Objective](#2-research-question-or-objective)
+  - [3. Study Object](#3-study-object)
+  - [4. Value Claim](#4-value-claim)
+  - [5. Intended Output](#5-intended-output)
+  - [6. Data or Evidence Path](#6-data-or-evidence-path)
+  - [7. Endpoint, Outcome, Metric, or Deliverable](#7-endpoint-outcome-metric-or-deliverable)
+  - [8. Method or Study Design](#8-method-or-study-design)
+  - [9. Feasibility Constraints](#9-feasibility-constraints)
+  - [10. User Goal Fit](#10-user-goal-fit)
+- [Minimum Passing Pattern](#minimum-passing-pattern)
+<!-- toc:end -->
+
 Use this file to determine whether a research idea is ready for proposal drafting.
 
 ## Rating Labels

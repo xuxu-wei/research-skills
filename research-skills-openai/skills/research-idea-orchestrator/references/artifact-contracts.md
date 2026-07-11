@@ -1,5 +1,18 @@
 # Research-Idea Artifact Contracts
 
+## Contents
+
+<!-- toc:start -->
+- [Global Rules](#global-rules)
+- [Research Context Brief](#research-context-brief)
+- [Evidence and Opportunity Artifacts](#evidence-and-opportunity-artifacts)
+- [Candidate Idea](#candidate-idea)
+- [Methodology-Statistics Preflight](#methodology-statistics-preflight)
+- [Idea Evaluation](#idea-evaluation)
+- [Lineage Record](#lineage-record)
+- [Portfolio Package](#portfolio-package)
+<!-- toc:end -->
+
 This is the canonical contract for artifacts passed between `research-idea` skills.
 
 ## Global Rules

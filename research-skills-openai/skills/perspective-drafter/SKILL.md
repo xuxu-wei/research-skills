@@ -1,6 +1,6 @@
 ---
 name: perspective-drafter
-description: "Use when 将论证骨架转化为完整 Perspective 文章，支持全新起草和修订起草，每段须映射到 argument step + claim ID，修订模式产出修订稿和 point-by-point response。"
+description: "Draft or revise a versioned Perspective from approved architecture and claim artifacts, with paragraph mapping and separate reviewer responses; do not self-evaluate."
 ---
 # perspective-drafter
 
@@ -132,6 +132,6 @@ Paragraph N
 
 ## References
 
-- `references/narrative-strategies.md`：3 种叙事策略及结构模板
-- `references/stance-calibration.md`：立场强度语言校准
-- `references/style-guidelines.md`：篇幅控制、段落功能标注、减法规则
+- Read `references/narrative-strategies.md` when its named guidance or contract applies: ：3 种叙事策略及结构模板
+- Read `references/stance-calibration.md` when its named guidance or contract applies: ：立场强度语言校准
+- Read `references/style-guidelines.md` when its named guidance or contract applies: ：篇幅控制、段落功能标注、减法规则

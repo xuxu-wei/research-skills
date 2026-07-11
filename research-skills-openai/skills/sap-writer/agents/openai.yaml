@@ -1,6 +1,6 @@
 interface:
   display_name: "Sap Writer"
-  short_description: "Draft and maintain a Statistical Analysis Plan file after methodology/statistics"
+  short_description: "Draft or revise a versioned Statistical Analysis Plan from approved endpoints, design, data..."
   default_prompt: "Use $sap-writer for this task and follow its workflow and output contract."
 policy:
   allow_implicit_invocation: false

@@ -1,6 +1,6 @@
 ---
 name: academic-deep-search
-description: "Search academic literature and return structured, source-grounded results for questions about methods, markers, findings, or representative figures. Use this skill when the user wants to know what studies in a field usually detect, what results sections commonly report, which methods are typical, or what a representative figure in a topic looks like. For biomedical topics, prefer PubMed and PMC."
+description: "Answer a narrow academic question by finding and carefully reading 2-5 papers. Use for specific method, marker, finding, or representative-figure questions; route broader synthesis to research-opportunity-mapper."
 ---
 # Academic Deep Search
 
@@ -13,12 +13,21 @@ Use this skill for requests such as:
 
 The goal is not just to find papers. The goal is to read enough of the right papers to give the user a structured, directly useful answer.
 
+## Eligibility Gate
+
+Use this skill only when all conditions hold:
+
+- the question is narrow enough to answer from 2-5 carefully selected papers;
+- the requested output is a focused synthesis, not a comprehensive evidence map, novelty landscape, systematic review, or research-gap analysis;
+- the source, population/problem, method, marker, result type, or figure type can be stated precisely enough to guide a small search.
+
+If more than five papers, several evidence directions, broad field coverage, or iterative gap mapping are needed, route to `research-opportunity-mapper`. Do not broaden this skill into Deep Research.
+
 ## Search Capability Routing
 
 - Use ChatGPT/Codex built-in Search for targeted discovery, current literature checks, exact source verification, and opening candidate papers.
 - Require live search when recency is material. If only indexed/cached results are available, state the freshness limitation.
-- Use ChatGPT Deep Research when the question requires multi-stage synthesis across several evidence directions or source classes.
-- If Deep Research is required but the current task is not in that mode, return `deep_research_handoff_required` with a self-contained continuation package and stop; do not imitate a Deep Research report with ordinary chat.
+- If the question requires multi-stage synthesis across several evidence directions or source classes, stop this skill and route to `research-opportunity-mapper`, which owns Deep Research handoffs.
 - Do not encode product-internal tool function names. Describe the required capability, source scope, and output contract.
 
 ## Two Output Modes
@@ -90,9 +99,7 @@ Prefer the best database for the topic:
 - quantitative or engineering topics: field-appropriate databases
 - broad discovery: web search only when a better native source is unavailable
 
-Aim to identify a small set of relevant papers with accessible full text. A few well-read papers are better than many shallow hits.
-
-For a Deep Research handoff, include the research question, source constraints, date window, required evidence fields, citation requirements, known evidence, unresolved gaps, and the exact report structure that must be returned.
+Aim to identify 2-5 relevant papers with accessible full text. A few well-read papers are better than many shallow hits. If five papers are insufficient after focused query refinement, stop and route to `research-opportunity-mapper` rather than continuing to accumulate sources.
 
 ### 5. Verify Source Membership Before Citing
 
@@ -119,7 +126,7 @@ If full text is not available, say that clearly and lower confidence.
 
 ### 7. Select And Synthesize
 
-Choose 2 to 5 papers that are:
+Choose exactly 2 to 5 papers, unless fewer than two relevant papers exist and the sparse result itself is material. The selected papers must be:
 
 - relevant to the question
 - compliant with the requested source scope
@@ -140,6 +147,7 @@ Use [references/query-guide.md](./references/query-guide.md) for output template
 ## Non-Negotiable Rules
 
 - User-specified source scope overrides your defaults.
+- Do not use this skill for a question that requires more than five papers or broad field coverage.
 - Do not answer methods or marker questions from abstracts alone if full text is available.
 - Do not fabricate source membership or figure details.
 - Prefer PubMed and PMC for biomedical literature.

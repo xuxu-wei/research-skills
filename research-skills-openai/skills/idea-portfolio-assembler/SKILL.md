@@ -1,6 +1,6 @@
 ---
 name: idea-portfolio-assembler
-description: "当 research-idea workflow 已完成 context、evidence/opportunity mapping、idea generation、preflight 和独立 evaluation，需要把 promoted、backup、merged、rejected ideas 汇总为面向 PI 审阅的 Research Idea Portfolio 时使用。本 skill 只做组合整理、排序呈现、lineage 摘要和 handoff 状态汇总；不生成 idea，不重新评价 idea，不写 proposal。"
+description: "Assemble evaluated research ideas into a PI-review portfolio with rankings, lineage, limitations, dissent, and proposal-handoff status without rescoring or rewriting candidates."
 ---
 # Idea Portfolio Assembler
 
@@ -155,14 +155,14 @@ description: "当 research-idea workflow 已完成 context、evidence/opportunit
 
 ## References
 
-- `references/portfolio-input-schema.md`：管理 portfolio assembly 所需输入字段和最低材料要求。
-- `references/portfolio-output-schema.md`：管理最终 portfolio、failure report 和 no-promoted report 的输出字段。
-- `references/portfolio-policy.md`：定义候选分组、排序、proposal handoff status 和 assembly failure 处理规则。
-- `references/promoted-idea-package-rules.md`：定义 PI 审阅版 promoted idea package 的组成和 handoff 状态。
-- `references/lineage-summary-rules.md`：定义 idea lineage、parent IDs、revision / merge / reframe 轨迹的摘要规则。
-- `references/no-promoted-idea-report-rules.md`：定义没有 promoted idea 时的输出规则。
+- Read `references/portfolio-input-schema.md` when its named guidance or contract applies: ：管理 portfolio assembly 所需输入字段和最低材料要求。
+- Read `references/portfolio-output-schema.md` when its named guidance or contract applies: ：管理最终 portfolio、failure report 和 no-promoted report 的输出字段。
+- Read `references/portfolio-policy.md` when its named guidance or contract applies: ：定义候选分组、排序、proposal handoff status 和 assembly failure 处理规则。
+- Read `references/promoted-idea-package-rules.md` when its named guidance or contract applies: ：定义 PI 审阅版 promoted idea package 的组成和 handoff 状态。
+- Read `references/lineage-summary-rules.md` when its named guidance or contract applies: ：定义 idea lineage、parent IDs、revision / merge / reframe 轨迹的摘要规则。
+- Read `references/no-promoted-idea-report-rules.md` when its named guidance or contract applies: ：定义没有 promoted idea 时的输出规则。
 - `research-idea-orchestrator/references/artifact-contracts.md`：定义 portfolio package、lineage 和 evaluation artifact 的统一字段命名。
 - `research-idea-orchestrator/references/workflow-manifest.md`：定义 portfolio assembly 需回写的 round manifest 字段。
-- `templates/research-idea-portfolio.md`：PI 审阅版 Research Idea Portfolio 模板。
-- `templates/no-promoted-idea-report.md`：无 promoted idea 时的报告模板。
-- `templates/portfolio-assembly-failure-report.md`：portfolio 组装失败时的报告模板。
+- Use `templates/research-idea-portfolio.md` when producing its named artifact: ：PI 审阅版 Research Idea Portfolio 模板。
+- Use `templates/no-promoted-idea-report.md` when producing its named artifact: ：无 promoted idea 时的报告模板。
+- Use `templates/portfolio-assembly-failure-report.md` when producing its named artifact: ：portfolio 组装失败时的报告模板。

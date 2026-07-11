@@ -7,6 +7,9 @@ import json
 import re
 import sys
 from pathlib import Path
+from urllib.parse import unquote
+
+import yaml
 
 
 REPO = Path(__file__).resolve().parents[1]
@@ -16,8 +19,14 @@ REGISTRY = PLUGIN / "workflow-registry.yaml"
 MANIFEST = PLUGIN / ".codex-plugin" / "plugin.json"
 MARKETPLACE = REPO / ".agents" / "plugins" / "marketplace.json"
 
-EXPECTED_SKILLS = 46
+EXPECTED_SKILLS = 45
 EXPECTED_REVIEWERS = 18
+EXPECTED_IMPLICIT = 6
+SKILL_LINE_HARD_LIMIT = 250
+SKILL_CHAR_HARD_LIMIT = 12_000
+SKILL_LINE_TARGET = 180
+SKILL_CHAR_TARGET = 8_000
+DESCRIPTION_BUDGET = 8_000
 
 FORBIDDEN_RESIDUES = {
     "delegate_task": re.compile(r"\bdelegate_task\b"),
@@ -85,51 +94,59 @@ def skill_name(path: Path) -> str | None:
     return match.group(1).strip() if match else None
 
 
-def registry_entries(text: str) -> list[dict[str, str]]:
-    entries: list[dict[str, str]] = []
-    for block in re.split(r"(?m)^  - name:\s*", text)[1:]:
-        first, *rest = block.splitlines()
-        entry: dict[str, str] = {"name": first.strip().strip('"')}
-        for line in rest:
-            match = re.match(r"^    ([A-Za-z0-9_-]+):\s*(.*)$", line)
-            if not match:
-                continue
-            entry[match.group(1)] = match.group(2).strip()
-        entries.append(entry)
-    return entries
+def resolve_resource_path(source: Path, reference: str) -> Path | None:
+    clean = unquote(reference.split("#", 1)[0].split("?", 1)[0]).replace("\\", "/")
+    if not clean or clean.startswith(("http://", "https://", "mailto:", "codex://", "app://", "#")):
+        return None
+    first = clean.split("/", 1)[0]
+    if first in {"references", "templates", "scripts", "agents"}:
+        for parent in (source.parent, *source.parents):
+            if parent.parent == SKILLS:
+                return parent / clean
+    if (SKILLS / first / "SKILL.md").exists():
+        return SKILLS / clean
+    return source.parent / clean
 
 
-def registry_related(raw: str) -> list[str]:
-    if not raw.startswith("["):
-        return []
-    return [item.strip().strip('"') for item in raw[1:-1].split(",") if item.strip()]
-
-
-def referenced_file_errors(skill_md: Path) -> list[str]:
-    text = read(skill_md)
-    references = set(
-        re.findall(
-            r"`((?:[A-Za-z0-9_-]+/)?(?:references|templates|scripts)/[^`]+\.(?:md|py|yaml|yml|json))`",
-            text,
-        )
-    )
-    references.update(
-        re.findall(
-            r"\]\((?:\./)?((?:[A-Za-z0-9_-]+/)?(?:references|templates|scripts)/[^)#]+)(?:#[^)]+)?\)",
-            text,
-        )
-    )
+def recursive_reference_errors() -> list[str]:
     errors: list[str] = []
-    for reference in sorted(references):
-        first = reference.split("/", 1)[0]
-        if first in {"references", "templates", "scripts"}:
-            target = skill_md.parent / reference
-        elif (SKILLS / first / "SKILL.md").exists():
-            target = SKILLS / reference
-        else:
+    markdown_files = sorted(PLUGIN.rglob("*.md"))
+    for source in markdown_files:
+        text = read(source)
+        visible_text = re.sub(r"```.*?```", "", text, flags=re.S)
+        candidates = set(re.findall(r"(?<!!)\[[^\]]*\]\(([^)]+)\)", visible_text))
+        if any(parent.parent == SKILLS for parent in (source.parent, *source.parents)):
+            candidates.update(
+                re.findall(
+                    r"`((?:[A-Za-z0-9_-]+/)?(?:references|templates|scripts|agents)/[^`]+\.(?:md|py|yaml|yml|json))`",
+                    visible_text,
+                )
+            )
+        for raw in sorted(candidates):
+            reference = raw.strip().strip("<>").split(maxsplit=1)[0]
+            target = resolve_resource_path(source, reference)
+            if target is not None and not target.exists():
+                errors.append(f"{relative(source)}: missing referenced file `{reference}`")
+    return errors
+
+
+def resource_ownership_errors(skill_md: Path) -> list[str]:
+    text = read(skill_md)
+    errors: list[str] = []
+    resources = [
+        path
+        for path in skill_md.parent.rglob("*")
+        if path.is_file() and any(part in {"references", "templates", "scripts"} for part in path.parts)
+    ]
+    for resource in sorted(resources):
+        resource_path = resource.relative_to(skill_md.parent).as_posix()
+        token = f"`{resource_path}`"
+        path_mentions = [line for line in text.splitlines() if resource_path in line]
+        if not path_mentions:
+            errors.append(f"{relative(resource)}: orphaned resource; name it directly from SKILL.md")
             continue
-        if not target.exists():
-            errors.append(f"{relative(skill_md)}: missing referenced file `{reference}`")
+        if not any(re.search(r"\b(?:read|load|use|run|open|when|before|after|only if)\b", line, re.I) for line in path_mentions):
+            errors.append(f"{relative(skill_md)}: resource `{resource_path}` lacks an explicit load/run condition")
     return errors
 
 
@@ -145,8 +162,13 @@ def main() -> int:
         if manifest.get("name") != "research-skills-openai":
             errors.append("plugin manifest name must be research-skills-openai")
         manifest_version = str(manifest.get("version", ""))
-        if not re.fullmatch(r"0\.1\.0(?:\+codex\.[A-Za-z0-9._-]+)?", manifest_version):
-            errors.append("plugin manifest version must be 0.1.0 or a single Codex cachebuster variant")
+        if not re.fullmatch(
+            r"(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)"
+            r"(?:-[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?"
+            r"(?:\+codex\.[A-Za-z0-9._-]+)?",
+            manifest_version,
+        ):
+            errors.append("plugin manifest version must be valid SemVer with an optional Codex cachebuster")
         if manifest.get("skills") != "./skills/":
             errors.append("plugin manifest skills must be ./skills/")
         if "Preview" not in str(manifest.get("interface", {}).get("displayName", "")):
@@ -167,6 +189,7 @@ def main() -> int:
 
     skill_files = sorted(SKILLS.rglob("SKILL.md"))
     names: dict[str, Path] = {}
+    description_chars = 0
     if len(skill_files) != EXPECTED_SKILLS:
         errors.append(f"expected {EXPECTED_SKILLS} skills, found {len(skill_files)}")
     for skill_md in skill_files:
@@ -188,10 +211,13 @@ def main() -> int:
             errors.append(f"{relative(skill_md)}: frontmatter keys must be exactly name and description; got {keys}")
         if "metadata.hermes" in text or re.search(r"(?m)^\s*hermes:\s*$", frontmatter):
             errors.append(f"{relative(skill_md)}: Hermes metadata is forbidden in OpenAI profile")
+        description_match = re.search(r'^description:\s*"(.*)"\s*$', frontmatter, re.M)
+        if description_match:
+            description_chars += len(description_match.group(1))
         openai_yaml = skill_md.parent / "agents" / "openai.yaml"
         if not openai_yaml.exists():
             errors.append(f"{relative(skill_md)}: missing agents/openai.yaml")
-        errors.extend(referenced_file_errors(skill_md))
+        errors.extend(resource_ownership_errors(skill_md))
         if name not in FINAL_SUBMISSION_SKILLS and re.search(
             r"\b(?:ethics?|ethical|IRB|privacy|regulatory|informed consent)\b", body, re.I
         ):
@@ -204,21 +230,29 @@ def main() -> int:
         registry_text = read(REGISTRY)
         if f'plugin_version: "{manifest_version}"' not in registry_text:
             errors.append("registry plugin version does not match manifest")
-        entries = registry_entries(registry_text)
+        registry_data = yaml.safe_load(registry_text) or {}
+        entries = registry_data.get("skills", [])
+        edges = registry_data.get("workflow_edges", [])
+        if registry_data.get("schema_version") != 2:
+            errors.append("registry schema_version must be 2 for workflow-edge auditability")
         if len(entries) != EXPECTED_SKILLS:
             errors.append(f"registry expected {EXPECTED_SKILLS} entries, found {len(entries)}")
+    if not REGISTRY.exists():
+        edges = []
 
     registry_names = {entry.get("name", "") for entry in entries}
     if registry_names != set(names):
         errors.append(
             f"registry/skill name mismatch: missing={sorted(set(names)-registry_names)} extra={sorted(registry_names-set(names))}"
         )
-    reviewers = [entry for entry in entries if entry.get("requires_independent_subagent") == "true"]
+    if "pubmed" in names or (SKILLS / "pubmed").exists():
+        errors.append("standalone OpenAI pubmed skill must remain removed")
+    reviewers = [entry for entry in entries if entry.get("requires_independent_subagent") is True]
     if len(reviewers) != EXPECTED_REVIEWERS:
         errors.append(f"expected {EXPECTED_REVIEWERS} independent reviewers, found {len(reviewers)}")
     for entry in entries:
         name = entry.get("name", "")
-        for related in registry_related(entry.get("related_skills", "")):
+        for related in entry.get("related_skills", []):
             if related not in registry_names:
                 errors.append(f"registry {name}: unresolved related skill {related}")
     for entry in reviewers:
@@ -242,6 +276,64 @@ def main() -> int:
         if "allow_implicit_invocation: false" not in openai_text:
             errors.append(f"{relative(path)}: reviewer must disable implicit invocation")
 
+    implicit = [entry for entry in entries if entry.get("invocation_policy") == "implicit"]
+    if len(implicit) != EXPECTED_IMPLICIT:
+        errors.append(f"expected {EXPECTED_IMPLICIT} implicit entry skills, found {len(implicit)}")
+
+    edge_fields = {
+        "workflow",
+        "source",
+        "destination",
+        "dispatch_mode",
+        "trigger",
+        "input_contract",
+        "output_contract",
+        "failure_route",
+    }
+    edge_pairs: set[tuple[str, str, str]] = set()
+    reviewer_names = {entry["name"] for entry in reviewers}
+    for index, edge in enumerate(edges, start=1):
+        missing = sorted(edge_fields - set(edge))
+        if missing:
+            errors.append(f"registry edge {index}: missing fields {missing}")
+            continue
+        source = edge["source"]
+        destination = edge["destination"]
+        key = (edge["workflow"], source, destination)
+        if key in edge_pairs:
+            errors.append(f"registry edge duplicated: {key}")
+        edge_pairs.add(key)
+        if source not in registry_names or destination not in registry_names:
+            errors.append(f"registry edge references unknown skill: {source} -> {destination}")
+        if destination in reviewer_names:
+            if edge["dispatch_mode"] != "delegated":
+                errors.append(f"reviewer edge must be delegated: {source} -> {destination}")
+            if edge["failure_route"] != "independent_review_pending":
+                errors.append(f"reviewer edge must stop at independent_review_pending: {source} -> {destination}")
+
+    orchestrators = [name for name in registry_names if name.endswith("orchestrator")]
+    edge_lookup = {(edge.get("source"), edge.get("destination")): edge for edge in edges}
+    for orchestrator in orchestrators:
+        body = read(names[orchestrator])
+        initial_load = description_chars + len(body)
+        if initial_load > 16_000:
+            errors.append(
+                f"{orchestrator}: 32K profile would retain less than half for artifacts/state "
+                f"({initial_load} initial description+orchestrator chars)"
+            )
+        if "phase summary" not in body.lower() or "artifact" not in body.lower():
+            errors.append(f"{orchestrator}: missing concise phase-summary/artifact-pointer return contract")
+        for reviewer in sorted(reviewer_names):
+            if f"`{reviewer}`" not in body:
+                continue
+            edge = edge_lookup.get((orchestrator, reviewer))
+            if not edge:
+                errors.append(f"missing orchestrator-to-reviewer edge: {orchestrator} -> {reviewer}")
+            elif edge.get("dispatch_mode") != "delegated":
+                errors.append(f"orchestrator reviewer edge is not delegated: {orchestrator} -> {reviewer}")
+
+    errors.extend(recursive_reference_errors())
+
     for residue_name, pattern in FORBIDDEN_RESIDUES.items():
         for path in sorted(PLUGIN.rglob("*")):
             if not path.is_file() or path.suffix.lower() not in {".md", ".yaml", ".yml", ".py"}:
@@ -249,12 +341,31 @@ def main() -> int:
             if pattern.search(read(path)):
                 errors.append(f"{relative(path)}: forbidden platform residue `{residue_name}`")
 
+    if description_chars > DESCRIPTION_BUDGET:
+        errors.append(f"skill descriptions exceed {DESCRIPTION_BUDGET} characters ({description_chars})")
+
     for skill_md in skill_files:
-        lines = len(read(skill_md).splitlines())
-        if lines > 500:
-            errors.append(f"{relative(skill_md)}: SKILL.md exceeds 500 lines ({lines})")
-        elif lines > 300:
-            warnings.append(f"{relative(skill_md)}: consider progressive disclosure ({lines} lines)")
+        text = read(skill_md)
+        lines = len(text.splitlines())
+        chars = len(text)
+        if lines > SKILL_LINE_HARD_LIMIT or chars > SKILL_CHAR_HARD_LIMIT:
+            errors.append(
+                f"{relative(skill_md)}: SKILL.md exceeds hard context budget "
+                f"({lines}/{SKILL_LINE_HARD_LIMIT} lines, {chars}/{SKILL_CHAR_HARD_LIMIT} chars)"
+            )
+        elif lines > SKILL_LINE_TARGET or chars > SKILL_CHAR_TARGET:
+            warnings.append(
+                f"{relative(skill_md)}: exceeds target context budget "
+                f"({lines}/{SKILL_LINE_TARGET} lines, {chars}/{SKILL_CHAR_TARGET} chars)"
+            )
+
+    for reference in sorted(SKILLS.glob("*/references/**/*.md")):
+        text = read(reference)
+        lines = len(text.splitlines())
+        if lines > 300:
+            errors.append(f"{relative(reference)}: reference exceeds 300 lines ({lines})")
+        if lines > 100 and not re.search(r"(?m)^## (?:Contents|Table of Contents)\s*$", text):
+            errors.append(f"{relative(reference)}: long reference lacks a table of contents ({lines} lines)")
 
     lineage_contracts = [
         SKILLS / "research-idea-orchestrator" / "references" / "artifact-contracts.md",
@@ -285,7 +396,7 @@ def main() -> int:
     if "04_blueprint/journal-adapter.md (submission_guard only)" not in article_briefs:
         errors.append("article panel brief: Submission-Guard journal adapter is not routed")
     article_contracts = read(
-        SKILLS / "article-orchestrator" / "references" / "artifact-contracts.md"
+        SKILLS / "article-orchestrator" / "references" / "artifact-review-and-submission-contracts.md"
     )
     panel_contract = article_contracts.split("## Panel Report", 1)[1].split("## Cover Letter", 1)[0]
     if 'source_skill: "article-orchestrator"' not in panel_contract or "aggregation_owner" not in panel_contract:
@@ -359,6 +470,27 @@ def main() -> int:
         errors.append("Deep Research Focused mode conflicts with the global phased contract")
     if "[F] 单阶段 targeted retrieval" in deep_research_template or "[F] 跳过此阶段" in deep_research_template:
         errors.append("Deep Research Focused template skips required phases")
+    academic_deep_search = read(SKILLS / "academic-deep-search" / "SKILL.md")
+    if (
+        "2-5" not in academic_deep_search
+        or "route to `research-opportunity-mapper`" not in academic_deep_search
+        or "Do not broaden this skill into Deep Research" not in academic_deep_search
+    ):
+        errors.append("academic-deep-search must remain limited to narrow questions answerable from 2-5 papers")
+    article_orchestrator = read(SKILLS / "article-orchestrator" / "SKILL.md")
+    if (
+        "`fast_track_draft`" not in article_orchestrator
+        or "Step 1 (independent readiness triage)" not in article_orchestrator
+    ):
+        errors.append("article fast-track draft path must run independent readiness triage")
+    perspective_minor_patch = perspective_orchestrator.split("### STEP 8.5: Panel Minor Revision Patch", 1)[1].split(
+        "### STEP 9: Final Compositor", 1
+    )[0]
+    if (
+        "fresh independent `perspective-evaluator`" not in perspective_minor_patch
+        or "不得让 panel minor patch 直接进入 final compositor" not in perspective_minor_patch
+    ):
+        errors.append("perspective panel minor patch must receive fresh re-evaluation before final composition")
     perspective_architect = read(SKILLS / "perspective-argument-architect" / "SKILL.md")
     perspective_refiner = read(SKILLS / "perspective-refinement-controller" / "SKILL.md")
     if "claim-change-requests/" in perspective_architect + perspective_refiner:
@@ -373,7 +505,12 @@ def main() -> int:
     print("OpenAI research plugin audit")
     print(f"skills: {len(skill_files)}")
     print(f"registry entries: {len(entries)}")
+    print(f"workflow edges: {len(edges)}")
     print(f"independent reviewers: {len(reviewers)}")
+    print(f"description characters: {description_chars}/{DESCRIPTION_BUDGET}")
+    if orchestrators:
+        max_initial = max(description_chars + len(read(names[name])) for name in orchestrators)
+        print(f"max 32K initial description+orchestrator load: {max_initial}/16000")
     print(f"errors: {len(errors)}")
     for error in errors:
         print(f"ERROR: {error}")

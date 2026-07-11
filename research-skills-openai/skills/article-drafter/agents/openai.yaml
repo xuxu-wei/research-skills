@@ -1,6 +1,6 @@
 interface:
   display_name: "Article Drafter"
-  short_description: "Draft manuscript body text from the article blueprint, context brief, literature grounding..."
+  short_description: "Draft or revise a versioned manuscript body and organize supplements from approved context..."
   default_prompt: "Use $article-drafter for this task and follow its workflow and output contract."
 policy:
   allow_implicit_invocation: false

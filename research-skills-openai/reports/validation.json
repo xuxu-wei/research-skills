@@ -1,11 +1,11 @@
 {
   "ok": true,
-  "expected_skill_count": 46,
+  "expected_skill_count": 45,
   "plugin": {
     "plugin": "research-skills-openai",
     "ok": true,
     "errors": [],
-    "skill_count": 46,
+    "skill_count": 45,
     "skills": {
       "academic-deep-search": "academic-deep-search",
       "academic-language-assessor": "academic-language-assessor",
@@ -46,7 +46,6 @@
       "proposal-readiness-triage": "proposal-readiness-triage",
       "proposal-refinement-controller": "proposal-refinement-controller",
       "proposal-review-panel": "proposal-review-panel",
-      "pubmed": "pubmed",
       "research-context-builder": "research-context-builder",
       "research-idea-orchestrator": "research-idea-orchestrator",
       "research-opportunity-mapper": "research-opportunity-mapper",

@@ -1,5 +1,23 @@
 # Evaluation Rubric
 
+## Contents
+
+<!-- toc:start -->
+- [1. Scoring Scale](#1-scoring-scale)
+- [2. Core Dimensions](#2-core-dimensions)
+  - [Novelty](#novelty)
+  - [Feasibility](#feasibility)
+  - [Impact](#impact)
+  - [Relevance](#relevance)
+  - [Clarity](#clarity)
+  - [Completion](#completion)
+- [3. Score Anchors](#3-score-anchors)
+- [4. Hard Gates](#4-hard-gates)
+- [5. Decision Rules](#5-decision-rules)
+- [6. Fatal or Unfixable Flaws](#6-fatal-or-unfixable-flaws)
+- [7. Required Evaluation Output](#7-required-evaluation-output)
+<!-- toc:end -->
+
 本文件定义 `idea-evaluator` 和 isolated independent evaluation 子 agent 必须使用的评分规则。Orchestrator 只调用本文件，不在 `SKILL.md` 中内嵌评分表。
 
 ## 1. Scoring Scale

@@ -1,5 +1,18 @@
 # Delegate Brief Templates
 
+## Contents
+
+<!-- toc:start -->
+- [Evaluator Brief](#evaluator-brief)
+- [Counter-Position Reviewer Brief](#counter-position-reviewer-brief)
+- [Evidence Reviewer Brief](#evidence-reviewer-brief)
+- [Narrative Reviewer Brief](#narrative-reviewer-brief)
+- [Methodology / Statistics Reviewer Brief](#methodology-statistics-reviewer-brief)
+- [Practicing-Clinician Reviewer Brief](#practicing-clinician-reviewer-brief)
+- [Outlet-Fit Editor Reviewer Brief](#outlet-fit-editor-reviewer-brief)
+- [Final Compositor Brief](#final-compositor-brief)
+<!-- toc:end -->
+
 本文件包含 orchestrator 派发所有 delegate 子 agent 时使用的 brief 模板。
 
 Every evaluator, reviewer, assessor, and final verifier brief must identify the reviewer skill/role, reviewer instance ID, workflow/round IDs, frozen artifact IDs/exact paths/versions, allowed and prohibited files, review scope, and output path. Run each brief in a fresh independent subagent/delegated thread. If that is unavailable, return `independent_review_pending` with the completed brief and stop; never run inline.

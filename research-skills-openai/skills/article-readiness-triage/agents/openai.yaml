@@ -1,6 +1,6 @@
 interface:
   display_name: "Article Readiness Triage"
-  short_description: "Assess whether a research study has the minimum conditions to enter the manuscript writing system."
+  short_description: "Independently determine whether study materials can enter article workflow, identify article..."
   default_prompt: "Use $article-readiness-triage for this task and follow its workflow and output contract."
 policy:
   allow_implicit_invocation: false

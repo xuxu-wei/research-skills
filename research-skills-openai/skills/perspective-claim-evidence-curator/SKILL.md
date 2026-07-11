@@ -1,6 +1,6 @@
 ---
 name: perspective-claim-evidence-curator
-description: "Use when 管理 Perspective 文章中每一个核心主张的证据基础，包括抽取 claims、匹配证据、二维强度评价、反证收集、引用风险标注、discourse baseline 建立，并作为 claim-ledger 的唯一写入者。"
+description: "Create and maintain the Perspective claim ledger, claim-evidence matrix, discourse baseline, contrary-evidence log, citation risks, and approved claim changes."
 ---
 # perspective-claim-evidence-curator
 
@@ -135,7 +135,7 @@ Escalation Route:
 
 ## References
 
-- `references/claim-type-taxonomy.md`
-- `references/evidence-grading.md`
-- `references/citation-risk-checklist.md`
-- `references/claim-change-request-template.md`
+- Read `references/claim-type-taxonomy.md` when its named guidance or contract applies.
+- Read `references/evidence-grading.md` when its named guidance or contract applies.
+- Read `references/citation-risk-checklist.md` when its named guidance or contract applies.
+- Read `references/claim-change-request-template.md` when its named guidance or contract applies.

@@ -1,5 +1,46 @@
 # Common L1 Interference Patterns
 
+## Contents
+
+<!-- toc:start -->
+- [Chinese L1 (Mandarin / Cantonese)](#chinese-l1-mandarin-cantonese)
+  - [Article Omission or Overuse](#article-omission-or-overuse)
+  - [Subject-Verb Agreement with Third-Person Singular](#subject-verb-agreement-with-third-person-singular)
+  - [Plural Marker Omission](#plural-marker-omission)
+  - [Preposition Patterns](#preposition-patterns)
+  - [Word Order: Adverbial Placement](#word-order-adverbial-placement)
+  - [Connective Overuse](#connective-overuse)
+  - [Redundant Paired Nouns](#redundant-paired-nouns)
+  - [Register](#register)
+- [Japanese / Korean L1](#japanese-korean-l1)
+  - [Article Patterns](#article-patterns)
+  - [Subject Omission](#subject-omission)
+  - [Passive Overuse](#passive-overuse)
+  - [Paragraph Structure](#paragraph-structure)
+- [Romance Language L1 (Spanish, Portuguese, French, Italian)](#romance-language-l1-spanish-portuguese-french-italian)
+  - [Cognate Overextension](#cognate-overextension)
+  - [Adjective Placement](#adjective-placement)
+  - [Preposition Transfer](#preposition-transfer)
+  - [Sentence Length](#sentence-length)
+- [Germanic Language L1 (German, Dutch, Scandinavian)](#germanic-language-l1-german-dutch-scandinavian)
+  - [Verb Position](#verb-position)
+  - [Compound Nouns](#compound-nouns)
+  - [Comma Usage](#comma-usage)
+- [South Asian L1 (Hindi, Urdu, Tamil, Telugu, etc.)](#south-asian-l1-hindi-urdu-tamil-telugu-etc)
+  - [Progressive Aspect Overuse](#progressive-aspect-overuse)
+  - [Article Patterns](#article-patterns-1)
+  - [Preposition Differences](#preposition-differences)
+- [Arabic L1](#arabic-l1)
+  - [Article Overuse](#article-overuse)
+  - [Relative Clause Structure](#relative-clause-structure)
+  - [Coordination Preference](#coordination-preference)
+- [General Non-Native Features (cross-L1)](#general-non-native-features-cross-l1)
+  - [Hedging Patterns](#hedging-patterns)
+  - [Formulaic Transfer](#formulaic-transfer)
+  - [Sentence-Initial Discourse Markers](#sentence-initial-discourse-markers)
+- [Assessment Usage](#assessment-usage)
+<!-- toc:end -->
+
 Non-native English features organized by L1 background. Flag these descriptively — their origin does not change their impact on the reader, but understanding the pattern helps produce more precise issue descriptions and directional corrections.
 
 **Assessment principle**: Judge the output the same way regardless of the author's L1. An article error is an article error whether the author is a Chinese L1 or German L1 speaker. The L1 categories below help the assessor recognize systematic patterns rather than treating each occurrence as random.

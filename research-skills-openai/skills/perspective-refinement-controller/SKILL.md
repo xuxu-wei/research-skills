@@ -1,6 +1,6 @@
 ---
 name: perspective-refinement-controller
-description: "Use when 控制 Perspective 修订循环，包括定向修订计划、调度 drafter 修订、delta report、隔离 re-evaluation、八路路由、caveat budget 三选一和死亡螺旋检测。"
+description: "Plan and control targeted Perspective revision after independent evaluation, route writing to the drafter, preserve lineage, and require fresh re-evaluation."
 ---
 # perspective-refinement-controller
 
@@ -75,7 +75,7 @@ Panel major revision limit (≤1轮) 仅适用于 major_revision_draft。
 - fatal flaw / caveat budget硬停 / 死亡螺旋 / 主张漂移 / 无增益 / 达最大轮次
 
 ## References
-- `references/revision-rules.md`
-- `references/death-spiral-patterns.md`
-- `references/delta-report-template.md`
-- `references/refinement-routing-table.md`
+- Read `references/revision-rules.md` when its named guidance or contract applies.
+- Read `references/death-spiral-patterns.md` when its named guidance or contract applies.
+- Read `references/delta-report-template.md` when its named guidance or contract applies.
+- Read `references/refinement-routing-table.md` when its named guidance or contract applies.

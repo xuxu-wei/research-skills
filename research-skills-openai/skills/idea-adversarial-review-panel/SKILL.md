@@ -1,6 +1,6 @@
 ---
 name: idea-adversarial-review-panel
-description: "Use when promoted or conditionally promoted research ideas need a pre-proposal adversarial review before handoff to proposal-orchestrator. Runs isolated reviewer roles that attack novelty/gap validity, feasibility/method fit, and PI-level strategic value without re-scoring, rewriting, or drafting proposals."
+description: "Independently challenge promoted research ideas through novelty/gap, feasibility/method, and PI-strategy roles before proposal handoff; preserve dissent and do not rescore ideas."
 ---
 # Idea Adversarial Review Panel
 
@@ -156,6 +156,6 @@ If a reviewer finds a problem that requires revision or proposal work, it must r
 
 ## References
 
-- `references/reviewer-role-definitions.md`: defines the three default adversarial reviewer roles.
+- Read `references/reviewer-role-definitions.md` when its named guidance or contract applies: defines the three default adversarial reviewer roles.
 - `research-idea-orchestrator/references/artifact-contracts.md`: shared artifact fields and status values.
 - `research-idea-orchestrator/references/handoff-validation.md`: handoff validation rules.

@@ -1,6 +1,6 @@
 ---
 name: perspective-input-builder
-description: "Use when 生成 Perspective 输入模板，读回用户填写内容并验证，产出结构化 Input Brief 和 Target Outlet Profile，并支持候选张力生成、Generic Profile 缺省。"
+description: "Normalize a Perspective thesis, audience, outlet, evidence, and constraints into an input brief and outlet profile; use before claim curation and architecture."
 ---
 # perspective-input-builder
 
@@ -127,4 +127,4 @@ A2: ...
 
 ## References
 
-- `templates/perspective-input-template.md`：用户填写的输入模板
+- Use `templates/perspective-input-template.md` when producing its named artifact: ：用户填写的输入模板

@@ -1,6 +1,6 @@
 ---
 name: article-literature-grounder
-description: "Position a research study within the existing literature through auditable search, coverage assessment, novelty mapping, and competing evidence identification. Produces a searchable literature grounding report with citation risk assessment."
+description: "Build an auditable literature-grounding report for an article, covering search scope, novelty position, competing evidence, coverage limits, and citation risk."
 ---
 # article-literature-grounder
 
@@ -159,8 +159,8 @@ Write `03_literature/literature-grounding.md` containing the full grounding repo
 
 ## References
 
-- `references/literature-search-protocol.md`: Detailed search methodology, database selection guide, query construction rules.
-- `references/novelty-assessment-guide.md`: Gap-type definitions, novelty claim evaluation framework.
+- Read `references/literature-search-protocol.md` when its named guidance or contract applies: Detailed search methodology, database selection guide, query construction rules.
+- Read `references/novelty-assessment-guide.md` when its named guidance or contract applies: Gap-type definitions, novelty claim evaluation framework.
 - `article-orchestrator/references/artifact-contracts.md`: Canonical literature grounding report schema.
 - `article-orchestrator/references/artifact-naming-and-directory-rules.md`: Directory and naming conventions.
 - `article-orchestrator/references/evidence-confirmation-and-routing.md`: Evidence gate and routing rules.

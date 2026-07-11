@@ -1,5 +1,13 @@
 # Workflow State Schema
 
+## Contents
+
+<!-- toc:start -->
+- [Schema](#schema)
+- [Field Rules](#field-rules)
+- [State File Location](#state-file-location)
+<!-- toc:end -->
+
 ## Schema
 
 ```yaml

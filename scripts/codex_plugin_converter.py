@@ -259,8 +259,8 @@ def discover_openai_sources(root: Path) -> list[SkillSource]:
     duplicates = sorted({name for name in names if names.count(name) > 1})
     if duplicates:
         raise RuntimeError(f"Duplicate OpenAI skill names: {', '.join(duplicates)}")
-    if len(sources) != 46:
-        raise RuntimeError(f"Expected 46 OpenAI skills, found {len(sources)}")
+    if len(sources) != 45:
+        raise RuntimeError(f"Expected 45 OpenAI skills, found {len(sources)}")
     return sorted(sources, key=lambda item: item.name)
 
 

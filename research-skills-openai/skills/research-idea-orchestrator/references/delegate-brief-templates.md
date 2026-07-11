@@ -1,5 +1,16 @@
 # Delegate Brief Templates
 
+## Contents
+
+<!-- toc:start -->
+- [1. General Rules](#1-general-rules)
+- [2. Multi-Path Generation Brief](#2-multi-path-generation-brief)
+- [3. Methodology / Statistics Preflight Brief](#3-methodology-statistics-preflight-brief)
+- [4. Independent Isolated Evaluation Brief](#4-independent-isolated-evaluation-brief)
+- [5. Evidence Consistency Check Brief](#5-evidence-consistency-check-brief)
+- [6. Pre-Handoff Adversarial Review Brief](#6-pre-handoff-adversarial-review-brief)
+<!-- toc:end -->
+
 本文件管理 research-idea workflow 的 subagent brief。Evaluation brief 是强制模板；evaluation 必须派发给隔离、独立的子 agent。
 
 ## 1. General Rules

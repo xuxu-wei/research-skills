@@ -1,6 +1,6 @@
 ---
 name: article-cover-letter
-description: "Draft and evaluate journal cover letters for research-article submissions as editorial triage memos. Builds the cover letter from manuscript-level artifacts without modifying the manuscript or frontmatter. For biomedical manuscripts, delegates cover-letter-only review to medical-journal-review and records the estimated article tier."
+description: "Draft a journal cover letter and quality-check artifact from frozen manuscript materials. Use after manuscript evaluation without changing manuscript or frontmatter source files."
 ---
 # article-cover-letter
 

@@ -1,5 +1,21 @@
 # Query Guide
 
+## Contents
+
+<!-- toc:start -->
+- [Query Construction](#query-construction)
+  - [Biomedical Topics](#biomedical-topics)
+  - [General Rules Across Databases](#general-rules-across-databases)
+- [Source Selection Heuristic](#source-selection-heuristic)
+- [Reading Priorities](#reading-priorities)
+  - [Body Mode](#body-mode)
+  - [Figure Mode](#figure-mode)
+- [Output Templates](#output-templates)
+  - [Body Mode](#body-mode-1)
+  - [Figure Mode](#figure-mode-1)
+- [Failure Handling](#failure-handling)
+<!-- toc:end -->
+
 Use this file when you need more concrete search syntax or answer templates.
 
 ## Query Construction

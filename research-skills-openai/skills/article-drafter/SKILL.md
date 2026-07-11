@@ -1,6 +1,6 @@
 ---
 name: article-drafter
-description: "Draft manuscript body text from the article blueprint, context brief, literature grounding report, and methods audit report. Follow study-type-specific templates and Results organization mode. Also organize supplementary materials per the Supplementary Index. In revision mode, apply targeted revisions."
+description: "Draft or revise a versioned manuscript body and organize supplements from approved context, blueprint, evidence, audit findings, and revision plans without self-evaluation."
 ---
 # article-drafter
 
@@ -164,9 +164,9 @@ The `references/section-templates.md` provides study-type-specific templates for
 
 ## References
 
-- `references/section-templates.md`: Study-type-specific section templates and paragraph structures.
-- `references/writing-style-guide.md`: Academic writing conventions, tense usage, reporting standards alignment.
-- `references/supplementary-materials-guide.md`: Supplementary content drafting rules and format requirements.
+- Read `references/section-templates.md` when its named guidance or contract applies: Study-type-specific section templates and paragraph structures.
+- Read `references/writing-style-guide.md` when its named guidance or contract applies: Academic writing conventions, tense usage, reporting standards alignment.
+- Read `references/supplementary-materials-guide.md` when its named guidance or contract applies: Supplementary content drafting rules and format requirements.
 - `article-orchestrator/references/artifact-contracts.md`: Canonical manuscript draft and supplementary materials schemas.
 - `article-orchestrator/references/artifact-naming-and-directory-rules.md`: Directory, naming, and version rules.
 - `article-orchestrator/references/evidence-provenance-ledger-schema.md`: EPL linkage rules for drafter.

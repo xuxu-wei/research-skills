@@ -1,6 +1,6 @@
 interface:
   display_name: "Research Idea Orchestrator"
-  short_description: "当用户希望把粗糙研究方向、原始 idea、文献/证据材料、funding call、临床/实践问题或数据资产转化为 1-3 个经过评价和排序、可供 PI 审阅的科研 idea..."
+  short_description: "Orchestrate research idea development from a rough topic, evidence, funding call, practical..."
   default_prompt: "Use $research-idea-orchestrator for this task and follow its workflow and output contract."
 policy:
   allow_implicit_invocation: true

@@ -1,6 +1,6 @@
 ---
 name: research-context-builder
-description: "当用户提供粗糙研究方向、原始 idea、临床问题、数据资产、文献材料或 funding call，需要先整理为 Research Context Brief 时使用。本 skill 提取研究领域、用户目标、目标产出、可用数据、方法、对象、endpoint/metric 约束、资源限制、风险偏好、关键假设和必要澄清问题；不做 evidence mapping、idea generation、methodology/statistics preflight、evaluation 或 proposal writing。"
+description: "Normalize a rough research direction, practical problem, evidence set, funding call, or data asset into a structured context brief for idea generation."
 ---
 ## 1. Overview
 
@@ -108,11 +108,11 @@ If the input is too insufficient for a reliable context: context insufficiency r
 
 - `research-idea-orchestrator/references/artifact-contracts.md`：定义 Research Context Brief 的统一字段命名、schema version 和跨 skill 传递约定。
 - `research-idea-orchestrator/references/handoff-validation.md`：定义 context brief 交给 mapper、generator、preflight 和 evaluator 前的最小校验规则。
-- `references/context-brief-schema.md`：定义 context brief 的结构字段、字段解释和输出格式要求。
-- `references/context-extraction-rules.md`：规范从用户输入中提取研究领域、目标、对象、数据、方法、endpoint 和约束的规则。
-- `references/clarification-policy.md`：定义何时需要向用户澄清、如何生成最小必要的澄清问题及停等条件。
-- `references/assumption-handling-rules.md`：规范合理假设的生成边界、标记方式及与 confirmed facts 的区分规则。
-- `references/downstream-handoff-rules.md`：定义 context brief 如何交给下游 skill（evidence mapper、idea generator、proposal workflow）及 handoff 材料要求。
-- `templates/research-context-brief.md`：Research Context Brief 的输出模板。
-- `templates/clarification-request.md`：向用户请求澄清时的输出模板。
-- `templates/context-insufficiency-report.md`：输入材料不足时的问题说明报告模板。
+- Read `references/context-brief-schema.md` when its named guidance or contract applies: ：定义 context brief 的结构字段、字段解释和输出格式要求。
+- Read `references/context-extraction-rules.md` when its named guidance or contract applies: ：规范从用户输入中提取研究领域、目标、对象、数据、方法、endpoint 和约束的规则。
+- Read `references/clarification-policy.md` when its named guidance or contract applies: ：定义何时需要向用户澄清、如何生成最小必要的澄清问题及停等条件。
+- Read `references/assumption-handling-rules.md` when its named guidance or contract applies: ：规范合理假设的生成边界、标记方式及与 confirmed facts 的区分规则。
+- Read `references/downstream-handoff-rules.md` when its named guidance or contract applies: ：定义 context brief 如何交给下游 skill（evidence mapper、idea generator、proposal workflow）及 handoff 材料要求。
+- Use `templates/research-context-brief.md` when producing its named artifact: ：Research Context Brief 的输出模板。
+- Use `templates/clarification-request.md` when producing its named artifact: ：向用户请求澄清时的输出模板。
+- Use `templates/context-insufficiency-report.md` when producing its named artifact: ：输入材料不足时的问题说明报告模板。

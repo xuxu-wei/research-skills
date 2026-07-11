@@ -1,5 +1,39 @@
 # Discipline Language Conventions
 
+## Contents
+
+<!-- toc:start -->
+- [1. Biomedical / Clinical Research](#1-biomedical-clinical-research)
+  - [Tense by Section](#tense-by-section)
+  - [Voice](#voice)
+  - [Abbreviations](#abbreviations)
+  - [Numbers](#numbers)
+  - [Register](#register)
+- [2. Computer Science / AI / Engineering](#2-computer-science-ai-engineering)
+  - [Tense by Section](#tense-by-section-1)
+  - [Voice](#voice-1)
+  - [Abbreviations](#abbreviations-1)
+  - [Numbers](#numbers-1)
+  - [Register](#register-1)
+- [3. Mathematics / Theoretical Sciences](#3-mathematics-theoretical-sciences)
+  - [Tense by Section](#tense-by-section-2)
+  - [Voice](#voice-2)
+  - [Notation](#notation)
+  - [Register](#register-2)
+- [4. Social Sciences (APA 7th Edition)](#4-social-sciences-apa-7th-edition)
+  - [Tense by Section](#tense-by-section-3)
+  - [Voice](#voice-3)
+  - [Bias-Free Language](#bias-free-language)
+  - [Numbers](#numbers-2)
+  - [Register](#register-3)
+- [5. Humanities](#5-humanities)
+  - [Tense by Section](#tense-by-section-4)
+  - [Voice](#voice-4)
+  - [Register](#register-4)
+- [6. General Science (default when discipline unclear)](#6-general-science-default-when-discipline-unclear)
+- [Cross-Cutting Rules (all disciplines)](#cross-cutting-rules-all-disciplines)
+<!-- toc:end -->
+
 Tense, voice, register, abbreviation, and formatting conventions by discipline. These are defaults — journal-specific author instructions may override them.
 
 ---

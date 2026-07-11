@@ -1,6 +1,6 @@
 interface:
   display_name: "Proposal Package Assembler"
-  short_description: "Assemble the final proposal package from existing proposal, workflow state, context brief..."
+  short_description: "Assemble evaluated proposal, state, review, revision, panel, unresolved-issue, and optional SAP..."
   default_prompt: "Use $proposal-package-assembler for this task and follow its workflow and output contract."
 policy:
   allow_implicit_invocation: false

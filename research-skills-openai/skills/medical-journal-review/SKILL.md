@@ -1,6 +1,6 @@
 ---
 name: medical-journal-review
-description: "Review a medical research design, protocol, or manuscript from a top-tier journal perspective. Use for independent editorial, methodological, statistical, claim, journal-fit, or redesign assessment; not for drafting or language polishing."
+description: "Independently review a medical study, protocol, manuscript, or cover letter from an editorial, methodological, statistical, claim, and journal-fit perspective without drafting."
 ---
 # Medical Journal Research Design Review
 
@@ -53,7 +53,7 @@ Choose one route and record it in the report:
 7. Identify fatal flaws, major weaknesses, minor issues, and claims requiring downscaling.
 8. Provide at least one feasible redesign or repair route when defects are reparable.
 9. Assess target-journal fit without converting the score into publication probability.
-10. Produce the structured report using `templates/review-report.md`.
+10. Produce the structured report using `templates/review-report.md`. Use this resource only when producing its named artifact.
 
 ## Decision Labels
 

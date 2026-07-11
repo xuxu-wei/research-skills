@@ -1,6 +1,6 @@
 interface:
   display_name: "Research Context Builder"
-  short_description: "当用户提供粗糙研究方向、原始 idea、临床问题、数据资产、文献材料或 funding call，需要先整理为 Research Context Brief 时使用。本 skill..."
+  short_description: "Normalize a rough research direction, practical problem, evidence set, funding call, or data..."
   default_prompt: "Use $research-context-builder for this task and follow its workflow and output contract."
 policy:
   allow_implicit_invocation: false

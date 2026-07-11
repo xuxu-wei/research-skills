@@ -1,6 +1,6 @@
 ---
 name: perspective-final-compositor
-description: "Use when 执行 Perspective 终稿合规层，包括 journal-fit、citation、title-abstract、anti-pattern、claim-consistency 五项审计；仅做非实质编辑，发现实质问题 return route，并输出 final manuscript、edit-log、compositor report、submission-readiness。"
+description: "Independently assemble and verify final Perspective artifacts for journal fit, citations, claim consistency, and human review without substantive source edits."
 ---
 # perspective-final-compositor
 
@@ -138,7 +138,7 @@ Suggested target outlets: [如使用 Generic Profile]
 
 ## References
 
-- `references/journal-fit-checklist.md`
-- `references/citation-audit-checklist.md`
-- `references/final-anti-pattern-scan.md`
-- `references/permitted-edits.md`
+- Read `references/journal-fit-checklist.md` when its named guidance or contract applies.
+- Read `references/citation-audit-checklist.md` when its named guidance or contract applies.
+- Read `references/final-anti-pattern-scan.md` when its named guidance or contract applies.
+- Read `references/permitted-edits.md` when its named guidance or contract applies.

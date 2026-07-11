@@ -1,6 +1,6 @@
 interface:
   display_name: "Article Architect"
-  short_description: "Design the complete manuscript architecture before drafting: contribution statement..."
+  short_description: "Design a manuscript blueprint, claim-evidence structure, evidence displays, supplementary plan..."
   default_prompt: "Use $article-architect for this task and follow its workflow and output contract."
 policy:
   allow_implicit_invocation: false

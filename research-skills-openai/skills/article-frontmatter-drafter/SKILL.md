@@ -1,6 +1,6 @@
 ---
 name: article-frontmatter-drafter
-description: "Draft manuscript frontmatter except the cover letter: abstract, key points, title alternatives, running title, highlights, and graphical abstract text. Constrained by the blueprint contribution statement, evaluation report, and journal adapter."
+description: "Draft versioned article frontmatter—abstract, key points, titles, running title, highlights, and graphical-abstract text—from an evaluated manuscript and blueprint."
 ---
 # article-frontmatter-drafter
 
@@ -141,7 +141,7 @@ Write to `11_frontmatter/`:
 
 ## References
 
-- `references/abstract-writing-guide.md`: Structured abstract formats by journal type, word count management, and common pitfalls.
-- `references/title-strategies.md`: Title type selection criteria, journal policy considerations, and examples by study type.
+- Read `references/abstract-writing-guide.md` when its named guidance or contract applies: Structured abstract formats by journal type, word count management, and common pitfalls.
+- Read `references/title-strategies.md` when its named guidance or contract applies: Title type selection criteria, journal policy considerations, and examples by study type.
 - `article-orchestrator/references/artifact-contracts.md`: Canonical frontmatter artifact schemas.
 - `article-orchestrator/references/artifact-naming-and-directory-rules.md`: Directory and naming conventions.

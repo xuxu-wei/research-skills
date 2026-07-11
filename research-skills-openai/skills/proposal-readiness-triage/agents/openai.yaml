@@ -1,6 +1,6 @@
 interface:
   display_name: "Proposal Readiness Triage"
-  short_description: "Evaluate whether an existing research idea is ready to enter proposal"
+  short_description: "Independently determine whether a research idea can enter proposal drafting, identify blocking..."
   default_prompt: "Use $proposal-readiness-triage for this task and follow its workflow and output contract."
 policy:
   allow_implicit_invocation: false
