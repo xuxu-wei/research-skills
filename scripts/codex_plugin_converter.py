@@ -20,6 +20,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterable
 
+import yaml
+
 
 CORE_PACKAGES = [
     "research-idea",
@@ -57,6 +59,7 @@ PLUGIN_VARIANTS = {
 MARKETPLACE_CATEGORY = "Research"
 FLATTEN_DIR = "skills-flatten"
 LEGACY_FLATTEN_PLUGIN = "skills-flatten"
+LEGACY_OPENAI_PLUGIN = "skills-openai-plugin"
 
 
 @dataclass(frozen=True)
@@ -554,6 +557,7 @@ def validate_plugin(plugin_dir: Path, expected_names: set[str]) -> dict[str, obj
         errors.append(f"plugin skills must be direct children of skills/: {', '.join(nested[:10])}")
     return {
         "plugin": plugin_dir.name,
+        "plugin_version": manifest.get("version"),
         "ok": not errors,
         "errors": errors,
         "skill_count": len(names),
@@ -608,7 +612,14 @@ def validate_variants(root: Path, plugin_dirs: list[Path], sources: list[SkillSo
 def validate_codex_plugin(root: Path, plugin_dir: Path, sources: list[SkillSource]) -> dict[str, object]:
     expected_names = {source.name for source in sources}
     result = validate_plugin(plugin_dir, expected_names)
-    report = {"ok": bool(result["ok"]), "expected_skill_count": len(expected_names), "plugin": result}
+    registry = yaml.safe_load(read_text(plugin_dir / "workflow-registry.yaml"))
+    report = {
+        "ok": bool(result["ok"]),
+        "expected_skill_count": len(expected_names),
+        "plugin_version": result["plugin_version"],
+        "registry_schema_version": registry.get("schema_version"),
+        "plugin": result,
+    }
     write_text(plugin_dir / "reports" / "validation.json", json.dumps(report, indent=2, ensure_ascii=False))
     warning = try_write_text(root / "codex-plugin-validation.json", json.dumps(report, indent=2, ensure_ascii=False))
     if warning:
@@ -793,10 +804,11 @@ def main() -> int:
         return 0
 
     if args.install and plugin_dir:
-        install_plugins(root, [plugin_dir.name], remove_plugin_names=[LEGACY_FLATTEN_PLUGIN])
+        legacy_plugins = [LEGACY_FLATTEN_PLUGIN, LEGACY_OPENAI_PLUGIN]
+        install_plugins(root, [plugin_dir.name], remove_plugin_names=legacy_plugins)
         print(json.dumps({
             "installed": [plugin_dir.name],
-            "removed_legacy_plugin_entries": [LEGACY_FLATTEN_PLUGIN],
+            "removed_legacy_plugin_entries": legacy_plugins,
             "plugins_dir": str(Path.home() / "plugins"),
             "marketplace": str(Path.home() / ".agents" / "plugins" / "marketplace.json"),
         }, indent=2, ensure_ascii=False))

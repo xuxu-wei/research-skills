@@ -233,16 +233,20 @@ def main() -> int:
         registry_data = yaml.safe_load(registry_text) or {}
         entries = registry_data.get("skills", [])
         edges = registry_data.get("workflow_edges", [])
-        if registry_data.get("schema_version") != 3:
-            errors.append("registry schema_version must be 3 for workflow-edge and state-machine auditability")
+        if registry_data.get("schema_version") != 4:
+            errors.append("registry schema_version must be 4 for workflow, scenario-eval, and context-profile auditability")
         state_policy = registry_data.get("workflow_state_policy", {})
         state_machines = registry_data.get("workflow_state_machines", {})
+        scenario_contract = registry_data.get("scenario_eval_contract", {})
+        context_policy = registry_data.get("context_profile_policy", {})
         if len(entries) != EXPECTED_SKILLS:
             errors.append(f"registry expected {EXPECTED_SKILLS} entries, found {len(entries)}")
     if not REGISTRY.exists():
         edges = []
         state_policy = {}
         state_machines = {}
+        scenario_contract = {}
+        context_policy = {}
 
     registry_names = {entry.get("name", "") for entry in entries}
     if registry_names != set(names):
@@ -346,6 +350,11 @@ def main() -> int:
     policy_states = set(state_policy.get("active_states", [])) | set(state_policy.get("pause_states", [])) | set(
         state_policy.get("terminal_states", [])
     )
+    active_states = set(state_policy.get("active_states", []))
+    pause_states = set(state_policy.get("pause_states", []))
+    terminal_states = set(state_policy.get("terminal_states", []))
+    if active_states & pause_states or active_states & terminal_states or pause_states & terminal_states:
+        errors.append("registry workflow state classes must be pairwise disjoint")
     if not canonical_states <= policy_states:
         errors.append(f"registry canonical states missing: {sorted(canonical_states - policy_states)}")
     if state_policy.get("review_unavailable_state") != "independent_review_pending":
@@ -354,6 +363,10 @@ def main() -> int:
         errors.append("registry fatal finding route must be blocked")
     if state_policy.get("final_handoff_state") != "human_signoff_required":
         errors.append("registry final handoff must be human_signoff_required")
+    if state_policy.get("wildcard_transition_scope") != "nonterminal_states_only":
+        errors.append("registry wildcard transitions must exclude terminal states")
+    if state_policy.get("resume_policy", {}).get("independent_review_pending") != "pending_review":
+        errors.append("registry independent-review pause lacks a resume policy")
     version_gate = state_policy.get("version_gate", {})
     for field in (
         "changed_artifact_requires_new_version",
@@ -378,6 +391,68 @@ def main() -> int:
             errors.append(f"{workflow} state machine: packaging lacks current-version evaluation gate")
         if "dissent_and_fatal_findings_indexed" not in machine.get("before_packaging", []):
             errors.append(f"{workflow} state machine: packaging does not preserve dissent/fatal findings")
+
+    canonical_lineage = {
+        "artifact_id",
+        "version_id",
+        "workflow_id",
+        "round_id",
+        "plugin_version",
+        "source_skill",
+        "created_by_instance_id",
+        "based_on",
+        "change_type",
+        "path",
+        "status",
+        "content_digest",
+        "frozen",
+    }
+    if set(scenario_contract.get("required_workflows", [])) != {"idea", "proposal", "article", "perspective"}:
+        errors.append("scenario eval contract must cover exactly four workflows")
+    if set(scenario_contract.get("required_lineage_fields", [])) != canonical_lineage:
+        errors.append("scenario eval contract canonical lineage fields are incomplete")
+    required_dispatch = set(scenario_contract.get("required_dispatch_fields", []))
+    for field in ("actor_instance_id", "allowed_read_paths", "allowed_write_paths", "input_artifact_ids", "input_versions"):
+        if field not in required_dispatch:
+            errors.append(f"scenario eval contract dispatch field missing: {field}")
+    required_review = set(scenario_contract.get("required_review_fields", []))
+    for field in ("reviewer_instance_id", "reviewer_role", "review_scope", "files_read", "prior_scores_visible", "source_edits_performed"):
+        if field not in required_review:
+            errors.append(f"scenario eval contract review field missing: {field}")
+    write_policy = scenario_contract.get("write_scope_policy", {})
+    for field in ("allowed_writes_are_exact_event_paths", "actual_writes_must_be_subset_of_allowed_writes", "input_artifacts_must_remain_hash_identical"):
+        if write_policy.get(field) is not True:
+            errors.append(f"scenario eval write-scope policy disabled: {field}")
+    if scenario_contract.get("automatic_external_submission") is not False:
+        errors.append("scenario eval contract must prohibit automatic external submission")
+    for compositor in ("article-submission-compositor", "perspective-final-compositor"):
+        entry = next((item for item in entries if item.get("name") == compositor), {})
+        if entry.get("output_artifact_type") != "verification_report_and_final_handoff_package":
+            errors.append(f"{compositor}: registry output type does not include verification and package artifacts")
+
+    if context_policy.get("measurement_unit") != "characters":
+        errors.append("context profile must state its measurement unit")
+    if "not_model_token_accounting" not in context_policy.get("interpretation", ""):
+        errors.append("context profile must not misrepresent character proxy as token accounting")
+    profiles = context_policy.get("profiles", {})
+    if set(profiles) != {"standard_32k", "degraded_16k"}:
+        errors.append("context profile policy must define standard_32k and degraded_16k")
+    elif profiles["standard_32k"].get("total_character_budget") != 32000 or profiles["degraded_16k"].get("total_character_budget") != 16000:
+        errors.append("context profile character budgets are incorrect")
+
+    phase4_files = [
+        REPO / "tests" / "openai_phase4" / "runtime-trace.schema.yaml",
+        REPO / "tests" / "openai_phase4" / "idea.yaml",
+        REPO / "tests" / "openai_phase4" / "proposal.yaml",
+        REPO / "tests" / "openai_phase4" / "article.yaml",
+        REPO / "tests" / "openai_phase4" / "perspective.yaml",
+        REPO / "tests" / "openai_phase4" / "guard-cases.yaml",
+        REPO / "tests" / "openai_phase4" / "retrieval-receipts.yaml",
+        REPO / "scripts" / "test_openai_phase4_scenarios.py",
+    ]
+    for path in phase4_files:
+        if not path.is_file():
+            errors.append(f"missing Phase 4 validation asset: {relative(path)}")
 
     errors.extend(recursive_reference_errors())
 

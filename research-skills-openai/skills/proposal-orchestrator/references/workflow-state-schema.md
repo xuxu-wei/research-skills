@@ -6,6 +6,7 @@ Every entry path, skipped step, revision loop, SAP branch, review panel, and fin
 ## Required Fields
 
 - `workflow_id`: stable identifier for the proposal workflow.
+- `plugin_version`: exact installable plugin version that created the current state.
 - `project_root`: writable project directory containing all workflow artifacts.
 - `artifact_index_path`: path to `10_state/artifact-index.md`.
 - `entry_mode`: one of `standard`, `existing_draft`, `draft_and_external_review`, `package_only`.
@@ -37,6 +38,10 @@ Every entry path, skipped step, revision loop, SAP branch, review panel, and fin
 - `panel_tier`: one of `lightweight_panel`, `standard_panel`, `full_panel`, or `none`.
 - `unresolved_issues`: list of unresolved issue records.
 - `final_package_path`: final package path, or `null`.
+
+## Canonical Runtime Artifact Record
+
+Each proposal, SAP, review, revision, panel, and package artifact must register `artifact_id`, `version_id`, `workflow_id`, `round_id`, `plugin_version`, `source_skill`, `created_by_instance_id`, `path`, `based_on`, `change_type`, `status`, `frozen`, and `content_digest`. Fields such as `proposal_version` and `sap_version` remain workflow pointers to the canonical `version_id`.
 
 ## Artifact Registry
 

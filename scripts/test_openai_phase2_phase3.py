@@ -190,7 +190,7 @@ def phase3_tests(registry: dict) -> None:
 
 def main() -> int:
     registry = yaml.safe_load(read(REGISTRY))
-    require(registry.get("schema_version") == 3, "workflow registry schema must be 3")
+    require(registry.get("schema_version") == 4, "workflow registry schema must be 4")
     phase2_tests(registry)
     phase3_tests(registry)
     print("Phase 2/3 contract tests passed")

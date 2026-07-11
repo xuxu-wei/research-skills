@@ -81,7 +81,9 @@ input normalization
 ```powershell
 python scripts/audit_openai_research_plugin.py
 python scripts/test_openai_phase2_phase3.py
+python scripts/test_openai_phase4_scenarios.py --check-report
 python scripts/codex_plugin_converter.py --mode codex --fail-on-invalid
+python scripts/validate_openai_preview_release.py
 python C:\Users\10149\.codex\skills\.system\plugin-creator\scripts\validate_plugin.py research-skills-openai
 ```
 

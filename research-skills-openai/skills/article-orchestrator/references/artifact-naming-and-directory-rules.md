@@ -63,12 +63,19 @@ Every artifact registered in `13_state/artifact-index.md` should include the sha
 
 ```text
 current_artifact_path
-artifact_version
+artifact_id
+version_id
+workflow_id
+round_id
+plugin_version
 revision_round
 based_on
 change_type
 status
 source_skill
+created_by_instance_id
+content_digest
+frozen
 ```
 
 ## File Naming Conventions

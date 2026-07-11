@@ -47,12 +47,19 @@ Every artifact registered in `09_state/artifact-index.md` should use the same li
 
 ```text
 current_artifact_path
-artifact_version
+artifact_id
+version_id
+workflow_id
+round_id
+plugin_version
 revision_round
 based_on
 change_type
 status
 source_skill
+created_by_instance_id
+content_digest
+frozen
 ```
 
 For idea-level artifacts, `idea_id`, `previous_ids`, `origin_round`, and `revision_round` remain the canonical lineage fields. For portfolio and handoff artifacts, use monotonically increasing `vNNN` versions so downstream proposal workflows can cite a stable source package.

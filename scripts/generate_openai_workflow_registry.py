@@ -36,6 +36,11 @@ REVIEWERS = {
     "perspective-final-compositor",
 }
 
+VERIFIER_COMPOSITORS = {
+    "article-submission-compositor",
+    "perspective-final-compositor",
+}
+
 IMPLICIT = {
     "research-idea-orchestrator",
     "proposal-orchestrator",
@@ -50,7 +55,7 @@ IMPLICIT = {
 WORKFLOW_EDGES = [
     ("idea", "research-idea-orchestrator", "research-context-builder", "orchestrated", "context_required", "user_inputs_and_constraints", "research_context_brief", "clarification_required"),
     ("idea", "research-idea-orchestrator", "research-opportunity-mapper", "orchestrated", "evidence_or_opportunity_map_required", "context_sources_and_scope", "evidence_and_opportunity_maps", "evidence_mapping_pending"),
-    ("idea", "research-idea-orchestrator", "multi-path-idea-generator", "orchestrated", "context_and_opportunity_map_ready", "frozen_context_and_opportunity_artifacts", "versioned_candidate_set", "generation_blocked"),
+    ("idea", "research-idea-orchestrator", "multi-path-idea-generator", "orchestrated", "context_and_opportunity_map_ready_or_revision_authorized", "frozen_context_opportunity_current_candidates_and_revision_plan", "versioned_candidate_set_and_delta", "generation_blocked"),
     ("idea", "research-idea-orchestrator", "methodology-statistics-preflight", "delegated", "method_or_endpoint_fit_needs_review", "frozen_candidates_and_method_facts", "preflight_report", "independent_review_pending"),
     ("idea", "research-idea-orchestrator", "idea-evaluator", "delegated", "candidate_set_frozen_or_revised", "frozen_candidates_stable_rubric_and_facts", "idea_evaluation_report", "independent_review_pending"),
     ("idea", "research-idea-orchestrator", "idea-adversarial-review-panel", "delegated", "proposal_handoff_candidate_exists", "frozen_promoted_candidates_and_role_brief", "sealed_individual_adversarial_report", "independent_review_pending"),
@@ -117,7 +122,6 @@ WORKFLOW_STATE_POLICY = {
         "initialized",
         "preprocessing",
         "artifact_frozen",
-        "pending_review",
         "revision_required",
         "panel_pending",
         "packaging_pending",
@@ -127,6 +131,10 @@ WORKFLOW_STATE_POLICY = {
     "review_unavailable_state": "independent_review_pending",
     "fatal_finding_state": "blocked",
     "final_handoff_state": "human_signoff_required",
+    "wildcard_transition_scope": "nonterminal_states_only",
+    "resume_policy": {
+        "independent_review_pending": "pending_review",
+    },
     "version_gate": {
         "changed_artifact_requires_new_version": True,
         "evaluator_instance_must_be_fresh": True,
@@ -154,12 +162,19 @@ WORKFLOW_STATE_POLICY = {
         {"from": "pending_review", "to": "revision_required", "trigger": "fixable_revision_requested"},
         {"from": "revision_required", "to": "artifact_frozen", "trigger": "new_version_created"},
         {"from": "pending_review", "to": "panel_pending", "trigger": "latest_version_accepted"},
+        {
+            "from": "pending_review",
+            "to": "packaging_pending",
+            "trigger": "panel_patch_latest_version_accepted",
+            "requires": ["prior_panel_complete", "patch_scope_minor", "fresh_evaluation_current", "no_unresolved_fatal_finding"],
+        },
         {"from": "panel_pending", "to": "revision_required", "trigger": "panel_requests_substantive_change"},
         {"from": "panel_pending", "to": "packaging_pending", "trigger": "panel_gate_passed"},
         {"from": "packaging_pending", "to": "human_signoff_required", "trigger": "package_verified"},
         {"from": "*", "to": "independent_review_pending", "trigger": "required_reviewer_unavailable"},
         {"from": "*", "to": "blocked", "trigger": "fatal_or_blocking_finding"},
         {"from": "*", "to": "stopped", "trigger": "unfixable_no_gain_or_user_stop"},
+        {"from": "independent_review_pending", "to": "pending_review", "trigger": "reviewer_delegation_resumed"},
     ],
 }
 
@@ -228,6 +243,129 @@ WORKFLOW_STATE_MACHINES = {
         "non_ready_modes": ["lite", "standard"],
         "final_package_skill": "perspective-final-compositor",
     },
+}
+
+SCENARIO_EVAL_CONTRACT = {
+    "fixture_schema_version": 1,
+    "required_workflows": ["idea", "proposal", "article", "perspective"],
+    "required_lineage_fields": [
+        "artifact_id",
+        "version_id",
+        "workflow_id",
+        "round_id",
+        "plugin_version",
+        "source_skill",
+        "created_by_instance_id",
+        "based_on",
+        "change_type",
+        "path",
+        "status",
+        "content_digest",
+        "frozen",
+    ],
+    "required_dispatch_fields": [
+        "event_id",
+        "source_skill",
+        "destination_skill",
+        "dispatch_mode",
+        "trigger",
+        "actor_instance_id",
+        "allowed_read_paths",
+        "allowed_write_paths",
+        "input_artifact_ids",
+        "input_versions",
+    ],
+    "required_review_fields": [
+        "review_id",
+        "reviewer_skill",
+        "reviewer_instance_id",
+        "reviewer_role",
+        "review_scope",
+        "workflow_id",
+        "round_id",
+        "input_artifact_ids",
+        "input_versions",
+        "files_read",
+        "isolation_mode",
+        "prior_scores_visible",
+        "source_edits_performed",
+        "decision",
+        "findings",
+        "unresolved_issues",
+    ],
+    "runtime_observation_fields": [
+        "files_read",
+        "actual_write_paths",
+        "input_hashes_before",
+        "input_hashes_after",
+    ],
+    "write_scope_policy": {
+        "allowed_writes_are_exact_event_paths": True,
+        "actual_writes_must_be_subset_of_allowed_writes": True,
+        "input_artifacts_must_remain_hash_identical": True,
+        "delegate_brief_paths_are_read_only": True,
+    },
+    "blindness_policy": {
+        "forbidden_input_roles_for_evaluator_or_panel": [
+            "parent_hidden_reasoning",
+            "evaluation_report",
+            "prior_evaluation",
+            "prior_decision",
+            "panel_report",
+            "peer_review",
+        ],
+        "final_verifier_may_read_sealed_review_reports": True,
+        "panel_peer_outputs_visible": False,
+    },
+    "reviewer_isolation_mode": "fresh_subagent",
+    "reviewer_source_edits_allowed": False,
+    "prior_scores_visible_to_fresh_reviewer": False,
+    "reviewer_instance_must_differ_from_artifact_writer": True,
+    "panel_role_instance_mapping_must_be_one_to_one": True,
+    "verifier_compositor_outputs": {
+        "article-submission-compositor": ["verification_report", "final_handoff_package"],
+        "perspective-final-compositor": ["verification_report", "text_identical_final_handoff_package"],
+    },
+    "final_state": "human_signoff_required",
+    "automatic_external_submission": False,
+}
+
+CONTEXT_PROFILE_POLICY = {
+    "measurement_unit": "characters",
+    "interpretation": "conservative_initial-load_proxy_not_model_token_accounting",
+    "initial_load_components": ["all_skill_descriptions", "selected_orchestrator_body"],
+    "profiles": {
+        "standard_32k": {
+            "total_character_budget": 32000,
+            "minimum_working_reserve": 16000,
+            "sufficient_behavior": "continue_current_phase",
+        },
+        "degraded_16k": {
+            "total_character_budget": 16000,
+            "minimum_working_reserve": 4000,
+            "insufficient_behavior": "context_handoff_required",
+        },
+    },
+    "continuation_required_fields": [
+        "workflow_id",
+        "plugin_version",
+        "entry_mode",
+        "current_stage",
+        "round_id",
+        "runtime_status",
+        "suspended_workflow_state",
+        "current_artifact_id",
+        "current_artifact_version",
+        "current_artifact_path",
+        "current_artifact_digest",
+        "latest_qualifying_evaluation",
+        "gate_receipts",
+        "unresolved_finding_ids",
+        "dissent_ids",
+        "pending_edge",
+        "isolation_requirements",
+        "next_route",
+    ],
 }
 
 
@@ -320,7 +458,7 @@ def main() -> int:
     plugin_version = str(manifest["version"])
 
     lines = [
-        "schema_version: 3",
+        "schema_version: 4",
         f"plugin_version: {quote(plugin_version)}",
         "review_execution:",
         "  isolation_mode: fresh_subagent",
@@ -336,6 +474,8 @@ def main() -> int:
         package = source_relative.parts[0]
         role = role_for(name)
         allowed_inputs, output = io_contract(role)
+        if name in VERIFIER_COMPOSITORS:
+            output = "verification_report_and_final_handoff_package"
         related = related_skills(source_skill, names)
         lines.extend(
             [
@@ -370,6 +510,8 @@ def main() -> int:
     state_registry = {
         "workflow_state_policy": WORKFLOW_STATE_POLICY,
         "workflow_state_machines": WORKFLOW_STATE_MACHINES,
+        "scenario_eval_contract": SCENARIO_EVAL_CONTRACT,
+        "context_profile_policy": CONTEXT_PROFILE_POLICY,
     }
     lines.extend(yaml.safe_dump(state_registry, sort_keys=False, allow_unicode=True).rstrip().splitlines())
 

@@ -4,6 +4,7 @@ Create `09_state/workflow-manifest.yaml` at project initialization.
 
 ```yaml
 project:
+  workflow_id: string
   name: string
   root: string
   mode: lite | standard | full
@@ -40,9 +41,19 @@ decisions:
 
 lineage:
   drafts:
-    - version: integer
+    - artifact_id: string
+      version_id: string
+      workflow_id: string
+      round_id: string
+      plugin_version: string
+      source_skill: string
+      created_by_instance_id: string
       path: path
-      basis: fresh | revision | panel_patch
+      based_on: []
+      change_type: initial | revision | panel_patch | language_only | formatting_only
+      status: current | superseded | stale_after_revision | blocked | final
+      frozen: boolean
+      content_digest: sha256
       evaluation: path
       delta_report: path
 ```

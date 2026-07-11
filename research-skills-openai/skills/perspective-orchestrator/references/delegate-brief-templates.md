@@ -169,7 +169,7 @@ Do NOT rewrite title, abstract, or manuscript. Return route recommendations only
 
 ```
 ## Your Role
-Final compliance audit. Polish and format allowed. NO substantive changes. Find substantive issues → return route, do NOT fix.
+Independent final compliance verifier and package compositor. Copy the latest evaluated source text byte-for-byte; find issues and return routes, but do not fix source text.
 
 ## Allowed Files
 draft-final.md, claim-ledger.md, claim-evidence-matrix.md, citation-risk-log.md, contrary-evidence-log.md, evidence-limitations.md, target-outlet-profile.md, panel-summary.md, reference-list.md
@@ -180,12 +180,16 @@ draft-final.md, claim-ledger.md, claim-evidence-matrix.md, citation-risk-log.md,
 ## Required Output
 08_final/final-perspective.md, final-edit-log.md, final-compositor-report.md, submission-readiness-report.md
 
-## Permitted (7): formatting, title/abstract polish, grammar, citation format, headings, dedup, consistency
-## Prohibited (6): new claims, new evidence, claim strength change, caveat deletion, substance rewrites, ready-ifying by editing
+## Permitted
+Create package directories, copy the evaluated source unchanged, calculate its digest, and write only the manifest, artifact index, edit/verification log, compositor report, and readiness report.
+
+## Prohibited
+Any formatting, title, abstract, grammar, citation, heading, deduplication, terminology, claim, evidence, caveat, or prose change. If any text change is needed, return it to the owning drafter/curator, create a new version, and require fresh evaluation.
 
 ## Return Routes
 unsupported claim → return_to_curator, unregistered claim → return_to_drafter, citation mismatch → return_to_curator, outlet mismatch → outlet_retarget, multiple → return_to_refinement
 
 ## Readiness
 "ready for human review and sign-off" only if NO unresolved substantive issues. "ready for outlet targeting" if Generic Profile.
+The packaged manuscript digest must equal the frozen evaluated source digest.
 ```

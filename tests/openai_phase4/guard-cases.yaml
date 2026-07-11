@@ -1,0 +1,42 @@
+schema_version: 1
+cases:
+  - case_id: duplicate-reviewer-instance
+    base_fixture: idea.yaml
+    mutation: duplicate_panel_instance
+    expected_error: duplicate_reviewer_instance
+  - case_id: reviewer-writes-input
+    base_fixture: article.yaml
+    mutation: reviewer_writes_input
+    expected_error: input_write_overlap
+  - case_id: re-evaluator-reads-prior-score
+    base_fixture: proposal.yaml
+    mutation: reevaluator_reads_prior_evaluation
+    expected_error: forbidden_review_input
+  - case_id: stale-evaluation-packaged
+    base_fixture: idea.yaml
+    mutation: package_uses_stale_evaluation
+    expected_error: stale_evaluation
+  - case_id: fatal-finding-bypassed
+    base_fixture: article.yaml
+    mutation: fatal_finding_then_continue
+    expected_error: event_after_terminal
+  - case_id: dissent-dropped
+    base_fixture: proposal.yaml
+    mutation: drop_package_dissent
+    expected_error: dissent_not_preserved
+  - case_id: panel-role-missing
+    base_fixture: perspective.yaml
+    mutation: remove_panel_role
+    expected_error: panel_roles_incomplete
+  - case_id: compositor-copy-changed
+    base_fixture: perspective.yaml
+    mutation: change_compositor_copy
+    expected_error: compositor_copy_mismatch
+  - case_id: registry-trigger-mismatch
+    base_fixture: idea.yaml
+    mutation: change_registry_trigger
+    expected_error: registry_edge_mismatch
+  - case_id: source-path-overwritten
+    base_fixture: proposal.yaml
+    mutation: overwrite_existing_artifact_path
+    expected_error: input_write_overlap

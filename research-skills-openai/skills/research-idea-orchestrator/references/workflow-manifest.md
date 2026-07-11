@@ -7,6 +7,8 @@ Each research-idea run should maintain one manifest per round. The manifest is t
 ```yaml
 round_manifest:
   schema_version: "research-idea.v1"
+  workflow_id: ""
+  plugin_version: ""
   round: 1
   project_directory: ""
   artifact_index_path: "09_state/artifact-index.md"
@@ -59,3 +61,7 @@ round_manifest:
 - Keep `09_state/artifact-index.md` synchronized with generated idea, preflight, evaluation, adversarial, portfolio, handoff, and language QA artifacts.
 - Any changed candidate creates a new version and returns to `artifact_frozen`/`pending_review`; panel or portfolio assembly requires a fresh evaluation of that exact version.
 - Permit parallel delegated phases only when each source artifact/version has one writer; reviewer inputs are read-only.
+
+## Canonical Runtime Artifact Record
+
+Every created or revised artifact must register `artifact_id`, `version_id`, `workflow_id`, `round_id`, `plugin_version`, `source_skill`, `created_by_instance_id`, `path`, `based_on`, `change_type`, `status`, `frozen`, and `content_digest`. Workflow-specific aliases such as `idea_id` may supplement but never replace these fields.

@@ -13,6 +13,8 @@
 ```yaml
 workflow_state:
   schema_version: "research-article.v5"
+  workflow_id: ""
+  plugin_version: ""
   project_slug: ""
   created_at: ""
   updated_at: ""
@@ -112,6 +114,8 @@ workflow_state:
 ```
 
 ## Field Rules
+
+Every article artifact uses the canonical runtime record: `artifact_id`, `version_id`, `workflow_id`, `round_id`, `plugin_version`, `source_skill`, `created_by_instance_id`, `path`, `based_on`, `change_type`, `status`, `frozen`, and `content_digest`. Draft-specific `draft_version` is a pointer to `version_id`, not an alternate lineage record.
 
 - `project_slug`: kebab-case, derived from study topic or user-provided name.
 - `current_step`: integer matching the step number in the standard workflow (0-14).

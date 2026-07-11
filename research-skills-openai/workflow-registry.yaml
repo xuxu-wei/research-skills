@@ -1,5 +1,5 @@
-schema_version: 3
-plugin_version: "0.4.0-preview.1"
+schema_version: 4
+plugin_version: "0.5.0-preview.1"
 review_execution:
   isolation_mode: fresh_subagent
   inline_fallback: false
@@ -133,7 +133,7 @@ skills:
     invocation_policy: "explicit_or_orchestrated"
     requires_independent_subagent: true
     allowed_input_artifacts: "frozen_artifacts_and_review_brief"
-    output_artifact_type: "review_or_verification_report"
+    output_artifact_type: "verification_report_and_final_handoff_package"
   - name: "idea-adversarial-review-panel"
     package: "research-idea"
     role: "reviewer"
@@ -221,7 +221,7 @@ skills:
     invocation_policy: "explicit_or_orchestrated"
     requires_independent_subagent: true
     allowed_input_artifacts: "frozen_artifacts_and_review_brief"
-    output_artifact_type: "review_or_verification_report"
+    output_artifact_type: "verification_report_and_final_handoff_package"
   - name: "perspective-input-builder"
     package: "research-perspective"
     role: "builder"
@@ -387,9 +387,9 @@ workflow_edges:
     source: "research-idea-orchestrator"
     destination: "multi-path-idea-generator"
     dispatch_mode: "orchestrated"
-    trigger: "context_and_opportunity_map_ready"
-    input_contract: "frozen_context_and_opportunity_artifacts"
-    output_contract: "versioned_candidate_set"
+    trigger: "context_and_opportunity_map_ready_or_revision_authorized"
+    input_contract: "frozen_context_opportunity_current_candidates_and_revision_plan"
+    output_contract: "versioned_candidate_set_and_delta"
     failure_route: "generation_blocked"
   - workflow: "idea"
     source: "research-idea-orchestrator"
@@ -837,7 +837,6 @@ workflow_state_policy:
   - initialized
   - preprocessing
   - artifact_frozen
-  - pending_review
   - revision_required
   - panel_pending
   - packaging_pending
@@ -851,6 +850,9 @@ workflow_state_policy:
   review_unavailable_state: independent_review_pending
   fatal_finding_state: blocked
   final_handoff_state: human_signoff_required
+  wildcard_transition_scope: nonterminal_states_only
+  resume_policy:
+    independent_review_pending: pending_review
   version_gate:
     changed_artifact_requires_new_version: true
     evaluator_instance_must_be_fresh: true
@@ -890,6 +892,14 @@ workflow_state_policy:
   - from: pending_review
     to: panel_pending
     trigger: latest_version_accepted
+  - from: pending_review
+    to: packaging_pending
+    trigger: panel_patch_latest_version_accepted
+    requires:
+    - prior_panel_complete
+    - patch_scope_minor
+    - fresh_evaluation_current
+    - no_unresolved_fatal_finding
   - from: panel_pending
     to: revision_required
     trigger: panel_requests_substantive_change
@@ -908,6 +918,9 @@ workflow_state_policy:
   - from: '*'
     to: stopped
     trigger: unfixable_no_gain_or_user_stop
+  - from: independent_review_pending
+    to: pending_review
+    trigger: reviewer_delegation_resumed
 workflow_state_machines:
   idea:
     orchestrator: research-idea-orchestrator
@@ -1058,3 +1071,120 @@ workflow_state_machines:
     - lite
     - standard
     final_package_skill: perspective-final-compositor
+scenario_eval_contract:
+  fixture_schema_version: 1
+  required_workflows:
+  - idea
+  - proposal
+  - article
+  - perspective
+  required_lineage_fields:
+  - artifact_id
+  - version_id
+  - workflow_id
+  - round_id
+  - plugin_version
+  - source_skill
+  - created_by_instance_id
+  - based_on
+  - change_type
+  - path
+  - status
+  - content_digest
+  - frozen
+  required_dispatch_fields:
+  - event_id
+  - source_skill
+  - destination_skill
+  - dispatch_mode
+  - trigger
+  - actor_instance_id
+  - allowed_read_paths
+  - allowed_write_paths
+  - input_artifact_ids
+  - input_versions
+  required_review_fields:
+  - review_id
+  - reviewer_skill
+  - reviewer_instance_id
+  - reviewer_role
+  - review_scope
+  - workflow_id
+  - round_id
+  - input_artifact_ids
+  - input_versions
+  - files_read
+  - isolation_mode
+  - prior_scores_visible
+  - source_edits_performed
+  - decision
+  - findings
+  - unresolved_issues
+  runtime_observation_fields:
+  - files_read
+  - actual_write_paths
+  - input_hashes_before
+  - input_hashes_after
+  write_scope_policy:
+    allowed_writes_are_exact_event_paths: true
+    actual_writes_must_be_subset_of_allowed_writes: true
+    input_artifacts_must_remain_hash_identical: true
+    delegate_brief_paths_are_read_only: true
+  blindness_policy:
+    forbidden_input_roles_for_evaluator_or_panel:
+    - parent_hidden_reasoning
+    - evaluation_report
+    - prior_evaluation
+    - prior_decision
+    - panel_report
+    - peer_review
+    final_verifier_may_read_sealed_review_reports: true
+    panel_peer_outputs_visible: false
+  reviewer_isolation_mode: fresh_subagent
+  reviewer_source_edits_allowed: false
+  prior_scores_visible_to_fresh_reviewer: false
+  reviewer_instance_must_differ_from_artifact_writer: true
+  panel_role_instance_mapping_must_be_one_to_one: true
+  verifier_compositor_outputs:
+    article-submission-compositor:
+    - verification_report
+    - final_handoff_package
+    perspective-final-compositor:
+    - verification_report
+    - text_identical_final_handoff_package
+  final_state: human_signoff_required
+  automatic_external_submission: false
+context_profile_policy:
+  measurement_unit: characters
+  interpretation: conservative_initial-load_proxy_not_model_token_accounting
+  initial_load_components:
+  - all_skill_descriptions
+  - selected_orchestrator_body
+  profiles:
+    standard_32k:
+      total_character_budget: 32000
+      minimum_working_reserve: 16000
+      sufficient_behavior: continue_current_phase
+    degraded_16k:
+      total_character_budget: 16000
+      minimum_working_reserve: 4000
+      insufficient_behavior: context_handoff_required
+  continuation_required_fields:
+  - workflow_id
+  - plugin_version
+  - entry_mode
+  - current_stage
+  - round_id
+  - runtime_status
+  - suspended_workflow_state
+  - current_artifact_id
+  - current_artifact_version
+  - current_artifact_path
+  - current_artifact_digest
+  - latest_qualifying_evaluation
+  - gate_receipts
+  - unresolved_finding_ids
+  - dissent_ids
+  - pending_edge
+  - isolation_requirements
+  - next_route

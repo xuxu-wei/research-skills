@@ -1,0 +1,1313 @@
+{
+  "execution_scope": "deterministic_replay_plus_separate_live_receipts",
+  "negative_guard_results": [
+    {
+      "case_id": "duplicate-reviewer-instance",
+      "error_code": "duplicate_reviewer_instance",
+      "status": "rejected_as_expected"
+    },
+    {
+      "case_id": "reviewer-writes-input",
+      "error_code": "input_write_overlap",
+      "status": "rejected_as_expected"
+    },
+    {
+      "case_id": "re-evaluator-reads-prior-score",
+      "error_code": "forbidden_review_input",
+      "status": "rejected_as_expected"
+    },
+    {
+      "case_id": "stale-evaluation-packaged",
+      "error_code": "stale_evaluation",
+      "status": "rejected_as_expected"
+    },
+    {
+      "case_id": "fatal-finding-bypassed",
+      "error_code": "event_after_terminal",
+      "status": "rejected_as_expected"
+    },
+    {
+      "case_id": "dissent-dropped",
+      "error_code": "dissent_not_preserved",
+      "status": "rejected_as_expected"
+    },
+    {
+      "case_id": "panel-role-missing",
+      "error_code": "panel_roles_incomplete",
+      "status": "rejected_as_expected"
+    },
+    {
+      "case_id": "compositor-copy-changed",
+      "error_code": "compositor_copy_mismatch",
+      "status": "rejected_as_expected"
+    },
+    {
+      "case_id": "registry-trigger-mismatch",
+      "error_code": "registry_edge_mismatch",
+      "status": "rejected_as_expected"
+    },
+    {
+      "case_id": "source-path-overwritten",
+      "error_code": "input_write_overlap",
+      "status": "rejected_as_expected"
+    }
+  ],
+  "plugin_version": "0.5.0-preview.1",
+  "registry_schema_version": 4,
+  "retrieval_receipts": {
+    "deep_research": "deep_research_handoff_required",
+    "targeted_search": "targeted_search_verified"
+  },
+  "scenario_results": [
+    {
+      "context_profiles": {
+        "degraded_16k": {
+          "behavior": "context_handoff_required",
+          "continuation_package": {
+            "current_artifact_digest": "sha256:ac86a6ebd4d69711c2e468468e83be42380e824ac26e7fa8a5a237e424e94d63",
+            "current_artifact_id": "ideas-v1",
+            "current_artifact_path": "03_ideas/round-001/generated-idea-set-v001.md",
+            "current_artifact_version": "v001",
+            "current_stage": "independent_evaluation",
+            "dissent_ids": [],
+            "entry_mode": "standard",
+            "gate_receipts": [],
+            "isolation_requirements": "fresh_subagent; frozen read-only input; no prior scores",
+            "latest_qualifying_evaluation": null,
+            "next_route": "idea-evaluator",
+            "pending_edge": "research-idea-orchestrator -> idea-evaluator",
+            "plugin_version": "0.5.0-preview.1",
+            "round_id": "round-001",
+            "runtime_status": "context_handoff_required",
+            "suspended_workflow_state": "artifact_frozen",
+            "unresolved_finding_ids": [],
+            "workflow_id": "wf-phase4-idea-001"
+          },
+          "initial_load": 14340,
+          "interpretation": "conservative_initial-load_proxy_not_model_token_accounting",
+          "measurement_unit": "characters",
+          "minimum_working_reserve": 4000,
+          "remaining": 1660
+        },
+        "standard_32k": {
+          "behavior": "continue_current_phase",
+          "initial_load": 14340,
+          "interpretation": "conservative_initial-load_proxy_not_model_token_accounting",
+          "measurement_unit": "characters",
+          "minimum_working_reserve": 16000,
+          "remaining": 17660
+        }
+      },
+      "dissent_ids": [
+        "idea-dissent-001"
+      ],
+      "evaluator_instances": [
+        "idea-evaluator-001",
+        "idea-evaluator-002"
+      ],
+      "events": [
+        {
+          "edge": "research-idea-orchestrator -> multi-path-idea-generator",
+          "event_id": "idea-generate-v1",
+          "observation": {
+            "actual_write_paths": [
+              "03_ideas/round-001/generated-idea-set-v001.md"
+            ],
+            "files_read": [],
+            "input_hashes_after": {},
+            "input_hashes_before": {}
+          },
+          "sequence": 1,
+          "state_after": "artifact_frozen",
+          "state_before": "initialized",
+          "type": "produce"
+        },
+        {
+          "edge": "research-idea-orchestrator -> idea-evaluator",
+          "event_id": "idea-evaluate-v1",
+          "observation": {
+            "actual_write_paths": [
+              "05_evaluations/round-001/idea-evaluation-v001.md"
+            ],
+            "files_read": [
+              "03_ideas/round-001/generated-idea-set-v001.md"
+            ],
+            "input_hashes_after": {
+              "03_ideas/round-001/generated-idea-set-v001.md": "sha256:ac86a6ebd4d69711c2e468468e83be42380e824ac26e7fa8a5a237e424e94d63"
+            },
+            "input_hashes_before": {
+              "03_ideas/round-001/generated-idea-set-v001.md": "sha256:ac86a6ebd4d69711c2e468468e83be42380e824ac26e7fa8a5a237e424e94d63"
+            }
+          },
+          "sequence": 2,
+          "state_after": "revision_required",
+          "state_before": "artifact_frozen",
+          "type": "review"
+        },
+        {
+          "edge": "research-idea-orchestrator -> multi-path-idea-generator",
+          "event_id": "idea-revise-v2",
+          "observation": {
+            "actual_write_paths": [
+              "03_ideas/round-002/revised-idea-set-v002.md"
+            ],
+            "files_read": [],
+            "input_hashes_after": {
+              "03_ideas/round-001/generated-idea-set-v001.md": "sha256:ac86a6ebd4d69711c2e468468e83be42380e824ac26e7fa8a5a237e424e94d63",
+              "05_evaluations/round-001/idea-evaluation-v001.md": "sha256:9dc67e44d789db57772006b0d8c44c1675f63634fb15e9d22c760200c87eb773"
+            },
+            "input_hashes_before": {
+              "03_ideas/round-001/generated-idea-set-v001.md": "sha256:ac86a6ebd4d69711c2e468468e83be42380e824ac26e7fa8a5a237e424e94d63",
+              "05_evaluations/round-001/idea-evaluation-v001.md": "sha256:9dc67e44d789db57772006b0d8c44c1675f63634fb15e9d22c760200c87eb773"
+            }
+          },
+          "sequence": 3,
+          "state_after": "artifact_frozen",
+          "state_before": "revision_required",
+          "type": "produce"
+        },
+        {
+          "edge": "research-idea-orchestrator -> idea-evaluator",
+          "event_id": "idea-evaluate-v2",
+          "observation": {
+            "actual_write_paths": [
+              "05_evaluations/round-002/idea-evaluation-v002.md"
+            ],
+            "files_read": [
+              "03_ideas/round-002/revised-idea-set-v002.md"
+            ],
+            "input_hashes_after": {
+              "03_ideas/round-002/revised-idea-set-v002.md": "sha256:f24c067d3ccb603486753677f0b5631007bcfcc61069223cac1ca11dd9467e3c"
+            },
+            "input_hashes_before": {
+              "03_ideas/round-002/revised-idea-set-v002.md": "sha256:f24c067d3ccb603486753677f0b5631007bcfcc61069223cac1ca11dd9467e3c"
+            }
+          },
+          "sequence": 4,
+          "state_after": "panel_pending",
+          "state_before": "artifact_frozen",
+          "type": "review"
+        },
+        {
+          "edge": "research-idea-orchestrator -> idea-adversarial-review-panel",
+          "event_id": "idea-panel-novelty",
+          "observation": {
+            "actual_write_paths": [
+              "06_adversarial/round-002/novelty-gap-review.md"
+            ],
+            "files_read": [
+              "03_ideas/round-002/revised-idea-set-v002.md"
+            ],
+            "input_hashes_after": {
+              "03_ideas/round-002/revised-idea-set-v002.md": "sha256:f24c067d3ccb603486753677f0b5631007bcfcc61069223cac1ca11dd9467e3c"
+            },
+            "input_hashes_before": {
+              "03_ideas/round-002/revised-idea-set-v002.md": "sha256:f24c067d3ccb603486753677f0b5631007bcfcc61069223cac1ca11dd9467e3c"
+            }
+          },
+          "sequence": 5,
+          "state_after": "panel_pending",
+          "state_before": "panel_pending",
+          "type": "review"
+        },
+        {
+          "edge": "research-idea-orchestrator -> idea-adversarial-review-panel",
+          "event_id": "idea-panel-feasibility",
+          "observation": {
+            "actual_write_paths": [
+              "06_adversarial/round-002/feasibility-method-review.md"
+            ],
+            "files_read": [
+              "03_ideas/round-002/revised-idea-set-v002.md"
+            ],
+            "input_hashes_after": {
+              "03_ideas/round-002/revised-idea-set-v002.md": "sha256:f24c067d3ccb603486753677f0b5631007bcfcc61069223cac1ca11dd9467e3c"
+            },
+            "input_hashes_before": {
+              "03_ideas/round-002/revised-idea-set-v002.md": "sha256:f24c067d3ccb603486753677f0b5631007bcfcc61069223cac1ca11dd9467e3c"
+            }
+          },
+          "sequence": 6,
+          "state_after": "panel_pending",
+          "state_before": "panel_pending",
+          "type": "review"
+        },
+        {
+          "edge": "research-idea-orchestrator -> idea-adversarial-review-panel",
+          "event_id": "idea-panel-strategy",
+          "observation": {
+            "actual_write_paths": [
+              "06_adversarial/round-002/pi-strategy-review.md"
+            ],
+            "files_read": [
+              "03_ideas/round-002/revised-idea-set-v002.md"
+            ],
+            "input_hashes_after": {
+              "03_ideas/round-002/revised-idea-set-v002.md": "sha256:f24c067d3ccb603486753677f0b5631007bcfcc61069223cac1ca11dd9467e3c"
+            },
+            "input_hashes_before": {
+              "03_ideas/round-002/revised-idea-set-v002.md": "sha256:f24c067d3ccb603486753677f0b5631007bcfcc61069223cac1ca11dd9467e3c"
+            }
+          },
+          "sequence": 7,
+          "state_after": "panel_pending",
+          "state_before": "panel_pending",
+          "type": "review"
+        },
+        {
+          "edge": "orchestrator_internal_panel_gate",
+          "event_id": "idea-panel-gate",
+          "observation": {
+            "actual_write_paths": [],
+            "files_read": [],
+            "input_hashes_after": {},
+            "input_hashes_before": {}
+          },
+          "sequence": 8,
+          "state_after": "packaging_pending",
+          "state_before": "panel_pending",
+          "type": "panel_gate"
+        },
+        {
+          "edge": "research-idea-orchestrator -> idea-portfolio-assembler",
+          "event_id": "idea-package",
+          "observation": {
+            "actual_write_paths": [
+              "07_portfolio/research-idea-portfolio-v001.md"
+            ],
+            "files_read": [],
+            "input_hashes_after": {
+              "03_ideas/round-002/revised-idea-set-v002.md": "sha256:f24c067d3ccb603486753677f0b5631007bcfcc61069223cac1ca11dd9467e3c",
+              "05_evaluations/round-002/idea-evaluation-v002.md": "sha256:408da8d205bc7478b6867eaf05b0bae4cf77ff171c661c066e5cef4c4027f6a0",
+              "06_adversarial/round-002/feasibility-method-review.md": "sha256:28c688412c9c822c58007f6fcd28f436540044f59cb825ff21f79a6a6824a32b",
+              "06_adversarial/round-002/novelty-gap-review.md": "sha256:df69afb1b8a4d9c0eadd407d23f217de54fae330aa574b30e1f702208bff11b2",
+              "06_adversarial/round-002/pi-strategy-review.md": "sha256:19bea325ef4cf13fb654db547a8d4f440719ea7c4c38e4852f59632f5589af4a"
+            },
+            "input_hashes_before": {
+              "03_ideas/round-002/revised-idea-set-v002.md": "sha256:f24c067d3ccb603486753677f0b5631007bcfcc61069223cac1ca11dd9467e3c",
+              "05_evaluations/round-002/idea-evaluation-v002.md": "sha256:408da8d205bc7478b6867eaf05b0bae4cf77ff171c661c066e5cef4c4027f6a0",
+              "06_adversarial/round-002/feasibility-method-review.md": "sha256:28c688412c9c822c58007f6fcd28f436540044f59cb825ff21f79a6a6824a32b",
+              "06_adversarial/round-002/novelty-gap-review.md": "sha256:df69afb1b8a4d9c0eadd407d23f217de54fae330aa574b30e1f702208bff11b2",
+              "06_adversarial/round-002/pi-strategy-review.md": "sha256:19bea325ef4cf13fb654db547a8d4f440719ea7c4c38e4852f59632f5589af4a"
+            }
+          },
+          "sequence": 9,
+          "state_after": "human_signoff_required",
+          "state_before": "packaging_pending",
+          "type": "package"
+        }
+      ],
+      "execution_kind": "deterministic_replay",
+      "final_state": "human_signoff_required",
+      "fixture_id": "idea-independent-loop",
+      "panel_role_instances": {
+        "feasibility-method": "idea-panel-feasibility-001",
+        "novelty-gap": "idea-panel-novelty-001",
+        "pi-strategy": "idea-panel-strategy-001"
+      },
+      "primary_versions": [
+        "v001",
+        "v002"
+      ],
+      "registry_edges_exercised": [
+        "idea -> research-idea-orchestrator -> idea-adversarial-review-panel",
+        "idea -> research-idea-orchestrator -> idea-evaluator",
+        "idea -> research-idea-orchestrator -> idea-portfolio-assembler",
+        "idea -> research-idea-orchestrator -> multi-path-idea-generator"
+      ],
+      "workflow": "idea"
+    },
+    {
+      "context_profiles": {
+        "degraded_16k": {
+          "behavior": "context_handoff_required",
+          "continuation_package": {
+            "current_artifact_digest": "sha256:3433cd5be22d55e87fd00725c8a5073198c94baf2bc140e9499fc370f0c1eaba",
+            "current_artifact_id": "proposal-v1",
+            "current_artifact_path": "04_drafts/proposal-v001.md",
+            "current_artifact_version": "v001",
+            "current_stage": "independent_evaluation",
+            "dissent_ids": [],
+            "entry_mode": "standard",
+            "gate_receipts": [],
+            "isolation_requirements": "fresh_subagent; frozen read-only input; no prior scores",
+            "latest_qualifying_evaluation": null,
+            "next_route": "proposal-evaluator",
+            "pending_edge": "proposal-orchestrator -> proposal-evaluator",
+            "plugin_version": "0.5.0-preview.1",
+            "round_id": "round-001",
+            "runtime_status": "context_handoff_required",
+            "suspended_workflow_state": "artifact_frozen",
+            "unresolved_finding_ids": [],
+            "workflow_id": "wf-phase4-proposal-001"
+          },
+          "initial_load": 14954,
+          "interpretation": "conservative_initial-load_proxy_not_model_token_accounting",
+          "measurement_unit": "characters",
+          "minimum_working_reserve": 4000,
+          "remaining": 1046
+        },
+        "standard_32k": {
+          "behavior": "continue_current_phase",
+          "initial_load": 14954,
+          "interpretation": "conservative_initial-load_proxy_not_model_token_accounting",
+          "measurement_unit": "characters",
+          "minimum_working_reserve": 16000,
+          "remaining": 17046
+        }
+      },
+      "dissent_ids": [
+        "proposal-dissent-001"
+      ],
+      "evaluator_instances": [
+        "proposal-evaluator-001",
+        "proposal-evaluator-002"
+      ],
+      "events": [
+        {
+          "edge": "proposal-orchestrator -> proposal-drafter",
+          "event_id": "proposal-draft-v1",
+          "observation": {
+            "actual_write_paths": [
+              "04_drafts/proposal-v001.md"
+            ],
+            "files_read": [],
+            "input_hashes_after": {},
+            "input_hashes_before": {}
+          },
+          "sequence": 1,
+          "state_after": "artifact_frozen",
+          "state_before": "initialized",
+          "type": "produce"
+        },
+        {
+          "edge": "proposal-orchestrator -> proposal-evaluator",
+          "event_id": "proposal-evaluate-v1",
+          "observation": {
+            "actual_write_paths": [
+              "05_evaluations/proposal-v001-evaluation.md"
+            ],
+            "files_read": [
+              "04_drafts/proposal-v001.md"
+            ],
+            "input_hashes_after": {
+              "04_drafts/proposal-v001.md": "sha256:3433cd5be22d55e87fd00725c8a5073198c94baf2bc140e9499fc370f0c1eaba"
+            },
+            "input_hashes_before": {
+              "04_drafts/proposal-v001.md": "sha256:3433cd5be22d55e87fd00725c8a5073198c94baf2bc140e9499fc370f0c1eaba"
+            }
+          },
+          "sequence": 2,
+          "state_after": "revision_required",
+          "state_before": "artifact_frozen",
+          "type": "review"
+        },
+        {
+          "edge": "proposal-refinement-controller -> proposal-drafter",
+          "event_id": "proposal-revise-v2",
+          "observation": {
+            "actual_write_paths": [
+              "04_drafts/proposal-v002.md"
+            ],
+            "files_read": [],
+            "input_hashes_after": {
+              "04_drafts/proposal-v001.md": "sha256:3433cd5be22d55e87fd00725c8a5073198c94baf2bc140e9499fc370f0c1eaba",
+              "05_evaluations/proposal-v001-evaluation.md": "sha256:d181a922c9f996f5e9c667b79411b09678e3345d457d4f0ef831ca97a132542c"
+            },
+            "input_hashes_before": {
+              "04_drafts/proposal-v001.md": "sha256:3433cd5be22d55e87fd00725c8a5073198c94baf2bc140e9499fc370f0c1eaba",
+              "05_evaluations/proposal-v001-evaluation.md": "sha256:d181a922c9f996f5e9c667b79411b09678e3345d457d4f0ef831ca97a132542c"
+            }
+          },
+          "sequence": 3,
+          "state_after": "artifact_frozen",
+          "state_before": "revision_required",
+          "type": "produce"
+        },
+        {
+          "edge": "proposal-refinement-controller -> proposal-evaluator",
+          "event_id": "proposal-evaluate-v2",
+          "observation": {
+            "actual_write_paths": [
+              "05_evaluations/proposal-v002-re-evaluation.md"
+            ],
+            "files_read": [
+              "04_drafts/proposal-v002.md"
+            ],
+            "input_hashes_after": {
+              "04_drafts/proposal-v002.md": "sha256:0fe29145af9edba9419abd9a500ea2df2c1d2b596b0831572c8ce8ea14cc978d"
+            },
+            "input_hashes_before": {
+              "04_drafts/proposal-v002.md": "sha256:0fe29145af9edba9419abd9a500ea2df2c1d2b596b0831572c8ce8ea14cc978d"
+            }
+          },
+          "sequence": 4,
+          "state_after": "panel_pending",
+          "state_before": "artifact_frozen",
+          "type": "review"
+        },
+        {
+          "edge": "proposal-orchestrator -> sap-writer",
+          "event_id": "proposal-sap-v1",
+          "observation": {
+            "actual_write_paths": [
+              "07_sap/sap-v001.md"
+            ],
+            "files_read": [],
+            "input_hashes_after": {
+              "04_drafts/proposal-v002.md": "sha256:0fe29145af9edba9419abd9a500ea2df2c1d2b596b0831572c8ce8ea14cc978d"
+            },
+            "input_hashes_before": {
+              "04_drafts/proposal-v002.md": "sha256:0fe29145af9edba9419abd9a500ea2df2c1d2b596b0831572c8ce8ea14cc978d"
+            }
+          },
+          "sequence": 5,
+          "state_after": "panel_pending",
+          "state_before": "panel_pending",
+          "type": "produce"
+        },
+        {
+          "edge": "proposal-orchestrator -> sap-evaluator",
+          "event_id": "proposal-sap-evaluate",
+          "observation": {
+            "actual_write_paths": [
+              "07_sap/sap-v001-evaluation.md"
+            ],
+            "files_read": [
+              "07_sap/sap-v001.md"
+            ],
+            "input_hashes_after": {
+              "07_sap/sap-v001.md": "sha256:0df6c8bb2de7a310a4f58b0d21b113af43cfc64d5e934e40e4808638ecf12bc3"
+            },
+            "input_hashes_before": {
+              "07_sap/sap-v001.md": "sha256:0df6c8bb2de7a310a4f58b0d21b113af43cfc64d5e934e40e4808638ecf12bc3"
+            }
+          },
+          "sequence": 6,
+          "state_after": "pending_review",
+          "state_before": "panel_pending",
+          "type": "review"
+        },
+        {
+          "edge": "proposal-orchestrator -> proposal-review-panel",
+          "event_id": "proposal-panel-domain",
+          "observation": {
+            "actual_write_paths": [
+              "08_panel/proposal-v002-domain-review.md"
+            ],
+            "files_read": [
+              "04_drafts/proposal-v002.md"
+            ],
+            "input_hashes_after": {
+              "04_drafts/proposal-v002.md": "sha256:0fe29145af9edba9419abd9a500ea2df2c1d2b596b0831572c8ce8ea14cc978d"
+            },
+            "input_hashes_before": {
+              "04_drafts/proposal-v002.md": "sha256:0fe29145af9edba9419abd9a500ea2df2c1d2b596b0831572c8ce8ea14cc978d"
+            }
+          },
+          "sequence": 7,
+          "state_after": "panel_pending",
+          "state_before": "pending_review",
+          "type": "review"
+        },
+        {
+          "edge": "proposal-orchestrator -> proposal-review-panel",
+          "event_id": "proposal-panel-methods",
+          "observation": {
+            "actual_write_paths": [
+              "08_panel/proposal-v002-methods-review.md"
+            ],
+            "files_read": [
+              "04_drafts/proposal-v002.md"
+            ],
+            "input_hashes_after": {
+              "04_drafts/proposal-v002.md": "sha256:0fe29145af9edba9419abd9a500ea2df2c1d2b596b0831572c8ce8ea14cc978d"
+            },
+            "input_hashes_before": {
+              "04_drafts/proposal-v002.md": "sha256:0fe29145af9edba9419abd9a500ea2df2c1d2b596b0831572c8ce8ea14cc978d"
+            }
+          },
+          "sequence": 8,
+          "state_after": "panel_pending",
+          "state_before": "panel_pending",
+          "type": "review"
+        },
+        {
+          "edge": "proposal-orchestrator -> proposal-review-panel",
+          "event_id": "proposal-panel-skeptical",
+          "observation": {
+            "actual_write_paths": [
+              "08_panel/proposal-v002-skeptical-review.md"
+            ],
+            "files_read": [
+              "04_drafts/proposal-v002.md"
+            ],
+            "input_hashes_after": {
+              "04_drafts/proposal-v002.md": "sha256:0fe29145af9edba9419abd9a500ea2df2c1d2b596b0831572c8ce8ea14cc978d"
+            },
+            "input_hashes_before": {
+              "04_drafts/proposal-v002.md": "sha256:0fe29145af9edba9419abd9a500ea2df2c1d2b596b0831572c8ce8ea14cc978d"
+            }
+          },
+          "sequence": 9,
+          "state_after": "panel_pending",
+          "state_before": "panel_pending",
+          "type": "review"
+        },
+        {
+          "edge": "orchestrator_internal_panel_gate",
+          "event_id": "proposal-panel-gate",
+          "observation": {
+            "actual_write_paths": [],
+            "files_read": [],
+            "input_hashes_after": {},
+            "input_hashes_before": {}
+          },
+          "sequence": 10,
+          "state_after": "packaging_pending",
+          "state_before": "panel_pending",
+          "type": "panel_gate"
+        },
+        {
+          "edge": "proposal-orchestrator -> proposal-package-assembler",
+          "event_id": "proposal-package",
+          "observation": {
+            "actual_write_paths": [
+              "09_package/final-proposal-package.md"
+            ],
+            "files_read": [],
+            "input_hashes_after": {
+              "04_drafts/proposal-v002.md": "sha256:0fe29145af9edba9419abd9a500ea2df2c1d2b596b0831572c8ce8ea14cc978d",
+              "05_evaluations/proposal-v002-re-evaluation.md": "sha256:25bb396d48b13220a5765548e73c023ff230cb49e9217711b0d0469a60cf703e",
+              "07_sap/sap-v001-evaluation.md": "sha256:4670f61f852de4497376b185a950334f7f45691d5ca108bdd65c63a57bc9da25",
+              "07_sap/sap-v001.md": "sha256:0df6c8bb2de7a310a4f58b0d21b113af43cfc64d5e934e40e4808638ecf12bc3",
+              "08_panel/proposal-v002-domain-review.md": "sha256:f859cf7614414f56512d47e9cdeaf8278ba9ad04ab209df3de447cc42e506a74",
+              "08_panel/proposal-v002-methods-review.md": "sha256:1d9a0c605c28fe9b11c71b1c8fc957acff193067208be68c63c7d5468133b267",
+              "08_panel/proposal-v002-skeptical-review.md": "sha256:e654e1268a24f6ead48fb20bb14ffaa5972dd95c97468663523027fbfcbfc377"
+            },
+            "input_hashes_before": {
+              "04_drafts/proposal-v002.md": "sha256:0fe29145af9edba9419abd9a500ea2df2c1d2b596b0831572c8ce8ea14cc978d",
+              "05_evaluations/proposal-v002-re-evaluation.md": "sha256:25bb396d48b13220a5765548e73c023ff230cb49e9217711b0d0469a60cf703e",
+              "07_sap/sap-v001-evaluation.md": "sha256:4670f61f852de4497376b185a950334f7f45691d5ca108bdd65c63a57bc9da25",
+              "07_sap/sap-v001.md": "sha256:0df6c8bb2de7a310a4f58b0d21b113af43cfc64d5e934e40e4808638ecf12bc3",
+              "08_panel/proposal-v002-domain-review.md": "sha256:f859cf7614414f56512d47e9cdeaf8278ba9ad04ab209df3de447cc42e506a74",
+              "08_panel/proposal-v002-methods-review.md": "sha256:1d9a0c605c28fe9b11c71b1c8fc957acff193067208be68c63c7d5468133b267",
+              "08_panel/proposal-v002-skeptical-review.md": "sha256:e654e1268a24f6ead48fb20bb14ffaa5972dd95c97468663523027fbfcbfc377"
+            }
+          },
+          "sequence": 11,
+          "state_after": "human_signoff_required",
+          "state_before": "packaging_pending",
+          "type": "package"
+        }
+      ],
+      "execution_kind": "deterministic_replay",
+      "final_state": "human_signoff_required",
+      "fixture_id": "proposal-independent-loop-with-sap",
+      "panel_role_instances": {
+        "domain": "proposal-panel-domain-001",
+        "methodology-statistics": "proposal-panel-methods-001",
+        "skeptical": "proposal-panel-skeptical-001"
+      },
+      "primary_versions": [
+        "v001",
+        "v002"
+      ],
+      "registry_edges_exercised": [
+        "proposal -> proposal-orchestrator -> proposal-drafter",
+        "proposal -> proposal-orchestrator -> proposal-evaluator",
+        "proposal -> proposal-orchestrator -> proposal-package-assembler",
+        "proposal -> proposal-orchestrator -> proposal-review-panel",
+        "proposal -> proposal-orchestrator -> sap-evaluator",
+        "proposal -> proposal-orchestrator -> sap-writer",
+        "proposal -> proposal-refinement-controller -> proposal-drafter",
+        "proposal -> proposal-refinement-controller -> proposal-evaluator"
+      ],
+      "workflow": "proposal"
+    },
+    {
+      "context_profiles": {
+        "degraded_16k": {
+          "behavior": "context_handoff_required",
+          "continuation_package": {
+            "current_artifact_digest": "sha256:ae98076f5ff402867afacf27e0fef35fc6cf05a7280345adbd6498b1c5422a10",
+            "current_artifact_id": "manuscript-v1",
+            "current_artifact_path": "06_drafts/manuscript-v001.md",
+            "current_artifact_version": "v001",
+            "current_stage": "independent_evaluation",
+            "dissent_ids": [],
+            "entry_mode": "standard",
+            "gate_receipts": [],
+            "isolation_requirements": "fresh_subagent; frozen read-only input; no prior scores",
+            "latest_qualifying_evaluation": null,
+            "next_route": "article-evaluator",
+            "pending_edge": "article-orchestrator -> article-evaluator",
+            "plugin_version": "0.5.0-preview.1",
+            "round_id": "round-001",
+            "runtime_status": "context_handoff_required",
+            "suspended_workflow_state": "artifact_frozen",
+            "unresolved_finding_ids": [],
+            "workflow_id": "wf-phase4-article-001"
+          },
+          "initial_load": 15704,
+          "interpretation": "conservative_initial-load_proxy_not_model_token_accounting",
+          "measurement_unit": "characters",
+          "minimum_working_reserve": 4000,
+          "remaining": 296
+        },
+        "standard_32k": {
+          "behavior": "continue_current_phase",
+          "initial_load": 15704,
+          "interpretation": "conservative_initial-load_proxy_not_model_token_accounting",
+          "measurement_unit": "characters",
+          "minimum_working_reserve": 16000,
+          "remaining": 16296
+        }
+      },
+      "dissent_ids": [
+        "article-dissent-001"
+      ],
+      "evaluator_instances": [
+        "article-evaluator-001",
+        "article-evaluator-002"
+      ],
+      "events": [
+        {
+          "edge": "article-orchestrator -> article-architect",
+          "event_id": "article-blueprint",
+          "observation": {
+            "actual_write_paths": [
+              "04_blueprint/article-blueprint-v001.md"
+            ],
+            "files_read": [],
+            "input_hashes_after": {},
+            "input_hashes_before": {}
+          },
+          "sequence": 1,
+          "state_after": "initialized",
+          "state_before": "initialized",
+          "type": "produce"
+        },
+        {
+          "edge": "article-orchestrator -> article-methods-statistics-auditor",
+          "event_id": "article-methods-audit",
+          "observation": {
+            "actual_write_paths": [
+              "05_audit/methods-statistics-audit-v001.md"
+            ],
+            "files_read": [
+              "04_blueprint/article-blueprint-v001.md"
+            ],
+            "input_hashes_after": {
+              "04_blueprint/article-blueprint-v001.md": "sha256:13c55d2afb9ecb429cd29846b6105534bb65575333e42e6600755fa901993585"
+            },
+            "input_hashes_before": {
+              "04_blueprint/article-blueprint-v001.md": "sha256:13c55d2afb9ecb429cd29846b6105534bb65575333e42e6600755fa901993585"
+            }
+          },
+          "sequence": 2,
+          "state_after": "pending_review",
+          "state_before": "initialized",
+          "type": "review"
+        },
+        {
+          "edge": "article-orchestrator -> article-drafter",
+          "event_id": "article-draft-v1",
+          "observation": {
+            "actual_write_paths": [
+              "06_drafts/manuscript-v001.md"
+            ],
+            "files_read": [],
+            "input_hashes_after": {
+              "04_blueprint/article-blueprint-v001.md": "sha256:13c55d2afb9ecb429cd29846b6105534bb65575333e42e6600755fa901993585",
+              "05_audit/methods-statistics-audit-v001.md": "sha256:3dd6c40834c64e05bbe873da2bcd50578a8f3849bd8909ec584a4a6485695627"
+            },
+            "input_hashes_before": {
+              "04_blueprint/article-blueprint-v001.md": "sha256:13c55d2afb9ecb429cd29846b6105534bb65575333e42e6600755fa901993585",
+              "05_audit/methods-statistics-audit-v001.md": "sha256:3dd6c40834c64e05bbe873da2bcd50578a8f3849bd8909ec584a4a6485695627"
+            }
+          },
+          "sequence": 3,
+          "state_after": "artifact_frozen",
+          "state_before": "pending_review",
+          "type": "produce"
+        },
+        {
+          "edge": "article-orchestrator -> article-claim-auditor",
+          "event_id": "article-claim-audit-v1",
+          "observation": {
+            "actual_write_paths": [
+              "07_claim-audit/claim-audit-v001.md"
+            ],
+            "files_read": [
+              "06_drafts/manuscript-v001.md"
+            ],
+            "input_hashes_after": {
+              "06_drafts/manuscript-v001.md": "sha256:ae98076f5ff402867afacf27e0fef35fc6cf05a7280345adbd6498b1c5422a10"
+            },
+            "input_hashes_before": {
+              "06_drafts/manuscript-v001.md": "sha256:ae98076f5ff402867afacf27e0fef35fc6cf05a7280345adbd6498b1c5422a10"
+            }
+          },
+          "sequence": 4,
+          "state_after": "pending_review",
+          "state_before": "artifact_frozen",
+          "type": "review"
+        },
+        {
+          "edge": "article-orchestrator -> article-evaluator",
+          "event_id": "article-evaluate-v1",
+          "observation": {
+            "actual_write_paths": [
+              "08_evaluations/evaluation-v001.md"
+            ],
+            "files_read": [
+              "06_drafts/manuscript-v001.md",
+              "07_claim-audit/claim-audit-v001.md"
+            ],
+            "input_hashes_after": {
+              "06_drafts/manuscript-v001.md": "sha256:ae98076f5ff402867afacf27e0fef35fc6cf05a7280345adbd6498b1c5422a10",
+              "07_claim-audit/claim-audit-v001.md": "sha256:c89224dc46f21ffe985ff1fdc43e83e0de97029fcc888945e33b77df5edbc1dc"
+            },
+            "input_hashes_before": {
+              "06_drafts/manuscript-v001.md": "sha256:ae98076f5ff402867afacf27e0fef35fc6cf05a7280345adbd6498b1c5422a10",
+              "07_claim-audit/claim-audit-v001.md": "sha256:c89224dc46f21ffe985ff1fdc43e83e0de97029fcc888945e33b77df5edbc1dc"
+            }
+          },
+          "sequence": 5,
+          "state_after": "revision_required",
+          "state_before": "pending_review",
+          "type": "review"
+        },
+        {
+          "edge": "article-refinement-controller -> article-drafter",
+          "event_id": "article-revise-v2",
+          "observation": {
+            "actual_write_paths": [
+              "06_drafts/manuscript-v002.md"
+            ],
+            "files_read": [],
+            "input_hashes_after": {
+              "06_drafts/manuscript-v001.md": "sha256:ae98076f5ff402867afacf27e0fef35fc6cf05a7280345adbd6498b1c5422a10",
+              "08_evaluations/evaluation-v001.md": "sha256:e7f3dee55e91227605a2203b0d877467080b91449a2e7c855487f7b874d7c369"
+            },
+            "input_hashes_before": {
+              "06_drafts/manuscript-v001.md": "sha256:ae98076f5ff402867afacf27e0fef35fc6cf05a7280345adbd6498b1c5422a10",
+              "08_evaluations/evaluation-v001.md": "sha256:e7f3dee55e91227605a2203b0d877467080b91449a2e7c855487f7b874d7c369"
+            }
+          },
+          "sequence": 6,
+          "state_after": "artifact_frozen",
+          "state_before": "revision_required",
+          "type": "produce"
+        },
+        {
+          "edge": "article-orchestrator -> article-claim-auditor",
+          "event_id": "article-claim-audit-v2",
+          "observation": {
+            "actual_write_paths": [
+              "07_claim-audit/claim-audit-v002.md"
+            ],
+            "files_read": [
+              "06_drafts/manuscript-v002.md"
+            ],
+            "input_hashes_after": {
+              "06_drafts/manuscript-v002.md": "sha256:64ec53e31ef5568a125d768a5c762a7ff4e038fb2bad095ffde3ee179c6e06af"
+            },
+            "input_hashes_before": {
+              "06_drafts/manuscript-v002.md": "sha256:64ec53e31ef5568a125d768a5c762a7ff4e038fb2bad095ffde3ee179c6e06af"
+            }
+          },
+          "sequence": 7,
+          "state_after": "pending_review",
+          "state_before": "artifact_frozen",
+          "type": "review"
+        },
+        {
+          "edge": "article-refinement-controller -> article-evaluator",
+          "event_id": "article-evaluate-v2",
+          "observation": {
+            "actual_write_paths": [
+              "08_evaluations/evaluation-v002.md"
+            ],
+            "files_read": [
+              "06_drafts/manuscript-v002.md",
+              "07_claim-audit/claim-audit-v002.md"
+            ],
+            "input_hashes_after": {
+              "06_drafts/manuscript-v002.md": "sha256:64ec53e31ef5568a125d768a5c762a7ff4e038fb2bad095ffde3ee179c6e06af",
+              "07_claim-audit/claim-audit-v002.md": "sha256:05e017b36628fbfca808f56a6fb75cac84837e85b47611ab18a439f802172696"
+            },
+            "input_hashes_before": {
+              "06_drafts/manuscript-v002.md": "sha256:64ec53e31ef5568a125d768a5c762a7ff4e038fb2bad095ffde3ee179c6e06af",
+              "07_claim-audit/claim-audit-v002.md": "sha256:05e017b36628fbfca808f56a6fb75cac84837e85b47611ab18a439f802172696"
+            }
+          },
+          "sequence": 8,
+          "state_after": "panel_pending",
+          "state_before": "pending_review",
+          "type": "review"
+        },
+        {
+          "edge": "article-orchestrator -> article-review-panel",
+          "event_id": "article-panel-methods",
+          "observation": {
+            "actual_write_paths": [
+              "10_panel/methods-statistics-review-v002.md"
+            ],
+            "files_read": [
+              "06_drafts/manuscript-v002.md"
+            ],
+            "input_hashes_after": {
+              "06_drafts/manuscript-v002.md": "sha256:64ec53e31ef5568a125d768a5c762a7ff4e038fb2bad095ffde3ee179c6e06af"
+            },
+            "input_hashes_before": {
+              "06_drafts/manuscript-v002.md": "sha256:64ec53e31ef5568a125d768a5c762a7ff4e038fb2bad095ffde3ee179c6e06af"
+            }
+          },
+          "sequence": 9,
+          "state_after": "panel_pending",
+          "state_before": "panel_pending",
+          "type": "review"
+        },
+        {
+          "edge": "article-orchestrator -> article-review-panel",
+          "event_id": "article-panel-claims",
+          "observation": {
+            "actual_write_paths": [
+              "10_panel/claims-evidence-review-v002.md"
+            ],
+            "files_read": [
+              "06_drafts/manuscript-v002.md"
+            ],
+            "input_hashes_after": {
+              "06_drafts/manuscript-v002.md": "sha256:64ec53e31ef5568a125d768a5c762a7ff4e038fb2bad095ffde3ee179c6e06af"
+            },
+            "input_hashes_before": {
+              "06_drafts/manuscript-v002.md": "sha256:64ec53e31ef5568a125d768a5c762a7ff4e038fb2bad095ffde3ee179c6e06af"
+            }
+          },
+          "sequence": 10,
+          "state_after": "panel_pending",
+          "state_before": "panel_pending",
+          "type": "review"
+        },
+        {
+          "edge": "article-orchestrator -> article-review-panel",
+          "event_id": "article-panel-editor",
+          "observation": {
+            "actual_write_paths": [
+              "10_panel/editor-review-v002.md"
+            ],
+            "files_read": [
+              "06_drafts/manuscript-v002.md"
+            ],
+            "input_hashes_after": {
+              "06_drafts/manuscript-v002.md": "sha256:64ec53e31ef5568a125d768a5c762a7ff4e038fb2bad095ffde3ee179c6e06af"
+            },
+            "input_hashes_before": {
+              "06_drafts/manuscript-v002.md": "sha256:64ec53e31ef5568a125d768a5c762a7ff4e038fb2bad095ffde3ee179c6e06af"
+            }
+          },
+          "sequence": 11,
+          "state_after": "panel_pending",
+          "state_before": "panel_pending",
+          "type": "review"
+        },
+        {
+          "edge": "orchestrator_internal_panel_gate",
+          "event_id": "article-panel-gate",
+          "observation": {
+            "actual_write_paths": [],
+            "files_read": [],
+            "input_hashes_after": {},
+            "input_hashes_before": {}
+          },
+          "sequence": 12,
+          "state_after": "packaging_pending",
+          "state_before": "panel_pending",
+          "type": "panel_gate"
+        },
+        {
+          "edge": "article-orchestrator -> article-submission-compositor",
+          "event_id": "article-compositor",
+          "observation": {
+            "actual_write_paths": [
+              "12_package/compositor-verification-report.md",
+              "12_package/manuscript-v002-copy.md"
+            ],
+            "files_read": [
+              "06_drafts/manuscript-v002.md",
+              "08_evaluations/evaluation-v002.md",
+              "10_panel/methods-statistics-review-v002.md",
+              "10_panel/claims-evidence-review-v002.md",
+              "10_panel/editor-review-v002.md"
+            ],
+            "input_hashes_after": {
+              "06_drafts/manuscript-v002.md": "sha256:64ec53e31ef5568a125d768a5c762a7ff4e038fb2bad095ffde3ee179c6e06af",
+              "08_evaluations/evaluation-v002.md": "sha256:227fe2ccd1812d7563e2d9572887d7555470a62a03ab8dbe6830bd07db46bcc6",
+              "10_panel/claims-evidence-review-v002.md": "sha256:26fafd7ba105864043657f2e3dde74fed0e781ac8ad61dfc1194f0f8e5845db7",
+              "10_panel/editor-review-v002.md": "sha256:b1f164a3bfcfd66ae50b0346dd7e5ec31fd5b0e3c3a0e120f01fc5847b29276f",
+              "10_panel/methods-statistics-review-v002.md": "sha256:dddeaac34a04f6278a58734c30fed5788ceda3c9e3d29d181aadda8b6c794e40"
+            },
+            "input_hashes_before": {
+              "06_drafts/manuscript-v002.md": "sha256:64ec53e31ef5568a125d768a5c762a7ff4e038fb2bad095ffde3ee179c6e06af",
+              "08_evaluations/evaluation-v002.md": "sha256:227fe2ccd1812d7563e2d9572887d7555470a62a03ab8dbe6830bd07db46bcc6",
+              "10_panel/claims-evidence-review-v002.md": "sha256:26fafd7ba105864043657f2e3dde74fed0e781ac8ad61dfc1194f0f8e5845db7",
+              "10_panel/editor-review-v002.md": "sha256:b1f164a3bfcfd66ae50b0346dd7e5ec31fd5b0e3c3a0e120f01fc5847b29276f",
+              "10_panel/methods-statistics-review-v002.md": "sha256:dddeaac34a04f6278a58734c30fed5788ceda3c9e3d29d181aadda8b6c794e40"
+            }
+          },
+          "sequence": 13,
+          "state_after": "human_signoff_required",
+          "state_before": "packaging_pending",
+          "type": "review"
+        }
+      ],
+      "execution_kind": "deterministic_replay",
+      "final_state": "human_signoff_required",
+      "fixture_id": "article-independent-loop",
+      "panel_role_instances": {
+        "claims-evidence": "article-panel-claims-001",
+        "editor": "article-panel-editor-001",
+        "methods-statistics": "article-panel-methods-001"
+      },
+      "primary_versions": [
+        "v001",
+        "v002"
+      ],
+      "registry_edges_exercised": [
+        "article -> article-orchestrator -> article-architect",
+        "article -> article-orchestrator -> article-claim-auditor",
+        "article -> article-orchestrator -> article-drafter",
+        "article -> article-orchestrator -> article-evaluator",
+        "article -> article-orchestrator -> article-methods-statistics-auditor",
+        "article -> article-orchestrator -> article-review-panel",
+        "article -> article-orchestrator -> article-submission-compositor",
+        "article -> article-refinement-controller -> article-drafter",
+        "article -> article-refinement-controller -> article-evaluator"
+      ],
+      "workflow": "article"
+    },
+    {
+      "context_profiles": {
+        "degraded_16k": {
+          "behavior": "context_handoff_required",
+          "continuation_package": {
+            "current_artifact_digest": "sha256:5d73957d449696627f30a6a9695276fe7f9ae110e03524a259d0311f4634ec74",
+            "current_artifact_id": "perspective-v1",
+            "current_artifact_path": "04_drafts/perspective-v001.md",
+            "current_artifact_version": "v001",
+            "current_stage": "independent_evaluation",
+            "dissent_ids": [],
+            "entry_mode": "full",
+            "gate_receipts": [],
+            "isolation_requirements": "fresh_subagent; frozen read-only input; no prior scores",
+            "latest_qualifying_evaluation": null,
+            "next_route": "perspective-evaluator",
+            "pending_edge": "perspective-orchestrator -> perspective-evaluator",
+            "plugin_version": "0.5.0-preview.1",
+            "round_id": "round-001",
+            "runtime_status": "context_handoff_required",
+            "suspended_workflow_state": "artifact_frozen",
+            "unresolved_finding_ids": [],
+            "workflow_id": "wf-phase4-perspective-001"
+          },
+          "initial_load": 15534,
+          "interpretation": "conservative_initial-load_proxy_not_model_token_accounting",
+          "measurement_unit": "characters",
+          "minimum_working_reserve": 4000,
+          "remaining": 466
+        },
+        "standard_32k": {
+          "behavior": "continue_current_phase",
+          "initial_load": 15534,
+          "interpretation": "conservative_initial-load_proxy_not_model_token_accounting",
+          "measurement_unit": "characters",
+          "minimum_working_reserve": 16000,
+          "remaining": 16466
+        }
+      },
+      "dissent_ids": [
+        "perspective-dissent-001"
+      ],
+      "evaluator_instances": [
+        "perspective-evaluator-001",
+        "perspective-evaluator-002",
+        "perspective-evaluator-003"
+      ],
+      "events": [
+        {
+          "edge": "perspective-orchestrator -> perspective-drafter",
+          "event_id": "perspective-draft-v1",
+          "observation": {
+            "actual_write_paths": [
+              "04_drafts/perspective-v001.md"
+            ],
+            "files_read": [],
+            "input_hashes_after": {},
+            "input_hashes_before": {}
+          },
+          "sequence": 1,
+          "state_after": "artifact_frozen",
+          "state_before": "initialized",
+          "type": "produce"
+        },
+        {
+          "edge": "perspective-orchestrator -> perspective-evaluator",
+          "event_id": "perspective-evaluate-v1",
+          "observation": {
+            "actual_write_paths": [
+              "05_evaluations/evaluation-report-v001.md"
+            ],
+            "files_read": [
+              "04_drafts/perspective-v001.md"
+            ],
+            "input_hashes_after": {
+              "04_drafts/perspective-v001.md": "sha256:5d73957d449696627f30a6a9695276fe7f9ae110e03524a259d0311f4634ec74"
+            },
+            "input_hashes_before": {
+              "04_drafts/perspective-v001.md": "sha256:5d73957d449696627f30a6a9695276fe7f9ae110e03524a259d0311f4634ec74"
+            }
+          },
+          "sequence": 2,
+          "state_after": "revision_required",
+          "state_before": "artifact_frozen",
+          "type": "review"
+        },
+        {
+          "edge": "perspective-refinement-controller -> perspective-drafter",
+          "event_id": "perspective-revise-v2",
+          "observation": {
+            "actual_write_paths": [
+              "04_drafts/perspective-v002.md"
+            ],
+            "files_read": [],
+            "input_hashes_after": {
+              "04_drafts/perspective-v001.md": "sha256:5d73957d449696627f30a6a9695276fe7f9ae110e03524a259d0311f4634ec74",
+              "05_evaluations/evaluation-report-v001.md": "sha256:eb8855d1cc0335b557d10f096311d666648da32e00fb0da53bb6621973674b2c"
+            },
+            "input_hashes_before": {
+              "04_drafts/perspective-v001.md": "sha256:5d73957d449696627f30a6a9695276fe7f9ae110e03524a259d0311f4634ec74",
+              "05_evaluations/evaluation-report-v001.md": "sha256:eb8855d1cc0335b557d10f096311d666648da32e00fb0da53bb6621973674b2c"
+            }
+          },
+          "sequence": 3,
+          "state_after": "artifact_frozen",
+          "state_before": "revision_required",
+          "type": "produce"
+        },
+        {
+          "edge": "perspective-refinement-controller -> perspective-evaluator",
+          "event_id": "perspective-evaluate-v2",
+          "observation": {
+            "actual_write_paths": [
+              "05_evaluations/evaluation-report-v002.md"
+            ],
+            "files_read": [
+              "04_drafts/perspective-v002.md"
+            ],
+            "input_hashes_after": {
+              "04_drafts/perspective-v002.md": "sha256:dbef3c5808a2771644ce546353ad2e6afdedc7b22830860cd7f0679210ad5aa3"
+            },
+            "input_hashes_before": {
+              "04_drafts/perspective-v002.md": "sha256:dbef3c5808a2771644ce546353ad2e6afdedc7b22830860cd7f0679210ad5aa3"
+            }
+          },
+          "sequence": 4,
+          "state_after": "panel_pending",
+          "state_before": "artifact_frozen",
+          "type": "review"
+        },
+        {
+          "edge": "perspective-orchestrator -> perspective-review-panel",
+          "event_id": "perspective-panel-counter",
+          "observation": {
+            "actual_write_paths": [
+              "07_panel/counter-position-review-v002.md"
+            ],
+            "files_read": [
+              "04_drafts/perspective-v002.md"
+            ],
+            "input_hashes_after": {
+              "04_drafts/perspective-v002.md": "sha256:dbef3c5808a2771644ce546353ad2e6afdedc7b22830860cd7f0679210ad5aa3"
+            },
+            "input_hashes_before": {
+              "04_drafts/perspective-v002.md": "sha256:dbef3c5808a2771644ce546353ad2e6afdedc7b22830860cd7f0679210ad5aa3"
+            }
+          },
+          "sequence": 5,
+          "state_after": "panel_pending",
+          "state_before": "panel_pending",
+          "type": "review"
+        },
+        {
+          "edge": "perspective-orchestrator -> perspective-review-panel",
+          "event_id": "perspective-panel-evidence",
+          "observation": {
+            "actual_write_paths": [
+              "07_panel/evidence-review-v002.md"
+            ],
+            "files_read": [
+              "04_drafts/perspective-v002.md"
+            ],
+            "input_hashes_after": {
+              "04_drafts/perspective-v002.md": "sha256:dbef3c5808a2771644ce546353ad2e6afdedc7b22830860cd7f0679210ad5aa3"
+            },
+            "input_hashes_before": {
+              "04_drafts/perspective-v002.md": "sha256:dbef3c5808a2771644ce546353ad2e6afdedc7b22830860cd7f0679210ad5aa3"
+            }
+          },
+          "sequence": 6,
+          "state_after": "panel_pending",
+          "state_before": "panel_pending",
+          "type": "review"
+        },
+        {
+          "edge": "perspective-orchestrator -> perspective-review-panel",
+          "event_id": "perspective-panel-narrative",
+          "observation": {
+            "actual_write_paths": [
+              "07_panel/narrative-review-v002.md"
+            ],
+            "files_read": [
+              "04_drafts/perspective-v002.md"
+            ],
+            "input_hashes_after": {
+              "04_drafts/perspective-v002.md": "sha256:dbef3c5808a2771644ce546353ad2e6afdedc7b22830860cd7f0679210ad5aa3"
+            },
+            "input_hashes_before": {
+              "04_drafts/perspective-v002.md": "sha256:dbef3c5808a2771644ce546353ad2e6afdedc7b22830860cd7f0679210ad5aa3"
+            }
+          },
+          "sequence": 7,
+          "state_after": "panel_pending",
+          "state_before": "panel_pending",
+          "type": "review"
+        },
+        {
+          "edge": "orchestrator_internal_panel_gate",
+          "event_id": "perspective-panel-gate",
+          "observation": {
+            "actual_write_paths": [],
+            "files_read": [],
+            "input_hashes_after": {},
+            "input_hashes_before": {}
+          },
+          "sequence": 8,
+          "state_after": "revision_required",
+          "state_before": "panel_pending",
+          "type": "panel_gate"
+        },
+        {
+          "edge": "perspective-refinement-controller -> perspective-drafter",
+          "event_id": "perspective-panel-patch-v3",
+          "observation": {
+            "actual_write_paths": [
+              "04_drafts/perspective-v003.md"
+            ],
+            "files_read": [],
+            "input_hashes_after": {
+              "04_drafts/perspective-v002.md": "sha256:dbef3c5808a2771644ce546353ad2e6afdedc7b22830860cd7f0679210ad5aa3",
+              "07_panel/narrative-review-v002.md": "sha256:952881e8309a92099acc0e0eb989b2ebfa8787b286df118a847b4df3c0de31aa"
+            },
+            "input_hashes_before": {
+              "04_drafts/perspective-v002.md": "sha256:dbef3c5808a2771644ce546353ad2e6afdedc7b22830860cd7f0679210ad5aa3",
+              "07_panel/narrative-review-v002.md": "sha256:952881e8309a92099acc0e0eb989b2ebfa8787b286df118a847b4df3c0de31aa"
+            }
+          },
+          "sequence": 9,
+          "state_after": "artifact_frozen",
+          "state_before": "revision_required",
+          "type": "produce"
+        },
+        {
+          "edge": "perspective-refinement-controller -> perspective-evaluator",
+          "event_id": "perspective-evaluate-v3",
+          "observation": {
+            "actual_write_paths": [
+              "05_evaluations/evaluation-report-v003.md"
+            ],
+            "files_read": [
+              "04_drafts/perspective-v003.md"
+            ],
+            "input_hashes_after": {
+              "04_drafts/perspective-v003.md": "sha256:d835b1af7b26107cf5a54ced87c2d9c3473b89cd8ad23224a27f5c2a9623341e"
+            },
+            "input_hashes_before": {
+              "04_drafts/perspective-v003.md": "sha256:d835b1af7b26107cf5a54ced87c2d9c3473b89cd8ad23224a27f5c2a9623341e"
+            }
+          },
+          "sequence": 10,
+          "state_after": "packaging_pending",
+          "state_before": "artifact_frozen",
+          "type": "review"
+        },
+        {
+          "edge": "perspective-orchestrator -> perspective-final-compositor",
+          "event_id": "perspective-compositor",
+          "observation": {
+            "actual_write_paths": [
+              "08_final/final-compositor-report.md",
+              "08_final/final-perspective.md"
+            ],
+            "files_read": [
+              "04_drafts/perspective-v003.md",
+              "05_evaluations/evaluation-report-v003.md",
+              "07_panel/counter-position-review-v002.md",
+              "07_panel/evidence-review-v002.md",
+              "07_panel/narrative-review-v002.md"
+            ],
+            "input_hashes_after": {
+              "04_drafts/perspective-v003.md": "sha256:d835b1af7b26107cf5a54ced87c2d9c3473b89cd8ad23224a27f5c2a9623341e",
+              "05_evaluations/evaluation-report-v003.md": "sha256:782405ac8b08a95cb7099babeb48ab3c2272f445044b1e6d6d1496963ab78d50",
+              "07_panel/counter-position-review-v002.md": "sha256:b6403f370b4c94ab6fbc965879e9aac952bf97cf529b448615f6a0467dd2c590",
+              "07_panel/evidence-review-v002.md": "sha256:70c52016402790dea69c8a580fa220e82da4e66f644f8e6884f2b94a27f251ad",
+              "07_panel/narrative-review-v002.md": "sha256:952881e8309a92099acc0e0eb989b2ebfa8787b286df118a847b4df3c0de31aa"
+            },
+            "input_hashes_before": {
+              "04_drafts/perspective-v003.md": "sha256:d835b1af7b26107cf5a54ced87c2d9c3473b89cd8ad23224a27f5c2a9623341e",
+              "05_evaluations/evaluation-report-v003.md": "sha256:782405ac8b08a95cb7099babeb48ab3c2272f445044b1e6d6d1496963ab78d50",
+              "07_panel/counter-position-review-v002.md": "sha256:b6403f370b4c94ab6fbc965879e9aac952bf97cf529b448615f6a0467dd2c590",
+              "07_panel/evidence-review-v002.md": "sha256:70c52016402790dea69c8a580fa220e82da4e66f644f8e6884f2b94a27f251ad",
+              "07_panel/narrative-review-v002.md": "sha256:952881e8309a92099acc0e0eb989b2ebfa8787b286df118a847b4df3c0de31aa"
+            }
+          },
+          "sequence": 11,
+          "state_after": "human_signoff_required",
+          "state_before": "packaging_pending",
+          "type": "review"
+        }
+      ],
+      "execution_kind": "deterministic_replay",
+      "final_state": "human_signoff_required",
+      "fixture_id": "perspective-panel-patch-loop",
+      "panel_role_instances": {
+        "counter-position": "perspective-panel-counter-001",
+        "evidence": "perspective-panel-evidence-001",
+        "narrative": "perspective-panel-narrative-001"
+      },
+      "primary_versions": [
+        "v001",
+        "v002",
+        "v003"
+      ],
+      "registry_edges_exercised": [
+        "perspective -> perspective-orchestrator -> perspective-drafter",
+        "perspective -> perspective-orchestrator -> perspective-evaluator",
+        "perspective -> perspective-orchestrator -> perspective-final-compositor",
+        "perspective -> perspective-orchestrator -> perspective-review-panel",
+        "perspective -> perspective-refinement-controller -> perspective-drafter",
+        "perspective -> perspective-refinement-controller -> perspective-evaluator"
+      ],
+      "workflow": "perspective"
+    }
+  ],
+  "schema_version": 1,
+  "summary": {
+    "automatic_external_submission": false,
+    "final_state": "human_signoff_required",
+    "negative_guards_rejected": 10,
+    "workflows_passed": 4
+  }
+}

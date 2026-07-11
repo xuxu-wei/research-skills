@@ -1,0 +1,367 @@
+schema_version: 1
+fixture_id: idea-independent-loop
+execution_kind: deterministic_replay
+workflow: idea
+workflow_id: wf-phase4-idea-001
+entry_mode: standard
+plugin_version: 0.5.0-preview.1
+registry_schema_version: 4
+panel:
+  required_roles: [novelty-gap, feasibility-method, pi-strategy]
+events:
+  - event_id: idea-generate-v1
+    type: produce
+    actor_instance_id: idea-writer-001
+    source_skill: research-idea-orchestrator
+    destination_skill: multi-path-idea-generator
+    dispatch_mode: orchestrated
+    trigger: context_and_opportunity_map_ready_or_revision_authorized
+    allowed_read_paths: []
+    allowed_write_paths: [03_ideas/round-001/generated-idea-set-v001.md]
+    input_artifact_ids: []
+    input_versions: []
+    outputs:
+      - artifact_id: ideas-v1
+        version_id: v001
+        workflow_id: wf-phase4-idea-001
+        round_id: round-001
+        plugin_version: 0.5.0-preview.1
+        source_skill: multi-path-idea-generator
+        created_by_instance_id: idea-writer-001
+        based_on: []
+        change_type: initial
+        path: 03_ideas/round-001/generated-idea-set-v001.md
+        status: current
+        content_digest: computed
+        frozen: true
+        artifact_role: candidate_idea_set
+        content: "idea candidate set v001"
+    expected_state_after: artifact_frozen
+  - event_id: idea-evaluate-v1
+    type: review
+    actor_instance_id: idea-evaluator-001
+    source_skill: research-idea-orchestrator
+    destination_skill: idea-evaluator
+    dispatch_mode: delegated
+    trigger: candidate_set_frozen_or_revised
+    allowed_read_paths: [03_ideas/round-001/generated-idea-set-v001.md]
+    allowed_write_paths: [05_evaluations/round-001/idea-evaluation-v001.md]
+    input_artifact_ids: [ideas-v1]
+    input_versions: [v001]
+    review_report:
+      review_id: idea-eval-r1
+      reviewer_skill: idea-evaluator
+      reviewer_instance_id: idea-evaluator-001
+      reviewer_role: evaluator
+      review_scope: frozen candidate set v001
+      workflow_id: wf-phase4-idea-001
+      round_id: round-001
+      input_artifact_ids: [ideas-v1]
+      input_versions: [v001]
+      files_read: [03_ideas/round-001/generated-idea-set-v001.md]
+      isolation_mode: fresh_subagent
+      prior_scores_visible: false
+      source_edits_performed: false
+      decision: revise
+      findings:
+        - finding_id: idea-major-001
+          source_review_id: idea-eval-r1
+          severity: major
+          blocking: false
+          fixability: fixable
+          status: routed_to_revision
+          owner: multi-path-idea-generator
+          route: targeted_revision
+      unresolved_issues: [idea-major-001]
+    outputs:
+      - artifact_id: idea-eval-v1
+        version_id: r001
+        workflow_id: wf-phase4-idea-001
+        round_id: round-001
+        plugin_version: 0.5.0-preview.1
+        source_skill: idea-evaluator
+        created_by_instance_id: idea-evaluator-001
+        based_on: [ideas-v1@v001]
+        change_type: evaluation
+        path: 05_evaluations/round-001/idea-evaluation-v001.md
+        status: final
+        content_digest: computed
+        frozen: true
+        artifact_role: evaluation_report
+    expected_state_after: revision_required
+  - event_id: idea-revise-v2
+    type: produce
+    actor_instance_id: idea-writer-002
+    source_skill: research-idea-orchestrator
+    destination_skill: multi-path-idea-generator
+    dispatch_mode: orchestrated
+    trigger: context_and_opportunity_map_ready_or_revision_authorized
+    allowed_read_paths:
+      - 03_ideas/round-001/generated-idea-set-v001.md
+      - 05_evaluations/round-001/idea-evaluation-v001.md
+    allowed_write_paths: [03_ideas/round-002/revised-idea-set-v002.md]
+    input_artifact_ids: [ideas-v1, idea-eval-v1]
+    input_versions: [v001, r001]
+    outputs:
+      - artifact_id: ideas-v2
+        version_id: v002
+        workflow_id: wf-phase4-idea-001
+        round_id: round-002
+        plugin_version: 0.5.0-preview.1
+        source_skill: multi-path-idea-generator
+        created_by_instance_id: idea-writer-002
+        based_on: [ideas-v1@v001, idea-eval-v1@r001]
+        change_type: targeted_revision
+        path: 03_ideas/round-002/revised-idea-set-v002.md
+        status: current
+        content_digest: computed
+        frozen: true
+        artifact_role: candidate_idea_set
+        content: "idea candidate set v002 revised"
+    expected_state_after: artifact_frozen
+  - event_id: idea-evaluate-v2
+    type: review
+    actor_instance_id: idea-evaluator-002
+    source_skill: research-idea-orchestrator
+    destination_skill: idea-evaluator
+    dispatch_mode: delegated
+    trigger: candidate_set_frozen_or_revised
+    allowed_read_paths: [03_ideas/round-002/revised-idea-set-v002.md]
+    allowed_write_paths: [05_evaluations/round-002/idea-evaluation-v002.md]
+    input_artifact_ids: [ideas-v2]
+    input_versions: [v002]
+    review_report:
+      review_id: idea-eval-r2
+      reviewer_skill: idea-evaluator
+      reviewer_instance_id: idea-evaluator-002
+      reviewer_role: evaluator
+      review_scope: frozen candidate set v002
+      workflow_id: wf-phase4-idea-001
+      round_id: round-002
+      input_artifact_ids: [ideas-v2]
+      input_versions: [v002]
+      files_read: [03_ideas/round-002/revised-idea-set-v002.md]
+      isolation_mode: fresh_subagent
+      prior_scores_visible: false
+      source_edits_performed: false
+      decision: accept
+      findings: []
+      unresolved_issues: []
+    outputs:
+      - artifact_id: idea-eval-v2
+        version_id: r002
+        workflow_id: wf-phase4-idea-001
+        round_id: round-002
+        plugin_version: 0.5.0-preview.1
+        source_skill: idea-evaluator
+        created_by_instance_id: idea-evaluator-002
+        based_on: [ideas-v2@v002]
+        change_type: evaluation
+        path: 05_evaluations/round-002/idea-evaluation-v002.md
+        status: final
+        content_digest: computed
+        frozen: true
+        artifact_role: evaluation_report
+    expected_state_after: panel_pending
+  - event_id: idea-panel-novelty
+    type: review
+    actor_instance_id: idea-panel-novelty-001
+    source_skill: research-idea-orchestrator
+    destination_skill: idea-adversarial-review-panel
+    dispatch_mode: delegated
+    trigger: proposal_handoff_candidate_exists
+    allowed_read_paths: [03_ideas/round-002/revised-idea-set-v002.md]
+    allowed_write_paths: [06_adversarial/round-002/novelty-gap-review.md]
+    input_artifact_ids: [ideas-v2]
+    input_versions: [v002]
+    review_report:
+      review_id: idea-panel-r1
+      reviewer_skill: idea-adversarial-review-panel
+      reviewer_instance_id: idea-panel-novelty-001
+      reviewer_role: novelty-gap
+      review_scope: novelty and gap challenge
+      workflow_id: wf-phase4-idea-001
+      round_id: panel-001
+      input_artifact_ids: [ideas-v2]
+      input_versions: [v002]
+      files_read: [03_ideas/round-002/revised-idea-set-v002.md]
+      isolation_mode: fresh_subagent
+      prior_scores_visible: false
+      source_edits_performed: false
+      peer_outputs_visible: false
+      decision: support
+      findings:
+        - finding_id: idea-dissent-001
+          source_review_id: idea-panel-r1
+          severity: informational
+          blocking: false
+          fixability: not_applicable
+          status: accepted_risk
+          owner: pi
+          route: preserve_dissent
+          dissent: true
+      unresolved_issues: [idea-dissent-001]
+    outputs:
+      - artifact_id: idea-panel-novelty-report
+        version_id: p001
+        workflow_id: wf-phase4-idea-001
+        round_id: panel-001
+        plugin_version: 0.5.0-preview.1
+        source_skill: idea-adversarial-review-panel
+        created_by_instance_id: idea-panel-novelty-001
+        based_on: [ideas-v2@v002]
+        change_type: review
+        path: 06_adversarial/round-002/novelty-gap-review.md
+        status: final
+        content_digest: computed
+        frozen: true
+        artifact_role: panel_report
+    expected_state_after: panel_pending
+  - event_id: idea-panel-feasibility
+    type: review
+    actor_instance_id: idea-panel-feasibility-001
+    source_skill: research-idea-orchestrator
+    destination_skill: idea-adversarial-review-panel
+    dispatch_mode: delegated
+    trigger: proposal_handoff_candidate_exists
+    allowed_read_paths: [03_ideas/round-002/revised-idea-set-v002.md]
+    allowed_write_paths: [06_adversarial/round-002/feasibility-method-review.md]
+    input_artifact_ids: [ideas-v2]
+    input_versions: [v002]
+    review_report:
+      review_id: idea-panel-r2
+      reviewer_skill: idea-adversarial-review-panel
+      reviewer_instance_id: idea-panel-feasibility-001
+      reviewer_role: feasibility-method
+      review_scope: feasibility and method challenge
+      workflow_id: wf-phase4-idea-001
+      round_id: panel-001
+      input_artifact_ids: [ideas-v2]
+      input_versions: [v002]
+      files_read: [03_ideas/round-002/revised-idea-set-v002.md]
+      isolation_mode: fresh_subagent
+      prior_scores_visible: false
+      source_edits_performed: false
+      peer_outputs_visible: false
+      decision: support
+      findings: []
+      unresolved_issues: []
+    outputs:
+      - artifact_id: idea-panel-feasibility-report
+        version_id: p002
+        workflow_id: wf-phase4-idea-001
+        round_id: panel-001
+        plugin_version: 0.5.0-preview.1
+        source_skill: idea-adversarial-review-panel
+        created_by_instance_id: idea-panel-feasibility-001
+        based_on: [ideas-v2@v002]
+        change_type: review
+        path: 06_adversarial/round-002/feasibility-method-review.md
+        status: final
+        content_digest: computed
+        frozen: true
+        artifact_role: panel_report
+    expected_state_after: panel_pending
+  - event_id: idea-panel-strategy
+    type: review
+    actor_instance_id: idea-panel-strategy-001
+    source_skill: research-idea-orchestrator
+    destination_skill: idea-adversarial-review-panel
+    dispatch_mode: delegated
+    trigger: proposal_handoff_candidate_exists
+    allowed_read_paths: [03_ideas/round-002/revised-idea-set-v002.md]
+    allowed_write_paths: [06_adversarial/round-002/pi-strategy-review.md]
+    input_artifact_ids: [ideas-v2]
+    input_versions: [v002]
+    review_report:
+      review_id: idea-panel-r3
+      reviewer_skill: idea-adversarial-review-panel
+      reviewer_instance_id: idea-panel-strategy-001
+      reviewer_role: pi-strategy
+      review_scope: PI strategy challenge
+      workflow_id: wf-phase4-idea-001
+      round_id: panel-001
+      input_artifact_ids: [ideas-v2]
+      input_versions: [v002]
+      files_read: [03_ideas/round-002/revised-idea-set-v002.md]
+      isolation_mode: fresh_subagent
+      prior_scores_visible: false
+      source_edits_performed: false
+      peer_outputs_visible: false
+      decision: support
+      findings: []
+      unresolved_issues: []
+    outputs:
+      - artifact_id: idea-panel-strategy-report
+        version_id: p003
+        workflow_id: wf-phase4-idea-001
+        round_id: panel-001
+        plugin_version: 0.5.0-preview.1
+        source_skill: idea-adversarial-review-panel
+        created_by_instance_id: idea-panel-strategy-001
+        based_on: [ideas-v2@v002]
+        change_type: review
+        path: 06_adversarial/round-002/pi-strategy-review.md
+        status: final
+        content_digest: computed
+        frozen: true
+        artifact_role: panel_report
+    expected_state_after: panel_pending
+  - event_id: idea-panel-gate
+    type: panel_gate
+    actor_instance_id: research-idea-orchestrator-001
+    decision: pass
+    preserved_dissent_ids: [idea-dissent-001]
+    expected_state_after: packaging_pending
+  - event_id: idea-package
+    type: package
+    actor_instance_id: idea-assembler-001
+    source_skill: research-idea-orchestrator
+    destination_skill: idea-portfolio-assembler
+    dispatch_mode: orchestrated
+    trigger: evaluation_and_adversarial_reports_sealed
+    allowed_read_paths:
+      - 03_ideas/round-002/revised-idea-set-v002.md
+      - 05_evaluations/round-002/idea-evaluation-v002.md
+      - 06_adversarial/round-002/novelty-gap-review.md
+      - 06_adversarial/round-002/feasibility-method-review.md
+      - 06_adversarial/round-002/pi-strategy-review.md
+    allowed_write_paths: [07_portfolio/research-idea-portfolio-v001.md]
+    input_artifact_ids: [ideas-v2, idea-eval-v2, idea-panel-novelty-report, idea-panel-feasibility-report, idea-panel-strategy-report]
+    input_versions: [v002, r002, p001, p002, p003]
+    preserved_dissent_ids: [idea-dissent-001]
+    artifact_index_dissent_ids: [idea-dissent-001]
+    automatic_external_submission: false
+    outputs:
+      - artifact_id: idea-portfolio-v1
+        version_id: pkg001
+        workflow_id: wf-phase4-idea-001
+        round_id: package-001
+        plugin_version: 0.5.0-preview.1
+        source_skill: idea-portfolio-assembler
+        created_by_instance_id: idea-assembler-001
+        based_on: [ideas-v2@v002, idea-eval-v2@r002, idea-panel-novelty-report@p001, idea-panel-feasibility-report@p002, idea-panel-strategy-report@p003]
+        change_type: assembly
+        path: 07_portfolio/research-idea-portfolio-v001.md
+        status: final
+        content_digest: computed
+        frozen: true
+        artifact_role: final_handoff_package
+        content: "PI-review portfolio with idea-dissent-001 preserved"
+    expected_state_after: human_signoff_required
+expected:
+  final_state: human_signoff_required
+  primary_versions: [v001, v002]
+  evaluator_instances: [idea-evaluator-001, idea-evaluator-002]
+  panel_role_instances:
+    novelty-gap: idea-panel-novelty-001
+    feasibility-method: idea-panel-feasibility-001
+    pi-strategy: idea-panel-strategy-001
+  dissent_ids: [idea-dissent-001]
+  required_destinations_in_order:
+    - multi-path-idea-generator
+    - idea-evaluator
+    - multi-path-idea-generator
+    - idea-evaluator
+    - idea-adversarial-review-panel
+    - idea-portfolio-assembler
