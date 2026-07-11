@@ -1,0 +1,6 @@
+interface:
+  display_name: "Perspective Argument Architect"
+  short_description: "Use when 将核心判断展开为可检验的论证骨架，包括问题场构建、贡献类型锚定、论证链设计、叙事策略选择、反方预埋、可争议约束标注；不写文章正文，只输出施工图。"
+  default_prompt: "Use $perspective-argument-architect for this task and follow its workflow and output contract."
+policy:
+  allow_implicit_invocation: false

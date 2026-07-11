@@ -1,0 +1,6 @@
+interface:
+  display_name: "Idea Portfolio Assembler"
+  short_description: "当 research-idea workflow 已完成 context、evidence/opportunity mapping、idea generation、preflight 和独立..."
+  default_prompt: "Use $idea-portfolio-assembler for this task and follow its workflow and output contract."
+policy:
+  allow_implicit_invocation: false

@@ -1,0 +1,6 @@
+interface:
+  display_name: "Proposal Context Brief Builder"
+  short_description: "Build a concise proposal context brief from a raw research idea, promoted"
+  default_prompt: "Use $proposal-context-brief-builder for this task and follow its workflow and output contract."
+policy:
+  allow_implicit_invocation: false

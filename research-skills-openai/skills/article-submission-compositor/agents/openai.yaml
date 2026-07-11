@@ -1,0 +1,6 @@
+interface:
+  display_name: "Article Submission Compositor"
+  short_description: "Assemble the final submission package: manuscript, frontmatter, cover letter, figures/tables..."
+  default_prompt: "Use $article-submission-compositor for this task and follow its workflow and output contract."
+policy:
+  allow_implicit_invocation: false

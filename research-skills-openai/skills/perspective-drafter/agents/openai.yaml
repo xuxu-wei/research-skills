@@ -1,0 +1,6 @@
+interface:
+  display_name: "Perspective Drafter"
+  short_description: "Use when 将论证骨架转化为完整 Perspective 文章，支持全新起草和修订起草，每段须映射到 argument step + claim ID，修订模式产出修订稿和..."
+  default_prompt: "Use $perspective-drafter for this task and follow its workflow and output contract."
+policy:
+  allow_implicit_invocation: false

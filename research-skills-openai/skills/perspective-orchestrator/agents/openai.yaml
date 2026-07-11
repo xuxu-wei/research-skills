@@ -1,0 +1,6 @@
+interface:
+  display_name: "Perspective Orchestrator"
+  short_description: "Use when 编排 Perspective/Viewpoint/Commentary 文章从核心观点到终稿的完整生产流程，包括输入模板、claim..."
+  default_prompt: "Use $perspective-orchestrator for this task and follow its workflow and output contract."
+policy:
+  allow_implicit_invocation: true

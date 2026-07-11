@@ -1,0 +1,376 @@
+schema_version: 1
+plugin_version: "0.1.0"
+review_execution:
+  isolation_mode: fresh_subagent
+  inline_fallback: false
+  prior_scores_visible_to_reviewer: false
+  source_artifacts_read_only: true
+skills:
+  - name: "academic-deep-search"
+    package: "research"
+    role: "retrieval"
+    related_skills: []
+    invocation_policy: "implicit"
+    requires_independent_subagent: false
+    allowed_input_artifacts: "research_question_source_scope_and_existing_evidence"
+    output_artifact_type: "source_grounded_retrieval_artifact"
+  - name: "academic-language-assessor"
+    package: "research"
+    role: "reviewer"
+    related_skills: ["article-drafter", "article-evaluator", "article-orchestrator", "article-refinement-controller", "perspective-drafter", "perspective-evaluator", "perspective-refinement-controller", "proposal-drafter", "proposal-evaluator", "proposal-refinement-controller"]
+    invocation_policy: "explicit_or_orchestrated"
+    requires_independent_subagent: true
+    allowed_input_artifacts: "frozen_artifacts_and_review_brief"
+    output_artifact_type: "review_or_verification_report"
+  - name: "article-architect"
+    package: "research-article"
+    role: "builder"
+    related_skills: ["article-claim-auditor", "article-context-builder", "article-drafter", "article-evaluator", "article-literature-grounder", "article-orchestrator"]
+    invocation_policy: "explicit_or_orchestrated"
+    requires_independent_subagent: false
+    allowed_input_artifacts: "approved_upstream_artifacts"
+    output_artifact_type: "structured_builder_artifact"
+  - name: "article-claim-auditor"
+    package: "research-article"
+    role: "reviewer"
+    related_skills: ["article-architect", "article-drafter", "article-evaluator", "article-orchestrator"]
+    invocation_policy: "explicit_or_orchestrated"
+    requires_independent_subagent: true
+    allowed_input_artifacts: "frozen_artifacts_and_review_brief"
+    output_artifact_type: "review_or_verification_report"
+  - name: "article-context-builder"
+    package: "research-article"
+    role: "builder"
+    related_skills: ["article-architect", "article-orchestrator", "article-readiness-triage"]
+    invocation_policy: "explicit_or_orchestrated"
+    requires_independent_subagent: false
+    allowed_input_artifacts: "approved_upstream_artifacts"
+    output_artifact_type: "structured_builder_artifact"
+  - name: "article-cover-letter"
+    package: "research-article"
+    role: "builder"
+    related_skills: ["article-frontmatter-drafter", "article-orchestrator", "article-submission-compositor", "medical-journal-review"]
+    invocation_policy: "explicit_or_orchestrated"
+    requires_independent_subagent: false
+    allowed_input_artifacts: "approved_upstream_artifacts"
+    output_artifact_type: "structured_builder_artifact"
+  - name: "article-drafter"
+    package: "research-article"
+    role: "drafter"
+    related_skills: ["academic-language-assessor", "article-architect", "article-context-builder", "article-literature-grounder", "article-orchestrator", "article-refinement-controller"]
+    invocation_policy: "explicit_or_orchestrated"
+    requires_independent_subagent: false
+    allowed_input_artifacts: "approved_context_evidence_and_revision_plan"
+    output_artifact_type: "versioned_draft_artifact"
+  - name: "article-evaluator"
+    package: "research-article"
+    role: "reviewer"
+    related_skills: ["academic-language-assessor", "article-claim-auditor", "article-orchestrator", "article-refinement-controller"]
+    invocation_policy: "explicit_or_orchestrated"
+    requires_independent_subagent: true
+    allowed_input_artifacts: "frozen_artifacts_and_review_brief"
+    output_artifact_type: "review_or_verification_report"
+  - name: "article-frontmatter-drafter"
+    package: "research-article"
+    role: "drafter"
+    related_skills: ["article-cover-letter", "article-drafter", "article-orchestrator", "article-submission-compositor"]
+    invocation_policy: "explicit_or_orchestrated"
+    requires_independent_subagent: false
+    allowed_input_artifacts: "approved_context_evidence_and_revision_plan"
+    output_artifact_type: "versioned_draft_artifact"
+  - name: "article-literature-grounder"
+    package: "research-article"
+    role: "builder"
+    related_skills: ["article-architect", "article-context-builder", "article-orchestrator", "research-opportunity-mapper"]
+    invocation_policy: "explicit_or_orchestrated"
+    requires_independent_subagent: false
+    allowed_input_artifacts: "approved_upstream_artifacts"
+    output_artifact_type: "structured_builder_artifact"
+  - name: "article-methods-statistics-auditor"
+    package: "research-article"
+    role: "reviewer"
+    related_skills: ["article-architect", "article-context-builder", "article-orchestrator", "methodology-statistics-preflight"]
+    invocation_policy: "explicit_or_orchestrated"
+    requires_independent_subagent: true
+    allowed_input_artifacts: "frozen_artifacts_and_review_brief"
+    output_artifact_type: "review_or_verification_report"
+  - name: "article-orchestrator"
+    package: "research-article"
+    role: "orchestrator"
+    related_skills: ["academic-language-assessor", "article-architect", "article-claim-auditor", "article-context-builder", "article-cover-letter", "article-drafter", "article-evaluator", "article-frontmatter-drafter", "article-literature-grounder", "article-methods-statistics-auditor", "article-readiness-triage", "article-refinement-controller", "article-review-panel", "article-submission-compositor", "methodology-statistics-preflight", "research-opportunity-mapper"]
+    invocation_policy: "implicit"
+    requires_independent_subagent: false
+    allowed_input_artifacts: "user_inputs_and_existing_workflow_artifacts"
+    output_artifact_type: "workflow_state_and_final_handoff"
+  - name: "article-readiness-triage"
+    package: "research-article"
+    role: "reviewer"
+    related_skills: ["article-context-builder", "article-orchestrator"]
+    invocation_policy: "explicit_or_orchestrated"
+    requires_independent_subagent: true
+    allowed_input_artifacts: "frozen_artifacts_and_review_brief"
+    output_artifact_type: "review_or_verification_report"
+  - name: "article-refinement-controller"
+    package: "research-article"
+    role: "controller"
+    related_skills: ["academic-language-assessor", "article-drafter", "article-evaluator", "article-orchestrator"]
+    invocation_policy: "explicit_or_orchestrated"
+    requires_independent_subagent: false
+    allowed_input_artifacts: "evaluation_findings_and_current_artifact"
+    output_artifact_type: "revision_plan_delta_and_routing"
+  - name: "article-review-panel"
+    package: "research-article"
+    role: "reviewer"
+    related_skills: ["article-evaluator", "article-orchestrator", "article-refinement-controller"]
+    invocation_policy: "explicit_or_orchestrated"
+    requires_independent_subagent: true
+    allowed_input_artifacts: "frozen_artifacts_and_review_brief"
+    output_artifact_type: "review_or_verification_report"
+  - name: "article-submission-compositor"
+    package: "research-article"
+    role: "reviewer"
+    related_skills: ["article-cover-letter", "article-drafter", "article-frontmatter-drafter", "article-orchestrator"]
+    invocation_policy: "explicit_or_orchestrated"
+    requires_independent_subagent: true
+    allowed_input_artifacts: "frozen_artifacts_and_review_brief"
+    output_artifact_type: "review_or_verification_report"
+  - name: "idea-adversarial-review-panel"
+    package: "research-idea"
+    role: "reviewer"
+    related_skills: ["idea-evaluator", "idea-portfolio-assembler", "methodology-statistics-preflight", "proposal-orchestrator", "research-idea-orchestrator", "research-opportunity-mapper"]
+    invocation_policy: "explicit_or_orchestrated"
+    requires_independent_subagent: true
+    allowed_input_artifacts: "frozen_artifacts_and_review_brief"
+    output_artifact_type: "review_or_verification_report"
+  - name: "idea-evaluator"
+    package: "research-idea"
+    role: "reviewer"
+    related_skills: ["idea-portfolio-assembler", "methodology-statistics-preflight", "multi-path-idea-generator", "research-context-builder", "research-idea-orchestrator", "research-opportunity-mapper"]
+    invocation_policy: "explicit_or_orchestrated"
+    requires_independent_subagent: true
+    allowed_input_artifacts: "frozen_artifacts_and_review_brief"
+    output_artifact_type: "review_or_verification_report"
+  - name: "idea-portfolio-assembler"
+    package: "research-idea"
+    role: "assembler"
+    related_skills: ["idea-evaluator", "methodology-statistics-preflight", "multi-path-idea-generator", "research-context-builder", "research-idea-orchestrator", "research-opportunity-mapper"]
+    invocation_policy: "explicit_or_orchestrated"
+    requires_independent_subagent: false
+    allowed_input_artifacts: "evaluated_artifacts_and_workflow_state"
+    output_artifact_type: "final_handoff_package"
+  - name: "medical-journal-review"
+    package: "research"
+    role: "reviewer"
+    related_skills: ["pubmed"]
+    invocation_policy: "explicit_or_orchestrated"
+    requires_independent_subagent: true
+    allowed_input_artifacts: "frozen_artifacts_and_review_brief"
+    output_artifact_type: "review_or_verification_report"
+  - name: "methodology-statistics-preflight"
+    package: "research"
+    role: "reviewer"
+    related_skills: ["idea-evaluator", "proposal-drafter", "proposal-evaluator", "proposal-orchestrator", "proposal-review-panel", "research-idea-orchestrator", "sap-evaluator", "sap-writer"]
+    invocation_policy: "explicit_or_orchestrated"
+    requires_independent_subagent: true
+    allowed_input_artifacts: "frozen_artifacts_and_review_brief"
+    output_artifact_type: "review_or_verification_report"
+  - name: "multi-path-idea-generator"
+    package: "research-idea"
+    role: "generator"
+    related_skills: ["idea-evaluator", "idea-portfolio-assembler", "methodology-statistics-preflight", "research-context-builder", "research-idea-orchestrator", "research-opportunity-mapper"]
+    invocation_policy: "explicit_or_orchestrated"
+    requires_independent_subagent: false
+    allowed_input_artifacts: "context_and_opportunity_artifacts"
+    output_artifact_type: "candidate_artifact_set"
+  - name: "perspective-argument-architect"
+    package: "research-perspective"
+    role: "builder"
+    related_skills: ["perspective-claim-evidence-curator", "perspective-orchestrator"]
+    invocation_policy: "explicit_or_orchestrated"
+    requires_independent_subagent: false
+    allowed_input_artifacts: "approved_upstream_artifacts"
+    output_artifact_type: "structured_builder_artifact"
+  - name: "perspective-claim-evidence-curator"
+    package: "research-perspective"
+    role: "builder"
+    related_skills: ["perspective-orchestrator", "research-opportunity-mapper"]
+    invocation_policy: "explicit_or_orchestrated"
+    requires_independent_subagent: false
+    allowed_input_artifacts: "approved_upstream_artifacts"
+    output_artifact_type: "structured_builder_artifact"
+  - name: "perspective-drafter"
+    package: "research-perspective"
+    role: "drafter"
+    related_skills: ["academic-language-assessor", "perspective-argument-architect", "perspective-orchestrator"]
+    invocation_policy: "explicit_or_orchestrated"
+    requires_independent_subagent: false
+    allowed_input_artifacts: "approved_context_evidence_and_revision_plan"
+    output_artifact_type: "versioned_draft_artifact"
+  - name: "perspective-evaluator"
+    package: "research-perspective"
+    role: "reviewer"
+    related_skills: ["academic-language-assessor", "perspective-orchestrator"]
+    invocation_policy: "explicit_or_orchestrated"
+    requires_independent_subagent: true
+    allowed_input_artifacts: "frozen_artifacts_and_review_brief"
+    output_artifact_type: "review_or_verification_report"
+  - name: "perspective-final-compositor"
+    package: "research-perspective"
+    role: "reviewer"
+    related_skills: ["medical-journal-review", "perspective-orchestrator"]
+    invocation_policy: "explicit_or_orchestrated"
+    requires_independent_subagent: true
+    allowed_input_artifacts: "frozen_artifacts_and_review_brief"
+    output_artifact_type: "review_or_verification_report"
+  - name: "perspective-input-builder"
+    package: "research-perspective"
+    role: "builder"
+    related_skills: ["perspective-orchestrator"]
+    invocation_policy: "explicit_or_orchestrated"
+    requires_independent_subagent: false
+    allowed_input_artifacts: "approved_upstream_artifacts"
+    output_artifact_type: "structured_builder_artifact"
+  - name: "perspective-orchestrator"
+    package: "research-perspective"
+    role: "orchestrator"
+    related_skills: ["academic-language-assessor", "perspective-argument-architect", "perspective-claim-evidence-curator", "perspective-drafter", "perspective-evaluator", "perspective-final-compositor", "perspective-input-builder", "perspective-refinement-controller", "perspective-review-panel", "research-opportunity-mapper"]
+    invocation_policy: "implicit"
+    requires_independent_subagent: false
+    allowed_input_artifacts: "user_inputs_and_existing_workflow_artifacts"
+    output_artifact_type: "workflow_state_and_final_handoff"
+  - name: "perspective-refinement-controller"
+    package: "research-perspective"
+    role: "controller"
+    related_skills: ["academic-language-assessor", "perspective-drafter", "perspective-evaluator", "perspective-orchestrator"]
+    invocation_policy: "explicit_or_orchestrated"
+    requires_independent_subagent: false
+    allowed_input_artifacts: "evaluation_findings_and_current_artifact"
+    output_artifact_type: "revision_plan_delta_and_routing"
+  - name: "perspective-review-panel"
+    package: "research-perspective"
+    role: "reviewer"
+    related_skills: ["perspective-orchestrator"]
+    invocation_policy: "explicit_or_orchestrated"
+    requires_independent_subagent: true
+    allowed_input_artifacts: "frozen_artifacts_and_review_brief"
+    output_artifact_type: "review_or_verification_report"
+  - name: "proposal-context-brief-builder"
+    package: "research-proposal"
+    role: "builder"
+    related_skills: ["methodology-statistics-preflight", "proposal-drafter", "proposal-evaluator", "proposal-orchestrator", "proposal-package-assembler", "proposal-readiness-triage", "proposal-refinement-controller", "proposal-review-panel", "research-opportunity-mapper", "sap-evaluator", "sap-refinement-controller", "sap-writer"]
+    invocation_policy: "explicit_or_orchestrated"
+    requires_independent_subagent: false
+    allowed_input_artifacts: "approved_upstream_artifacts"
+    output_artifact_type: "structured_builder_artifact"
+  - name: "proposal-drafter"
+    package: "research-proposal"
+    role: "drafter"
+    related_skills: ["academic-language-assessor", "proposal-context-brief-builder", "proposal-evaluator", "proposal-orchestrator", "proposal-package-assembler", "proposal-readiness-triage", "proposal-refinement-controller", "proposal-review-panel"]
+    invocation_policy: "explicit_or_orchestrated"
+    requires_independent_subagent: false
+    allowed_input_artifacts: "approved_context_evidence_and_revision_plan"
+    output_artifact_type: "versioned_draft_artifact"
+  - name: "proposal-evaluator"
+    package: "research-proposal"
+    role: "reviewer"
+    related_skills: ["academic-language-assessor", "proposal-context-brief-builder", "proposal-drafter", "proposal-orchestrator", "proposal-package-assembler", "proposal-readiness-triage", "proposal-refinement-controller", "proposal-review-panel"]
+    invocation_policy: "explicit_or_orchestrated"
+    requires_independent_subagent: true
+    allowed_input_artifacts: "frozen_artifacts_and_review_brief"
+    output_artifact_type: "review_or_verification_report"
+  - name: "proposal-orchestrator"
+    package: "research-proposal"
+    role: "orchestrator"
+    related_skills: ["academic-language-assessor", "methodology-statistics-preflight", "proposal-context-brief-builder", "proposal-drafter", "proposal-evaluator", "proposal-package-assembler", "proposal-readiness-triage", "proposal-refinement-controller", "proposal-review-panel", "research-opportunity-mapper", "sap-evaluator", "sap-refinement-controller", "sap-writer"]
+    invocation_policy: "implicit"
+    requires_independent_subagent: false
+    allowed_input_artifacts: "user_inputs_and_existing_workflow_artifacts"
+    output_artifact_type: "workflow_state_and_final_handoff"
+  - name: "proposal-package-assembler"
+    package: "research-proposal"
+    role: "assembler"
+    related_skills: ["methodology-statistics-preflight", "proposal-context-brief-builder", "proposal-drafter", "proposal-evaluator", "proposal-orchestrator", "proposal-readiness-triage", "proposal-refinement-controller", "proposal-review-panel", "sap-evaluator", "sap-refinement-controller", "sap-writer"]
+    invocation_policy: "explicit_or_orchestrated"
+    requires_independent_subagent: false
+    allowed_input_artifacts: "evaluated_artifacts_and_workflow_state"
+    output_artifact_type: "final_handoff_package"
+  - name: "proposal-readiness-triage"
+    package: "research-proposal"
+    role: "reviewer"
+    related_skills: ["idea-evaluator", "methodology-statistics-preflight", "proposal-context-brief-builder", "proposal-drafter", "proposal-orchestrator", "research-idea-orchestrator", "research-opportunity-mapper"]
+    invocation_policy: "explicit_or_orchestrated"
+    requires_independent_subagent: true
+    allowed_input_artifacts: "frozen_artifacts_and_review_brief"
+    output_artifact_type: "review_or_verification_report"
+  - name: "proposal-refinement-controller"
+    package: "research-proposal"
+    role: "controller"
+    related_skills: ["academic-language-assessor", "proposal-drafter", "proposal-evaluator", "proposal-orchestrator", "proposal-package-assembler", "proposal-review-panel"]
+    invocation_policy: "explicit_or_orchestrated"
+    requires_independent_subagent: false
+    allowed_input_artifacts: "evaluation_findings_and_current_artifact"
+    output_artifact_type: "revision_plan_delta_and_routing"
+  - name: "proposal-review-panel"
+    package: "research-proposal"
+    role: "reviewer"
+    related_skills: ["methodology-statistics-preflight", "proposal-drafter", "proposal-evaluator", "proposal-orchestrator", "proposal-package-assembler", "proposal-refinement-controller", "sap-evaluator"]
+    invocation_policy: "explicit_or_orchestrated"
+    requires_independent_subagent: true
+    allowed_input_artifacts: "frozen_artifacts_and_review_brief"
+    output_artifact_type: "review_or_verification_report"
+  - name: "pubmed"
+    package: "research"
+    role: "retrieval"
+    related_skills: []
+    invocation_policy: "implicit"
+    requires_independent_subagent: false
+    allowed_input_artifacts: "research_question_source_scope_and_existing_evidence"
+    output_artifact_type: "source_grounded_retrieval_artifact"
+  - name: "research-context-builder"
+    package: "research-idea"
+    role: "builder"
+    related_skills: ["idea-evaluator", "methodology-statistics-preflight", "multi-path-idea-generator", "proposal-orchestrator", "research-idea-orchestrator", "research-opportunity-mapper"]
+    invocation_policy: "explicit_or_orchestrated"
+    requires_independent_subagent: false
+    allowed_input_artifacts: "approved_upstream_artifacts"
+    output_artifact_type: "structured_builder_artifact"
+  - name: "research-idea-orchestrator"
+    package: "research-idea"
+    role: "orchestrator"
+    related_skills: ["academic-language-assessor", "idea-adversarial-review-panel", "idea-evaluator", "idea-portfolio-assembler", "methodology-statistics-preflight", "multi-path-idea-generator", "proposal-orchestrator", "research-context-builder", "research-opportunity-mapper"]
+    invocation_policy: "implicit"
+    requires_independent_subagent: false
+    allowed_input_artifacts: "user_inputs_and_existing_workflow_artifacts"
+    output_artifact_type: "workflow_state_and_final_handoff"
+  - name: "research-opportunity-mapper"
+    package: "research"
+    role: "retrieval"
+    related_skills: ["idea-evaluator", "methodology-statistics-preflight", "multi-path-idea-generator", "proposal-context-brief-builder", "proposal-evaluator", "pubmed", "research-context-builder"]
+    invocation_policy: "implicit"
+    requires_independent_subagent: false
+    allowed_input_artifacts: "research_question_source_scope_and_existing_evidence"
+    output_artifact_type: "source_grounded_retrieval_artifact"
+  - name: "sap-evaluator"
+    package: "research-proposal"
+    role: "reviewer"
+    related_skills: ["methodology-statistics-preflight", "proposal-drafter", "proposal-evaluator", "proposal-orchestrator", "proposal-package-assembler", "sap-refinement-controller", "sap-writer"]
+    invocation_policy: "explicit_or_orchestrated"
+    requires_independent_subagent: true
+    allowed_input_artifacts: "frozen_artifacts_and_review_brief"
+    output_artifact_type: "review_or_verification_report"
+  - name: "sap-refinement-controller"
+    package: "research-proposal"
+    role: "controller"
+    related_skills: ["methodology-statistics-preflight", "proposal-orchestrator", "proposal-package-assembler", "sap-evaluator", "sap-writer"]
+    invocation_policy: "explicit_or_orchestrated"
+    requires_independent_subagent: false
+    allowed_input_artifacts: "evaluation_findings_and_current_artifact"
+    output_artifact_type: "revision_plan_delta_and_routing"
+  - name: "sap-writer"
+    package: "research-proposal"
+    role: "drafter"
+    related_skills: ["methodology-statistics-preflight", "proposal-drafter", "proposal-orchestrator", "proposal-package-assembler", "sap-evaluator", "sap-refinement-controller"]
+    invocation_policy: "explicit_or_orchestrated"
+    requires_independent_subagent: false
+    allowed_input_artifacts: "approved_context_evidence_and_revision_plan"
+    output_artifact_type: "versioned_draft_artifact"

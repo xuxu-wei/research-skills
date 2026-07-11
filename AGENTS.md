@@ -4,7 +4,7 @@ This repository is a composable research-workflow skill library. Each skill is a
 
 ## Skill specification compliance
 
-Skills follow the [Agent Skills spec](https://agentskills.io/specification). Hermes-specific metadata lives under `metadata.hermes`; do not invent new top-level frontmatter fields.
+Skills follow the [Agent Skills spec](https://agentskills.io/specification). Apply the profile rules below; do not mix Hermes metadata into the OpenAI plugin skills.
 
 ### Required frontmatter (per spec)
 
@@ -17,6 +17,8 @@ description: "..."         # max 1024 chars, describes what AND when to use
 
 ### Hermes extensions (under `metadata.hermes`)
 
+This extension applies only to skills under `research-skills/`.
+
 ```yaml
 metadata:
   hermes:
@@ -24,6 +26,10 @@ metadata:
     tags: [...]            # required
     related_skills: [...]  # required for workflow skills; must resolve to installed skill names
 ```
+
+### OpenAI plugin profile
+
+Skills under `research-skills-openai/skills/` keep only `name` and `description` in SKILL.md frontmatter. Store ChatGPT/Codex UI metadata and invocation policy in `agents/openai.yaml`. Store role, dependency, and independent-review requirements in `research-skills-openai/workflow-registry.yaml`. Do not add `metadata.hermes` to the OpenAI plugin profile.
 
 ### Body structure
 
@@ -45,7 +51,8 @@ When creating a new skill or substantially rewriting an existing one, invoke the
 - Bump major: behavioral contract change (removed step, changed handoff protocol).
 - Bump minor: new section, new reference file, expanded guidance.
 - Bump patch: clarifications, typo fixes, wording improvements with no behavioral change.
-- Update `metadata.hermes.version` in SKILL.md before committing changes.
+- Update `metadata.hermes.version` in Hermes SKILL.md files before committing changes.
+- Version the OpenAI distribution as one plugin through `research-skills-openai/.codex-plugin/plugin.json`; keep `workflow-registry.yaml` on the same plugin version.
 
 ## Package structure and ownership
 
@@ -85,7 +92,7 @@ Four research workflows share a common loop: **input normalization -> evidence/m
 | Review Panel | Share output between reviewers; fabricate consensus |
 | Assembler/Compositor | Clean up unresolved issues or hide dissent |
 
-Evaluation roles must include explicit isolation language in their SKILL.md (e.g., "use isolated subagent", "do not evaluate own output").
+Evaluation roles must include explicit isolation language in their SKILL.md (e.g., "use isolated subagent", "do not evaluate own output"). In the OpenAI plugin, every registry entry with `requires_independent_subagent: true` must contain the standardized `Independent Execution Contract`, disable implicit invocation, operate on frozen read-only artifacts, and stop with `independent_review_pending` rather than reviewing inline when delegation is unavailable.
 
 ## Stop rules
 
@@ -95,6 +102,7 @@ Workflows must stop, not paper over, when: readiness triage blocks, evaluator fi
 
 ```bash
 python scripts/audit_research_workflows.py
+python scripts/audit_openai_research_plugin.py
 python scripts/codex_plugin_converter.py --mode flatten
 python scripts/codex_plugin_converter.py --mode codex --install
 ```

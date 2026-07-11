@@ -1,0 +1,6 @@
+interface:
+  display_name: "Perspective Final Compositor"
+  short_description: "Use when 执行 Perspective 终稿合规层，包括..."
+  default_prompt: "Use $perspective-final-compositor for this task and follow its workflow and output contract."
+policy:
+  allow_implicit_invocation: false

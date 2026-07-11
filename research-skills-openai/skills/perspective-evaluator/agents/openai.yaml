@@ -1,0 +1,6 @@
+interface:
+  display_name: "Perspective Evaluator"
+  short_description: "Use when 独立评价 Perspective 文章，包括八维评分、硬性门禁、反模式检测；默认第一遍不依赖 paragraph-map，第二遍用于架构合规检查，必须通过隔离..."
+  default_prompt: "Use $perspective-evaluator for this task and follow its workflow and output contract."
+policy:
+  allow_implicit_invocation: false

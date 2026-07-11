@@ -1,0 +1,6 @@
+interface:
+  display_name: "Proposal Drafter"
+  short_description: "Draft and maintain a proposal file from a proposal-ready context brief."
+  default_prompt: "Use $proposal-drafter for this task and follow its workflow and output contract."
+policy:
+  allow_implicit_invocation: false

@@ -1,0 +1,6 @@
+interface:
+  display_name: "Proposal Review Panel"
+  short_description: "Run an isolated multi-reviewer proposal review panel for a proposal file after proposal..."
+  default_prompt: "Use $proposal-review-panel for this task and follow its workflow and output contract."
+policy:
+  allow_implicit_invocation: false

@@ -1,0 +1,6 @@
+interface:
+  display_name: "Idea Adversarial Review Panel"
+  short_description: "Use when promoted or conditionally promoted research ideas need a pre-proposal adversarial..."
+  default_prompt: "Use $idea-adversarial-review-panel for this task and follow its workflow and output contract."
+policy:
+  allow_implicit_invocation: false

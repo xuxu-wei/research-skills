@@ -1,0 +1,6 @@
+interface:
+  display_name: "Article Cover Letter"
+  short_description: "Draft and evaluate journal cover letters for research-article submissions as editorial triage memos."
+  default_prompt: "Use $article-cover-letter for this task and follow its workflow and output contract."
+policy:
+  allow_implicit_invocation: false

@@ -1,0 +1,40 @@
+{
+  "name": "research-skills-openai",
+  "version": "0.1.0",
+  "description": "Experimental personal preview of evidence-grounded research workflows for ChatGPT and Codex.",
+  "author": {
+    "name": "Xuxu Wei",
+    "url": "https://github.com/xuxu-wei"
+  },
+  "homepage": "https://github.com/xuxu-wei/research-skills/tree/main/research-skills-openai",
+  "repository": "https://github.com/xuxu-wei/research-skills",
+  "license": "MIT",
+  "keywords": [
+    "research",
+    "evidence",
+    "academic-writing",
+    "peer-review",
+    "chatgpt",
+    "codex",
+    "preview"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Research Skills (Preview)",
+    "shortDescription": "Experimental research workflow skills for ChatGPT and Codex",
+    "longDescription": "A personal-development preview containing evidence mapping, research idea, proposal, article, perspective, independent review, revision, and human-signoff packaging workflows. Interfaces and behavior may change during the 0.x series.",
+    "developerName": "Xuxu Wei",
+    "category": "Research",
+    "capabilities": [
+      "Interactive",
+      "Read",
+      "Write"
+    ],
+    "websiteURL": "https://github.com/xuxu-wei/research-skills",
+    "defaultPrompt": [
+      "Turn a research direction into an evidence-grounded idea portfolio.",
+      "Evaluate and refine a research proposal with independent reviewers.",
+      "Build a reviewed manuscript package from my study artifacts."
+    ]
+  }
+}

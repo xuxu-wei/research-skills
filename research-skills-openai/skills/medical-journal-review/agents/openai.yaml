@@ -1,0 +1,6 @@
+interface:
+  display_name: "Medical Journal Review"
+  short_description: "Review a medical research design, protocol, or manuscript from a top-tier journal perspective."
+  default_prompt: "Use $medical-journal-review for this task and follow its workflow and output contract."
+policy:
+  allow_implicit_invocation: false

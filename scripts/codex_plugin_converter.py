@@ -1,11 +1,12 @@
-"""Build flat skills and a Codex plugin from this skills repository.
+"""Validate/install the OpenAI preview plugin and optionally build flat skills.
 
 This script supports two distinct outputs:
 
 - skills-flatten: a plain flat skills directory for broad agent compatibility.
-- skills-openai-plugin: a Codex plugin preserving the recursive package layout.
+- research-skills-openai: the maintained Codex plugin source.
 
-It is intentionally dependency-free so the conversion logic is easy to inspect.
+Codex mode never regenerates or overwrites the maintained plugin from Hermes
+sources. The plugin is the source of truth for OpenAI builds.
 """
 
 from __future__ import annotations
@@ -50,7 +51,7 @@ PRODUCTIVITY_DEPENDENCIES = [
 ]
 
 PLUGIN_VARIANTS = {
-    "openai": "skills-openai-plugin",
+    "openai": "research-skills-openai",
 }
 
 MARKETPLACE_CATEGORY = "Research"
@@ -235,6 +236,31 @@ def discover_sources(root: Path) -> list[SkillSource]:
     duplicates = sorted({name for name in names if names.count(name) > 1})
     if duplicates:
         raise RuntimeError(f"Duplicate skill names would collide: {', '.join(duplicates)}")
+    return sorted(sources, key=lambda item: item.name)
+
+
+def discover_openai_sources(root: Path) -> list[SkillSource]:
+    """Discover the fixed OpenAI skill set from the maintained plugin."""
+    plugin_skills = root / PLUGIN_VARIANTS["openai"] / "skills"
+    if not plugin_skills.exists():
+        raise FileNotFoundError(f"OpenAI plugin skills directory does not exist: {plugin_skills}")
+    sources: list[SkillSource] = []
+    for skill_dir in discover_leaf_skills(plugin_skills):
+        relative = skill_dir.relative_to(plugin_skills)
+        sources.append(
+            SkillSource(
+                name=skill_name(skill_dir),
+                source_dir=skill_dir,
+                package=relative.parts[0],
+                relative_source=relative.as_posix(),
+            )
+        )
+    names = [source.name for source in sources]
+    duplicates = sorted({name for name in names if names.count(name) > 1})
+    if duplicates:
+        raise RuntimeError(f"Duplicate OpenAI skill names: {', '.join(duplicates)}")
+    if len(sources) != 46:
+        raise RuntimeError(f"Expected 46 OpenAI skills, found {len(sources)}")
     return sorted(sources, key=lambda item: item.name)
 
 
@@ -466,24 +492,8 @@ def dependency_report(sources: list[SkillSource]) -> str:
 def build_codex_plugin(root: Path, sources: list[SkillSource]) -> Path:
     plugin_name = PLUGIN_VARIANTS["openai"]
     target = root / plugin_name
-    safe_replace_dir(target, root, [plugin_name])
-
-    root_skills = skills_root(root)
-    for package in CORE_PACKAGES:
-        copy_dir(root_skills / package, target / "skills" / package)
-    for dependency in RESEARCH_DEPENDENCIES:
-        copy_dir(root_skills / "research" / dependency, target / "skills" / "research" / dependency)
-    for dependency in OBSIDIAN_DEPENDENCIES:
-        copy_dir(root_skills / "obsidian-skills" / dependency, target / "skills" / "obsidian-skills" / dependency)
-    for dependency in PRODUCTIVITY_DEPENDENCIES:
-        copy_dir(root_skills / "productivity" / dependency, target / "skills" / "productivity" / dependency)
-    obsidian_notice = root_skills / "obsidian-skills" / "NOTICE.md"
-    if obsidian_notice.exists():
-        copy_file(obsidian_notice, target / "skills" / "obsidian-skills" / "NOTICE.md")
-
-    write_text(target / ".codex-plugin" / "plugin.json", json.dumps(plugin_manifest(plugin_name), indent=2, ensure_ascii=False))
-    write_text(target / "README.md", plugin_readme(plugin_name, sources))
-    write_text(target / "reports" / "dependency-report.md", dependency_report(sources))
+    if not (target / ".codex-plugin" / "plugin.json").exists():
+        raise FileNotFoundError(f"Maintained OpenAI plugin manifest is missing: {target}")
     return target
 
 
@@ -539,6 +549,9 @@ def validate_plugin(plugin_dir: Path, expected_names: set[str]) -> dict[str, obj
         errors.append(f"missing skills: {', '.join(missing)}")
     if extra:
         errors.append(f"extra skills: {', '.join(extra)}")
+    nested = sorted(rel for rel in names.values() if "/" in rel)
+    if nested:
+        errors.append(f"plugin skills must be direct children of skills/: {', '.join(nested[:10])}")
     return {
         "plugin": plugin_dir.name,
         "ok": not errors,
@@ -724,7 +737,7 @@ def install_plugins(root: Path, plugin_names: list[str], remove_plugin_names: It
 
 
 def build(root: Path) -> tuple[list[Path], list[SkillSource], dict[str, object]]:
-    sources = discover_sources(root)
+    sources = discover_openai_sources(root)
     plugin_dirs = [
         build_codex_plugin(root, sources),
     ]
@@ -733,21 +746,21 @@ def build(root: Path) -> tuple[list[Path], list[SkillSource], dict[str, object]]
 
 
 def build_flatten(root: Path) -> tuple[Path, list[SkillSource], dict[str, object]]:
-    sources = discover_sources(root)
+    sources = discover_openai_sources(root)
     flatten_dir = build_flatten_skills(root, sources)
     report = validate_flatten_output(root, flatten_dir, sources)
     return flatten_dir, sources, report
 
 
 def build_codex(root: Path) -> tuple[Path, list[SkillSource], dict[str, object]]:
-    sources = discover_sources(root)
+    sources = discover_openai_sources(root)
     plugin_dir = build_codex_plugin(root, sources)
     report = validate_codex_plugin(root, plugin_dir, sources)
     return plugin_dir, sources, report
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Build and install Codex plugin variants from my-hermes-skills.")
+    parser = argparse.ArgumentParser(description="Validate/install the maintained OpenAI preview plugin or build a flat export.")
     parser.add_argument("--mode", choices=["codex", "flatten", "both"], default="both")
     parser.add_argument("--install", action="store_true", help="Install/register the Codex plugin. Ignored for flatten mode.")
     parser.add_argument("--fail-on-invalid", action="store_true")

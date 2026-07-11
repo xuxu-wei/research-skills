@@ -1,0 +1,6 @@
+interface:
+  display_name: "Article Literature Grounder"
+  short_description: "Position a research study within the existing literature through auditable search, coverage..."
+  default_prompt: "Use $article-literature-grounder for this task and follow its workflow and output contract."
+policy:
+  allow_implicit_invocation: false

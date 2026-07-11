@@ -1,0 +1,6 @@
+interface:
+  display_name: "Article Methods Statistics Auditor"
+  short_description: "Audit study methods and statistical approach BEFORE drafting begins."
+  default_prompt: "Use $article-methods-statistics-auditor for this task and follow its workflow and output contract."
+policy:
+  allow_implicit_invocation: false

@@ -1,0 +1,6 @@
+interface:
+  display_name: "Article Frontmatter Drafter"
+  short_description: "Draft manuscript frontmatter except the cover letter: abstract, key points, title alternatives..."
+  default_prompt: "Use $article-frontmatter-drafter for this task and follow its workflow and output contract."
+policy:
+  allow_implicit_invocation: false

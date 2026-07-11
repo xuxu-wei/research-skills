@@ -1,0 +1,6 @@
+interface:
+  display_name: "Article Context Builder"
+  short_description: "Normalize raw research inputs into a structured context brief, classify study type and article..."
+  default_prompt: "Use $article-context-builder for this task and follow its workflow and output contract."
+policy:
+  allow_implicit_invocation: false

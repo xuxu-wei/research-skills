@@ -1,0 +1,6 @@
+interface:
+  display_name: "Sap Evaluator"
+  short_description: "Evaluate a Statistical Analysis Plan file as an isolated independent methodology/statistics..."
+  default_prompt: "Use $sap-evaluator for this task and follow its workflow and output contract."
+policy:
+  allow_implicit_invocation: false

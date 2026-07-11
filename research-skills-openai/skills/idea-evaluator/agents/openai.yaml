@@ -1,0 +1,6 @@
+interface:
+  display_name: "Idea Evaluator"
+  short_description: "当候选 research idea 已完成 context、evidence/opportunity mapping、generation 和必要 preflight 后，需要由隔离、独立..."
+  default_prompt: "Use $idea-evaluator for this task and follow its workflow and output contract."
+policy:
+  allow_implicit_invocation: false

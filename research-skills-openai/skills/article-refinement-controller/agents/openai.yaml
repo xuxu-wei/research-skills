@@ -1,0 +1,6 @@
+interface:
+  display_name: "Article Refinement Controller"
+  short_description: "Manage the revision loop after evaluation."
+  default_prompt: "Use $article-refinement-controller for this task and follow its workflow and output contract."
+policy:
+  allow_implicit_invocation: false

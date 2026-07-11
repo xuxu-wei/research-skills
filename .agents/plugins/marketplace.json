@@ -1,0 +1,22 @@
+{
+  "name": "xuxu-research-preview",
+  "interface": {
+    "displayName": "Xuxu Research Preview"
+  },
+  "plugins": [
+    {
+      "name": "research-skills-openai",
+      "source": {
+        "source": "git-subdir",
+        "url": "https://github.com/xuxu-wei/research-skills.git",
+        "path": "./research-skills-openai",
+        "ref": "main"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Research"
+    }
+  ]
+}

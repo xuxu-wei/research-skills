@@ -1,0 +1,6 @@
+interface:
+  display_name: "Multi Path Idea Generator"
+  short_description: "当 Research Context Brief 与 Opportunity Map 已就绪，需要通过多条生成路径产生候选科研 idea 时使用。本 skill 只负责按路径生成候选..."
+  default_prompt: "Use $multi-path-idea-generator for this task and follow its workflow and output contract."
+policy:
+  allow_implicit_invocation: false

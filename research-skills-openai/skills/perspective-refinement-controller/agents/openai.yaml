@@ -1,0 +1,6 @@
+interface:
+  display_name: "Perspective Refinement Controller"
+  short_description: "Use when 控制 Perspective 修订循环，包括定向修订计划、调度 drafter 修订、delta report、隔离 re-evaluation、八路路由、caveat..."
+  default_prompt: "Use $perspective-refinement-controller for this task and follow its workflow and output contract."
+policy:
+  allow_implicit_invocation: false

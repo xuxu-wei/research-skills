@@ -1,0 +1,6 @@
+interface:
+  display_name: "Article Review Panel"
+  short_description: "Use when an article orchestrator needs role-specific peer-review instructions for isolated..."
+  default_prompt: "Use $article-review-panel for this task and follow its workflow and output contract."
+policy:
+  allow_implicit_invocation: false
