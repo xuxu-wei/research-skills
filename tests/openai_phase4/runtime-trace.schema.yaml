@@ -1,16 +1,23 @@
-schema_version: 1
+schema_version: 2
 fixture_required:
   - schema_version
   - fixture_id
   - execution_kind
+  - execution_scope
   - workflow
   - workflow_id
   - entry_mode
   - plugin_version
   - registry_schema_version
+  - initial_artifacts
+  - entry_gate_receipts
   - panel
   - events
   - expected
+panel_required:
+  - mode
+  - tier
+  - required_roles
 event_base_required:
   - event_id
   - type
@@ -66,6 +73,8 @@ finding_required:
   - owner
   - route
 allowed_event_types:
+  - entry_gate
+  - orchestrator_record
   - produce
   - review
   - panel_gate

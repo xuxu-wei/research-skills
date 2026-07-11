@@ -1,6 +1,6 @@
 {
   "name": "research-skills-openai",
-  "version": "0.5.0-preview.1",
+  "version": "0.5.0-preview.2",
   "description": "Experimental personal preview of evidence-grounded research workflows for ChatGPT and Codex.",
   "author": {
     "name": "Xuxu Wei",

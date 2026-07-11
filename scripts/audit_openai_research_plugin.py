@@ -233,8 +233,8 @@ def main() -> int:
         registry_data = yaml.safe_load(registry_text) or {}
         entries = registry_data.get("skills", [])
         edges = registry_data.get("workflow_edges", [])
-        if registry_data.get("schema_version") != 4:
-            errors.append("registry schema_version must be 4 for workflow, scenario-eval, and context-profile auditability")
+        if registry_data.get("schema_version") != 5:
+            errors.append("registry schema_version must be 5 for workflow, scenario-eval, package, revision, and context-profile auditability")
         state_policy = registry_data.get("workflow_state_policy", {})
         state_machines = registry_data.get("workflow_state_machines", {})
         scenario_contract = registry_data.get("scenario_eval_contract", {})
@@ -448,6 +448,12 @@ def main() -> int:
         REPO / "tests" / "openai_phase4" / "perspective.yaml",
         REPO / "tests" / "openai_phase4" / "guard-cases.yaml",
         REPO / "tests" / "openai_phase4" / "retrieval-receipts.yaml",
+        REPO / "tests" / "openai_phase4" / "finding-route-cases.yaml",
+        REPO / "tests" / "openai_phase4" / "live-forward-test-receipts.yaml",
+        REPO / "tests" / "openai_phase4" / "live-raw" / "idea-valid-gate-stop.md",
+        REPO / "tests" / "openai_phase4" / "live-raw" / "proposal-human-signoff.md",
+        REPO / "tests" / "openai_phase4" / "live-raw" / "article-valid-gate-stop.md",
+        REPO / "tests" / "openai_phase4" / "live-raw" / "perspective-human-signoff.md",
         REPO / "scripts" / "test_openai_phase4_scenarios.py",
     ]
     for path in phase4_files:

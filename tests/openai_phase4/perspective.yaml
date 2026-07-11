@@ -1,12 +1,171 @@
-schema_version: 1
+schema_version: 2
 fixture_id: perspective-panel-patch-loop
 execution_kind: deterministic_replay
+execution_scope: evaluation_revision_delivery_with_entry_receipts
 workflow: perspective
 workflow_id: wf-phase4-perspective-001
 entry_mode: full
-plugin_version: 0.5.0-preview.1
-registry_schema_version: 4
+plugin_version: 0.5.0-preview.2
+registry_schema_version: 5
+initial_artifacts:
+  - artifact_id: perspective-input-v1
+    version_id: i001
+    workflow_id: wf-phase4-perspective-001
+    round_id: entry-001
+    plugin_version: 0.5.0-preview.2
+    source_skill: external-input
+    created_by_instance_id: fixture-user-perspective-001
+    based_on: []
+    change_type: supplied
+    path: 01_input/input-brief-v001.md
+    status: final
+    content_digest: computed
+    frozen: true
+    artifact_role: perspective_input_brief
+    content: "frozen Perspective input brief"
+  - artifact_id: perspective-claim-ledger-v1
+    version_id: cl001
+    workflow_id: wf-phase4-perspective-001
+    round_id: entry-001
+    plugin_version: 0.5.0-preview.2
+    source_skill: external-input
+    created_by_instance_id: fixture-user-perspective-001
+    based_on: []
+    change_type: supplied
+    path: 02_evidence/claim-ledger-v001.md
+    status: final
+    content_digest: computed
+    frozen: true
+    artifact_role: claim_ledger
+    content: "frozen claim ledger"
+  - artifact_id: perspective-claim-matrix-v1
+    version_id: cm001
+    workflow_id: wf-phase4-perspective-001
+    round_id: entry-001
+    plugin_version: 0.5.0-preview.2
+    source_skill: external-input
+    created_by_instance_id: fixture-user-perspective-001
+    based_on: []
+    change_type: supplied
+    path: 02_evidence/claim-evidence-matrix-v001.md
+    status: final
+    content_digest: computed
+    frozen: true
+    artifact_role: claim_evidence_matrix
+    content: "frozen claim-evidence matrix"
+  - artifact_id: perspective-skeleton-v1
+    version_id: a001
+    workflow_id: wf-phase4-perspective-001
+    round_id: entry-001
+    plugin_version: 0.5.0-preview.2
+    source_skill: external-input
+    created_by_instance_id: fixture-user-perspective-001
+    based_on: []
+    change_type: supplied
+    path: 03_argument/argument-skeleton-v001.md
+    status: final
+    content_digest: computed
+    frozen: true
+    artifact_role: argument_architecture
+    content: "frozen argument skeleton"
+  - artifact_id: perspective-evidence-limitations-v1
+    version_id: el001
+    workflow_id: wf-phase4-perspective-001
+    round_id: entry-001
+    plugin_version: 0.5.0-preview.2
+    source_skill: external-input
+    created_by_instance_id: fixture-user-perspective-001
+    based_on: []
+    change_type: supplied
+    path: 02_evidence/evidence-limitations-v001.md
+    status: final
+    content_digest: computed
+    frozen: true
+    artifact_role: evidence_limitations
+    content: "frozen evidence limitations"
+  - artifact_id: perspective-citation-risk-v1
+    version_id: cr001
+    workflow_id: wf-phase4-perspective-001
+    round_id: entry-001
+    plugin_version: 0.5.0-preview.2
+    source_skill: external-input
+    created_by_instance_id: fixture-user-perspective-001
+    based_on: []
+    change_type: supplied
+    path: 02_evidence/citation-risk-log-v001.md
+    status: final
+    content_digest: computed
+    frozen: true
+    artifact_role: citation_risk_log
+    content: "frozen citation risk log"
+  - artifact_id: perspective-contrary-evidence-v1
+    version_id: ce001
+    workflow_id: wf-phase4-perspective-001
+    round_id: entry-001
+    plugin_version: 0.5.0-preview.2
+    source_skill: external-input
+    created_by_instance_id: fixture-user-perspective-001
+    based_on: []
+    change_type: supplied
+    path: 02_evidence/contrary-evidence-log-v001.md
+    status: final
+    content_digest: computed
+    frozen: true
+    artifact_role: contrary_evidence_log
+    content: "frozen contrary evidence log"
+  - artifact_id: perspective-references-v1
+    version_id: rf001
+    workflow_id: wf-phase4-perspective-001
+    round_id: entry-001
+    plugin_version: 0.5.0-preview.2
+    source_skill: external-input
+    created_by_instance_id: fixture-user-perspective-001
+    based_on: []
+    change_type: supplied
+    path: 02_evidence/reference-list-v001.md
+    status: final
+    content_digest: computed
+    frozen: true
+    artifact_role: reference_list
+    content: "frozen verified reference list"
+  - artifact_id: perspective-paragraph-map-v1
+    version_id: pm001
+    workflow_id: wf-phase4-perspective-001
+    round_id: entry-001
+    plugin_version: 0.5.0-preview.2
+    source_skill: external-input
+    created_by_instance_id: fixture-user-perspective-001
+    based_on: []
+    change_type: supplied
+    path: 03_argument/paragraph-map-v001.md
+    status: final
+    content_digest: computed
+    frozen: true
+    artifact_role: paragraph_map
+    content: "frozen paragraph map"
+  - artifact_id: perspective-outlet-v1
+    version_id: o001
+    workflow_id: wf-phase4-perspective-001
+    round_id: entry-001
+    plugin_version: 0.5.0-preview.2
+    source_skill: external-input
+    created_by_instance_id: fixture-user-perspective-001
+    based_on: []
+    change_type: supplied
+    path: 01_input/target-outlet-profile-v001.md
+    status: final
+    content_digest: computed
+    frozen: true
+    artifact_role: target_outlet_profile
+    content: "frozen named target outlet profile and verified requirements"
+entry_gate_receipts:
+  input_brief_frozen: {artifact_id: perspective-input-v1}
+  claim_evidence_artifacts_frozen: {artifact_ids: [perspective-claim-ledger-v1, perspective-claim-matrix-v1]}
+  argument_architecture_frozen: {artifact_ids: [perspective-skeleton-v1, perspective-paragraph-map-v1]}
+  perspective_versioned: {artifact_id: perspective-v1}
 panel:
+  mode: blind_external_simulation
+  tier: default_three
   required_roles: [counter-position, evidence, narrative]
 events:
   - event_id: perspective-draft-v1
@@ -16,19 +175,19 @@ events:
     destination_skill: perspective-drafter
     dispatch_mode: orchestrated
     trigger: argument_architecture_ready_or_revision_plan_frozen
-    allowed_read_paths: []
+    allowed_read_paths: [01_input/input-brief-v001.md, 01_input/target-outlet-profile-v001.md, 02_evidence/claim-ledger-v001.md, 02_evidence/claim-evidence-matrix-v001.md, 03_argument/argument-skeleton-v001.md, 03_argument/paragraph-map-v001.md]
     allowed_write_paths: [04_drafts/perspective-v001.md]
-    input_artifact_ids: []
-    input_versions: []
+    input_artifact_ids: [perspective-input-v1, perspective-outlet-v1, perspective-claim-ledger-v1, perspective-claim-matrix-v1, perspective-skeleton-v1, perspective-paragraph-map-v1]
+    input_versions: [i001, o001, cl001, cm001, a001, pm001]
     outputs:
       - artifact_id: perspective-v1
         version_id: v001
         workflow_id: wf-phase4-perspective-001
         round_id: round-001
-        plugin_version: 0.5.0-preview.1
+        plugin_version: 0.5.0-preview.2
         source_skill: perspective-drafter
         created_by_instance_id: perspective-writer-001
-        based_on: []
+        based_on: [perspective-input-v1@i001, perspective-outlet-v1@o001, perspective-claim-ledger-v1@cl001, perspective-claim-matrix-v1@cm001, perspective-skeleton-v1@a001, perspective-paragraph-map-v1@pm001]
         change_type: initial
         path: 04_drafts/perspective-v001.md
         status: current
@@ -36,6 +195,10 @@ events:
         frozen: true
         artifact_role: perspective
         content: "perspective v001"
+    expected_state_after: initialized
+  - event_id: perspective-entry-gate
+    type: entry_gate
+    actor_instance_id: perspective-orchestrator-001
     expected_state_after: artifact_frozen
   - event_id: perspective-evaluate-v1
     type: review
@@ -44,10 +207,10 @@ events:
     destination_skill: perspective-evaluator
     dispatch_mode: delegated
     trigger: perspective_version_frozen_or_revised
-    allowed_read_paths: [04_drafts/perspective-v001.md]
+    allowed_read_paths: [01_input/input-brief-v001.md, 01_input/target-outlet-profile-v001.md, 02_evidence/claim-ledger-v001.md, 02_evidence/claim-evidence-matrix-v001.md, 03_argument/argument-skeleton-v001.md, 03_argument/paragraph-map-v001.md, 04_drafts/perspective-v001.md]
     allowed_write_paths: [05_evaluations/evaluation-report-v001.md]
-    input_artifact_ids: [perspective-v1]
-    input_versions: [v001]
+    input_artifact_ids: [perspective-input-v1, perspective-outlet-v1, perspective-claim-ledger-v1, perspective-claim-matrix-v1, perspective-skeleton-v1, perspective-paragraph-map-v1, perspective-v1]
+    input_versions: [i001, o001, cl001, cm001, a001, pm001, v001]
     review_report:
       review_id: perspective-eval-r1
       reviewer_skill: perspective-evaluator
@@ -56,13 +219,13 @@ events:
       review_scope: frozen perspective v001
       workflow_id: wf-phase4-perspective-001
       round_id: round-001
-      input_artifact_ids: [perspective-v1]
-      input_versions: [v001]
-      files_read: [04_drafts/perspective-v001.md]
+      input_artifact_ids: [perspective-input-v1, perspective-outlet-v1, perspective-claim-ledger-v1, perspective-claim-matrix-v1, perspective-skeleton-v1, perspective-paragraph-map-v1, perspective-v1]
+      input_versions: [i001, o001, cl001, cm001, a001, pm001, v001]
+      files_read: [01_input/input-brief-v001.md, 01_input/target-outlet-profile-v001.md, 02_evidence/claim-ledger-v001.md, 02_evidence/claim-evidence-matrix-v001.md, 03_argument/argument-skeleton-v001.md, 03_argument/paragraph-map-v001.md, 04_drafts/perspective-v001.md]
       isolation_mode: fresh_subagent
       prior_scores_visible: false
       source_edits_performed: false
-      decision: revise
+      decision: major_revision_draft
       findings:
         - finding_id: perspective-major-001
           source_review_id: perspective-eval-r1
@@ -78,16 +241,44 @@ events:
         version_id: r001
         workflow_id: wf-phase4-perspective-001
         round_id: round-001
-        plugin_version: 0.5.0-preview.1
+        plugin_version: 0.5.0-preview.2
         source_skill: perspective-evaluator
         created_by_instance_id: perspective-evaluator-001
-        based_on: [perspective-v1@v001]
+        based_on: [perspective-input-v1@i001, perspective-outlet-v1@o001, perspective-claim-ledger-v1@cl001, perspective-claim-matrix-v1@cm001, perspective-skeleton-v1@a001, perspective-paragraph-map-v1@pm001, perspective-v1@v001]
         change_type: evaluation
         path: 05_evaluations/evaluation-report-v001.md
         status: final
         content_digest: computed
         frozen: true
         artifact_role: evaluation_report
+    expected_state_after: revision_required
+  - event_id: perspective-plan-v2
+    type: produce
+    actor_instance_id: perspective-controller-001
+    source_skill: perspective-orchestrator
+    destination_skill: perspective-refinement-controller
+    dispatch_mode: orchestrated
+    trigger: evaluation_or_panel_requests_fixable_revision
+    allowed_read_paths: [04_drafts/perspective-v001.md, 05_evaluations/evaluation-report-v001.md]
+    allowed_write_paths: [06_revisions/round-002/revision-plan-r002.md]
+    input_artifact_ids: [perspective-v1, perspective-eval-v1]
+    input_versions: [v001, r001]
+    outputs:
+      - artifact_id: perspective-revision-plan-v2
+        version_id: rp002
+        workflow_id: wf-phase4-perspective-001
+        round_id: round-002
+        plugin_version: 0.5.0-preview.2
+        source_skill: perspective-refinement-controller
+        created_by_instance_id: perspective-controller-001
+        based_on: [perspective-v1@v001, perspective-eval-v1@r001]
+        change_type: revision_plan
+        path: 06_revisions/round-002/revision-plan-r002.md
+        status: final
+        content_digest: computed
+        frozen: true
+        artifact_role: revision_plan
+        content: "targeted perspective revision plan"
     expected_state_after: revision_required
   - event_id: perspective-revise-v2
     type: produce
@@ -96,19 +287,19 @@ events:
     destination_skill: perspective-drafter
     dispatch_mode: orchestrated
     trigger: revision_plan_frozen
-    allowed_read_paths: [04_drafts/perspective-v001.md, 05_evaluations/evaluation-report-v001.md]
-    allowed_write_paths: [04_drafts/perspective-v002.md]
-    input_artifact_ids: [perspective-v1, perspective-eval-v1]
-    input_versions: [v001, r001]
+    allowed_read_paths: [04_drafts/perspective-v001.md, 06_revisions/round-002/revision-plan-r002.md]
+    allowed_write_paths: [04_drafts/perspective-v002.md, 06_revisions/round-002/response-to-reviewers-r002.md, 06_revisions/round-002/revision-delta-r002.md]
+    input_artifact_ids: [perspective-v1, perspective-revision-plan-v2]
+    input_versions: [v001, rp002]
     outputs:
       - artifact_id: perspective-v2
         version_id: v002
         workflow_id: wf-phase4-perspective-001
         round_id: round-002
-        plugin_version: 0.5.0-preview.1
+        plugin_version: 0.5.0-preview.2
         source_skill: perspective-drafter
         created_by_instance_id: perspective-writer-002
-        based_on: [perspective-v1@v001, perspective-eval-v1@r001]
+        based_on: [perspective-v1@v001, perspective-revision-plan-v2@rp002]
         change_type: targeted_revision
         path: 04_drafts/perspective-v002.md
         status: current
@@ -116,6 +307,36 @@ events:
         frozen: true
         artifact_role: perspective
         content: "perspective v002 revised"
+      - artifact_id: perspective-response-v2
+        version_id: rr002
+        workflow_id: wf-phase4-perspective-001
+        round_id: round-002
+        plugin_version: 0.5.0-preview.2
+        source_skill: perspective-drafter
+        created_by_instance_id: perspective-writer-002
+        based_on: [perspective-v1@v001, perspective-revision-plan-v2@rp002, perspective-v2@v002]
+        change_type: response_to_reviewers
+        path: 06_revisions/round-002/response-to-reviewers-r002.md
+        status: final
+        content_digest: computed
+        frozen: true
+        artifact_role: response_to_reviewers
+        content: "perspective response to anonymized findings"
+      - artifact_id: perspective-delta-v2
+        version_id: rd002
+        workflow_id: wf-phase4-perspective-001
+        round_id: round-002
+        plugin_version: 0.5.0-preview.2
+        source_skill: perspective-drafter
+        created_by_instance_id: perspective-writer-002
+        based_on: [perspective-v1@v001, perspective-revision-plan-v2@rp002, perspective-v2@v002]
+        change_type: revision_delta
+        path: 06_revisions/round-002/revision-delta-r002.md
+        status: final
+        content_digest: computed
+        frozen: true
+        artifact_role: revision_delta
+        content: "perspective v001 to v002 delta"
     expected_state_after: artifact_frozen
   - event_id: perspective-evaluate-v2
     type: review
@@ -124,10 +345,10 @@ events:
     destination_skill: perspective-evaluator
     dispatch_mode: delegated
     trigger: revised_perspective_version_frozen
-    allowed_read_paths: [04_drafts/perspective-v002.md]
+    allowed_read_paths: [01_input/input-brief-v001.md, 01_input/target-outlet-profile-v001.md, 02_evidence/claim-ledger-v001.md, 02_evidence/claim-evidence-matrix-v001.md, 03_argument/argument-skeleton-v001.md, 03_argument/paragraph-map-v001.md, 04_drafts/perspective-v002.md]
     allowed_write_paths: [05_evaluations/evaluation-report-v002.md]
-    input_artifact_ids: [perspective-v2]
-    input_versions: [v002]
+    input_artifact_ids: [perspective-input-v1, perspective-outlet-v1, perspective-claim-ledger-v1, perspective-claim-matrix-v1, perspective-skeleton-v1, perspective-paragraph-map-v1, perspective-v2]
+    input_versions: [i001, o001, cl001, cm001, a001, pm001, v002]
     review_report:
       review_id: perspective-eval-r2
       reviewer_skill: perspective-evaluator
@@ -136,9 +357,9 @@ events:
       review_scope: frozen perspective v002
       workflow_id: wf-phase4-perspective-001
       round_id: round-002
-      input_artifact_ids: [perspective-v2]
-      input_versions: [v002]
-      files_read: [04_drafts/perspective-v002.md]
+      input_artifact_ids: [perspective-input-v1, perspective-outlet-v1, perspective-claim-ledger-v1, perspective-claim-matrix-v1, perspective-skeleton-v1, perspective-paragraph-map-v1, perspective-v2]
+      input_versions: [i001, o001, cl001, cm001, a001, pm001, v002]
+      files_read: [01_input/input-brief-v001.md, 01_input/target-outlet-profile-v001.md, 02_evidence/claim-ledger-v001.md, 02_evidence/claim-evidence-matrix-v001.md, 03_argument/argument-skeleton-v001.md, 03_argument/paragraph-map-v001.md, 04_drafts/perspective-v002.md]
       isolation_mode: fresh_subagent
       prior_scores_visible: false
       source_edits_performed: false
@@ -150,10 +371,10 @@ events:
         version_id: r002
         workflow_id: wf-phase4-perspective-001
         round_id: round-002
-        plugin_version: 0.5.0-preview.1
+        plugin_version: 0.5.0-preview.2
         source_skill: perspective-evaluator
         created_by_instance_id: perspective-evaluator-002
-        based_on: [perspective-v2@v002]
+        based_on: [perspective-input-v1@i001, perspective-outlet-v1@o001, perspective-claim-ledger-v1@cl001, perspective-claim-matrix-v1@cm001, perspective-skeleton-v1@a001, perspective-paragraph-map-v1@pm001, perspective-v2@v002]
         change_type: evaluation
         path: 05_evaluations/evaluation-report-v002.md
         status: final
@@ -168,10 +389,10 @@ events:
     destination_skill: perspective-review-panel
     dispatch_mode: delegated
     trigger: perspective_evaluation_passed
-    allowed_read_paths: [04_drafts/perspective-v002.md]
+    allowed_read_paths: [03_argument/argument-skeleton-v001.md, 04_drafts/perspective-v002.md]
     allowed_write_paths: [07_panel/counter-position-review-v002.md]
-    input_artifact_ids: [perspective-v2]
-    input_versions: [v002]
+    input_artifact_ids: [perspective-skeleton-v1, perspective-v2]
+    input_versions: [a001, v002]
     review_report:
       review_id: perspective-panel-r1
       reviewer_skill: perspective-review-panel
@@ -180,14 +401,14 @@ events:
       review_scope: counter-position panel role
       workflow_id: wf-phase4-perspective-001
       round_id: panel-001
-      input_artifact_ids: [perspective-v2]
-      input_versions: [v002]
-      files_read: [04_drafts/perspective-v002.md]
+      input_artifact_ids: [perspective-skeleton-v1, perspective-v2]
+      input_versions: [a001, v002]
+      files_read: [03_argument/argument-skeleton-v001.md, 04_drafts/perspective-v002.md]
       isolation_mode: fresh_subagent
       prior_scores_visible: false
       source_edits_performed: false
       peer_outputs_visible: false
-      decision: support
+      decision: strong_support
       findings:
         - finding_id: perspective-dissent-001
           source_review_id: perspective-panel-r1
@@ -204,10 +425,10 @@ events:
         version_id: p001
         workflow_id: wf-phase4-perspective-001
         round_id: panel-001
-        plugin_version: 0.5.0-preview.1
+        plugin_version: 0.5.0-preview.2
         source_skill: perspective-review-panel
         created_by_instance_id: perspective-panel-counter-001
-        based_on: [perspective-v2@v002]
+        based_on: [perspective-skeleton-v1@a001, perspective-v2@v002]
         change_type: review
         path: 07_panel/counter-position-review-v002.md
         status: final
@@ -222,10 +443,10 @@ events:
     destination_skill: perspective-review-panel
     dispatch_mode: delegated
     trigger: perspective_evaluation_passed
-    allowed_read_paths: [04_drafts/perspective-v002.md]
+    allowed_read_paths: [02_evidence/claim-ledger-v001.md, 02_evidence/claim-evidence-matrix-v001.md, 04_drafts/perspective-v002.md]
     allowed_write_paths: [07_panel/evidence-review-v002.md]
-    input_artifact_ids: [perspective-v2]
-    input_versions: [v002]
+    input_artifact_ids: [perspective-claim-ledger-v1, perspective-claim-matrix-v1, perspective-v2]
+    input_versions: [cl001, cm001, v002]
     review_report:
       review_id: perspective-panel-r2
       reviewer_skill: perspective-review-panel
@@ -234,14 +455,14 @@ events:
       review_scope: evidence panel role
       workflow_id: wf-phase4-perspective-001
       round_id: panel-001
-      input_artifact_ids: [perspective-v2]
-      input_versions: [v002]
-      files_read: [04_drafts/perspective-v002.md]
+      input_artifact_ids: [perspective-claim-ledger-v1, perspective-claim-matrix-v1, perspective-v2]
+      input_versions: [cl001, cm001, v002]
+      files_read: [02_evidence/claim-ledger-v001.md, 02_evidence/claim-evidence-matrix-v001.md, 04_drafts/perspective-v002.md]
       isolation_mode: fresh_subagent
       prior_scores_visible: false
       source_edits_performed: false
       peer_outputs_visible: false
-      decision: support
+      decision: strong_support
       findings: []
       unresolved_issues: []
     outputs:
@@ -249,10 +470,10 @@ events:
         version_id: p002
         workflow_id: wf-phase4-perspective-001
         round_id: panel-001
-        plugin_version: 0.5.0-preview.1
+        plugin_version: 0.5.0-preview.2
         source_skill: perspective-review-panel
         created_by_instance_id: perspective-panel-evidence-001
-        based_on: [perspective-v2@v002]
+        based_on: [perspective-claim-ledger-v1@cl001, perspective-claim-matrix-v1@cm001, perspective-v2@v002]
         change_type: review
         path: 07_panel/evidence-review-v002.md
         status: final
@@ -267,10 +488,10 @@ events:
     destination_skill: perspective-review-panel
     dispatch_mode: delegated
     trigger: perspective_evaluation_passed
-    allowed_read_paths: [04_drafts/perspective-v002.md]
+    allowed_read_paths: [01_input/target-outlet-profile-v001.md, 04_drafts/perspective-v002.md]
     allowed_write_paths: [07_panel/narrative-review-v002.md]
-    input_artifact_ids: [perspective-v2]
-    input_versions: [v002]
+    input_artifact_ids: [perspective-outlet-v1, perspective-v2]
+    input_versions: [o001, v002]
     review_report:
       review_id: perspective-panel-r3
       reviewer_skill: perspective-review-panel
@@ -279,14 +500,14 @@ events:
       review_scope: narrative panel role
       workflow_id: wf-phase4-perspective-001
       round_id: panel-001
-      input_artifact_ids: [perspective-v2]
-      input_versions: [v002]
-      files_read: [04_drafts/perspective-v002.md]
+      input_artifact_ids: [perspective-outlet-v1, perspective-v2]
+      input_versions: [o001, v002]
+      files_read: [01_input/target-outlet-profile-v001.md, 04_drafts/perspective-v002.md]
       isolation_mode: fresh_subagent
       prior_scores_visible: false
       source_edits_performed: false
       peer_outputs_visible: false
-      decision: minor_revision
+      decision: support_with_minor_revision
       findings:
         - finding_id: perspective-minor-001
           source_review_id: perspective-panel-r3
@@ -302,10 +523,10 @@ events:
         version_id: p003
         workflow_id: wf-phase4-perspective-001
         round_id: panel-001
-        plugin_version: 0.5.0-preview.1
+        plugin_version: 0.5.0-preview.2
         source_skill: perspective-review-panel
         created_by_instance_id: perspective-panel-narrative-001
-        based_on: [perspective-v2@v002]
+        based_on: [perspective-outlet-v1@o001, perspective-v2@v002]
         change_type: review
         path: 07_panel/narrative-review-v002.md
         status: final
@@ -316,8 +537,36 @@ events:
   - event_id: perspective-panel-gate
     type: panel_gate
     actor_instance_id: perspective-orchestrator-001
-    decision: minor_revision
+    decision: support_with_minor_revision
     preserved_dissent_ids: [perspective-dissent-001]
+    expected_state_after: revision_required
+  - event_id: perspective-panel-plan-v3
+    type: produce
+    actor_instance_id: perspective-controller-002
+    source_skill: perspective-orchestrator
+    destination_skill: perspective-refinement-controller
+    dispatch_mode: orchestrated
+    trigger: evaluation_or_panel_requests_fixable_revision
+    allowed_read_paths: [04_drafts/perspective-v002.md, 07_panel/narrative-review-v002.md]
+    allowed_write_paths: [06_revisions/round-003/revision-plan-r003.md]
+    input_artifact_ids: [perspective-v2, perspective-panel-narrative-report]
+    input_versions: [v002, p003]
+    outputs:
+      - artifact_id: perspective-revision-plan-v3
+        version_id: rp003
+        workflow_id: wf-phase4-perspective-001
+        round_id: round-003
+        plugin_version: 0.5.0-preview.2
+        source_skill: perspective-refinement-controller
+        created_by_instance_id: perspective-controller-002
+        based_on: [perspective-v2@v002, perspective-panel-narrative-report@p003]
+        change_type: panel_revision_plan
+        path: 06_revisions/round-003/revision-plan-r003.md
+        status: final
+        content_digest: computed
+        frozen: true
+        artifact_role: revision_plan
+        content: "minor panel patch plan"
     expected_state_after: revision_required
   - event_id: perspective-panel-patch-v3
     type: produce
@@ -327,19 +576,19 @@ events:
     destination_skill: perspective-drafter
     dispatch_mode: orchestrated
     trigger: revision_plan_frozen
-    allowed_read_paths: [04_drafts/perspective-v002.md, 07_panel/narrative-review-v002.md]
-    allowed_write_paths: [04_drafts/perspective-v003.md]
-    input_artifact_ids: [perspective-v2, perspective-panel-narrative-report]
-    input_versions: [v002, p003]
+    allowed_read_paths: [04_drafts/perspective-v002.md, 06_revisions/round-003/revision-plan-r003.md]
+    allowed_write_paths: [04_drafts/perspective-v003.md, 06_revisions/round-003/response-to-reviewers-r003.md, 06_revisions/round-003/revision-delta-r003.md]
+    input_artifact_ids: [perspective-v2, perspective-revision-plan-v3]
+    input_versions: [v002, rp003]
     outputs:
       - artifact_id: perspective-v3
         version_id: v003
         workflow_id: wf-phase4-perspective-001
         round_id: round-003
-        plugin_version: 0.5.0-preview.1
+        plugin_version: 0.5.0-preview.2
         source_skill: perspective-drafter
         created_by_instance_id: perspective-writer-003
-        based_on: [perspective-v2@v002, perspective-panel-narrative-report@p003]
+        based_on: [perspective-v2@v002, perspective-revision-plan-v3@rp003]
         change_type: panel_patch
         path: 04_drafts/perspective-v003.md
         status: current
@@ -347,6 +596,36 @@ events:
         frozen: true
         artifact_role: perspective
         content: "perspective v003 panel patch"
+      - artifact_id: perspective-response-v3
+        version_id: rr003
+        workflow_id: wf-phase4-perspective-001
+        round_id: round-003
+        plugin_version: 0.5.0-preview.2
+        source_skill: perspective-drafter
+        created_by_instance_id: perspective-writer-003
+        based_on: [perspective-v2@v002, perspective-revision-plan-v3@rp003, perspective-v3@v003]
+        change_type: response_to_reviewers
+        path: 06_revisions/round-003/response-to-reviewers-r003.md
+        status: final
+        content_digest: computed
+        frozen: true
+        artifact_role: response_to_reviewers
+        content: "perspective response to panel finding"
+      - artifact_id: perspective-delta-v3
+        version_id: rd003
+        workflow_id: wf-phase4-perspective-001
+        round_id: round-003
+        plugin_version: 0.5.0-preview.2
+        source_skill: perspective-drafter
+        created_by_instance_id: perspective-writer-003
+        based_on: [perspective-v2@v002, perspective-revision-plan-v3@rp003, perspective-v3@v003]
+        change_type: revision_delta
+        path: 06_revisions/round-003/revision-delta-r003.md
+        status: final
+        content_digest: computed
+        frozen: true
+        artifact_role: revision_delta
+        content: "perspective v002 to v003 panel delta"
     expected_state_after: artifact_frozen
   - event_id: perspective-evaluate-v3
     type: review
@@ -355,10 +634,10 @@ events:
     destination_skill: perspective-evaluator
     dispatch_mode: delegated
     trigger: revised_perspective_version_frozen
-    allowed_read_paths: [04_drafts/perspective-v003.md]
+    allowed_read_paths: [01_input/input-brief-v001.md, 01_input/target-outlet-profile-v001.md, 02_evidence/claim-ledger-v001.md, 02_evidence/claim-evidence-matrix-v001.md, 03_argument/argument-skeleton-v001.md, 03_argument/paragraph-map-v001.md, 04_drafts/perspective-v003.md]
     allowed_write_paths: [05_evaluations/evaluation-report-v003.md]
-    input_artifact_ids: [perspective-v3]
-    input_versions: [v003]
+    input_artifact_ids: [perspective-input-v1, perspective-outlet-v1, perspective-claim-ledger-v1, perspective-claim-matrix-v1, perspective-skeleton-v1, perspective-paragraph-map-v1, perspective-v3]
+    input_versions: [i001, o001, cl001, cm001, a001, pm001, v003]
     review_report:
       review_id: perspective-eval-r3
       reviewer_skill: perspective-evaluator
@@ -367,9 +646,9 @@ events:
       review_scope: frozen panel-patched perspective v003
       workflow_id: wf-phase4-perspective-001
       round_id: round-003
-      input_artifact_ids: [perspective-v3]
-      input_versions: [v003]
-      files_read: [04_drafts/perspective-v003.md]
+      input_artifact_ids: [perspective-input-v1, perspective-outlet-v1, perspective-claim-ledger-v1, perspective-claim-matrix-v1, perspective-skeleton-v1, perspective-paragraph-map-v1, perspective-v3]
+      input_versions: [i001, o001, cl001, cm001, a001, pm001, v003]
+      files_read: [01_input/input-brief-v001.md, 01_input/target-outlet-profile-v001.md, 02_evidence/claim-ledger-v001.md, 02_evidence/claim-evidence-matrix-v001.md, 03_argument/argument-skeleton-v001.md, 03_argument/paragraph-map-v001.md, 04_drafts/perspective-v003.md]
       isolation_mode: fresh_subagent
       prior_scores_visible: false
       source_edits_performed: false
@@ -381,16 +660,56 @@ events:
         version_id: r003
         workflow_id: wf-phase4-perspective-001
         round_id: round-003
-        plugin_version: 0.5.0-preview.1
+        plugin_version: 0.5.0-preview.2
         source_skill: perspective-evaluator
         created_by_instance_id: perspective-evaluator-003
-        based_on: [perspective-v3@v003]
+        based_on: [perspective-input-v1@i001, perspective-outlet-v1@o001, perspective-claim-ledger-v1@cl001, perspective-claim-matrix-v1@cm001, perspective-skeleton-v1@a001, perspective-paragraph-map-v1@pm001, perspective-v3@v003]
         change_type: evaluation
         path: 05_evaluations/evaluation-report-v003.md
         status: final
         content_digest: computed
         frozen: true
         artifact_role: evaluation_report
+    expected_state_after: packaging_pending
+  - event_id: perspective-final-handoff-summary
+    type: orchestrator_record
+    actor_instance_id: perspective-orchestrator-001
+    source_skill: perspective-orchestrator
+    allowed_read_paths: [01_input/target-outlet-profile-v001.md, 02_evidence/claim-ledger-v001.md, 02_evidence/claim-evidence-matrix-v001.md, 02_evidence/evidence-limitations-v001.md, 02_evidence/citation-risk-log-v001.md, 02_evidence/contrary-evidence-log-v001.md, 02_evidence/reference-list-v001.md, 04_drafts/perspective-v003.md, 05_evaluations/evaluation-report-v003.md, 07_panel/counter-position-review-v002.md, 07_panel/evidence-review-v002.md, 07_panel/narrative-review-v002.md, 06_revisions/round-002/revision-plan-r002.md, 06_revisions/round-002/response-to-reviewers-r002.md, 06_revisions/round-002/revision-delta-r002.md, 06_revisions/round-003/revision-plan-r003.md, 06_revisions/round-003/response-to-reviewers-r003.md, 06_revisions/round-003/revision-delta-r003.md]
+    allowed_write_paths: [07_panel/final-handoff-summary-v003.md, 07_panel/artifact-index-v003.md]
+    input_artifact_ids: [perspective-outlet-v1, perspective-claim-ledger-v1, perspective-claim-matrix-v1, perspective-evidence-limitations-v1, perspective-citation-risk-v1, perspective-contrary-evidence-v1, perspective-references-v1, perspective-v3, perspective-eval-v3, perspective-panel-counter-report, perspective-panel-evidence-report, perspective-panel-narrative-report, perspective-revision-plan-v2, perspective-response-v2, perspective-delta-v2, perspective-revision-plan-v3, perspective-response-v3, perspective-delta-v3]
+    input_versions: [o001, cl001, cm001, el001, cr001, ce001, rf001, v003, r003, p001, p002, p003, rp002, rr002, rd002, rp003, rr003, rd003]
+    outputs:
+      - artifact_id: perspective-final-handoff-summary-v3
+        version_id: hs003
+        workflow_id: wf-phase4-perspective-001
+        round_id: package-001
+        plugin_version: 0.5.0-preview.2
+        source_skill: perspective-orchestrator
+        created_by_instance_id: perspective-orchestrator-001
+        based_on: [perspective-outlet-v1@o001, perspective-claim-ledger-v1@cl001, perspective-claim-matrix-v1@cm001, perspective-evidence-limitations-v1@el001, perspective-citation-risk-v1@cr001, perspective-contrary-evidence-v1@ce001, perspective-references-v1@rf001, perspective-v3@v003, perspective-eval-v3@r003, perspective-panel-counter-report@p001, perspective-panel-evidence-report@p002, perspective-panel-narrative-report@p003]
+        change_type: aggregation
+        path: 07_panel/final-handoff-summary-v003.md
+        status: final
+        content_digest: computed
+        frozen: true
+        artifact_role: panel_summary
+        content: "sealed panel summary, dissent, and latest evaluation identity without scores"
+      - artifact_id: perspective-artifact-index-v3
+        version_id: ai003
+        workflow_id: wf-phase4-perspective-001
+        round_id: package-001
+        plugin_version: 0.5.0-preview.2
+        source_skill: perspective-orchestrator
+        created_by_instance_id: perspective-orchestrator-001
+        based_on: [perspective-v3@v003, perspective-eval-v3@r003, perspective-panel-counter-report@p001, perspective-panel-evidence-report@p002, perspective-panel-narrative-report@p003, perspective-revision-plan-v2@rp002, perspective-response-v2@rr002, perspective-delta-v2@rd002, perspective-revision-plan-v3@rp003, perspective-response-v3@rr003, perspective-delta-v3@rd003]
+        change_type: aggregation
+        path: 07_panel/artifact-index-v003.md
+        status: final
+        content_digest: computed
+        frozen: true
+        artifact_role: artifact_index
+        content: "frozen artifact index with dissent and current pointers"
     expected_state_after: packaging_pending
   - event_id: perspective-compositor
     type: review
@@ -401,13 +720,18 @@ events:
     trigger: all_required_artifacts_and_reviews_frozen
     allowed_read_paths:
       - 04_drafts/perspective-v003.md
-      - 05_evaluations/evaluation-report-v003.md
-      - 07_panel/counter-position-review-v002.md
-      - 07_panel/evidence-review-v002.md
-      - 07_panel/narrative-review-v002.md
+      - 01_input/target-outlet-profile-v001.md
+      - 02_evidence/claim-ledger-v001.md
+      - 02_evidence/claim-evidence-matrix-v001.md
+      - 02_evidence/evidence-limitations-v001.md
+      - 02_evidence/citation-risk-log-v001.md
+      - 02_evidence/contrary-evidence-log-v001.md
+      - 02_evidence/reference-list-v001.md
+      - 07_panel/final-handoff-summary-v003.md
+      - 07_panel/artifact-index-v003.md
     allowed_write_paths: [08_final/final-compositor-report.md, 08_final/final-perspective.md]
-    input_artifact_ids: [perspective-v3, perspective-eval-v3, perspective-panel-counter-report, perspective-panel-evidence-report, perspective-panel-narrative-report]
-    input_versions: [v003, r003, p001, p002, p003]
+    input_artifact_ids: [perspective-v3, perspective-outlet-v1, perspective-claim-ledger-v1, perspective-claim-matrix-v1, perspective-evidence-limitations-v1, perspective-citation-risk-v1, perspective-contrary-evidence-v1, perspective-references-v1, perspective-final-handoff-summary-v3, perspective-artifact-index-v3]
+    input_versions: [v003, o001, cl001, cm001, el001, cr001, ce001, rf001, hs003, ai003]
     preserved_dissent_ids: [perspective-dissent-001]
     artifact_index_dissent_ids: [perspective-dissent-001]
     automatic_external_submission: false
@@ -419,13 +743,17 @@ events:
       review_scope: text-identical final package verification
       workflow_id: wf-phase4-perspective-001
       round_id: package-001
-      input_artifact_ids: [perspective-v3, perspective-eval-v3, perspective-panel-counter-report, perspective-panel-evidence-report, perspective-panel-narrative-report]
-      input_versions: [v003, r003, p001, p002, p003]
-      files_read: [04_drafts/perspective-v003.md, 05_evaluations/evaluation-report-v003.md, 07_panel/counter-position-review-v002.md, 07_panel/evidence-review-v002.md, 07_panel/narrative-review-v002.md]
+      input_artifact_ids: [perspective-v3, perspective-outlet-v1, perspective-claim-ledger-v1, perspective-claim-matrix-v1, perspective-evidence-limitations-v1, perspective-citation-risk-v1, perspective-contrary-evidence-v1, perspective-references-v1, perspective-final-handoff-summary-v3, perspective-artifact-index-v3]
+      input_versions: [v003, o001, cl001, cm001, el001, cr001, ce001, rf001, hs003, ai003]
+      files_read: [04_drafts/perspective-v003.md, 01_input/target-outlet-profile-v001.md, 02_evidence/claim-ledger-v001.md, 02_evidence/claim-evidence-matrix-v001.md, 02_evidence/evidence-limitations-v001.md, 02_evidence/citation-risk-log-v001.md, 02_evidence/contrary-evidence-log-v001.md, 02_evidence/reference-list-v001.md, 07_panel/final-handoff-summary-v003.md, 07_panel/artifact-index-v003.md]
       isolation_mode: fresh_subagent
       prior_scores_visible: false
       source_edits_performed: false
-      decision: accept
+      decision: human_signoff_required
+      workflow_state: human_signoff_required
+      source_version: v003
+      evaluated_version: v003
+      text_identity_verified: true
       findings: []
       unresolved_issues: []
     outputs:
@@ -433,10 +761,10 @@ events:
         version_id: vr001
         workflow_id: wf-phase4-perspective-001
         round_id: package-001
-        plugin_version: 0.5.0-preview.1
+        plugin_version: 0.5.0-preview.2
         source_skill: perspective-final-compositor
         created_by_instance_id: perspective-compositor-001
-        based_on: [perspective-v3@v003, perspective-eval-v3@r003, perspective-panel-counter-report@p001, perspective-panel-evidence-report@p002, perspective-panel-narrative-report@p003]
+        based_on: [perspective-v3@v003, perspective-outlet-v1@o001, perspective-claim-ledger-v1@cl001, perspective-claim-matrix-v1@cm001, perspective-evidence-limitations-v1@el001, perspective-citation-risk-v1@cr001, perspective-contrary-evidence-v1@ce001, perspective-references-v1@rf001, perspective-final-handoff-summary-v3@hs003, perspective-artifact-index-v3@ai003]
         change_type: verification
         path: 08_final/final-compositor-report.md
         status: final
@@ -447,7 +775,7 @@ events:
         version_id: pkg001
         workflow_id: wf-phase4-perspective-001
         round_id: package-001
-        plugin_version: 0.5.0-preview.1
+        plugin_version: 0.5.0-preview.2
         source_skill: perspective-final-compositor
         created_by_instance_id: perspective-compositor-001
         based_on: [perspective-v3@v003]
@@ -463,6 +791,19 @@ expected:
   final_state: human_signoff_required
   primary_versions: [v001, v002, v003]
   evaluator_instances: [perspective-evaluator-001, perspective-evaluator-002, perspective-evaluator-003]
+  lifecycle_triggers:
+    - entry_gate_passed
+    - versioned_artifact_created
+    - independent_review_dispatched
+    - fixable_revision_requested
+    - new_version_created
+    - independent_review_dispatched
+    - latest_version_accepted
+    - panel_requests_substantive_change
+    - new_version_created
+    - independent_review_dispatched
+    - panel_patch_latest_version_accepted
+    - package_verified
   panel_role_instances:
     counter-position: perspective-panel-counter-001
     evidence: perspective-panel-evidence-001

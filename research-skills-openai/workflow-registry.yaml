@@ -1,5 +1,5 @@
-schema_version: 4
-plugin_version: "0.5.0-preview.1"
+schema_version: 5
+plugin_version: "0.5.0-preview.2"
 review_execution:
   isolation_mode: fresh_subagent
   inline_fallback: false
@@ -892,6 +892,9 @@ workflow_state_policy:
   - from: pending_review
     to: panel_pending
     trigger: latest_version_accepted
+    requires:
+    - fresh_evaluation_current
+    - no_unresolved_fatal_finding
   - from: pending_review
     to: packaging_pending
     trigger: panel_patch_latest_version_accepted
@@ -903,9 +906,16 @@ workflow_state_policy:
   - from: panel_pending
     to: revision_required
     trigger: panel_requests_substantive_change
+    requires:
+    - prior_panel_complete
+    - fresh_evaluation_current
   - from: panel_pending
     to: packaging_pending
     trigger: panel_gate_passed
+    requires:
+    - prior_panel_complete
+    - fresh_evaluation_current
+    - no_unresolved_fatal_finding
   - from: packaging_pending
     to: human_signoff_required
     trigger: package_verified
@@ -943,6 +953,17 @@ workflow_state_machines:
       - latest_version_independently_evaluated
       - adversarial_reports_complete
       - dissent_and_fatal_findings_indexed
+    scenario_entry_gate_contracts:
+      standard:
+        context_frozen:
+          artifact_roles:
+          - research_context
+        evidence_map_frozen:
+          artifact_roles:
+          - evidence_map
+        candidate_set_versioned:
+          artifact_roles:
+          - candidate_idea_set
     before_panel:
     - latest_version_independently_evaluated
     - no_unresolved_fatal_finding
@@ -978,6 +999,19 @@ workflow_state_machines:
       - latest_version_independently_evaluated
       - required_panel_reports_complete
       - dissent_and_fatal_findings_indexed
+    scenario_entry_gate_contracts:
+      standard:
+        context_frozen:
+          artifact_roles:
+          - proposal_context
+        readiness_passed:
+          review_skill: proposal-readiness-triage
+          input_artifact_roles:
+          - proposal_context
+          - evidence_map
+        proposal_versioned:
+          artifact_roles:
+          - proposal
     before_panel:
     - latest_version_independently_evaluated
     - no_unresolved_fatal_finding
@@ -1025,6 +1059,31 @@ workflow_state_machines:
       - submission_scope_readiness_passed
       - manuscript_versioned
       - latest_version_independently_evaluated
+    scenario_entry_gate_contracts:
+      standard:
+        readiness_passed:
+          review_skill: article-readiness-triage
+          input_artifact_roles:
+          - minimal_intake
+        context_frozen:
+          artifact_roles:
+          - article_context
+        methods_gate_passed:
+          review_skill: article-methods-statistics-auditor
+          input_artifact_roles:
+          - article_context
+          - method_facts
+        manuscript_versioned:
+          artifact_roles:
+          - manuscript
+        claim_audit_passed:
+          review_skill: article-claim-auditor
+          input_artifact_roles:
+          - article_context
+          - article_blueprint
+          - claim_evidence_matrix
+          - evidence_ledger
+          - manuscript
     before_panel:
     - latest_version_independently_evaluated
     - claim_audit_passed
@@ -1060,6 +1119,22 @@ workflow_state_machines:
       - claim_evidence_artifacts_frozen
       - argument_architecture_frozen
       - perspective_versioned
+    scenario_entry_gate_contracts:
+      full:
+        input_brief_frozen:
+          artifact_roles:
+          - perspective_input_brief
+        claim_evidence_artifacts_frozen:
+          artifact_roles:
+          - claim_ledger
+          - claim_evidence_matrix
+        argument_architecture_frozen:
+          artifact_roles:
+          - argument_architecture
+          - paragraph_map
+        perspective_versioned:
+          artifact_roles:
+          - perspective
     before_panel:
     - latest_version_independently_evaluated
     - no_unresolved_fatal_finding
@@ -1072,7 +1147,7 @@ workflow_state_machines:
     - standard
     final_package_skill: perspective-final-compositor
 scenario_eval_contract:
-  fixture_schema_version: 1
+  fixture_schema_version: 2
   required_workflows:
   - idea
   - proposal
@@ -1145,13 +1220,603 @@ scenario_eval_contract:
   prior_scores_visible_to_fresh_reviewer: false
   reviewer_instance_must_differ_from_artifact_writer: true
   panel_role_instance_mapping_must_be_one_to_one: true
+  review_decision_contracts:
+    academic-language-assessor:
+      allowed:
+      - submission_ready
+      - minor_language_revision
+      - major_language_revision
+      - needs_professional_editing
+      pass:
+      - submission_ready
+      revise:
+      - minor_language_revision
+      - major_language_revision
+      stop:
+      - needs_professional_editing
+    medical-journal-review:
+      allowed:
+      - support
+      - support_with_minor_revision
+      - major_revision_required
+      - redesign_required
+      - not_reviewable_with_current_materials
+      - fatal_flaw
+      pass:
+      - support
+      revise:
+      - support_with_minor_revision
+      - major_revision_required
+      - redesign_required
+      stop:
+      - not_reviewable_with_current_materials
+      - fatal_flaw
+    methodology-statistics-preflight:
+      allowed:
+      - pass
+      - revise_endpoint_or_metric
+      - revise_data_source
+      - revise_method
+      - revise_analysis_route
+      - needs_clarification
+      - blocked
+      - out_of_scope
+      pass:
+      - pass
+      revise:
+      - revise_endpoint_or_metric
+      - revise_data_source
+      - revise_method
+      - revise_analysis_route
+      - needs_clarification
+      stop:
+      - blocked
+      - out_of_scope
+    idea-evaluator:
+      allowed:
+      - promote
+      - revise_then_promote
+      - revise
+      - reframe
+      - merge
+      - keep_as_backup
+      - reject
+      pass:
+      - promote
+      revise:
+      - revise_then_promote
+      - revise
+      - reframe
+      - merge
+      stop:
+      - keep_as_backup
+      - reject
+    idea-adversarial-review-panel:
+      allowed:
+      - handoff_ready
+      - conditional_handoff
+      - return_to_evidence_mapping
+      - return_to_methodology_preflight
+      - return_to_generation_or_reframe
+      - return_to_independent_evaluation
+      - do_not_handoff
+      pass:
+      - handoff_ready
+      - conditional_handoff
+      revise:
+      - return_to_evidence_mapping
+      - return_to_methodology_preflight
+      - return_to_generation_or_reframe
+      - return_to_independent_evaluation
+      stop:
+      - do_not_handoff
+    proposal-readiness-triage:
+      allowed:
+      - ready_for_proposal
+      - needs_clarification
+      - needs_idea_refinement
+      - needs_methodology_preflight
+      - not_proposalizable_yet
+      pass:
+      - ready_for_proposal
+      revise:
+      - needs_clarification
+      - needs_idea_refinement
+      - needs_methodology_preflight
+      stop:
+      - not_proposalizable_yet
+    proposal-evaluator:
+      allowed:
+      - accept
+      - revise
+      - reject
+      pass:
+      - accept
+      revise:
+      - revise
+      stop:
+      - reject
+    proposal-review-panel:
+      allowed:
+      - strong_support
+      - support_with_minor_revision
+      - support_after_major_revision
+      - revise_and_resubmit
+      - not_ready
+      - reject_or_redesign
+      pass:
+      - strong_support
+      revise:
+      - support_with_minor_revision
+      - support_after_major_revision
+      - revise_and_resubmit
+      stop:
+      - not_ready
+      - reject_or_redesign
+    sap-evaluator:
+      allowed:
+      - accept
+      - revise
+      - reject
+      pass:
+      - accept
+      revise:
+      - revise
+      stop:
+      - reject
+    article-readiness-triage:
+      allowed:
+      - ready
+      - conditionally_ready
+      - not_ready
+      - wrong_article_type
+      pass:
+      - ready
+      - conditionally_ready
+      revise: []
+      stop:
+      - not_ready
+      - wrong_article_type
+    article-methods-statistics-auditor:
+      allowed:
+      - pass
+      - conditionally_pass_with_author_verification
+      - requires_methods_clarification
+      - requires_reanalysis
+      - methodologically_blocked
+      pass:
+      - pass
+      - conditionally_pass_with_author_verification
+      - requires_methods_clarification
+      revise: []
+      stop:
+      - requires_reanalysis
+      - methodologically_blocked
+    article-claim-auditor:
+      allowed:
+      - pass
+      - downscale_and_proceed
+      - revise_and_reaudit
+      - blocked
+      pass:
+      - pass
+      - downscale_and_proceed
+      revise:
+      - revise_and_reaudit
+      stop:
+      - blocked
+    article-evaluator:
+      allowed:
+      - accept
+      - revise
+      - reject
+      pass:
+      - accept
+      revise:
+      - revise
+      stop:
+      - reject
+    article-review-panel:
+      allowed:
+      - strong_support
+      - support_with_minor_revision
+      - support_after_major_revision
+      - revise_and_resubmit
+      - not_ready
+      - reject_or_redesign
+      pass:
+      - strong_support
+      revise:
+      - support_with_minor_revision
+      - support_after_major_revision
+      - revise_and_resubmit
+      stop:
+      - not_ready
+      - reject_or_redesign
+    article-submission-compositor:
+      allowed:
+      - human_signoff_required
+      - blocked
+      - stopped
+      - independent_review_pending
+      pass:
+      - human_signoff_required
+      revise: []
+      stop:
+      - blocked
+      - stopped
+      - independent_review_pending
+    perspective-evaluator:
+      allowed:
+      - accept
+      - minor_revision
+      - major_revision_draft
+      - argument_rebuild
+      - thesis_redesign
+      - evidence_rebuild
+      - outlet_retarget
+      - reject_not_salvageable
+      pass:
+      - accept
+      revise:
+      - minor_revision
+      - major_revision_draft
+      - argument_rebuild
+      - thesis_redesign
+      - evidence_rebuild
+      - outlet_retarget
+      stop:
+      - reject_not_salvageable
+    perspective-review-panel:
+      allowed:
+      - strong_support
+      - support_with_minor_revision
+      - support_after_major_revision
+      - not_ready
+      - reject_or_redesign
+      pass:
+      - strong_support
+      revise:
+      - support_with_minor_revision
+      - support_after_major_revision
+      stop:
+      - not_ready
+      - reject_or_redesign
+    perspective-final-compositor:
+      allowed:
+      - human_signoff_required
+      - blocked
+      - stopped
+      - independent_review_pending
+      pass:
+      - human_signoff_required
+      revise: []
+      stop:
+      - blocked
+      - stopped
+      - independent_review_pending
+  panel_contracts:
+    idea:
+      default_tier: default_three
+      modes:
+      - blind_handoff_review
+      tiers:
+        default_three:
+        - novelty-gap
+        - feasibility-method
+        - pi-strategy
+      mandatory_roles:
+      - novelty-gap
+      - feasibility-method
+      - pi-strategy
+      mode_forbidden_input_roles:
+        blind_handoff_review:
+        - research_context
+        - evidence_map
+        - evaluation_report
+        - panel_report
+    proposal:
+      default_tier: standard_panel
+      modes:
+      - blind_mock_review
+      - context_aware_internal_review
+      tiers:
+        lightweight_panel:
+        - domain
+        - methodology-statistics
+        - submission-guard
+        standard_panel:
+        - broad-field
+        - domain
+        - methodology-statistics
+        - skeptical
+        - submission-guard
+        full_panel:
+        - broad-field
+        - domain
+        - methodology-statistics
+        - skeptical
+        - submission-guard
+        - cross-disciplinary-senior
+        - translational-end-user
+      mandatory_roles:
+      - submission-guard
+      mode_forbidden_input_roles:
+        blind_mock_review:
+        - proposal_context
+        - readiness_report
+        - evidence_map
+        - evaluation_report
+        - revision_plan
+        - revision_delta
+        - response_to_reviewers
+        - panel_report
+        context_aware_internal_review:
+        - evaluation_report
+        - panel_report
+      minor_revision_decisions:
+      - support_with_minor_revision
+      substantive_revision_decisions:
+      - support_after_major_revision
+      - revise_and_resubmit
+    article:
+      default_tier: lightweight_panel
+      modes:
+      - blind_external_simulation
+      tiers:
+        lightweight_panel:
+        - methodology-statistics
+        - evidence-claim
+        - submission-guard
+        standard_panel:
+        - methodology-statistics
+        - evidence-claim
+        - submission-guard
+        - clinical-domain-significance
+        - clarity-language
+        full_panel:
+        - methodology-statistics
+        - evidence-claim
+        - submission-guard
+        - clinical-domain-significance
+        - clarity-language
+        - internal-diagnostic-methodology
+        - evidence-retrieval-completeness
+      mandatory_roles:
+      - submission-guard
+      mode_forbidden_input_roles:
+        blind_external_simulation:
+        - article_context
+        - audit_report
+        - evaluation_report
+        - revision_plan
+        - revision_delta
+        - response_to_reviewers
+        - panel_report
+      minor_revision_decisions:
+      - support_with_minor_revision
+      substantive_revision_decisions:
+      - support_after_major_revision
+      - revise_and_resubmit
+    perspective:
+      default_tier: default_three
+      modes:
+      - blind_external_simulation
+      tiers:
+        default_three:
+        - counter-position
+        - evidence
+        - narrative
+      mandatory_roles:
+      - counter-position
+      - evidence
+      - narrative
+      mode_forbidden_input_roles:
+        blind_external_simulation:
+        - evaluation_report
+        - revision_plan
+        - revision_delta
+        - response_to_reviewers
+        - panel_report
+      minor_revision_decisions:
+      - support_with_minor_revision
+      substantive_revision_decisions:
+      - support_after_major_revision
+  package_input_contracts:
+    idea:
+      allowed_roles:
+      - research_context
+      - evidence_map
+      - candidate_idea_set
+      - evaluation_report
+      - panel_report
+      - revision_plan
+      - revision_delta
+      required_inputs:
+      - artifact_role: research_context
+        count: 1
+      - artifact_role: evidence_map
+        count: 1
+      - artifact_role: candidate_idea_set
+        current_primary: true
+        count: 1
+      - artifact_role: evaluation_report
+        source_skill: idea-evaluator
+        current_primary_lineage: true
+        count: 1
+      - artifact_role: panel_report
+        source_skill: idea-adversarial-review-panel
+        all_panel_instances: true
+        count_from_panel_roles: true
+      - artifact_role: revision_plan
+        source_skill: research-idea-orchestrator
+        minimum_count: 1
+        include_all_created: true
+      - artifact_role: revision_delta
+        source_skill: multi-path-idea-generator
+        minimum_count: 1
+        include_all_created: true
+    proposal:
+      allowed_roles:
+      - proposal_context
+      - readiness_report
+      - proposal
+      - evaluation_report
+      - preflight_report
+      - sap
+      - panel_report
+      - revision_plan
+      - response_to_reviewers
+      - revision_delta
+      required_inputs:
+      - artifact_role: proposal_context
+        count: 1
+      - artifact_role: readiness_report
+        source_skill: proposal-readiness-triage
+        count: 1
+      - artifact_role: proposal
+        current_primary: true
+        count: 1
+      - artifact_role: evaluation_report
+        source_skill: proposal-evaluator
+        current_primary_lineage: true
+        count: 1
+      - artifact_role: preflight_report
+        source_skill: methodology-statistics-preflight
+        current_primary_lineage: true
+        count: 1
+      - artifact_role: sap
+        source_skill: sap-writer
+        count: 1
+      - artifact_role: evaluation_report
+        source_skill: sap-evaluator
+        selected_artifact_lineage_role: sap
+        count: 1
+      - artifact_role: panel_report
+        source_skill: proposal-review-panel
+        all_panel_instances: true
+        count_from_panel_roles: true
+      - artifact_role: revision_plan
+        source_skill: proposal-refinement-controller
+        minimum_count: 1
+        include_all_created: true
+      - artifact_role: response_to_reviewers
+        source_skill: proposal-drafter
+        minimum_count: 1
+        include_all_created: true
+      - artifact_role: revision_delta
+        source_skill: proposal-drafter
+        minimum_count: 1
+        include_all_created: true
+    article:
+      allowed_roles:
+      - manuscript
+      - article_blueprint
+      - claim_evidence_matrix
+      - evidence_ledger
+      - evaluation_report
+      - audit_report
+      - panel_report
+      - journal_adapter
+      - frontmatter
+      - cover_letter
+      - quality_check
+      - revision_plan
+      - response_to_reviewers
+      - revision_delta
+      required_inputs:
+      - artifact_role: manuscript
+        current_primary: true
+        count: 1
+      - artifact_role: article_blueprint
+        count: 1
+      - artifact_role: claim_evidence_matrix
+        count: 1
+      - artifact_role: evidence_ledger
+        count: 1
+      - artifact_role: evaluation_report
+        source_skill: article-evaluator
+        current_primary_lineage: true
+        count: 1
+      - artifact_role: audit_report
+        source_skill: article-methods-statistics-auditor
+        count: 1
+      - artifact_role: audit_report
+        source_skill: article-claim-auditor
+        current_primary_lineage: true
+        count: 1
+      - artifact_role: panel_report
+        source_skill: article-review-panel
+        all_panel_instances: true
+        count_from_panel_roles: true
+      - artifact_role: journal_adapter
+        count: 1
+      - artifact_role: frontmatter
+        count: 1
+      - artifact_role: cover_letter
+        count: 1
+      - artifact_role: quality_check
+        count: 1
+      - artifact_role: revision_plan
+        source_skill: article-refinement-controller
+        minimum_count: 1
+        include_all_created: true
+      - artifact_role: response_to_reviewers
+        source_skill: article-drafter
+        minimum_count: 1
+        include_all_created: true
+      - artifact_role: revision_delta
+        source_skill: article-drafter
+        minimum_count: 1
+        include_all_created: true
+    perspective:
+      allowed_roles:
+      - perspective
+      - target_outlet_profile
+      - claim_ledger
+      - claim_evidence_matrix
+      - evidence_limitations
+      - citation_risk_log
+      - contrary_evidence_log
+      - reference_list
+      - panel_summary
+      - artifact_index
+      required_inputs:
+      - artifact_role: perspective
+        current_primary: true
+        count: 1
+      - artifact_role: target_outlet_profile
+        count: 1
+      - artifact_role: claim_ledger
+        count: 1
+      - artifact_role: claim_evidence_matrix
+        count: 1
+      - artifact_role: evidence_limitations
+        count: 1
+      - artifact_role: citation_risk_log
+        count: 1
+      - artifact_role: contrary_evidence_log
+        count: 1
+      - artifact_role: reference_list
+        count: 1
+      - artifact_role: panel_summary
+        sealed_review_lineage: true
+        count: 1
+      - artifact_role: artifact_index
+        sealed_review_lineage: true
+        count: 1
+  revision_artifact_contract:
+    controller_output_role: revision_plan
+    drafter_required_output_roles:
+    - response_to_reviewers
+    - revision_delta
   verifier_compositor_outputs:
     article-submission-compositor:
     - verification_report
     - final_handoff_package
     perspective-final-compositor:
     - verification_report
-    - text_identical_final_handoff_package
+    - final_handoff_package
   final_state: human_signoff_required
   automatic_external_submission: false
 context_profile_policy:

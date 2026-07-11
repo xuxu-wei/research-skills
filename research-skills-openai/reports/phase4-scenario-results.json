@@ -1,5 +1,111 @@
 {
   "execution_scope": "deterministic_replay_plus_separate_live_receipts",
+  "finding_route_results": [
+    {
+      "case_id": "nonblocking-finding",
+      "route": null
+    },
+    {
+      "case_id": "fixable-blocking-finding",
+      "route": "revision_required"
+    },
+    {
+      "case_id": "unavailable-blocking-repair",
+      "route": "blocked"
+    },
+    {
+      "case_id": "no-gain-stop",
+      "route": "stopped"
+    },
+    {
+      "case_id": "resolved-fatal-finding",
+      "route": null
+    }
+  ],
+  "live_forward_test_receipts": [
+    {
+      "contract_assessment": "outcome_consistent_valid_gate_stop",
+      "evaluator_instances": [
+        "/root/evaluator_r1",
+        "/root/evaluator_r2_retry"
+      ],
+      "evidence_class": "self_attested_live_output_snapshot",
+      "final_state": "blocked",
+      "orchestrator_instance": "codex-cli:019f5310-d177-7872-826f-9cb0619ba50b",
+      "outcome": "blocked_at_valid_gate",
+      "panel_instances": {
+        "feasibility-method": "/root/panel_method",
+        "novelty-gap": "/root/panel_novelty",
+        "pi-strategy": "/root/panel_pi"
+      },
+      "raw_claimed_state": "blocked",
+      "raw_receipt": "tests/openai_phase4/live-raw/idea-valid-gate-stop.md",
+      "raw_sha256": "12a3b0c20221c0b60ca73d014c9738eb19365d7d921390ab2cde3b65638e5a4e",
+      "workflow": "idea",
+      "workflow_id": "RID-K57-20260712-01"
+    },
+    {
+      "contract_assessment": "incomplete_panel_qualification",
+      "evaluator_instances": [
+        "/root/proposal_eval_v1",
+        "/root/proposal_eval_v2",
+        "/root/proposal_eval_v3"
+      ],
+      "evidence_class": "self_attested_live_output_snapshot",
+      "final_state": "independent_review_pending",
+      "orchestrator_instance": "codex-cli:019f5306-0b38-75d0-834b-ca6fec110b57",
+      "outcome": "independent_review_pending",
+      "panel_instances": {
+        "domain": "/root/panel3_clinician",
+        "methodology-statistics": "/root/panel3_methods",
+        "submission-guard": "/root/panel3_submission"
+      },
+      "raw_claimed_state": "human_signoff_required",
+      "raw_receipt": "tests/openai_phase4/live-raw/proposal-human-signoff.md",
+      "raw_sha256": "5e7adec27c1438ad2103afffc24eb67677ae8540bb110c4eb7915a3d7b2bb69a",
+      "workflow": "proposal",
+      "workflow_id": "TELE-HF90-STD-SAP-001"
+    },
+    {
+      "contract_assessment": "outcome_consistent_valid_gate_stop",
+      "evaluator_instances": [
+        "article-evaluator-telehf90-v001-7f3c",
+        "eval-v002-fresh-telehf90-20260712"
+      ],
+      "evidence_class": "self_attested_live_output_snapshot",
+      "final_state": "stopped",
+      "orchestrator_instance": "codex-cli:019f52fa-e3f5-74d2-b1b2-e0e84c20479c",
+      "outcome": "stopped_at_valid_gate",
+      "panel_instances": {},
+      "raw_claimed_state": "stopped",
+      "raw_receipt": "tests/openai_phase4/live-raw/article-valid-gate-stop.md",
+      "raw_sha256": "9c14b64699ed3afe9681d9365fbf773e2c1957dd48415f8463f6831d0f55095c",
+      "workflow": "article",
+      "workflow_id": "wf-telehf90-20260712"
+    },
+    {
+      "contract_assessment": "generic_outlet_caps_below_human_signoff",
+      "evaluator_instances": [
+        "/root/evaluator_v001",
+        "/root/evaluator_v002",
+        "/root/evaluator_v004"
+      ],
+      "evidence_class": "self_attested_live_output_snapshot",
+      "final_state": "stopped",
+      "orchestrator_instance": "codex-cli:019f5302-7acb-7e90-98e7-48b3590b45c3",
+      "outcome": "stopped_at_valid_gate",
+      "panel_instances": {
+        "counter-position": "/root/panel_counter",
+        "evidence": "/root/panel_evidence",
+        "narrative": "/root/panel_narrative"
+      },
+      "raw_claimed_state": "human_signoff_required",
+      "raw_receipt": "tests/openai_phase4/live-raw/perspective-human-signoff.md",
+      "raw_sha256": "d9eea2da397d8619f8a4753c58b51f6b1662ebe21524177e04efe84011887442",
+      "workflow": "perspective",
+      "workflow_id": "PVO-20260712-001"
+    }
+  ],
   "negative_guard_results": [
     {
       "case_id": "duplicate-reviewer-instance",
@@ -50,10 +156,155 @@
       "case_id": "source-path-overwritten",
       "error_code": "input_write_overlap",
       "status": "rejected_as_expected"
+    },
+    {
+      "case_id": "invalid-skill-decision",
+      "error_code": "review_decision_invalid",
+      "status": "rejected_as_expected"
+    },
+    {
+      "case_id": "self-declared-panel-tier",
+      "error_code": "panel_contract",
+      "status": "rejected_as_expected"
+    },
+    {
+      "case_id": "missing-entry-gate-receipt",
+      "error_code": "entry_gate_receipts",
+      "status": "rejected_as_expected"
+    },
+    {
+      "case_id": "entry-gate-event-bypassed",
+      "error_code": "entry_gate_receipts",
+      "status": "rejected_as_expected"
+    },
+    {
+      "case_id": "sap-preflight-bypassed",
+      "error_code": "sap_preflight_missing",
+      "status": "rejected_as_expected"
+    },
+    {
+      "case_id": "entry-gate-artifact-misbound",
+      "error_code": "entry_gate_contract",
+      "status": "rejected_as_expected"
+    },
+    {
+      "case_id": "lineage-parent-version-mismatch",
+      "error_code": "artifact_lineage",
+      "status": "rejected_as_expected"
+    },
+    {
+      "case_id": "auxiliary-claim-revision-cannot-pass",
+      "error_code": "auxiliary_review_requires_revision",
+      "status": "rejected_as_expected"
+    },
+    {
+      "case_id": "sap-revision-cannot-pass",
+      "error_code": "auxiliary_review_requires_revision",
+      "status": "rejected_as_expected"
+    },
+    {
+      "case_id": "panel-major-cannot-be-aggregated-as-minor",
+      "error_code": "panel_aggregate_understates_revision",
+      "status": "rejected_as_expected"
+    },
+    {
+      "case_id": "panel-stop-cannot-be-aggregated-as-pass",
+      "error_code": "panel_aggregate_understates_revision",
+      "status": "rejected_as_expected"
+    },
+    {
+      "case_id": "package-requires-real-inputs",
+      "error_code": "package_input_contract",
+      "status": "rejected_as_expected"
+    },
+    {
+      "case_id": "reviewer-cannot-become-writer",
+      "error_code": "writer_is_reviewer",
+      "status": "rejected_as_expected"
+    },
+    {
+      "case_id": "readiness-receipt-requires-frozen-input-roles",
+      "error_code": "entry_gate_contract",
+      "status": "rejected_as_expected"
+    },
+    {
+      "case_id": "sap-preflight-must-bind-current-proposal",
+      "error_code": "sap_preflight_missing",
+      "status": "rejected_as_expected"
+    },
+    {
+      "case_id": "revision-requires-frozen-plan",
+      "error_code": "revision_plan_missing",
+      "status": "rejected_as_expected"
+    },
+    {
+      "case_id": "revision-requires-response-and-delta",
+      "error_code": "revision_artifacts_missing",
+      "status": "rejected_as_expected"
+    },
+    {
+      "case_id": "verifier-inputs-follow-package-contract",
+      "error_code": "verifier_forbidden_input",
+      "status": "rejected_as_expected"
+    },
+    {
+      "case_id": "unsupported-entry-mode-is-explicit",
+      "error_code": "unsupported_scenario_entry_mode",
+      "status": "rejected_as_expected"
+    },
+    {
+      "case_id": "package-output-preserves-input-lineage",
+      "error_code": "package_output_lineage",
+      "status": "rejected_as_expected"
+    },
+    {
+      "case_id": "blind-panel-rejects-context-brief",
+      "error_code": "forbidden_panel_mode_input",
+      "status": "rejected_as_expected"
+    },
+    {
+      "case_id": "verifier-output-role-is-exact",
+      "error_code": "verifier_output_contract",
+      "status": "rejected_as_expected"
+    },
+    {
+      "case_id": "substantive-panel-change-requires-fresh-panel",
+      "error_code": "state_transition",
+      "status": "rejected_as_expected"
+    },
+    {
+      "case_id": "panel-must-review-current-primary",
+      "error_code": "panel_current_artifact",
+      "status": "rejected_as_expected"
+    },
+    {
+      "case_id": "sap-evaluator-must-bind-selected-sap",
+      "error_code": "package_input_contract",
+      "status": "rejected_as_expected"
+    },
+    {
+      "case_id": "revision-plan-must-bind-triggering-review",
+      "error_code": "revision_plan_trigger_missing",
+      "status": "rejected_as_expected"
+    },
+    {
+      "case_id": "verifier-declared-identity-must-match-engine",
+      "error_code": "verifier_identity_contract",
+      "status": "rejected_as_expected"
+    },
+    {
+      "case_id": "controller-plan-requires-trigger-review",
+      "error_code": "revision_plan_trigger_missing",
+      "status": "rejected_as_expected"
+    },
+    {
+      "case_id": "revision-plan-preserves-all-triggering-reviews",
+      "error_code": "revision_plan_trigger_missing",
+      "status": "rejected_as_expected"
     }
   ],
-  "plugin_version": "0.5.0-preview.1",
-  "registry_schema_version": 4,
+  "plugin_version": "0.5.0-preview.2",
+  "registry_schema_version": 5,
   "retrieval_receipts": {
     "deep_research": "deep_research_handoff_required",
     "targeted_search": "targeted_search_verified"
@@ -76,7 +327,7 @@
             "latest_qualifying_evaluation": null,
             "next_route": "idea-evaluator",
             "pending_edge": "research-idea-orchestrator -> idea-evaluator",
-            "plugin_version": "0.5.0-preview.1",
+            "plugin_version": "0.5.0-preview.2",
             "round_id": "round-001",
             "runtime_status": "context_handoff_required",
             "suspended_workflow_state": "artifact_frozen",
@@ -101,6 +352,17 @@
       "dissent_ids": [
         "idea-dissent-001"
       ],
+      "entry_gate_receipts": {
+        "candidate_set_versioned": {
+          "artifact_id": "ideas-v1"
+        },
+        "context_frozen": {
+          "artifact_id": "idea-context-v1"
+        },
+        "evidence_map_frozen": {
+          "artifact_id": "idea-evidence-v1"
+        }
+      },
       "evaluator_instances": [
         "idea-evaluator-001",
         "idea-evaluator-002"
@@ -114,13 +376,77 @@
               "03_ideas/round-001/generated-idea-set-v001.md"
             ],
             "files_read": [],
-            "input_hashes_after": {},
-            "input_hashes_before": {}
+            "input_hashes_after": {
+              "01_context/research-context-v001.md": "sha256:e6d3fd4c95291f488538c46ae450e73f9d0fb5537f79e073cc0d9065fcb33467",
+              "02_evidence/evidence-opportunity-map-v001.md": "sha256:21bca13a14cfe3d5faf255f886eba1e5090b00e637bd17a4344839d41540daeb"
+            },
+            "input_hashes_before": {
+              "01_context/research-context-v001.md": "sha256:e6d3fd4c95291f488538c46ae450e73f9d0fb5537f79e073cc0d9065fcb33467",
+              "02_evidence/evidence-opportunity-map-v001.md": "sha256:21bca13a14cfe3d5faf255f886eba1e5090b00e637bd17a4344839d41540daeb"
+            },
+            "lifecycle_transitions": []
           },
           "sequence": 1,
-          "state_after": "artifact_frozen",
+          "state_after": "initialized",
           "state_before": "initialized",
           "type": "produce"
+        },
+        {
+          "edge": "orchestrator_internal_gate",
+          "event_id": "idea-entry-gate",
+          "observation": {
+            "actual_write_paths": [],
+            "files_read": [],
+            "input_hashes_after": {},
+            "input_hashes_before": {},
+            "lifecycle_transitions": [
+              {
+                "event_id": "idea-entry-gate",
+                "from": "initialized",
+                "to": "preprocessing",
+                "trigger": "entry_gate_passed"
+              },
+              {
+                "event_id": "idea-entry-gate",
+                "from": "preprocessing",
+                "to": "artifact_frozen",
+                "trigger": "versioned_artifact_created"
+              }
+            ],
+            "verified_entry_gates": {
+              "candidate_set_versioned": {
+                "artifacts": [
+                  {
+                    "artifact_id": "ideas-v1",
+                    "content_digest": "sha256:ac86a6ebd4d69711c2e468468e83be42380e824ac26e7fa8a5a237e424e94d63",
+                    "version_id": "v001"
+                  }
+                ]
+              },
+              "context_frozen": {
+                "artifacts": [
+                  {
+                    "artifact_id": "idea-context-v1",
+                    "content_digest": "sha256:e6d3fd4c95291f488538c46ae450e73f9d0fb5537f79e073cc0d9065fcb33467",
+                    "version_id": "c001"
+                  }
+                ]
+              },
+              "evidence_map_frozen": {
+                "artifacts": [
+                  {
+                    "artifact_id": "idea-evidence-v1",
+                    "content_digest": "sha256:21bca13a14cfe3d5faf255f886eba1e5090b00e637bd17a4344839d41540daeb",
+                    "version_id": "e001"
+                  }
+                ]
+              }
+            }
+          },
+          "sequence": 2,
+          "state_after": "artifact_frozen",
+          "state_before": "initialized",
+          "type": "entry_gate"
         },
         {
           "edge": "research-idea-orchestrator -> idea-evaluator",
@@ -130,38 +456,90 @@
               "05_evaluations/round-001/idea-evaluation-v001.md"
             ],
             "files_read": [
+              "01_context/research-context-v001.md",
+              "02_evidence/evidence-opportunity-map-v001.md",
               "03_ideas/round-001/generated-idea-set-v001.md"
             ],
             "input_hashes_after": {
+              "01_context/research-context-v001.md": "sha256:e6d3fd4c95291f488538c46ae450e73f9d0fb5537f79e073cc0d9065fcb33467",
+              "02_evidence/evidence-opportunity-map-v001.md": "sha256:21bca13a14cfe3d5faf255f886eba1e5090b00e637bd17a4344839d41540daeb",
               "03_ideas/round-001/generated-idea-set-v001.md": "sha256:ac86a6ebd4d69711c2e468468e83be42380e824ac26e7fa8a5a237e424e94d63"
             },
             "input_hashes_before": {
+              "01_context/research-context-v001.md": "sha256:e6d3fd4c95291f488538c46ae450e73f9d0fb5537f79e073cc0d9065fcb33467",
+              "02_evidence/evidence-opportunity-map-v001.md": "sha256:21bca13a14cfe3d5faf255f886eba1e5090b00e637bd17a4344839d41540daeb",
               "03_ideas/round-001/generated-idea-set-v001.md": "sha256:ac86a6ebd4d69711c2e468468e83be42380e824ac26e7fa8a5a237e424e94d63"
-            }
+            },
+            "lifecycle_transitions": [
+              {
+                "event_id": "idea-evaluate-v1",
+                "from": "artifact_frozen",
+                "to": "pending_review",
+                "trigger": "independent_review_dispatched"
+              },
+              {
+                "event_id": "idea-evaluate-v1",
+                "from": "pending_review",
+                "to": "revision_required",
+                "trigger": "fixable_revision_requested"
+              }
+            ]
           },
-          "sequence": 2,
+          "sequence": 3,
           "state_after": "revision_required",
           "state_before": "artifact_frozen",
           "type": "review"
+        },
+        {
+          "edge": "orchestrator_internal_gate",
+          "event_id": "idea-plan-v2",
+          "observation": {
+            "actual_write_paths": [
+              "04_revisions/round-002/revision-plan-r002.md"
+            ],
+            "files_read": [],
+            "input_hashes_after": {
+              "03_ideas/round-001/generated-idea-set-v001.md": "sha256:ac86a6ebd4d69711c2e468468e83be42380e824ac26e7fa8a5a237e424e94d63",
+              "05_evaluations/round-001/idea-evaluation-v001.md": "sha256:4f16e4ff01cbb20fb9d2940fba3b31e8e9e76cd09d4ea791cc2627403cf57158"
+            },
+            "input_hashes_before": {
+              "03_ideas/round-001/generated-idea-set-v001.md": "sha256:ac86a6ebd4d69711c2e468468e83be42380e824ac26e7fa8a5a237e424e94d63",
+              "05_evaluations/round-001/idea-evaluation-v001.md": "sha256:4f16e4ff01cbb20fb9d2940fba3b31e8e9e76cd09d4ea791cc2627403cf57158"
+            },
+            "lifecycle_transitions": []
+          },
+          "sequence": 4,
+          "state_after": "revision_required",
+          "state_before": "revision_required",
+          "type": "orchestrator_record"
         },
         {
           "edge": "research-idea-orchestrator -> multi-path-idea-generator",
           "event_id": "idea-revise-v2",
           "observation": {
             "actual_write_paths": [
-              "03_ideas/round-002/revised-idea-set-v002.md"
+              "03_ideas/round-002/revised-idea-set-v002.md",
+              "04_revisions/round-002/revision-delta-r002.md"
             ],
             "files_read": [],
             "input_hashes_after": {
               "03_ideas/round-001/generated-idea-set-v001.md": "sha256:ac86a6ebd4d69711c2e468468e83be42380e824ac26e7fa8a5a237e424e94d63",
-              "05_evaluations/round-001/idea-evaluation-v001.md": "sha256:9dc67e44d789db57772006b0d8c44c1675f63634fb15e9d22c760200c87eb773"
+              "04_revisions/round-002/revision-plan-r002.md": "sha256:4836763b779397eb65f7fdc89c290f4514873933761769b95f1941890fa00099"
             },
             "input_hashes_before": {
               "03_ideas/round-001/generated-idea-set-v001.md": "sha256:ac86a6ebd4d69711c2e468468e83be42380e824ac26e7fa8a5a237e424e94d63",
-              "05_evaluations/round-001/idea-evaluation-v001.md": "sha256:9dc67e44d789db57772006b0d8c44c1675f63634fb15e9d22c760200c87eb773"
-            }
+              "04_revisions/round-002/revision-plan-r002.md": "sha256:4836763b779397eb65f7fdc89c290f4514873933761769b95f1941890fa00099"
+            },
+            "lifecycle_transitions": [
+              {
+                "event_id": "idea-revise-v2",
+                "from": "revision_required",
+                "to": "artifact_frozen",
+                "trigger": "new_version_created"
+              }
+            ]
           },
-          "sequence": 3,
+          "sequence": 5,
           "state_after": "artifact_frozen",
           "state_before": "revision_required",
           "type": "produce"
@@ -174,16 +552,36 @@
               "05_evaluations/round-002/idea-evaluation-v002.md"
             ],
             "files_read": [
+              "01_context/research-context-v001.md",
+              "02_evidence/evidence-opportunity-map-v001.md",
               "03_ideas/round-002/revised-idea-set-v002.md"
             ],
             "input_hashes_after": {
+              "01_context/research-context-v001.md": "sha256:e6d3fd4c95291f488538c46ae450e73f9d0fb5537f79e073cc0d9065fcb33467",
+              "02_evidence/evidence-opportunity-map-v001.md": "sha256:21bca13a14cfe3d5faf255f886eba1e5090b00e637bd17a4344839d41540daeb",
               "03_ideas/round-002/revised-idea-set-v002.md": "sha256:f24c067d3ccb603486753677f0b5631007bcfcc61069223cac1ca11dd9467e3c"
             },
             "input_hashes_before": {
+              "01_context/research-context-v001.md": "sha256:e6d3fd4c95291f488538c46ae450e73f9d0fb5537f79e073cc0d9065fcb33467",
+              "02_evidence/evidence-opportunity-map-v001.md": "sha256:21bca13a14cfe3d5faf255f886eba1e5090b00e637bd17a4344839d41540daeb",
               "03_ideas/round-002/revised-idea-set-v002.md": "sha256:f24c067d3ccb603486753677f0b5631007bcfcc61069223cac1ca11dd9467e3c"
-            }
+            },
+            "lifecycle_transitions": [
+              {
+                "event_id": "idea-evaluate-v2",
+                "from": "artifact_frozen",
+                "to": "pending_review",
+                "trigger": "independent_review_dispatched"
+              },
+              {
+                "event_id": "idea-evaluate-v2",
+                "from": "pending_review",
+                "to": "panel_pending",
+                "trigger": "latest_version_accepted"
+              }
+            ]
           },
-          "sequence": 4,
+          "sequence": 6,
           "state_after": "panel_pending",
           "state_before": "artifact_frozen",
           "type": "review"
@@ -203,9 +601,10 @@
             },
             "input_hashes_before": {
               "03_ideas/round-002/revised-idea-set-v002.md": "sha256:f24c067d3ccb603486753677f0b5631007bcfcc61069223cac1ca11dd9467e3c"
-            }
+            },
+            "lifecycle_transitions": []
           },
-          "sequence": 5,
+          "sequence": 7,
           "state_after": "panel_pending",
           "state_before": "panel_pending",
           "type": "review"
@@ -225,9 +624,10 @@
             },
             "input_hashes_before": {
               "03_ideas/round-002/revised-idea-set-v002.md": "sha256:f24c067d3ccb603486753677f0b5631007bcfcc61069223cac1ca11dd9467e3c"
-            }
+            },
+            "lifecycle_transitions": []
           },
-          "sequence": 6,
+          "sequence": 8,
           "state_after": "panel_pending",
           "state_before": "panel_pending",
           "type": "review"
@@ -247,23 +647,32 @@
             },
             "input_hashes_before": {
               "03_ideas/round-002/revised-idea-set-v002.md": "sha256:f24c067d3ccb603486753677f0b5631007bcfcc61069223cac1ca11dd9467e3c"
-            }
+            },
+            "lifecycle_transitions": []
           },
-          "sequence": 7,
+          "sequence": 9,
           "state_after": "panel_pending",
           "state_before": "panel_pending",
           "type": "review"
         },
         {
-          "edge": "orchestrator_internal_panel_gate",
+          "edge": "orchestrator_internal_gate",
           "event_id": "idea-panel-gate",
           "observation": {
             "actual_write_paths": [],
             "files_read": [],
             "input_hashes_after": {},
-            "input_hashes_before": {}
+            "input_hashes_before": {},
+            "lifecycle_transitions": [
+              {
+                "event_id": "idea-panel-gate",
+                "from": "panel_pending",
+                "to": "packaging_pending",
+                "trigger": "panel_gate_passed"
+              }
+            ]
           },
-          "sequence": 8,
+          "sequence": 10,
           "state_after": "packaging_pending",
           "state_before": "panel_pending",
           "type": "panel_gate"
@@ -277,29 +686,56 @@
             ],
             "files_read": [],
             "input_hashes_after": {
+              "01_context/research-context-v001.md": "sha256:e6d3fd4c95291f488538c46ae450e73f9d0fb5537f79e073cc0d9065fcb33467",
+              "02_evidence/evidence-opportunity-map-v001.md": "sha256:21bca13a14cfe3d5faf255f886eba1e5090b00e637bd17a4344839d41540daeb",
               "03_ideas/round-002/revised-idea-set-v002.md": "sha256:f24c067d3ccb603486753677f0b5631007bcfcc61069223cac1ca11dd9467e3c",
-              "05_evaluations/round-002/idea-evaluation-v002.md": "sha256:408da8d205bc7478b6867eaf05b0bae4cf77ff171c661c066e5cef4c4027f6a0",
-              "06_adversarial/round-002/feasibility-method-review.md": "sha256:28c688412c9c822c58007f6fcd28f436540044f59cb825ff21f79a6a6824a32b",
-              "06_adversarial/round-002/novelty-gap-review.md": "sha256:df69afb1b8a4d9c0eadd407d23f217de54fae330aa574b30e1f702208bff11b2",
-              "06_adversarial/round-002/pi-strategy-review.md": "sha256:19bea325ef4cf13fb654db547a8d4f440719ea7c4c38e4852f59632f5589af4a"
+              "04_revisions/round-002/revision-delta-r002.md": "sha256:385d98d7e0f73c58aa3f7ea358bce1786e53e30e5902ce822338df4d1fe8ff55",
+              "04_revisions/round-002/revision-plan-r002.md": "sha256:4836763b779397eb65f7fdc89c290f4514873933761769b95f1941890fa00099",
+              "05_evaluations/round-002/idea-evaluation-v002.md": "sha256:5585f350bcd25fc16dbc9a848f0c4c45c9797dd398312643fb6337bfe18b226c",
+              "06_adversarial/round-002/feasibility-method-review.md": "sha256:29b23706e8494e7039b7a571662640497fb3331982ff9bc583a5cf4ad7f6b0c1",
+              "06_adversarial/round-002/novelty-gap-review.md": "sha256:30c8afae4e7e31d25f39940bf0e8d2d720f89d8356de95ef260ed0169a4e56fd",
+              "06_adversarial/round-002/pi-strategy-review.md": "sha256:b4b7d5a9503f72e047bd1b80bf5a322d5f7fafffa577d2dd923d4daebd0c157f"
             },
             "input_hashes_before": {
+              "01_context/research-context-v001.md": "sha256:e6d3fd4c95291f488538c46ae450e73f9d0fb5537f79e073cc0d9065fcb33467",
+              "02_evidence/evidence-opportunity-map-v001.md": "sha256:21bca13a14cfe3d5faf255f886eba1e5090b00e637bd17a4344839d41540daeb",
               "03_ideas/round-002/revised-idea-set-v002.md": "sha256:f24c067d3ccb603486753677f0b5631007bcfcc61069223cac1ca11dd9467e3c",
-              "05_evaluations/round-002/idea-evaluation-v002.md": "sha256:408da8d205bc7478b6867eaf05b0bae4cf77ff171c661c066e5cef4c4027f6a0",
-              "06_adversarial/round-002/feasibility-method-review.md": "sha256:28c688412c9c822c58007f6fcd28f436540044f59cb825ff21f79a6a6824a32b",
-              "06_adversarial/round-002/novelty-gap-review.md": "sha256:df69afb1b8a4d9c0eadd407d23f217de54fae330aa574b30e1f702208bff11b2",
-              "06_adversarial/round-002/pi-strategy-review.md": "sha256:19bea325ef4cf13fb654db547a8d4f440719ea7c4c38e4852f59632f5589af4a"
-            }
+              "04_revisions/round-002/revision-delta-r002.md": "sha256:385d98d7e0f73c58aa3f7ea358bce1786e53e30e5902ce822338df4d1fe8ff55",
+              "04_revisions/round-002/revision-plan-r002.md": "sha256:4836763b779397eb65f7fdc89c290f4514873933761769b95f1941890fa00099",
+              "05_evaluations/round-002/idea-evaluation-v002.md": "sha256:5585f350bcd25fc16dbc9a848f0c4c45c9797dd398312643fb6337bfe18b226c",
+              "06_adversarial/round-002/feasibility-method-review.md": "sha256:29b23706e8494e7039b7a571662640497fb3331982ff9bc583a5cf4ad7f6b0c1",
+              "06_adversarial/round-002/novelty-gap-review.md": "sha256:30c8afae4e7e31d25f39940bf0e8d2d720f89d8356de95ef260ed0169a4e56fd",
+              "06_adversarial/round-002/pi-strategy-review.md": "sha256:b4b7d5a9503f72e047bd1b80bf5a322d5f7fafffa577d2dd923d4daebd0c157f"
+            },
+            "lifecycle_transitions": [
+              {
+                "event_id": "idea-package",
+                "from": "packaging_pending",
+                "to": "human_signoff_required",
+                "trigger": "package_verified"
+              }
+            ]
           },
-          "sequence": 9,
+          "sequence": 11,
           "state_after": "human_signoff_required",
           "state_before": "packaging_pending",
           "type": "package"
         }
       ],
       "execution_kind": "deterministic_replay",
+      "execution_scope": "evaluation_revision_delivery_with_entry_receipts",
       "final_state": "human_signoff_required",
       "fixture_id": "idea-independent-loop",
+      "initial_artifacts": {
+        "actual_write_paths": [
+          "01_context/research-context-v001.md",
+          "02_evidence/evidence-opportunity-map-v001.md"
+        ],
+        "artifact_ids": [
+          "idea-context-v1",
+          "idea-evidence-v1"
+        ]
+      },
       "panel_role_instances": {
         "feasibility-method": "idea-panel-feasibility-001",
         "novelty-gap": "idea-panel-novelty-001",
@@ -314,6 +750,62 @@
         "idea -> research-idea-orchestrator -> idea-evaluator",
         "idea -> research-idea-orchestrator -> idea-portfolio-assembler",
         "idea -> research-idea-orchestrator -> multi-path-idea-generator"
+      ],
+      "registry_lifecycle_transitions": [
+        {
+          "event_id": "idea-entry-gate",
+          "from": "initialized",
+          "to": "preprocessing",
+          "trigger": "entry_gate_passed"
+        },
+        {
+          "event_id": "idea-entry-gate",
+          "from": "preprocessing",
+          "to": "artifact_frozen",
+          "trigger": "versioned_artifact_created"
+        },
+        {
+          "event_id": "idea-evaluate-v1",
+          "from": "artifact_frozen",
+          "to": "pending_review",
+          "trigger": "independent_review_dispatched"
+        },
+        {
+          "event_id": "idea-evaluate-v1",
+          "from": "pending_review",
+          "to": "revision_required",
+          "trigger": "fixable_revision_requested"
+        },
+        {
+          "event_id": "idea-revise-v2",
+          "from": "revision_required",
+          "to": "artifact_frozen",
+          "trigger": "new_version_created"
+        },
+        {
+          "event_id": "idea-evaluate-v2",
+          "from": "artifact_frozen",
+          "to": "pending_review",
+          "trigger": "independent_review_dispatched"
+        },
+        {
+          "event_id": "idea-evaluate-v2",
+          "from": "pending_review",
+          "to": "panel_pending",
+          "trigger": "latest_version_accepted"
+        },
+        {
+          "event_id": "idea-panel-gate",
+          "from": "panel_pending",
+          "to": "packaging_pending",
+          "trigger": "panel_gate_passed"
+        },
+        {
+          "event_id": "idea-package",
+          "from": "packaging_pending",
+          "to": "human_signoff_required",
+          "trigger": "package_verified"
+        }
       ],
       "workflow": "idea"
     },
@@ -334,7 +826,7 @@
             "latest_qualifying_evaluation": null,
             "next_route": "proposal-evaluator",
             "pending_edge": "proposal-orchestrator -> proposal-evaluator",
-            "plugin_version": "0.5.0-preview.1",
+            "plugin_version": "0.5.0-preview.2",
             "round_id": "round-001",
             "runtime_status": "context_handoff_required",
             "suspended_workflow_state": "artifact_frozen",
@@ -359,11 +851,48 @@
       "dissent_ids": [
         "proposal-dissent-001"
       ],
+      "entry_gate_receipts": {
+        "context_frozen": {
+          "artifact_id": "proposal-context-v1"
+        },
+        "proposal_versioned": {
+          "artifact_id": "proposal-v1"
+        },
+        "readiness_passed": {
+          "review_id": "proposal-readiness-r1"
+        }
+      },
       "evaluator_instances": [
         "proposal-evaluator-001",
         "proposal-evaluator-002"
       ],
       "events": [
+        {
+          "edge": "proposal-orchestrator -> proposal-readiness-triage",
+          "event_id": "proposal-readiness",
+          "observation": {
+            "actual_write_paths": [
+              "03_readiness/proposal-readiness-v001.md"
+            ],
+            "files_read": [
+              "01_context/proposal-context-v001.md",
+              "02_evidence/proposal-evidence-v001.md"
+            ],
+            "input_hashes_after": {
+              "01_context/proposal-context-v001.md": "sha256:1e3bea619c691df088711aa2e3abe6d98eaec543fce4dd0e195b1520a9893c5e",
+              "02_evidence/proposal-evidence-v001.md": "sha256:f188713a75326a66ca251d5fe0fb0222acbb29b2f08896a538addfa33ce52cae"
+            },
+            "input_hashes_before": {
+              "01_context/proposal-context-v001.md": "sha256:1e3bea619c691df088711aa2e3abe6d98eaec543fce4dd0e195b1520a9893c5e",
+              "02_evidence/proposal-evidence-v001.md": "sha256:f188713a75326a66ca251d5fe0fb0222acbb29b2f08896a538addfa33ce52cae"
+            },
+            "lifecycle_transitions": []
+          },
+          "sequence": 1,
+          "state_after": "initialized",
+          "state_before": "initialized",
+          "type": "review"
+        },
         {
           "edge": "proposal-orchestrator -> proposal-drafter",
           "event_id": "proposal-draft-v1",
@@ -372,13 +901,75 @@
               "04_drafts/proposal-v001.md"
             ],
             "files_read": [],
-            "input_hashes_after": {},
-            "input_hashes_before": {}
+            "input_hashes_after": {
+              "01_context/proposal-context-v001.md": "sha256:1e3bea619c691df088711aa2e3abe6d98eaec543fce4dd0e195b1520a9893c5e",
+              "02_evidence/proposal-evidence-v001.md": "sha256:f188713a75326a66ca251d5fe0fb0222acbb29b2f08896a538addfa33ce52cae",
+              "03_readiness/proposal-readiness-v001.md": "sha256:6346ecb54ddbcfdc89cfb67562f0de2bb1de6cfc51bfa6f7f249a868d38c7ee0"
+            },
+            "input_hashes_before": {
+              "01_context/proposal-context-v001.md": "sha256:1e3bea619c691df088711aa2e3abe6d98eaec543fce4dd0e195b1520a9893c5e",
+              "02_evidence/proposal-evidence-v001.md": "sha256:f188713a75326a66ca251d5fe0fb0222acbb29b2f08896a538addfa33ce52cae",
+              "03_readiness/proposal-readiness-v001.md": "sha256:6346ecb54ddbcfdc89cfb67562f0de2bb1de6cfc51bfa6f7f249a868d38c7ee0"
+            },
+            "lifecycle_transitions": []
           },
-          "sequence": 1,
-          "state_after": "artifact_frozen",
+          "sequence": 2,
+          "state_after": "initialized",
           "state_before": "initialized",
           "type": "produce"
+        },
+        {
+          "edge": "orchestrator_internal_gate",
+          "event_id": "proposal-entry-gate",
+          "observation": {
+            "actual_write_paths": [],
+            "files_read": [],
+            "input_hashes_after": {},
+            "input_hashes_before": {},
+            "lifecycle_transitions": [
+              {
+                "event_id": "proposal-entry-gate",
+                "from": "initialized",
+                "to": "preprocessing",
+                "trigger": "entry_gate_passed"
+              },
+              {
+                "event_id": "proposal-entry-gate",
+                "from": "preprocessing",
+                "to": "artifact_frozen",
+                "trigger": "versioned_artifact_created"
+              }
+            ],
+            "verified_entry_gates": {
+              "context_frozen": {
+                "artifacts": [
+                  {
+                    "artifact_id": "proposal-context-v1",
+                    "content_digest": "sha256:1e3bea619c691df088711aa2e3abe6d98eaec543fce4dd0e195b1520a9893c5e",
+                    "version_id": "c001"
+                  }
+                ]
+              },
+              "proposal_versioned": {
+                "artifacts": [
+                  {
+                    "artifact_id": "proposal-v1",
+                    "content_digest": "sha256:3433cd5be22d55e87fd00725c8a5073198c94baf2bc140e9499fc370f0c1eaba",
+                    "version_id": "v001"
+                  }
+                ]
+              },
+              "readiness_passed": {
+                "decision": "ready_for_proposal",
+                "review_id": "proposal-readiness-r1",
+                "reviewer_instance_id": "proposal-readiness-001"
+              }
+            }
+          },
+          "sequence": 3,
+          "state_after": "artifact_frozen",
+          "state_before": "initialized",
+          "type": "entry_gate"
         },
         {
           "edge": "proposal-orchestrator -> proposal-evaluator",
@@ -388,38 +979,91 @@
               "05_evaluations/proposal-v001-evaluation.md"
             ],
             "files_read": [
+              "01_context/proposal-context-v001.md",
+              "02_evidence/proposal-evidence-v001.md",
               "04_drafts/proposal-v001.md"
             ],
             "input_hashes_after": {
+              "01_context/proposal-context-v001.md": "sha256:1e3bea619c691df088711aa2e3abe6d98eaec543fce4dd0e195b1520a9893c5e",
+              "02_evidence/proposal-evidence-v001.md": "sha256:f188713a75326a66ca251d5fe0fb0222acbb29b2f08896a538addfa33ce52cae",
               "04_drafts/proposal-v001.md": "sha256:3433cd5be22d55e87fd00725c8a5073198c94baf2bc140e9499fc370f0c1eaba"
             },
             "input_hashes_before": {
+              "01_context/proposal-context-v001.md": "sha256:1e3bea619c691df088711aa2e3abe6d98eaec543fce4dd0e195b1520a9893c5e",
+              "02_evidence/proposal-evidence-v001.md": "sha256:f188713a75326a66ca251d5fe0fb0222acbb29b2f08896a538addfa33ce52cae",
               "04_drafts/proposal-v001.md": "sha256:3433cd5be22d55e87fd00725c8a5073198c94baf2bc140e9499fc370f0c1eaba"
-            }
+            },
+            "lifecycle_transitions": [
+              {
+                "event_id": "proposal-evaluate-v1",
+                "from": "artifact_frozen",
+                "to": "pending_review",
+                "trigger": "independent_review_dispatched"
+              },
+              {
+                "event_id": "proposal-evaluate-v1",
+                "from": "pending_review",
+                "to": "revision_required",
+                "trigger": "fixable_revision_requested"
+              }
+            ]
           },
-          "sequence": 2,
+          "sequence": 4,
           "state_after": "revision_required",
           "state_before": "artifact_frozen",
           "type": "review"
+        },
+        {
+          "edge": "proposal-orchestrator -> proposal-refinement-controller",
+          "event_id": "proposal-plan-v2",
+          "observation": {
+            "actual_write_paths": [
+              "06_revisions/round-002/revision-plan-r002.md"
+            ],
+            "files_read": [],
+            "input_hashes_after": {
+              "04_drafts/proposal-v001.md": "sha256:3433cd5be22d55e87fd00725c8a5073198c94baf2bc140e9499fc370f0c1eaba",
+              "05_evaluations/proposal-v001-evaluation.md": "sha256:9e11587eea60461c6cda1602cb66ddebfaaab2e987e2ec958a6942baf76cff40"
+            },
+            "input_hashes_before": {
+              "04_drafts/proposal-v001.md": "sha256:3433cd5be22d55e87fd00725c8a5073198c94baf2bc140e9499fc370f0c1eaba",
+              "05_evaluations/proposal-v001-evaluation.md": "sha256:9e11587eea60461c6cda1602cb66ddebfaaab2e987e2ec958a6942baf76cff40"
+            },
+            "lifecycle_transitions": []
+          },
+          "sequence": 5,
+          "state_after": "revision_required",
+          "state_before": "revision_required",
+          "type": "produce"
         },
         {
           "edge": "proposal-refinement-controller -> proposal-drafter",
           "event_id": "proposal-revise-v2",
           "observation": {
             "actual_write_paths": [
-              "04_drafts/proposal-v002.md"
+              "04_drafts/proposal-v002.md",
+              "06_revisions/round-002/response-to-reviewers-r002.md",
+              "06_revisions/round-002/revision-delta-r002.md"
             ],
             "files_read": [],
             "input_hashes_after": {
               "04_drafts/proposal-v001.md": "sha256:3433cd5be22d55e87fd00725c8a5073198c94baf2bc140e9499fc370f0c1eaba",
-              "05_evaluations/proposal-v001-evaluation.md": "sha256:d181a922c9f996f5e9c667b79411b09678e3345d457d4f0ef831ca97a132542c"
+              "06_revisions/round-002/revision-plan-r002.md": "sha256:bf29772b459e1b05da14b8b577d44ea8ecf76887fa2cf06f3016ec3386c16843"
             },
             "input_hashes_before": {
               "04_drafts/proposal-v001.md": "sha256:3433cd5be22d55e87fd00725c8a5073198c94baf2bc140e9499fc370f0c1eaba",
-              "05_evaluations/proposal-v001-evaluation.md": "sha256:d181a922c9f996f5e9c667b79411b09678e3345d457d4f0ef831ca97a132542c"
-            }
+              "06_revisions/round-002/revision-plan-r002.md": "sha256:bf29772b459e1b05da14b8b577d44ea8ecf76887fa2cf06f3016ec3386c16843"
+            },
+            "lifecycle_transitions": [
+              {
+                "event_id": "proposal-revise-v2",
+                "from": "revision_required",
+                "to": "artifact_frozen",
+                "trigger": "new_version_created"
+              }
+            ]
           },
-          "sequence": 3,
+          "sequence": 6,
           "state_after": "artifact_frozen",
           "state_before": "revision_required",
           "type": "produce"
@@ -432,18 +1076,67 @@
               "05_evaluations/proposal-v002-re-evaluation.md"
             ],
             "files_read": [
+              "01_context/proposal-context-v001.md",
+              "02_evidence/proposal-evidence-v001.md",
               "04_drafts/proposal-v002.md"
             ],
             "input_hashes_after": {
+              "01_context/proposal-context-v001.md": "sha256:1e3bea619c691df088711aa2e3abe6d98eaec543fce4dd0e195b1520a9893c5e",
+              "02_evidence/proposal-evidence-v001.md": "sha256:f188713a75326a66ca251d5fe0fb0222acbb29b2f08896a538addfa33ce52cae",
               "04_drafts/proposal-v002.md": "sha256:0fe29145af9edba9419abd9a500ea2df2c1d2b596b0831572c8ce8ea14cc978d"
             },
             "input_hashes_before": {
+              "01_context/proposal-context-v001.md": "sha256:1e3bea619c691df088711aa2e3abe6d98eaec543fce4dd0e195b1520a9893c5e",
+              "02_evidence/proposal-evidence-v001.md": "sha256:f188713a75326a66ca251d5fe0fb0222acbb29b2f08896a538addfa33ce52cae",
               "04_drafts/proposal-v002.md": "sha256:0fe29145af9edba9419abd9a500ea2df2c1d2b596b0831572c8ce8ea14cc978d"
-            }
+            },
+            "lifecycle_transitions": [
+              {
+                "event_id": "proposal-evaluate-v2",
+                "from": "artifact_frozen",
+                "to": "pending_review",
+                "trigger": "independent_review_dispatched"
+              },
+              {
+                "event_id": "proposal-evaluate-v2",
+                "from": "pending_review",
+                "to": "panel_pending",
+                "trigger": "latest_version_accepted"
+              }
+            ]
           },
-          "sequence": 4,
+          "sequence": 7,
           "state_after": "panel_pending",
           "state_before": "artifact_frozen",
+          "type": "review"
+        },
+        {
+          "edge": "proposal-orchestrator -> methodology-statistics-preflight",
+          "event_id": "proposal-sap-preflight",
+          "observation": {
+            "actual_write_paths": [
+              "07_sap/methodology-statistics-preflight-v001.md"
+            ],
+            "files_read": [
+              "01_context/proposal-context-v001.md",
+              "02_evidence/proposal-evidence-v001.md",
+              "04_drafts/proposal-v002.md"
+            ],
+            "input_hashes_after": {
+              "01_context/proposal-context-v001.md": "sha256:1e3bea619c691df088711aa2e3abe6d98eaec543fce4dd0e195b1520a9893c5e",
+              "02_evidence/proposal-evidence-v001.md": "sha256:f188713a75326a66ca251d5fe0fb0222acbb29b2f08896a538addfa33ce52cae",
+              "04_drafts/proposal-v002.md": "sha256:0fe29145af9edba9419abd9a500ea2df2c1d2b596b0831572c8ce8ea14cc978d"
+            },
+            "input_hashes_before": {
+              "01_context/proposal-context-v001.md": "sha256:1e3bea619c691df088711aa2e3abe6d98eaec543fce4dd0e195b1520a9893c5e",
+              "02_evidence/proposal-evidence-v001.md": "sha256:f188713a75326a66ca251d5fe0fb0222acbb29b2f08896a538addfa33ce52cae",
+              "04_drafts/proposal-v002.md": "sha256:0fe29145af9edba9419abd9a500ea2df2c1d2b596b0831572c8ce8ea14cc978d"
+            },
+            "lifecycle_transitions": []
+          },
+          "sequence": 8,
+          "state_after": "panel_pending",
+          "state_before": "panel_pending",
           "type": "review"
         },
         {
@@ -455,13 +1148,18 @@
             ],
             "files_read": [],
             "input_hashes_after": {
-              "04_drafts/proposal-v002.md": "sha256:0fe29145af9edba9419abd9a500ea2df2c1d2b596b0831572c8ce8ea14cc978d"
+              "01_context/proposal-context-v001.md": "sha256:1e3bea619c691df088711aa2e3abe6d98eaec543fce4dd0e195b1520a9893c5e",
+              "04_drafts/proposal-v002.md": "sha256:0fe29145af9edba9419abd9a500ea2df2c1d2b596b0831572c8ce8ea14cc978d",
+              "07_sap/methodology-statistics-preflight-v001.md": "sha256:29e97a9eb7df98fe04e7cc6c29708902f735f83a46a83770c1bf402aacda83fd"
             },
             "input_hashes_before": {
-              "04_drafts/proposal-v002.md": "sha256:0fe29145af9edba9419abd9a500ea2df2c1d2b596b0831572c8ce8ea14cc978d"
-            }
+              "01_context/proposal-context-v001.md": "sha256:1e3bea619c691df088711aa2e3abe6d98eaec543fce4dd0e195b1520a9893c5e",
+              "04_drafts/proposal-v002.md": "sha256:0fe29145af9edba9419abd9a500ea2df2c1d2b596b0831572c8ce8ea14cc978d",
+              "07_sap/methodology-statistics-preflight-v001.md": "sha256:29e97a9eb7df98fe04e7cc6c29708902f735f83a46a83770c1bf402aacda83fd"
+            },
+            "lifecycle_transitions": []
           },
-          "sequence": 5,
+          "sequence": 9,
           "state_after": "panel_pending",
           "state_before": "panel_pending",
           "type": "produce"
@@ -474,17 +1172,27 @@
               "07_sap/sap-v001-evaluation.md"
             ],
             "files_read": [
+              "01_context/proposal-context-v001.md",
+              "04_drafts/proposal-v002.md",
+              "07_sap/methodology-statistics-preflight-v001.md",
               "07_sap/sap-v001.md"
             ],
             "input_hashes_after": {
+              "01_context/proposal-context-v001.md": "sha256:1e3bea619c691df088711aa2e3abe6d98eaec543fce4dd0e195b1520a9893c5e",
+              "04_drafts/proposal-v002.md": "sha256:0fe29145af9edba9419abd9a500ea2df2c1d2b596b0831572c8ce8ea14cc978d",
+              "07_sap/methodology-statistics-preflight-v001.md": "sha256:29e97a9eb7df98fe04e7cc6c29708902f735f83a46a83770c1bf402aacda83fd",
               "07_sap/sap-v001.md": "sha256:0df6c8bb2de7a310a4f58b0d21b113af43cfc64d5e934e40e4808638ecf12bc3"
             },
             "input_hashes_before": {
+              "01_context/proposal-context-v001.md": "sha256:1e3bea619c691df088711aa2e3abe6d98eaec543fce4dd0e195b1520a9893c5e",
+              "04_drafts/proposal-v002.md": "sha256:0fe29145af9edba9419abd9a500ea2df2c1d2b596b0831572c8ce8ea14cc978d",
+              "07_sap/methodology-statistics-preflight-v001.md": "sha256:29e97a9eb7df98fe04e7cc6c29708902f735f83a46a83770c1bf402aacda83fd",
               "07_sap/sap-v001.md": "sha256:0df6c8bb2de7a310a4f58b0d21b113af43cfc64d5e934e40e4808638ecf12bc3"
-            }
+            },
+            "lifecycle_transitions": []
           },
-          "sequence": 6,
-          "state_after": "pending_review",
+          "sequence": 10,
+          "state_after": "panel_pending",
           "state_before": "panel_pending",
           "type": "review"
         },
@@ -503,11 +1211,12 @@
             },
             "input_hashes_before": {
               "04_drafts/proposal-v002.md": "sha256:0fe29145af9edba9419abd9a500ea2df2c1d2b596b0831572c8ce8ea14cc978d"
-            }
+            },
+            "lifecycle_transitions": []
           },
-          "sequence": 7,
+          "sequence": 11,
           "state_after": "panel_pending",
-          "state_before": "pending_review",
+          "state_before": "panel_pending",
           "type": "review"
         },
         {
@@ -525,19 +1234,20 @@
             },
             "input_hashes_before": {
               "04_drafts/proposal-v002.md": "sha256:0fe29145af9edba9419abd9a500ea2df2c1d2b596b0831572c8ce8ea14cc978d"
-            }
+            },
+            "lifecycle_transitions": []
           },
-          "sequence": 8,
+          "sequence": 12,
           "state_after": "panel_pending",
           "state_before": "panel_pending",
           "type": "review"
         },
         {
           "edge": "proposal-orchestrator -> proposal-review-panel",
-          "event_id": "proposal-panel-skeptical",
+          "event_id": "proposal-panel-submission-guard",
           "observation": {
             "actual_write_paths": [
-              "08_panel/proposal-v002-skeptical-review.md"
+              "08_panel/proposal-v002-submission-guard-review.md"
             ],
             "files_read": [
               "04_drafts/proposal-v002.md"
@@ -547,23 +1257,32 @@
             },
             "input_hashes_before": {
               "04_drafts/proposal-v002.md": "sha256:0fe29145af9edba9419abd9a500ea2df2c1d2b596b0831572c8ce8ea14cc978d"
-            }
+            },
+            "lifecycle_transitions": []
           },
-          "sequence": 9,
+          "sequence": 13,
           "state_after": "panel_pending",
           "state_before": "panel_pending",
           "type": "review"
         },
         {
-          "edge": "orchestrator_internal_panel_gate",
+          "edge": "orchestrator_internal_gate",
           "event_id": "proposal-panel-gate",
           "observation": {
             "actual_write_paths": [],
             "files_read": [],
             "input_hashes_after": {},
-            "input_hashes_before": {}
+            "input_hashes_before": {},
+            "lifecycle_transitions": [
+              {
+                "event_id": "proposal-panel-gate",
+                "from": "panel_pending",
+                "to": "packaging_pending",
+                "trigger": "panel_gate_passed"
+              }
+            ]
           },
-          "sequence": 10,
+          "sequence": 14,
           "state_after": "packaging_pending",
           "state_before": "panel_pending",
           "type": "panel_gate"
@@ -577,51 +1296,141 @@
             ],
             "files_read": [],
             "input_hashes_after": {
+              "01_context/proposal-context-v001.md": "sha256:1e3bea619c691df088711aa2e3abe6d98eaec543fce4dd0e195b1520a9893c5e",
+              "03_readiness/proposal-readiness-v001.md": "sha256:6346ecb54ddbcfdc89cfb67562f0de2bb1de6cfc51bfa6f7f249a868d38c7ee0",
               "04_drafts/proposal-v002.md": "sha256:0fe29145af9edba9419abd9a500ea2df2c1d2b596b0831572c8ce8ea14cc978d",
-              "05_evaluations/proposal-v002-re-evaluation.md": "sha256:25bb396d48b13220a5765548e73c023ff230cb49e9217711b0d0469a60cf703e",
-              "07_sap/sap-v001-evaluation.md": "sha256:4670f61f852de4497376b185a950334f7f45691d5ca108bdd65c63a57bc9da25",
+              "05_evaluations/proposal-v002-re-evaluation.md": "sha256:6bfdf82ea917bfe5bcf1ebf57e3f1b7b848c87d9245d3d6924a0bf429015fcba",
+              "06_revisions/round-002/response-to-reviewers-r002.md": "sha256:ffa4b2802a4039893b9cf4fcf87d6364ef66afea91b47a540388e4e51970f280",
+              "06_revisions/round-002/revision-delta-r002.md": "sha256:d9a14e2b9fa496a99b258720d534c6c07541c63da6345ce08729ab20ee6f9dd1",
+              "06_revisions/round-002/revision-plan-r002.md": "sha256:bf29772b459e1b05da14b8b577d44ea8ecf76887fa2cf06f3016ec3386c16843",
+              "07_sap/methodology-statistics-preflight-v001.md": "sha256:29e97a9eb7df98fe04e7cc6c29708902f735f83a46a83770c1bf402aacda83fd",
+              "07_sap/sap-v001-evaluation.md": "sha256:5d7e42be84f34bf9cd43cfa5499f31695660de2797d08eb5b62fd04f437294f2",
               "07_sap/sap-v001.md": "sha256:0df6c8bb2de7a310a4f58b0d21b113af43cfc64d5e934e40e4808638ecf12bc3",
-              "08_panel/proposal-v002-domain-review.md": "sha256:f859cf7614414f56512d47e9cdeaf8278ba9ad04ab209df3de447cc42e506a74",
-              "08_panel/proposal-v002-methods-review.md": "sha256:1d9a0c605c28fe9b11c71b1c8fc957acff193067208be68c63c7d5468133b267",
-              "08_panel/proposal-v002-skeptical-review.md": "sha256:e654e1268a24f6ead48fb20bb14ffaa5972dd95c97468663523027fbfcbfc377"
+              "08_panel/proposal-v002-domain-review.md": "sha256:8a6ee99ebcc61d02df4c3d62505674786aa8fcacd01bdbef8347eca7c7abf9f7",
+              "08_panel/proposal-v002-methods-review.md": "sha256:2aa2f3b6943056ad8eb441a753ac18916f407a98b8642e7ab8ff72501f4454c4",
+              "08_panel/proposal-v002-submission-guard-review.md": "sha256:aff087030f6ea6f577ecddb6ad411e999281c356dbb93e756b04f21b14a99aad"
             },
             "input_hashes_before": {
+              "01_context/proposal-context-v001.md": "sha256:1e3bea619c691df088711aa2e3abe6d98eaec543fce4dd0e195b1520a9893c5e",
+              "03_readiness/proposal-readiness-v001.md": "sha256:6346ecb54ddbcfdc89cfb67562f0de2bb1de6cfc51bfa6f7f249a868d38c7ee0",
               "04_drafts/proposal-v002.md": "sha256:0fe29145af9edba9419abd9a500ea2df2c1d2b596b0831572c8ce8ea14cc978d",
-              "05_evaluations/proposal-v002-re-evaluation.md": "sha256:25bb396d48b13220a5765548e73c023ff230cb49e9217711b0d0469a60cf703e",
-              "07_sap/sap-v001-evaluation.md": "sha256:4670f61f852de4497376b185a950334f7f45691d5ca108bdd65c63a57bc9da25",
+              "05_evaluations/proposal-v002-re-evaluation.md": "sha256:6bfdf82ea917bfe5bcf1ebf57e3f1b7b848c87d9245d3d6924a0bf429015fcba",
+              "06_revisions/round-002/response-to-reviewers-r002.md": "sha256:ffa4b2802a4039893b9cf4fcf87d6364ef66afea91b47a540388e4e51970f280",
+              "06_revisions/round-002/revision-delta-r002.md": "sha256:d9a14e2b9fa496a99b258720d534c6c07541c63da6345ce08729ab20ee6f9dd1",
+              "06_revisions/round-002/revision-plan-r002.md": "sha256:bf29772b459e1b05da14b8b577d44ea8ecf76887fa2cf06f3016ec3386c16843",
+              "07_sap/methodology-statistics-preflight-v001.md": "sha256:29e97a9eb7df98fe04e7cc6c29708902f735f83a46a83770c1bf402aacda83fd",
+              "07_sap/sap-v001-evaluation.md": "sha256:5d7e42be84f34bf9cd43cfa5499f31695660de2797d08eb5b62fd04f437294f2",
               "07_sap/sap-v001.md": "sha256:0df6c8bb2de7a310a4f58b0d21b113af43cfc64d5e934e40e4808638ecf12bc3",
-              "08_panel/proposal-v002-domain-review.md": "sha256:f859cf7614414f56512d47e9cdeaf8278ba9ad04ab209df3de447cc42e506a74",
-              "08_panel/proposal-v002-methods-review.md": "sha256:1d9a0c605c28fe9b11c71b1c8fc957acff193067208be68c63c7d5468133b267",
-              "08_panel/proposal-v002-skeptical-review.md": "sha256:e654e1268a24f6ead48fb20bb14ffaa5972dd95c97468663523027fbfcbfc377"
-            }
+              "08_panel/proposal-v002-domain-review.md": "sha256:8a6ee99ebcc61d02df4c3d62505674786aa8fcacd01bdbef8347eca7c7abf9f7",
+              "08_panel/proposal-v002-methods-review.md": "sha256:2aa2f3b6943056ad8eb441a753ac18916f407a98b8642e7ab8ff72501f4454c4",
+              "08_panel/proposal-v002-submission-guard-review.md": "sha256:aff087030f6ea6f577ecddb6ad411e999281c356dbb93e756b04f21b14a99aad"
+            },
+            "lifecycle_transitions": [
+              {
+                "event_id": "proposal-package",
+                "from": "packaging_pending",
+                "to": "human_signoff_required",
+                "trigger": "package_verified"
+              }
+            ]
           },
-          "sequence": 11,
+          "sequence": 15,
           "state_after": "human_signoff_required",
           "state_before": "packaging_pending",
           "type": "package"
         }
       ],
       "execution_kind": "deterministic_replay",
+      "execution_scope": "evaluation_revision_delivery_with_entry_receipts",
       "final_state": "human_signoff_required",
       "fixture_id": "proposal-independent-loop-with-sap",
+      "initial_artifacts": {
+        "actual_write_paths": [
+          "01_context/proposal-context-v001.md",
+          "02_evidence/proposal-evidence-v001.md"
+        ],
+        "artifact_ids": [
+          "proposal-context-v1",
+          "proposal-evidence-v1"
+        ]
+      },
       "panel_role_instances": {
         "domain": "proposal-panel-domain-001",
         "methodology-statistics": "proposal-panel-methods-001",
-        "skeptical": "proposal-panel-skeptical-001"
+        "submission-guard": "proposal-panel-submission-guard-001"
       },
       "primary_versions": [
         "v001",
         "v002"
       ],
       "registry_edges_exercised": [
+        "proposal -> proposal-orchestrator -> methodology-statistics-preflight",
         "proposal -> proposal-orchestrator -> proposal-drafter",
         "proposal -> proposal-orchestrator -> proposal-evaluator",
         "proposal -> proposal-orchestrator -> proposal-package-assembler",
+        "proposal -> proposal-orchestrator -> proposal-readiness-triage",
+        "proposal -> proposal-orchestrator -> proposal-refinement-controller",
         "proposal -> proposal-orchestrator -> proposal-review-panel",
         "proposal -> proposal-orchestrator -> sap-evaluator",
         "proposal -> proposal-orchestrator -> sap-writer",
         "proposal -> proposal-refinement-controller -> proposal-drafter",
         "proposal -> proposal-refinement-controller -> proposal-evaluator"
+      ],
+      "registry_lifecycle_transitions": [
+        {
+          "event_id": "proposal-entry-gate",
+          "from": "initialized",
+          "to": "preprocessing",
+          "trigger": "entry_gate_passed"
+        },
+        {
+          "event_id": "proposal-entry-gate",
+          "from": "preprocessing",
+          "to": "artifact_frozen",
+          "trigger": "versioned_artifact_created"
+        },
+        {
+          "event_id": "proposal-evaluate-v1",
+          "from": "artifact_frozen",
+          "to": "pending_review",
+          "trigger": "independent_review_dispatched"
+        },
+        {
+          "event_id": "proposal-evaluate-v1",
+          "from": "pending_review",
+          "to": "revision_required",
+          "trigger": "fixable_revision_requested"
+        },
+        {
+          "event_id": "proposal-revise-v2",
+          "from": "revision_required",
+          "to": "artifact_frozen",
+          "trigger": "new_version_created"
+        },
+        {
+          "event_id": "proposal-evaluate-v2",
+          "from": "artifact_frozen",
+          "to": "pending_review",
+          "trigger": "independent_review_dispatched"
+        },
+        {
+          "event_id": "proposal-evaluate-v2",
+          "from": "pending_review",
+          "to": "panel_pending",
+          "trigger": "latest_version_accepted"
+        },
+        {
+          "event_id": "proposal-panel-gate",
+          "from": "panel_pending",
+          "to": "packaging_pending",
+          "trigger": "panel_gate_passed"
+        },
+        {
+          "event_id": "proposal-package",
+          "from": "packaging_pending",
+          "to": "human_signoff_required",
+          "trigger": "package_verified"
+        }
       ],
       "workflow": "proposal"
     },
@@ -642,7 +1451,7 @@
             "latest_qualifying_evaluation": null,
             "next_route": "article-evaluator",
             "pending_edge": "article-orchestrator -> article-evaluator",
-            "plugin_version": "0.5.0-preview.1",
+            "plugin_version": "0.5.0-preview.2",
             "round_id": "round-001",
             "runtime_status": "context_handoff_required",
             "suspended_workflow_state": "artifact_frozen",
@@ -667,23 +1476,73 @@
       "dissent_ids": [
         "article-dissent-001"
       ],
+      "entry_gate_receipts": {
+        "claim_audit_passed": {
+          "review_id": "article-claim-r1"
+        },
+        "context_frozen": {
+          "artifact_id": "article-context-v1"
+        },
+        "manuscript_versioned": {
+          "artifact_id": "manuscript-v1"
+        },
+        "methods_gate_passed": {
+          "review_id": "article-methods-r1"
+        },
+        "readiness_passed": {
+          "review_id": "article-readiness-r1"
+        }
+      },
       "evaluator_instances": [
         "article-evaluator-001",
         "article-evaluator-002"
       ],
       "events": [
         {
+          "edge": "article-orchestrator -> article-readiness-triage",
+          "event_id": "article-readiness",
+          "observation": {
+            "actual_write_paths": [
+              "03_readiness/article-readiness-v001.md"
+            ],
+            "files_read": [
+              "00_intake/minimal-intake-v001.md"
+            ],
+            "input_hashes_after": {
+              "00_intake/minimal-intake-v001.md": "sha256:92151a7c5aa99bf006e22fa0b940b0b2e4f69e233990c8d9d265f6fb727c4e4c"
+            },
+            "input_hashes_before": {
+              "00_intake/minimal-intake-v001.md": "sha256:92151a7c5aa99bf006e22fa0b940b0b2e4f69e233990c8d9d265f6fb727c4e4c"
+            },
+            "lifecycle_transitions": []
+          },
+          "sequence": 1,
+          "state_after": "initialized",
+          "state_before": "initialized",
+          "type": "review"
+        },
+        {
           "edge": "article-orchestrator -> article-architect",
           "event_id": "article-blueprint",
           "observation": {
             "actual_write_paths": [
-              "04_blueprint/article-blueprint-v001.md"
+              "04_blueprint/article-blueprint-v001.md",
+              "04_blueprint/claim-evidence-matrix-v001.md",
+              "04_blueprint/evidence-ledger-v001.md",
+              "04_blueprint/journal-adapter-v001.md"
             ],
             "files_read": [],
-            "input_hashes_after": {},
-            "input_hashes_before": {}
+            "input_hashes_after": {
+              "01_context/article-context-v001.md": "sha256:e9942214aa4243b8972e1c3ec488f0d691f5b9b9268e28e3381f1a731b597cd2",
+              "02_methods/frozen-method-facts-v001.md": "sha256:dabe08d37dc6fe6db15678eae618851e191f963bac8e461dae7603ba62808230"
+            },
+            "input_hashes_before": {
+              "01_context/article-context-v001.md": "sha256:e9942214aa4243b8972e1c3ec488f0d691f5b9b9268e28e3381f1a731b597cd2",
+              "02_methods/frozen-method-facts-v001.md": "sha256:dabe08d37dc6fe6db15678eae618851e191f963bac8e461dae7603ba62808230"
+            },
+            "lifecycle_transitions": []
           },
-          "sequence": 1,
+          "sequence": 2,
           "state_after": "initialized",
           "state_before": "initialized",
           "type": "produce"
@@ -696,17 +1555,21 @@
               "05_audit/methods-statistics-audit-v001.md"
             ],
             "files_read": [
-              "04_blueprint/article-blueprint-v001.md"
+              "01_context/article-context-v001.md",
+              "02_methods/frozen-method-facts-v001.md"
             ],
             "input_hashes_after": {
-              "04_blueprint/article-blueprint-v001.md": "sha256:13c55d2afb9ecb429cd29846b6105534bb65575333e42e6600755fa901993585"
+              "01_context/article-context-v001.md": "sha256:e9942214aa4243b8972e1c3ec488f0d691f5b9b9268e28e3381f1a731b597cd2",
+              "02_methods/frozen-method-facts-v001.md": "sha256:dabe08d37dc6fe6db15678eae618851e191f963bac8e461dae7603ba62808230"
             },
             "input_hashes_before": {
-              "04_blueprint/article-blueprint-v001.md": "sha256:13c55d2afb9ecb429cd29846b6105534bb65575333e42e6600755fa901993585"
-            }
+              "01_context/article-context-v001.md": "sha256:e9942214aa4243b8972e1c3ec488f0d691f5b9b9268e28e3381f1a731b597cd2",
+              "02_methods/frozen-method-facts-v001.md": "sha256:dabe08d37dc6fe6db15678eae618851e191f963bac8e461dae7603ba62808230"
+            },
+            "lifecycle_transitions": []
           },
-          "sequence": 2,
-          "state_after": "pending_review",
+          "sequence": 3,
+          "state_after": "initialized",
           "state_before": "initialized",
           "type": "review"
         },
@@ -719,17 +1582,24 @@
             ],
             "files_read": [],
             "input_hashes_after": {
+              "01_context/article-context-v001.md": "sha256:e9942214aa4243b8972e1c3ec488f0d691f5b9b9268e28e3381f1a731b597cd2",
               "04_blueprint/article-blueprint-v001.md": "sha256:13c55d2afb9ecb429cd29846b6105534bb65575333e42e6600755fa901993585",
-              "05_audit/methods-statistics-audit-v001.md": "sha256:3dd6c40834c64e05bbe873da2bcd50578a8f3849bd8909ec584a4a6485695627"
+              "04_blueprint/claim-evidence-matrix-v001.md": "sha256:8609cd9892355a98512f567d490628825d946842941ae33a6c14760e34bcb9a5",
+              "04_blueprint/evidence-ledger-v001.md": "sha256:0c4b8b8f7079e35b05d231fbea226f195ffa5e3204e44d90950b6da6f9307743",
+              "05_audit/methods-statistics-audit-v001.md": "sha256:77108012c4af5bff46a47a0a0368db00dca13778b164d4d908c77fb61041d6d6"
             },
             "input_hashes_before": {
+              "01_context/article-context-v001.md": "sha256:e9942214aa4243b8972e1c3ec488f0d691f5b9b9268e28e3381f1a731b597cd2",
               "04_blueprint/article-blueprint-v001.md": "sha256:13c55d2afb9ecb429cd29846b6105534bb65575333e42e6600755fa901993585",
-              "05_audit/methods-statistics-audit-v001.md": "sha256:3dd6c40834c64e05bbe873da2bcd50578a8f3849bd8909ec584a4a6485695627"
-            }
+              "04_blueprint/claim-evidence-matrix-v001.md": "sha256:8609cd9892355a98512f567d490628825d946842941ae33a6c14760e34bcb9a5",
+              "04_blueprint/evidence-ledger-v001.md": "sha256:0c4b8b8f7079e35b05d231fbea226f195ffa5e3204e44d90950b6da6f9307743",
+              "05_audit/methods-statistics-audit-v001.md": "sha256:77108012c4af5bff46a47a0a0368db00dca13778b164d4d908c77fb61041d6d6"
+            },
+            "lifecycle_transitions": []
           },
-          "sequence": 3,
-          "state_after": "artifact_frozen",
-          "state_before": "pending_review",
+          "sequence": 4,
+          "state_after": "initialized",
+          "state_before": "initialized",
           "type": "produce"
         },
         {
@@ -740,19 +1610,95 @@
               "07_claim-audit/claim-audit-v001.md"
             ],
             "files_read": [
+              "01_context/article-context-v001.md",
+              "04_blueprint/article-blueprint-v001.md",
+              "04_blueprint/claim-evidence-matrix-v001.md",
+              "04_blueprint/evidence-ledger-v001.md",
               "06_drafts/manuscript-v001.md"
             ],
             "input_hashes_after": {
+              "01_context/article-context-v001.md": "sha256:e9942214aa4243b8972e1c3ec488f0d691f5b9b9268e28e3381f1a731b597cd2",
+              "04_blueprint/article-blueprint-v001.md": "sha256:13c55d2afb9ecb429cd29846b6105534bb65575333e42e6600755fa901993585",
+              "04_blueprint/claim-evidence-matrix-v001.md": "sha256:8609cd9892355a98512f567d490628825d946842941ae33a6c14760e34bcb9a5",
+              "04_blueprint/evidence-ledger-v001.md": "sha256:0c4b8b8f7079e35b05d231fbea226f195ffa5e3204e44d90950b6da6f9307743",
               "06_drafts/manuscript-v001.md": "sha256:ae98076f5ff402867afacf27e0fef35fc6cf05a7280345adbd6498b1c5422a10"
             },
             "input_hashes_before": {
+              "01_context/article-context-v001.md": "sha256:e9942214aa4243b8972e1c3ec488f0d691f5b9b9268e28e3381f1a731b597cd2",
+              "04_blueprint/article-blueprint-v001.md": "sha256:13c55d2afb9ecb429cd29846b6105534bb65575333e42e6600755fa901993585",
+              "04_blueprint/claim-evidence-matrix-v001.md": "sha256:8609cd9892355a98512f567d490628825d946842941ae33a6c14760e34bcb9a5",
+              "04_blueprint/evidence-ledger-v001.md": "sha256:0c4b8b8f7079e35b05d231fbea226f195ffa5e3204e44d90950b6da6f9307743",
               "06_drafts/manuscript-v001.md": "sha256:ae98076f5ff402867afacf27e0fef35fc6cf05a7280345adbd6498b1c5422a10"
+            },
+            "lifecycle_transitions": []
+          },
+          "sequence": 5,
+          "state_after": "initialized",
+          "state_before": "initialized",
+          "type": "review"
+        },
+        {
+          "edge": "orchestrator_internal_gate",
+          "event_id": "article-entry-gate",
+          "observation": {
+            "actual_write_paths": [],
+            "files_read": [],
+            "input_hashes_after": {},
+            "input_hashes_before": {},
+            "lifecycle_transitions": [
+              {
+                "event_id": "article-entry-gate",
+                "from": "initialized",
+                "to": "preprocessing",
+                "trigger": "entry_gate_passed"
+              },
+              {
+                "event_id": "article-entry-gate",
+                "from": "preprocessing",
+                "to": "artifact_frozen",
+                "trigger": "versioned_artifact_created"
+              }
+            ],
+            "verified_entry_gates": {
+              "claim_audit_passed": {
+                "decision": "pass",
+                "review_id": "article-claim-r1",
+                "reviewer_instance_id": "article-claim-auditor-001"
+              },
+              "context_frozen": {
+                "artifacts": [
+                  {
+                    "artifact_id": "article-context-v1",
+                    "content_digest": "sha256:e9942214aa4243b8972e1c3ec488f0d691f5b9b9268e28e3381f1a731b597cd2",
+                    "version_id": "c001"
+                  }
+                ]
+              },
+              "manuscript_versioned": {
+                "artifacts": [
+                  {
+                    "artifact_id": "manuscript-v1",
+                    "content_digest": "sha256:ae98076f5ff402867afacf27e0fef35fc6cf05a7280345adbd6498b1c5422a10",
+                    "version_id": "v001"
+                  }
+                ]
+              },
+              "methods_gate_passed": {
+                "decision": "pass",
+                "review_id": "article-methods-r1",
+                "reviewer_instance_id": "article-methods-auditor-001"
+              },
+              "readiness_passed": {
+                "decision": "ready",
+                "review_id": "article-readiness-r1",
+                "reviewer_instance_id": "article-readiness-001"
+              }
             }
           },
-          "sequence": 4,
-          "state_after": "pending_review",
-          "state_before": "artifact_frozen",
-          "type": "review"
+          "sequence": 6,
+          "state_after": "artifact_frozen",
+          "state_before": "initialized",
+          "type": "entry_gate"
         },
         {
           "edge": "article-orchestrator -> article-evaluator",
@@ -762,41 +1708,91 @@
               "08_evaluations/evaluation-v001.md"
             ],
             "files_read": [
-              "06_drafts/manuscript-v001.md",
-              "07_claim-audit/claim-audit-v001.md"
+              "01_context/article-context-v001.md",
+              "04_blueprint/article-blueprint-v001.md",
+              "06_drafts/manuscript-v001.md"
             ],
             "input_hashes_after": {
+              "01_context/article-context-v001.md": "sha256:e9942214aa4243b8972e1c3ec488f0d691f5b9b9268e28e3381f1a731b597cd2",
+              "04_blueprint/article-blueprint-v001.md": "sha256:13c55d2afb9ecb429cd29846b6105534bb65575333e42e6600755fa901993585",
+              "06_drafts/manuscript-v001.md": "sha256:ae98076f5ff402867afacf27e0fef35fc6cf05a7280345adbd6498b1c5422a10"
+            },
+            "input_hashes_before": {
+              "01_context/article-context-v001.md": "sha256:e9942214aa4243b8972e1c3ec488f0d691f5b9b9268e28e3381f1a731b597cd2",
+              "04_blueprint/article-blueprint-v001.md": "sha256:13c55d2afb9ecb429cd29846b6105534bb65575333e42e6600755fa901993585",
+              "06_drafts/manuscript-v001.md": "sha256:ae98076f5ff402867afacf27e0fef35fc6cf05a7280345adbd6498b1c5422a10"
+            },
+            "lifecycle_transitions": [
+              {
+                "event_id": "article-evaluate-v1",
+                "from": "artifact_frozen",
+                "to": "pending_review",
+                "trigger": "independent_review_dispatched"
+              },
+              {
+                "event_id": "article-evaluate-v1",
+                "from": "pending_review",
+                "to": "revision_required",
+                "trigger": "fixable_revision_requested"
+              }
+            ]
+          },
+          "sequence": 7,
+          "state_after": "revision_required",
+          "state_before": "artifact_frozen",
+          "type": "review"
+        },
+        {
+          "edge": "article-orchestrator -> article-refinement-controller",
+          "event_id": "article-plan-v2",
+          "observation": {
+            "actual_write_paths": [
+              "09_revisions/round-002/revision-plan-r002.md"
+            ],
+            "files_read": [],
+            "input_hashes_after": {
               "06_drafts/manuscript-v001.md": "sha256:ae98076f5ff402867afacf27e0fef35fc6cf05a7280345adbd6498b1c5422a10",
-              "07_claim-audit/claim-audit-v001.md": "sha256:c89224dc46f21ffe985ff1fdc43e83e0de97029fcc888945e33b77df5edbc1dc"
+              "08_evaluations/evaluation-v001.md": "sha256:1e4ea11fb81ca93580c8e10f17782d6b72a76a15c3f267a0d370fdaeef37bb99"
             },
             "input_hashes_before": {
               "06_drafts/manuscript-v001.md": "sha256:ae98076f5ff402867afacf27e0fef35fc6cf05a7280345adbd6498b1c5422a10",
-              "07_claim-audit/claim-audit-v001.md": "sha256:c89224dc46f21ffe985ff1fdc43e83e0de97029fcc888945e33b77df5edbc1dc"
-            }
+              "08_evaluations/evaluation-v001.md": "sha256:1e4ea11fb81ca93580c8e10f17782d6b72a76a15c3f267a0d370fdaeef37bb99"
+            },
+            "lifecycle_transitions": []
           },
-          "sequence": 5,
+          "sequence": 8,
           "state_after": "revision_required",
-          "state_before": "pending_review",
-          "type": "review"
+          "state_before": "revision_required",
+          "type": "produce"
         },
         {
           "edge": "article-refinement-controller -> article-drafter",
           "event_id": "article-revise-v2",
           "observation": {
             "actual_write_paths": [
-              "06_drafts/manuscript-v002.md"
+              "06_drafts/manuscript-v002.md",
+              "09_revisions/round-002/response-to-reviewers-r002.md",
+              "09_revisions/round-002/revision-delta-r002.md"
             ],
             "files_read": [],
             "input_hashes_after": {
               "06_drafts/manuscript-v001.md": "sha256:ae98076f5ff402867afacf27e0fef35fc6cf05a7280345adbd6498b1c5422a10",
-              "08_evaluations/evaluation-v001.md": "sha256:e7f3dee55e91227605a2203b0d877467080b91449a2e7c855487f7b874d7c369"
+              "09_revisions/round-002/revision-plan-r002.md": "sha256:09a027568ca380946f2afb5cde8d85095ba090e357449875ddc129d51ffd30e4"
             },
             "input_hashes_before": {
               "06_drafts/manuscript-v001.md": "sha256:ae98076f5ff402867afacf27e0fef35fc6cf05a7280345adbd6498b1c5422a10",
-              "08_evaluations/evaluation-v001.md": "sha256:e7f3dee55e91227605a2203b0d877467080b91449a2e7c855487f7b874d7c369"
-            }
+              "09_revisions/round-002/revision-plan-r002.md": "sha256:09a027568ca380946f2afb5cde8d85095ba090e357449875ddc129d51ffd30e4"
+            },
+            "lifecycle_transitions": [
+              {
+                "event_id": "article-revise-v2",
+                "from": "revision_required",
+                "to": "artifact_frozen",
+                "trigger": "new_version_created"
+              }
+            ]
           },
-          "sequence": 6,
+          "sequence": 9,
           "state_after": "artifact_frozen",
           "state_before": "revision_required",
           "type": "produce"
@@ -809,17 +1805,30 @@
               "07_claim-audit/claim-audit-v002.md"
             ],
             "files_read": [
+              "01_context/article-context-v001.md",
+              "04_blueprint/article-blueprint-v001.md",
+              "04_blueprint/claim-evidence-matrix-v001.md",
+              "04_blueprint/evidence-ledger-v001.md",
               "06_drafts/manuscript-v002.md"
             ],
             "input_hashes_after": {
+              "01_context/article-context-v001.md": "sha256:e9942214aa4243b8972e1c3ec488f0d691f5b9b9268e28e3381f1a731b597cd2",
+              "04_blueprint/article-blueprint-v001.md": "sha256:13c55d2afb9ecb429cd29846b6105534bb65575333e42e6600755fa901993585",
+              "04_blueprint/claim-evidence-matrix-v001.md": "sha256:8609cd9892355a98512f567d490628825d946842941ae33a6c14760e34bcb9a5",
+              "04_blueprint/evidence-ledger-v001.md": "sha256:0c4b8b8f7079e35b05d231fbea226f195ffa5e3204e44d90950b6da6f9307743",
               "06_drafts/manuscript-v002.md": "sha256:64ec53e31ef5568a125d768a5c762a7ff4e038fb2bad095ffde3ee179c6e06af"
             },
             "input_hashes_before": {
+              "01_context/article-context-v001.md": "sha256:e9942214aa4243b8972e1c3ec488f0d691f5b9b9268e28e3381f1a731b597cd2",
+              "04_blueprint/article-blueprint-v001.md": "sha256:13c55d2afb9ecb429cd29846b6105534bb65575333e42e6600755fa901993585",
+              "04_blueprint/claim-evidence-matrix-v001.md": "sha256:8609cd9892355a98512f567d490628825d946842941ae33a6c14760e34bcb9a5",
+              "04_blueprint/evidence-ledger-v001.md": "sha256:0c4b8b8f7079e35b05d231fbea226f195ffa5e3204e44d90950b6da6f9307743",
               "06_drafts/manuscript-v002.md": "sha256:64ec53e31ef5568a125d768a5c762a7ff4e038fb2bad095ffde3ee179c6e06af"
-            }
+            },
+            "lifecycle_transitions": []
           },
-          "sequence": 7,
-          "state_after": "pending_review",
+          "sequence": 10,
+          "state_after": "artifact_frozen",
           "state_before": "artifact_frozen",
           "type": "review"
         },
@@ -831,21 +1840,38 @@
               "08_evaluations/evaluation-v002.md"
             ],
             "files_read": [
-              "06_drafts/manuscript-v002.md",
-              "07_claim-audit/claim-audit-v002.md"
+              "01_context/article-context-v001.md",
+              "04_blueprint/article-blueprint-v001.md",
+              "06_drafts/manuscript-v002.md"
             ],
             "input_hashes_after": {
-              "06_drafts/manuscript-v002.md": "sha256:64ec53e31ef5568a125d768a5c762a7ff4e038fb2bad095ffde3ee179c6e06af",
-              "07_claim-audit/claim-audit-v002.md": "sha256:05e017b36628fbfca808f56a6fb75cac84837e85b47611ab18a439f802172696"
+              "01_context/article-context-v001.md": "sha256:e9942214aa4243b8972e1c3ec488f0d691f5b9b9268e28e3381f1a731b597cd2",
+              "04_blueprint/article-blueprint-v001.md": "sha256:13c55d2afb9ecb429cd29846b6105534bb65575333e42e6600755fa901993585",
+              "06_drafts/manuscript-v002.md": "sha256:64ec53e31ef5568a125d768a5c762a7ff4e038fb2bad095ffde3ee179c6e06af"
             },
             "input_hashes_before": {
-              "06_drafts/manuscript-v002.md": "sha256:64ec53e31ef5568a125d768a5c762a7ff4e038fb2bad095ffde3ee179c6e06af",
-              "07_claim-audit/claim-audit-v002.md": "sha256:05e017b36628fbfca808f56a6fb75cac84837e85b47611ab18a439f802172696"
-            }
+              "01_context/article-context-v001.md": "sha256:e9942214aa4243b8972e1c3ec488f0d691f5b9b9268e28e3381f1a731b597cd2",
+              "04_blueprint/article-blueprint-v001.md": "sha256:13c55d2afb9ecb429cd29846b6105534bb65575333e42e6600755fa901993585",
+              "06_drafts/manuscript-v002.md": "sha256:64ec53e31ef5568a125d768a5c762a7ff4e038fb2bad095ffde3ee179c6e06af"
+            },
+            "lifecycle_transitions": [
+              {
+                "event_id": "article-evaluate-v2",
+                "from": "artifact_frozen",
+                "to": "pending_review",
+                "trigger": "independent_review_dispatched"
+              },
+              {
+                "event_id": "article-evaluate-v2",
+                "from": "pending_review",
+                "to": "panel_pending",
+                "trigger": "latest_version_accepted"
+              }
+            ]
           },
-          "sequence": 8,
+          "sequence": 11,
           "state_after": "panel_pending",
-          "state_before": "pending_review",
+          "state_before": "artifact_frozen",
           "type": "review"
         },
         {
@@ -863,9 +1889,10 @@
             },
             "input_hashes_before": {
               "06_drafts/manuscript-v002.md": "sha256:64ec53e31ef5568a125d768a5c762a7ff4e038fb2bad095ffde3ee179c6e06af"
-            }
+            },
+            "lifecycle_transitions": []
           },
-          "sequence": 9,
+          "sequence": 12,
           "state_after": "panel_pending",
           "state_before": "panel_pending",
           "type": "review"
@@ -885,48 +1912,112 @@
             },
             "input_hashes_before": {
               "06_drafts/manuscript-v002.md": "sha256:64ec53e31ef5568a125d768a5c762a7ff4e038fb2bad095ffde3ee179c6e06af"
-            }
+            },
+            "lifecycle_transitions": []
           },
-          "sequence": 10,
+          "sequence": 13,
           "state_after": "panel_pending",
           "state_before": "panel_pending",
           "type": "review"
         },
         {
           "edge": "article-orchestrator -> article-review-panel",
-          "event_id": "article-panel-editor",
+          "event_id": "article-panel-submission-guard",
           "observation": {
             "actual_write_paths": [
-              "10_panel/editor-review-v002.md"
+              "10_panel/submission-guard-review-v002.md"
             ],
             "files_read": [
+              "04_blueprint/journal-adapter-v001.md",
               "06_drafts/manuscript-v002.md"
             ],
             "input_hashes_after": {
+              "04_blueprint/journal-adapter-v001.md": "sha256:17a7121ec964cdcccdebb900c773977eda586c41b554b5ce8cbfce91ffeef95f",
               "06_drafts/manuscript-v002.md": "sha256:64ec53e31ef5568a125d768a5c762a7ff4e038fb2bad095ffde3ee179c6e06af"
             },
             "input_hashes_before": {
+              "04_blueprint/journal-adapter-v001.md": "sha256:17a7121ec964cdcccdebb900c773977eda586c41b554b5ce8cbfce91ffeef95f",
               "06_drafts/manuscript-v002.md": "sha256:64ec53e31ef5568a125d768a5c762a7ff4e038fb2bad095ffde3ee179c6e06af"
-            }
+            },
+            "lifecycle_transitions": []
           },
-          "sequence": 11,
+          "sequence": 14,
           "state_after": "panel_pending",
           "state_before": "panel_pending",
           "type": "review"
         },
         {
-          "edge": "orchestrator_internal_panel_gate",
+          "edge": "orchestrator_internal_gate",
           "event_id": "article-panel-gate",
           "observation": {
             "actual_write_paths": [],
             "files_read": [],
             "input_hashes_after": {},
-            "input_hashes_before": {}
+            "input_hashes_before": {},
+            "lifecycle_transitions": [
+              {
+                "event_id": "article-panel-gate",
+                "from": "panel_pending",
+                "to": "packaging_pending",
+                "trigger": "panel_gate_passed"
+              }
+            ]
           },
-          "sequence": 12,
+          "sequence": 15,
           "state_after": "packaging_pending",
           "state_before": "panel_pending",
           "type": "panel_gate"
+        },
+        {
+          "edge": "article-orchestrator -> article-frontmatter-drafter",
+          "event_id": "article-frontmatter",
+          "observation": {
+            "actual_write_paths": [
+              "11_frontmatter/frontmatter-v001.md"
+            ],
+            "files_read": [],
+            "input_hashes_after": {
+              "04_blueprint/article-blueprint-v001.md": "sha256:13c55d2afb9ecb429cd29846b6105534bb65575333e42e6600755fa901993585",
+              "04_blueprint/journal-adapter-v001.md": "sha256:17a7121ec964cdcccdebb900c773977eda586c41b554b5ce8cbfce91ffeef95f",
+              "06_drafts/manuscript-v002.md": "sha256:64ec53e31ef5568a125d768a5c762a7ff4e038fb2bad095ffde3ee179c6e06af"
+            },
+            "input_hashes_before": {
+              "04_blueprint/article-blueprint-v001.md": "sha256:13c55d2afb9ecb429cd29846b6105534bb65575333e42e6600755fa901993585",
+              "04_blueprint/journal-adapter-v001.md": "sha256:17a7121ec964cdcccdebb900c773977eda586c41b554b5ce8cbfce91ffeef95f",
+              "06_drafts/manuscript-v002.md": "sha256:64ec53e31ef5568a125d768a5c762a7ff4e038fb2bad095ffde3ee179c6e06af"
+            },
+            "lifecycle_transitions": []
+          },
+          "sequence": 16,
+          "state_after": "packaging_pending",
+          "state_before": "packaging_pending",
+          "type": "produce"
+        },
+        {
+          "edge": "article-orchestrator -> article-cover-letter",
+          "event_id": "article-cover-letter",
+          "observation": {
+            "actual_write_paths": [
+              "11_cover-letter/cover-letter-quality-check-v001.md",
+              "11_cover-letter/cover-letter-v001.md"
+            ],
+            "files_read": [],
+            "input_hashes_after": {
+              "04_blueprint/journal-adapter-v001.md": "sha256:17a7121ec964cdcccdebb900c773977eda586c41b554b5ce8cbfce91ffeef95f",
+              "06_drafts/manuscript-v002.md": "sha256:64ec53e31ef5568a125d768a5c762a7ff4e038fb2bad095ffde3ee179c6e06af",
+              "11_frontmatter/frontmatter-v001.md": "sha256:7b80bec6ece86a6a3f4a3cc7c0508caf9a61551756fb67f4712b179382ee878f"
+            },
+            "input_hashes_before": {
+              "04_blueprint/journal-adapter-v001.md": "sha256:17a7121ec964cdcccdebb900c773977eda586c41b554b5ce8cbfce91ffeef95f",
+              "06_drafts/manuscript-v002.md": "sha256:64ec53e31ef5568a125d768a5c762a7ff4e038fb2bad095ffde3ee179c6e06af",
+              "11_frontmatter/frontmatter-v001.md": "sha256:7b80bec6ece86a6a3f4a3cc7c0508caf9a61551756fb67f4712b179382ee878f"
+            },
+            "lifecycle_transitions": []
+          },
+          "sequence": 17,
+          "state_after": "packaging_pending",
+          "state_before": "packaging_pending",
+          "type": "produce"
         },
         {
           "edge": "article-orchestrator -> article-submission-compositor",
@@ -938,39 +2029,96 @@
             ],
             "files_read": [
               "06_drafts/manuscript-v002.md",
+              "04_blueprint/article-blueprint-v001.md",
+              "04_blueprint/claim-evidence-matrix-v001.md",
+              "04_blueprint/evidence-ledger-v001.md",
               "08_evaluations/evaluation-v002.md",
+              "05_audit/methods-statistics-audit-v001.md",
+              "07_claim-audit/claim-audit-v002.md",
               "10_panel/methods-statistics-review-v002.md",
               "10_panel/claims-evidence-review-v002.md",
-              "10_panel/editor-review-v002.md"
+              "10_panel/submission-guard-review-v002.md",
+              "04_blueprint/journal-adapter-v001.md",
+              "11_frontmatter/frontmatter-v001.md",
+              "11_cover-letter/cover-letter-v001.md",
+              "11_cover-letter/cover-letter-quality-check-v001.md",
+              "09_revisions/round-002/revision-plan-r002.md",
+              "09_revisions/round-002/response-to-reviewers-r002.md",
+              "09_revisions/round-002/revision-delta-r002.md"
             ],
             "input_hashes_after": {
+              "04_blueprint/article-blueprint-v001.md": "sha256:13c55d2afb9ecb429cd29846b6105534bb65575333e42e6600755fa901993585",
+              "04_blueprint/claim-evidence-matrix-v001.md": "sha256:8609cd9892355a98512f567d490628825d946842941ae33a6c14760e34bcb9a5",
+              "04_blueprint/evidence-ledger-v001.md": "sha256:0c4b8b8f7079e35b05d231fbea226f195ffa5e3204e44d90950b6da6f9307743",
+              "04_blueprint/journal-adapter-v001.md": "sha256:17a7121ec964cdcccdebb900c773977eda586c41b554b5ce8cbfce91ffeef95f",
+              "05_audit/methods-statistics-audit-v001.md": "sha256:77108012c4af5bff46a47a0a0368db00dca13778b164d4d908c77fb61041d6d6",
               "06_drafts/manuscript-v002.md": "sha256:64ec53e31ef5568a125d768a5c762a7ff4e038fb2bad095ffde3ee179c6e06af",
-              "08_evaluations/evaluation-v002.md": "sha256:227fe2ccd1812d7563e2d9572887d7555470a62a03ab8dbe6830bd07db46bcc6",
-              "10_panel/claims-evidence-review-v002.md": "sha256:26fafd7ba105864043657f2e3dde74fed0e781ac8ad61dfc1194f0f8e5845db7",
-              "10_panel/editor-review-v002.md": "sha256:b1f164a3bfcfd66ae50b0346dd7e5ec31fd5b0e3c3a0e120f01fc5847b29276f",
-              "10_panel/methods-statistics-review-v002.md": "sha256:dddeaac34a04f6278a58734c30fed5788ceda3c9e3d29d181aadda8b6c794e40"
+              "07_claim-audit/claim-audit-v002.md": "sha256:039c2428e6a35045bb3dbd0bb5810b20de2dd523a7e09ce30fdb96bbd9c6a4ee",
+              "08_evaluations/evaluation-v002.md": "sha256:19d1e4f0187af154aac5fc314bc05ce5083ae2c1047e0a5473a66c5af8d23095",
+              "09_revisions/round-002/response-to-reviewers-r002.md": "sha256:1cf0cc32780b42037e9f8f90e220de740a6c7a7b3964fc03f3fe8c1cef3a849a",
+              "09_revisions/round-002/revision-delta-r002.md": "sha256:413beaa589be50a8c1e6aa6fa045982b4148e3ce8c1ef7c3d81eedfb11a97ff7",
+              "09_revisions/round-002/revision-plan-r002.md": "sha256:09a027568ca380946f2afb5cde8d85095ba090e357449875ddc129d51ffd30e4",
+              "10_panel/claims-evidence-review-v002.md": "sha256:99747f37aebdf6c759159d54c2257c6013cc6b7381026bfc33fb83de14e73fba",
+              "10_panel/methods-statistics-review-v002.md": "sha256:33b4bbf1bbc4d4e19a2461ff299649013c573ffac050f0a23a8f18f0278fd647",
+              "10_panel/submission-guard-review-v002.md": "sha256:40d73b8edb95a6fdbbe43f8c7b34affb09b747ccabfbac781f68020d6cca6d9e",
+              "11_cover-letter/cover-letter-quality-check-v001.md": "sha256:73e8df440e6284f23503dea94b95e0b6197cb3b281b012e38682fba49d8bd61e",
+              "11_cover-letter/cover-letter-v001.md": "sha256:564cd93127ab862e9ff1c69174cd7e38e35ecf95456cce4e0c6c8d251b544339",
+              "11_frontmatter/frontmatter-v001.md": "sha256:7b80bec6ece86a6a3f4a3cc7c0508caf9a61551756fb67f4712b179382ee878f"
             },
             "input_hashes_before": {
+              "04_blueprint/article-blueprint-v001.md": "sha256:13c55d2afb9ecb429cd29846b6105534bb65575333e42e6600755fa901993585",
+              "04_blueprint/claim-evidence-matrix-v001.md": "sha256:8609cd9892355a98512f567d490628825d946842941ae33a6c14760e34bcb9a5",
+              "04_blueprint/evidence-ledger-v001.md": "sha256:0c4b8b8f7079e35b05d231fbea226f195ffa5e3204e44d90950b6da6f9307743",
+              "04_blueprint/journal-adapter-v001.md": "sha256:17a7121ec964cdcccdebb900c773977eda586c41b554b5ce8cbfce91ffeef95f",
+              "05_audit/methods-statistics-audit-v001.md": "sha256:77108012c4af5bff46a47a0a0368db00dca13778b164d4d908c77fb61041d6d6",
               "06_drafts/manuscript-v002.md": "sha256:64ec53e31ef5568a125d768a5c762a7ff4e038fb2bad095ffde3ee179c6e06af",
-              "08_evaluations/evaluation-v002.md": "sha256:227fe2ccd1812d7563e2d9572887d7555470a62a03ab8dbe6830bd07db46bcc6",
-              "10_panel/claims-evidence-review-v002.md": "sha256:26fafd7ba105864043657f2e3dde74fed0e781ac8ad61dfc1194f0f8e5845db7",
-              "10_panel/editor-review-v002.md": "sha256:b1f164a3bfcfd66ae50b0346dd7e5ec31fd5b0e3c3a0e120f01fc5847b29276f",
-              "10_panel/methods-statistics-review-v002.md": "sha256:dddeaac34a04f6278a58734c30fed5788ceda3c9e3d29d181aadda8b6c794e40"
-            }
+              "07_claim-audit/claim-audit-v002.md": "sha256:039c2428e6a35045bb3dbd0bb5810b20de2dd523a7e09ce30fdb96bbd9c6a4ee",
+              "08_evaluations/evaluation-v002.md": "sha256:19d1e4f0187af154aac5fc314bc05ce5083ae2c1047e0a5473a66c5af8d23095",
+              "09_revisions/round-002/response-to-reviewers-r002.md": "sha256:1cf0cc32780b42037e9f8f90e220de740a6c7a7b3964fc03f3fe8c1cef3a849a",
+              "09_revisions/round-002/revision-delta-r002.md": "sha256:413beaa589be50a8c1e6aa6fa045982b4148e3ce8c1ef7c3d81eedfb11a97ff7",
+              "09_revisions/round-002/revision-plan-r002.md": "sha256:09a027568ca380946f2afb5cde8d85095ba090e357449875ddc129d51ffd30e4",
+              "10_panel/claims-evidence-review-v002.md": "sha256:99747f37aebdf6c759159d54c2257c6013cc6b7381026bfc33fb83de14e73fba",
+              "10_panel/methods-statistics-review-v002.md": "sha256:33b4bbf1bbc4d4e19a2461ff299649013c573ffac050f0a23a8f18f0278fd647",
+              "10_panel/submission-guard-review-v002.md": "sha256:40d73b8edb95a6fdbbe43f8c7b34affb09b747ccabfbac781f68020d6cca6d9e",
+              "11_cover-letter/cover-letter-quality-check-v001.md": "sha256:73e8df440e6284f23503dea94b95e0b6197cb3b281b012e38682fba49d8bd61e",
+              "11_cover-letter/cover-letter-v001.md": "sha256:564cd93127ab862e9ff1c69174cd7e38e35ecf95456cce4e0c6c8d251b544339",
+              "11_frontmatter/frontmatter-v001.md": "sha256:7b80bec6ece86a6a3f4a3cc7c0508caf9a61551756fb67f4712b179382ee878f"
+            },
+            "lifecycle_transitions": [
+              {
+                "event_id": "article-compositor",
+                "from": "packaging_pending",
+                "to": "human_signoff_required",
+                "trigger": "package_verified"
+              }
+            ]
           },
-          "sequence": 13,
+          "sequence": 18,
           "state_after": "human_signoff_required",
           "state_before": "packaging_pending",
           "type": "review"
         }
       ],
       "execution_kind": "deterministic_replay",
+      "execution_scope": "evaluation_revision_delivery_with_entry_receipts",
       "final_state": "human_signoff_required",
       "fixture_id": "article-independent-loop",
+      "initial_artifacts": {
+        "actual_write_paths": [
+          "00_intake/minimal-intake-v001.md",
+          "01_context/article-context-v001.md",
+          "02_methods/frozen-method-facts-v001.md"
+        ],
+        "artifact_ids": [
+          "article-intake-v1",
+          "article-context-v1",
+          "article-method-facts-v1"
+        ]
+      },
       "panel_role_instances": {
-        "claims-evidence": "article-panel-claims-001",
-        "editor": "article-panel-editor-001",
-        "methods-statistics": "article-panel-methods-001"
+        "evidence-claim": "article-panel-claims-001",
+        "methodology-statistics": "article-panel-methods-001",
+        "submission-guard": "article-panel-submission-guard-001"
       },
       "primary_versions": [
         "v001",
@@ -979,13 +2127,73 @@
       "registry_edges_exercised": [
         "article -> article-orchestrator -> article-architect",
         "article -> article-orchestrator -> article-claim-auditor",
+        "article -> article-orchestrator -> article-cover-letter",
         "article -> article-orchestrator -> article-drafter",
         "article -> article-orchestrator -> article-evaluator",
+        "article -> article-orchestrator -> article-frontmatter-drafter",
         "article -> article-orchestrator -> article-methods-statistics-auditor",
+        "article -> article-orchestrator -> article-readiness-triage",
+        "article -> article-orchestrator -> article-refinement-controller",
         "article -> article-orchestrator -> article-review-panel",
         "article -> article-orchestrator -> article-submission-compositor",
         "article -> article-refinement-controller -> article-drafter",
         "article -> article-refinement-controller -> article-evaluator"
+      ],
+      "registry_lifecycle_transitions": [
+        {
+          "event_id": "article-entry-gate",
+          "from": "initialized",
+          "to": "preprocessing",
+          "trigger": "entry_gate_passed"
+        },
+        {
+          "event_id": "article-entry-gate",
+          "from": "preprocessing",
+          "to": "artifact_frozen",
+          "trigger": "versioned_artifact_created"
+        },
+        {
+          "event_id": "article-evaluate-v1",
+          "from": "artifact_frozen",
+          "to": "pending_review",
+          "trigger": "independent_review_dispatched"
+        },
+        {
+          "event_id": "article-evaluate-v1",
+          "from": "pending_review",
+          "to": "revision_required",
+          "trigger": "fixable_revision_requested"
+        },
+        {
+          "event_id": "article-revise-v2",
+          "from": "revision_required",
+          "to": "artifact_frozen",
+          "trigger": "new_version_created"
+        },
+        {
+          "event_id": "article-evaluate-v2",
+          "from": "artifact_frozen",
+          "to": "pending_review",
+          "trigger": "independent_review_dispatched"
+        },
+        {
+          "event_id": "article-evaluate-v2",
+          "from": "pending_review",
+          "to": "panel_pending",
+          "trigger": "latest_version_accepted"
+        },
+        {
+          "event_id": "article-panel-gate",
+          "from": "panel_pending",
+          "to": "packaging_pending",
+          "trigger": "panel_gate_passed"
+        },
+        {
+          "event_id": "article-compositor",
+          "from": "packaging_pending",
+          "to": "human_signoff_required",
+          "trigger": "package_verified"
+        }
       ],
       "workflow": "article"
     },
@@ -1006,7 +2214,7 @@
             "latest_qualifying_evaluation": null,
             "next_route": "perspective-evaluator",
             "pending_edge": "perspective-orchestrator -> perspective-evaluator",
-            "plugin_version": "0.5.0-preview.1",
+            "plugin_version": "0.5.0-preview.2",
             "round_id": "round-001",
             "runtime_status": "context_handoff_required",
             "suspended_workflow_state": "artifact_frozen",
@@ -1031,6 +2239,26 @@
       "dissent_ids": [
         "perspective-dissent-001"
       ],
+      "entry_gate_receipts": {
+        "argument_architecture_frozen": {
+          "artifact_ids": [
+            "perspective-skeleton-v1",
+            "perspective-paragraph-map-v1"
+          ]
+        },
+        "claim_evidence_artifacts_frozen": {
+          "artifact_ids": [
+            "perspective-claim-ledger-v1",
+            "perspective-claim-matrix-v1"
+          ]
+        },
+        "input_brief_frozen": {
+          "artifact_id": "perspective-input-v1"
+        },
+        "perspective_versioned": {
+          "artifact_id": "perspective-v1"
+        }
+      },
       "evaluator_instances": [
         "perspective-evaluator-001",
         "perspective-evaluator-002",
@@ -1045,13 +2273,104 @@
               "04_drafts/perspective-v001.md"
             ],
             "files_read": [],
-            "input_hashes_after": {},
-            "input_hashes_before": {}
+            "input_hashes_after": {
+              "01_input/input-brief-v001.md": "sha256:58a5294f6937faf9e5e556e7430cb7333daaff7eeac1cac81a07b6c489e94a28",
+              "01_input/target-outlet-profile-v001.md": "sha256:7e3afe541e25aa8bec4cd2d063a88016062af0922750f69a8825717edae8dd6b",
+              "02_evidence/claim-evidence-matrix-v001.md": "sha256:8609cd9892355a98512f567d490628825d946842941ae33a6c14760e34bcb9a5",
+              "02_evidence/claim-ledger-v001.md": "sha256:94b9f1716e775f4c65ade28d99d56afde182ae795a6411f14730ba2051a7992f",
+              "03_argument/argument-skeleton-v001.md": "sha256:0f930bb10fb986f7a5a30acd4f25995bd3878f6375cba8518c3eca23290940a2",
+              "03_argument/paragraph-map-v001.md": "sha256:7b0de89595a0de24047a729d768c2f5c8987de2dcb766654f0921e034f6af220"
+            },
+            "input_hashes_before": {
+              "01_input/input-brief-v001.md": "sha256:58a5294f6937faf9e5e556e7430cb7333daaff7eeac1cac81a07b6c489e94a28",
+              "01_input/target-outlet-profile-v001.md": "sha256:7e3afe541e25aa8bec4cd2d063a88016062af0922750f69a8825717edae8dd6b",
+              "02_evidence/claim-evidence-matrix-v001.md": "sha256:8609cd9892355a98512f567d490628825d946842941ae33a6c14760e34bcb9a5",
+              "02_evidence/claim-ledger-v001.md": "sha256:94b9f1716e775f4c65ade28d99d56afde182ae795a6411f14730ba2051a7992f",
+              "03_argument/argument-skeleton-v001.md": "sha256:0f930bb10fb986f7a5a30acd4f25995bd3878f6375cba8518c3eca23290940a2",
+              "03_argument/paragraph-map-v001.md": "sha256:7b0de89595a0de24047a729d768c2f5c8987de2dcb766654f0921e034f6af220"
+            },
+            "lifecycle_transitions": []
           },
           "sequence": 1,
-          "state_after": "artifact_frozen",
+          "state_after": "initialized",
           "state_before": "initialized",
           "type": "produce"
+        },
+        {
+          "edge": "orchestrator_internal_gate",
+          "event_id": "perspective-entry-gate",
+          "observation": {
+            "actual_write_paths": [],
+            "files_read": [],
+            "input_hashes_after": {},
+            "input_hashes_before": {},
+            "lifecycle_transitions": [
+              {
+                "event_id": "perspective-entry-gate",
+                "from": "initialized",
+                "to": "preprocessing",
+                "trigger": "entry_gate_passed"
+              },
+              {
+                "event_id": "perspective-entry-gate",
+                "from": "preprocessing",
+                "to": "artifact_frozen",
+                "trigger": "versioned_artifact_created"
+              }
+            ],
+            "verified_entry_gates": {
+              "argument_architecture_frozen": {
+                "artifacts": [
+                  {
+                    "artifact_id": "perspective-skeleton-v1",
+                    "content_digest": "sha256:0f930bb10fb986f7a5a30acd4f25995bd3878f6375cba8518c3eca23290940a2",
+                    "version_id": "a001"
+                  },
+                  {
+                    "artifact_id": "perspective-paragraph-map-v1",
+                    "content_digest": "sha256:7b0de89595a0de24047a729d768c2f5c8987de2dcb766654f0921e034f6af220",
+                    "version_id": "pm001"
+                  }
+                ]
+              },
+              "claim_evidence_artifacts_frozen": {
+                "artifacts": [
+                  {
+                    "artifact_id": "perspective-claim-ledger-v1",
+                    "content_digest": "sha256:94b9f1716e775f4c65ade28d99d56afde182ae795a6411f14730ba2051a7992f",
+                    "version_id": "cl001"
+                  },
+                  {
+                    "artifact_id": "perspective-claim-matrix-v1",
+                    "content_digest": "sha256:8609cd9892355a98512f567d490628825d946842941ae33a6c14760e34bcb9a5",
+                    "version_id": "cm001"
+                  }
+                ]
+              },
+              "input_brief_frozen": {
+                "artifacts": [
+                  {
+                    "artifact_id": "perspective-input-v1",
+                    "content_digest": "sha256:58a5294f6937faf9e5e556e7430cb7333daaff7eeac1cac81a07b6c489e94a28",
+                    "version_id": "i001"
+                  }
+                ]
+              },
+              "perspective_versioned": {
+                "artifacts": [
+                  {
+                    "artifact_id": "perspective-v1",
+                    "content_digest": "sha256:5d73957d449696627f30a6a9695276fe7f9ae110e03524a259d0311f4634ec74",
+                    "version_id": "v001"
+                  }
+                ]
+              }
+            }
+          },
+          "sequence": 2,
+          "state_after": "artifact_frozen",
+          "state_before": "initialized",
+          "type": "entry_gate"
         },
         {
           "edge": "perspective-orchestrator -> perspective-evaluator",
@@ -1061,38 +2380,103 @@
               "05_evaluations/evaluation-report-v001.md"
             ],
             "files_read": [
+              "01_input/input-brief-v001.md",
+              "01_input/target-outlet-profile-v001.md",
+              "02_evidence/claim-ledger-v001.md",
+              "02_evidence/claim-evidence-matrix-v001.md",
+              "03_argument/argument-skeleton-v001.md",
+              "03_argument/paragraph-map-v001.md",
               "04_drafts/perspective-v001.md"
             ],
             "input_hashes_after": {
+              "01_input/input-brief-v001.md": "sha256:58a5294f6937faf9e5e556e7430cb7333daaff7eeac1cac81a07b6c489e94a28",
+              "01_input/target-outlet-profile-v001.md": "sha256:7e3afe541e25aa8bec4cd2d063a88016062af0922750f69a8825717edae8dd6b",
+              "02_evidence/claim-evidence-matrix-v001.md": "sha256:8609cd9892355a98512f567d490628825d946842941ae33a6c14760e34bcb9a5",
+              "02_evidence/claim-ledger-v001.md": "sha256:94b9f1716e775f4c65ade28d99d56afde182ae795a6411f14730ba2051a7992f",
+              "03_argument/argument-skeleton-v001.md": "sha256:0f930bb10fb986f7a5a30acd4f25995bd3878f6375cba8518c3eca23290940a2",
+              "03_argument/paragraph-map-v001.md": "sha256:7b0de89595a0de24047a729d768c2f5c8987de2dcb766654f0921e034f6af220",
               "04_drafts/perspective-v001.md": "sha256:5d73957d449696627f30a6a9695276fe7f9ae110e03524a259d0311f4634ec74"
             },
             "input_hashes_before": {
+              "01_input/input-brief-v001.md": "sha256:58a5294f6937faf9e5e556e7430cb7333daaff7eeac1cac81a07b6c489e94a28",
+              "01_input/target-outlet-profile-v001.md": "sha256:7e3afe541e25aa8bec4cd2d063a88016062af0922750f69a8825717edae8dd6b",
+              "02_evidence/claim-evidence-matrix-v001.md": "sha256:8609cd9892355a98512f567d490628825d946842941ae33a6c14760e34bcb9a5",
+              "02_evidence/claim-ledger-v001.md": "sha256:94b9f1716e775f4c65ade28d99d56afde182ae795a6411f14730ba2051a7992f",
+              "03_argument/argument-skeleton-v001.md": "sha256:0f930bb10fb986f7a5a30acd4f25995bd3878f6375cba8518c3eca23290940a2",
+              "03_argument/paragraph-map-v001.md": "sha256:7b0de89595a0de24047a729d768c2f5c8987de2dcb766654f0921e034f6af220",
               "04_drafts/perspective-v001.md": "sha256:5d73957d449696627f30a6a9695276fe7f9ae110e03524a259d0311f4634ec74"
-            }
+            },
+            "lifecycle_transitions": [
+              {
+                "event_id": "perspective-evaluate-v1",
+                "from": "artifact_frozen",
+                "to": "pending_review",
+                "trigger": "independent_review_dispatched"
+              },
+              {
+                "event_id": "perspective-evaluate-v1",
+                "from": "pending_review",
+                "to": "revision_required",
+                "trigger": "fixable_revision_requested"
+              }
+            ]
           },
-          "sequence": 2,
+          "sequence": 3,
           "state_after": "revision_required",
           "state_before": "artifact_frozen",
           "type": "review"
+        },
+        {
+          "edge": "perspective-orchestrator -> perspective-refinement-controller",
+          "event_id": "perspective-plan-v2",
+          "observation": {
+            "actual_write_paths": [
+              "06_revisions/round-002/revision-plan-r002.md"
+            ],
+            "files_read": [],
+            "input_hashes_after": {
+              "04_drafts/perspective-v001.md": "sha256:5d73957d449696627f30a6a9695276fe7f9ae110e03524a259d0311f4634ec74",
+              "05_evaluations/evaluation-report-v001.md": "sha256:f86a5f1ae37e8dff5df1a4dd776c60b9afb234c0bf2af7abf04e430fc7adb892"
+            },
+            "input_hashes_before": {
+              "04_drafts/perspective-v001.md": "sha256:5d73957d449696627f30a6a9695276fe7f9ae110e03524a259d0311f4634ec74",
+              "05_evaluations/evaluation-report-v001.md": "sha256:f86a5f1ae37e8dff5df1a4dd776c60b9afb234c0bf2af7abf04e430fc7adb892"
+            },
+            "lifecycle_transitions": []
+          },
+          "sequence": 4,
+          "state_after": "revision_required",
+          "state_before": "revision_required",
+          "type": "produce"
         },
         {
           "edge": "perspective-refinement-controller -> perspective-drafter",
           "event_id": "perspective-revise-v2",
           "observation": {
             "actual_write_paths": [
-              "04_drafts/perspective-v002.md"
+              "04_drafts/perspective-v002.md",
+              "06_revisions/round-002/response-to-reviewers-r002.md",
+              "06_revisions/round-002/revision-delta-r002.md"
             ],
             "files_read": [],
             "input_hashes_after": {
               "04_drafts/perspective-v001.md": "sha256:5d73957d449696627f30a6a9695276fe7f9ae110e03524a259d0311f4634ec74",
-              "05_evaluations/evaluation-report-v001.md": "sha256:eb8855d1cc0335b557d10f096311d666648da32e00fb0da53bb6621973674b2c"
+              "06_revisions/round-002/revision-plan-r002.md": "sha256:f394b25d0efe946954837fc3e6e2d37fb878f8a3aec674e51511cbb19a42d614"
             },
             "input_hashes_before": {
               "04_drafts/perspective-v001.md": "sha256:5d73957d449696627f30a6a9695276fe7f9ae110e03524a259d0311f4634ec74",
-              "05_evaluations/evaluation-report-v001.md": "sha256:eb8855d1cc0335b557d10f096311d666648da32e00fb0da53bb6621973674b2c"
-            }
+              "06_revisions/round-002/revision-plan-r002.md": "sha256:f394b25d0efe946954837fc3e6e2d37fb878f8a3aec674e51511cbb19a42d614"
+            },
+            "lifecycle_transitions": [
+              {
+                "event_id": "perspective-revise-v2",
+                "from": "revision_required",
+                "to": "artifact_frozen",
+                "trigger": "new_version_created"
+              }
+            ]
           },
-          "sequence": 3,
+          "sequence": 5,
           "state_after": "artifact_frozen",
           "state_before": "revision_required",
           "type": "produce"
@@ -1105,16 +2489,48 @@
               "05_evaluations/evaluation-report-v002.md"
             ],
             "files_read": [
+              "01_input/input-brief-v001.md",
+              "01_input/target-outlet-profile-v001.md",
+              "02_evidence/claim-ledger-v001.md",
+              "02_evidence/claim-evidence-matrix-v001.md",
+              "03_argument/argument-skeleton-v001.md",
+              "03_argument/paragraph-map-v001.md",
               "04_drafts/perspective-v002.md"
             ],
             "input_hashes_after": {
+              "01_input/input-brief-v001.md": "sha256:58a5294f6937faf9e5e556e7430cb7333daaff7eeac1cac81a07b6c489e94a28",
+              "01_input/target-outlet-profile-v001.md": "sha256:7e3afe541e25aa8bec4cd2d063a88016062af0922750f69a8825717edae8dd6b",
+              "02_evidence/claim-evidence-matrix-v001.md": "sha256:8609cd9892355a98512f567d490628825d946842941ae33a6c14760e34bcb9a5",
+              "02_evidence/claim-ledger-v001.md": "sha256:94b9f1716e775f4c65ade28d99d56afde182ae795a6411f14730ba2051a7992f",
+              "03_argument/argument-skeleton-v001.md": "sha256:0f930bb10fb986f7a5a30acd4f25995bd3878f6375cba8518c3eca23290940a2",
+              "03_argument/paragraph-map-v001.md": "sha256:7b0de89595a0de24047a729d768c2f5c8987de2dcb766654f0921e034f6af220",
               "04_drafts/perspective-v002.md": "sha256:dbef3c5808a2771644ce546353ad2e6afdedc7b22830860cd7f0679210ad5aa3"
             },
             "input_hashes_before": {
+              "01_input/input-brief-v001.md": "sha256:58a5294f6937faf9e5e556e7430cb7333daaff7eeac1cac81a07b6c489e94a28",
+              "01_input/target-outlet-profile-v001.md": "sha256:7e3afe541e25aa8bec4cd2d063a88016062af0922750f69a8825717edae8dd6b",
+              "02_evidence/claim-evidence-matrix-v001.md": "sha256:8609cd9892355a98512f567d490628825d946842941ae33a6c14760e34bcb9a5",
+              "02_evidence/claim-ledger-v001.md": "sha256:94b9f1716e775f4c65ade28d99d56afde182ae795a6411f14730ba2051a7992f",
+              "03_argument/argument-skeleton-v001.md": "sha256:0f930bb10fb986f7a5a30acd4f25995bd3878f6375cba8518c3eca23290940a2",
+              "03_argument/paragraph-map-v001.md": "sha256:7b0de89595a0de24047a729d768c2f5c8987de2dcb766654f0921e034f6af220",
               "04_drafts/perspective-v002.md": "sha256:dbef3c5808a2771644ce546353ad2e6afdedc7b22830860cd7f0679210ad5aa3"
-            }
+            },
+            "lifecycle_transitions": [
+              {
+                "event_id": "perspective-evaluate-v2",
+                "from": "artifact_frozen",
+                "to": "pending_review",
+                "trigger": "independent_review_dispatched"
+              },
+              {
+                "event_id": "perspective-evaluate-v2",
+                "from": "pending_review",
+                "to": "panel_pending",
+                "trigger": "latest_version_accepted"
+              }
+            ]
           },
-          "sequence": 4,
+          "sequence": 6,
           "state_after": "panel_pending",
           "state_before": "artifact_frozen",
           "type": "review"
@@ -1127,16 +2543,20 @@
               "07_panel/counter-position-review-v002.md"
             ],
             "files_read": [
+              "03_argument/argument-skeleton-v001.md",
               "04_drafts/perspective-v002.md"
             ],
             "input_hashes_after": {
+              "03_argument/argument-skeleton-v001.md": "sha256:0f930bb10fb986f7a5a30acd4f25995bd3878f6375cba8518c3eca23290940a2",
               "04_drafts/perspective-v002.md": "sha256:dbef3c5808a2771644ce546353ad2e6afdedc7b22830860cd7f0679210ad5aa3"
             },
             "input_hashes_before": {
+              "03_argument/argument-skeleton-v001.md": "sha256:0f930bb10fb986f7a5a30acd4f25995bd3878f6375cba8518c3eca23290940a2",
               "04_drafts/perspective-v002.md": "sha256:dbef3c5808a2771644ce546353ad2e6afdedc7b22830860cd7f0679210ad5aa3"
-            }
+            },
+            "lifecycle_transitions": []
           },
-          "sequence": 5,
+          "sequence": 7,
           "state_after": "panel_pending",
           "state_before": "panel_pending",
           "type": "review"
@@ -1149,16 +2569,23 @@
               "07_panel/evidence-review-v002.md"
             ],
             "files_read": [
+              "02_evidence/claim-ledger-v001.md",
+              "02_evidence/claim-evidence-matrix-v001.md",
               "04_drafts/perspective-v002.md"
             ],
             "input_hashes_after": {
+              "02_evidence/claim-evidence-matrix-v001.md": "sha256:8609cd9892355a98512f567d490628825d946842941ae33a6c14760e34bcb9a5",
+              "02_evidence/claim-ledger-v001.md": "sha256:94b9f1716e775f4c65ade28d99d56afde182ae795a6411f14730ba2051a7992f",
               "04_drafts/perspective-v002.md": "sha256:dbef3c5808a2771644ce546353ad2e6afdedc7b22830860cd7f0679210ad5aa3"
             },
             "input_hashes_before": {
+              "02_evidence/claim-evidence-matrix-v001.md": "sha256:8609cd9892355a98512f567d490628825d946842941ae33a6c14760e34bcb9a5",
+              "02_evidence/claim-ledger-v001.md": "sha256:94b9f1716e775f4c65ade28d99d56afde182ae795a6411f14730ba2051a7992f",
               "04_drafts/perspective-v002.md": "sha256:dbef3c5808a2771644ce546353ad2e6afdedc7b22830860cd7f0679210ad5aa3"
-            }
+            },
+            "lifecycle_transitions": []
           },
-          "sequence": 6,
+          "sequence": 8,
           "state_after": "panel_pending",
           "state_before": "panel_pending",
           "type": "review"
@@ -1171,52 +2598,97 @@
               "07_panel/narrative-review-v002.md"
             ],
             "files_read": [
+              "01_input/target-outlet-profile-v001.md",
               "04_drafts/perspective-v002.md"
             ],
             "input_hashes_after": {
+              "01_input/target-outlet-profile-v001.md": "sha256:7e3afe541e25aa8bec4cd2d063a88016062af0922750f69a8825717edae8dd6b",
               "04_drafts/perspective-v002.md": "sha256:dbef3c5808a2771644ce546353ad2e6afdedc7b22830860cd7f0679210ad5aa3"
             },
             "input_hashes_before": {
+              "01_input/target-outlet-profile-v001.md": "sha256:7e3afe541e25aa8bec4cd2d063a88016062af0922750f69a8825717edae8dd6b",
               "04_drafts/perspective-v002.md": "sha256:dbef3c5808a2771644ce546353ad2e6afdedc7b22830860cd7f0679210ad5aa3"
-            }
+            },
+            "lifecycle_transitions": []
           },
-          "sequence": 7,
+          "sequence": 9,
           "state_after": "panel_pending",
           "state_before": "panel_pending",
           "type": "review"
         },
         {
-          "edge": "orchestrator_internal_panel_gate",
+          "edge": "orchestrator_internal_gate",
           "event_id": "perspective-panel-gate",
           "observation": {
             "actual_write_paths": [],
             "files_read": [],
             "input_hashes_after": {},
-            "input_hashes_before": {}
+            "input_hashes_before": {},
+            "lifecycle_transitions": [
+              {
+                "event_id": "perspective-panel-gate",
+                "from": "panel_pending",
+                "to": "revision_required",
+                "trigger": "panel_requests_substantive_change"
+              }
+            ]
           },
-          "sequence": 8,
+          "sequence": 10,
           "state_after": "revision_required",
           "state_before": "panel_pending",
           "type": "panel_gate"
+        },
+        {
+          "edge": "perspective-orchestrator -> perspective-refinement-controller",
+          "event_id": "perspective-panel-plan-v3",
+          "observation": {
+            "actual_write_paths": [
+              "06_revisions/round-003/revision-plan-r003.md"
+            ],
+            "files_read": [],
+            "input_hashes_after": {
+              "04_drafts/perspective-v002.md": "sha256:dbef3c5808a2771644ce546353ad2e6afdedc7b22830860cd7f0679210ad5aa3",
+              "07_panel/narrative-review-v002.md": "sha256:1baa8a0f2aadc9bb3d32f541c4cecc612a8e2059ad79b909138327bf226d057b"
+            },
+            "input_hashes_before": {
+              "04_drafts/perspective-v002.md": "sha256:dbef3c5808a2771644ce546353ad2e6afdedc7b22830860cd7f0679210ad5aa3",
+              "07_panel/narrative-review-v002.md": "sha256:1baa8a0f2aadc9bb3d32f541c4cecc612a8e2059ad79b909138327bf226d057b"
+            },
+            "lifecycle_transitions": []
+          },
+          "sequence": 11,
+          "state_after": "revision_required",
+          "state_before": "revision_required",
+          "type": "produce"
         },
         {
           "edge": "perspective-refinement-controller -> perspective-drafter",
           "event_id": "perspective-panel-patch-v3",
           "observation": {
             "actual_write_paths": [
-              "04_drafts/perspective-v003.md"
+              "04_drafts/perspective-v003.md",
+              "06_revisions/round-003/response-to-reviewers-r003.md",
+              "06_revisions/round-003/revision-delta-r003.md"
             ],
             "files_read": [],
             "input_hashes_after": {
               "04_drafts/perspective-v002.md": "sha256:dbef3c5808a2771644ce546353ad2e6afdedc7b22830860cd7f0679210ad5aa3",
-              "07_panel/narrative-review-v002.md": "sha256:952881e8309a92099acc0e0eb989b2ebfa8787b286df118a847b4df3c0de31aa"
+              "06_revisions/round-003/revision-plan-r003.md": "sha256:5cac850a269397fe03d3dbfaf9b93271e050149e5db93916e84f76df078eb6dc"
             },
             "input_hashes_before": {
               "04_drafts/perspective-v002.md": "sha256:dbef3c5808a2771644ce546353ad2e6afdedc7b22830860cd7f0679210ad5aa3",
-              "07_panel/narrative-review-v002.md": "sha256:952881e8309a92099acc0e0eb989b2ebfa8787b286df118a847b4df3c0de31aa"
-            }
+              "06_revisions/round-003/revision-plan-r003.md": "sha256:5cac850a269397fe03d3dbfaf9b93271e050149e5db93916e84f76df078eb6dc"
+            },
+            "lifecycle_transitions": [
+              {
+                "event_id": "perspective-panel-patch-v3",
+                "from": "revision_required",
+                "to": "artifact_frozen",
+                "trigger": "new_version_created"
+              }
+            ]
           },
-          "sequence": 9,
+          "sequence": 12,
           "state_after": "artifact_frozen",
           "state_before": "revision_required",
           "type": "produce"
@@ -1229,19 +2701,107 @@
               "05_evaluations/evaluation-report-v003.md"
             ],
             "files_read": [
+              "01_input/input-brief-v001.md",
+              "01_input/target-outlet-profile-v001.md",
+              "02_evidence/claim-ledger-v001.md",
+              "02_evidence/claim-evidence-matrix-v001.md",
+              "03_argument/argument-skeleton-v001.md",
+              "03_argument/paragraph-map-v001.md",
               "04_drafts/perspective-v003.md"
             ],
             "input_hashes_after": {
+              "01_input/input-brief-v001.md": "sha256:58a5294f6937faf9e5e556e7430cb7333daaff7eeac1cac81a07b6c489e94a28",
+              "01_input/target-outlet-profile-v001.md": "sha256:7e3afe541e25aa8bec4cd2d063a88016062af0922750f69a8825717edae8dd6b",
+              "02_evidence/claim-evidence-matrix-v001.md": "sha256:8609cd9892355a98512f567d490628825d946842941ae33a6c14760e34bcb9a5",
+              "02_evidence/claim-ledger-v001.md": "sha256:94b9f1716e775f4c65ade28d99d56afde182ae795a6411f14730ba2051a7992f",
+              "03_argument/argument-skeleton-v001.md": "sha256:0f930bb10fb986f7a5a30acd4f25995bd3878f6375cba8518c3eca23290940a2",
+              "03_argument/paragraph-map-v001.md": "sha256:7b0de89595a0de24047a729d768c2f5c8987de2dcb766654f0921e034f6af220",
               "04_drafts/perspective-v003.md": "sha256:d835b1af7b26107cf5a54ced87c2d9c3473b89cd8ad23224a27f5c2a9623341e"
             },
             "input_hashes_before": {
+              "01_input/input-brief-v001.md": "sha256:58a5294f6937faf9e5e556e7430cb7333daaff7eeac1cac81a07b6c489e94a28",
+              "01_input/target-outlet-profile-v001.md": "sha256:7e3afe541e25aa8bec4cd2d063a88016062af0922750f69a8825717edae8dd6b",
+              "02_evidence/claim-evidence-matrix-v001.md": "sha256:8609cd9892355a98512f567d490628825d946842941ae33a6c14760e34bcb9a5",
+              "02_evidence/claim-ledger-v001.md": "sha256:94b9f1716e775f4c65ade28d99d56afde182ae795a6411f14730ba2051a7992f",
+              "03_argument/argument-skeleton-v001.md": "sha256:0f930bb10fb986f7a5a30acd4f25995bd3878f6375cba8518c3eca23290940a2",
+              "03_argument/paragraph-map-v001.md": "sha256:7b0de89595a0de24047a729d768c2f5c8987de2dcb766654f0921e034f6af220",
               "04_drafts/perspective-v003.md": "sha256:d835b1af7b26107cf5a54ced87c2d9c3473b89cd8ad23224a27f5c2a9623341e"
-            }
+            },
+            "lifecycle_transitions": [
+              {
+                "event_id": "perspective-evaluate-v3",
+                "from": "artifact_frozen",
+                "to": "pending_review",
+                "trigger": "independent_review_dispatched"
+              },
+              {
+                "event_id": "perspective-evaluate-v3",
+                "from": "pending_review",
+                "to": "packaging_pending",
+                "trigger": "panel_patch_latest_version_accepted"
+              }
+            ]
           },
-          "sequence": 10,
+          "sequence": 13,
           "state_after": "packaging_pending",
           "state_before": "artifact_frozen",
           "type": "review"
+        },
+        {
+          "edge": "orchestrator_internal_gate",
+          "event_id": "perspective-final-handoff-summary",
+          "observation": {
+            "actual_write_paths": [
+              "07_panel/artifact-index-v003.md",
+              "07_panel/final-handoff-summary-v003.md"
+            ],
+            "files_read": [],
+            "input_hashes_after": {
+              "01_input/target-outlet-profile-v001.md": "sha256:7e3afe541e25aa8bec4cd2d063a88016062af0922750f69a8825717edae8dd6b",
+              "02_evidence/citation-risk-log-v001.md": "sha256:abf7e51586b762225b7945b8408247692d762596863834dd2d5bdff3d4fc1510",
+              "02_evidence/claim-evidence-matrix-v001.md": "sha256:8609cd9892355a98512f567d490628825d946842941ae33a6c14760e34bcb9a5",
+              "02_evidence/claim-ledger-v001.md": "sha256:94b9f1716e775f4c65ade28d99d56afde182ae795a6411f14730ba2051a7992f",
+              "02_evidence/contrary-evidence-log-v001.md": "sha256:7baf31f1f964bd66e3fd3d4b692291660a1ecd4956499fb7d28ff5e4aaaccd92",
+              "02_evidence/evidence-limitations-v001.md": "sha256:6af8d8301fb216f4601071ea796b1073cf7805c85ce977c2abaa0261c697d3f4",
+              "02_evidence/reference-list-v001.md": "sha256:78663cac58f52b2104d3b6561dcb6db9470fde2dd5e1245cba3af97996c755c7",
+              "04_drafts/perspective-v003.md": "sha256:d835b1af7b26107cf5a54ced87c2d9c3473b89cd8ad23224a27f5c2a9623341e",
+              "05_evaluations/evaluation-report-v003.md": "sha256:750dbb65067cace17df82d8b9a54fce5b86ba9d0c08e5e3fcd44aea51316989e",
+              "06_revisions/round-002/response-to-reviewers-r002.md": "sha256:f28625461005a64f362cb048e04eaf7fe0690c7269d92c579fb572f41d118646",
+              "06_revisions/round-002/revision-delta-r002.md": "sha256:6b3c06b0f6b880b0fc745ca3d0d988b28fcc788989bc19de445d105ced64d385",
+              "06_revisions/round-002/revision-plan-r002.md": "sha256:f394b25d0efe946954837fc3e6e2d37fb878f8a3aec674e51511cbb19a42d614",
+              "06_revisions/round-003/response-to-reviewers-r003.md": "sha256:6fab219a56874d023b4926ea6dde80704613f74ee7384f686850a4009361bec8",
+              "06_revisions/round-003/revision-delta-r003.md": "sha256:f3b829496e31b1449b44b6a5b7cf1f05f9df4f3610632a98450a2b74fceab6a7",
+              "06_revisions/round-003/revision-plan-r003.md": "sha256:5cac850a269397fe03d3dbfaf9b93271e050149e5db93916e84f76df078eb6dc",
+              "07_panel/counter-position-review-v002.md": "sha256:5618241875476798bd6c2b043f5d506547990889bc4fad62d754a749e4537c76",
+              "07_panel/evidence-review-v002.md": "sha256:3f575aa30f095e765dc194940b2a07c56ae2f21007cfb95e4d303852fc6ff13c",
+              "07_panel/narrative-review-v002.md": "sha256:1baa8a0f2aadc9bb3d32f541c4cecc612a8e2059ad79b909138327bf226d057b"
+            },
+            "input_hashes_before": {
+              "01_input/target-outlet-profile-v001.md": "sha256:7e3afe541e25aa8bec4cd2d063a88016062af0922750f69a8825717edae8dd6b",
+              "02_evidence/citation-risk-log-v001.md": "sha256:abf7e51586b762225b7945b8408247692d762596863834dd2d5bdff3d4fc1510",
+              "02_evidence/claim-evidence-matrix-v001.md": "sha256:8609cd9892355a98512f567d490628825d946842941ae33a6c14760e34bcb9a5",
+              "02_evidence/claim-ledger-v001.md": "sha256:94b9f1716e775f4c65ade28d99d56afde182ae795a6411f14730ba2051a7992f",
+              "02_evidence/contrary-evidence-log-v001.md": "sha256:7baf31f1f964bd66e3fd3d4b692291660a1ecd4956499fb7d28ff5e4aaaccd92",
+              "02_evidence/evidence-limitations-v001.md": "sha256:6af8d8301fb216f4601071ea796b1073cf7805c85ce977c2abaa0261c697d3f4",
+              "02_evidence/reference-list-v001.md": "sha256:78663cac58f52b2104d3b6561dcb6db9470fde2dd5e1245cba3af97996c755c7",
+              "04_drafts/perspective-v003.md": "sha256:d835b1af7b26107cf5a54ced87c2d9c3473b89cd8ad23224a27f5c2a9623341e",
+              "05_evaluations/evaluation-report-v003.md": "sha256:750dbb65067cace17df82d8b9a54fce5b86ba9d0c08e5e3fcd44aea51316989e",
+              "06_revisions/round-002/response-to-reviewers-r002.md": "sha256:f28625461005a64f362cb048e04eaf7fe0690c7269d92c579fb572f41d118646",
+              "06_revisions/round-002/revision-delta-r002.md": "sha256:6b3c06b0f6b880b0fc745ca3d0d988b28fcc788989bc19de445d105ced64d385",
+              "06_revisions/round-002/revision-plan-r002.md": "sha256:f394b25d0efe946954837fc3e6e2d37fb878f8a3aec674e51511cbb19a42d614",
+              "06_revisions/round-003/response-to-reviewers-r003.md": "sha256:6fab219a56874d023b4926ea6dde80704613f74ee7384f686850a4009361bec8",
+              "06_revisions/round-003/revision-delta-r003.md": "sha256:f3b829496e31b1449b44b6a5b7cf1f05f9df4f3610632a98450a2b74fceab6a7",
+              "06_revisions/round-003/revision-plan-r003.md": "sha256:5cac850a269397fe03d3dbfaf9b93271e050149e5db93916e84f76df078eb6dc",
+              "07_panel/counter-position-review-v002.md": "sha256:5618241875476798bd6c2b043f5d506547990889bc4fad62d754a749e4537c76",
+              "07_panel/evidence-review-v002.md": "sha256:3f575aa30f095e765dc194940b2a07c56ae2f21007cfb95e4d303852fc6ff13c",
+              "07_panel/narrative-review-v002.md": "sha256:1baa8a0f2aadc9bb3d32f541c4cecc612a8e2059ad79b909138327bf226d057b"
+            },
+            "lifecycle_transitions": []
+          },
+          "sequence": 14,
+          "state_after": "packaging_pending",
+          "state_before": "packaging_pending",
+          "type": "orchestrator_record"
         },
         {
           "edge": "perspective-orchestrator -> perspective-final-compositor",
@@ -1253,35 +2813,85 @@
             ],
             "files_read": [
               "04_drafts/perspective-v003.md",
-              "05_evaluations/evaluation-report-v003.md",
-              "07_panel/counter-position-review-v002.md",
-              "07_panel/evidence-review-v002.md",
-              "07_panel/narrative-review-v002.md"
+              "01_input/target-outlet-profile-v001.md",
+              "02_evidence/claim-ledger-v001.md",
+              "02_evidence/claim-evidence-matrix-v001.md",
+              "02_evidence/evidence-limitations-v001.md",
+              "02_evidence/citation-risk-log-v001.md",
+              "02_evidence/contrary-evidence-log-v001.md",
+              "02_evidence/reference-list-v001.md",
+              "07_panel/final-handoff-summary-v003.md",
+              "07_panel/artifact-index-v003.md"
             ],
             "input_hashes_after": {
+              "01_input/target-outlet-profile-v001.md": "sha256:7e3afe541e25aa8bec4cd2d063a88016062af0922750f69a8825717edae8dd6b",
+              "02_evidence/citation-risk-log-v001.md": "sha256:abf7e51586b762225b7945b8408247692d762596863834dd2d5bdff3d4fc1510",
+              "02_evidence/claim-evidence-matrix-v001.md": "sha256:8609cd9892355a98512f567d490628825d946842941ae33a6c14760e34bcb9a5",
+              "02_evidence/claim-ledger-v001.md": "sha256:94b9f1716e775f4c65ade28d99d56afde182ae795a6411f14730ba2051a7992f",
+              "02_evidence/contrary-evidence-log-v001.md": "sha256:7baf31f1f964bd66e3fd3d4b692291660a1ecd4956499fb7d28ff5e4aaaccd92",
+              "02_evidence/evidence-limitations-v001.md": "sha256:6af8d8301fb216f4601071ea796b1073cf7805c85ce977c2abaa0261c697d3f4",
+              "02_evidence/reference-list-v001.md": "sha256:78663cac58f52b2104d3b6561dcb6db9470fde2dd5e1245cba3af97996c755c7",
               "04_drafts/perspective-v003.md": "sha256:d835b1af7b26107cf5a54ced87c2d9c3473b89cd8ad23224a27f5c2a9623341e",
-              "05_evaluations/evaluation-report-v003.md": "sha256:782405ac8b08a95cb7099babeb48ab3c2272f445044b1e6d6d1496963ab78d50",
-              "07_panel/counter-position-review-v002.md": "sha256:b6403f370b4c94ab6fbc965879e9aac952bf97cf529b448615f6a0467dd2c590",
-              "07_panel/evidence-review-v002.md": "sha256:70c52016402790dea69c8a580fa220e82da4e66f644f8e6884f2b94a27f251ad",
-              "07_panel/narrative-review-v002.md": "sha256:952881e8309a92099acc0e0eb989b2ebfa8787b286df118a847b4df3c0de31aa"
+              "07_panel/artifact-index-v003.md": "sha256:0036590c6e222ac78d83d8770738eae091894d71c141be396e05bc9bffb4fe1a",
+              "07_panel/final-handoff-summary-v003.md": "sha256:32157b9f5a192c51042d8e986c8631da8f9e9052ca9fcc6707397d9a73de4d92"
             },
             "input_hashes_before": {
+              "01_input/target-outlet-profile-v001.md": "sha256:7e3afe541e25aa8bec4cd2d063a88016062af0922750f69a8825717edae8dd6b",
+              "02_evidence/citation-risk-log-v001.md": "sha256:abf7e51586b762225b7945b8408247692d762596863834dd2d5bdff3d4fc1510",
+              "02_evidence/claim-evidence-matrix-v001.md": "sha256:8609cd9892355a98512f567d490628825d946842941ae33a6c14760e34bcb9a5",
+              "02_evidence/claim-ledger-v001.md": "sha256:94b9f1716e775f4c65ade28d99d56afde182ae795a6411f14730ba2051a7992f",
+              "02_evidence/contrary-evidence-log-v001.md": "sha256:7baf31f1f964bd66e3fd3d4b692291660a1ecd4956499fb7d28ff5e4aaaccd92",
+              "02_evidence/evidence-limitations-v001.md": "sha256:6af8d8301fb216f4601071ea796b1073cf7805c85ce977c2abaa0261c697d3f4",
+              "02_evidence/reference-list-v001.md": "sha256:78663cac58f52b2104d3b6561dcb6db9470fde2dd5e1245cba3af97996c755c7",
               "04_drafts/perspective-v003.md": "sha256:d835b1af7b26107cf5a54ced87c2d9c3473b89cd8ad23224a27f5c2a9623341e",
-              "05_evaluations/evaluation-report-v003.md": "sha256:782405ac8b08a95cb7099babeb48ab3c2272f445044b1e6d6d1496963ab78d50",
-              "07_panel/counter-position-review-v002.md": "sha256:b6403f370b4c94ab6fbc965879e9aac952bf97cf529b448615f6a0467dd2c590",
-              "07_panel/evidence-review-v002.md": "sha256:70c52016402790dea69c8a580fa220e82da4e66f644f8e6884f2b94a27f251ad",
-              "07_panel/narrative-review-v002.md": "sha256:952881e8309a92099acc0e0eb989b2ebfa8787b286df118a847b4df3c0de31aa"
-            }
+              "07_panel/artifact-index-v003.md": "sha256:0036590c6e222ac78d83d8770738eae091894d71c141be396e05bc9bffb4fe1a",
+              "07_panel/final-handoff-summary-v003.md": "sha256:32157b9f5a192c51042d8e986c8631da8f9e9052ca9fcc6707397d9a73de4d92"
+            },
+            "lifecycle_transitions": [
+              {
+                "event_id": "perspective-compositor",
+                "from": "packaging_pending",
+                "to": "human_signoff_required",
+                "trigger": "package_verified"
+              }
+            ]
           },
-          "sequence": 11,
+          "sequence": 15,
           "state_after": "human_signoff_required",
           "state_before": "packaging_pending",
           "type": "review"
         }
       ],
       "execution_kind": "deterministic_replay",
+      "execution_scope": "evaluation_revision_delivery_with_entry_receipts",
       "final_state": "human_signoff_required",
       "fixture_id": "perspective-panel-patch-loop",
+      "initial_artifacts": {
+        "actual_write_paths": [
+          "01_input/input-brief-v001.md",
+          "01_input/target-outlet-profile-v001.md",
+          "02_evidence/citation-risk-log-v001.md",
+          "02_evidence/claim-evidence-matrix-v001.md",
+          "02_evidence/claim-ledger-v001.md",
+          "02_evidence/contrary-evidence-log-v001.md",
+          "02_evidence/evidence-limitations-v001.md",
+          "02_evidence/reference-list-v001.md",
+          "03_argument/argument-skeleton-v001.md",
+          "03_argument/paragraph-map-v001.md"
+        ],
+        "artifact_ids": [
+          "perspective-input-v1",
+          "perspective-claim-ledger-v1",
+          "perspective-claim-matrix-v1",
+          "perspective-skeleton-v1",
+          "perspective-evidence-limitations-v1",
+          "perspective-citation-risk-v1",
+          "perspective-contrary-evidence-v1",
+          "perspective-references-v1",
+          "perspective-paragraph-map-v1",
+          "perspective-outlet-v1"
+        ]
+      },
       "panel_role_instances": {
         "counter-position": "perspective-panel-counter-001",
         "evidence": "perspective-panel-evidence-001",
@@ -1296,9 +2906,84 @@
         "perspective -> perspective-orchestrator -> perspective-drafter",
         "perspective -> perspective-orchestrator -> perspective-evaluator",
         "perspective -> perspective-orchestrator -> perspective-final-compositor",
+        "perspective -> perspective-orchestrator -> perspective-refinement-controller",
         "perspective -> perspective-orchestrator -> perspective-review-panel",
         "perspective -> perspective-refinement-controller -> perspective-drafter",
         "perspective -> perspective-refinement-controller -> perspective-evaluator"
+      ],
+      "registry_lifecycle_transitions": [
+        {
+          "event_id": "perspective-entry-gate",
+          "from": "initialized",
+          "to": "preprocessing",
+          "trigger": "entry_gate_passed"
+        },
+        {
+          "event_id": "perspective-entry-gate",
+          "from": "preprocessing",
+          "to": "artifact_frozen",
+          "trigger": "versioned_artifact_created"
+        },
+        {
+          "event_id": "perspective-evaluate-v1",
+          "from": "artifact_frozen",
+          "to": "pending_review",
+          "trigger": "independent_review_dispatched"
+        },
+        {
+          "event_id": "perspective-evaluate-v1",
+          "from": "pending_review",
+          "to": "revision_required",
+          "trigger": "fixable_revision_requested"
+        },
+        {
+          "event_id": "perspective-revise-v2",
+          "from": "revision_required",
+          "to": "artifact_frozen",
+          "trigger": "new_version_created"
+        },
+        {
+          "event_id": "perspective-evaluate-v2",
+          "from": "artifact_frozen",
+          "to": "pending_review",
+          "trigger": "independent_review_dispatched"
+        },
+        {
+          "event_id": "perspective-evaluate-v2",
+          "from": "pending_review",
+          "to": "panel_pending",
+          "trigger": "latest_version_accepted"
+        },
+        {
+          "event_id": "perspective-panel-gate",
+          "from": "panel_pending",
+          "to": "revision_required",
+          "trigger": "panel_requests_substantive_change"
+        },
+        {
+          "event_id": "perspective-panel-patch-v3",
+          "from": "revision_required",
+          "to": "artifact_frozen",
+          "trigger": "new_version_created"
+        },
+        {
+          "event_id": "perspective-evaluate-v3",
+          "from": "artifact_frozen",
+          "to": "pending_review",
+          "trigger": "independent_review_dispatched"
+        },
+        {
+          "event_id": "perspective-evaluate-v3",
+          "from": "pending_review",
+          "to": "packaging_pending",
+          "trigger": "panel_patch_latest_version_accepted"
+        },
+        {
+          "event_id": "perspective-compositor",
+          "from": "packaging_pending",
+          "to": "human_signoff_required",
+          "trigger": "package_verified"
+        }
       ],
       "workflow": "perspective"
     }
@@ -1307,7 +2992,14 @@
   "summary": {
     "automatic_external_submission": false,
     "final_state": "human_signoff_required",
-    "negative_guards_rejected": 10,
+    "finding_routes_verified": 5,
+    "live_raw_state_claims_corrected": 2,
+    "live_workflows_blocked_at_valid_gate": 1,
+    "live_workflows_independent_review_pending": 1,
+    "live_workflows_reached_human_signoff_gate": 0,
+    "live_workflows_receipts_audited": 4,
+    "live_workflows_stopped_at_valid_gate": 2,
+    "negative_guards_rejected": 39,
     "workflows_passed": 4
   }
 }

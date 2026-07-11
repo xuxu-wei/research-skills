@@ -1,11 +1,11 @@
 {
   "ok": true,
   "expected_skill_count": 45,
-  "plugin_version": "0.5.0-preview.1",
-  "registry_schema_version": 4,
+  "plugin_version": "0.5.0-preview.2",
+  "registry_schema_version": 5,
   "plugin": {
     "plugin": "research-skills-openai",
-    "plugin_version": "0.5.0-preview.1",
+    "plugin_version": "0.5.0-preview.2",
     "ok": true,
     "errors": [],
     "skill_count": 45,

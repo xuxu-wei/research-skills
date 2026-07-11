@@ -58,7 +58,7 @@ python scripts/codex_plugin_converter.py --mode codex --install --fail-on-invali
 
 The helper preserves the base version, including any prerelease identifier, and
 synchronizes the manifest and workflow registry, for example
-`0.5.0-preview.1` to `0.5.0-preview.1+codex.local-YYYYMMDD-HHMMSS`. Never commit
+`0.5.0-preview.2` to `0.5.0-preview.2+codex.local-YYYYMMDD-HHMMSS`. Never commit
 or push a `+codex.local-*` version to the rolling Preview channel.
 
 ## Validation

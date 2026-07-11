@@ -1,0 +1,42 @@
+schema_version: 1
+cases:
+  - case_id: nonblocking-finding
+    findings:
+      - severity: major
+        blocking: false
+        fixability: fixable
+        status: routed_to_revision
+        route: targeted_revision
+    expected_route: null
+  - case_id: fixable-blocking-finding
+    findings:
+      - severity: blocking
+        blocking: true
+        fixability: fixable
+        status: unresolved
+        route: targeted_revision
+    expected_route: revision_required
+  - case_id: unavailable-blocking-repair
+    findings:
+      - severity: fatal
+        blocking: true
+        fixability: unavailable
+        status: unresolved
+        route: blocked
+    expected_route: blocked
+  - case_id: no-gain-stop
+    findings:
+      - severity: blocking
+        blocking: true
+        fixability: fixable
+        status: unresolved
+        route: stop_no_gain
+    expected_route: stopped
+  - case_id: resolved-fatal-finding
+    findings:
+      - severity: fatal
+        blocking: true
+        fixability: fixable
+        status: resolved
+        route: targeted_revision
+    expected_route: null
