@@ -117,18 +117,20 @@ def route_consistency_errors() -> list[str]:
         "artifact-naming-and-directory-rules.md",
         "10_state/artifact-index.md",
         "04_drafts/proposal-vNNN.md",
-        "blind_mock_review",
-        "standard_panel",
+        "existing_draft",
+        "draft_and_external_review",
+        "package_only",
         "sap-refinement-controller",
-        "support_after_major_revision",
-        "Submission-Clean Proposal",
+        "pending_review",
+        "independent_review_pending",
+        "human_signoff_required",
     ]
     for term in required_orch_terms:
         if term not in orch:
             errors.append(f"proposal-orchestrator missing route term: {term}")
     if "context_aware_internal_review" not in panel:
         errors.append("proposal-review-panel missing context-aware internal review mode")
-    if "must not include context brief" not in panel and "Do not pass individual reviewers" not in panel:
+    if "Do not read context brief" not in panel and "must not include context brief" not in panel and "Do not pass individual reviewers" not in panel:
         errors.append("proposal-review-panel missing blind-review forbidden-context rule")
     if "does not rewrite" not in package or "Submission-Clean Boundary" not in package:
         errors.append("proposal-package-assembler missing cleanup boundary")

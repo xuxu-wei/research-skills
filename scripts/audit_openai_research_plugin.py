@@ -233,12 +233,16 @@ def main() -> int:
         registry_data = yaml.safe_load(registry_text) or {}
         entries = registry_data.get("skills", [])
         edges = registry_data.get("workflow_edges", [])
-        if registry_data.get("schema_version") != 2:
-            errors.append("registry schema_version must be 2 for workflow-edge auditability")
+        if registry_data.get("schema_version") != 3:
+            errors.append("registry schema_version must be 3 for workflow-edge and state-machine auditability")
+        state_policy = registry_data.get("workflow_state_policy", {})
+        state_machines = registry_data.get("workflow_state_machines", {})
         if len(entries) != EXPECTED_SKILLS:
             errors.append(f"registry expected {EXPECTED_SKILLS} entries, found {len(entries)}")
     if not REGISTRY.exists():
         edges = []
+        state_policy = {}
+        state_machines = {}
 
     registry_names = {entry.get("name", "") for entry in entries}
     if registry_names != set(names):
@@ -331,6 +335,49 @@ def main() -> int:
                 errors.append(f"missing orchestrator-to-reviewer edge: {orchestrator} -> {reviewer}")
             elif edge.get("dispatch_mode") != "delegated":
                 errors.append(f"orchestrator reviewer edge is not delegated: {orchestrator} -> {reviewer}")
+
+    canonical_states = {
+        "pending_review",
+        "independent_review_pending",
+        "blocked",
+        "stopped",
+        "human_signoff_required",
+    }
+    policy_states = set(state_policy.get("active_states", [])) | set(state_policy.get("pause_states", [])) | set(
+        state_policy.get("terminal_states", [])
+    )
+    if not canonical_states <= policy_states:
+        errors.append(f"registry canonical states missing: {sorted(canonical_states - policy_states)}")
+    if state_policy.get("review_unavailable_state") != "independent_review_pending":
+        errors.append("registry reviewer-unavailability route must be independent_review_pending")
+    if state_policy.get("fatal_finding_state") != "blocked":
+        errors.append("registry fatal finding route must be blocked")
+    if state_policy.get("final_handoff_state") != "human_signoff_required":
+        errors.append("registry final handoff must be human_signoff_required")
+    version_gate = state_policy.get("version_gate", {})
+    for field in (
+        "changed_artifact_requires_new_version",
+        "evaluator_instance_must_be_fresh",
+        "evaluated_version_must_equal_current_version",
+    ):
+        if version_gate.get(field) is not True:
+            errors.append(f"registry version gate disabled: {field}")
+    concurrency = state_policy.get("concurrency_policy", {})
+    if concurrency.get("phase_level_delegation_allowed") is not True:
+        errors.append("registry must permit phase-level delegation")
+    if concurrency.get("single_writer_per_source_artifact") is not True:
+        errors.append("registry must enforce one writer per source artifact")
+    if concurrency.get("concurrent_writes_to_same_source_artifact") is not False:
+        errors.append("registry must forbid concurrent writes to the same source artifact")
+    if set(state_machines) != {"idea", "proposal", "article", "perspective"}:
+        errors.append("registry must contain exactly four workflow state machines")
+    for workflow, machine in state_machines.items():
+        if "latest_version_independently_evaluated" not in machine.get("before_panel", []):
+            errors.append(f"{workflow} state machine: panel lacks current-version evaluation gate")
+        if "latest_version_independently_evaluated" not in machine.get("before_packaging", []):
+            errors.append(f"{workflow} state machine: packaging lacks current-version evaluation gate")
+        if "dissent_and_fatal_findings_indexed" not in machine.get("before_packaging", []):
+            errors.append(f"{workflow} state machine: packaging does not preserve dissent/fatal findings")
 
     errors.extend(recursive_reference_errors())
 
@@ -477,6 +524,24 @@ def main() -> int:
         or "Do not broaden this skill into Deep Research" not in academic_deep_search
     ):
         errors.append("academic-deep-search must remain limited to narrow questions answerable from 2-5 papers")
+    opportunity_mapper = read(SKILLS / "research-opportunity-mapper" / "SKILL.md")
+    if (
+        "single owner of broad retrieval policy" not in opportunity_mapper
+        or "Built-in Search" not in opportunity_mapper
+        or "deep_research_handoff_required" not in opportunity_mapper
+        or "Local scripts are never the default" not in opportunity_mapper
+    ):
+        errors.append("research-opportunity-mapper does not exclusively own native Search/Deep Research routing")
+    for orchestrator_name in orchestrators:
+        orchestrator_text = read(names[orchestrator_name])
+        for residue in ("built-in Search", "Deep Research", "evidence_search.py", "local retrieval script"):
+            if residue in orchestrator_text:
+                errors.append(f"{orchestrator_name}: direct retrieval-policy residue `{residue}`")
+        for state in canonical_states:
+            if state not in orchestrator_text:
+                errors.append(f"{orchestrator_name}: canonical workflow state missing `{state}`")
+        if "one writer" not in orchestrator_text or "concurrent writes" not in orchestrator_text:
+            errors.append(f"{orchestrator_name}: single-writer/concurrency contract missing")
     article_orchestrator = read(SKILLS / "article-orchestrator" / "SKILL.md")
     if (
         "`fast_track_draft`" not in article_orchestrator
@@ -488,7 +553,7 @@ def main() -> int:
     )[0]
     if (
         "fresh independent `perspective-evaluator`" not in perspective_minor_patch
-        or "不得让 panel minor patch 直接进入 final compositor" not in perspective_minor_patch
+        or "Never route a panel minor patch directly to the final compositor" not in perspective_minor_patch
     ):
         errors.append("perspective panel minor patch must receive fresh re-evaluation before final composition")
     perspective_architect = read(SKILLS / "perspective-argument-architect" / "SKILL.md")
@@ -497,6 +562,13 @@ def main() -> int:
         errors.append("perspective: claim change requests escape 01_claims/change-requests/")
     if "panel-02_evidence/" in perspective_orchestrator:
         errors.append("perspective: malformed panel evidence delegate path")
+    perspective_compositor = read(SKILLS / "perspective-final-compositor" / "SKILL.md")
+    if "text-identical" not in perspective_compositor or "Do not edit" not in perspective_compositor:
+        errors.append("perspective compositor may change final prose after evaluation")
+
+    for report_name in ("phase2-targeted-search-smoke.md", "phase2-deep-research-handoff-smoke.md"):
+        if not (PLUGIN / "reports" / report_name).exists():
+            errors.append(f"missing Phase 2 smoke artifact: reports/{report_name}")
 
     plugin_readme = read(PLUGIN / "README.md")
     if "\\`" in plugin_readme:

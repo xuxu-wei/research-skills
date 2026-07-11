@@ -12,12 +12,13 @@ Control article routing, state, delegation, stops, and handoff. Do not retrieve 
 
 - Track current pointers in `13_state/workflow-state.yaml` and inventory in `13_state/artifact-index.md`.
 - Freeze every delegated input with artifact ID, path, version, and scope limitation.
-- Never overwrite `06_drafts/manuscript-vNNN.md`. Every substantive, language-only, or formatting-only saved change creates a new version and lineage record.
+- Never overwrite `06_drafts/manuscript-vNNN.md`; every saved text change creates a new version and lineage record.
 - Delegate readiness triage, methods/statistics audit, claim audit, evaluation, every panel role, language assessment, medical journal review, and submission verification to fresh independent subagents.
-- If independent execution is unavailable, return `independent_review_pending` with a self-contained continuation brief and stop.
-- A changed manuscript cannot reach panel, packaging, or a ready state until a new `article-evaluator` instance evaluates the frozen new version without prior scores or decisions.
+- Use registry states: review wait -> `pending_review`; unavailable reviewer -> `independent_review_pending`; fatal -> `blocked`; unfixable/no gain -> `stopped`; verified package -> `human_signoff_required`.
+- Phase delegation is allowed, but each source artifact/version has one writer; never run concurrent writes to the same source.
+- A changed manuscript cannot reach panel, packaging, or readiness until a fresh `article-evaluator` evaluates its frozen new version without prior scores.
 - Preserve fatal findings, unresolved issues, conflicts, and dissent through final packaging.
-- Stop at a package for human review and sign-off; do not submit externally.
+- Stop at human sign-off; do not submit externally.
 
 ## Entry Routing
 
@@ -28,9 +29,9 @@ Control article routing, state, delegation, stops, and handoff. Do not retrieve 
 | `fast_track_draft_and_evaluation` | Intake -> triage -> validate external review provenance -> refinement/panel, or fresh evaluation when provenance is insufficient |
 | `blueprint_only` | Intake through methods audit, then stop for user review |
 | `section_specific` | Scoped intake -> minimal context -> drafter; never emit manuscript-ready or submission-ready status |
-| `submission_only` | Intake -> submission-scope triage -> minimal context -> frontmatter and delivery; stop on blocking manuscript gaps |
+| `submission_only` | Intake -> submission triage -> current-version evaluation gate -> delivery; if evaluation is missing/stale, run claim audit and fresh evaluation first |
 
-Fast-track backfill identifies design, population, variables, methods, claims, and evidence; mark it `confidence: low` and `scope_limitation: fast_track_backfill`.
+Mark fast-track backfill `confidence: low` and `scope_limitation: fast_track_backfill`.
 
 ## Workflow Kernel
 
@@ -51,9 +52,9 @@ Fast-track backfill identifies design, population, variables, methods, claims, a
 
 ## Delegated Brief and Return Contract
 
-Every reviewer brief includes workflow/round IDs, role/scope, frozen IDs/versions/paths, allowed files, output path, prohibited reads/writes, and failure route. Require the standard identity, files-read, isolation, prior-score, source-edit, decision, finding, and unresolved-issue fields.
+Every reviewer brief includes workflow/round IDs, scope, frozen IDs/versions/paths, allowed files, output path, prohibited reads/writes, and failure route. Require standard identity, files-read, isolation, prior-score, source-edit, decision, finding, and unresolved-issue fields.
 
-Subtasks return only a concise phase summary with status, artifact pointers/versions, decisions, unresolved issues, and `next_route`; omit raw logs.
+Subtasks return a phase summary with status, artifact pointers/versions, decisions, unresolved issues, and `next_route`.
 
 ## Promotion and Stop Rules
 

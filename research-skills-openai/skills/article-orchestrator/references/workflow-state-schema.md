@@ -16,7 +16,7 @@ workflow_state:
   project_slug: ""
   created_at: ""
   updated_at: ""
-  entry_mode: standard | fast_track_has_draft | fast_track_draft_eval | blueprint_only | section_specific | submission_only
+  entry_mode: standard | fast_track_draft | fast_track_draft_and_evaluation | blueprint_only | section_specific | submission_only
   user_goal: ""
   target_journal: ""
   target_article_type: ""
@@ -108,7 +108,7 @@ workflow_state:
     reference_accuracy_verified: false
     corresponding_author_confirmed: false
     unresolved_issues_acknowledged: false
-  workflow_status: in_progress | completed | blocked | stopped_by_user
+  workflow_status: initialized | preprocessing | artifact_frozen | pending_review | independent_review_pending | revision_required | panel_pending | packaging_pending | blocked | stopped | human_signoff_required
 ```
 
 ## Field Rules
@@ -119,10 +119,12 @@ workflow_state:
 - `artifacts.registry`: append-only artifact inventory mirrored in `13_state/artifact-index.md`.
 - Artifact paths are relative to the project root. Use `""` for not-yet-created; use `null` for intentionally skipped.
 - `revision.history`: append-only list of revision round summaries.
-- `verification.true_isolated_evaluation_completed`: required before `ready_for_author_signoff`.
+- `verification.true_isolated_evaluation_completed`: required before `human_signoff_required`; the qualifying evaluator must have read the exact current draft version.
 - `scope_limitations`: required when permitted non-review steps are skipped or backfilled with low confidence. Missing reviewer-class execution sets `independent_review_pending` and stops the workflow.
 - `unresolved_issues`: issues that block submission, carried forward across steps. Never silently dropped.
 - `human_signoff`: tracks which signoff items have been confirmed. Initially all `false`.
+- Any source-text change creates a new version and returns to `artifact_frozen`/`pending_review`; panel and packaging remain gated until a fresh evaluator reads that version without prior scores.
+- Fatal findings set `blocked`; reviewer unavailability sets `independent_review_pending`. Parallel phases retain one writer per source artifact/version, and reviewers read frozen inputs only.
 
 ## State File Location
 

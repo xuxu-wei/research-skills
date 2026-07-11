@@ -8,7 +8,8 @@ Every entry path, skipped step, revision loop, SAP branch, review panel, and fin
 - `workflow_id`: stable identifier for the proposal workflow.
 - `project_root`: writable project directory containing all workflow artifacts.
 - `artifact_index_path`: path to `10_state/artifact-index.md`.
-- `entry_mode`: one of `standard`, `fast_track_draft`, `fast_track_evaluation`, `fast_track_package`.
+- `entry_mode`: one of `standard`, `existing_draft`, `draft_and_external_review`, `package_only`.
+- `workflow_status`: one of `initialized`, `preprocessing`, `artifact_frozen`, `pending_review`, `independent_review_pending`, `revision_required`, `panel_pending`, `packaging_pending`, `blocked`, `stopped`, `human_signoff_required`.
 - `user_goal`: user's stated purpose for the proposal workflow.
 - `target_output`: grant proposal, protocol, internal review package, mock review, SAP bundle, or other target.
 - `context_brief_path`: path to the proposal context brief, or `null` if intentionally skipped.
@@ -21,6 +22,7 @@ Every entry path, skipped step, revision loop, SAP branch, review panel, and fin
 - `proposal_version`: current proposal version.
 - `proposal_status`: one of `not_started`, `drafted`, `evaluated`, `revision_needed`, `revision_complete`, `panel_reviewed`, `submission_clean`, `packaged`, `stopped`.
 - `evaluation_report_path`: latest proposal evaluation report, or `null`.
+- `evaluated_proposal_version`: exact proposal version read by the latest qualifying evaluator, or `null`.
 - `revision_round`: integer count of proposal revision rounds completed.
 - `revision_history`: list of proposal revision entries.
 - `sap_requested`: boolean.
@@ -86,3 +88,4 @@ When a context brief or readiness report is skipped, set the corresponding field
 
 `proposal-package-assembler` may assemble from this state but must not silently change it.
 If a submission-clean proposal is required, the state must first be updated by `proposal-drafter` or `proposal-refinement-controller`, then package assembly may proceed.
+Any changed proposal or SAP creates a new version and returns to `artifact_frozen`/`pending_review`; panel, packaging, and human sign-off require fresh evaluation of the exact current version. Fatal findings set `blocked`, and reviewer unavailability sets `independent_review_pending`. Parallel phases must retain one writer per source artifact/version; reviewer inputs are read-only.

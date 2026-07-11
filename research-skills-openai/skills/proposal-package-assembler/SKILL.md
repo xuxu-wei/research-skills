@@ -36,7 +36,7 @@ If final proposal path, latest evaluation report, or workflow state is missing, 
 4. Summarize existing reports: readiness, latest evaluation, revision status, panel recommendation, skeptical objections, submission-guard findings, and conflicts.
 5. Add optional SAP section only when SAP branch was requested.
 6. List unresolved issues: blocking issues, major risks, minor issues, reviewer dissent, user confirmation, human expert review.
-7. Derive final status solely from the latest valid independent review decisions and unresolved-issue state: ready for human submission review, minor revision pending, major revision required, blocked, or partial. Do not create a new quality judgment.
+7. Derive status solely from latest valid reviews and unresolved issues: reviewer unavailable -> `independent_review_pending`; fatal/blocking -> `blocked`; unfixable/no-gain -> `stopped`; fully verified package -> `human_signoff_required`. Do not create a quality judgment.
 8. Recommend next human review steps based only on existing artifacts.
 
 ## Submission-Clean Boundary
@@ -73,7 +73,7 @@ Partial output is allowed when materials are missing; state missing pieces and l
 - Do not add SAP materials unless SAP branch was requested.
 - Do not remove fatal flaws, unresolved issues, reviewer dissent, or skeptical objections.
 - Any unresolved credible fatal or blocking finding mechanically caps package status at `blocked`; never emit a ready, minor-pending, or promoted status.
-- Do not mark a package ready for human submission review when latest changed proposal/SAP versions lack required independent evaluation.
+- Do not emit `human_signoff_required` when latest changed proposal/SAP versions lack required independent evaluation.
 
 ## References
 

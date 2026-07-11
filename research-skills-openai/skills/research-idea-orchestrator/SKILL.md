@@ -14,10 +14,11 @@ Control idea-workflow state, routing, delegation, stop decisions, and proposal h
 - Freeze every reviewer input with artifact ID, path, version, and scope limitation.
 - Keep generation/revision separate from evaluation. Every changed candidate requires a new `idea-evaluator` instance without prior scores or decisions.
 - Delegate methodology/statistics preflight, idea evaluation, each adversarial role, and external-facing language assessment to fresh independent subagents.
-- If independent execution is unavailable, return `independent_review_pending` with a self-contained continuation brief and stop.
+- Use registry states: review wait -> `pending_review`; unavailable reviewer -> `independent_review_pending`; fatal -> `blocked`; unfixable/no gain -> `stopped`; verified portfolio -> `human_signoff_required`.
+- Phase delegation is allowed, but each source artifact/version has one writer; never run concurrent writes to the same source.
 - Preserve lineage for generation, revision, reframe, merge, rejection, backup, and promotion.
 - Preserve fatal findings, unresolved issues, adversarial objections, conflicts, and dissent in the portfolio.
-- Stop at a PI-review portfolio/proposal handoff; do not write the proposal.
+- Stop at PI review/proposal handoff; do not write the proposal.
 
 ## Workflow Kernel
 

@@ -14,10 +14,11 @@ Control proposal workflow state, routing, delegation, stop decisions, and final 
 - Freeze every delegated input with artifact ID, path, version, and scope limitation.
 - Never overwrite `04_drafts/proposal-vNNN.md`; every saved substantive or language-only change creates a new version and lineage record.
 - Delegate readiness triage, methodology/statistics preflight, proposal/SAP evaluation, every panel role, and language assessment to fresh independent subagents.
-- If independent execution is unavailable, return `independent_review_pending` with a self-contained continuation brief and stop.
+- Use registry states: review wait -> `pending_review`; unavailable reviewer -> `independent_review_pending`; fatal -> `blocked`; unfixable/no gain -> `stopped`; verified package -> `human_signoff_required`.
+- Phase delegation is allowed, but each source artifact/version has one writer; never run concurrent writes to the same source.
 - A changed proposal cannot reach panel or packaging until a new `proposal-evaluator` instance evaluates the frozen new version without prior scores or decisions.
 - Preserve fatal findings, unresolved issues, conflicts, and panel dissent through final assembly.
-- Stop at a package for human review and sign-off; do not submit externally.
+- Stop at human sign-off; do not submit externally.
 
 ## Entry Routing
 

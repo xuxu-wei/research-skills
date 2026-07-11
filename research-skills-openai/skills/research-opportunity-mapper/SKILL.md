@@ -6,7 +6,7 @@ description: "Build source-grounded evidence and opportunity maps. Use for broad
 
 ## Role
 
-Retrieve, verify, and organize evidence for downstream research decisions. Produce separate Evidence and Opportunity Maps, limitations, and handoff notes. Do not generate/rank ideas, score artifacts, draft downstream prose, or imply systematic-review completeness without a separate protocol.
+Act as the plugin's single owner of broad retrieval policy. Retrieve, verify, and organize evidence for downstream decisions; produce separate Evidence and Opportunity Maps, limitations, and handoff notes. Do not generate/rank ideas, score artifacts, draft downstream prose, or imply systematic-review completeness without a separate protocol.
 
 ## Routing
 

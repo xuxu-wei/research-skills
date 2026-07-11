@@ -5,9 +5,9 @@ workflow plugin. It contains 45 skills for research ideas, proposals, articles,
 perspectives, evidence retrieval, and independent review. It is not presented
 as production-stable.
 
-Roadmap Phase 0 and Phase 1 are complete: recursive resource/reference checks,
-auditable workflow edges, conditional resource loading, compact orchestrator
-kernels, and 180-line/8,000-character skill budgets are enforced by audit.
+Roadmap Phase 0 through Phase 3 are complete: reference closure, compact skills,
+native Search/Deep Research routing, auditable state machines, version/fresh-
+evaluation gates, canonical stop states, and single-writer rules are enforced.
 
 ## Install from the repository marketplace
 
@@ -49,12 +49,13 @@ codex plugin add research-skills-openai@xuxu-research-preview
 
 The helper preserves the base version, including any prerelease identifier, and
 synchronizes the manifest and workflow registry, for example
-`0.3.0-preview.1` to `0.3.0-preview.1+codex.local-YYYYMMDD-HHMMSS`.
+`0.4.0-preview.1` to `0.4.0-preview.1+codex.local-YYYYMMDD-HHMMSS`.
 
 ## Validation
 
 ```powershell
 python scripts/audit_openai_research_plugin.py
+python scripts/test_openai_phase2_phase3.py
 python scripts/codex_plugin_converter.py --mode codex --fail-on-invalid
 python C:\Users\10149\.codex\skills\.system\plugin-creator\scripts\validate_plugin.py research-skills-openai
 ```

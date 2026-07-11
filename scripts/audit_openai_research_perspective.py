@@ -2,7 +2,7 @@
 """Audit the research-perspective skill package.
 
 Checks:
-- each SKILL.md has frontmatter with name and "Use when" description
+- each SKILL.md has frontmatter with name and a bounded description
 - relative Markdown references in `references/...` and `templates/...` exist
 - orchestrator Lite mode includes STEP 2-lite before STEP 3
 - orchestrator no longer hard-codes /home/ubuntu paths
@@ -64,8 +64,8 @@ def check_frontmatter() -> list[str]:
         desc = fm.get("description", "").strip("'\"")
         if not desc:
             issues.append(f"{rel}: missing frontmatter description")
-        elif not desc.startswith("Use when"):
-            issues.append(f"{rel}: description must start with 'Use when'")
+        elif len(desc) > 1024:
+            issues.append(f"{rel}: description exceeds 1024 characters")
     return issues
 
 
@@ -90,10 +90,10 @@ def check_orchestrator_invariants() -> list[str]:
     text = orchestrator.read_text(encoding="utf-8")
     if "/home/ubuntu" in text:
         issues.append("perspective-orchestrator/SKILL.md: hard-coded /home/ubuntu path")
-    if "STEP 1 → STEP 2-lite → STEP 3" not in text:
-        issues.append("perspective-orchestrator/SKILL.md: Lite mode must include STEP 2-lite")
-    if "delegation adapter" not in text:
-        issues.append("perspective-orchestrator/SKILL.md: missing delegation adapter guidance")
+    if "provisional claims/evidence" not in text:
+        issues.append("perspective-orchestrator/SKILL.md: Lite mode must retain provisional claim/evidence preprocessing")
+    if "fresh independent subagents" not in text or "independent_review_pending" not in text:
+        issues.append("perspective-orchestrator/SKILL.md: missing fresh delegation and unavailable-reviewer routing")
     return issues
 
 

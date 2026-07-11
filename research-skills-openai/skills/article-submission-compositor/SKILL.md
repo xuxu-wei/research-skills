@@ -31,7 +31,7 @@ Read only declared frozen files from `06_drafts/**`, `11_frontmatter/**`, `11_co
 5. **Verify submission requirements.** Check reference metadata, table/figure/result consistency, current journal instructions, supplementary limits/formats/cross-references, data/code availability statements, and required approval/consent/declaration/disclosure items.
 6. **Preserve review risk.** Carry forward blueprint risks, audits, evaluation, panel reports, conflicts, dissent, fatal findings, and unresolved issues with stable source references.
 7. **Create human sign-off.** Leave author data/statistics/contribution/declaration/reference/journal/figure confirmations pending; never infer a signature or external submission.
-8. **Assign status.** Use only `ready_for_author_signoff`, `ready_for_author_check`, `minor_revision_pending`, `major_revision_required`, `blocked`, or `partial`.
+8. **Assign state/status.** Map unavailable review to `independent_review_pending`, fatal/blocking findings to `blocked`, unfixable/no-gain to `stopped`, and a verified unchanged package to `human_signoff_required`; retain package-detail labels only as subordinate status.
 
 ## Review Provenance
 
@@ -83,7 +83,7 @@ Any unresolved blocking dissent or fatal finding caps package status at `blocked
 - Missing or partial required artifacts -> `partial` or `blocked`.
 - Unverified journal requirements, references, or result consistency -> at most `ready_for_author_check`.
 - Minor/major unresolved revisions -> corresponding pending/required status.
-- All verifiable gates passed and instructions verified -> at most `ready_for_author_signoff`.
+- All gates passed, current/evaluated versions equal, and instructions verified -> `human_signoff_required` with subordinate `ready_for_author_signoff`.
 - A package never represents external submission.
 
 ## Outputs

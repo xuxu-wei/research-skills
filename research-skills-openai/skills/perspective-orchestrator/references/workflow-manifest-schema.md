@@ -16,9 +16,10 @@ state:
   current_step: string
   current_route: string
   current_draft_version: integer
+  latest_evaluated_version: integer | null
   revision_round: integer
   panel_round: integer
-  status: active | independent_review_pending | stopped | complete
+  status: initialized | preprocessing | artifact_frozen | pending_review | independent_review_pending | revision_required | panel_pending | packaging_pending | blocked | stopped | human_signoff_required
 
 artifacts:
   input_brief: path
@@ -51,3 +52,5 @@ Rules:
 - Never overwrite prior draft/evaluation paths.
 - Reviewer-class tasks require `delegation_mode: fresh_subagent` and `isolation_level: hard`.
 - If fresh delegation is unavailable, set `status: independent_review_pending`, save a self-contained continuation brief, and stop. Do not record soft isolation or continue with inline review.
+- Every text change creates a new draft version and returns to `artifact_frozen`/`pending_review`; panel and final composition require a fresh evaluation of that exact version.
+- Fatal findings set `blocked`. Parallel phases retain one writer per source artifact/version; reviewers and the final compositor read frozen source artifacts only.

@@ -51,7 +51,7 @@ DESCRIPTIONS = {
     "perspective-claim-evidence-curator": "Create and maintain the Perspective claim ledger, claim-evidence matrix, discourse baseline, contrary-evidence log, citation risks, and approved claim changes.",
     "perspective-drafter": "Draft or revise a versioned Perspective from approved architecture and claim artifacts, with paragraph mapping and separate reviewer responses; do not self-evaluate.",
     "perspective-evaluator": "Independently evaluate a frozen Perspective across argument, evidence, contribution, narrative, claim discipline, language, and outlet-fit gates without editing source text.",
-    "perspective-final-compositor": "Independently assemble and verify final Perspective artifacts for journal fit, citations, claim consistency, and human review without substantive source edits.",
+    "perspective-final-compositor": "Independently assemble and verify a text-identical Perspective delivery package for human review. Use only after the frozen source has qualifying current-version evaluation and panel outputs.",
     "perspective-input-builder": "Normalize a Perspective thesis, audience, outlet, evidence, and constraints into an input brief and outlet profile; use before claim curation and architecture.",
     "perspective-orchestrator": "Orchestrate Perspective, Viewpoint, or Commentary writing from thesis and evidence through independent evaluation, revision, panel review, and final human-review delivery.",
     "perspective-refinement-controller": "Plan and control targeted Perspective revision after independent evaluation, route writing to the drafter, preserve lineage, and require fresh re-evaluation.",

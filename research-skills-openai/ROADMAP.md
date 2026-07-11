@@ -4,7 +4,7 @@ Status: Experimental/Preview
 Planning baseline: 2026-07-12  
 Current scope: 45 skills after removal of the standalone OpenAI `pubmed` skill
 
-Completion status: Phase 0 and Phase 1 complete on 2026-07-12; Phase 2-5 remain planned.
+Completion status: Phase 0 through Phase 3 complete on 2026-07-12; Phase 4-5 remain planned.
 
 ## Objective
 
@@ -62,7 +62,9 @@ Acceptance:
 - Every long reference has a table of contents or is split.
 - The main orchestrator retains at least half of the working context for user artifacts, state, and reasoning in the 32K test profile.
 
-## Phase 2 — Native Search and Deep Research
+## Phase 2 – Native Search and Deep Research
+
+Status: Complete (2026-07-12)
 
 Deliverables:
 
@@ -80,7 +82,9 @@ Acceptance:
 - No orchestrator prefers local scripts over native Search or Deep Research.
 - No deleted or external retrieval skill remains as a dangling dependency.
 
-## Phase 3 — Workflow state-machine closure
+## Phase 3 – Workflow state-machine closure
+
+Status: Complete (2026-07-12)
 
 Deliverables:
 

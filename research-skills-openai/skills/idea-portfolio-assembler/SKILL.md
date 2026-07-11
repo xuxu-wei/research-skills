@@ -36,7 +36,7 @@ description: "Assemble evaluated research ideas into a PI-review portfolio with 
 ## Operating Principles
 
 1. **只组装，不评价。** 不改分、不新增评分、不推翻 `idea-evaluator` 的判断。
-   不从材料中推断新的质量判断，不解决 reviewer 分歧，也不得把带 fatal flaw、adversarial panel unresolved blocking finding 或 `independent_review_pending` 的 idea 提升为 promoted/ready。此类 idea 的 handoff status 必须机械封顶为 `blocked`。
+   不从材料中推断新的质量判断，不解决 reviewer 分歧，也不得把带 fatal flaw、adversarial panel unresolved blocking finding 或 `independent_review_pending` 的 idea 提升为 promoted/ready。此类 idea 的 workflow state 必须分别机械映射为 `blocked` 或 `independent_review_pending`；通过全部门禁的 portfolio 只能进入 `human_signoff_required`。
 2. **面向 PI 审阅。** 输出应清晰、结构化、可讨论，而不是机器 schema dump。
 3. **保留评价依据。** 每个候选 idea 必须附带 evaluation summary、hard gate status、evidence limitation 和 main reviewer objections。
 4. **保留 lineage。** 必须说明 idea 的来源、parent ideas、revision / merge / reframe 关系。

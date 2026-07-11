@@ -13,6 +13,9 @@ round_manifest:
   user_goal: ""
   intended_output: ""
   selected_strategy: ""
+  workflow_status: initialized | preprocessing | artifact_frozen | pending_review | independent_review_pending | revision_required | panel_pending | packaging_pending | blocked | stopped | human_signoff_required
+  current_artifact_version: ""
+  latest_evaluated_version: ""
   idea_id_namespace:
     canonical_format: "I<round>-<sequence>"
     round_prefix: "I01"
@@ -54,3 +57,5 @@ round_manifest:
 - Record the reason for skipping evidence mapping, preflight, or evaluation.
 - Store the manifest in the user project directory as `09_state/round-<n>-manifest.md` or YAML only when used for agent-to-agent transfer.
 - Keep `09_state/artifact-index.md` synchronized with generated idea, preflight, evaluation, adversarial, portfolio, handoff, and language QA artifacts.
+- Any changed candidate creates a new version and returns to `artifact_frozen`/`pending_review`; panel or portfolio assembly requires a fresh evaluation of that exact version.
+- Permit parallel delegated phases only when each source artifact/version has one writer; reviewer inputs are read-only.

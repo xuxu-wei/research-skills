@@ -14,10 +14,11 @@ Control Perspective workflow state, routing, delegation, stop decisions, and fin
 - Keep `01_claims/claim-ledger.md` read-only except for writes by `perspective-claim-evidence-curator`; other roles submit change requests.
 - Store drafts as `04_drafts/perspective-vNNN.md`; any saved substantive or language-only change creates a new version and lineage record.
 - Delegate evaluator, every panel role, language assessor, medical journal reviewer, and final compositor/verifier to fresh independent subagents.
-- If independent execution is unavailable, return `independent_review_pending` with a self-contained continuation brief and stop.
+- Use registry states: review wait -> `pending_review`; unavailable reviewer -> `independent_review_pending`; fatal -> `blocked`; unfixable/no gain -> `stopped`; verified package -> `human_signoff_required`.
+- Phase delegation is allowed, but each source artifact/version has one writer; never run concurrent writes to the same source.
 - A changed draft cannot reach panel, final composition, or a ready state until a new `perspective-evaluator` instance evaluates the frozen new version without prior scores or decisions.
 - Preserve fatal findings, unresolved issues, conflicts, and dissent in the final artifact index and report.
-- Stop at a package for human review and sign-off; do not submit externally.
+- Stop at human sign-off; do not submit externally.
 
 ## Modes
 
@@ -45,7 +46,7 @@ Control Perspective workflow state, routing, delegation, stop decisions, and fin
 - Save a new `perspective-vNNN.md`, paragraph map, mini-delta, artifact ID, and version.
 - Freeze the changed draft and delegate a fresh independent `perspective-evaluator` that cannot see prior scores or decisions.
 - Proceed only after `accept`; otherwise route to the corresponding revision or upstream rebuild.
-- 不得让 panel minor patch 直接进入 final compositor. If the patch changes substantive argumentation, upgrade it to major revision.
+- Never route a panel minor patch directly to the final compositor. If it changes substantive argumentation, upgrade it to major revision.
 
 ### STEP 9: Final Compositor
 

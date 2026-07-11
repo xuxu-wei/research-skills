@@ -1,19 +1,15 @@
-# Permitted Edits
+# Permitted Packaging Operations
 
-The final compositor may only perform non-substantive edits:
+The compositor may perform only operations outside source prose:
 
-1. Formatting cleanup.
-2. Grammar and punctuation.
-3. Title and abstract polish that does not change claims.
-4. Citation style normalization.
-5. Heading consistency.
-6. Duplicate wording removal.
-7. Terminology consistency when meaning is unchanged.
+1. Copy the latest evaluated source without text changes.
+2. Create package directories and filenames.
+3. Create or update the package manifest and artifact index.
+4. Record checksums, source/evaluated versions, and text-identity results.
+5. Create audit, risk, dissent, fatal-finding, and human-signoff reports.
+6. Record proposed edits as return-route requests without applying them.
 
-Prohibited:
-- adding claims
-- deleting core claims
-- changing claim strength
-- adding evidence
-- removing caveats that carry substantive boundaries
-- converting a not-ready manuscript into ready through editing
+The compositor must not change formatting, grammar, punctuation, title, abstract,
+headings, citations, duplicate wording, terminology, claims, evidence, caveats,
+or any other source text. Any required change returns to the drafter, creates a
+new version, and requires a fresh evaluator before composition restarts.
