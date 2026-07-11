@@ -104,8 +104,29 @@ def main() -> int:
     roadmap = (PLUGIN / "ROADMAP.md").read_text(encoding="utf-8")
     if "Phase 5" in roadmap and "Status: Complete" in roadmap.split("## Phase 5", 1)[-1]:
         upgrade_path = PLUGIN / "reports" / "phase5-upgrade-smoke.md"
-        if not upgrade_path.is_file() or "Status: `upgrade_verified`" not in upgrade_path.read_text(encoding="utf-8"):
+        if not upgrade_path.is_file():
             errors.append("Phase 5 is marked complete without a verified upgrade receipt")
+        else:
+            upgrade = upgrade_path.read_text(encoding="utf-8")
+            required_upgrade_evidence = (
+                "Status: upgrade_verified",
+                version,
+                "GitHub Actions run `",
+                "conclusion `success`",
+                '"discovery_status": "verified"',
+                '"skill_count": 45',
+                '"pubmed_present": false',
+                "human_signoff_required",
+                "automatic_external_submission",
+            )
+            for marker in required_upgrade_evidence:
+                if marker not in upgrade:
+                    errors.append(f"Phase 5 upgrade receipt missing evidence: {marker}")
+            baseline_match = re.search(r"previously installed[\s\S]*?- version: `([^`]+)`", upgrade)
+            if not baseline_match or baseline_match.group(1) == version:
+                errors.append("Phase 5 upgrade receipt lacks a distinct installed baseline version")
+            if not re.search(r"commit `[0-9a-f]{40}`", upgrade):
+                errors.append("Phase 5 upgrade receipt lacks a full GitHub commit SHA")
 
     if errors:
         print("OpenAI Preview release validation failed")

@@ -19,7 +19,7 @@ Turn the current personal development plugin into a context-efficient, auditable
 - Plugin discovery, manifest, registry, and GitHub marketplace installation are implemented.
 - Static validation now covers recursive references, orphan resources, context budgets, workflow edges, discovery, reviewer isolation, and plugin structure. Scenario-level runtime tests remain a later phase.
 
-## Phase 0 – Reference and registry closure
+## Phase 0 — Reference and registry closure
 
 Status: Complete (2026-07-12)
 
@@ -37,7 +37,7 @@ Acceptance:
 - Every orchestrator-to-reviewer edge is marked delegated.
 - Registry, manifest, and discovered skill set match exactly.
 
-## Phase 1 – Context reduction
+## Phase 1 — Context reduction
 
 Status: Complete (2026-07-12)
 
@@ -62,7 +62,7 @@ Acceptance:
 - Every long reference has a table of contents or is split.
 - The main orchestrator retains at least half of the working context for user artifacts, state, and reasoning in the 32K test profile.
 
-## Phase 2 – Native Search and Deep Research
+## Phase 2 — Native Search and Deep Research
 
 Status: Complete (2026-07-12)
 
@@ -82,7 +82,7 @@ Acceptance:
 - No orchestrator prefers local scripts over native Search or Deep Research.
 - No deleted or external retrieval skill remains as a dangling dependency.
 
-## Phase 3 – Workflow state-machine closure
+## Phase 3 — Workflow state-machine closure
 
 Status: Complete (2026-07-12)
 
@@ -107,7 +107,7 @@ Implement fixture-driven tests for:
 
 1. Idea: generation -> evaluator -> revision -> fresh evaluator -> adversarial panel -> portfolio.
 2. Proposal: draft -> evaluator -> revision -> fresh evaluator -> optional SAP evaluator -> panel -> package.
-3. Article: draft -> methods/claim audits -> evaluator -> revision -> fresh evaluator -> panel -> compositor.
+3. Article: methods audit -> draft -> claim audit -> evaluator -> revision -> fresh claim audit/evaluator -> panel -> compositor.
 4. Perspective: draft -> evaluator -> revision -> fresh evaluator -> panel patch -> fresh evaluator -> compositor.
 
 Also test unique reviewer instance IDs, reviewer write scopes, prior-score blindness, fatal-flaw blocking, visible dissent, Search routing, Deep Research continuation, and 16K/32K context behavior.
