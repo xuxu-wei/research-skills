@@ -4,7 +4,7 @@ Status: Experimental/Preview
 Planning baseline: 2026-07-12  
 Current scope: 45 skills after removal of the standalone OpenAI `pubmed` skill
 
-Completion status: Phase 0 through Phase 3 complete on 2026-07-12; Phase 4-5 remain planned.
+Completion status: Phase 0 through Phase 5 complete on 2026-07-12.
 
 ## Objective
 
@@ -17,7 +17,7 @@ Turn the current personal development plugin into a context-efficient, auditable
 - `research-opportunity-mapper` routes broad evidence retrieval and Deep Research handoffs.
 - `academic-deep-search` handles narrow questions answerable through 2-5 papers.
 - Plugin discovery, manifest, registry, and GitHub marketplace installation are implemented.
-- Static validation now covers recursive references, orphan resources, context budgets, workflow edges, discovery, reviewer isolation, and plugin structure. Scenario-level runtime tests remain a later phase.
+- Static and fixture-driven validation cover recursive references, orphan resources, context budgets, workflow edges, discovery, reviewer isolation, revision/package lineage, plugin structure, and four end-to-end workflow scenarios.
 
 ## Phase 0 — Reference and registry closure
 
@@ -103,6 +103,8 @@ Acceptance:
 
 ## Phase 4 — Scenario evals and continuous validation
 
+Status: Complete (2026-07-12)
+
 Implement fixture-driven tests for:
 
 1. Idea: generation -> evaluator -> revision -> fresh evaluator -> adversarial panel -> portfolio.
@@ -119,7 +121,16 @@ Acceptance:
 - Reviewer writes remain limited to review/verification report locations.
 - Runtime results agree with registry edges and artifact lineage.
 
+Verification:
+
+- Four deterministic workflow fixtures pass the generation/draft, independent evaluation, revision, fresh evaluation, panel, and human-review delivery paths.
+- Thirty-nine adversarial mutations are rejected, including stale or missing review inputs, reviewer/writer reuse, understated panel decisions, missing revision plans/deltas, stale SAP binding, incomplete package lineage, and verifier identity mismatches.
+- Five finding routes are verified; live output snapshots are raw-hash-bound and report contract-corrected stopped/blocked/pending outcomes separately from their original self-attested states.
+- The canonical evidence is `reports/phase4-scenario-results.json`.
+
 ## Phase 5 — Preview release and GitHub updates
+
+Status: Complete (2026-07-12)
 
 Deliverables:
 
@@ -134,6 +145,14 @@ Acceptance:
 - Version N installs, GitHub updates to N+1, marketplace refresh/reinstall succeeds, and the new cache version is discovered.
 - The plugin remains labeled Preview/Experimental.
 - Final workflow status remains human review/sign-off; no automatic external submission is introduced.
+
+Verification:
+
+- GitHub Actions run `29171766061` succeeded for implementation commit `8eb40187df7af45f562ccf39c5b4e3a10167e232`.
+- The installed GitHub Marketplace plugin upgraded from `0.5.0-preview.1` to `0.5.0-preview.2`, then completed an explicit reinstall into the `.2` user cache.
+- Fresh Codex task `019f5379-15ad-7241-948a-14a5ddc0cebc` discovered the `.2` catalog path, all six public entry skills, and no `pubmed` skill.
+- The distribution remains Experimental/Preview on rolling `main`; the stable tag/SHA channel remains deferred.
+- The canonical evidence is `reports/phase5-upgrade-smoke.md`.
 
 ## Later development
 
