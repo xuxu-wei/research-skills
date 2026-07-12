@@ -1,6 +1,6 @@
 interface:
   display_name: "Article Claim Auditor"
-  short_description: "Independently audit manuscript claims against frozen evidence."
+  short_description: "Independently audit manuscript claims against evidence"
   default_prompt: "Use $article-claim-auditor for this task and follow its workflow and output contract."
 policy:
   allow_implicit_invocation: false

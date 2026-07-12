@@ -34,6 +34,15 @@ PANEL_SKILLS = {
     "article": "article-review-panel",
     "perspective": "perspective-review-panel",
 }
+LIVE_IDENTITY_COMPONENTS = (
+    "manifest",
+    "workflow_registry",
+    "registry_schema_version",
+    "receipt_schema",
+    "skills_tree",
+)
+DIGEST_ALGORITHM = "sha256_crlf_normalized_bytes"
+SKILLS_TREE_DIGEST_ALGORITHM = "sha256_sorted_posix_relative_path_nul_crlf_normalized_bytes_nul"
 
 
 class ScenarioViolation(AssertionError):
@@ -1217,7 +1226,7 @@ def mutate_fixture(fixture: dict[str, Any], mutation: str) -> None:
         event["review_report"]["input_versions"].append("c001")
         event["review_report"]["files_read"].append("01_context/article-context-v001.md")
     elif mutation == "unsupported_fixture_entry_mode":
-        fixture["entry_mode"] = "resume_candidates"
+        fixture["entry_mode"] = "unsupported_mode"
     elif mutation == "package_output_drops_input":
         package = next(event for event in fixture["events"] if event["type"] == "package")
         package["outputs"][0]["based_on"].pop()
@@ -1292,7 +1301,11 @@ def mutate_fixture(fixture: dict[str, Any], mutation: str) -> None:
 def validate_retrieval_receipts() -> dict[str, Any]:
     receipts = load_yaml(FIXTURE_ROOT / "retrieval-receipts.yaml")
     targeted = receipts["targeted_search"]
-    require(targeted["status"] == "targeted_search_verified", "search_receipt", "targeted status")
+    require(
+        targeted["status"] == "self_attested_search_snapshot_validated",
+        "search_receipt",
+        "targeted status",
+    )
     require(targeted["capability"] == "chatgpt_codex_builtin_search", "search_receipt", "wrong capability")
     require(len(targeted["opened_sources"]) >= 2, "search_receipt", "too few opened sources")
     require(all(item["identity_verified"] and item["adopted"] for item in targeted["opened_sources"]), "search_receipt", "unverified source adopted")
@@ -1331,6 +1344,216 @@ def normalized_skills_tree_digest(root: Path) -> tuple[int, str]:
     return len(files), digest.hexdigest()
 
 
+def sha256_hex(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes().replace(b"\r\n", b"\n")).hexdigest()
+
+
+def current_live_runtime_identity(registry: dict[str, Any]) -> dict[str, dict[str, Any]]:
+    file_count, skills_digest = normalized_skills_tree_digest(PLUGIN / "skills")
+    return {
+        "manifest": {
+            "applicable": True,
+            "capture_status": "captured",
+            "path": "research-skills-openai/.codex-plugin/plugin.json",
+            "algorithm": DIGEST_ALGORITHM,
+            "sha256": sha256_hex(PLUGIN / ".codex-plugin" / "plugin.json"),
+        },
+        "workflow_registry": {
+            "applicable": True,
+            "capture_status": "captured",
+            "path": "research-skills-openai/workflow-registry.yaml",
+            "algorithm": DIGEST_ALGORITHM,
+            "sha256": sha256_hex(PLUGIN / "workflow-registry.yaml"),
+        },
+        "registry_schema_version": {
+            "applicable": True,
+            "capture_status": "captured",
+            "value": registry["schema_version"],
+        },
+        "receipt_schema": {
+            "applicable": False,
+            "capture_status": "captured",
+            "path": None,
+            "algorithm": None,
+            "sha256": None,
+            "reason": "no_separate_live_receipt_schema_file",
+        },
+        "skills_tree": {
+            "applicable": True,
+            "capture_status": "captured",
+            "algorithm": SKILLS_TREE_DIGEST_ALGORITHM,
+            "file_count": file_count,
+            "sha256": skills_digest,
+        },
+    }
+
+
+def validate_captured_runtime_identity(identity: dict[str, Any]) -> None:
+    require(
+        set(identity) == set(LIVE_IDENTITY_COMPONENTS),
+        "live_receipt_identity",
+        f"identity components: {sorted(identity)}",
+    )
+    for name in LIVE_IDENTITY_COMPONENTS:
+        record = identity[name]
+        require(isinstance(record, dict), "live_receipt_identity", f"{name}: record")
+        require(
+            record.get("capture_status") in {"captured", "not_captured"},
+            "live_receipt_identity",
+            f"{name}: capture status",
+        )
+        applicable = record.get("applicable")
+        require(
+            isinstance(applicable, bool) or applicable == "unknown",
+            "live_receipt_identity",
+            f"{name}: applicability",
+        )
+        if record["capture_status"] == "not_captured":
+            value_key = "value" if name == "registry_schema_version" else "sha256"
+            require(record.get(value_key) is None, "live_receipt_identity", f"{name}: uncaptured value")
+            continue
+        require(isinstance(applicable, bool), "live_receipt_identity", f"{name}: captured applicability")
+        if not applicable:
+            require(bool(record.get("reason")), "live_receipt_identity", f"{name}: not-applicable reason")
+            continue
+        if name == "registry_schema_version":
+            require(record.get("value") is not None, "live_receipt_identity", f"{name}: value")
+            continue
+        require(
+            re.fullmatch(r"[0-9a-f]{64}", str(record.get("sha256", ""))) is not None,
+            "live_receipt_identity",
+            f"{name}: digest",
+        )
+        expected_algorithm = SKILLS_TREE_DIGEST_ALGORITHM if name == "skills_tree" else DIGEST_ALGORITHM
+        require(record.get("algorithm") == expected_algorithm, "live_receipt_identity", f"{name}: algorithm")
+        if name == "skills_tree":
+            require(
+                isinstance(record.get("file_count"), int) and record["file_count"] > 0,
+                "live_receipt_identity",
+                f"{name}: file count",
+            )
+
+
+def compare_live_runtime_identity(
+    captured: dict[str, Any], current: dict[str, Any]
+) -> dict[str, Any]:
+    validate_captured_runtime_identity(captured)
+    validate_captured_runtime_identity(current)
+    incomplete: list[str] = []
+    mismatches: list[str] = []
+    for name in LIVE_IDENTITY_COMPONENTS:
+        captured_record = captured[name]
+        current_record = current[name]
+        if captured_record["capture_status"] != "captured" or captured_record["applicable"] == "unknown":
+            incomplete.append(name)
+            continue
+        if captured_record["applicable"] != current_record["applicable"]:
+            mismatches.append(name)
+            continue
+        if captured_record["applicable"] is False:
+            continue
+        if name == "registry_schema_version":
+            if captured_record["value"] != current_record["value"]:
+                mismatches.append(name)
+            continue
+        comparable_fields = ["algorithm", "sha256"]
+        if name == "skills_tree":
+            comparable_fields.append("file_count")
+        if any(captured_record.get(field) != current_record.get(field) for field in comparable_fields):
+            mismatches.append(name)
+    if incomplete:
+        applicability = "historical_only_incomplete_identity"
+    elif mismatches:
+        applicability = "historical_only_identity_mismatch"
+    else:
+        applicability = "current_identity_compatible"
+    return {
+        "applicability": applicability,
+        "identity_complete": not incomplete,
+        "missing_identity_components": incomplete,
+        "mismatched_identity_components": mismatches,
+    }
+
+
+def validate_live_identity_negative_guards(current: dict[str, Any]) -> list[dict[str, str]]:
+    compatible = compare_live_runtime_identity(copy.deepcopy(current), current)
+    require(
+        compatible["applicability"] == "current_identity_compatible",
+        "live_identity_self_test",
+        "complete identical identity was not accepted",
+    )
+
+    cases: list[tuple[str, dict[str, Any], str]] = []
+    skills_only = copy.deepcopy(current)
+    for name in ("manifest", "workflow_registry", "registry_schema_version", "receipt_schema"):
+        skills_only[name]["capture_status"] = "not_captured"
+        skills_only[name]["applicable"] = "unknown" if name == "receipt_schema" else True
+        if name == "registry_schema_version":
+            skills_only[name]["value"] = None
+        else:
+            skills_only[name]["sha256"] = None
+    cases.append(("skills-tree-only-is-incomplete", skills_only, "historical_only_incomplete_identity"))
+
+    for name in LIVE_IDENTITY_COMPONENTS:
+        mutated = copy.deepcopy(current)
+        mutated[name]["capture_status"] = "not_captured"
+        if name == "receipt_schema":
+            mutated[name]["applicable"] = "unknown"
+        if name == "registry_schema_version":
+            mutated[name]["value"] = None
+        else:
+            mutated[name]["sha256"] = None
+        cases.append((f"missing-{name}-is-incomplete", mutated, "historical_only_incomplete_identity"))
+
+    for name in ("manifest", "workflow_registry", "skills_tree"):
+        mutated = copy.deepcopy(current)
+        mutated[name]["sha256"] = "0" * 64 if mutated[name]["sha256"] != "0" * 64 else "1" * 64
+        cases.append((f"{name}-digest-mismatch", mutated, "historical_only_identity_mismatch"))
+
+    file_count_mismatch = copy.deepcopy(current)
+    file_count_mismatch["skills_tree"]["file_count"] += 1
+    cases.append(("skills-tree-file-count-mismatch", file_count_mismatch, "historical_only_identity_mismatch"))
+
+    schema_mismatch = copy.deepcopy(current)
+    schema_mismatch["registry_schema_version"]["value"] = f"{current['registry_schema_version']['value']}-tampered"
+    cases.append(("registry-schema-version-mismatch", schema_mismatch, "historical_only_identity_mismatch"))
+
+    receipt_schema_current = copy.deepcopy(current)
+    receipt_schema_current["receipt_schema"] = {
+        "applicable": True,
+        "capture_status": "captured",
+        "path": "tests/openai_phase4/live-forward-test-receipts.schema.yaml",
+        "algorithm": DIGEST_ALGORITHM,
+        "sha256": "a" * 64,
+    }
+    receipt_schema_mismatch = copy.deepcopy(receipt_schema_current)
+    receipt_schema_mismatch["receipt_schema"]["sha256"] = "b" * 64
+    result = compare_live_runtime_identity(receipt_schema_mismatch, receipt_schema_current)
+    require(
+        result["applicability"] == "historical_only_identity_mismatch",
+        "live_identity_negative_guard",
+        "receipt-schema-digest-mismatch",
+    )
+    results = [
+        {
+            "case_id": "receipt-schema-digest-mismatch",
+            "status": "rejected_as_expected",
+            "applicability": result["applicability"],
+        }
+    ]
+    for case_id, captured, expected in cases:
+        result = compare_live_runtime_identity(captured, current)
+        require(result["applicability"] == expected, "live_identity_negative_guard", case_id)
+        results.append(
+            {
+                "case_id": case_id,
+                "status": "rejected_as_expected",
+                "applicability": result["applicability"],
+            }
+        )
+    return sorted(results, key=lambda item: item["case_id"])
+
+
 def extract_raw_execution_receipt(raw_text: str, workflow_id: str) -> dict[str, Any]:
     for language, body in re.findall(r"```(yaml|json)\s*\n(.*?)```", raw_text, re.S):
         try:
@@ -1363,29 +1586,25 @@ def raw_receipt_version(workflow: str, raw: dict[str, Any]) -> str:
     return str(drafts[-1]["version"])
 
 
-def validate_live_forward_test_receipts(registry: dict[str, Any]) -> tuple[list[dict[str, Any]], dict[str, int]]:
+def validate_live_forward_test_receipts(registry: dict[str, Any]) -> tuple[list[dict[str, Any]], dict[str, Any]]:
     data = load_yaml(LIVE_RECEIPT_PATH)
-    require(data.get("schema_version") == 2, "live_receipt_schema", "schema_version")
+    require(data.get("schema_version") == 4, "live_receipt_schema", "schema_version")
     require(data.get("capture_method") == "codex_fresh_delegated_instances", "live_receipt_schema", "capture method")
     require(data.get("evidence_class") == "self_attested_live_output_snapshot", "live_receipt_schema", "evidence class")
     require(
-        data.get("applicability") == "skill_bodies_unchanged_by_phase4_registry_and_test_hardening",
+        data.get("applicability_policy") == "complete_captured_runtime_identity_exact_match",
         "live_receipt_schema",
-        "applicability",
+        "applicability policy",
     )
-    captured_version = str(data.get("plugin_version_under_test", ""))
-    require(captured_version == "0.5.0-preview.1", "live_receipt_version", captured_version)
-    require(registry.get("plugin_version") == "0.5.0-preview.2", "live_receipt_version", str(registry.get("plugin_version")))
-    digest_record = data.get("skills_tree_digest", {})
-    require(
-        digest_record.get("algorithm") == "sha256_sorted_posix_relative_path_nul_crlf_normalized_bytes_nul",
-        "live_receipt_digest",
-        "algorithm",
-    )
-    file_count, current_digest = normalized_skills_tree_digest(PLUGIN / "skills")
-    require(digest_record.get("file_count") == file_count, "live_receipt_digest", "file count")
-    require(digest_record.get("current_preview_2") == current_digest, "live_receipt_digest", "current tree")
-    require(digest_record.get("installed_preview_1") == current_digest, "live_receipt_digest", "installed/current mismatch")
+    captured_plugin = data.get("captured_plugin", {})
+    captured_version = str(captured_plugin.get("version", ""))
+    require(bool(captured_version), "live_receipt_version", "captured version missing")
+    captured_identity = captured_plugin.get("runtime_identity", {})
+    current_identity = current_live_runtime_identity(registry)
+    identity_comparison = compare_live_runtime_identity(captured_identity, current_identity)
+    applicability = identity_comparison["applicability"]
+    captured_digest = str(captured_identity["skills_tree"]["sha256"])
+    current_digest = str(current_identity["skills_tree"]["sha256"])
     receipts = data.get("workflows", [])
     by_workflow = {item.get("workflow"): item for item in receipts}
     require(set(by_workflow) == {Path(name).stem for name in FIXTURE_NAMES}, "live_receipt_workflows", str(sorted(by_workflow)))
@@ -1511,6 +1730,22 @@ def validate_live_forward_test_receipts(registry: dict[str, Any]) -> tuple[list[
                 "raw_claimed_state": raw_state,
                 "contract_assessment": receipt["contract_assessment"],
                 "evidence_class": data["evidence_class"],
+                "applicability": applicability,
+                "identity_complete": identity_comparison["identity_complete"],
+                "missing_identity_components": identity_comparison["missing_identity_components"],
+                "mismatched_identity_components": identity_comparison["mismatched_identity_components"],
+                "captured_plugin_version": captured_version,
+                "captured_manifest_sha256": captured_identity["manifest"].get("sha256"),
+                "captured_workflow_registry_sha256": captured_identity["workflow_registry"].get("sha256"),
+                "captured_registry_schema_version": captured_identity["registry_schema_version"].get("value"),
+                "captured_receipt_schema_sha256": captured_identity["receipt_schema"].get("sha256"),
+                "captured_skills_tree_sha256": captured_digest,
+                "current_plugin_version": registry.get("plugin_version"),
+                "current_manifest_sha256": current_identity["manifest"]["sha256"],
+                "current_workflow_registry_sha256": current_identity["workflow_registry"]["sha256"],
+                "current_registry_schema_version": current_identity["registry_schema_version"]["value"],
+                "current_receipt_schema_sha256": current_identity["receipt_schema"].get("sha256"),
+                "current_skills_tree_sha256": current_digest,
                 "orchestrator_instance": orchestrator,
                 "evaluator_instances": evaluators,
                 "panel_instances": panels,
@@ -1526,6 +1761,11 @@ def validate_live_forward_test_receipts(registry: dict[str, Any]) -> tuple[list[
         "blocked_at_valid_gate": blocked,
         "independent_review_pending": pending,
         "raw_state_claims_corrected": corrected_claims,
+        "applicability": applicability,
+        "identity_complete": identity_comparison["identity_complete"],
+        "identity_missing_components": identity_comparison["missing_identity_components"],
+        "identity_mismatched_components": identity_comparison["mismatched_identity_components"],
+        "current_identity_compatible_receipts": audited if applicability == "current_identity_compatible" else 0,
     }
     return summaries, counts
 
@@ -1554,6 +1794,9 @@ def run_all() -> dict[str, Any]:
             raise ScenarioViolation("negative_case_accepted", case["case_id"])
 
     live_results, live_counts = validate_live_forward_test_receipts(registry)
+    live_identity_guard_results = validate_live_identity_negative_guards(
+        current_live_runtime_identity(registry)
+    )
     return {
         "schema_version": 1,
         "plugin_version": registry["plugin_version"],
@@ -1561,6 +1804,7 @@ def run_all() -> dict[str, Any]:
         "execution_scope": "deterministic_replay_plus_separate_live_receipts",
         "scenario_results": scenario_results,
         "negative_guard_results": guard_results,
+        "live_identity_negative_guard_results": live_identity_guard_results,
         "finding_route_results": validate_finding_route_cases(),
         "live_forward_test_receipts": live_results,
         "retrieval_receipts": validate_retrieval_receipts(),
@@ -1574,6 +1818,12 @@ def run_all() -> dict[str, Any]:
             "live_workflows_blocked_at_valid_gate": live_counts["blocked_at_valid_gate"],
             "live_workflows_independent_review_pending": live_counts["independent_review_pending"],
             "live_raw_state_claims_corrected": live_counts["raw_state_claims_corrected"],
+            "live_receipt_applicability": live_counts["applicability"],
+            "live_receipt_identity_complete": live_counts["identity_complete"],
+            "live_receipt_identity_missing_components": live_counts["identity_missing_components"],
+            "live_receipt_identity_mismatched_components": live_counts["identity_mismatched_components"],
+            "live_current_identity_compatible_receipts": live_counts["current_identity_compatible_receipts"],
+            "live_identity_negative_guards_rejected": len(live_identity_guard_results),
             "final_state": "human_signoff_required",
             "automatic_external_submission": False,
         },
@@ -1597,6 +1847,11 @@ def main() -> int:
     print("Phase 4 scenario evaluations passed")
     print(f"workflows: {result['summary']['workflows_passed']}/4")
     print(f"negative guards: {result['summary']['negative_guards_rejected']}/{len(result['negative_guard_results'])}")
+    print(
+        "live identity negative guards: "
+        f"{result['summary']['live_identity_negative_guards_rejected']}/"
+        f"{len(result['live_identity_negative_guard_results'])}"
+    )
     print(f"finding routes: {result['summary']['finding_routes_verified']}/5")
     print(
         "live output snapshots: "
@@ -1605,7 +1860,8 @@ def main() -> int:
         f"{result['summary']['live_workflows_stopped_at_valid_gate']} stopped at valid gates; "
         f"{result['summary']['live_workflows_blocked_at_valid_gate']} blocked at a valid gate; "
         f"{result['summary']['live_workflows_independent_review_pending']} independent-review pending; "
-        f"{result['summary']['live_raw_state_claims_corrected']} raw state claims corrected"
+        f"{result['summary']['live_raw_state_claims_corrected']} raw state claims corrected; "
+        f"applicability={result['summary']['live_receipt_applicability']}"
     )
     print("context profiles: conservative character proxy for 16K/32K behavior")
     print("runtime scope: deterministic replay; live receipts validated separately")

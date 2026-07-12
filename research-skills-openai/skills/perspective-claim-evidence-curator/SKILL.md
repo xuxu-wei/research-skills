@@ -1,6 +1,6 @@
 ---
 name: perspective-claim-evidence-curator
-description: "Create and maintain the Perspective claim ledger, claim-evidence matrix, discourse baseline, contrary-evidence log, citation risks, and approved claim changes."
+description: "Build and maintain Perspective claim, evidence, contrary-evidence, citation-risk, and approved-change artifacts before drafting."
 ---
 # perspective-claim-evidence-curator
 

@@ -1,0 +1,154 @@
+{
+  "schema_version": 1,
+  "plugin": "research-skills-openai",
+  "external_evidence_schema": "tests/openai_phase7/release-evidence.schema.yaml",
+  "evidence_policy": "Derived fields come from the current tree. External evidence is preserved only for an unchanged version, manifest, registry/schema, license, provenance, skill-tree digest, validation-contract tree, and marketplace source. Verified external records require a repository-relative evidence file whose raw SHA-256 and observed payload match the ledger. Repository files alone do not authenticate provider origin; verified external records additionally require an implemented authenticated adapter. Unobserved evidence remains pending.",
+  "release": {
+    "version": "0.6.0-preview.1",
+    "external_evidence_trust": {
+      "adapter_status": "unavailable",
+      "adapter_id": null,
+      "provider_authenticated": false,
+      "reason": "No authenticated GitHub/Codex external-evidence adapter is implemented; repository-authored envelopes prove integrity, not origin."
+    },
+    "source_commit": {
+      "status": "pending",
+      "sha": null,
+      "reason": "The candidate has not yet been bound to an immutable pushed commit."
+    },
+    "installable_skill_tree": {
+      "root": "skills/",
+      "algorithm": "sha256_sorted_posix_relative_path_nul_crlf_normalized_bytes_nul",
+      "file_count": 330,
+      "sha256": "6e024f278845c3397518994335ba76f7d7fe07917fcb1fccbb0270153a6ff515"
+    },
+    "installable_contracts": {
+      "manifest_sha256": "2010071db21776a63498c9813d9ea401574bd44dda157eb55ec25d6ca25a0809",
+      "registry_sha256": "44e2c098eb6f3ab020189dec025a833be15e887691bd4b33a1c04c6b36205c8f",
+      "registry_schema_version": 5,
+      "license_sha256": "0200f93cb786f526f23f9a901367dda528e65c3d8c3d9a1c92bcedb3fe5cba1a",
+      "provenance_sha256": "06da633f584e35d66c1762e56171175ae8166690716aaf0676cc399f89dd01ca"
+    },
+    "validation_contract_tree": {
+      "algorithm": "sha256_sorted_repository_relative_path_nul_crlf_normalized_bytes_nul",
+      "file_count": 49,
+      "sha256": "1e9baa269d9db1c9facf680158d28539c36a14dbd52d1ae65aee7a4528c9cd0d",
+      "mutable_runtime_evidence_excluded": [
+        "tests/openai_phase7/current-version-runtime-receipts.yaml",
+        "tests/openai_phase8/live-repeat-receipts.yaml",
+        "tests/openai_phase8/retrieval-receipts.yaml",
+        "tests/openai_phase7/runtime-evidence/**",
+        "tests/openai_phase8/retrieval-artifacts/**",
+        "tests/openai_phase8/runtime-evidence/**"
+      ]
+    },
+    "ci": {
+      "repository_preview": {
+        "status": "pending",
+        "workflow_file": ".github/workflows/openai-plugin-preview.yml",
+        "run_id": null,
+        "run_url": null,
+        "commit_sha": null,
+        "conclusion": null,
+        "evidence_path": null,
+        "evidence_sha256": null,
+        "reason": "A successful GitHub Actions run bound to the release commit is not yet recorded."
+      },
+      "canonical_plugin_validator": {
+        "local": {
+          "status": "pending",
+          "command": "python C:/Users/10149/.codex/skills/.system/plugin-creator/scripts/validate_plugin.py research-skills-openai",
+          "validator_source": "Codex bundled plugin-creator skill",
+          "result": null,
+          "verified_on": null,
+          "reason": "The bundled canonical validator has not yet been recorded for this tree."
+        },
+        "ci": {
+          "status": "pending",
+          "run_id": null,
+          "commit_sha": null,
+          "conclusion": null,
+          "evidence_path": null,
+          "evidence_sha256": null,
+          "reason": "No stable public canonical-validator CI entry point is available; the bundled system validator is not vendored into this repository."
+        }
+      }
+    },
+    "governance": {
+      "main_branch_protection": {
+        "status": "pending",
+        "branch": "main",
+        "required_check": "OpenAI Plugin Preview / validate",
+        "verified_at": null,
+        "evidence_path": null,
+        "evidence_sha256": null,
+        "reason": "Repository branch protection and the required Preview check have not been verified through an authenticated repository API."
+      }
+    },
+    "marketplace_source": {
+      "marketplace_name": "xuxu-research-preview",
+      "source": "git-subdir",
+      "url": "https://github.com/xuxu-wei/research-skills.git",
+      "path": "./research-skills-openai",
+      "ref": "main",
+      "resolved_commit": {
+        "status": "pending",
+        "sha": null,
+        "evidence_path": null,
+        "evidence_sha256": null,
+        "reason": "The rolling marketplace ref has not yet been resolved and bound to this release."
+      }
+    },
+    "receipts": {
+      "marketplace_upgrade": {
+        "status": "pending",
+        "installed_version": null,
+        "source_commit": null,
+        "cache_path": null,
+        "cache_artifact": null,
+        "evidence_path": null,
+        "evidence_sha256": null,
+        "reason": "A current-version external receipt has not yet been captured."
+      },
+      "explicit_reinstall": {
+        "status": "pending",
+        "installed_version": null,
+        "source_commit": null,
+        "cache_path": null,
+        "cache_artifact": null,
+        "evidence_path": null,
+        "evidence_sha256": null,
+        "reason": "A current-version external receipt has not yet been captured."
+      },
+      "fresh_task_discovery": {
+        "status": "pending",
+        "plugin_version": null,
+        "source_commit": null,
+        "task_id": null,
+        "skill_count": null,
+        "visible_entry_skills": null,
+        "installed_via": null,
+        "cache_artifact": null,
+        "evidence_path": null,
+        "evidence_sha256": null,
+        "reason": "A current-version external receipt has not yet been captured."
+      },
+      "rollback": {
+        "status": "pending",
+        "from_version": "0.6.0-preview.1",
+        "to_version": null,
+        "target_commit": null,
+        "restored_cache_path": null,
+        "candidate_cache_path": null,
+        "candidate_from_receipt": null,
+        "candidate_cache_artifact": null,
+        "restored_cache_artifact": null,
+        "cache_mixing_absent": null,
+        "evidence_path": null,
+        "evidence_sha256": null,
+        "reason": "Rollback evidence must be captured against the previous artifact and an immutable commit."
+      }
+    }
+  },
+  "previous_releases": []
+}

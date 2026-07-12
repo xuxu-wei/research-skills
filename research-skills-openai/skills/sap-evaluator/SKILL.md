@@ -1,6 +1,6 @@
 ---
 name: sap-evaluator
-description: "Independently evaluate a frozen Statistical Analysis Plan for endpoint alignment, data-method fit, feasibility, rigor, missing data, sensitivity analysis, and reproducibility."
+description: "Independently evaluate a frozen SAP for endpoint alignment, data-method fit, feasibility, missing data, sensitivity, and reproducibility."
 ---
 # sap-evaluator
 

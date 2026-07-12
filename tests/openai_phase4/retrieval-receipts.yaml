@@ -16,7 +16,7 @@ targeted_search:
       identity_verified: true
       adopted: true
   local_script_invocations: []
-  status: targeted_search_verified
+  status: self_attested_search_snapshot_validated
 deep_research_inactive:
   requested_mode: deep_research
   capability_active: false

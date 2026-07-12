@@ -1,6 +1,6 @@
 ---
 name: sap-writer
-description: "Draft or revise a versioned Statistical Analysis Plan from approved endpoints, design, data structure, methodology preflight, and revision instructions without self-evaluation."
+description: "Draft or revise a versioned SAP from approved endpoints, design, data structure, preflight findings, and revision instructions."
 ---
 # sap-writer
 

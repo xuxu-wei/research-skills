@@ -1,6 +1,6 @@
 ---
 name: article-methods-statistics-auditor
-description: "Independently audit study design, methods, endpoints, and statistics before manuscript drafting; identify reanalysis needs or methodological blocks without rewriting."
+description: "Independently audit a frozen study's design, methods, endpoints, and statistics before drafting; report reanalysis needs or blocks."
 ---
 # article-methods-statistics-auditor
 

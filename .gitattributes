@@ -1,0 +1,11 @@
+# Keep OpenAI plugin sources and generated evidence byte-stable across Windows
+# and Linux so committed SHA-256 bindings and report-drift checks are portable.
+research-skills-openai/** text eol=lf
+tests/openai_phase4/** text eol=lf
+tests/openai_phase6/** text eol=lf
+tests/openai_phase7/** text eol=lf
+tests/openai_phase8/** text eol=lf
+scripts/*.py text eol=lf
+.github/workflows/*.yml text eol=lf
+.agents/plugins/*.json text eol=lf
+codex-plugin-validation.json text eol=lf

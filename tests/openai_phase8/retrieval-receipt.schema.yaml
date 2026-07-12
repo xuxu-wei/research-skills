@@ -1,0 +1,99 @@
+schema_version: 1
+freshness_days: 90
+provider_verifier_registry: tests/openai_phase8/provider-verifier-registry.yaml
+allowed_evidence_statuses:
+  - pending_live_evidence
+  - observed_unverified
+  - verified_live_evidence
+common_required:
+  - receipt_id
+  - kind
+  - capability
+  - question_class
+  - expected_completion_status
+  - evidence_status
+  - verification_level
+  - query
+  - captured_at
+  - plugin_version
+  - task_id
+  - opened_sources
+  - material_claim_trace
+  - artifact_digests
+  - artifact_paths
+completion_contracts:
+  search:
+    count: 3
+    expected_status: search_verified
+    min_opened_sources: 2
+    required_source_flags: [primary_or_authoritative, identity_verified]
+    require_material_claim_traceability: true
+  deep_research_completed:
+    count: 2
+    expected_status: deep_research_cycle_completed
+    min_opened_sources: 2
+    required_source_flags: [primary_or_authoritative, identity_verified]
+    require_material_claim_traceability: true
+    require_handoff_artifact: true
+    require_mapper_return_artifact: true
+    require_provider_run_completed_receipt: true
+    require_evidence_artifact_path_digest_bindings: true
+    require_unique_pending_edge_resume: true
+  deep_research_inactive_control:
+    count: 1
+    expected_status: deep_research_handoff_required
+    min_opened_sources: 0
+    require_capability_inactive: true
+    require_workflow_paused: true
+    forbid_downstream_evidence_map: true
+pending_policy:
+  missing_live_fields_must_be_pending: true
+  pending_is_not_pass: true
+  prohibited_claims: [verified, passed, completed]
+verification_policy:
+  observed_unverified_is_not_pass: true
+  verified_live_evidence_requires_durable_tool_or_task_provenance: true
+  repository_files_alone_are_not_provider_provenance: true
+  provider_verifier_adapter_required: true
+  source_identity_required:
+    - source_commit
+    - manifest_digest
+    - registry_digest
+    - skill_tree_digest
+  verified_evidence_class: durable_platform_retrieval_receipts
+  verified_live_common_required:
+    - platform_receipt_or_export_id
+    - platform_receipt_or_export_path
+    - platform_receipt_or_export_digest
+    - query_or_request_digest
+  verified_live_kind_required:
+    search:
+      - raw_search_output_path
+      - raw_search_output_digest
+      - citation_export_path
+      - citation_export_digest
+    deep_research_completed:
+      - raw_deep_research_output_path
+      - raw_deep_research_output_digest
+      - citation_export_path
+      - citation_export_digest
+      - handoff_artifact_digest
+      - mapper_return_artifact_digest
+      - resume_receipt_path
+      - resume_receipt_digest
+    deep_research_inactive_control:
+      - capability_state_export_path
+      - capability_state_export_digest
+      - continuation_artifact_digest
+  deep_research_cycle_identity_required:
+    - deep_research_session_id
+    - deep_research_run_id
+    - user_start_event_path
+    - user_start_event_digest
+    - provider_run_completed_receipt_id
+    - provider_run_completed_path
+    - provider_run_completed_digest
+    - provider_run_completed_status
+    - mapper_return_receipt_id
+    - resume_transaction_id
+    - evidence_artifacts

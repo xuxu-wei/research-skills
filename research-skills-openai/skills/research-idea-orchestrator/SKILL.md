@@ -1,6 +1,6 @@
 ---
 name: research-idea-orchestrator
-description: "Orchestrate research idea development from a rough topic, evidence, funding call, practical problem, or data asset into an independently evaluated and ranked PI-review portfolio."
+description: "Orchestrate a topic, evidence set, funding call, problem, or data asset into independently evaluated ideas and a ranked PI-review portfolio."
 ---
 # research-idea-orchestrator
 
@@ -19,6 +19,42 @@ Control idea-workflow state, routing, delegation, stop decisions, and proposal h
 - Preserve lineage for generation, revision, reframe, merge, rejection, backup, and promotion.
 - Preserve fatal findings, unresolved issues, adversarial objections, conflicts, and dissent in the portfolio.
 - Stop at PI review/proposal handoff; do not write the proposal.
+
+## Entry Modes and Gates
+
+Select one mode, record it, and pass its gates before advancing.
+
+<!-- idea-entry-mode-contract:start -->
+```yaml
+entry_modes:
+  - standard
+  - resume_candidates
+  - portfolio_only
+entry_gates:
+  standard:
+    - context_frozen
+    - evidence_map_frozen
+    - candidate_set_versioned
+  resume_candidates:
+    - context_scope_validated
+    - evidence_scope_validated
+    - candidate_set_versioned
+  portfolio_only:
+    - latest_version_independently_evaluated
+    - adversarial_reports_complete
+    - dissent_and_fatal_findings_indexed
+non_bypass_gates:
+  - latest_version_independently_evaluated
+  - fresh_adversarial_role_instances
+  - dissent_and_fatal_findings_indexed
+  - idea-portfolio-assembler
+```
+<!-- idea-entry-mode-contract:end -->
+
+- `standard` freezes new context, evidence map, and versioned candidates before evaluation.
+- `resume_candidates` validates context/evidence against candidate scope and freezes the candidate set; rebuild stale inputs.
+- `portfolio_only` requires the current candidate version, valid independent evaluation, fresh adversarial-role reports, and indexed dissent/fatal findings. Return missing or stale reviews to delegation.
+- Every mode requires current-version independent evaluation, distinct fresh panel instances, finding indexing, and `idea-portfolio-assembler`. A substantive change invalidates prior evaluation and panel reports.
 
 ## Workflow Kernel
 

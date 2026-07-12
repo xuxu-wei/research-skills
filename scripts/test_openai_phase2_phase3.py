@@ -35,6 +35,12 @@ FINAL_SKILLS = {
     "article": "article-submission-compositor",
     "perspective": "perspective-final-compositor",
 }
+IDEA_NON_BYPASS_GATES = {
+    "latest_version_independently_evaluated",
+    "fresh_adversarial_role_instances",
+    "dissent_and_fatal_findings_indexed",
+    "idea-portfolio-assembler",
+}
 
 
 def read(path: Path) -> str:
@@ -44,6 +50,62 @@ def read(path: Path) -> str:
 def require(condition: bool, message: str) -> None:
     if not condition:
         raise AssertionError(message)
+
+
+def validate_idea_mode_contract(registry: dict, skill_text: str) -> None:
+    machine = registry["workflow_state_machines"]["idea"]
+    match = re.search(
+        r"<!-- idea-entry-mode-contract:start -->\s*```yaml\s*(.*?)\s*```\s*<!-- idea-entry-mode-contract:end -->",
+        skill_text,
+        re.S,
+    )
+    require(match is not None, "idea orchestrator lacks its machine-readable entry-mode contract")
+    contract = yaml.safe_load(match.group(1))
+    require(isinstance(contract, dict), "idea orchestrator entry-mode contract is not a mapping")
+    require(contract.get("entry_modes") == machine.get("entry_modes"), "idea registry/SKILL entry modes differ")
+    require(contract.get("entry_gates") == machine.get("entry_gates"), "idea registry/SKILL entry gates differ")
+    require(
+        set(contract.get("non_bypass_gates", [])) == IDEA_NON_BYPASS_GATES,
+        "idea SKILL does not preserve evaluation, fresh-panel, finding-index, and assembly gates",
+    )
+    require(
+        machine.get("final_package_skill") in contract["non_bypass_gates"],
+        "idea SKILL assembly gate differs from the registry final package skill",
+    )
+    require(
+        "latest_version_independently_evaluated" in machine.get("before_panel", []),
+        "idea panel can run without current-version independent evaluation",
+    )
+    require(
+        {"latest_version_independently_evaluated", "adversarial_reports_complete", "dissent_and_fatal_findings_indexed"}
+        <= set(machine.get("before_packaging", [])),
+        "idea packaging gates omit evaluation, panel completion, or finding indexing",
+    )
+    panel = next(entry for entry in registry["skills"] if entry["name"] == "idea-adversarial-review-panel")
+    require(panel.get("requires_independent_subagent") is True, "idea panel roles are not independently delegated")
+    panel_edges = [
+        edge
+        for edge in registry["workflow_edges"]
+        if edge.get("workflow") == "idea" and edge.get("destination") == "idea-adversarial-review-panel"
+    ]
+    require(
+        len(panel_edges) == 1 and panel_edges[0].get("dispatch_mode") == "delegated",
+        "idea orchestrator-to-panel edge is not delegated",
+    )
+
+
+def idea_mode_contract_mutation_tests(registry: dict, skill_text: str) -> None:
+    mutations = {
+        "missing mode": skill_text.replace("  - portfolio_only\n", "", 1),
+        "missing gate": skill_text.replace("    - evidence_map_frozen\n", "", 1),
+    }
+    for label, mutated in mutations.items():
+        require(mutated != skill_text, f"idea contract mutation fixture was ineffective: {label}")
+        try:
+            validate_idea_mode_contract(registry, mutated)
+        except AssertionError:
+            continue
+        raise AssertionError(f"idea contract validator accepted mutation: {label}")
 
 
 def load_handoff_report() -> dict:
@@ -80,7 +142,7 @@ def phase2_tests(registry: dict) -> None:
         "Local retrieval scripts used: no",
         "equator-network.org/reporting-guidelines/consort",
         "consort-spirit.org/published-statements",
-        "Status: `targeted_search_verified`",
+        "Status: `self_attested_search_snapshot_validated`",
     ):
         require(expected in search_report, f"targeted Search smoke evidence missing: {expected}")
 
@@ -187,6 +249,10 @@ def phase3_tests(registry: dict) -> None:
     require(resolve_ready_state(changed=False, current_version="v2", evaluated_version="v2", fatal=False, reviewer_available=False) == "independent_review_pending", "reviewer unavailability did not pause")
     require(resolve_ready_state(changed=True, current_version="v2", evaluated_version="v2", fatal=False, reviewer_available=True) == "human_signoff_required", "valid current-version evaluation did not reach human sign-off")
 
+    idea_orchestrator = read(SKILLS / "research-idea-orchestrator" / "SKILL.md")
+    validate_idea_mode_contract(registry, idea_orchestrator)
+    idea_mode_contract_mutation_tests(registry, idea_orchestrator)
+
 
 def main() -> int:
     registry = yaml.safe_load(read(REGISTRY))
@@ -195,9 +261,10 @@ def main() -> int:
     phase3_tests(registry)
     print("Phase 2/3 contract tests passed")
     print("workflows: 4")
-    print("targeted Search smoke: verified")
+    print("targeted Search smoke: self-attested snapshot validated (non-gating)")
     print("Deep Research inactive smoke: deep_research_handoff_required")
     print("state-machine transition cases: 4/4")
+    print("idea registry/SKILL mutation guards: 2/2")
     return 0
 
 

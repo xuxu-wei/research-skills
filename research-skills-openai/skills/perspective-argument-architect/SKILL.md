@@ -1,6 +1,6 @@
 ---
 name: perspective-argument-architect
-description: "Design a contestable Perspective argument chain, contribution type, narrative strategy, paragraph plan, and claim mapping before drafting; do not write prose."
+description: "Design a contestable Perspective argument chain, contribution, narrative, paragraph plan, and claim mapping before prose drafting."
 ---
 # perspective-argument-architect
 

@@ -1,6 +1,6 @@
 interface:
   display_name: "Perspective Orchestrator"
-  short_description: "Orchestrate Perspective, Viewpoint, or Commentary writing from thesis and evidence through..."
+  short_description: "Orchestrate Perspectives through review and packaging"
   default_prompt: "Use $perspective-orchestrator for this task and follow its workflow and output contract."
 policy:
   allow_implicit_invocation: true

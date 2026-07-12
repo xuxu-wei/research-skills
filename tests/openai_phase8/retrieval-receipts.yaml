@@ -1,0 +1,174 @@
+schema_version: 1
+evidence_class: self_attested_current_task_snapshots_and_pending_placeholders
+description: >-
+  Required Phase 8 retrieval coverage. Search and inactive-capability records
+  are internally hash-bound current-task snapshots, but no durable platform
+  Search/tool export or executable provider-verifier adapter is available, so
+  repository-authored files cannot promote them beyond observed_unverified.
+  They are not counted as live passes. The two Deep Research cycles remain
+  placeholders.
+durable_verification_missing:
+  - executable_provider_verifier_adapter
+  - authenticated_platform_export
+  - source_commit_and_plugin_tree_identity
+  - provider_attested_source_and_citation_provenance
+  - deep_research_session_run_and_event_receipts
+  - provider_run_completed_receipt
+  - evidence_artifact_path_digest_bindings
+  - deep_research_authoritative_source_traceability
+receipts:
+  - receipt_id: ph8-search-current-001
+    kind: search
+    capability: chatgpt_codex_builtin_search
+    question_class: current
+    expected_completion_status: search_verified
+    evidence_status: observed_unverified
+    verification_level: self_attested_current_task_snapshot
+    query: What is the current CONSORT statement for reporting randomised trials?
+    captured_at: 2026-07-12T06:15:04Z
+    plugin_version: 0.6.0-preview.1
+    task_id: 019f506d-01cc-7fa0-9839-db8f494b5ab4
+    opened_sources:
+      - source_id: consort-published-statements
+        url: https://www.consort-spirit.org/published-statements
+        primary_or_authoritative: true
+        identity_verified: true
+      - source_id: plos-consort-2025
+        url: https://journals.plos.org/plosmedicine/article?id=10.1371%2Fjournal.pmed.1004587
+        primary_or_authoritative: true
+        identity_verified: true
+    material_claim_trace:
+      - claim_id: consort-current-version
+        source_ids: [consort-published-statements, plos-consort-2025]
+      - claim_id: consort-publication-and-scope
+        source_ids: [consort-published-statements, plos-consort-2025]
+      - claim_id: consort-supersedes-2010
+        source_ids: [plos-consort-2025]
+    artifact_digests:
+      - sha256:945ba3939c5c1ef3dffc8a3625e0ca80a59b542703d865ac1131e9e00c7ff85c
+    artifact_paths:
+      - tests/openai_phase8/retrieval-artifacts/search-current-consort-2025.yaml
+
+  - receipt_id: ph8-search-exact-001
+    kind: search
+    capability: chatgpt_codex_builtin_search
+    question_class: exact
+    expected_completion_status: search_verified
+    evidence_status: observed_unverified
+    verification_level: self_attested_current_task_snapshot
+    query: What are the five ICH E9(R1) estimand attributes, and when was the final guideline adopted?
+    captured_at: 2026-07-12T06:15:04Z
+    plugin_version: 0.6.0-preview.1
+    task_id: 019f506d-01cc-7fa0-9839-db8f494b5ab4
+    opened_sources:
+      - source_id: ich-e9-r1-step4
+        url: https://database.ich.org/sites/default/files/E9-R1_Step4_Guideline_2019_1203.pdf
+        primary_or_authoritative: true
+        identity_verified: true
+      - source_id: ema-ich-e9-page
+        url: https://www.ema.europa.eu/en/ich-e9-statistical-principles-clinical-trials-scientific-guideline
+        primary_or_authoritative: true
+        identity_verified: true
+    material_claim_trace:
+      - claim_id: estimand-five-attributes
+        source_ids: [ich-e9-r1-step4]
+      - claim_id: ich-step4-adoption
+        source_ids: [ich-e9-r1-step4]
+      - claim_id: ema-step5-effective-date
+        source_ids: [ema-ich-e9-page]
+    artifact_digests:
+      - sha256:c88766d31352f62a0cc03880b32e8e07648630ff1f15d6a5fdb905bd469a0d0b
+    artifact_paths:
+      - tests/openai_phase8/retrieval-artifacts/search-exact-ich-e9-r1.yaml
+
+  - receipt_id: ph8-search-narrow-academic-001
+    kind: search
+    capability: chatgpt_codex_builtin_search
+    question_class: narrow_academic
+    expected_completion_status: search_verified
+    evidence_status: observed_unverified
+    verification_level: self_attested_current_task_snapshot
+    query: In two primary clinical studies near the China-Myanmar border, was the Plasmodium falciparum K13 F446I mutation associated with delayed parasite clearance?
+    captured_at: 2026-07-12T06:15:04Z
+    plugin_version: 0.6.0-preview.1
+    task_id: 019f506d-01cc-7fa0-9839-db8f494b5ab4
+    opened_sources:
+      - source_id: wang-2015-k13
+        url: https://pmc.ncbi.nlm.nih.gov/articles/PMC4604380/
+        primary_or_authoritative: true
+        identity_verified: true
+      - source_id: tun-2016-clearance
+        url: https://murex.mahidol.ac.th/en/publications/parasite-clearance-rates-in-upper-myanmar-indicate-a-distinctive-/
+        primary_or_authoritative: true
+        identity_verified: true
+    material_claim_trace:
+      - claim_id: f446i-day3-and-rsa
+        source_ids: [wang-2015-k13]
+      - claim_id: f446i-clearance-half-life
+        source_ids: [tun-2016-clearance]
+      - claim_id: setting-boundary
+        source_ids: [wang-2015-k13, tun-2016-clearance]
+    artifact_digests:
+      - sha256:c1ae267a031ecaf14a70356c084f8a6e1b139e842b7082b719d1f285ab59e3fa
+    artifact_paths:
+      - tests/openai_phase8/retrieval-artifacts/search-narrow-k13.yaml
+
+  - receipt_id: ph8-deep-research-cycle-001
+    kind: deep_research_completed
+    capability: chatgpt_deep_research
+    question_class: multi_stage_evidence_map
+    expected_completion_status: deep_research_cycle_completed
+    evidence_status: pending_live_evidence
+    verification_level: none
+    query: Multi-stage synthetic evidence and opportunity map requiring diverse primary sources.
+    captured_at: null
+    plugin_version: null
+    task_id: null
+    opened_sources: []
+    material_claim_trace: []
+    artifact_digests: []
+    artifact_paths: []
+    handoff_artifact: null
+    mapper_return_artifact: null
+    resumed_pending_edge: null
+
+  - receipt_id: ph8-deep-research-cycle-002
+    kind: deep_research_completed
+    capability: chatgpt_deep_research
+    question_class: multi_direction_synthesis
+    expected_completion_status: deep_research_cycle_completed
+    evidence_status: pending_live_evidence
+    verification_level: none
+    query: Multi-direction synthetic synthesis comparing evidence, limitations, and research gaps.
+    captured_at: null
+    plugin_version: null
+    task_id: null
+    opened_sources: []
+    material_claim_trace: []
+    artifact_digests: []
+    artifact_paths: []
+    handoff_artifact: null
+    mapper_return_artifact: null
+    resumed_pending_edge: null
+
+  - receipt_id: ph8-deep-research-inactive-001
+    kind: deep_research_inactive_control
+    capability: chatgpt_deep_research
+    question_class: inactive_capability_control
+    expected_completion_status: deep_research_handoff_required
+    evidence_status: observed_unverified
+    verification_level: self_attested_current_task_snapshot
+    query: Across multiple clinical domains, which evidence and implementation factors determine whether local model recalibration remains beneficial after dataset shift?
+    captured_at: 2026-07-12T06:15:04Z
+    plugin_version: 0.6.0-preview.1
+    task_id: 019f506d-01cc-7fa0-9839-db8f494b5ab4
+    opened_sources: []
+    material_claim_trace: []
+    artifact_digests:
+      - sha256:18f6523340216d12c49fa2578e2da162f211a5c82f33b89d77ac08521a14609d
+    artifact_paths:
+      - tests/openai_phase8/retrieval-artifacts/deep-research-inactive-continuation.yaml
+    capability_active: false
+    workflow_paused: true
+    downstream_evidence_map_created: false
+    continuation_artifact: tests/openai_phase8/retrieval-artifacts/deep-research-inactive-continuation.yaml

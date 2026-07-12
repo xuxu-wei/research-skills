@@ -115,7 +115,7 @@ cases:
   - case_id: unsupported-entry-mode-is-explicit
     base_fixture: idea.yaml
     mutation: unsupported_fixture_entry_mode
-    expected_error: unsupported_scenario_entry_mode
+    expected_error: entry_mode
   - case_id: package-output-preserves-input-lineage
     base_fixture: idea.yaml
     mutation: package_output_drops_input

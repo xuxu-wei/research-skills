@@ -1,6 +1,6 @@
 ---
 name: perspective-orchestrator
-description: "Orchestrate Perspective, Viewpoint, or Commentary writing from thesis and evidence through independent evaluation, revision, panel review, and final human-review delivery."
+description: "Orchestrate a Perspective, Viewpoint, or Commentary from thesis and evidence through independent review, revision, panel, and human-review delivery."
 ---
 # perspective-orchestrator
 

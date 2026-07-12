@@ -1,6 +1,6 @@
 ---
 name: article-refinement-controller
-description: "Plan and control targeted manuscript revision after independent review, route edits to the drafter, maintain lineage, and require fresh re-evaluation."
+description: "Plan targeted manuscript revision after independent review, route edits to the drafter, preserve lineage, and require fresh evaluation."
 ---
 # article-refinement-controller
 

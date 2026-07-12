@@ -1,6 +1,6 @@
 ---
 name: perspective-input-builder
-description: "Normalize a Perspective thesis, audience, outlet, evidence, and constraints into an input brief and outlet profile; use before claim curation and architecture."
+description: "Normalize a Perspective thesis, audience, outlet, evidence, and constraints into an input brief and target-outlet profile."
 ---
 # perspective-input-builder
 

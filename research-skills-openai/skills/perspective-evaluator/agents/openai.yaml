@@ -1,6 +1,6 @@
 interface:
   display_name: "Perspective Evaluator"
-  short_description: "Independently evaluate a frozen Perspective across argument, evidence, contribution, narrative..."
+  short_description: "Independently evaluate Perspective quality and outlet fit"
   default_prompt: "Use $perspective-evaluator for this task and follow its workflow and output contract."
 policy:
   allow_implicit_invocation: false

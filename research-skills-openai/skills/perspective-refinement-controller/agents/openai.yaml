@@ -1,6 +1,6 @@
 interface:
   display_name: "Perspective Refinement Controller"
-  short_description: "Plan and control targeted Perspective revision after independent evaluation, route writing to..."
+  short_description: "Plan reviewed Perspective revisions and fresh evaluation"
   default_prompt: "Use $perspective-refinement-controller for this task and follow its workflow and output contract."
 policy:
   allow_implicit_invocation: false

@@ -1,0 +1,3054 @@
+{
+  "completion_gates": {
+    "authenticated_external_evidence_adapter": {
+      "reason": "No authenticated GitHub/Codex external-evidence adapter is available; repository envelopes alone cannot prove provider origin.",
+      "status": "pending"
+    },
+    "authenticated_platform_capture_adapter": {
+      "reason": "No provider-authenticated Codex/ChatGPT capture adapter is available; repository files alone cannot prove platform origin.",
+      "status": "pending"
+    },
+    "canonical_plugin_validator_ci": {
+      "reason": "Canonical plugin validator CI is not verified on the release commit.",
+      "status": "pending"
+    },
+    "explicit_reinstall": {
+      "reason": "Explicit reinstall receipt is not verified for the release identity.",
+      "status": "pending"
+    },
+    "four_current_version_live_happy_paths": {
+      "reason": "0/4 durable current-version happy receipts verified.",
+      "status": "pending"
+    },
+    "four_current_version_valid_control_paths": {
+      "reason": "0/4 durable current-version control receipts verified.",
+      "status": "pending"
+    },
+    "fresh_task_discovery": {
+      "reason": "Fresh-task discovery is not verified for the installed release.",
+      "status": "pending"
+    },
+    "immutable_previous_artifact_rollback": {
+      "reason": "Rollback is not verified against one immutable previous release.",
+      "status": "pending"
+    },
+    "main_branch_required_check_protection": {
+      "reason": "Main branch protection with the required Preview check is not verified.",
+      "status": "pending"
+    },
+    "marketplace_resolved_commit": {
+      "reason": "Marketplace source revision is not bound to the release commit.",
+      "status": "pending"
+    },
+    "marketplace_upgrade": {
+      "reason": "Marketplace upgrade receipt is not verified for the release identity.",
+      "status": "pending"
+    },
+    "release_source_commit": {
+      "reason": "Immutable current-version source commit is not verified.",
+      "status": "pending"
+    },
+    "repository_preview_ci": {
+      "reason": "Successful repository Preview CI is not bound to the release commit.",
+      "status": "pending"
+    }
+  },
+  "contract_source": "research-skills-openai/workflow-registry.yaml",
+  "deterministic_replay_notice": "These fixtures drive deterministic contract replays with synthetic evidence. They do not represent a live model, Search, Deep Research, Codex task, or ChatGPT task run, and they provide no live-runtime evidence.",
+  "evidence_class": "synthetic_contract_evidence_only",
+  "execution_kind": "deterministic_replay",
+  "execution_scope": "registry-derived entry-gate and lifecycle contract replay using synthetic artifacts, synthetic reviewer receipts, and negative mutation guards",
+  "fixture_sha256": "sha256:8edca94d51a9636206ea0df8a962a95e58b1703ff11cd45b3fa00b159756fe02",
+  "live_model_execution": false,
+  "negative_guard_results": [
+    {
+      "case_id": "idea-standard",
+      "entry_mode": "standard",
+      "error_code": "missing_entry_gate_receipt",
+      "guard_scope": "entry_gate_receipt_or_artifact_lineage",
+      "mutation": "gate_bypass",
+      "mutation_id": "idea-standard-gate-bypass",
+      "status": "rejected_as_expected",
+      "workflow": "idea"
+    },
+    {
+      "case_id": "idea-standard",
+      "entry_mode": "standard",
+      "error_code": "stale_gate_input",
+      "guard_scope": "entry_gate_receipt_or_artifact_lineage",
+      "mutation": "stale_input",
+      "mutation_id": "idea-standard-stale-input",
+      "status": "rejected_as_expected",
+      "workflow": "idea"
+    },
+    {
+      "case_id": "idea-resume-candidates",
+      "entry_mode": "resume_candidates",
+      "error_code": "missing_entry_gate_receipt",
+      "guard_scope": "entry_gate_receipt_or_artifact_lineage",
+      "mutation": "gate_bypass",
+      "mutation_id": "idea-resume-candidates-gate-bypass",
+      "status": "rejected_as_expected",
+      "workflow": "idea"
+    },
+    {
+      "case_id": "idea-resume-candidates",
+      "entry_mode": "resume_candidates",
+      "error_code": "invalid_lineage",
+      "guard_scope": "entry_gate_receipt_or_artifact_lineage",
+      "mutation": "invalid_lineage",
+      "mutation_id": "idea-resume-candidates-invalid-lineage",
+      "status": "rejected_as_expected",
+      "workflow": "idea"
+    },
+    {
+      "case_id": "idea-portfolio-only",
+      "entry_mode": "portfolio_only",
+      "error_code": "missing_entry_gate_receipt",
+      "guard_scope": "entry_gate_receipt_or_artifact_lineage",
+      "mutation": "gate_bypass",
+      "mutation_id": "idea-portfolio-only-gate-bypass",
+      "status": "rejected_as_expected",
+      "workflow": "idea"
+    },
+    {
+      "case_id": "idea-portfolio-only",
+      "entry_mode": "portfolio_only",
+      "error_code": "stale_gate_input",
+      "guard_scope": "entry_gate_receipt_or_artifact_lineage",
+      "mutation": "stale_input",
+      "mutation_id": "idea-portfolio-only-stale-input",
+      "status": "rejected_as_expected",
+      "workflow": "idea"
+    },
+    {
+      "case_id": "proposal-standard",
+      "entry_mode": "standard",
+      "error_code": "missing_entry_gate_receipt",
+      "guard_scope": "entry_gate_receipt_or_artifact_lineage",
+      "mutation": "gate_bypass",
+      "mutation_id": "proposal-standard-gate-bypass",
+      "status": "rejected_as_expected",
+      "workflow": "proposal"
+    },
+    {
+      "case_id": "proposal-standard",
+      "entry_mode": "standard",
+      "error_code": "invalid_lineage",
+      "guard_scope": "entry_gate_receipt_or_artifact_lineage",
+      "mutation": "invalid_lineage",
+      "mutation_id": "proposal-standard-invalid-lineage",
+      "status": "rejected_as_expected",
+      "workflow": "proposal"
+    },
+    {
+      "case_id": "proposal-existing-draft",
+      "entry_mode": "existing_draft",
+      "error_code": "missing_entry_gate_receipt",
+      "guard_scope": "entry_gate_receipt_or_artifact_lineage",
+      "mutation": "gate_bypass",
+      "mutation_id": "proposal-existing-draft-gate-bypass",
+      "status": "rejected_as_expected",
+      "workflow": "proposal"
+    },
+    {
+      "case_id": "proposal-existing-draft",
+      "entry_mode": "existing_draft",
+      "error_code": "stale_gate_input",
+      "guard_scope": "entry_gate_receipt_or_artifact_lineage",
+      "mutation": "stale_input",
+      "mutation_id": "proposal-existing-draft-stale-input",
+      "status": "rejected_as_expected",
+      "workflow": "proposal"
+    },
+    {
+      "case_id": "proposal-draft-and-external-review",
+      "entry_mode": "draft_and_external_review",
+      "error_code": "missing_entry_gate_receipt",
+      "guard_scope": "entry_gate_receipt_or_artifact_lineage",
+      "mutation": "gate_bypass",
+      "mutation_id": "proposal-draft-and-external-review-gate-bypass",
+      "status": "rejected_as_expected",
+      "workflow": "proposal"
+    },
+    {
+      "case_id": "proposal-draft-and-external-review",
+      "entry_mode": "draft_and_external_review",
+      "error_code": "invalid_lineage",
+      "guard_scope": "entry_gate_receipt_or_artifact_lineage",
+      "mutation": "invalid_lineage",
+      "mutation_id": "proposal-draft-and-external-review-invalid-lineage",
+      "status": "rejected_as_expected",
+      "workflow": "proposal"
+    },
+    {
+      "case_id": "proposal-package-only",
+      "entry_mode": "package_only",
+      "error_code": "missing_entry_gate_receipt",
+      "guard_scope": "entry_gate_receipt_or_artifact_lineage",
+      "mutation": "gate_bypass",
+      "mutation_id": "proposal-package-only-gate-bypass",
+      "status": "rejected_as_expected",
+      "workflow": "proposal"
+    },
+    {
+      "case_id": "proposal-package-only",
+      "entry_mode": "package_only",
+      "error_code": "stale_gate_input",
+      "guard_scope": "entry_gate_receipt_or_artifact_lineage",
+      "mutation": "stale_input",
+      "mutation_id": "proposal-package-only-stale-input",
+      "status": "rejected_as_expected",
+      "workflow": "proposal"
+    },
+    {
+      "case_id": "article-standard",
+      "entry_mode": "standard",
+      "error_code": "missing_entry_gate_receipt",
+      "guard_scope": "entry_gate_receipt_or_artifact_lineage",
+      "mutation": "gate_bypass",
+      "mutation_id": "article-standard-gate-bypass",
+      "status": "rejected_as_expected",
+      "workflow": "article"
+    },
+    {
+      "case_id": "article-standard",
+      "entry_mode": "standard",
+      "error_code": "invalid_lineage",
+      "guard_scope": "entry_gate_receipt_or_artifact_lineage",
+      "mutation": "invalid_lineage",
+      "mutation_id": "article-standard-invalid-lineage",
+      "status": "rejected_as_expected",
+      "workflow": "article"
+    },
+    {
+      "case_id": "article-fast-track-draft",
+      "entry_mode": "fast_track_draft",
+      "error_code": "missing_entry_gate_receipt",
+      "guard_scope": "entry_gate_receipt_or_artifact_lineage",
+      "mutation": "gate_bypass",
+      "mutation_id": "article-fast-track-draft-gate-bypass",
+      "status": "rejected_as_expected",
+      "workflow": "article"
+    },
+    {
+      "case_id": "article-fast-track-draft",
+      "entry_mode": "fast_track_draft",
+      "error_code": "stale_gate_input",
+      "guard_scope": "entry_gate_receipt_or_artifact_lineage",
+      "mutation": "stale_input",
+      "mutation_id": "article-fast-track-draft-stale-input",
+      "status": "rejected_as_expected",
+      "workflow": "article"
+    },
+    {
+      "case_id": "article-fast-track-draft-and-evaluation",
+      "entry_mode": "fast_track_draft_and_evaluation",
+      "error_code": "missing_entry_gate_receipt",
+      "guard_scope": "entry_gate_receipt_or_artifact_lineage",
+      "mutation": "gate_bypass",
+      "mutation_id": "article-fast-track-draft-and-evaluation-gate-bypass",
+      "status": "rejected_as_expected",
+      "workflow": "article"
+    },
+    {
+      "case_id": "article-fast-track-draft-and-evaluation",
+      "entry_mode": "fast_track_draft_and_evaluation",
+      "error_code": "invalid_lineage",
+      "guard_scope": "entry_gate_receipt_or_artifact_lineage",
+      "mutation": "invalid_lineage",
+      "mutation_id": "article-fast-track-draft-and-evaluation-invalid-lineage",
+      "status": "rejected_as_expected",
+      "workflow": "article"
+    },
+    {
+      "case_id": "article-blueprint-only",
+      "entry_mode": "blueprint_only",
+      "error_code": "missing_entry_gate_receipt",
+      "guard_scope": "entry_gate_receipt_or_artifact_lineage",
+      "mutation": "gate_bypass",
+      "mutation_id": "article-blueprint-only-gate-bypass",
+      "status": "rejected_as_expected",
+      "workflow": "article"
+    },
+    {
+      "case_id": "article-blueprint-only",
+      "entry_mode": "blueprint_only",
+      "error_code": "stale_gate_input",
+      "guard_scope": "entry_gate_receipt_or_artifact_lineage",
+      "mutation": "stale_input",
+      "mutation_id": "article-blueprint-only-stale-input",
+      "status": "rejected_as_expected",
+      "workflow": "article"
+    },
+    {
+      "case_id": "article-section-specific",
+      "entry_mode": "section_specific",
+      "error_code": "missing_entry_gate_receipt",
+      "guard_scope": "entry_gate_receipt_or_artifact_lineage",
+      "mutation": "gate_bypass",
+      "mutation_id": "article-section-specific-gate-bypass",
+      "status": "rejected_as_expected",
+      "workflow": "article"
+    },
+    {
+      "case_id": "article-section-specific",
+      "entry_mode": "section_specific",
+      "error_code": "invalid_lineage",
+      "guard_scope": "entry_gate_receipt_or_artifact_lineage",
+      "mutation": "invalid_lineage",
+      "mutation_id": "article-section-specific-invalid-lineage",
+      "status": "rejected_as_expected",
+      "workflow": "article"
+    },
+    {
+      "case_id": "article-submission-only",
+      "entry_mode": "submission_only",
+      "error_code": "missing_entry_gate_receipt",
+      "guard_scope": "entry_gate_receipt_or_artifact_lineage",
+      "mutation": "gate_bypass",
+      "mutation_id": "article-submission-only-gate-bypass",
+      "status": "rejected_as_expected",
+      "workflow": "article"
+    },
+    {
+      "case_id": "article-submission-only",
+      "entry_mode": "submission_only",
+      "error_code": "stale_gate_input",
+      "guard_scope": "entry_gate_receipt_or_artifact_lineage",
+      "mutation": "stale_input",
+      "mutation_id": "article-submission-only-stale-input",
+      "status": "rejected_as_expected",
+      "workflow": "article"
+    },
+    {
+      "case_id": "perspective-lite",
+      "entry_mode": "lite",
+      "error_code": "missing_entry_gate_receipt",
+      "guard_scope": "entry_gate_receipt_or_artifact_lineage",
+      "mutation": "gate_bypass",
+      "mutation_id": "perspective-lite-gate-bypass",
+      "status": "rejected_as_expected",
+      "workflow": "perspective"
+    },
+    {
+      "case_id": "perspective-lite",
+      "entry_mode": "lite",
+      "error_code": "invalid_lineage",
+      "guard_scope": "entry_gate_receipt_or_artifact_lineage",
+      "mutation": "invalid_lineage",
+      "mutation_id": "perspective-lite-invalid-lineage",
+      "status": "rejected_as_expected",
+      "workflow": "perspective"
+    },
+    {
+      "case_id": "perspective-standard",
+      "entry_mode": "standard",
+      "error_code": "missing_entry_gate_receipt",
+      "guard_scope": "entry_gate_receipt_or_artifact_lineage",
+      "mutation": "gate_bypass",
+      "mutation_id": "perspective-standard-gate-bypass",
+      "status": "rejected_as_expected",
+      "workflow": "perspective"
+    },
+    {
+      "case_id": "perspective-standard",
+      "entry_mode": "standard",
+      "error_code": "stale_gate_input",
+      "guard_scope": "entry_gate_receipt_or_artifact_lineage",
+      "mutation": "stale_input",
+      "mutation_id": "perspective-standard-stale-input",
+      "status": "rejected_as_expected",
+      "workflow": "perspective"
+    },
+    {
+      "case_id": "perspective-full",
+      "entry_mode": "full",
+      "error_code": "missing_entry_gate_receipt",
+      "guard_scope": "entry_gate_receipt_or_artifact_lineage",
+      "mutation": "gate_bypass",
+      "mutation_id": "perspective-full-gate-bypass",
+      "status": "rejected_as_expected",
+      "workflow": "perspective"
+    },
+    {
+      "case_id": "perspective-full",
+      "entry_mode": "full",
+      "error_code": "invalid_lineage",
+      "guard_scope": "entry_gate_receipt_or_artifact_lineage",
+      "mutation": "invalid_lineage",
+      "mutation_id": "perspective-full-invalid-lineage",
+      "status": "rejected_as_expected",
+      "workflow": "perspective"
+    },
+    {
+      "case_id": "idea-standard",
+      "entry_mode": "standard",
+      "error_code": "missing_evaluator_receipt",
+      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
+      "mutation": "missing_evaluator_receipt",
+      "mutation_id": "idea-standard-missing-evaluator-receipt",
+      "status": "rejected_as_expected",
+      "workflow": "idea"
+    },
+    {
+      "case_id": "idea-standard",
+      "entry_mode": "standard",
+      "error_code": "stale_evaluator_receipt",
+      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
+      "mutation": "stale_evaluator_receipt",
+      "mutation_id": "idea-standard-stale-evaluator-receipt",
+      "status": "rejected_as_expected",
+      "workflow": "idea"
+    },
+    {
+      "case_id": "idea-resume-candidates",
+      "entry_mode": "resume_candidates",
+      "error_code": "missing_evaluator_receipt",
+      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
+      "mutation": "missing_evaluator_receipt",
+      "mutation_id": "idea-resume-candidates-missing-evaluator-receipt",
+      "status": "rejected_as_expected",
+      "workflow": "idea"
+    },
+    {
+      "case_id": "idea-resume-candidates",
+      "entry_mode": "resume_candidates",
+      "error_code": "stale_evaluator_receipt",
+      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
+      "mutation": "stale_evaluator_receipt",
+      "mutation_id": "idea-resume-candidates-stale-evaluator-receipt",
+      "status": "rejected_as_expected",
+      "workflow": "idea"
+    },
+    {
+      "case_id": "idea-portfolio-only",
+      "entry_mode": "portfolio_only",
+      "error_code": "missing_evaluator_receipt",
+      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
+      "mutation": "missing_evaluator_receipt",
+      "mutation_id": "idea-portfolio-only-missing-evaluator-receipt",
+      "status": "rejected_as_expected",
+      "workflow": "idea"
+    },
+    {
+      "case_id": "idea-portfolio-only",
+      "entry_mode": "portfolio_only",
+      "error_code": "stale_evaluator_receipt",
+      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
+      "mutation": "stale_evaluator_receipt",
+      "mutation_id": "idea-portfolio-only-stale-evaluator-receipt",
+      "status": "rejected_as_expected",
+      "workflow": "idea"
+    },
+    {
+      "case_id": "proposal-standard",
+      "entry_mode": "standard",
+      "error_code": "missing_evaluator_receipt",
+      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
+      "mutation": "missing_evaluator_receipt",
+      "mutation_id": "proposal-standard-missing-evaluator-receipt",
+      "status": "rejected_as_expected",
+      "workflow": "proposal"
+    },
+    {
+      "case_id": "proposal-standard",
+      "entry_mode": "standard",
+      "error_code": "stale_evaluator_receipt",
+      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
+      "mutation": "stale_evaluator_receipt",
+      "mutation_id": "proposal-standard-stale-evaluator-receipt",
+      "status": "rejected_as_expected",
+      "workflow": "proposal"
+    },
+    {
+      "case_id": "proposal-existing-draft",
+      "entry_mode": "existing_draft",
+      "error_code": "missing_evaluator_receipt",
+      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
+      "mutation": "missing_evaluator_receipt",
+      "mutation_id": "proposal-existing-draft-missing-evaluator-receipt",
+      "status": "rejected_as_expected",
+      "workflow": "proposal"
+    },
+    {
+      "case_id": "proposal-existing-draft",
+      "entry_mode": "existing_draft",
+      "error_code": "stale_evaluator_receipt",
+      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
+      "mutation": "stale_evaluator_receipt",
+      "mutation_id": "proposal-existing-draft-stale-evaluator-receipt",
+      "status": "rejected_as_expected",
+      "workflow": "proposal"
+    },
+    {
+      "case_id": "proposal-draft-and-external-review",
+      "entry_mode": "draft_and_external_review",
+      "error_code": "missing_evaluator_receipt",
+      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
+      "mutation": "missing_evaluator_receipt",
+      "mutation_id": "proposal-draft-and-external-review-missing-evaluator-receipt",
+      "status": "rejected_as_expected",
+      "workflow": "proposal"
+    },
+    {
+      "case_id": "proposal-draft-and-external-review",
+      "entry_mode": "draft_and_external_review",
+      "error_code": "stale_evaluator_receipt",
+      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
+      "mutation": "stale_evaluator_receipt",
+      "mutation_id": "proposal-draft-and-external-review-stale-evaluator-receipt",
+      "status": "rejected_as_expected",
+      "workflow": "proposal"
+    },
+    {
+      "case_id": "proposal-package-only",
+      "entry_mode": "package_only",
+      "error_code": "missing_evaluator_receipt",
+      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
+      "mutation": "missing_evaluator_receipt",
+      "mutation_id": "proposal-package-only-missing-evaluator-receipt",
+      "status": "rejected_as_expected",
+      "workflow": "proposal"
+    },
+    {
+      "case_id": "proposal-package-only",
+      "entry_mode": "package_only",
+      "error_code": "stale_evaluator_receipt",
+      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
+      "mutation": "stale_evaluator_receipt",
+      "mutation_id": "proposal-package-only-stale-evaluator-receipt",
+      "status": "rejected_as_expected",
+      "workflow": "proposal"
+    },
+    {
+      "case_id": "article-standard",
+      "entry_mode": "standard",
+      "error_code": "missing_evaluator_receipt",
+      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
+      "mutation": "missing_evaluator_receipt",
+      "mutation_id": "article-standard-missing-evaluator-receipt",
+      "status": "rejected_as_expected",
+      "workflow": "article"
+    },
+    {
+      "case_id": "article-standard",
+      "entry_mode": "standard",
+      "error_code": "stale_evaluator_receipt",
+      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
+      "mutation": "stale_evaluator_receipt",
+      "mutation_id": "article-standard-stale-evaluator-receipt",
+      "status": "rejected_as_expected",
+      "workflow": "article"
+    },
+    {
+      "case_id": "article-fast-track-draft",
+      "entry_mode": "fast_track_draft",
+      "error_code": "missing_evaluator_receipt",
+      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
+      "mutation": "missing_evaluator_receipt",
+      "mutation_id": "article-fast-track-draft-missing-evaluator-receipt",
+      "status": "rejected_as_expected",
+      "workflow": "article"
+    },
+    {
+      "case_id": "article-fast-track-draft",
+      "entry_mode": "fast_track_draft",
+      "error_code": "stale_evaluator_receipt",
+      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
+      "mutation": "stale_evaluator_receipt",
+      "mutation_id": "article-fast-track-draft-stale-evaluator-receipt",
+      "status": "rejected_as_expected",
+      "workflow": "article"
+    },
+    {
+      "case_id": "article-fast-track-draft-and-evaluation",
+      "entry_mode": "fast_track_draft_and_evaluation",
+      "error_code": "missing_evaluator_receipt",
+      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
+      "mutation": "missing_evaluator_receipt",
+      "mutation_id": "article-fast-track-draft-and-evaluation-missing-evaluator-receipt",
+      "status": "rejected_as_expected",
+      "workflow": "article"
+    },
+    {
+      "case_id": "article-fast-track-draft-and-evaluation",
+      "entry_mode": "fast_track_draft_and_evaluation",
+      "error_code": "stale_evaluator_receipt",
+      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
+      "mutation": "stale_evaluator_receipt",
+      "mutation_id": "article-fast-track-draft-and-evaluation-stale-evaluator-receipt",
+      "status": "rejected_as_expected",
+      "workflow": "article"
+    },
+    {
+      "case_id": "article-submission-only",
+      "entry_mode": "submission_only",
+      "error_code": "missing_evaluator_receipt",
+      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
+      "mutation": "missing_evaluator_receipt",
+      "mutation_id": "article-submission-only-missing-evaluator-receipt",
+      "status": "rejected_as_expected",
+      "workflow": "article"
+    },
+    {
+      "case_id": "article-submission-only",
+      "entry_mode": "submission_only",
+      "error_code": "stale_evaluator_receipt",
+      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
+      "mutation": "stale_evaluator_receipt",
+      "mutation_id": "article-submission-only-stale-evaluator-receipt",
+      "status": "rejected_as_expected",
+      "workflow": "article"
+    },
+    {
+      "case_id": "perspective-standard",
+      "entry_mode": "standard",
+      "error_code": "missing_evaluator_receipt",
+      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
+      "mutation": "missing_evaluator_receipt",
+      "mutation_id": "perspective-standard-missing-evaluator-receipt",
+      "status": "rejected_as_expected",
+      "workflow": "perspective"
+    },
+    {
+      "case_id": "perspective-standard",
+      "entry_mode": "standard",
+      "error_code": "stale_evaluator_receipt",
+      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
+      "mutation": "stale_evaluator_receipt",
+      "mutation_id": "perspective-standard-stale-evaluator-receipt",
+      "status": "rejected_as_expected",
+      "workflow": "perspective"
+    },
+    {
+      "case_id": "perspective-full",
+      "entry_mode": "full",
+      "error_code": "missing_evaluator_receipt",
+      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
+      "mutation": "missing_evaluator_receipt",
+      "mutation_id": "perspective-full-missing-evaluator-receipt",
+      "status": "rejected_as_expected",
+      "workflow": "perspective"
+    },
+    {
+      "case_id": "perspective-full",
+      "entry_mode": "full",
+      "error_code": "stale_evaluator_receipt",
+      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
+      "mutation": "stale_evaluator_receipt",
+      "mutation_id": "perspective-full-stale-evaluator-receipt",
+      "status": "rejected_as_expected",
+      "workflow": "perspective"
+    },
+    {
+      "case_id": "idea-standard",
+      "entry_mode": "standard",
+      "error_code": "missing_panel_receipt",
+      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
+      "mutation": "missing_panel_receipt",
+      "mutation_id": "idea-standard-missing-panel-receipt",
+      "status": "rejected_as_expected",
+      "workflow": "idea"
+    },
+    {
+      "case_id": "idea-standard",
+      "entry_mode": "standard",
+      "error_code": "stale_panel_receipt",
+      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
+      "mutation": "stale_panel_receipt",
+      "mutation_id": "idea-standard-stale-panel-receipt",
+      "status": "rejected_as_expected",
+      "workflow": "idea"
+    },
+    {
+      "case_id": "idea-resume-candidates",
+      "entry_mode": "resume_candidates",
+      "error_code": "missing_panel_receipt",
+      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
+      "mutation": "missing_panel_receipt",
+      "mutation_id": "idea-resume-candidates-missing-panel-receipt",
+      "status": "rejected_as_expected",
+      "workflow": "idea"
+    },
+    {
+      "case_id": "idea-resume-candidates",
+      "entry_mode": "resume_candidates",
+      "error_code": "stale_panel_receipt",
+      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
+      "mutation": "stale_panel_receipt",
+      "mutation_id": "idea-resume-candidates-stale-panel-receipt",
+      "status": "rejected_as_expected",
+      "workflow": "idea"
+    },
+    {
+      "case_id": "idea-portfolio-only",
+      "entry_mode": "portfolio_only",
+      "error_code": "missing_panel_receipt",
+      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
+      "mutation": "missing_panel_receipt",
+      "mutation_id": "idea-portfolio-only-missing-panel-receipt",
+      "status": "rejected_as_expected",
+      "workflow": "idea"
+    },
+    {
+      "case_id": "idea-portfolio-only",
+      "entry_mode": "portfolio_only",
+      "error_code": "stale_panel_receipt",
+      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
+      "mutation": "stale_panel_receipt",
+      "mutation_id": "idea-portfolio-only-stale-panel-receipt",
+      "status": "rejected_as_expected",
+      "workflow": "idea"
+    },
+    {
+      "case_id": "proposal-standard",
+      "entry_mode": "standard",
+      "error_code": "missing_panel_receipt",
+      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
+      "mutation": "missing_panel_receipt",
+      "mutation_id": "proposal-standard-missing-panel-receipt",
+      "status": "rejected_as_expected",
+      "workflow": "proposal"
+    },
+    {
+      "case_id": "proposal-standard",
+      "entry_mode": "standard",
+      "error_code": "stale_panel_receipt",
+      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
+      "mutation": "stale_panel_receipt",
+      "mutation_id": "proposal-standard-stale-panel-receipt",
+      "status": "rejected_as_expected",
+      "workflow": "proposal"
+    },
+    {
+      "case_id": "proposal-existing-draft",
+      "entry_mode": "existing_draft",
+      "error_code": "missing_panel_receipt",
+      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
+      "mutation": "missing_panel_receipt",
+      "mutation_id": "proposal-existing-draft-missing-panel-receipt",
+      "status": "rejected_as_expected",
+      "workflow": "proposal"
+    },
+    {
+      "case_id": "proposal-existing-draft",
+      "entry_mode": "existing_draft",
+      "error_code": "stale_panel_receipt",
+      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
+      "mutation": "stale_panel_receipt",
+      "mutation_id": "proposal-existing-draft-stale-panel-receipt",
+      "status": "rejected_as_expected",
+      "workflow": "proposal"
+    },
+    {
+      "case_id": "proposal-draft-and-external-review",
+      "entry_mode": "draft_and_external_review",
+      "error_code": "missing_panel_receipt",
+      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
+      "mutation": "missing_panel_receipt",
+      "mutation_id": "proposal-draft-and-external-review-missing-panel-receipt",
+      "status": "rejected_as_expected",
+      "workflow": "proposal"
+    },
+    {
+      "case_id": "proposal-draft-and-external-review",
+      "entry_mode": "draft_and_external_review",
+      "error_code": "stale_panel_receipt",
+      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
+      "mutation": "stale_panel_receipt",
+      "mutation_id": "proposal-draft-and-external-review-stale-panel-receipt",
+      "status": "rejected_as_expected",
+      "workflow": "proposal"
+    },
+    {
+      "case_id": "proposal-package-only",
+      "entry_mode": "package_only",
+      "error_code": "missing_panel_receipt",
+      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
+      "mutation": "missing_panel_receipt",
+      "mutation_id": "proposal-package-only-missing-panel-receipt",
+      "status": "rejected_as_expected",
+      "workflow": "proposal"
+    },
+    {
+      "case_id": "proposal-package-only",
+      "entry_mode": "package_only",
+      "error_code": "stale_panel_receipt",
+      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
+      "mutation": "stale_panel_receipt",
+      "mutation_id": "proposal-package-only-stale-panel-receipt",
+      "status": "rejected_as_expected",
+      "workflow": "proposal"
+    },
+    {
+      "case_id": "article-standard",
+      "entry_mode": "standard",
+      "error_code": "missing_panel_receipt",
+      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
+      "mutation": "missing_panel_receipt",
+      "mutation_id": "article-standard-missing-panel-receipt",
+      "status": "rejected_as_expected",
+      "workflow": "article"
+    },
+    {
+      "case_id": "article-standard",
+      "entry_mode": "standard",
+      "error_code": "stale_panel_receipt",
+      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
+      "mutation": "stale_panel_receipt",
+      "mutation_id": "article-standard-stale-panel-receipt",
+      "status": "rejected_as_expected",
+      "workflow": "article"
+    },
+    {
+      "case_id": "article-fast-track-draft",
+      "entry_mode": "fast_track_draft",
+      "error_code": "missing_panel_receipt",
+      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
+      "mutation": "missing_panel_receipt",
+      "mutation_id": "article-fast-track-draft-missing-panel-receipt",
+      "status": "rejected_as_expected",
+      "workflow": "article"
+    },
+    {
+      "case_id": "article-fast-track-draft",
+      "entry_mode": "fast_track_draft",
+      "error_code": "stale_panel_receipt",
+      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
+      "mutation": "stale_panel_receipt",
+      "mutation_id": "article-fast-track-draft-stale-panel-receipt",
+      "status": "rejected_as_expected",
+      "workflow": "article"
+    },
+    {
+      "case_id": "article-fast-track-draft-and-evaluation",
+      "entry_mode": "fast_track_draft_and_evaluation",
+      "error_code": "missing_panel_receipt",
+      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
+      "mutation": "missing_panel_receipt",
+      "mutation_id": "article-fast-track-draft-and-evaluation-missing-panel-receipt",
+      "status": "rejected_as_expected",
+      "workflow": "article"
+    },
+    {
+      "case_id": "article-fast-track-draft-and-evaluation",
+      "entry_mode": "fast_track_draft_and_evaluation",
+      "error_code": "stale_panel_receipt",
+      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
+      "mutation": "stale_panel_receipt",
+      "mutation_id": "article-fast-track-draft-and-evaluation-stale-panel-receipt",
+      "status": "rejected_as_expected",
+      "workflow": "article"
+    },
+    {
+      "case_id": "article-submission-only",
+      "entry_mode": "submission_only",
+      "error_code": "missing_panel_receipt",
+      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
+      "mutation": "missing_panel_receipt",
+      "mutation_id": "article-submission-only-missing-panel-receipt",
+      "status": "rejected_as_expected",
+      "workflow": "article"
+    },
+    {
+      "case_id": "article-submission-only",
+      "entry_mode": "submission_only",
+      "error_code": "stale_panel_receipt",
+      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
+      "mutation": "stale_panel_receipt",
+      "mutation_id": "article-submission-only-stale-panel-receipt",
+      "status": "rejected_as_expected",
+      "workflow": "article"
+    },
+    {
+      "case_id": "perspective-full",
+      "entry_mode": "full",
+      "error_code": "missing_panel_receipt",
+      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
+      "mutation": "missing_panel_receipt",
+      "mutation_id": "perspective-full-missing-panel-receipt",
+      "status": "rejected_as_expected",
+      "workflow": "perspective"
+    },
+    {
+      "case_id": "perspective-full",
+      "entry_mode": "full",
+      "error_code": "stale_panel_receipt",
+      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
+      "mutation": "stale_panel_receipt",
+      "mutation_id": "perspective-full-stale-panel-receipt",
+      "status": "rejected_as_expected",
+      "workflow": "perspective"
+    }
+  ],
+  "pending_gates": [
+    "authenticated_platform_capture_adapter",
+    "four_current_version_live_happy_paths",
+    "four_current_version_valid_control_paths",
+    "authenticated_external_evidence_adapter",
+    "release_source_commit",
+    "repository_preview_ci",
+    "canonical_plugin_validator_ci",
+    "marketplace_resolved_commit",
+    "marketplace_upgrade",
+    "explicit_reinstall",
+    "fresh_task_discovery",
+    "immutable_previous_artifact_rollback",
+    "main_branch_required_check_protection"
+  ],
+  "phase_status": "in_progress_live_and_release_evidence_pending",
+  "phase_status_derivation": "complete only when every runtime and release-ledger completion gate is verified",
+  "phase_status_detail": "runtime_and_release_evidence_pending",
+  "plugin_version": "0.6.0-preview.1",
+  "positive_mode_results": [
+    {
+      "artifacts_validated": 13,
+      "automatic_external_submission": false,
+      "case_id": "idea-standard",
+      "entry_gate_contract_source": "workflow-registry.yaml",
+      "entry_gate_receipt_count": 3,
+      "entry_gates_verified": [
+        "context_frozen",
+        "evidence_map_frozen",
+        "candidate_set_versioned"
+      ],
+      "entry_mode": "standard",
+      "evaluator_instance_ids": [
+        "idea-standard-evaluator-001",
+        "idea-standard-evaluator-002"
+      ],
+      "evaluator_skill": "idea-evaluator",
+      "execution_kind": "deterministic_replay",
+      "final_state": "human_signoff_required",
+      "live_model_execution": false,
+      "mode_scope_completed": true,
+      "panel_dissent_preservation_contract_checked": true,
+      "panel_skill": "idea-adversarial-review-panel",
+      "path_profile": "full_delivery",
+      "primary_versions": [
+        "v001",
+        "v001",
+        "v002"
+      ],
+      "promotion_performed": true,
+      "reviewer_receipts_are_synthetic": true,
+      "synthetic_control_receipts": [],
+      "synthetic_evaluator_receipt_ids": [
+        "idea-standard-evaluator-001-review",
+        "idea-standard-evaluator-002-review"
+      ],
+      "synthetic_generation_receipt_ids": [
+        "idea-standard-versioned-artifact-created"
+      ],
+      "synthetic_package_receipt_ids": [
+        "idea-standard-package-verification"
+      ],
+      "synthetic_panel_receipt_ids": [
+        "idea-standard-panel-001-review",
+        "idea-standard-panel-002-review",
+        "idea-standard-panel-003-review"
+      ],
+      "synthetic_panel_role_instances": {
+        "feasibility-method": "idea-standard-panel-002",
+        "novelty-gap": "idea-standard-panel-001",
+        "pi-strategy": "idea-standard-panel-003"
+      },
+      "transition_receipts": [
+        {
+          "current_primary_version": "v001",
+          "from": "initialized",
+          "qualifying_review_id": null,
+          "sequence": 1,
+          "to": "preprocessing",
+          "trigger": "entry_gate_passed"
+        },
+        {
+          "current_primary_version": "v001",
+          "from": "preprocessing",
+          "qualifying_review_id": null,
+          "sequence": 2,
+          "to": "artifact_frozen",
+          "trigger": "versioned_artifact_created"
+        },
+        {
+          "current_primary_version": "v001",
+          "from": "artifact_frozen",
+          "qualifying_review_id": null,
+          "sequence": 3,
+          "to": "pending_review",
+          "trigger": "independent_review_dispatched"
+        },
+        {
+          "current_primary_version": "v001",
+          "from": "pending_review",
+          "qualifying_review_id": "idea-standard-evaluator-001-review",
+          "sequence": 4,
+          "to": "revision_required",
+          "trigger": "fixable_revision_requested"
+        },
+        {
+          "current_primary_version": "v002",
+          "from": "revision_required",
+          "qualifying_review_id": null,
+          "sequence": 5,
+          "to": "artifact_frozen",
+          "trigger": "new_version_created"
+        },
+        {
+          "current_primary_version": "v002",
+          "from": "artifact_frozen",
+          "qualifying_review_id": null,
+          "sequence": 6,
+          "to": "pending_review",
+          "trigger": "independent_review_dispatched"
+        },
+        {
+          "current_primary_version": "v002",
+          "from": "pending_review",
+          "qualifying_review_id": "idea-standard-evaluator-002-review",
+          "sequence": 7,
+          "to": "panel_pending",
+          "trigger": "latest_version_accepted"
+        },
+        {
+          "current_primary_version": "v002",
+          "from": "panel_pending",
+          "qualifying_review_id": "idea-standard-complete-panel",
+          "sequence": 8,
+          "to": "packaging_pending",
+          "trigger": "panel_gate_passed"
+        },
+        {
+          "current_primary_version": "v002",
+          "from": "packaging_pending",
+          "qualifying_review_id": null,
+          "sequence": 9,
+          "to": "human_signoff_required",
+          "trigger": "package_verified"
+        }
+      ],
+      "workflow": "idea",
+      "writer_instance_id": "idea-standard-writer-001",
+      "writer_skill": "multi-path-idea-generator"
+    },
+    {
+      "artifacts_validated": 13,
+      "automatic_external_submission": false,
+      "case_id": "idea-resume-candidates",
+      "entry_gate_contract_source": "workflow-registry.yaml",
+      "entry_gate_receipt_count": 3,
+      "entry_gates_verified": [
+        "context_scope_validated",
+        "evidence_scope_validated",
+        "candidate_set_versioned"
+      ],
+      "entry_mode": "resume_candidates",
+      "evaluator_instance_ids": [
+        "idea-resume-candidates-evaluator-001",
+        "idea-resume-candidates-evaluator-002"
+      ],
+      "evaluator_skill": "idea-evaluator",
+      "execution_kind": "deterministic_replay",
+      "final_state": "human_signoff_required",
+      "live_model_execution": false,
+      "mode_scope_completed": true,
+      "panel_dissent_preservation_contract_checked": true,
+      "panel_skill": "idea-adversarial-review-panel",
+      "path_profile": "full_delivery",
+      "primary_versions": [
+        "v001",
+        "v001",
+        "v002"
+      ],
+      "promotion_performed": true,
+      "reviewer_receipts_are_synthetic": true,
+      "synthetic_control_receipts": [],
+      "synthetic_evaluator_receipt_ids": [
+        "idea-resume-candidates-evaluator-001-review",
+        "idea-resume-candidates-evaluator-002-review"
+      ],
+      "synthetic_generation_receipt_ids": [
+        "idea-resume-candidates-versioned-artifact-created"
+      ],
+      "synthetic_package_receipt_ids": [
+        "idea-resume-candidates-package-verification"
+      ],
+      "synthetic_panel_receipt_ids": [
+        "idea-resume-candidates-panel-001-review",
+        "idea-resume-candidates-panel-002-review",
+        "idea-resume-candidates-panel-003-review"
+      ],
+      "synthetic_panel_role_instances": {
+        "feasibility-method": "idea-resume-candidates-panel-002",
+        "novelty-gap": "idea-resume-candidates-panel-001",
+        "pi-strategy": "idea-resume-candidates-panel-003"
+      },
+      "transition_receipts": [
+        {
+          "current_primary_version": "v001",
+          "from": "initialized",
+          "qualifying_review_id": null,
+          "sequence": 1,
+          "to": "preprocessing",
+          "trigger": "entry_gate_passed"
+        },
+        {
+          "current_primary_version": "v001",
+          "from": "preprocessing",
+          "qualifying_review_id": null,
+          "sequence": 2,
+          "to": "artifact_frozen",
+          "trigger": "versioned_artifact_created"
+        },
+        {
+          "current_primary_version": "v001",
+          "from": "artifact_frozen",
+          "qualifying_review_id": null,
+          "sequence": 3,
+          "to": "pending_review",
+          "trigger": "independent_review_dispatched"
+        },
+        {
+          "current_primary_version": "v001",
+          "from": "pending_review",
+          "qualifying_review_id": "idea-resume-candidates-evaluator-001-review",
+          "sequence": 4,
+          "to": "revision_required",
+          "trigger": "fixable_revision_requested"
+        },
+        {
+          "current_primary_version": "v002",
+          "from": "revision_required",
+          "qualifying_review_id": null,
+          "sequence": 5,
+          "to": "artifact_frozen",
+          "trigger": "new_version_created"
+        },
+        {
+          "current_primary_version": "v002",
+          "from": "artifact_frozen",
+          "qualifying_review_id": null,
+          "sequence": 6,
+          "to": "pending_review",
+          "trigger": "independent_review_dispatched"
+        },
+        {
+          "current_primary_version": "v002",
+          "from": "pending_review",
+          "qualifying_review_id": "idea-resume-candidates-evaluator-002-review",
+          "sequence": 7,
+          "to": "panel_pending",
+          "trigger": "latest_version_accepted"
+        },
+        {
+          "current_primary_version": "v002",
+          "from": "panel_pending",
+          "qualifying_review_id": "idea-resume-candidates-complete-panel",
+          "sequence": 8,
+          "to": "packaging_pending",
+          "trigger": "panel_gate_passed"
+        },
+        {
+          "current_primary_version": "v002",
+          "from": "packaging_pending",
+          "qualifying_review_id": null,
+          "sequence": 9,
+          "to": "human_signoff_required",
+          "trigger": "package_verified"
+        }
+      ],
+      "workflow": "idea",
+      "writer_instance_id": "idea-resume-candidates-writer-001",
+      "writer_skill": "multi-path-idea-generator"
+    },
+    {
+      "artifacts_validated": 11,
+      "automatic_external_submission": false,
+      "case_id": "idea-portfolio-only",
+      "entry_gate_contract_source": "workflow-registry.yaml",
+      "entry_gate_receipt_count": 3,
+      "entry_gates_verified": [
+        "latest_version_independently_evaluated",
+        "adversarial_reports_complete",
+        "dissent_and_fatal_findings_indexed"
+      ],
+      "entry_mode": "portfolio_only",
+      "evaluator_instance_ids": [
+        "idea-portfolio-only-evaluator-001"
+      ],
+      "evaluator_skill": "idea-evaluator",
+      "execution_kind": "deterministic_replay",
+      "final_state": "human_signoff_required",
+      "live_model_execution": false,
+      "mode_scope_completed": true,
+      "panel_dissent_preservation_contract_checked": true,
+      "panel_skill": "idea-adversarial-review-panel",
+      "path_profile": "evaluated_package",
+      "primary_versions": [
+        "v001"
+      ],
+      "promotion_performed": true,
+      "reviewer_receipts_are_synthetic": true,
+      "synthetic_control_receipts": [],
+      "synthetic_evaluator_receipt_ids": [
+        "idea-portfolio-only-evaluator-001-review"
+      ],
+      "synthetic_generation_receipt_ids": [
+        "idea-portfolio-only-versioned-artifact-created"
+      ],
+      "synthetic_package_receipt_ids": [
+        "idea-portfolio-only-package-verification"
+      ],
+      "synthetic_panel_receipt_ids": [
+        "idea-portfolio-only-panel-001-review",
+        "idea-portfolio-only-panel-002-review",
+        "idea-portfolio-only-panel-003-review"
+      ],
+      "synthetic_panel_role_instances": {
+        "feasibility-method": "idea-portfolio-only-panel-002",
+        "novelty-gap": "idea-portfolio-only-panel-001",
+        "pi-strategy": "idea-portfolio-only-panel-003"
+      },
+      "transition_receipts": [
+        {
+          "current_primary_version": "v001",
+          "from": "initialized",
+          "qualifying_review_id": null,
+          "sequence": 1,
+          "to": "preprocessing",
+          "trigger": "entry_gate_passed"
+        },
+        {
+          "current_primary_version": "v001",
+          "from": "preprocessing",
+          "qualifying_review_id": null,
+          "sequence": 2,
+          "to": "artifact_frozen",
+          "trigger": "versioned_artifact_created"
+        },
+        {
+          "current_primary_version": "v001",
+          "from": "artifact_frozen",
+          "qualifying_review_id": null,
+          "sequence": 3,
+          "to": "pending_review",
+          "trigger": "independent_review_dispatched"
+        },
+        {
+          "current_primary_version": "v001",
+          "from": "pending_review",
+          "qualifying_review_id": "idea-portfolio-only-evaluator-001-review",
+          "sequence": 4,
+          "to": "panel_pending",
+          "trigger": "latest_version_accepted"
+        },
+        {
+          "current_primary_version": "v001",
+          "from": "panel_pending",
+          "qualifying_review_id": "idea-portfolio-only-complete-panel",
+          "sequence": 5,
+          "to": "packaging_pending",
+          "trigger": "panel_gate_passed"
+        },
+        {
+          "current_primary_version": "v001",
+          "from": "packaging_pending",
+          "qualifying_review_id": null,
+          "sequence": 6,
+          "to": "human_signoff_required",
+          "trigger": "package_verified"
+        }
+      ],
+      "workflow": "idea",
+      "writer_instance_id": "idea-portfolio-only-writer-001",
+      "writer_skill": "multi-path-idea-generator"
+    },
+    {
+      "artifacts_validated": 20,
+      "automatic_external_submission": false,
+      "case_id": "proposal-standard",
+      "entry_gate_contract_source": "workflow-registry.yaml",
+      "entry_gate_receipt_count": 3,
+      "entry_gates_verified": [
+        "context_frozen",
+        "readiness_passed",
+        "proposal_versioned"
+      ],
+      "entry_mode": "standard",
+      "evaluator_instance_ids": [
+        "proposal-standard-evaluator-001",
+        "proposal-standard-evaluator-002"
+      ],
+      "evaluator_skill": "proposal-evaluator",
+      "execution_kind": "deterministic_replay",
+      "final_state": "human_signoff_required",
+      "live_model_execution": false,
+      "mode_scope_completed": true,
+      "panel_dissent_preservation_contract_checked": true,
+      "panel_skill": "proposal-review-panel",
+      "path_profile": "full_delivery",
+      "primary_versions": [
+        "v001",
+        "v001",
+        "v002"
+      ],
+      "promotion_performed": true,
+      "reviewer_receipts_are_synthetic": true,
+      "synthetic_control_receipts": [],
+      "synthetic_evaluator_receipt_ids": [
+        "proposal-standard-evaluator-001-review",
+        "proposal-standard-evaluator-002-review"
+      ],
+      "synthetic_generation_receipt_ids": [
+        "proposal-standard-versioned-artifact-created"
+      ],
+      "synthetic_package_receipt_ids": [
+        "proposal-standard-package-verification"
+      ],
+      "synthetic_panel_receipt_ids": [
+        "proposal-standard-panel-001-review",
+        "proposal-standard-panel-002-review",
+        "proposal-standard-panel-003-review",
+        "proposal-standard-panel-004-review",
+        "proposal-standard-panel-005-review"
+      ],
+      "synthetic_panel_role_instances": {
+        "broad-field": "proposal-standard-panel-001",
+        "domain": "proposal-standard-panel-002",
+        "methodology-statistics": "proposal-standard-panel-003",
+        "skeptical": "proposal-standard-panel-004",
+        "submission-guard": "proposal-standard-panel-005"
+      },
+      "transition_receipts": [
+        {
+          "current_primary_version": "v001",
+          "from": "initialized",
+          "qualifying_review_id": null,
+          "sequence": 1,
+          "to": "preprocessing",
+          "trigger": "entry_gate_passed"
+        },
+        {
+          "current_primary_version": "v001",
+          "from": "preprocessing",
+          "qualifying_review_id": null,
+          "sequence": 2,
+          "to": "artifact_frozen",
+          "trigger": "versioned_artifact_created"
+        },
+        {
+          "current_primary_version": "v001",
+          "from": "artifact_frozen",
+          "qualifying_review_id": null,
+          "sequence": 3,
+          "to": "pending_review",
+          "trigger": "independent_review_dispatched"
+        },
+        {
+          "current_primary_version": "v001",
+          "from": "pending_review",
+          "qualifying_review_id": "proposal-standard-evaluator-001-review",
+          "sequence": 4,
+          "to": "revision_required",
+          "trigger": "fixable_revision_requested"
+        },
+        {
+          "current_primary_version": "v002",
+          "from": "revision_required",
+          "qualifying_review_id": null,
+          "sequence": 5,
+          "to": "artifact_frozen",
+          "trigger": "new_version_created"
+        },
+        {
+          "current_primary_version": "v002",
+          "from": "artifact_frozen",
+          "qualifying_review_id": null,
+          "sequence": 6,
+          "to": "pending_review",
+          "trigger": "independent_review_dispatched"
+        },
+        {
+          "current_primary_version": "v002",
+          "from": "pending_review",
+          "qualifying_review_id": "proposal-standard-evaluator-002-review",
+          "sequence": 7,
+          "to": "panel_pending",
+          "trigger": "latest_version_accepted"
+        },
+        {
+          "current_primary_version": "v002",
+          "from": "panel_pending",
+          "qualifying_review_id": "proposal-standard-complete-panel",
+          "sequence": 8,
+          "to": "packaging_pending",
+          "trigger": "panel_gate_passed"
+        },
+        {
+          "current_primary_version": "v002",
+          "from": "packaging_pending",
+          "qualifying_review_id": null,
+          "sequence": 9,
+          "to": "human_signoff_required",
+          "trigger": "package_verified"
+        }
+      ],
+      "workflow": "proposal",
+      "writer_instance_id": "proposal-standard-writer-001",
+      "writer_skill": "proposal-drafter"
+    },
+    {
+      "artifacts_validated": 20,
+      "automatic_external_submission": false,
+      "case_id": "proposal-existing-draft",
+      "entry_gate_contract_source": "workflow-registry.yaml",
+      "entry_gate_receipt_count": 3,
+      "entry_gates_verified": [
+        "minimal_state_created",
+        "scope_limitations_recorded",
+        "proposal_versioned"
+      ],
+      "entry_mode": "existing_draft",
+      "evaluator_instance_ids": [
+        "proposal-existing-draft-evaluator-001",
+        "proposal-existing-draft-evaluator-002"
+      ],
+      "evaluator_skill": "proposal-evaluator",
+      "execution_kind": "deterministic_replay",
+      "final_state": "human_signoff_required",
+      "live_model_execution": false,
+      "mode_scope_completed": true,
+      "panel_dissent_preservation_contract_checked": true,
+      "panel_skill": "proposal-review-panel",
+      "path_profile": "full_delivery",
+      "primary_versions": [
+        "v001",
+        "v002"
+      ],
+      "promotion_performed": true,
+      "reviewer_receipts_are_synthetic": true,
+      "synthetic_control_receipts": [],
+      "synthetic_evaluator_receipt_ids": [
+        "proposal-existing-draft-evaluator-001-review",
+        "proposal-existing-draft-evaluator-002-review"
+      ],
+      "synthetic_generation_receipt_ids": [
+        "proposal-existing-draft-versioned-artifact-created"
+      ],
+      "synthetic_package_receipt_ids": [
+        "proposal-existing-draft-package-verification"
+      ],
+      "synthetic_panel_receipt_ids": [
+        "proposal-existing-draft-panel-001-review",
+        "proposal-existing-draft-panel-002-review",
+        "proposal-existing-draft-panel-003-review",
+        "proposal-existing-draft-panel-004-review",
+        "proposal-existing-draft-panel-005-review"
+      ],
+      "synthetic_panel_role_instances": {
+        "broad-field": "proposal-existing-draft-panel-001",
+        "domain": "proposal-existing-draft-panel-002",
+        "methodology-statistics": "proposal-existing-draft-panel-003",
+        "skeptical": "proposal-existing-draft-panel-004",
+        "submission-guard": "proposal-existing-draft-panel-005"
+      },
+      "transition_receipts": [
+        {
+          "current_primary_version": "v001",
+          "from": "initialized",
+          "qualifying_review_id": null,
+          "sequence": 1,
+          "to": "preprocessing",
+          "trigger": "entry_gate_passed"
+        },
+        {
+          "current_primary_version": "v001",
+          "from": "preprocessing",
+          "qualifying_review_id": null,
+          "sequence": 2,
+          "to": "artifact_frozen",
+          "trigger": "versioned_artifact_created"
+        },
+        {
+          "current_primary_version": "v001",
+          "from": "artifact_frozen",
+          "qualifying_review_id": null,
+          "sequence": 3,
+          "to": "pending_review",
+          "trigger": "independent_review_dispatched"
+        },
+        {
+          "current_primary_version": "v001",
+          "from": "pending_review",
+          "qualifying_review_id": "proposal-existing-draft-evaluator-001-review",
+          "sequence": 4,
+          "to": "revision_required",
+          "trigger": "fixable_revision_requested"
+        },
+        {
+          "current_primary_version": "v002",
+          "from": "revision_required",
+          "qualifying_review_id": null,
+          "sequence": 5,
+          "to": "artifact_frozen",
+          "trigger": "new_version_created"
+        },
+        {
+          "current_primary_version": "v002",
+          "from": "artifact_frozen",
+          "qualifying_review_id": null,
+          "sequence": 6,
+          "to": "pending_review",
+          "trigger": "independent_review_dispatched"
+        },
+        {
+          "current_primary_version": "v002",
+          "from": "pending_review",
+          "qualifying_review_id": "proposal-existing-draft-evaluator-002-review",
+          "sequence": 7,
+          "to": "panel_pending",
+          "trigger": "latest_version_accepted"
+        },
+        {
+          "current_primary_version": "v002",
+          "from": "panel_pending",
+          "qualifying_review_id": "proposal-existing-draft-complete-panel",
+          "sequence": 8,
+          "to": "packaging_pending",
+          "trigger": "panel_gate_passed"
+        },
+        {
+          "current_primary_version": "v002",
+          "from": "packaging_pending",
+          "qualifying_review_id": null,
+          "sequence": 9,
+          "to": "human_signoff_required",
+          "trigger": "package_verified"
+        }
+      ],
+      "workflow": "proposal",
+      "writer_instance_id": "proposal-existing-draft-writer-001",
+      "writer_skill": "proposal-drafter"
+    },
+    {
+      "artifacts_validated": 19,
+      "automatic_external_submission": false,
+      "case_id": "proposal-draft-and-external-review",
+      "entry_gate_contract_source": "workflow-registry.yaml",
+      "entry_gate_receipt_count": 3,
+      "entry_gates_verified": [
+        "minimal_state_created",
+        "proposal_versioned",
+        "external_review_qualified_or_fresh_evaluation_required"
+      ],
+      "entry_mode": "draft_and_external_review",
+      "evaluator_instance_ids": [
+        "proposal-draft-and-external-review-evaluator-001",
+        "proposal-draft-and-external-review-evaluator-002"
+      ],
+      "evaluator_skill": "proposal-evaluator",
+      "execution_kind": "deterministic_replay",
+      "final_state": "human_signoff_required",
+      "live_model_execution": false,
+      "mode_scope_completed": true,
+      "panel_dissent_preservation_contract_checked": true,
+      "panel_skill": "proposal-review-panel",
+      "path_profile": "full_delivery",
+      "primary_versions": [
+        "v001",
+        "v002"
+      ],
+      "promotion_performed": true,
+      "reviewer_receipts_are_synthetic": true,
+      "synthetic_control_receipts": [],
+      "synthetic_evaluator_receipt_ids": [
+        "proposal-draft-and-external-review-evaluator-001-review",
+        "proposal-draft-and-external-review-evaluator-002-review"
+      ],
+      "synthetic_generation_receipt_ids": [
+        "proposal-draft-and-external-review-versioned-artifact-created"
+      ],
+      "synthetic_package_receipt_ids": [
+        "proposal-draft-and-external-review-package-verification"
+      ],
+      "synthetic_panel_receipt_ids": [
+        "proposal-draft-and-external-review-panel-001-review",
+        "proposal-draft-and-external-review-panel-002-review",
+        "proposal-draft-and-external-review-panel-003-review",
+        "proposal-draft-and-external-review-panel-004-review",
+        "proposal-draft-and-external-review-panel-005-review"
+      ],
+      "synthetic_panel_role_instances": {
+        "broad-field": "proposal-draft-and-external-review-panel-001",
+        "domain": "proposal-draft-and-external-review-panel-002",
+        "methodology-statistics": "proposal-draft-and-external-review-panel-003",
+        "skeptical": "proposal-draft-and-external-review-panel-004",
+        "submission-guard": "proposal-draft-and-external-review-panel-005"
+      },
+      "transition_receipts": [
+        {
+          "current_primary_version": "v001",
+          "from": "initialized",
+          "qualifying_review_id": null,
+          "sequence": 1,
+          "to": "preprocessing",
+          "trigger": "entry_gate_passed"
+        },
+        {
+          "current_primary_version": "v001",
+          "from": "preprocessing",
+          "qualifying_review_id": null,
+          "sequence": 2,
+          "to": "artifact_frozen",
+          "trigger": "versioned_artifact_created"
+        },
+        {
+          "current_primary_version": "v001",
+          "from": "artifact_frozen",
+          "qualifying_review_id": null,
+          "sequence": 3,
+          "to": "pending_review",
+          "trigger": "independent_review_dispatched"
+        },
+        {
+          "current_primary_version": "v001",
+          "from": "pending_review",
+          "qualifying_review_id": "proposal-draft-and-external-review-evaluator-001-review",
+          "sequence": 4,
+          "to": "revision_required",
+          "trigger": "fixable_revision_requested"
+        },
+        {
+          "current_primary_version": "v002",
+          "from": "revision_required",
+          "qualifying_review_id": null,
+          "sequence": 5,
+          "to": "artifact_frozen",
+          "trigger": "new_version_created"
+        },
+        {
+          "current_primary_version": "v002",
+          "from": "artifact_frozen",
+          "qualifying_review_id": null,
+          "sequence": 6,
+          "to": "pending_review",
+          "trigger": "independent_review_dispatched"
+        },
+        {
+          "current_primary_version": "v002",
+          "from": "pending_review",
+          "qualifying_review_id": "proposal-draft-and-external-review-evaluator-002-review",
+          "sequence": 7,
+          "to": "panel_pending",
+          "trigger": "latest_version_accepted"
+        },
+        {
+          "current_primary_version": "v002",
+          "from": "panel_pending",
+          "qualifying_review_id": "proposal-draft-and-external-review-complete-panel",
+          "sequence": 8,
+          "to": "packaging_pending",
+          "trigger": "panel_gate_passed"
+        },
+        {
+          "current_primary_version": "v002",
+          "from": "packaging_pending",
+          "qualifying_review_id": null,
+          "sequence": 9,
+          "to": "human_signoff_required",
+          "trigger": "package_verified"
+        }
+      ],
+      "workflow": "proposal",
+      "writer_instance_id": "proposal-draft-and-external-review-writer-001",
+      "writer_skill": "proposal-drafter"
+    },
+    {
+      "artifacts_validated": 17,
+      "automatic_external_submission": false,
+      "case_id": "proposal-package-only",
+      "entry_gate_contract_source": "workflow-registry.yaml",
+      "entry_gate_receipt_count": 3,
+      "entry_gates_verified": [
+        "latest_version_independently_evaluated",
+        "required_panel_reports_complete",
+        "dissent_and_fatal_findings_indexed"
+      ],
+      "entry_mode": "package_only",
+      "evaluator_instance_ids": [
+        "proposal-package-only-evaluator-001"
+      ],
+      "evaluator_skill": "proposal-evaluator",
+      "execution_kind": "deterministic_replay",
+      "final_state": "human_signoff_required",
+      "live_model_execution": false,
+      "mode_scope_completed": true,
+      "panel_dissent_preservation_contract_checked": true,
+      "panel_skill": "proposal-review-panel",
+      "path_profile": "evaluated_package",
+      "primary_versions": [
+        "v001"
+      ],
+      "promotion_performed": true,
+      "reviewer_receipts_are_synthetic": true,
+      "synthetic_control_receipts": [],
+      "synthetic_evaluator_receipt_ids": [
+        "proposal-package-only-evaluator-001-review"
+      ],
+      "synthetic_generation_receipt_ids": [
+        "proposal-package-only-versioned-artifact-created"
+      ],
+      "synthetic_package_receipt_ids": [
+        "proposal-package-only-package-verification"
+      ],
+      "synthetic_panel_receipt_ids": [
+        "proposal-package-only-panel-001-review",
+        "proposal-package-only-panel-002-review",
+        "proposal-package-only-panel-003-review",
+        "proposal-package-only-panel-004-review",
+        "proposal-package-only-panel-005-review"
+      ],
+      "synthetic_panel_role_instances": {
+        "broad-field": "proposal-package-only-panel-001",
+        "domain": "proposal-package-only-panel-002",
+        "methodology-statistics": "proposal-package-only-panel-003",
+        "skeptical": "proposal-package-only-panel-004",
+        "submission-guard": "proposal-package-only-panel-005"
+      },
+      "transition_receipts": [
+        {
+          "current_primary_version": "v001",
+          "from": "initialized",
+          "qualifying_review_id": null,
+          "sequence": 1,
+          "to": "preprocessing",
+          "trigger": "entry_gate_passed"
+        },
+        {
+          "current_primary_version": "v001",
+          "from": "preprocessing",
+          "qualifying_review_id": null,
+          "sequence": 2,
+          "to": "artifact_frozen",
+          "trigger": "versioned_artifact_created"
+        },
+        {
+          "current_primary_version": "v001",
+          "from": "artifact_frozen",
+          "qualifying_review_id": null,
+          "sequence": 3,
+          "to": "pending_review",
+          "trigger": "independent_review_dispatched"
+        },
+        {
+          "current_primary_version": "v001",
+          "from": "pending_review",
+          "qualifying_review_id": "proposal-package-only-evaluator-001-review",
+          "sequence": 4,
+          "to": "panel_pending",
+          "trigger": "latest_version_accepted"
+        },
+        {
+          "current_primary_version": "v001",
+          "from": "panel_pending",
+          "qualifying_review_id": "proposal-package-only-complete-panel",
+          "sequence": 5,
+          "to": "packaging_pending",
+          "trigger": "panel_gate_passed"
+        },
+        {
+          "current_primary_version": "v001",
+          "from": "packaging_pending",
+          "qualifying_review_id": null,
+          "sequence": 6,
+          "to": "human_signoff_required",
+          "trigger": "package_verified"
+        }
+      ],
+      "workflow": "proposal",
+      "writer_instance_id": "proposal-package-only-writer-001",
+      "writer_skill": "proposal-drafter"
+    },
+    {
+      "artifacts_validated": 24,
+      "automatic_external_submission": false,
+      "case_id": "article-standard",
+      "entry_gate_contract_source": "workflow-registry.yaml",
+      "entry_gate_receipt_count": 5,
+      "entry_gates_verified": [
+        "readiness_passed",
+        "context_frozen",
+        "methods_gate_passed",
+        "manuscript_versioned",
+        "claim_audit_passed"
+      ],
+      "entry_mode": "standard",
+      "evaluator_instance_ids": [
+        "article-standard-evaluator-001",
+        "article-standard-evaluator-002"
+      ],
+      "evaluator_skill": "article-evaluator",
+      "execution_kind": "deterministic_replay",
+      "final_state": "human_signoff_required",
+      "live_model_execution": false,
+      "mode_scope_completed": true,
+      "panel_dissent_preservation_contract_checked": true,
+      "panel_skill": "article-review-panel",
+      "path_profile": "full_delivery",
+      "primary_versions": [
+        "v001",
+        "v001",
+        "v002"
+      ],
+      "promotion_performed": true,
+      "reviewer_receipts_are_synthetic": true,
+      "synthetic_control_receipts": [],
+      "synthetic_evaluator_receipt_ids": [
+        "article-standard-evaluator-001-review",
+        "article-standard-evaluator-002-review"
+      ],
+      "synthetic_generation_receipt_ids": [
+        "article-standard-versioned-artifact-created"
+      ],
+      "synthetic_package_receipt_ids": [
+        "article-standard-package-verification"
+      ],
+      "synthetic_panel_receipt_ids": [
+        "article-standard-panel-001-review",
+        "article-standard-panel-002-review",
+        "article-standard-panel-003-review"
+      ],
+      "synthetic_panel_role_instances": {
+        "evidence-claim": "article-standard-panel-002",
+        "methodology-statistics": "article-standard-panel-001",
+        "submission-guard": "article-standard-panel-003"
+      },
+      "transition_receipts": [
+        {
+          "current_primary_version": "v001",
+          "from": "initialized",
+          "qualifying_review_id": null,
+          "sequence": 1,
+          "to": "preprocessing",
+          "trigger": "entry_gate_passed"
+        },
+        {
+          "current_primary_version": "v001",
+          "from": "preprocessing",
+          "qualifying_review_id": null,
+          "sequence": 2,
+          "to": "artifact_frozen",
+          "trigger": "versioned_artifact_created"
+        },
+        {
+          "current_primary_version": "v001",
+          "from": "artifact_frozen",
+          "qualifying_review_id": null,
+          "sequence": 3,
+          "to": "pending_review",
+          "trigger": "independent_review_dispatched"
+        },
+        {
+          "current_primary_version": "v001",
+          "from": "pending_review",
+          "qualifying_review_id": "article-standard-evaluator-001-review",
+          "sequence": 4,
+          "to": "revision_required",
+          "trigger": "fixable_revision_requested"
+        },
+        {
+          "current_primary_version": "v002",
+          "from": "revision_required",
+          "qualifying_review_id": null,
+          "sequence": 5,
+          "to": "artifact_frozen",
+          "trigger": "new_version_created"
+        },
+        {
+          "current_primary_version": "v002",
+          "from": "artifact_frozen",
+          "qualifying_review_id": null,
+          "sequence": 6,
+          "to": "pending_review",
+          "trigger": "independent_review_dispatched"
+        },
+        {
+          "current_primary_version": "v002",
+          "from": "pending_review",
+          "qualifying_review_id": "article-standard-evaluator-002-review",
+          "sequence": 7,
+          "to": "panel_pending",
+          "trigger": "latest_version_accepted"
+        },
+        {
+          "current_primary_version": "v002",
+          "from": "panel_pending",
+          "qualifying_review_id": "article-standard-complete-panel",
+          "sequence": 8,
+          "to": "packaging_pending",
+          "trigger": "panel_gate_passed"
+        },
+        {
+          "current_primary_version": "v002",
+          "from": "packaging_pending",
+          "qualifying_review_id": null,
+          "sequence": 9,
+          "to": "human_signoff_required",
+          "trigger": "package_verified"
+        }
+      ],
+      "workflow": "article",
+      "writer_instance_id": "article-standard-writer-001",
+      "writer_skill": "article-drafter"
+    },
+    {
+      "artifacts_validated": 24,
+      "automatic_external_submission": false,
+      "case_id": "article-fast-track-draft",
+      "entry_gate_contract_source": "workflow-registry.yaml",
+      "entry_gate_receipt_count": 4,
+      "entry_gates_verified": [
+        "readiness_passed",
+        "minimal_backfill_validated",
+        "manuscript_versioned",
+        "claim_audit_passed"
+      ],
+      "entry_mode": "fast_track_draft",
+      "evaluator_instance_ids": [
+        "article-fast-track-draft-evaluator-001",
+        "article-fast-track-draft-evaluator-002"
+      ],
+      "evaluator_skill": "article-evaluator",
+      "execution_kind": "deterministic_replay",
+      "final_state": "human_signoff_required",
+      "live_model_execution": false,
+      "mode_scope_completed": true,
+      "panel_dissent_preservation_contract_checked": true,
+      "panel_skill": "article-review-panel",
+      "path_profile": "full_delivery",
+      "primary_versions": [
+        "v001",
+        "v001",
+        "v002"
+      ],
+      "promotion_performed": true,
+      "reviewer_receipts_are_synthetic": true,
+      "synthetic_control_receipts": [],
+      "synthetic_evaluator_receipt_ids": [
+        "article-fast-track-draft-evaluator-001-review",
+        "article-fast-track-draft-evaluator-002-review"
+      ],
+      "synthetic_generation_receipt_ids": [
+        "article-fast-track-draft-versioned-artifact-created"
+      ],
+      "synthetic_package_receipt_ids": [
+        "article-fast-track-draft-package-verification"
+      ],
+      "synthetic_panel_receipt_ids": [
+        "article-fast-track-draft-panel-001-review",
+        "article-fast-track-draft-panel-002-review",
+        "article-fast-track-draft-panel-003-review"
+      ],
+      "synthetic_panel_role_instances": {
+        "evidence-claim": "article-fast-track-draft-panel-002",
+        "methodology-statistics": "article-fast-track-draft-panel-001",
+        "submission-guard": "article-fast-track-draft-panel-003"
+      },
+      "transition_receipts": [
+        {
+          "current_primary_version": "v001",
+          "from": "initialized",
+          "qualifying_review_id": null,
+          "sequence": 1,
+          "to": "preprocessing",
+          "trigger": "entry_gate_passed"
+        },
+        {
+          "current_primary_version": "v001",
+          "from": "preprocessing",
+          "qualifying_review_id": null,
+          "sequence": 2,
+          "to": "artifact_frozen",
+          "trigger": "versioned_artifact_created"
+        },
+        {
+          "current_primary_version": "v001",
+          "from": "artifact_frozen",
+          "qualifying_review_id": null,
+          "sequence": 3,
+          "to": "pending_review",
+          "trigger": "independent_review_dispatched"
+        },
+        {
+          "current_primary_version": "v001",
+          "from": "pending_review",
+          "qualifying_review_id": "article-fast-track-draft-evaluator-001-review",
+          "sequence": 4,
+          "to": "revision_required",
+          "trigger": "fixable_revision_requested"
+        },
+        {
+          "current_primary_version": "v002",
+          "from": "revision_required",
+          "qualifying_review_id": null,
+          "sequence": 5,
+          "to": "artifact_frozen",
+          "trigger": "new_version_created"
+        },
+        {
+          "current_primary_version": "v002",
+          "from": "artifact_frozen",
+          "qualifying_review_id": null,
+          "sequence": 6,
+          "to": "pending_review",
+          "trigger": "independent_review_dispatched"
+        },
+        {
+          "current_primary_version": "v002",
+          "from": "pending_review",
+          "qualifying_review_id": "article-fast-track-draft-evaluator-002-review",
+          "sequence": 7,
+          "to": "panel_pending",
+          "trigger": "latest_version_accepted"
+        },
+        {
+          "current_primary_version": "v002",
+          "from": "panel_pending",
+          "qualifying_review_id": "article-fast-track-draft-complete-panel",
+          "sequence": 8,
+          "to": "packaging_pending",
+          "trigger": "panel_gate_passed"
+        },
+        {
+          "current_primary_version": "v002",
+          "from": "packaging_pending",
+          "qualifying_review_id": null,
+          "sequence": 9,
+          "to": "human_signoff_required",
+          "trigger": "package_verified"
+        }
+      ],
+      "workflow": "article",
+      "writer_instance_id": "article-fast-track-draft-writer-001",
+      "writer_skill": "article-drafter"
+    },
+    {
+      "artifacts_validated": 22,
+      "automatic_external_submission": false,
+      "case_id": "article-fast-track-draft-and-evaluation",
+      "entry_gate_contract_source": "workflow-registry.yaml",
+      "entry_gate_receipt_count": 3,
+      "entry_gates_verified": [
+        "readiness_passed",
+        "manuscript_versioned",
+        "external_review_qualified_or_fresh_evaluation_required"
+      ],
+      "entry_mode": "fast_track_draft_and_evaluation",
+      "evaluator_instance_ids": [
+        "article-fast-track-draft-and-evaluation-evaluator-001",
+        "article-fast-track-draft-and-evaluation-evaluator-002"
+      ],
+      "evaluator_skill": "article-evaluator",
+      "execution_kind": "deterministic_replay",
+      "final_state": "human_signoff_required",
+      "live_model_execution": false,
+      "mode_scope_completed": true,
+      "panel_dissent_preservation_contract_checked": true,
+      "panel_skill": "article-review-panel",
+      "path_profile": "full_delivery",
+      "primary_versions": [
+        "v001",
+        "v001",
+        "v002"
+      ],
+      "promotion_performed": true,
+      "reviewer_receipts_are_synthetic": true,
+      "synthetic_control_receipts": [],
+      "synthetic_evaluator_receipt_ids": [
+        "article-fast-track-draft-and-evaluation-evaluator-001-review",
+        "article-fast-track-draft-and-evaluation-evaluator-002-review"
+      ],
+      "synthetic_generation_receipt_ids": [
+        "article-fast-track-draft-and-evaluation-versioned-artifact-created"
+      ],
+      "synthetic_package_receipt_ids": [
+        "article-fast-track-draft-and-evaluation-package-verification"
+      ],
+      "synthetic_panel_receipt_ids": [
+        "article-fast-track-draft-and-evaluation-panel-001-review",
+        "article-fast-track-draft-and-evaluation-panel-002-review",
+        "article-fast-track-draft-and-evaluation-panel-003-review"
+      ],
+      "synthetic_panel_role_instances": {
+        "evidence-claim": "article-fast-track-draft-and-evaluation-panel-002",
+        "methodology-statistics": "article-fast-track-draft-and-evaluation-panel-001",
+        "submission-guard": "article-fast-track-draft-and-evaluation-panel-003"
+      },
+      "transition_receipts": [
+        {
+          "current_primary_version": "v001",
+          "from": "initialized",
+          "qualifying_review_id": null,
+          "sequence": 1,
+          "to": "preprocessing",
+          "trigger": "entry_gate_passed"
+        },
+        {
+          "current_primary_version": "v001",
+          "from": "preprocessing",
+          "qualifying_review_id": null,
+          "sequence": 2,
+          "to": "artifact_frozen",
+          "trigger": "versioned_artifact_created"
+        },
+        {
+          "current_primary_version": "v001",
+          "from": "artifact_frozen",
+          "qualifying_review_id": null,
+          "sequence": 3,
+          "to": "pending_review",
+          "trigger": "independent_review_dispatched"
+        },
+        {
+          "current_primary_version": "v001",
+          "from": "pending_review",
+          "qualifying_review_id": "article-fast-track-draft-and-evaluation-evaluator-001-review",
+          "sequence": 4,
+          "to": "revision_required",
+          "trigger": "fixable_revision_requested"
+        },
+        {
+          "current_primary_version": "v002",
+          "from": "revision_required",
+          "qualifying_review_id": null,
+          "sequence": 5,
+          "to": "artifact_frozen",
+          "trigger": "new_version_created"
+        },
+        {
+          "current_primary_version": "v002",
+          "from": "artifact_frozen",
+          "qualifying_review_id": null,
+          "sequence": 6,
+          "to": "pending_review",
+          "trigger": "independent_review_dispatched"
+        },
+        {
+          "current_primary_version": "v002",
+          "from": "pending_review",
+          "qualifying_review_id": "article-fast-track-draft-and-evaluation-evaluator-002-review",
+          "sequence": 7,
+          "to": "panel_pending",
+          "trigger": "latest_version_accepted"
+        },
+        {
+          "current_primary_version": "v002",
+          "from": "panel_pending",
+          "qualifying_review_id": "article-fast-track-draft-and-evaluation-complete-panel",
+          "sequence": 8,
+          "to": "packaging_pending",
+          "trigger": "panel_gate_passed"
+        },
+        {
+          "current_primary_version": "v002",
+          "from": "packaging_pending",
+          "qualifying_review_id": null,
+          "sequence": 9,
+          "to": "human_signoff_required",
+          "trigger": "package_verified"
+        }
+      ],
+      "workflow": "article",
+      "writer_instance_id": "article-fast-track-draft-and-evaluation-writer-001",
+      "writer_skill": "article-drafter"
+    },
+    {
+      "artifacts_validated": 6,
+      "automatic_external_submission": false,
+      "case_id": "article-blueprint-only",
+      "entry_gate_contract_source": "workflow-registry.yaml",
+      "entry_gate_receipt_count": 3,
+      "entry_gates_verified": [
+        "readiness_passed",
+        "context_frozen",
+        "methods_gate_passed"
+      ],
+      "entry_mode": "blueprint_only",
+      "evaluator_instance_ids": [],
+      "evaluator_skill": "article-evaluator",
+      "execution_kind": "deterministic_replay",
+      "final_state": "stopped",
+      "live_model_execution": false,
+      "mode_scope_completed": true,
+      "panel_dissent_preservation_contract_checked": false,
+      "panel_skill": "article-review-panel",
+      "path_profile": "scoped_non_ready_delivery",
+      "primary_versions": [
+        "v001",
+        "v001"
+      ],
+      "promotion_performed": false,
+      "reviewer_receipts_are_synthetic": true,
+      "synthetic_control_receipts": [
+        {
+          "continuation_artifact_ref": "article-blueprint-only-continuation-brief@v001",
+          "finding": "mode_scope_completed_or_no_gain",
+          "gate": "unfixable_no_gain_or_user_stop",
+          "receipt_id": "article-blueprint-only-valid-stop",
+          "route": "human_review_or_explicit_resume"
+        }
+      ],
+      "synthetic_evaluator_receipt_ids": [],
+      "synthetic_generation_receipt_ids": [
+        "article-blueprint-only-versioned-artifact-created"
+      ],
+      "synthetic_package_receipt_ids": [],
+      "synthetic_panel_receipt_ids": [],
+      "synthetic_panel_role_instances": {},
+      "transition_receipts": [
+        {
+          "current_primary_version": "v001",
+          "from": "initialized",
+          "qualifying_review_id": null,
+          "sequence": 1,
+          "to": "preprocessing",
+          "trigger": "entry_gate_passed"
+        },
+        {
+          "current_primary_version": "v001",
+          "from": "preprocessing",
+          "qualifying_review_id": null,
+          "sequence": 2,
+          "to": "artifact_frozen",
+          "trigger": "versioned_artifact_created"
+        },
+        {
+          "current_primary_version": "v001",
+          "from": "artifact_frozen",
+          "qualifying_review_id": null,
+          "sequence": 3,
+          "to": "stopped",
+          "trigger": "unfixable_no_gain_or_user_stop"
+        }
+      ],
+      "workflow": "article",
+      "writer_instance_id": "article-blueprint-only-writer-001",
+      "writer_skill": "article-drafter"
+    },
+    {
+      "artifacts_validated": 5,
+      "automatic_external_submission": false,
+      "case_id": "article-section-specific",
+      "entry_gate_contract_source": "workflow-registry.yaml",
+      "entry_gate_receipt_count": 2,
+      "entry_gates_verified": [
+        "scoped_intake_frozen",
+        "minimal_context_frozen"
+      ],
+      "entry_mode": "section_specific",
+      "evaluator_instance_ids": [],
+      "evaluator_skill": "article-evaluator",
+      "execution_kind": "deterministic_replay",
+      "final_state": "stopped",
+      "live_model_execution": false,
+      "mode_scope_completed": true,
+      "panel_dissent_preservation_contract_checked": false,
+      "panel_skill": "article-review-panel",
+      "path_profile": "scoped_non_ready_delivery",
+      "primary_versions": [
+        "v001",
+        "v001"
+      ],
+      "promotion_performed": false,
+      "reviewer_receipts_are_synthetic": true,
+      "synthetic_control_receipts": [
+        {
+          "continuation_artifact_ref": "article-section-specific-continuation-brief@v001",
+          "finding": "mode_scope_completed_or_no_gain",
+          "gate": "unfixable_no_gain_or_user_stop",
+          "receipt_id": "article-section-specific-valid-stop",
+          "route": "human_review_or_explicit_resume"
+        }
+      ],
+      "synthetic_evaluator_receipt_ids": [],
+      "synthetic_generation_receipt_ids": [
+        "article-section-specific-versioned-artifact-created"
+      ],
+      "synthetic_package_receipt_ids": [],
+      "synthetic_panel_receipt_ids": [],
+      "synthetic_panel_role_instances": {},
+      "transition_receipts": [
+        {
+          "current_primary_version": "v001",
+          "from": "initialized",
+          "qualifying_review_id": null,
+          "sequence": 1,
+          "to": "preprocessing",
+          "trigger": "entry_gate_passed"
+        },
+        {
+          "current_primary_version": "v001",
+          "from": "preprocessing",
+          "qualifying_review_id": null,
+          "sequence": 2,
+          "to": "artifact_frozen",
+          "trigger": "versioned_artifact_created"
+        },
+        {
+          "current_primary_version": "v001",
+          "from": "artifact_frozen",
+          "qualifying_review_id": null,
+          "sequence": 3,
+          "to": "stopped",
+          "trigger": "unfixable_no_gain_or_user_stop"
+        }
+      ],
+      "workflow": "article",
+      "writer_instance_id": "article-section-specific-writer-001",
+      "writer_skill": "article-drafter"
+    },
+    {
+      "artifacts_validated": 19,
+      "automatic_external_submission": false,
+      "case_id": "article-submission-only",
+      "entry_gate_contract_source": "workflow-registry.yaml",
+      "entry_gate_receipt_count": 3,
+      "entry_gates_verified": [
+        "submission_scope_readiness_passed",
+        "manuscript_versioned",
+        "latest_version_independently_evaluated"
+      ],
+      "entry_mode": "submission_only",
+      "evaluator_instance_ids": [
+        "article-submission-only-evaluator-001"
+      ],
+      "evaluator_skill": "article-evaluator",
+      "execution_kind": "deterministic_replay",
+      "final_state": "human_signoff_required",
+      "live_model_execution": false,
+      "mode_scope_completed": true,
+      "panel_dissent_preservation_contract_checked": true,
+      "panel_skill": "article-review-panel",
+      "path_profile": "evaluated_package",
+      "primary_versions": [
+        "v001"
+      ],
+      "promotion_performed": true,
+      "reviewer_receipts_are_synthetic": true,
+      "synthetic_control_receipts": [],
+      "synthetic_evaluator_receipt_ids": [
+        "article-submission-only-evaluator-001-review"
+      ],
+      "synthetic_generation_receipt_ids": [
+        "article-submission-only-versioned-artifact-created"
+      ],
+      "synthetic_package_receipt_ids": [
+        "article-submission-only-package-verification"
+      ],
+      "synthetic_panel_receipt_ids": [
+        "article-submission-only-panel-001-review",
+        "article-submission-only-panel-002-review",
+        "article-submission-only-panel-003-review"
+      ],
+      "synthetic_panel_role_instances": {
+        "evidence-claim": "article-submission-only-panel-002",
+        "methodology-statistics": "article-submission-only-panel-001",
+        "submission-guard": "article-submission-only-panel-003"
+      },
+      "transition_receipts": [
+        {
+          "current_primary_version": "v001",
+          "from": "initialized",
+          "qualifying_review_id": null,
+          "sequence": 1,
+          "to": "preprocessing",
+          "trigger": "entry_gate_passed"
+        },
+        {
+          "current_primary_version": "v001",
+          "from": "preprocessing",
+          "qualifying_review_id": null,
+          "sequence": 2,
+          "to": "artifact_frozen",
+          "trigger": "versioned_artifact_created"
+        },
+        {
+          "current_primary_version": "v001",
+          "from": "artifact_frozen",
+          "qualifying_review_id": null,
+          "sequence": 3,
+          "to": "pending_review",
+          "trigger": "independent_review_dispatched"
+        },
+        {
+          "current_primary_version": "v001",
+          "from": "pending_review",
+          "qualifying_review_id": "article-submission-only-evaluator-001-review",
+          "sequence": 4,
+          "to": "panel_pending",
+          "trigger": "latest_version_accepted"
+        },
+        {
+          "current_primary_version": "v001",
+          "from": "panel_pending",
+          "qualifying_review_id": "article-submission-only-complete-panel",
+          "sequence": 5,
+          "to": "packaging_pending",
+          "trigger": "panel_gate_passed"
+        },
+        {
+          "current_primary_version": "v001",
+          "from": "packaging_pending",
+          "qualifying_review_id": null,
+          "sequence": 6,
+          "to": "human_signoff_required",
+          "trigger": "package_verified"
+        }
+      ],
+      "workflow": "article",
+      "writer_instance_id": "article-submission-only-writer-001",
+      "writer_skill": "article-drafter"
+    },
+    {
+      "artifacts_validated": 7,
+      "automatic_external_submission": false,
+      "case_id": "perspective-lite",
+      "entry_gate_contract_source": "workflow-registry.yaml",
+      "entry_gate_receipt_count": 3,
+      "entry_gates_verified": [
+        "input_brief_frozen",
+        "provisional_claims_frozen",
+        "argument_architecture_frozen"
+      ],
+      "entry_mode": "lite",
+      "evaluator_instance_ids": [],
+      "evaluator_skill": "perspective-evaluator",
+      "execution_kind": "deterministic_replay",
+      "final_state": "stopped",
+      "live_model_execution": false,
+      "mode_scope_completed": true,
+      "panel_dissent_preservation_contract_checked": false,
+      "panel_skill": "perspective-review-panel",
+      "path_profile": "scoped_non_ready_delivery",
+      "primary_versions": [
+        "v001",
+        "v001"
+      ],
+      "promotion_performed": false,
+      "reviewer_receipts_are_synthetic": true,
+      "synthetic_control_receipts": [
+        {
+          "continuation_artifact_ref": "perspective-lite-continuation-brief@v001",
+          "finding": "mode_scope_completed_or_no_gain",
+          "gate": "unfixable_no_gain_or_user_stop",
+          "receipt_id": "perspective-lite-valid-stop",
+          "route": "human_review_or_explicit_resume"
+        }
+      ],
+      "synthetic_evaluator_receipt_ids": [],
+      "synthetic_generation_receipt_ids": [
+        "perspective-lite-versioned-artifact-created"
+      ],
+      "synthetic_package_receipt_ids": [],
+      "synthetic_panel_receipt_ids": [],
+      "synthetic_panel_role_instances": {},
+      "transition_receipts": [
+        {
+          "current_primary_version": "v001",
+          "from": "initialized",
+          "qualifying_review_id": null,
+          "sequence": 1,
+          "to": "preprocessing",
+          "trigger": "entry_gate_passed"
+        },
+        {
+          "current_primary_version": "v001",
+          "from": "preprocessing",
+          "qualifying_review_id": null,
+          "sequence": 2,
+          "to": "artifact_frozen",
+          "trigger": "versioned_artifact_created"
+        },
+        {
+          "current_primary_version": "v001",
+          "from": "artifact_frozen",
+          "qualifying_review_id": null,
+          "sequence": 3,
+          "to": "stopped",
+          "trigger": "unfixable_no_gain_or_user_stop"
+        }
+      ],
+      "workflow": "perspective",
+      "writer_instance_id": "perspective-lite-writer-001",
+      "writer_skill": "perspective-drafter"
+    },
+    {
+      "artifacts_validated": 11,
+      "automatic_external_submission": false,
+      "case_id": "perspective-standard",
+      "entry_gate_contract_source": "workflow-registry.yaml",
+      "entry_gate_receipt_count": 4,
+      "entry_gates_verified": [
+        "input_brief_frozen",
+        "claim_evidence_artifacts_frozen",
+        "argument_architecture_frozen",
+        "perspective_versioned"
+      ],
+      "entry_mode": "standard",
+      "evaluator_instance_ids": [
+        "perspective-standard-evaluator-001",
+        "perspective-standard-evaluator-002"
+      ],
+      "evaluator_skill": "perspective-evaluator",
+      "execution_kind": "deterministic_replay",
+      "final_state": "stopped",
+      "live_model_execution": false,
+      "mode_scope_completed": true,
+      "panel_dissent_preservation_contract_checked": false,
+      "panel_skill": "perspective-review-panel",
+      "path_profile": "evaluated_scoped_non_ready_delivery",
+      "primary_versions": [
+        "v001",
+        "v001",
+        "v002"
+      ],
+      "promotion_performed": false,
+      "reviewer_receipts_are_synthetic": true,
+      "synthetic_control_receipts": [
+        {
+          "continuation_artifact_ref": "perspective-standard-continuation-brief@v001",
+          "finding": "mode_scope_completed_or_no_gain",
+          "gate": "unfixable_no_gain_or_user_stop",
+          "receipt_id": "perspective-standard-valid-stop",
+          "route": "human_review_or_explicit_resume"
+        }
+      ],
+      "synthetic_evaluator_receipt_ids": [
+        "perspective-standard-evaluator-001-review",
+        "perspective-standard-evaluator-002-review"
+      ],
+      "synthetic_generation_receipt_ids": [
+        "perspective-standard-versioned-artifact-created"
+      ],
+      "synthetic_package_receipt_ids": [],
+      "synthetic_panel_receipt_ids": [],
+      "synthetic_panel_role_instances": {},
+      "transition_receipts": [
+        {
+          "current_primary_version": "v001",
+          "from": "initialized",
+          "qualifying_review_id": null,
+          "sequence": 1,
+          "to": "preprocessing",
+          "trigger": "entry_gate_passed"
+        },
+        {
+          "current_primary_version": "v001",
+          "from": "preprocessing",
+          "qualifying_review_id": null,
+          "sequence": 2,
+          "to": "artifact_frozen",
+          "trigger": "versioned_artifact_created"
+        },
+        {
+          "current_primary_version": "v001",
+          "from": "artifact_frozen",
+          "qualifying_review_id": null,
+          "sequence": 3,
+          "to": "pending_review",
+          "trigger": "independent_review_dispatched"
+        },
+        {
+          "current_primary_version": "v001",
+          "from": "pending_review",
+          "qualifying_review_id": "perspective-standard-evaluator-001-review",
+          "sequence": 4,
+          "to": "revision_required",
+          "trigger": "fixable_revision_requested"
+        },
+        {
+          "current_primary_version": "v002",
+          "from": "revision_required",
+          "qualifying_review_id": null,
+          "sequence": 5,
+          "to": "artifact_frozen",
+          "trigger": "new_version_created"
+        },
+        {
+          "current_primary_version": "v002",
+          "from": "artifact_frozen",
+          "qualifying_review_id": null,
+          "sequence": 6,
+          "to": "pending_review",
+          "trigger": "independent_review_dispatched"
+        },
+        {
+          "current_primary_version": "v002",
+          "from": "pending_review",
+          "qualifying_review_id": "perspective-standard-evaluator-002-review",
+          "sequence": 7,
+          "to": "panel_pending",
+          "trigger": "latest_version_accepted"
+        },
+        {
+          "current_primary_version": "v002",
+          "from": "panel_pending",
+          "qualifying_review_id": null,
+          "sequence": 8,
+          "to": "stopped",
+          "trigger": "unfixable_no_gain_or_user_stop"
+        }
+      ],
+      "workflow": "perspective",
+      "writer_instance_id": "perspective-standard-writer-001",
+      "writer_skill": "perspective-drafter"
+    },
+    {
+      "artifacts_validated": 21,
+      "automatic_external_submission": false,
+      "case_id": "perspective-full",
+      "entry_gate_contract_source": "workflow-registry.yaml",
+      "entry_gate_receipt_count": 4,
+      "entry_gates_verified": [
+        "input_brief_frozen",
+        "claim_evidence_artifacts_frozen",
+        "argument_architecture_frozen",
+        "perspective_versioned"
+      ],
+      "entry_mode": "full",
+      "evaluator_instance_ids": [
+        "perspective-full-evaluator-001",
+        "perspective-full-evaluator-002"
+      ],
+      "evaluator_skill": "perspective-evaluator",
+      "execution_kind": "deterministic_replay",
+      "final_state": "human_signoff_required",
+      "live_model_execution": false,
+      "mode_scope_completed": true,
+      "panel_dissent_preservation_contract_checked": true,
+      "panel_skill": "perspective-review-panel",
+      "path_profile": "full_delivery",
+      "primary_versions": [
+        "v001",
+        "v001",
+        "v002"
+      ],
+      "promotion_performed": true,
+      "reviewer_receipts_are_synthetic": true,
+      "synthetic_control_receipts": [],
+      "synthetic_evaluator_receipt_ids": [
+        "perspective-full-evaluator-001-review",
+        "perspective-full-evaluator-002-review"
+      ],
+      "synthetic_generation_receipt_ids": [
+        "perspective-full-versioned-artifact-created"
+      ],
+      "synthetic_package_receipt_ids": [
+        "perspective-full-package-verification"
+      ],
+      "synthetic_panel_receipt_ids": [
+        "perspective-full-panel-001-review",
+        "perspective-full-panel-002-review",
+        "perspective-full-panel-003-review"
+      ],
+      "synthetic_panel_role_instances": {
+        "counter-position": "perspective-full-panel-001",
+        "evidence": "perspective-full-panel-002",
+        "narrative": "perspective-full-panel-003"
+      },
+      "transition_receipts": [
+        {
+          "current_primary_version": "v001",
+          "from": "initialized",
+          "qualifying_review_id": null,
+          "sequence": 1,
+          "to": "preprocessing",
+          "trigger": "entry_gate_passed"
+        },
+        {
+          "current_primary_version": "v001",
+          "from": "preprocessing",
+          "qualifying_review_id": null,
+          "sequence": 2,
+          "to": "artifact_frozen",
+          "trigger": "versioned_artifact_created"
+        },
+        {
+          "current_primary_version": "v001",
+          "from": "artifact_frozen",
+          "qualifying_review_id": null,
+          "sequence": 3,
+          "to": "pending_review",
+          "trigger": "independent_review_dispatched"
+        },
+        {
+          "current_primary_version": "v001",
+          "from": "pending_review",
+          "qualifying_review_id": "perspective-full-evaluator-001-review",
+          "sequence": 4,
+          "to": "revision_required",
+          "trigger": "fixable_revision_requested"
+        },
+        {
+          "current_primary_version": "v002",
+          "from": "revision_required",
+          "qualifying_review_id": null,
+          "sequence": 5,
+          "to": "artifact_frozen",
+          "trigger": "new_version_created"
+        },
+        {
+          "current_primary_version": "v002",
+          "from": "artifact_frozen",
+          "qualifying_review_id": null,
+          "sequence": 6,
+          "to": "pending_review",
+          "trigger": "independent_review_dispatched"
+        },
+        {
+          "current_primary_version": "v002",
+          "from": "pending_review",
+          "qualifying_review_id": "perspective-full-evaluator-002-review",
+          "sequence": 7,
+          "to": "panel_pending",
+          "trigger": "latest_version_accepted"
+        },
+        {
+          "current_primary_version": "v002",
+          "from": "panel_pending",
+          "qualifying_review_id": "perspective-full-complete-panel",
+          "sequence": 8,
+          "to": "packaging_pending",
+          "trigger": "panel_gate_passed"
+        },
+        {
+          "current_primary_version": "v002",
+          "from": "packaging_pending",
+          "qualifying_review_id": null,
+          "sequence": 9,
+          "to": "human_signoff_required",
+          "trigger": "package_verified"
+        }
+      ],
+      "workflow": "perspective",
+      "writer_instance_id": "perspective-full-writer-001",
+      "writer_skill": "perspective-drafter"
+    }
+  ],
+  "registry_independent_reviewer_count": 18,
+  "registry_schema_version": 5,
+  "registry_sha256": "sha256:44e2c098eb6f3ab020189dec025a833be15e887691bd4b33a1c04c6b36205c8f",
+  "registry_skill_count": 45,
+  "registry_workflow_edge_count": 58,
+  "release_ledger_sha256": "sha256:e43a611cac2e4b4e1ea653e9cf002accd6fb1ce21363c11fac23318acf96c2e8",
+  "repository_contract_digest_policy": "sha256_crlf_normalized_to_lf",
+  "runtime_evidence_file_digest_policy": "sha256_raw_file_bytes",
+  "runtime_receipt_collection_sha256": "sha256:e10046540ec1188e081a3bc770ab2e75c56093a66d593da72ff636ca3b4977de",
+  "runtime_receipt_schema_sha256": "sha256:e35443323e20c33601a8e6d4a0d9658563303e38ee80f70bd0a1e9570a50f978",
+  "runtime_receipts": {
+    "collection_path": "tests/openai_phase7/current-version-runtime-receipts.yaml",
+    "completion_reachability_self_test": {
+      "counts_as_runtime_evidence": false,
+      "derived_phase_status": "complete",
+      "evidence_kind": "synthetic_gate_logic_self_test_only",
+      "status": "passed",
+      "verified_gate_count": 13
+    },
+    "expected_receipt_count": 8,
+    "expected_workflow_case_matrix": "4 workflows x {happy, control}",
+    "live_evidence_claimed": false,
+    "pending_receipt_count": 8,
+    "platform_trust": {
+      "adapter_id": null,
+      "adapter_status": "unavailable",
+      "completion_gate_verified": false,
+      "provider_authenticated": false,
+      "reason": "No provider-authenticated Codex/ChatGPT task-export verifier is available; repository-authored files and hashes cannot establish platform origin.",
+      "repository_files_alone_count_as_platform_authenticity": false,
+      "supported_authenticated_adapter_ids": []
+    },
+    "results": [
+      {
+        "case_kind": "happy",
+        "reason": "Awaiting a durable current-version fresh-task export.",
+        "receipt_id": "phase7-idea-happy",
+        "status": "pending_live_evidence",
+        "workflow": "idea"
+      },
+      {
+        "case_kind": "control",
+        "reason": "Awaiting a durable current-version valid-stop control export.",
+        "receipt_id": "phase7-idea-control",
+        "status": "pending_live_evidence",
+        "workflow": "idea"
+      },
+      {
+        "case_kind": "happy",
+        "reason": "Awaiting a durable current-version fresh-task export.",
+        "receipt_id": "phase7-proposal-happy",
+        "status": "pending_live_evidence",
+        "workflow": "proposal"
+      },
+      {
+        "case_kind": "control",
+        "reason": "Awaiting a durable current-version valid-block control export.",
+        "receipt_id": "phase7-proposal-control",
+        "status": "pending_live_evidence",
+        "workflow": "proposal"
+      },
+      {
+        "case_kind": "happy",
+        "reason": "Awaiting a durable current-version fresh-task export.",
+        "receipt_id": "phase7-article-happy",
+        "status": "pending_live_evidence",
+        "workflow": "article"
+      },
+      {
+        "case_kind": "control",
+        "reason": "Awaiting a durable current-version reviewer-unavailable control export.",
+        "receipt_id": "phase7-article-control",
+        "status": "pending_live_evidence",
+        "workflow": "article"
+      },
+      {
+        "case_kind": "happy",
+        "reason": "Awaiting a durable current-version fresh-task export.",
+        "receipt_id": "phase7-perspective-happy",
+        "status": "pending_live_evidence",
+        "workflow": "perspective"
+      },
+      {
+        "case_kind": "control",
+        "reason": "Awaiting a durable current-version valid-stop control export.",
+        "receipt_id": "phase7-perspective-control",
+        "status": "pending_live_evidence",
+        "workflow": "perspective"
+      }
+    ],
+    "schema_path": "tests/openai_phase7/runtime-receipts.schema.yaml",
+    "validator_negative_guards": [
+      {
+        "error_code": "runtime_expected_state_contract_mismatch",
+        "mutation": "idea_control_mutable_expected_final_state",
+        "status": "rejected_as_expected"
+      },
+      {
+        "error_code": "runtime_control_gate_mismatch",
+        "mutation": "idea_control_mutable_gate",
+        "status": "rejected_as_expected"
+      },
+      {
+        "error_code": "runtime_control_route_mismatch",
+        "mutation": "idea_control_mutable_route",
+        "status": "rejected_as_expected"
+      },
+      {
+        "error_code": "runtime_expected_state_contract_mismatch",
+        "mutation": "proposal_control_mutable_expected_final_state",
+        "status": "rejected_as_expected"
+      },
+      {
+        "error_code": "runtime_control_gate_mismatch",
+        "mutation": "proposal_control_mutable_gate",
+        "status": "rejected_as_expected"
+      },
+      {
+        "error_code": "runtime_control_route_mismatch",
+        "mutation": "proposal_control_mutable_route",
+        "status": "rejected_as_expected"
+      },
+      {
+        "error_code": "runtime_expected_state_contract_mismatch",
+        "mutation": "article_control_mutable_expected_final_state",
+        "status": "rejected_as_expected"
+      },
+      {
+        "error_code": "runtime_control_gate_mismatch",
+        "mutation": "article_control_mutable_gate",
+        "status": "rejected_as_expected"
+      },
+      {
+        "error_code": "runtime_control_route_mismatch",
+        "mutation": "article_control_mutable_route",
+        "status": "rejected_as_expected"
+      },
+      {
+        "error_code": "runtime_expected_state_contract_mismatch",
+        "mutation": "perspective_control_mutable_expected_final_state",
+        "status": "rejected_as_expected"
+      },
+      {
+        "error_code": "runtime_control_gate_mismatch",
+        "mutation": "perspective_control_mutable_gate",
+        "status": "rejected_as_expected"
+      },
+      {
+        "error_code": "runtime_control_route_mismatch",
+        "mutation": "perspective_control_mutable_route",
+        "status": "rejected_as_expected"
+      },
+      {
+        "error_code": "runtime_verified_label_only",
+        "mutation": "label_only_verified_status",
+        "status": "rejected_as_expected"
+      },
+      {
+        "error_code": "runtime_binding_missing",
+        "mutation": "missing_durable_actor_manifest_binding",
+        "status": "rejected_as_expected"
+      },
+      {
+        "error_code": "runtime_bound_file_digest_mismatch",
+        "mutation": "task_export_digest_mismatch",
+        "status": "rejected_as_expected"
+      },
+      {
+        "error_code": "runtime_task_export_identity_mismatch",
+        "mutation": "task_export_content_identity_mismatch",
+        "status": "rejected_as_expected"
+      },
+      {
+        "error_code": "runtime_review_state_mismatch",
+        "mutation": "review_artifact_dissent_hidden",
+        "status": "rejected_as_expected"
+      },
+      {
+        "error_code": "runtime_review_state_mismatch",
+        "mutation": "review_artifact_fatal_hidden_false_ready",
+        "status": "rejected_as_expected"
+      },
+      {
+        "error_code": "runtime_write_artifact_mismatch",
+        "mutation": "panel_writes_primary_input",
+        "status": "rejected_as_expected"
+      },
+      {
+        "error_code": "runtime_actor_skill_missing",
+        "mutation": "unregistered_evaluator_actor_skill",
+        "status": "rejected_as_expected"
+      },
+      {
+        "error_code": "runtime_actor_role_unknown",
+        "mutation": "unknown_actor_role",
+        "status": "rejected_as_expected"
+      },
+      {
+        "error_code": "runtime_actor_role_registry_mismatch",
+        "mutation": "actor_role_disagrees_with_skill_registry_role",
+        "status": "rejected_as_expected"
+      },
+      {
+        "error_code": "runtime_orchestrator_skill_mismatch",
+        "mutation": "orchestrator_skill_from_another_workflow",
+        "status": "rejected_as_expected"
+      },
+      {
+        "error_code": "runtime_writer_skill_mismatch",
+        "mutation": "writer_skill_from_another_workflow",
+        "status": "rejected_as_expected"
+      },
+      {
+        "error_code": "runtime_panel_role_mismatch",
+        "mutation": "missing_registry_panel_role",
+        "status": "rejected_as_expected"
+      },
+      {
+        "error_code": "runtime_panel_peer_output_visible",
+        "mutation": "panel_role_reads_peer_output",
+        "status": "rejected_as_expected"
+      },
+      {
+        "error_code": "runtime_evaluator_prior_review_visible",
+        "mutation": "fresh_evaluator_reads_prior_evaluator_output",
+        "status": "rejected_as_expected"
+      },
+      {
+        "error_code": "runtime_prior_scores_visible",
+        "mutation": "fresh_evaluator_prior_scores_visible",
+        "status": "rejected_as_expected"
+      },
+      {
+        "error_code": "runtime_current_version_review_missing",
+        "mutation": "fresh_evaluator_reviews_stale_artifact_version",
+        "status": "rejected_as_expected"
+      },
+      {
+        "error_code": "runtime_path_not_canonical_posix",
+        "mutation": "windows_backslash_runtime_path",
+        "status": "rejected_as_expected"
+      },
+      {
+        "error_code": "runtime_package_required_input_missing",
+        "mutation": "final_package_omits_required_revision_delta",
+        "status": "rejected_as_expected"
+      },
+      {
+        "error_code": "runtime_assembler_wrote_source_artifact",
+        "mutation": "assembler_writes_new_primary",
+        "status": "rejected_as_expected"
+      },
+      {
+        "error_code": "runtime_final_package_creator_mismatch",
+        "mutation": "final_package_created_by_writer",
+        "status": "rejected_as_expected"
+      },
+      {
+        "error_code": "runtime_happy_control_evidence_present",
+        "mutation": "happy_receipt_carries_control_evidence",
+        "status": "rejected_as_expected"
+      },
+      {
+        "error_code": "runtime_control_route_mismatch",
+        "mutation": "control_receipt_without_route",
+        "status": "rejected_as_expected"
+      },
+      {
+        "error_code": "runtime_control_continuation_type_mismatch",
+        "mutation": "control_continuation_wrong_artifact_type",
+        "status": "rejected_as_expected"
+      },
+      {
+        "error_code": "runtime_platform_trust_unavailable",
+        "mutation": "repository_authored_export_without_platform_trust_adapter",
+        "status": "rejected_as_expected"
+      }
+    ],
+    "verified_receipt_count": 0
+  },
+  "schema_version": 3,
+  "state_advance_order": "validate_qualifying_receipt_then_validate_registry_prerequisites_then_commit_derived_state_then_execute_transition",
+  "summary": {
+    "additional_stale_or_lineage_guards_rejected": 16,
+    "automatic_external_submission": false,
+    "completion_gates_pending": 13,
+    "completion_gates_verified": 0,
+    "declared_entry_modes": 16,
+    "declared_workflows": 4,
+    "entry_gate_negative_guards_rejected": 32,
+    "false_ready_count": 0,
+    "fixture_declared_entry_gate_lists": 0,
+    "human_signoff_required_modes": 12,
+    "live_model_runs_claimed": 0,
+    "missing_evaluator_receipts_rejected": 13,
+    "missing_panel_receipts_rejected": 12,
+    "mode_scoped_stopped_modes": 4,
+    "mode_specific_gate_bypasses_rejected": 16,
+    "negative_guards_rejected": 82,
+    "positive_modes_passed": 16,
+    "qualifying_reviewer_receipt_negatives_rejected": 50,
+    "registry_entry_gate_contracts_verified": 52,
+    "registry_entry_mode_contracts_verified": 16,
+    "runtime_receipts_expected": 8,
+    "runtime_receipts_pending": 8,
+    "runtime_receipts_verified": 0,
+    "runtime_validator_negative_guards_rejected": 37,
+    "stale_evaluator_receipts_rejected": 13,
+    "stale_panel_receipts_rejected": 12,
+    "synthetic_control_receipts_validated": 4,
+    "synthetic_evaluator_receipts_validated": 23,
+    "synthetic_generation_receipts_validated": 16,
+    "synthetic_package_receipts_validated": 12,
+    "synthetic_panel_receipts_validated": 44
+  }
+}

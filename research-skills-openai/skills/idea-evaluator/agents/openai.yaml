@@ -1,6 +1,6 @@
 interface:
   display_name: "Idea Evaluator"
-  short_description: "Independently score and gate frozen research ideas for novelty, feasibility, impact, relevance..."
+  short_description: "Independently evaluate and gate frozen research ideas"
   default_prompt: "Use $idea-evaluator for this task and follow its workflow and output contract."
 policy:
   allow_implicit_invocation: false

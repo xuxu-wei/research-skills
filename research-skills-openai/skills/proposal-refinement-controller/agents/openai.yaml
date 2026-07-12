@@ -1,6 +1,6 @@
 interface:
   display_name: "Proposal Refinement Controller"
-  short_description: "Plan and control targeted proposal revision after independent evaluation."
+  short_description: "Plan reviewed proposal revisions and fresh evaluation"
   default_prompt: "Use $proposal-refinement-controller for this task and follow its workflow and output contract."
 policy:
   allow_implicit_invocation: false

@@ -1,6 +1,6 @@
 interface:
   display_name: "Article Refinement Controller"
-  short_description: "Plan and control targeted manuscript revision after independent review, route edits to the..."
+  short_description: "Plan reviewed manuscript revisions and fresh evaluation"
   default_prompt: "Use $article-refinement-controller for this task and follow its workflow and output contract."
 policy:
   allow_implicit_invocation: false

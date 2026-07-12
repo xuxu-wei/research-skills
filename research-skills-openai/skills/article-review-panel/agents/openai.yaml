@@ -1,6 +1,6 @@
 interface:
   display_name: "Article Review Panel"
-  short_description: "Define isolated role-specific peer review for a frozen manuscript and non-compensatory..."
+  short_description: "Run an isolated peer-review role on a frozen manuscript"
   default_prompt: "Use $article-review-panel for this task and follow its workflow and output contract."
 policy:
   allow_implicit_invocation: false

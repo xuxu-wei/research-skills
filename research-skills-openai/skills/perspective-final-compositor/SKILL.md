@@ -1,6 +1,6 @@
 ---
 name: perspective-final-compositor
-description: "Independently assemble and verify a text-identical Perspective delivery package for human review. Use only after the frozen source has qualifying current-version evaluation and panel outputs."
+description: "Independently verify and assemble a text-identical Perspective package for human review from current qualifying review artifacts."
 ---
 # perspective-final-compositor
 

@@ -1,6 +1,6 @@
 ---
 name: article-review-panel
-description: "Define isolated role-specific peer review for a frozen manuscript and non-compensatory aggregation rules that preserve fatal findings, conflict, and dissent."
+description: "Run one isolated article peer-review role on a frozen manuscript; preserve fatal findings, conflicts, and dissent without editing."
 ---
 # article-review-panel
 

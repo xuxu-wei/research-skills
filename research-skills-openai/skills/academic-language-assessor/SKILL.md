@@ -1,6 +1,6 @@
 ---
 name: academic-language-assessor
-description: "Independently assess English, Chinese, or bilingual academic language. Use for manuscripts, proposals, perspectives, portfolios, or handoffs that need locatable language findings without rewriting."
+description: "Independently assess academic language in a frozen research artifact; report locatable issues without rewriting."
 ---
 # academic-language-assessor
 

@@ -1,6 +1,6 @@
 ---
 name: proposal-context-brief-builder
-description: "Normalize an idea, promoted package, draft, funding call, or data opportunity into a concise proposal context brief with constraints and unresolved facts."
+description: "Normalize an idea, package, draft, funding call, or data opportunity into a proposal context brief with constraints and open facts."
 ---
 # proposal-context-brief-builder
 

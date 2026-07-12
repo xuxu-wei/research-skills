@@ -1,6 +1,6 @@
 ---
 name: proposal-evaluator
-description: "Independently evaluate a frozen proposal for significance, logic, evidence, methods, feasibility, completion, and reviewer defensibility without rewriting it."
+description: "Independently evaluate a frozen proposal for significance, logic, evidence, methods, feasibility, and reviewer defensibility."
 ---
 # proposal-evaluator
 

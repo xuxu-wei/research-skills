@@ -1,6 +1,6 @@
 ---
 name: perspective-refinement-controller
-description: "Plan and control targeted Perspective revision after independent evaluation, route writing to the drafter, preserve lineage, and require fresh re-evaluation."
+description: "Plan Perspective revision after independent review, route prose to the drafter, preserve lineage, and require fresh evaluation."
 ---
 # perspective-refinement-controller
 

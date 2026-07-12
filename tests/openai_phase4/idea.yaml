@@ -5,14 +5,14 @@ execution_scope: evaluation_revision_delivery_with_entry_receipts
 workflow: idea
 workflow_id: wf-phase4-idea-001
 entry_mode: standard
-plugin_version: 0.5.0-preview.2
+plugin_version: 0.6.0-preview.1
 registry_schema_version: 5
 initial_artifacts:
   - artifact_id: idea-context-v1
     version_id: c001
     workflow_id: wf-phase4-idea-001
     round_id: entry-001
-    plugin_version: 0.5.0-preview.2
+    plugin_version: 0.6.0-preview.1
     source_skill: external-input
     created_by_instance_id: fixture-user-idea-001
     based_on: []
@@ -27,7 +27,7 @@ initial_artifacts:
     version_id: e001
     workflow_id: wf-phase4-idea-001
     round_id: entry-001
-    plugin_version: 0.5.0-preview.2
+    plugin_version: 0.6.0-preview.1
     source_skill: external-input
     created_by_instance_id: fixture-user-idea-001
     based_on: []
@@ -63,7 +63,7 @@ events:
         version_id: v001
         workflow_id: wf-phase4-idea-001
         round_id: round-001
-        plugin_version: 0.5.0-preview.2
+        plugin_version: 0.6.0-preview.1
         source_skill: multi-path-idea-generator
         created_by_instance_id: idea-writer-001
         based_on: [idea-context-v1@c001, idea-evidence-v1@e001]
@@ -120,7 +120,7 @@ events:
         version_id: r001
         workflow_id: wf-phase4-idea-001
         round_id: round-001
-        plugin_version: 0.5.0-preview.2
+        plugin_version: 0.6.0-preview.1
         source_skill: idea-evaluator
         created_by_instance_id: idea-evaluator-001
         based_on: [idea-context-v1@c001, idea-evidence-v1@e001, ideas-v1@v001]
@@ -144,7 +144,7 @@ events:
         version_id: rp002
         workflow_id: wf-phase4-idea-001
         round_id: round-002
-        plugin_version: 0.5.0-preview.2
+        plugin_version: 0.6.0-preview.1
         source_skill: research-idea-orchestrator
         created_by_instance_id: research-idea-orchestrator-001
         based_on: [ideas-v1@v001, idea-eval-v1@r001]
@@ -174,7 +174,7 @@ events:
         version_id: v002
         workflow_id: wf-phase4-idea-001
         round_id: round-002
-        plugin_version: 0.5.0-preview.2
+        plugin_version: 0.6.0-preview.1
         source_skill: multi-path-idea-generator
         created_by_instance_id: idea-writer-002
         based_on: [ideas-v1@v001, idea-revision-plan-v2@rp002]
@@ -189,7 +189,7 @@ events:
         version_id: rd002
         workflow_id: wf-phase4-idea-001
         round_id: round-002
-        plugin_version: 0.5.0-preview.2
+        plugin_version: 0.6.0-preview.1
         source_skill: multi-path-idea-generator
         created_by_instance_id: idea-writer-002
         based_on: [ideas-v1@v001, idea-revision-plan-v2@rp002, ideas-v2@v002]
@@ -234,7 +234,7 @@ events:
         version_id: r002
         workflow_id: wf-phase4-idea-001
         round_id: round-002
-        plugin_version: 0.5.0-preview.2
+        plugin_version: 0.6.0-preview.1
         source_skill: idea-evaluator
         created_by_instance_id: idea-evaluator-002
         based_on: [idea-context-v1@c001, idea-evidence-v1@e001, ideas-v2@v002]
@@ -288,7 +288,7 @@ events:
         version_id: p001
         workflow_id: wf-phase4-idea-001
         round_id: panel-001
-        plugin_version: 0.5.0-preview.2
+        plugin_version: 0.6.0-preview.1
         source_skill: idea-adversarial-review-panel
         created_by_instance_id: idea-panel-novelty-001
         based_on: [ideas-v2@v002]
@@ -333,7 +333,7 @@ events:
         version_id: p002
         workflow_id: wf-phase4-idea-001
         round_id: panel-001
-        plugin_version: 0.5.0-preview.2
+        plugin_version: 0.6.0-preview.1
         source_skill: idea-adversarial-review-panel
         created_by_instance_id: idea-panel-feasibility-001
         based_on: [ideas-v2@v002]
@@ -378,7 +378,7 @@ events:
         version_id: p003
         workflow_id: wf-phase4-idea-001
         round_id: panel-001
-        plugin_version: 0.5.0-preview.2
+        plugin_version: 0.6.0-preview.1
         source_skill: idea-adversarial-review-panel
         created_by_instance_id: idea-panel-strategy-001
         based_on: [ideas-v2@v002]
@@ -423,7 +423,7 @@ events:
         version_id: pkg001
         workflow_id: wf-phase4-idea-001
         round_id: package-001
-        plugin_version: 0.5.0-preview.2
+        plugin_version: 0.6.0-preview.1
         source_skill: idea-portfolio-assembler
         created_by_instance_id: idea-assembler-001
         based_on: [idea-context-v1@c001, idea-evidence-v1@e001, ideas-v2@v002, idea-eval-v2@r002, idea-panel-novelty-report@p001, idea-panel-feasibility-report@p002, idea-panel-strategy-report@p003, idea-revision-plan-v2@rp002, idea-delta-v2@rd002]

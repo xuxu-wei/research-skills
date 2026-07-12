@@ -1,6 +1,6 @@
 ---
 name: idea-evaluator
-description: "Independently score and gate frozen research ideas for novelty, feasibility, impact, relevance, clarity, and completion; recommend promotion, revision, merge, backup, or rejection."
+description: "Independently score and gate frozen ideas for novelty, feasibility, impact, relevance, clarity, and completion."
 ---
 # idea-evaluator
 

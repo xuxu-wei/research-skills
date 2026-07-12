@@ -262,8 +262,22 @@ def discover_openai_sources(root: Path) -> list[SkillSource]:
     duplicates = sorted({name for name in names if names.count(name) > 1})
     if duplicates:
         raise RuntimeError(f"Duplicate OpenAI skill names: {', '.join(duplicates)}")
-    if len(sources) != 45:
-        raise RuntimeError(f"Expected 45 OpenAI skills, found {len(sources)}")
+    registry_path = root / PLUGIN_VARIANTS["openai"] / "workflow-registry.yaml"
+    if registry_path.is_file():
+        registry = yaml.safe_load(read_text(registry_path)) or {}
+        registry_names = {
+            str(entry.get("name", ""))
+            for entry in registry.get("skills", [])
+            if entry.get("name")
+        }
+        if set(names) != registry_names:
+            raise RuntimeError(
+                "OpenAI plugin discovery differs from registry: "
+                f"missing={sorted(registry_names - set(names))} "
+                f"extra={sorted(set(names) - registry_names)}"
+            )
+    if not sources:
+        raise RuntimeError("OpenAI plugin contains no skills")
     return sorted(sources, key=lambda item: item.name)
 
 

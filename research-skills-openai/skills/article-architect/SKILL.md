@@ -1,6 +1,6 @@
 ---
 name: article-architect
-description: "Design a manuscript blueprint, claim-evidence structure, evidence displays, supplementary plan, results skeleton, journal adapter, and reviewer-risk preview before drafting."
+description: "Design a manuscript blueprint, claim-evidence structure, displays, supplements, results skeleton, and reviewer-risk plan before drafting."
 ---
 # article-architect
 

@@ -1,6 +1,6 @@
 interface:
   display_name: "Article Methods Statistics Auditor"
-  short_description: "Independently audit study design, methods, endpoints, and statistics before manuscript drafting..."
+  short_description: "Independently audit study methods and statistics"
   default_prompt: "Use $article-methods-statistics-auditor for this task and follow its workflow and output contract."
 policy:
   allow_implicit_invocation: false

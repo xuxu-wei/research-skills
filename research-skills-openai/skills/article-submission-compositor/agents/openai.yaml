@@ -1,6 +1,6 @@
 interface:
   display_name: "Article Submission Compositor"
-  short_description: "Independently assemble and verify a research-article submission package for human sign-off."
+  short_description: "Independently verify and package articles for human sign-off"
   default_prompt: "Use $article-submission-compositor for this task and follow its workflow and output contract."
 policy:
   allow_implicit_invocation: false

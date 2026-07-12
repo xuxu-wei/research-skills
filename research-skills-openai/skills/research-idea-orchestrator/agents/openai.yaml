@@ -1,6 +1,6 @@
 interface:
   display_name: "Research Idea Orchestrator"
-  short_description: "Orchestrate research idea development from a rough topic, evidence, funding call, practical..."
+  short_description: "Orchestrate research ideas into evaluated PI-review portfolios"
   default_prompt: "Use $research-idea-orchestrator for this task and follow its workflow and output contract."
 policy:
   allow_implicit_invocation: true

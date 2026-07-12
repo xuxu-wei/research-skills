@@ -1,6 +1,6 @@
 interface:
   display_name: "Methodology Statistics Preflight"
-  short_description: "Independently preflight research designs, ideas, proposals, protocols, or analysis plans for..."
+  short_description: "Independently preflight research methods and statistics"
   default_prompt: "Use $methodology-statistics-preflight for this task and follow its workflow and output contract."
 policy:
   allow_implicit_invocation: false

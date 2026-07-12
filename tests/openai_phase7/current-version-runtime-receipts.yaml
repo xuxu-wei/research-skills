@@ -1,0 +1,276 @@
+schema_version: 1
+evidence_kind: current_version_durable_runtime_receipts
+platform_trust:
+  adapter_status: unavailable
+  adapter_id: null
+  provider_authenticated: false
+  reason: >-
+    No provider-authenticated Codex/ChatGPT task-export verifier is available;
+    repository-authored files and hashes cannot establish platform origin.
+
+# These are deliberately incomplete intake slots, not runtime evidence. Change
+# status to verified only after every durable binding and semantic check passes.
+receipts:
+  - receipt_id: phase7-idea-happy
+    workflow: idea
+    case_kind: happy
+    expected_final_state: human_signoff_required
+    status: pending_live_evidence
+    binding:
+      plugin_version: null
+      registry_sha256: null
+      source_commit: null
+      task_export: {platform: null, task_id: null, path: null, sha256: null}
+      actor_manifest: {path: null, sha256: null}
+      artifact_index: {path: null, sha256: null}
+    file_access:
+      reads: []
+      writes: []
+      source_artifact_hashes_unchanged: null
+    lineage:
+      complete: null
+      current_artifact_ref: null
+      evaluated_artifact_ref: null
+    review_state:
+      dissent_ids: []
+      preserved_dissent_ids: []
+      fatal_finding_ids: []
+      unresolved_fatal_finding_ids: []
+      fatal_findings_visible: null
+    control_evidence: {gate: null, finding: null, route: null, continuation_artifact_ref: null}
+    final_state: null
+    automatic_external_submission: null
+    reason: Awaiting a durable current-version fresh-task export.
+
+  - receipt_id: phase7-idea-control
+    workflow: idea
+    case_kind: control
+    expected_final_state: stopped
+    status: pending_live_evidence
+    binding:
+      plugin_version: null
+      registry_sha256: null
+      source_commit: null
+      task_export: {platform: null, task_id: null, path: null, sha256: null}
+      actor_manifest: {path: null, sha256: null}
+      artifact_index: {path: null, sha256: null}
+    file_access:
+      reads: []
+      writes: []
+      source_artifact_hashes_unchanged: null
+    lineage:
+      complete: null
+      current_artifact_ref: null
+      evaluated_artifact_ref: null
+    review_state:
+      dissent_ids: []
+      preserved_dissent_ids: []
+      fatal_finding_ids: []
+      unresolved_fatal_finding_ids: []
+      fatal_findings_visible: null
+    control_evidence:
+      gate: unfixable_no_gain_or_user_stop
+      finding: null
+      route: human_review_or_explicit_resume
+      continuation_artifact_ref: null
+    final_state: null
+    automatic_external_submission: null
+    reason: Awaiting a durable current-version valid-stop control export.
+
+  - receipt_id: phase7-proposal-happy
+    workflow: proposal
+    case_kind: happy
+    expected_final_state: human_signoff_required
+    status: pending_live_evidence
+    binding:
+      plugin_version: null
+      registry_sha256: null
+      source_commit: null
+      task_export: {platform: null, task_id: null, path: null, sha256: null}
+      actor_manifest: {path: null, sha256: null}
+      artifact_index: {path: null, sha256: null}
+    file_access:
+      reads: []
+      writes: []
+      source_artifact_hashes_unchanged: null
+    lineage:
+      complete: null
+      current_artifact_ref: null
+      evaluated_artifact_ref: null
+    review_state:
+      dissent_ids: []
+      preserved_dissent_ids: []
+      fatal_finding_ids: []
+      unresolved_fatal_finding_ids: []
+      fatal_findings_visible: null
+    control_evidence: {gate: null, finding: null, route: null, continuation_artifact_ref: null}
+    final_state: null
+    automatic_external_submission: null
+    reason: Awaiting a durable current-version fresh-task export.
+
+  - receipt_id: phase7-proposal-control
+    workflow: proposal
+    case_kind: control
+    expected_final_state: blocked
+    status: pending_live_evidence
+    binding:
+      plugin_version: null
+      registry_sha256: null
+      source_commit: null
+      task_export: {platform: null, task_id: null, path: null, sha256: null}
+      actor_manifest: {path: null, sha256: null}
+      artifact_index: {path: null, sha256: null}
+    file_access:
+      reads: []
+      writes: []
+      source_artifact_hashes_unchanged: null
+    lineage:
+      complete: null
+      current_artifact_ref: null
+      evaluated_artifact_ref: null
+    review_state:
+      dissent_ids: []
+      preserved_dissent_ids: []
+      fatal_finding_ids: []
+      unresolved_fatal_finding_ids: []
+      fatal_findings_visible: null
+    control_evidence:
+      gate: fatal_or_blocking_finding
+      finding: null
+      route: blocked_for_human_resolution
+      continuation_artifact_ref: null
+    final_state: null
+    automatic_external_submission: null
+    reason: Awaiting a durable current-version valid-block control export.
+
+  - receipt_id: phase7-article-happy
+    workflow: article
+    case_kind: happy
+    expected_final_state: human_signoff_required
+    status: pending_live_evidence
+    binding:
+      plugin_version: null
+      registry_sha256: null
+      source_commit: null
+      task_export: {platform: null, task_id: null, path: null, sha256: null}
+      actor_manifest: {path: null, sha256: null}
+      artifact_index: {path: null, sha256: null}
+    file_access:
+      reads: []
+      writes: []
+      source_artifact_hashes_unchanged: null
+    lineage:
+      complete: null
+      current_artifact_ref: null
+      evaluated_artifact_ref: null
+    review_state:
+      dissent_ids: []
+      preserved_dissent_ids: []
+      fatal_finding_ids: []
+      unresolved_fatal_finding_ids: []
+      fatal_findings_visible: null
+    control_evidence: {gate: null, finding: null, route: null, continuation_artifact_ref: null}
+    final_state: null
+    automatic_external_submission: null
+    reason: Awaiting a durable current-version fresh-task export.
+
+  - receipt_id: phase7-article-control
+    workflow: article
+    case_kind: control
+    expected_final_state: independent_review_pending
+    status: pending_live_evidence
+    binding:
+      plugin_version: null
+      registry_sha256: null
+      source_commit: null
+      task_export: {platform: null, task_id: null, path: null, sha256: null}
+      actor_manifest: {path: null, sha256: null}
+      artifact_index: {path: null, sha256: null}
+    file_access:
+      reads: []
+      writes: []
+      source_artifact_hashes_unchanged: null
+    lineage:
+      complete: null
+      current_artifact_ref: null
+      evaluated_artifact_ref: null
+    review_state:
+      dissent_ids: []
+      preserved_dissent_ids: []
+      fatal_finding_ids: []
+      unresolved_fatal_finding_ids: []
+      fatal_findings_visible: null
+    control_evidence:
+      gate: required_reviewer_unavailable
+      finding: null
+      route: resume_in_fresh_delegated_task
+      continuation_artifact_ref: null
+    final_state: null
+    automatic_external_submission: null
+    reason: Awaiting a durable current-version reviewer-unavailable control export.
+
+  - receipt_id: phase7-perspective-happy
+    workflow: perspective
+    case_kind: happy
+    expected_final_state: human_signoff_required
+    status: pending_live_evidence
+    binding:
+      plugin_version: null
+      registry_sha256: null
+      source_commit: null
+      task_export: {platform: null, task_id: null, path: null, sha256: null}
+      actor_manifest: {path: null, sha256: null}
+      artifact_index: {path: null, sha256: null}
+    file_access:
+      reads: []
+      writes: []
+      source_artifact_hashes_unchanged: null
+    lineage:
+      complete: null
+      current_artifact_ref: null
+      evaluated_artifact_ref: null
+    review_state:
+      dissent_ids: []
+      preserved_dissent_ids: []
+      fatal_finding_ids: []
+      unresolved_fatal_finding_ids: []
+      fatal_findings_visible: null
+    control_evidence: {gate: null, finding: null, route: null, continuation_artifact_ref: null}
+    final_state: null
+    automatic_external_submission: null
+    reason: Awaiting a durable current-version fresh-task export.
+
+  - receipt_id: phase7-perspective-control
+    workflow: perspective
+    case_kind: control
+    expected_final_state: stopped
+    status: pending_live_evidence
+    binding:
+      plugin_version: null
+      registry_sha256: null
+      source_commit: null
+      task_export: {platform: null, task_id: null, path: null, sha256: null}
+      actor_manifest: {path: null, sha256: null}
+      artifact_index: {path: null, sha256: null}
+    file_access:
+      reads: []
+      writes: []
+      source_artifact_hashes_unchanged: null
+    lineage:
+      complete: null
+      current_artifact_ref: null
+      evaluated_artifact_ref: null
+    review_state:
+      dissent_ids: []
+      preserved_dissent_ids: []
+      fatal_finding_ids: []
+      unresolved_fatal_finding_ids: []
+      fatal_findings_visible: null
+    control_evidence:
+      gate: unfixable_no_gain_or_user_stop
+      finding: null
+      route: human_review_or_explicit_resume
+      continuation_artifact_ref: null
+    final_state: null
+    automatic_external_submission: null
+    reason: Awaiting a durable current-version valid-stop control export.

@@ -11,6 +11,8 @@ from urllib.parse import unquote
 
 import yaml
 
+from openai_ui_utils import short_description_error
+
 
 REPO = Path(__file__).resolve().parents[1]
 PLUGIN = REPO / "research-skills-openai"
@@ -19,14 +21,14 @@ REGISTRY = PLUGIN / "workflow-registry.yaml"
 MANIFEST = PLUGIN / ".codex-plugin" / "plugin.json"
 MARKETPLACE = REPO / ".agents" / "plugins" / "marketplace.json"
 
-EXPECTED_SKILLS = 45
 EXPECTED_REVIEWERS = 18
 EXPECTED_IMPLICIT = 6
 SKILL_LINE_HARD_LIMIT = 250
 SKILL_CHAR_HARD_LIMIT = 12_000
 SKILL_LINE_TARGET = 180
 SKILL_CHAR_TARGET = 8_000
-DESCRIPTION_BUDGET = 8_000
+DESCRIPTION_BUDGET = 6_400
+INITIAL_LOAD_BUDGET = 14_000
 
 FORBIDDEN_RESIDUES = {
     "delegate_task": re.compile(r"\bdelegate_task\b"),
@@ -190,8 +192,6 @@ def main() -> int:
     skill_files = sorted(SKILLS.rglob("SKILL.md"))
     names: dict[str, Path] = {}
     description_chars = 0
-    if len(skill_files) != EXPECTED_SKILLS:
-        errors.append(f"expected {EXPECTED_SKILLS} skills, found {len(skill_files)}")
     for skill_md in skill_files:
         text = read(skill_md)
         frontmatter, body = split_frontmatter(text)
@@ -217,6 +217,16 @@ def main() -> int:
         openai_yaml = skill_md.parent / "agents" / "openai.yaml"
         if not openai_yaml.exists():
             errors.append(f"{relative(skill_md)}: missing agents/openai.yaml")
+        else:
+            try:
+                openai_data = yaml.safe_load(read(openai_yaml)) or {}
+            except yaml.YAMLError as exc:
+                errors.append(f"{relative(openai_yaml)}: invalid YAML: {exc}")
+                openai_data = {}
+            interface = openai_data.get("interface", {}) if isinstance(openai_data, dict) else {}
+            short_error = short_description_error(interface.get("short_description"))
+            if short_error:
+                errors.append(f"{relative(openai_yaml)}: {short_error}")
         errors.extend(resource_ownership_errors(skill_md))
         if name not in FINAL_SUBMISSION_SKILLS and re.search(
             r"\b(?:ethics?|ethical|IRB|privacy|regulatory|informed consent)\b", body, re.I
@@ -239,8 +249,6 @@ def main() -> int:
         state_machines = registry_data.get("workflow_state_machines", {})
         scenario_contract = registry_data.get("scenario_eval_contract", {})
         context_policy = registry_data.get("context_profile_policy", {})
-        if len(entries) != EXPECTED_SKILLS:
-            errors.append(f"registry expected {EXPECTED_SKILLS} entries, found {len(entries)}")
     if not REGISTRY.exists():
         edges = []
         state_policy = {}
@@ -324,10 +332,10 @@ def main() -> int:
     for orchestrator in orchestrators:
         body = read(names[orchestrator])
         initial_load = description_chars + len(body)
-        if initial_load > 16_000:
+        if initial_load > INITIAL_LOAD_BUDGET:
             errors.append(
-                f"{orchestrator}: 32K profile would retain less than half for artifacts/state "
-                f"({initial_load} initial description+orchestrator chars)"
+                f"{orchestrator}: conservative all-skill description plus orchestrator proxy "
+                f"exceeds {INITIAL_LOAD_BUDGET} characters ({initial_load})"
             )
         if "phase summary" not in body.lower() or "artifact" not in body.lower():
             errors.append(f"{orchestrator}: missing concise phase-summary/artifact-pointer return contract")
@@ -663,7 +671,10 @@ def main() -> int:
     print(f"description characters: {description_chars}/{DESCRIPTION_BUDGET}")
     if orchestrators:
         max_initial = max(description_chars + len(read(names[name])) for name in orchestrators)
-        print(f"max 32K initial description+orchestrator load: {max_initial}/16000")
+        print(
+            "max conservative all-skill description+orchestrator proxy: "
+            f"{max_initial}/{INITIAL_LOAD_BUDGET}"
+        )
     print(f"errors: {len(errors)}")
     for error in errors:
         print(f"ERROR: {error}")

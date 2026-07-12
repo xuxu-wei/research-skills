@@ -1,6 +1,6 @@
 ---
 name: article-drafter
-description: "Draft or revise a versioned manuscript body and organize supplements from approved context, blueprint, evidence, audit findings, and revision plans without self-evaluation."
+description: "Draft or revise a versioned manuscript and supplements from approved context, blueprint, evidence, audits, and revision instructions."
 ---
 # article-drafter
 

@@ -1,0 +1,9 @@
+schema_version: 1
+policy:
+  repository_authored_files_are_not_trust_anchors: true
+  real_verification_requires_builtin_adapter: true
+  synthetic_override_counts_as_runtime_evidence: false
+synthetic_self_test:
+  adapter_id: synthetic_ephemeral_validator_override
+  ephemeral_temp_root_required: true
+adapters: []

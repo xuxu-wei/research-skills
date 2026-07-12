@@ -1,6 +1,6 @@
 interface:
   display_name: "Academic Language Assessor"
-  short_description: "Independently assess English, Chinese, or bilingual academic language."
+  short_description: "Independently assess academic language and report issues"
   default_prompt: "Use $academic-language-assessor for this task and follow its workflow and output contract."
 policy:
   allow_implicit_invocation: false

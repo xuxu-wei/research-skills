@@ -1,0 +1,53 @@
+schema_version: 1
+plugin: research-skills-openai
+inventory_source: workflow-registry.yaml
+license:
+  spdx_id: MIT
+  plugin_file: LICENSE
+  repository_source: ../LICENSE
+  resolution_status: resolved
+  applies_to:
+    - .codex-plugin/**
+    - skills/**
+    - reports/**
+    - AGENTS.md
+    - README.md
+    - ROADMAP.md
+    - workflow-registry.yaml
+    - PROVENANCE.yaml
+authorship:
+  repository_copyright_notice: Copyright (c) 2026 Xuxu Wei
+  per_resource_declared_authors: unknown_not_declared
+  policy: Do not infer authorship from Git history or assign third-party authors without a declaration.
+resource_groups:
+  - name: plugin_profile
+    scopes:
+      - .codex-plugin/**
+      - AGENTS.md
+      - README.md
+      - ROADMAP.md
+      - workflow-registry.yaml
+      - LICENSE
+      - PROVENANCE.yaml
+    origin: maintained_in_this_repository
+    origin_status: resolved
+  - name: generated_validation_evidence
+    scopes:
+      - reports/**
+    origin: generated_or_curated_by_repository_validation_workflows
+    origin_status: resolved
+skill_resource_derivation:
+  registry_fields:
+    name: skills[].name
+    package: skills[].package
+  plugin_scope_template: skills/{name}/**
+  hermes_source_template: ../research-skills/{package}/{name}/
+  openai_overlay_scope_template: skills/{name}/agents/**
+  content_origin: adapted_from_corresponding_hermes_source
+  overlay_origin: maintained_in_this_repository_for_openai_runtime
+  origin_status: resolved_when_source_and_plugin_directories_exist
+  license_resolution: repository_root_mit
+  per_resource_declared_authors: unknown_not_declared
+  unknown_handling: Any missing registry field, source directory, plugin directory, or license mapping is unresolved and fails provenance validation.
+declared_third_party_exceptions: []
+unresolved_resources: []

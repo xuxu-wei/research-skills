@@ -1,6 +1,6 @@
 interface:
   display_name: "Perspective Argument Architect"
-  short_description: "Design a contestable Perspective argument chain, contribution type, narrative strategy..."
+  short_description: "Design Perspective arguments and claim structures"
   default_prompt: "Use $perspective-argument-architect for this task and follow its workflow and output contract."
 policy:
   allow_implicit_invocation: false

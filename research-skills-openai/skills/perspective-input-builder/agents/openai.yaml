@@ -1,6 +1,6 @@
 interface:
   display_name: "Perspective Input Builder"
-  short_description: "Normalize a Perspective thesis, audience, outlet, evidence, and constraints into an input brief..."
+  short_description: "Normalize Perspective inputs into a structured brief"
   default_prompt: "Use $perspective-input-builder for this task and follow its workflow and output contract."
 policy:
   allow_implicit_invocation: false

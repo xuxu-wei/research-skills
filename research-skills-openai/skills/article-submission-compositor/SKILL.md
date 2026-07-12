@@ -1,6 +1,6 @@
 ---
 name: article-submission-compositor
-description: "Independently assemble and verify a research-article submission package for human sign-off. Use after the final manuscript version has qualifying audits, evaluation, and required panel outputs."
+description: "Independently verify and assemble a frozen article and qualifying reviews into a package for human sign-off."
 ---
 # article-submission-compositor
 

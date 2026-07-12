@@ -1,13 +1,44 @@
-schema_version: 2
+schema_version: 4
 capture_method: codex_fresh_delegated_instances
 evidence_class: self_attested_live_output_snapshot
-plugin_version_under_test: 0.5.0-preview.1
-applicability: skill_bodies_unchanged_by_phase4_registry_and_test_hardening
-skills_tree_digest:
-  algorithm: sha256_sorted_posix_relative_path_nul_crlf_normalized_bytes_nul
-  file_count: 330
-  installed_preview_1: 2409b09f94a51228ce4e58472a744c5ede0e0be9275def825fac81e2f0f2a45e
-  current_preview_2: 2409b09f94a51228ce4e58472a744c5ede0e0be9275def825fac81e2f0f2a45e
+applicability_policy: complete_captured_runtime_identity_exact_match
+captured_plugin:
+  version: 0.5.0-preview.1
+  runtime_identity:
+    manifest:
+      applicable: true
+      capture_status: not_captured
+      path: research-skills-openai/.codex-plugin/plugin.json
+      algorithm: sha256_bytes
+      sha256:
+    workflow_registry:
+      applicable: true
+      capture_status: not_captured
+      path: research-skills-openai/workflow-registry.yaml
+      algorithm: sha256_bytes
+      sha256:
+    registry_schema_version:
+      applicable: true
+      capture_status: not_captured
+      value:
+    receipt_schema:
+      applicable: unknown
+      capture_status: not_captured
+      path:
+      algorithm:
+      sha256:
+      reason: no_separate_live_receipt_schema_identity_was_recorded_at_capture
+    skills_tree:
+      applicable: true
+      capture_status: captured
+      algorithm: sha256_sorted_posix_relative_path_nul_crlf_normalized_bytes_nul
+      file_count: 330
+      sha256: 2409b09f94a51228ce4e58472a744c5ede0e0be9275def825fac81e2f0f2a45e
+historical_comparisons:
+  - plugin_version: 0.5.0-preview.2
+    skills_tree_sha256: 2409b09f94a51228ce4e58472a744c5ede0e0be9275def825fac81e2f0f2a45e
+    identity_status: incomplete_identity
+    missing_identity_components: [manifest, workflow_registry, registry_schema_version, receipt_schema]
 workflows:
   - workflow: idea
     workflow_id: RID-K57-20260712-01

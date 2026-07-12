@@ -1,6 +1,6 @@
 interface:
   display_name: "Article Drafter"
-  short_description: "Draft or revise a versioned manuscript body and organize supplements from approved context..."
+  short_description: "Draft and revise versioned manuscripts and supplements"
   default_prompt: "Use $article-drafter for this task and follow its workflow and output contract."
 policy:
   allow_implicit_invocation: false

@@ -1,6 +1,6 @@
 interface:
   display_name: "Perspective Drafter"
-  short_description: "Draft or revise a versioned Perspective from approved architecture and claim artifacts, with..."
+  short_description: "Draft and revise versioned Perspective manuscripts"
   default_prompt: "Use $perspective-drafter for this task and follow its workflow and output contract."
 policy:
   allow_implicit_invocation: false

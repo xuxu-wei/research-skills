@@ -1,6 +1,6 @@
 interface:
   display_name: "Proposal Orchestrator"
-  short_description: "Orchestrate proposal drafting, independent evaluation, revision, optional SAP, panel review, and..."
+  short_description: "Orchestrate proposals through independent review and packaging"
   default_prompt: "Use $proposal-orchestrator for this task and follow its workflow and output contract."
 policy:
   allow_implicit_invocation: true

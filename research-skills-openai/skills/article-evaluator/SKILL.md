@@ -1,6 +1,6 @@
 ---
 name: article-evaluator
-description: "Independently evaluate a frozen manuscript with non-compensatory scientific, evidence-claim, reporting, language, and submission-readiness gates; do not edit source text."
+description: "Independently evaluate a frozen manuscript against scientific, evidence-claim, reporting, language, and submission-readiness gates."
 ---
 # article-evaluator
 

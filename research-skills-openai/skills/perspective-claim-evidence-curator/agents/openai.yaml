@@ -1,6 +1,6 @@
 interface:
   display_name: "Perspective Claim Evidence Curator"
-  short_description: "Create and maintain the Perspective claim ledger, claim-evidence matrix, discourse baseline..."
+  short_description: "Curate Perspective claims, evidence, and citation risks"
   default_prompt: "Use $perspective-claim-evidence-curator for this task and follow its workflow and output contract."
 policy:
   allow_implicit_invocation: false

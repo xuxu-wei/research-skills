@@ -1,6 +1,6 @@
 ---
 name: article-readiness-triage
-description: "Independently determine whether study materials can enter article workflow, identify article type and blocking gaps, and recommend a route without drafting content."
+description: "Independently triage study materials for article readiness, article type, blocking gaps, and workflow route without drafting."
 ---
 # article-readiness-triage
 

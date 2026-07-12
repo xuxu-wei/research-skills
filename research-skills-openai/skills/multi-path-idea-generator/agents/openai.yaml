@@ -1,6 +1,6 @@
 interface:
   display_name: "Multi Path Idea Generator"
-  short_description: "Generate a diverse, non-duplicative set of research ideas from approved context and opportunity..."
+  short_description: "Generate diverse research ideas without evaluating them"
   default_prompt: "Use $multi-path-idea-generator for this task and follow its workflow and output contract."
 policy:
   allow_implicit_invocation: false

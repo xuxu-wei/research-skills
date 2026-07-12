@@ -1,0 +1,460 @@
+schema_version: 1
+evidence_class: synthetic_contract_oracle
+runtime_claim: none
+description: >-
+  Synthetic, non-identifying workflow cases used to exercise Phase 8 routing and
+  quality contracts. Oracle observations are deterministic fixture data, not
+  model executions or live research evidence.
+outcome_classes:
+  - happy
+  - fixable
+  - fatal_or_pending
+  - revision_no_gain
+anonymization_policy:
+  permitted_source_kinds: [synthetic]
+  identifying_source_material_committed: false
+  required_statement: Synthetic case; no person, institution, unpublished dataset, or user source is represented.
+cases:
+  - case_id: ph8-idea-happy-001
+    workflow: idea
+    outcome_class: happy
+    risk_tier: low
+    scenario: A synthetic pilot signal supports a bounded, testable follow-up study.
+    anonymity:
+      source_kind: synthetic
+      contains_identifying_material: false
+      statement: Synthetic case; no person, institution, unpublished dataset, or user source is represented.
+    expected:
+      route: idea-evaluator -> idea-adversarial-review-panel -> idea-portfolio-assembler
+      final_state: human_signoff_required
+      required_outputs: [idea_evaluation_report, adversarial_panel_report, idea_portfolio]
+      forbidden_outputs: [external_submission_receipt, reviewer_edited_candidate]
+      critical_findings: []
+      dissent_ids: [idea-dissent-generalizability]
+    oracle_observation:
+      route: idea-evaluator -> idea-adversarial-review-panel -> idea-portfolio-assembler
+      final_state: human_signoff_required
+      outputs: [idea_evaluation_report, adversarial_panel_report, idea_portfolio]
+      detected_finding_ids: []
+      ready_claimed: true
+      lineage: {complete: true, artifact_id: idea-portfolio-001, version_id: v001, round_id: r002, plugin_version_binding: manifest_current, source_skill: idea-portfolio-assembler, based_on: [idea-candidate-001@v002], change_type: assembly}
+      isolation: {fresh_subagent: true, writer_instance_id: idea-writer-001, reviewer_instance_id: idea-reviewer-001, prior_scores_visible: false}
+      edit_boundary: {source_edits_performed_by_reviewer: false, reviewer_write_paths: [reviews/idea-happy-evaluation.md, reviews/idea-happy-panel.md], allowed_prefixes: [reviews/]}
+      preserved_dissent_ids: [idea-dissent-generalizability]
+
+  - case_id: ph8-idea-fixable-001
+    workflow: idea
+    outcome_class: fixable
+    risk_tier: medium
+    scenario: A synthetic idea is feasible but its novelty claim is broader than the mapped evidence.
+    anonymity:
+      source_kind: synthetic
+      contains_identifying_material: false
+      statement: Synthetic case; no person, institution, unpublished dataset, or user source is represented.
+    expected:
+      route: idea-evaluator -> idea-refinement-controller
+      final_state: revision_required
+      required_outputs: [idea_evaluation_report, targeted_revision_plan]
+      forbidden_outputs: [idea_portfolio, external_submission_receipt, reviewer_edited_candidate]
+      critical_findings:
+        - {finding_id: idea-major-novelty-overreach, severity: major, blocking: false}
+      dissent_ids: []
+    oracle_observation:
+      route: idea-evaluator -> idea-refinement-controller
+      final_state: revision_required
+      outputs: [idea_evaluation_report, targeted_revision_plan]
+      detected_finding_ids: [idea-major-novelty-overreach]
+      ready_claimed: false
+      lineage: {complete: true, artifact_id: idea-revision-plan-001, version_id: v001, round_id: r001, plugin_version_binding: manifest_current, source_skill: idea-refinement-controller, based_on: [idea-candidate-002@v001, idea-eval-002@r001], change_type: revision_plan}
+      isolation: {fresh_subagent: true, writer_instance_id: idea-writer-002, reviewer_instance_id: idea-reviewer-002, prior_scores_visible: false}
+      edit_boundary: {source_edits_performed_by_reviewer: false, reviewer_write_paths: [reviews/idea-fixable-evaluation.md], allowed_prefixes: [reviews/]}
+      preserved_dissent_ids: []
+
+  - case_id: ph8-idea-fatal-001
+    workflow: idea
+    outcome_class: fatal_or_pending
+    risk_tier: high
+    scenario: A synthetic causal idea has no observable exposure or defensible identification strategy.
+    anonymity:
+      source_kind: synthetic
+      contains_identifying_material: false
+      statement: Synthetic case; no person, institution, unpublished dataset, or user source is represented.
+    expected:
+      route: idea-evaluator -> stopped
+      final_state: stopped
+      required_outputs: [idea_evaluation_report, fatal_finding_record]
+      forbidden_outputs: [targeted_revision_plan, idea_portfolio, external_submission_receipt]
+      critical_findings:
+        - {finding_id: idea-fatal-identification-absent, severity: fatal, blocking: true}
+      dissent_ids: []
+    oracle_observation:
+      route: idea-evaluator -> stopped
+      final_state: stopped
+      outputs: [idea_evaluation_report, fatal_finding_record]
+      detected_finding_ids: [idea-fatal-identification-absent]
+      ready_claimed: false
+      lineage: {complete: true, artifact_id: idea-fatal-record-001, version_id: v001, round_id: r001, plugin_version_binding: manifest_current, source_skill: idea-evaluator, based_on: [idea-candidate-003@v001], change_type: evaluation}
+      isolation: {fresh_subagent: true, writer_instance_id: idea-writer-003, reviewer_instance_id: idea-reviewer-003, prior_scores_visible: false}
+      edit_boundary: {source_edits_performed_by_reviewer: false, reviewer_write_paths: [reviews/idea-fatal-evaluation.md], allowed_prefixes: [reviews/]}
+      preserved_dissent_ids: []
+
+  - case_id: ph8-idea-no-gain-001
+    workflow: idea
+    outcome_class: revision_no_gain
+    risk_tier: medium
+    scenario: Two synthetic revisions rephrase the idea but do not resolve the same feasibility defect.
+    anonymity:
+      source_kind: synthetic
+      contains_identifying_material: false
+      statement: Synthetic case; no person, institution, unpublished dataset, or user source is represented.
+    expected:
+      route: fresh idea-evaluator -> stopped-no-gain
+      final_state: stopped
+      required_outputs: [fresh_evaluation_report, no_gain_stop_report]
+      forbidden_outputs: [idea_portfolio, external_submission_receipt, reviewer_edited_candidate]
+      critical_findings:
+        - {finding_id: idea-major-feasibility-unchanged, severity: major, blocking: true}
+      dissent_ids: []
+    oracle_observation:
+      route: fresh idea-evaluator -> stopped-no-gain
+      final_state: stopped
+      outputs: [fresh_evaluation_report, no_gain_stop_report]
+      detected_finding_ids: [idea-major-feasibility-unchanged]
+      ready_claimed: false
+      lineage: {complete: true, artifact_id: idea-no-gain-001, version_id: v003, round_id: r003, plugin_version_binding: manifest_current, source_skill: idea-evaluator, based_on: [idea-candidate-004@v003], change_type: re_evaluation}
+      isolation: {fresh_subagent: true, writer_instance_id: idea-writer-004, reviewer_instance_id: idea-reviewer-004-r3, prior_scores_visible: false}
+      edit_boundary: {source_edits_performed_by_reviewer: false, reviewer_write_paths: [reviews/idea-no-gain-r3.md], allowed_prefixes: [reviews/]}
+      preserved_dissent_ids: []
+
+  - case_id: ph8-proposal-happy-001
+    workflow: proposal
+    outcome_class: happy
+    risk_tier: low
+    scenario: A synthetic funding proposal has bounded aims, available data, and an auditable analysis plan.
+    anonymity:
+      source_kind: synthetic
+      contains_identifying_material: false
+      statement: Synthetic case; no person, institution, unpublished dataset, or user source is represented.
+    expected:
+      route: proposal-evaluator -> proposal-review-panel -> proposal-package-assembler
+      final_state: human_signoff_required
+      required_outputs: [proposal_evaluation_report, proposal_panel_report, proposal_package]
+      forbidden_outputs: [external_submission_receipt, reviewer_edited_proposal]
+      critical_findings: []
+      dissent_ids: [proposal-dissent-power-sensitivity]
+    oracle_observation:
+      route: proposal-evaluator -> proposal-review-panel -> proposal-package-assembler
+      final_state: human_signoff_required
+      outputs: [proposal_evaluation_report, proposal_panel_report, proposal_package]
+      detected_finding_ids: []
+      ready_claimed: true
+      lineage: {complete: true, artifact_id: proposal-package-001, version_id: v001, round_id: r002, plugin_version_binding: manifest_current, source_skill: proposal-package-assembler, based_on: [proposal-draft-001@v002], change_type: assembly}
+      isolation: {fresh_subagent: true, writer_instance_id: proposal-writer-001, reviewer_instance_id: proposal-reviewer-001, prior_scores_visible: false}
+      edit_boundary: {source_edits_performed_by_reviewer: false, reviewer_write_paths: [reviews/proposal-happy-evaluation.md, reviews/proposal-happy-panel.md], allowed_prefixes: [reviews/]}
+      preserved_dissent_ids: [proposal-dissent-power-sensitivity]
+
+  - case_id: ph8-proposal-fixable-001
+    workflow: proposal
+    outcome_class: fixable
+    risk_tier: medium
+    scenario: A synthetic proposal can proceed after its recruitment and milestone assumptions are narrowed.
+    anonymity:
+      source_kind: synthetic
+      contains_identifying_material: false
+      statement: Synthetic case; no person, institution, unpublished dataset, or user source is represented.
+    expected:
+      route: proposal-evaluator -> proposal-refinement-controller
+      final_state: revision_required
+      required_outputs: [proposal_evaluation_report, targeted_revision_plan]
+      forbidden_outputs: [proposal_package, external_submission_receipt, reviewer_edited_proposal]
+      critical_findings:
+        - {finding_id: proposal-major-recruitment-overreach, severity: major, blocking: false}
+      dissent_ids: []
+    oracle_observation:
+      route: proposal-evaluator -> proposal-refinement-controller
+      final_state: revision_required
+      outputs: [proposal_evaluation_report, targeted_revision_plan]
+      detected_finding_ids: [proposal-major-recruitment-overreach]
+      ready_claimed: false
+      lineage: {complete: true, artifact_id: proposal-plan-001, version_id: v001, round_id: r001, plugin_version_binding: manifest_current, source_skill: proposal-refinement-controller, based_on: [proposal-draft-002@v001, proposal-eval-002@r001], change_type: revision_plan}
+      isolation: {fresh_subagent: true, writer_instance_id: proposal-writer-002, reviewer_instance_id: proposal-reviewer-002, prior_scores_visible: false}
+      edit_boundary: {source_edits_performed_by_reviewer: false, reviewer_write_paths: [reviews/proposal-fixable-evaluation.md], allowed_prefixes: [reviews/]}
+      preserved_dissent_ids: []
+
+  - case_id: case-a01
+    workflow: proposal
+    outcome_class: fatal_or_pending
+    risk_tier: high
+    scenario: A synthetic proposal depends on a dataset that is unavailable and has no valid substitute.
+    anonymity:
+      source_kind: synthetic
+      contains_identifying_material: false
+      statement: Synthetic case; no person, institution, unpublished dataset, or user source is represented.
+    expected:
+      route: proposal-readiness-triage -> blocked
+      final_state: blocked
+      required_outputs: [readiness_report, blocking_finding_record]
+      forbidden_outputs: [proposal_draft, proposal_package, external_submission_receipt]
+      critical_findings:
+        - {finding_id: proposal-fatal-data-unavailable, severity: fatal, blocking: true}
+      dissent_ids: []
+    oracle_observation:
+      route: proposal-readiness-triage -> blocked
+      final_state: blocked
+      outputs: [readiness_report, blocking_finding_record]
+      detected_finding_ids: [proposal-fatal-data-unavailable]
+      ready_claimed: false
+      lineage: {complete: true, artifact_id: proposal-block-001, version_id: v001, round_id: r000, plugin_version_binding: manifest_current, source_skill: proposal-readiness-triage, based_on: [proposal-input-003@v001], change_type: triage}
+      isolation: {fresh_subagent: true, writer_instance_id: oracle-writer-a01, reviewer_instance_id: oracle-reviewer-a01, prior_scores_visible: false}
+      edit_boundary: {source_edits_performed_by_reviewer: false, reviewer_write_paths: [reviews/case-a01-r01.md], allowed_prefixes: [reviews/]}
+      preserved_dissent_ids: []
+
+  - case_id: ph8-proposal-no-gain-001
+    workflow: proposal
+    outcome_class: revision_no_gain
+    risk_tier: medium
+    scenario: Repeated synthetic revisions do not reconcile incompatible aims and sample-size assumptions.
+    anonymity:
+      source_kind: synthetic
+      contains_identifying_material: false
+      statement: Synthetic case; no person, institution, unpublished dataset, or user source is represented.
+    expected:
+      route: fresh proposal-evaluator -> stopped-no-gain
+      final_state: stopped
+      required_outputs: [fresh_evaluation_report, no_gain_stop_report]
+      forbidden_outputs: [proposal_package, external_submission_receipt, reviewer_edited_proposal]
+      critical_findings:
+        - {finding_id: proposal-major-aim-power-mismatch, severity: major, blocking: true}
+      dissent_ids: []
+    oracle_observation:
+      route: fresh proposal-evaluator -> stopped-no-gain
+      final_state: stopped
+      outputs: [fresh_evaluation_report, no_gain_stop_report]
+      detected_finding_ids: [proposal-major-aim-power-mismatch]
+      ready_claimed: false
+      lineage: {complete: true, artifact_id: proposal-no-gain-001, version_id: v003, round_id: r003, plugin_version_binding: manifest_current, source_skill: proposal-evaluator, based_on: [proposal-draft-004@v003], change_type: re_evaluation}
+      isolation: {fresh_subagent: true, writer_instance_id: proposal-writer-004, reviewer_instance_id: proposal-reviewer-004-r3, prior_scores_visible: false}
+      edit_boundary: {source_edits_performed_by_reviewer: false, reviewer_write_paths: [reviews/proposal-no-gain-r3.md], allowed_prefixes: [reviews/]}
+      preserved_dissent_ids: []
+
+  - case_id: ph8-article-happy-001
+    workflow: article
+    outcome_class: happy
+    risk_tier: low
+    scenario: A synthetic manuscript is internally consistent and all material claims are bound to evidence.
+    anonymity:
+      source_kind: synthetic
+      contains_identifying_material: false
+      statement: Synthetic case; no person, institution, unpublished dataset, or user source is represented.
+    expected:
+      route: article-evaluator -> article-review-panel -> article-submission-compositor
+      final_state: human_signoff_required
+      required_outputs: [article_evaluation_report, article_panel_report, submission_package]
+      forbidden_outputs: [external_submission_receipt, reviewer_edited_manuscript]
+      critical_findings: []
+      dissent_ids: [article-dissent-secondary-endpoint]
+    oracle_observation:
+      route: article-evaluator -> article-review-panel -> article-submission-compositor
+      final_state: human_signoff_required
+      outputs: [article_evaluation_report, article_panel_report, submission_package]
+      detected_finding_ids: []
+      ready_claimed: true
+      lineage: {complete: true, artifact_id: article-package-001, version_id: v001, round_id: r002, plugin_version_binding: manifest_current, source_skill: article-submission-compositor, based_on: [article-draft-001@v002], change_type: composition}
+      isolation: {fresh_subagent: true, writer_instance_id: article-writer-001, reviewer_instance_id: article-reviewer-001, prior_scores_visible: false}
+      edit_boundary: {source_edits_performed_by_reviewer: false, reviewer_write_paths: [reviews/article-happy-evaluation.md, reviews/article-happy-panel.md], allowed_prefixes: [reviews/]}
+      preserved_dissent_ids: [article-dissent-secondary-endpoint]
+
+  - case_id: case-a02
+    workflow: article
+    outcome_class: fixable
+    risk_tier: medium
+    scenario: A synthetic manuscript reports the right analysis but omits one prespecified sensitivity result.
+    anonymity:
+      source_kind: synthetic
+      contains_identifying_material: false
+      statement: Synthetic case; no person, institution, unpublished dataset, or user source is represented.
+    expected:
+      route: article-evaluator -> article-refinement-controller
+      final_state: revision_required
+      required_outputs: [article_evaluation_report, targeted_revision_plan]
+      forbidden_outputs: [submission_package, external_submission_receipt, reviewer_edited_manuscript]
+      critical_findings:
+        - {finding_id: article-major-sensitivity-omitted, severity: major, blocking: false}
+      dissent_ids: []
+    oracle_observation:
+      route: article-evaluator -> article-refinement-controller
+      final_state: revision_required
+      outputs: [article_evaluation_report, targeted_revision_plan]
+      detected_finding_ids: [article-major-sensitivity-omitted]
+      ready_claimed: false
+      lineage: {complete: true, artifact_id: article-plan-001, version_id: v001, round_id: r001, plugin_version_binding: manifest_current, source_skill: article-refinement-controller, based_on: [article-draft-002@v001, article-eval-002@r001], change_type: revision_plan}
+      isolation: {fresh_subagent: true, writer_instance_id: oracle-writer-a02, reviewer_instance_id: oracle-reviewer-a02, prior_scores_visible: false}
+      edit_boundary: {source_edits_performed_by_reviewer: false, reviewer_write_paths: [reviews/case-a02-r01.md], allowed_prefixes: [reviews/]}
+      preserved_dissent_ids: []
+
+  - case_id: ph8-article-fatal-001
+    workflow: article
+    outcome_class: fatal_or_pending
+    risk_tier: high
+    scenario: A synthetic manuscript asserts a primary result whose underlying analysis artifact is absent.
+    anonymity:
+      source_kind: synthetic
+      contains_identifying_material: false
+      statement: Synthetic case; no person, institution, unpublished dataset, or user source is represented.
+    expected:
+      route: article-claim-auditor -> blocked
+      final_state: blocked
+      required_outputs: [claim_audit_report, blocking_finding_record]
+      forbidden_outputs: [article_panel_report, submission_package, external_submission_receipt]
+      critical_findings:
+        - {finding_id: article-fatal-primary-result-unverifiable, severity: fatal, blocking: true}
+      dissent_ids: []
+    oracle_observation:
+      route: article-claim-auditor -> blocked
+      final_state: blocked
+      outputs: [claim_audit_report, blocking_finding_record]
+      detected_finding_ids: [article-fatal-primary-result-unverifiable]
+      ready_claimed: false
+      lineage: {complete: true, artifact_id: article-block-001, version_id: v001, round_id: r001, plugin_version_binding: manifest_current, source_skill: article-claim-auditor, based_on: [article-draft-003@v001], change_type: audit}
+      isolation: {fresh_subagent: true, writer_instance_id: article-writer-003, reviewer_instance_id: article-claim-auditor-003, prior_scores_visible: false}
+      edit_boundary: {source_edits_performed_by_reviewer: false, reviewer_write_paths: [reviews/article-fatal-claim-audit.md], allowed_prefixes: [reviews/]}
+      preserved_dissent_ids: []
+
+  - case_id: ph8-article-no-gain-001
+    workflow: article
+    outcome_class: revision_no_gain
+    risk_tier: medium
+    scenario: Two synthetic revisions retain the same claim-analysis mismatch despite targeted plans.
+    anonymity:
+      source_kind: synthetic
+      contains_identifying_material: false
+      statement: Synthetic case; no person, institution, unpublished dataset, or user source is represented.
+    expected:
+      route: fresh article-evaluator -> stopped-no-gain
+      final_state: stopped
+      required_outputs: [fresh_evaluation_report, no_gain_stop_report]
+      forbidden_outputs: [submission_package, external_submission_receipt, reviewer_edited_manuscript]
+      critical_findings:
+        - {finding_id: article-major-claim-analysis-mismatch, severity: major, blocking: true}
+      dissent_ids: []
+    oracle_observation:
+      route: fresh article-evaluator -> stopped-no-gain
+      final_state: stopped
+      outputs: [fresh_evaluation_report, no_gain_stop_report]
+      detected_finding_ids: [article-major-claim-analysis-mismatch]
+      ready_claimed: false
+      lineage: {complete: true, artifact_id: article-no-gain-001, version_id: v003, round_id: r003, plugin_version_binding: manifest_current, source_skill: article-evaluator, based_on: [article-draft-004@v003], change_type: re_evaluation}
+      isolation: {fresh_subagent: true, writer_instance_id: article-writer-004, reviewer_instance_id: article-reviewer-004-r3, prior_scores_visible: false}
+      edit_boundary: {source_edits_performed_by_reviewer: false, reviewer_write_paths: [reviews/article-no-gain-r3.md], allowed_prefixes: [reviews/]}
+      preserved_dissent_ids: []
+
+  - case_id: case-a03
+    workflow: perspective
+    outcome_class: happy
+    risk_tier: low
+    scenario: A synthetic Perspective presents a bounded thesis and preserves counterarguments through packaging.
+    anonymity:
+      source_kind: synthetic
+      contains_identifying_material: false
+      statement: Synthetic case; no person, institution, unpublished dataset, or user source is represented.
+    expected:
+      route: perspective-evaluator -> perspective-review-panel -> perspective-final-compositor
+      final_state: human_signoff_required
+      required_outputs: [perspective_evaluation_report, perspective_panel_report, final_package]
+      forbidden_outputs: [external_submission_receipt, reviewer_edited_perspective]
+      critical_findings: []
+      dissent_ids: [perspective-dissent-policy-transfer]
+    oracle_observation:
+      route: perspective-evaluator -> perspective-review-panel -> perspective-final-compositor
+      final_state: human_signoff_required
+      outputs: [perspective_evaluation_report, perspective_panel_report, final_package]
+      detected_finding_ids: []
+      ready_claimed: true
+      lineage: {complete: true, artifact_id: perspective-package-001, version_id: v001, round_id: r002, plugin_version_binding: manifest_current, source_skill: perspective-final-compositor, based_on: [perspective-draft-001@v002], change_type: composition}
+      isolation: {fresh_subagent: true, writer_instance_id: oracle-writer-a03, reviewer_instance_id: oracle-reviewer-a03, prior_scores_visible: false}
+      edit_boundary: {source_edits_performed_by_reviewer: false, reviewer_write_paths: [reviews/case-a03-r01.md, reviews/case-a03-r02.md], allowed_prefixes: [reviews/]}
+      preserved_dissent_ids: [perspective-dissent-policy-transfer]
+
+  - case_id: ph8-perspective-fixable-001
+    workflow: perspective
+    outcome_class: fixable
+    risk_tier: medium
+    scenario: A synthetic Perspective has a supportable thesis but overstates one cross-context implication.
+    anonymity:
+      source_kind: synthetic
+      contains_identifying_material: false
+      statement: Synthetic case; no person, institution, unpublished dataset, or user source is represented.
+    expected:
+      route: perspective-evaluator -> perspective-refinement-controller
+      final_state: revision_required
+      required_outputs: [perspective_evaluation_report, targeted_revision_plan]
+      forbidden_outputs: [final_package, external_submission_receipt, reviewer_edited_perspective]
+      critical_findings:
+        - {finding_id: perspective-major-transfer-overclaim, severity: major, blocking: false}
+      dissent_ids: []
+    oracle_observation:
+      route: perspective-evaluator -> perspective-refinement-controller
+      final_state: revision_required
+      outputs: [perspective_evaluation_report, targeted_revision_plan]
+      detected_finding_ids: [perspective-major-transfer-overclaim]
+      ready_claimed: false
+      lineage: {complete: true, artifact_id: perspective-plan-001, version_id: v001, round_id: r001, plugin_version_binding: manifest_current, source_skill: perspective-refinement-controller, based_on: [perspective-draft-002@v001, perspective-eval-002@r001], change_type: revision_plan}
+      isolation: {fresh_subagent: true, writer_instance_id: perspective-writer-002, reviewer_instance_id: perspective-reviewer-002, prior_scores_visible: false}
+      edit_boundary: {source_edits_performed_by_reviewer: false, reviewer_write_paths: [reviews/perspective-fixable-evaluation.md], allowed_prefixes: [reviews/]}
+      preserved_dissent_ids: []
+
+  - case_id: ph8-perspective-pending-001
+    workflow: perspective
+    outcome_class: fatal_or_pending
+    risk_tier: high
+    scenario: A synthetic panel cannot start because fresh delegated reviewer instances are unavailable.
+    anonymity:
+      source_kind: synthetic
+      contains_identifying_material: false
+      statement: Synthetic case; no person, institution, unpublished dataset, or user source is represented.
+    expected:
+      route: perspective-review-panel -> independent_review_pending
+      final_state: independent_review_pending
+      required_outputs: [independent_review_pending_report, continuation_brief]
+      forbidden_outputs: [inline_panel_report, final_package, external_submission_receipt]
+      critical_findings:
+        - {finding_id: perspective-blocking-independent-review-unavailable, severity: blocking, blocking: true}
+      dissent_ids: []
+    oracle_observation:
+      route: perspective-review-panel -> independent_review_pending
+      final_state: independent_review_pending
+      outputs: [independent_review_pending_report, continuation_brief]
+      detected_finding_ids: [perspective-blocking-independent-review-unavailable]
+      ready_claimed: false
+      lineage: {complete: true, artifact_id: perspective-pending-001, version_id: v001, round_id: r002, plugin_version_binding: manifest_current, source_skill: perspective-review-panel, based_on: [perspective-draft-003@v002], change_type: pending_review}
+      isolation: {fresh_subagent: true, writer_instance_id: perspective-writer-003, reviewer_instance_id: perspective-panel-dispatch-003, prior_scores_visible: false}
+      edit_boundary: {source_edits_performed_by_reviewer: false, reviewer_write_paths: [reviews/perspective-pending.md], allowed_prefixes: [reviews/]}
+      preserved_dissent_ids: []
+
+  - case_id: ph8-perspective-no-gain-001
+    workflow: perspective
+    outcome_class: revision_no_gain
+    risk_tier: medium
+    scenario: Repeated synthetic revisions preserve the same thesis-evidence mismatch.
+    anonymity:
+      source_kind: synthetic
+      contains_identifying_material: false
+      statement: Synthetic case; no person, institution, unpublished dataset, or user source is represented.
+    expected:
+      route: fresh perspective-evaluator -> stopped-no-gain
+      final_state: stopped
+      required_outputs: [fresh_evaluation_report, no_gain_stop_report]
+      forbidden_outputs: [final_package, external_submission_receipt, reviewer_edited_perspective]
+      critical_findings:
+        - {finding_id: perspective-major-thesis-evidence-mismatch, severity: major, blocking: true}
+      dissent_ids: []
+    oracle_observation:
+      route: fresh perspective-evaluator -> stopped-no-gain
+      final_state: stopped
+      outputs: [fresh_evaluation_report, no_gain_stop_report]
+      detected_finding_ids: [perspective-major-thesis-evidence-mismatch]
+      ready_claimed: false
+      lineage: {complete: true, artifact_id: perspective-no-gain-001, version_id: v003, round_id: r003, plugin_version_binding: manifest_current, source_skill: perspective-evaluator, based_on: [perspective-draft-004@v003], change_type: re_evaluation}
+      isolation: {fresh_subagent: true, writer_instance_id: perspective-writer-004, reviewer_instance_id: perspective-reviewer-004-r3, prior_scores_visible: false}
+      edit_boundary: {source_edits_performed_by_reviewer: false, reviewer_write_paths: [reviews/perspective-no-gain-r3.md], allowed_prefixes: [reviews/]}
+      preserved_dissent_ids: []

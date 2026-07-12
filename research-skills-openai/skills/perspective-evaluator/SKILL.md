@@ -1,6 +1,6 @@
 ---
 name: perspective-evaluator
-description: "Independently evaluate a frozen Perspective across argument, evidence, contribution, narrative, claim discipline, language, and outlet-fit gates without editing source text."
+description: "Independently evaluate a frozen Perspective for argument, evidence, contribution, narrative, claim discipline, and outlet fit."
 ---
 # perspective-evaluator
 

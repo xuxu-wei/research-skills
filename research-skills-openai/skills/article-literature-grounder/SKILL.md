@@ -1,6 +1,6 @@
 ---
 name: article-literature-grounder
-description: "Build an auditable literature-grounding report for an article, covering search scope, novelty position, competing evidence, coverage limits, and citation risk."
+description: "Build an auditable article literature-grounding report covering search scope, novelty, competing evidence, limits, and citation risk."
 ---
 # article-literature-grounder
 

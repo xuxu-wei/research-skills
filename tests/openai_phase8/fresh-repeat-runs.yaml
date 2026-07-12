@@ -1,0 +1,95 @@
+schema_version: 1
+evidence_class: synthetic_contract_replay
+runtime_claim: none
+description: >-
+  Cost-control and consistency fixture for fresh-repeat evaluation. These are
+  deterministic replay observations, not live model executions.
+policy:
+  default_case_count: 3
+  max_automatic_case_count: 5
+  expansion_triggers:
+    - route_or_state_disagreement
+    - missed_critical_finding
+  explicit_owner_decision_required_above: 5
+selection:
+  mode: default_risk_stratified
+  selected_case_ids:
+    - case-a01
+    - case-a02
+    - case-a03
+  risk_tiers: [high, medium, low]
+  expansion_triggered: false
+  expansion_reasons: []
+  automatic_case_count: 3
+repeats:
+  - case_id: case-a01
+    source_artifact_digest: sha256:0d3e8805d1238d1fd57f9a16c04c98099d9f68726f004f61046c8ef9a67c8c00
+    runs:
+      - run_id: synthetic-run-a01-01
+        evaluator_instance_id: synthetic-evaluator-a01-01
+        isolation_mode: fresh_subagent
+        prior_scores_visible: false
+        source_edits_performed: false
+        reviewer_write_paths: [reviews/repeats/a01-r01.md]
+        route: proposal-readiness-triage -> blocked
+        final_state: blocked
+        detected_finding_ids: [proposal-fatal-data-unavailable]
+        preserved_dissent_ids: []
+      - run_id: synthetic-run-a01-02
+        evaluator_instance_id: synthetic-evaluator-a01-02
+        isolation_mode: fresh_subagent
+        prior_scores_visible: false
+        source_edits_performed: false
+        reviewer_write_paths: [reviews/repeats/a01-r02.md]
+        route: proposal-readiness-triage -> blocked
+        final_state: blocked
+        detected_finding_ids: [proposal-fatal-data-unavailable]
+        preserved_dissent_ids: []
+
+  - case_id: case-a02
+    source_artifact_digest: sha256:4701b2085933adb5387a30f87b43ff2c1659822d4f7454d4608d7edddfeb73bb
+    runs:
+      - run_id: synthetic-run-a02-01
+        evaluator_instance_id: synthetic-evaluator-a02-01
+        isolation_mode: fresh_subagent
+        prior_scores_visible: false
+        source_edits_performed: false
+        reviewer_write_paths: [reviews/repeats/a02-r01.md]
+        route: article-evaluator -> article-refinement-controller
+        final_state: revision_required
+        detected_finding_ids: [article-major-sensitivity-omitted]
+        preserved_dissent_ids: []
+      - run_id: synthetic-run-a02-02
+        evaluator_instance_id: synthetic-evaluator-a02-02
+        isolation_mode: fresh_subagent
+        prior_scores_visible: false
+        source_edits_performed: false
+        reviewer_write_paths: [reviews/repeats/a02-r02.md]
+        route: article-evaluator -> article-refinement-controller
+        final_state: revision_required
+        detected_finding_ids: [article-major-sensitivity-omitted]
+        preserved_dissent_ids: []
+
+  - case_id: case-a03
+    source_artifact_digest: sha256:9409ebe5eccbbda1b3c4e048627070518eb78cfeb9a7a97f267672aaa52b853c
+    runs:
+      - run_id: synthetic-run-a03-01
+        evaluator_instance_id: synthetic-evaluator-a03-01
+        isolation_mode: fresh_subagent
+        prior_scores_visible: false
+        source_edits_performed: false
+        reviewer_write_paths: [reviews/repeats/a03-r01.md]
+        route: perspective-evaluator -> perspective-review-panel -> perspective-final-compositor
+        final_state: human_signoff_required
+        detected_finding_ids: []
+        preserved_dissent_ids: [perspective-dissent-policy-transfer]
+      - run_id: synthetic-run-a03-02
+        evaluator_instance_id: synthetic-evaluator-a03-02
+        isolation_mode: fresh_subagent
+        prior_scores_visible: false
+        source_edits_performed: false
+        reviewer_write_paths: [reviews/repeats/a03-r02.md]
+        route: perspective-evaluator -> perspective-review-panel -> perspective-final-compositor
+        final_state: human_signoff_required
+        detected_finding_ids: []
+        preserved_dissent_ids: [perspective-dissent-policy-transfer]

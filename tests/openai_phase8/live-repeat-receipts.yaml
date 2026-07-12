@@ -1,0 +1,466 @@
+schema_version: 1
+evidence_class: current_task_self_attested_fresh_subagent_snapshot
+runtime_claim: >-
+  Six earlier delegated reviewer responses are preserved below as
+  oracle-exposed historical records and are excluded from evidence. Six new
+  neutral-identifier fresh-subagent responses are preserved as self-attested
+  snapshots. The repository still has no
+  authenticated platform execution export or executable provider-verifier
+  adapter, so no observation can satisfy the verified live gate.
+verification_level: self_attested_current_task_snapshot
+verified_live_gate_eligible: false
+durable_verification_missing:
+  - executable_provider_verifier_adapter
+  - platform_task_or_delegation_export
+  - exact_dispatched_prompt_digest
+  - raw_transport_output_digest
+  - platform_attested_read_scope
+  - strict_blind_dispatch_contract
+  - source_only_sanitized_blind_bundle
+  - declared_read_resource_closure
+  - files_written_and_input_before_after_digests
+  - source_commit_and_plugin_tree_identity
+captured_at: 2026-07-12T12:32:36Z
+plugin_version: 0.6.0-preview.1
+task_id: 019f506d-01cc-7fa0-9839-db8f494b5ab4
+capture_policy:
+  raw_transport_envelope_preserved: false
+  structured_review_contract_preserved: true
+  finding_summaries_may_be_losslessly_condensed: true
+forbidden_read_fragments:
+  - tests/openai_phase8/corpus.yaml
+  - tests/openai_phase8/fresh-repeat-runs.yaml
+  - tests/openai_phase8/live-repeat-receipts.yaml
+  - research-skills-openai/reports/
+  - research-skills-openai/ROADMAP.md
+cases:
+  - case_id: case-a01
+    input_path: tests/openai_phase8/live-repeat-inputs/source-a01.md
+    input_digest: sha256:6ef4cee688599ac40af9dd4ef170d3489f44e301009f6c302b68645870614cb6
+    reviewer_skill: proposal-readiness-triage
+    expected_review_stage_state: blocked
+    required_critical_finding_labels: [data_access_impossible]
+    required_dissent_labels: []
+    historical_input_path: tests/openai_phase8/live-repeat-inputs/proposal-fatal.md
+    historical_input_digest: sha256:07e7005b514829a08319a6b3d451d841eb3959024390119dc7043a51fb52cba8
+    historical_oracle_exposed_runs:
+      - run_id: ph8-live-proposal-fatal-a
+        normalization:
+          review_stage_state: blocked
+          critical_finding_labels: [data_access_impossible]
+          dissent_labels: []
+        review_contract:
+          reviewer_skill: proposal-readiness-triage
+          reviewer_instance_id: /root/ph8_proposal_repeat_a
+          files_read:
+            - E:/BaiduNetdiskWorkspace/Jupyter/my_repos/xuxu-hermes/research-skills/research-skills-openai/skills/proposal-readiness-triage/SKILL.md
+            - E:/BaiduNetdiskWorkspace/Jupyter/my_repos/xuxu-hermes/research-skills/research-skills-openai/skills/proposal-readiness-triage/references/criteria-readiness-triage.md
+            - E:/BaiduNetdiskWorkspace/Jupyter/my_repos/xuxu-hermes/research-skills/research-skills-openai/skills/proposal-readiness-triage/references/criteria-fatal-flaws.md
+            - E:/BaiduNetdiskWorkspace/Jupyter/my_repos/xuxu-hermes/research-skills/research-skills-openai/skills/proposal-readiness-triage/references/schema-readiness-report.md
+            - E:/BaiduNetdiskWorkspace/Jupyter/my_repos/xuxu-hermes/research-skills/research-skills-openai/skills/proposal-readiness-triage/templates/template-readiness-report.md
+            - E:/BaiduNetdiskWorkspace/Jupyter/my_repos/xuxu-hermes/research-skills/tests/openai_phase8/live-repeat-inputs/proposal-fatal.md
+          isolation_mode: fresh_subagent
+          prior_scores_visible: false
+          source_edits_performed: false
+          decision: not_proposalizable_yet
+          route: stop
+          final_state: not_proposalizable_yet
+          findings:
+            - id: FF-03
+              severity: fatal
+              blocking: true
+              summary: No credible data or evidence path exists; the sole dataset is inaccessible and no approval route, substitute cohort, recruitment, simulation, or alternative question remains.
+            - id: FF-07
+              severity: fatal
+              blocking: true
+              summary: A confirmed data-access and operational blocker makes the study impossible as framed and contradicts the assumed analysis start.
+          unresolved_issues:
+            - Individual-level exposure, outcome, covariate, and follow-up data remain unobtainable, with all stated alternatives excluded.
+          dissent_ids: []
+      - run_id: ph8-live-proposal-fatal-b
+        normalization:
+          review_stage_state: blocked
+          critical_finding_labels: [data_access_impossible]
+          dissent_labels: []
+        review_contract:
+          reviewer_skill: proposal-readiness-triage
+          reviewer_instance_id: /root/ph8_proposal_repeat_a/independent_repeat_b
+          files_read:
+            - research-skills-openai/skills/proposal-readiness-triage/SKILL.md
+            - research-skills-openai/skills/proposal-readiness-triage/references/criteria-readiness-triage.md
+            - research-skills-openai/skills/proposal-readiness-triage/references/criteria-fatal-flaws.md
+            - research-skills-openai/skills/proposal-readiness-triage/references/schema-readiness-report.md
+            - research-skills-openai/skills/proposal-readiness-triage/templates/template-readiness-report.md
+            - tests/openai_phase8/live-repeat-inputs/proposal-fatal.md
+          isolation_mode: fresh_subagent
+          prior_scores_visible: false
+          source_edits_performed: false
+          decision: not_proposalizable_yet
+          route: stop
+          final_state: stopped_fatal_data_access_blocker
+          findings:
+            - id: FATAL-DATA-ACCESS-001
+              severity: fatal
+              blocking: true
+              summary: The sole dataset is inaccessible with no remaining approval route, substitute cohort, recruitment capacity, simulation objective, or alternative question; therefore no credible evidence path exists.
+          unresolved_issues:
+            - No accessible or obtainable evidence source can supply the required exposure, outcome, covariate, and follow-up variables.
+          dissent_ids: []
+    runs:
+      - run_id: run-a01-01
+        normalization:
+          review_stage_state: blocked
+          critical_finding_labels: [data_access_impossible]
+          dissent_labels: []
+        review_contract:
+          reviewer_skill: proposal-readiness-triage
+          reviewer_instance_id: /root/neutral_a01_r1
+          files_read:
+            - research-skills-openai/skills/proposal-readiness-triage/SKILL.md
+            - research-skills-openai/skills/proposal-readiness-triage/references/criteria-readiness-triage.md
+            - research-skills-openai/skills/proposal-readiness-triage/references/criteria-fatal-flaws.md
+            - research-skills-openai/skills/proposal-readiness-triage/references/policy-idea-to-proposal-boundary.md
+            - research-skills-openai/skills/proposal-readiness-triage/references/schema-readiness-report.md
+            - research-skills-openai/skills/proposal-readiness-triage/templates/template-readiness-report.md
+            - tests/openai_phase8/live-repeat-inputs/source-a01.md
+          isolation_mode: fresh_subagent
+          prior_scores_visible: false
+          source_edits_performed: false
+          decision: not_proposalizable_yet
+          route: stop
+          final_state: not_proposalizable_yet
+          findings:
+            - id: PRT-A01-001
+              severity: fatal
+              blocking: true
+              summary: The sole dataset is inaccessible, its owner declined access, and no application or approval route remains.
+            - id: PRT-A01-002
+              severity: fatal
+              blocking: true
+              summary: No substitute cohort, recruitment, simulation objective, or alternative question exists, leaving no credible data or evidence path.
+          unresolved_issues:
+            - No accessible source can supply the required exposure, outcome, covariate, and follow-up data.
+          dissent_ids: []
+      - run_id: run-a01-02
+        normalization:
+          review_stage_state: blocked
+          critical_finding_labels: [data_access_impossible]
+          dissent_labels: []
+        review_contract:
+          reviewer_skill: proposal-readiness-triage
+          reviewer_instance_id: /root/neutral_a01_r2
+          files_read:
+            - research-skills-openai/skills/proposal-readiness-triage/SKILL.md
+            - research-skills-openai/skills/proposal-readiness-triage/references/criteria-readiness-triage.md
+            - research-skills-openai/skills/proposal-readiness-triage/references/criteria-fatal-flaws.md
+            - research-skills-openai/skills/proposal-readiness-triage/references/schema-readiness-report.md
+            - research-skills-openai/skills/proposal-readiness-triage/templates/template-readiness-report.md
+            - tests/openai_phase8/live-repeat-inputs/source-a01.md
+          isolation_mode: fresh_subagent
+          prior_scores_visible: false
+          source_edits_performed: false
+          decision: not_proposalizable_yet
+          route: stop
+          final_state: not_proposalizable_yet
+          findings:
+            - id: A01-R2-F001
+              severity: fatal
+              blocking: true
+              summary: The sole dataset is inaccessible and no approval route remains, so the required variables cannot be obtained.
+            - id: A01-R2-F002
+              severity: fatal
+              blocking: true
+              summary: No substitute data, recruitment, simulation, or alternative question remains; no credible evidence path exists.
+          unresolved_issues:
+            - Data access and every represented alternative remain unavailable.
+          dissent_ids: []
+
+  - case_id: case-a02
+    input_path: tests/openai_phase8/live-repeat-inputs/source-a02.md
+    input_digest: sha256:fe271a3eb2eb6d9fb429d08e0221bceff54c5418ae7237ebeffe94a6cb689078
+    reviewer_skill: article-evaluator
+    expected_review_stage_state: revision_required
+    required_critical_finding_labels: [prespecified_sensitivity_result_omitted]
+    required_dissent_labels: []
+    historical_input_path: tests/openai_phase8/live-repeat-inputs/article-fixable.md
+    historical_input_digest: sha256:28b47e60ee21a5e8232bf82d1ad016d0f78d16055c0b86aef9d79388c9945a56
+    historical_oracle_exposed_runs:
+      - run_id: ph8-live-article-fixable-a
+        normalization:
+          review_stage_state: revision_required
+          critical_finding_labels: [prespecified_sensitivity_result_omitted]
+          dissent_labels: []
+        review_contract:
+          reviewer_skill: article-evaluator
+          reviewer_instance_id: /root/phase6_context_impl/article_fixable_fresh_review
+          files_read:
+            - research-skills-openai/skills/article-evaluator/SKILL.md
+            - research-skills-openai/skills/article-evaluator/references/evaluation-rubric.md
+            - research-skills-openai/skills/article-evaluator/references/evaluation-gates.md
+            - research-skills-openai/skills/article-evaluator/references/supplementary-audit-guide.md
+            - research-skills-openai/skills/article-orchestrator/references/artifact-review-and-submission-contracts.md
+            - research-skills-openai/skills/article-orchestrator/references/handoff-validation.md
+            - tests/openai_phase8/live-repeat-inputs/article-fixable.md
+          isolation_mode: fresh_subagent
+          prior_scores_visible: false
+          source_edits_performed: false
+          decision: revise
+          route: article-refinement-controller
+          final_state: revision_required
+          findings:
+            - id: AF-001
+              severity: major
+              blocking: true
+              summary: Results omits the prespecified day 0-2 exclusion sensitivity analysis despite the available frozen result, while Discussion claims robustness across all prespecified analyses.
+          unresolved_issues: [AF-001]
+          dissent_ids: []
+      - run_id: ph8-live-article-fixable-b
+        normalization:
+          review_stage_state: revision_required
+          critical_finding_labels: [prespecified_sensitivity_result_omitted]
+          dissent_labels: []
+        review_contract:
+          reviewer_skill: article-evaluator
+          reviewer_instance_id: /root/ph8_proposal_repeat_a/article_fixable_review
+          files_read:
+            - research-skills-openai/skills/article-evaluator/SKILL.md
+            - research-skills-openai/skills/article-evaluator/references/evaluation-rubric.md
+            - research-skills-openai/skills/article-evaluator/references/evaluation-gates.md
+            - research-skills-openai/skills/article-evaluator/references/supplementary-audit-guide.md
+            - research-skills-openai/skills/article-orchestrator/references/artifact-review-and-submission-contracts.md
+            - research-skills-openai/skills/article-orchestrator/references/handoff-validation.md
+            - tests/openai_phase8/live-repeat-inputs/article-fixable.md
+          isolation_mode: fresh_subagent
+          prior_scores_visible: false
+          source_edits_performed: false
+          decision: revise
+          route: article-refinement-controller
+          final_state: revision_required
+          findings:
+            - id: AE-001
+              severity: major
+              blocking: true
+              summary: Results omits the prespecified day 0-2 exclusion sensitivity analysis even though its frozen estimate is available, while Discussion asserts robustness across all prespecified analyses.
+          unresolved_issues: [AE-001]
+          dissent_ids: []
+    runs:
+      - run_id: run-a02-01
+        normalization:
+          review_stage_state: revision_required
+          critical_finding_labels: [prespecified_sensitivity_result_omitted]
+          dissent_labels: []
+        review_contract:
+          reviewer_skill: article-evaluator
+          reviewer_instance_id: /root/neutral_a02_r1
+          files_read:
+            - tests/openai_phase8/live-repeat-inputs/source-a02.md
+            - research-skills-openai/skills/article-evaluator/SKILL.md
+            - research-skills-openai/skills/article-evaluator/references/evaluation-rubric.md
+            - research-skills-openai/skills/article-evaluator/references/evaluation-gates.md
+            - research-skills-openai/skills/article-evaluator/references/supplementary-audit-guide.md
+            - research-skills-openai/skills/article-orchestrator/references/artifact-review-and-submission-contracts.md
+            - research-skills-openai/skills/article-orchestrator/references/handoff-validation.md
+          isolation_mode: fresh_subagent
+          prior_scores_visible: false
+          source_edits_performed: false
+          decision: revise
+          route: article-refinement-controller
+          reported_final_state: major_revision_required
+          final_state: revision_required
+          findings:
+            - id: A02-R001-F001
+              severity: major
+              blocking: true
+              summary: Results omits the prespecified day 0-2 exclusion sensitivity analysis even though its frozen estimate is available, while Discussion asserts robustness across all prespecified analyses.
+          unresolved_issues: [A02-R001-F001]
+          dissent_ids: []
+      - run_id: run-a02-02
+        normalization:
+          review_stage_state: revision_required
+          critical_finding_labels: [prespecified_sensitivity_result_omitted]
+          dissent_labels: []
+        review_contract:
+          reviewer_skill: article-evaluator
+          reviewer_instance_id: /root/neutral_a02_r2
+          files_read:
+            - tests/openai_phase8/live-repeat-inputs/source-a02.md
+            - research-skills-openai/skills/article-evaluator/SKILL.md
+            - research-skills-openai/skills/article-evaluator/references/evaluation-rubric.md
+            - research-skills-openai/skills/article-evaluator/references/evaluation-gates.md
+            - research-skills-openai/skills/article-evaluator/references/supplementary-audit-guide.md
+            - research-skills-openai/skills/article-orchestrator/references/artifact-review-and-submission-contracts.md
+            - research-skills-openai/skills/article-orchestrator/references/handoff-validation.md
+          isolation_mode: fresh_subagent
+          prior_scores_visible: false
+          source_edits_performed: false
+          decision: revise
+          route: article-refinement-controller
+          reported_final_state: major_revision
+          final_state: revision_required
+          findings:
+            - id: A02-F01
+              severity: major
+              blocking: true
+              summary: Results omits the prespecified day 0-2 exclusion sensitivity analysis although the frozen result exists, so the Discussion robustness claim is not auditable.
+          unresolved_issues: [A02-F01]
+          dissent_ids: []
+
+  - case_id: case-a03
+    input_path: tests/openai_phase8/live-repeat-inputs/source-a03.md
+    input_digest: sha256:17d62fd9c5100b436925641e4205b6af005aab097bc82cd78bd67ccfc2144243
+    reviewer_skill: perspective-evaluator
+    expected_review_stage_state: pre_panel_eligible
+    required_critical_finding_labels: []
+    required_dissent_labels: [annual_reassessment_frequency]
+    historical_input_path: tests/openai_phase8/live-repeat-inputs/perspective-happy.md
+    historical_input_digest: sha256:42057b022107f5c563c00a12d57e072e86416a81a7ae86b15887a94dd3d9ace6
+    historical_oracle_exposed_runs:
+      - run_id: ph8-live-perspective-happy-a
+        normalization:
+          review_stage_state: pre_panel_eligible
+          critical_finding_labels: []
+          dissent_labels: [annual_reassessment_frequency]
+        review_contract:
+          reviewer_skill: perspective-evaluator
+          reviewer_instance_id: /root/phase6_context_impl/perspective_happy_fresh_review
+          files_read:
+            - research-skills-openai/skills/perspective-evaluator/SKILL.md
+            - research-skills-openai/skills/perspective-evaluator/references/anti-pattern-checklist.md
+            - tests/openai_phase8/live-repeat-inputs/perspective-happy.md
+          isolation_mode: fresh_subagent
+          prior_scores_visible: false
+          source_edits_performed: false
+          decision: accept
+          route: advance_to_panel_review
+          final_state: pre_panel_eligible
+          findings:
+            - id: F-001
+              severity: info
+              blocking: false
+              summary: The bounded thesis, evidence limits, contrary studies, calibrated recommendation, and testable local rule satisfy the pre-panel gates.
+            - id: F-002
+              severity: low
+              blocking: false
+              summary: Novelty and outlet fit remain provisional without a discourse baseline or target-outlet profile.
+            - id: F-003
+              severity: info
+              blocking: false
+              summary: The minority disagreement about annual reassessment frequency remains visible and does not invalidate the conditional recommendation.
+          unresolved_issues:
+            - Paragraph-level verification was unavailable because the frozen input contains only a draft summary.
+            - Novelty against discourse and outlet-specific fit remain provisional.
+          dissent_ids: [annual-reassessment-frequency-minority-view]
+      - run_id: ph8-live-perspective-happy-b
+        normalization:
+          review_stage_state: pre_panel_eligible
+          critical_finding_labels: []
+          dissent_labels: [annual_reassessment_frequency]
+        review_contract:
+          reviewer_skill: perspective-evaluator
+          reviewer_instance_id: /root/ph8_proposal_repeat_a/perspective_happy_review
+          files_read:
+            - research-skills-openai/skills/perspective-evaluator/SKILL.md
+            - research-skills-openai/skills/perspective-evaluator/references/anti-pattern-checklist.md
+            - tests/openai_phase8/live-repeat-inputs/perspective-happy.md
+          isolation_mode: fresh_subagent
+          prior_scores_visible: false
+          source_edits_performed: false
+          decision: accept
+          route: panel_review
+          final_state: pre_panel_ready
+          findings:
+            - id: F-001
+              severity: informational
+              blocking: false
+              summary: The bounded thesis is clear, actionable, and matched to the represented evidence.
+            - id: F-002
+              severity: informational
+              blocking: false
+              summary: The draft preserves contrary studies, distinguishes evidence from interpretation, and avoids universal or causal overclaims.
+            - id: F-003
+              severity: informational
+              blocking: false
+              summary: The anti-pattern scan finds no represented blocking pattern.
+            - id: F-004
+              severity: minor
+              blocking: false
+              summary: Novelty and outlet fit remain provisional without their respective inputs.
+            - id: DISSENT-ANNUAL-REASSESSMENT-FREQUENCY
+              severity: minor
+              blocking: false
+              summary: A preserved minority view considers annual reassessment potentially too frequent.
+          unresolved_issues:
+            - Novelty against wider discourse remains provisional.
+            - Outlet-specific fit remains provisional.
+            - The appropriate reassessment interval should remain locally determined with dissent visible.
+          dissent_ids: [DISSENT-ANNUAL-REASSESSMENT-FREQUENCY]
+    runs:
+      - run_id: run-a03-01
+        normalization:
+          review_stage_state: pre_panel_eligible
+          critical_finding_labels: []
+          dissent_labels: [annual_reassessment_frequency]
+        review_contract:
+          reviewer_skill: perspective-evaluator
+          reviewer_instance_id: /root/neutral_a03_r10
+          files_read:
+            - tests/openai_phase8/live-repeat-inputs/source-a03.md
+            - research-skills-openai/skills/perspective-evaluator/SKILL.md
+            - research-skills-openai/skills/perspective-evaluator/references/anti-pattern-checklist.md
+          isolation_mode: fresh_subagent
+          prior_scores_visible: false
+          source_edits_performed: false
+          decision: accept
+          route: advance_to_panel
+          reported_state: completed_pre_panel_eligible
+          final_state: pre_panel_eligible
+          findings:
+            - id: A03-R10-F01
+              severity: info
+              blocking: false
+              summary: The conditional drift-threshold rule is explicit, testable, evidence-bounded, and satisfies every hard pre-panel gate.
+            - id: A03-R10-D01
+              severity: minor
+              blocking: false
+              summary: Two stable-setting studies oppose automatic recalibration when monitored drift remains below tolerance.
+            - id: A03-R10-D02
+              severity: minor
+              blocking: false
+              summary: A stakeholder argues annual reassessment can impose needless burden; the reassessment frequency must remain locally contingent.
+          unresolved_issues: []
+          dissent_ids: [A03-R10-D01, A03-R10-D02]
+      - run_id: run-a03-02
+        normalization:
+          review_stage_state: pre_panel_eligible
+          critical_finding_labels: []
+          dissent_labels: [annual_reassessment_frequency]
+        review_contract:
+          reviewer_skill: perspective-evaluator
+          reviewer_instance_id: /root/neutral_a03_r11
+          files_read:
+            - tests/openai_phase8/live-repeat-inputs/source-a03.md
+            - research-skills-openai/skills/perspective-evaluator/SKILL.md
+            - research-skills-openai/skills/perspective-evaluator/references/anti-pattern-checklist.md
+          isolation_mode: fresh_subagent
+          prior_scores_visible: false
+          source_edits_performed: false
+          decision: accept
+          route: advance_to_panel
+          reported_state: pre_panel_eligible
+          final_state: pre_panel_eligible
+          findings:
+            - id: A03-R11-F01
+              severity: info
+              blocking: false
+              summary: The drift-to-local-test-to-prespecified-tolerance-to-conditional-recalibration chain passes all hard gates without a central overclaim.
+            - id: A03-R11-D01
+              severity: minor
+              blocking: false
+              summary: Stable-setting evidence opposes a universal or automatic recalibration requirement.
+            - id: A03-R11-D02
+              severity: minor
+              blocking: false
+              summary: The stakeholder position that annual reassessment may be burdensome keeps reassessment frequency locally determined.
+          unresolved_issues:
+            - Prospective comparative validation of the combined rule remains nonblocking future work.
+          dissent_ids: [A03-R11-D01, A03-R11-D02]

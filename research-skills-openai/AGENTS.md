@@ -14,7 +14,7 @@ These instructions apply to the `research-skills-openai/` plugin subtree.
 1. Read the target `SKILL.md`, its directly required references, `workflow-registry.yaml`, and every orchestrator that invokes it.
 2. Use `skill-creator` before creating or substantially rewriting a skill.
 3. Keep SKILL frontmatter limited to `name` and `description`. Store UI metadata and invocation policy in `agents/openai.yaml`.
-4. Keep descriptions concise, front-load trigger terms, and state both the job and activation boundary.
+4. Keep descriptions concise, front-load trigger terms, and state both the job and activation boundary. Keep `agents/openai.yaml` `short_description` values between 25 and 64 characters.
 5. Keep core procedures in `SKILL.md`; move schemas, long rubrics, examples, and variant guidance to directly linked references with explicit load conditions.
 6. Update the registry, generator/normalizer lists, README/Roadmap claims, and validation expectations in the same change.
 7. Run `python scripts/normalize_openai_references.py` after adding or renaming bundled resources, then validate locally before commit or plugin reinstall.
@@ -80,9 +80,18 @@ input normalization
 
 ```powershell
 python scripts/audit_openai_research_plugin.py
+python scripts/audit_openai_research_proposal.py
+python scripts/audit_openai_research_perspective.py
+python scripts/test_openai_release_contract.py
+python scripts/sync_openai_fixture_versions.py
+python scripts/test_openai_phase6_context.py
 python scripts/test_openai_phase2_phase3.py
 python scripts/test_openai_phase4_scenarios.py --check-report
+python scripts/test_openai_phase7_modes.py --check-report
+python scripts/test_openai_phase8_corpus.py --check-report
 python scripts/codex_plugin_converter.py --mode codex --fail-on-invalid
+python scripts/generate_openai_release_ledger.py --check
+python scripts/test_openai_release_ledger.py
 python scripts/validate_openai_preview_release.py
 python C:\Users\10149\.codex\skills\.system\plugin-creator\scripts\validate_plugin.py research-skills-openai
 ```

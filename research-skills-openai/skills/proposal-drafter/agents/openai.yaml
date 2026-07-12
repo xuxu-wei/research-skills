@@ -1,6 +1,6 @@
 interface:
   display_name: "Proposal Drafter"
-  short_description: "Draft or revise a versioned research proposal from an approved context, evidence set, structure..."
+  short_description: "Draft and revise versioned research proposals"
   default_prompt: "Use $proposal-drafter for this task and follow its workflow and output contract."
 policy:
   allow_implicit_invocation: false

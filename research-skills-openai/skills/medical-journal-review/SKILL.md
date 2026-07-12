@@ -1,6 +1,6 @@
 ---
 name: medical-journal-review
-description: "Independently review a medical study, protocol, manuscript, or cover letter from an editorial, methodological, statistical, claim, and journal-fit perspective without drafting."
+description: "Independently review a frozen medical study, protocol, manuscript, or cover letter for editorial, methods, statistics, claims, and fit."
 ---
 # Medical Journal Research Design Review
 

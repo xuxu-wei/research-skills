@@ -1,6 +1,6 @@
 interface:
   display_name: "Idea Adversarial Review Panel"
-  short_description: "Independently challenge promoted research ideas through novelty/gap, feasibility/method, and..."
+  short_description: "Independently challenge promoted ideas by assigned role"
   default_prompt: "Use $idea-adversarial-review-panel for this task and follow its workflow and output contract."
 policy:
   allow_implicit_invocation: false

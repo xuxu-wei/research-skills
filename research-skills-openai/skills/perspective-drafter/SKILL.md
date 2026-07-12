@@ -1,6 +1,6 @@
 ---
 name: perspective-drafter
-description: "Draft or revise a versioned Perspective from approved architecture and claim artifacts, with paragraph mapping and separate reviewer responses; do not self-evaluate."
+description: "Draft or revise a versioned Perspective from approved argument and claim artifacts, keeping reviewer responses separate."
 ---
 # perspective-drafter
 

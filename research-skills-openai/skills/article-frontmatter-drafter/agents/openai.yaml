@@ -1,6 +1,6 @@
 interface:
   display_name: "Article Frontmatter Drafter"
-  short_description: "Draft versioned article frontmatter—abstract, key points, titles, running title, highlights, and..."
+  short_description: "Draft titles, abstracts, highlights, and key points"
   default_prompt: "Use $article-frontmatter-drafter for this task and follow its workflow and output contract."
 policy:
   allow_implicit_invocation: false

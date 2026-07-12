@@ -1,6 +1,6 @@
 ---
 name: article-orchestrator
-description: "Orchestrate article drafting, independent review, revision, and human-review packaging. Use for full, draft fast-track, blueprint, section, or submission-only manuscript workflows."
+description: "Orchestrate article drafting, independent review, revision, and human-review packaging. Use for full, fast-track, blueprint-only, section-specific, or submission-only workflows."
 ---
 # article-orchestrator
 

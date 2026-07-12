@@ -1,6 +1,6 @@
 ---
 name: research-context-builder
-description: "Normalize a rough research direction, practical problem, evidence set, funding call, or data asset into a structured context brief for idea generation."
+description: "Normalize a research direction, problem, evidence set, funding call, or data asset into a structured brief for idea generation."
 ---
 ## 1. Overview
 

@@ -22,7 +22,11 @@ checklist items does it contain, and where was the statement published?
 5. BMJ and PubMed pages were also attempted but returned access challenges in
    this environment; they were not treated as opened verification sources.
 
-## Verified Result
+## Observed Result
+
+This is a self-attested source-verification snapshot from the task that
+created the report. It is useful as a routing smoke but is not durable platform
+tool provenance and does not satisfy a current-release live gate.
 
 - The current generic reporting guideline is CONSORT 2025 for reports of
   randomized trials.
@@ -42,4 +46,4 @@ checklist items does it contain, and where was the statement published?
 | SPIRIT-CONSORT home | Guideline developer site | yes | 30-item checklist, flow diagram, intended use |
 | SPIRIT-CONSORT published statements | Guideline developer site | yes | five journal versions and DOI identities |
 
-Status: `targeted_search_verified`
+Status: `self_attested_search_snapshot_validated`

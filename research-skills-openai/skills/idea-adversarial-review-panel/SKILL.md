@@ -1,6 +1,6 @@
 ---
 name: idea-adversarial-review-panel
-description: "Independently challenge promoted research ideas through novelty/gap, feasibility/method, and PI-strategy roles before proposal handoff; preserve dissent and do not rescore ideas."
+description: "Independently challenge a frozen promoted idea in one assigned novelty, feasibility, or strategy role before proposal handoff."
 ---
 # Idea Adversarial Review Panel
 

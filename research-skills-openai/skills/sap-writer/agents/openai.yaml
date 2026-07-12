@@ -1,6 +1,6 @@
 interface:
   display_name: "Sap Writer"
-  short_description: "Draft or revise a versioned Statistical Analysis Plan from approved endpoints, design, data..."
+  short_description: "Draft and revise versioned statistical analysis plans"
   default_prompt: "Use $sap-writer for this task and follow its workflow and output contract."
 policy:
   allow_implicit_invocation: false

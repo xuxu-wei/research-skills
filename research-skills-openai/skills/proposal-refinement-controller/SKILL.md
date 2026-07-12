@@ -1,6 +1,6 @@
 ---
 name: proposal-refinement-controller
-description: "Plan and control targeted proposal revision after independent evaluation. Use to route fixes to the drafter, preserve version lineage, and require fresh re-evaluation."
+description: "Plan targeted proposal revision after evaluation, route fixes to the drafter, preserve lineage, and require fresh evaluation."
 ---
 # proposal-refinement-controller
 

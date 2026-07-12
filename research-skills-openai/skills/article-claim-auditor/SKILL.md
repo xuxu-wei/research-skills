@@ -1,6 +1,6 @@
 ---
 name: article-claim-auditor
-description: "Independently audit manuscript claims against frozen evidence. Use to identify unsupported inference, overclaiming, wording mismatch, and required downscaling without editing the manuscript."
+description: "Independently audit frozen manuscript claims against evidence; report unsupported inference, overclaiming, and wording mismatch."
 ---
 # article-claim-auditor
 

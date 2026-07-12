@@ -1,0 +1,119 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+$id: https://xuxu-wei.github.io/research-skills-openai/release-evidence.schema.yaml
+title: OpenAI plugin durable external release evidence envelope
+type: object
+required: [schema_version, evidence_type, observed, provider, raw_export]
+properties:
+  schema_version:
+    const: 1
+  evidence_type:
+    enum:
+      - repository_preview_ci
+      - canonical_plugin_validator_ci
+      - main_branch_protection
+      - marketplace_resolved_commit
+      - marketplace_upgrade
+      - explicit_reinstall
+      - fresh_task_discovery
+      - rollback
+  observed:
+    description: >-
+      Exact copy of every ledger record field except status, reason,
+      evidence_path, and evidence_sha256.
+    type: object
+    minProperties: 1
+  captured_at:
+    type: string
+  provider:
+    type: string
+    minLength: 1
+  raw_export:
+    description: Provider or platform export retained with the envelope.
+    type: object
+additionalProperties: true
+
+allOf:
+  - if:
+      properties:
+        evidence_type:
+          enum:
+            - marketplace_upgrade
+            - explicit_reinstall
+            - fresh_task_discovery
+            - rollback
+    then:
+      properties:
+        raw_export:
+          required: [cache_inventory_complete, cache_inventory]
+          properties:
+            cache_inventory_complete:
+              const: true
+            cache_inventory:
+              type: array
+              minItems: 1
+              maxItems: 2
+              items:
+                $ref: "#/$defs/cache_artifact"
+
+$defs:
+  cache_artifact:
+    type: object
+    additionalProperties: false
+    required:
+      - cache_path
+      - cache_instance_id
+      - cache_identity_algorithm
+      - cache_identity_sha256
+      - plugin_version
+      - source_commit
+      - manifest_sha256
+      - registry_sha256
+      - skill_tree_algorithm
+      - skill_tree_file_count
+      - skill_tree_sha256
+      - license_sha256
+    properties:
+      cache_path: {type: string, minLength: 1}
+      cache_instance_id: {type: string, minLength: 1}
+      cache_identity_algorithm:
+        const: sha256_canonical_json_installable_cache_identity_v1
+      cache_identity_sha256:
+        type: string
+        pattern: "^[0-9a-f]{64}$"
+      plugin_version: {type: string, minLength: 1}
+      source_commit:
+        type: string
+        pattern: "^[0-9a-f]{40}$"
+      manifest_sha256:
+        type: string
+        pattern: "^[0-9a-f]{64}$"
+      registry_sha256:
+        type: string
+        pattern: "^[0-9a-f]{64}$"
+      skill_tree_algorithm: {type: string, minLength: 1}
+      skill_tree_file_count: {type: integer, minimum: 1}
+      skill_tree_sha256:
+        type: string
+        pattern: "^[0-9a-f]{64}$"
+      license_sha256:
+        type: string
+        pattern: "^[0-9a-f]{64}$"
+
+x-evidence-contract:
+  path_policy: canonical_repository_relative_existing_json_or_yaml
+  digest_policy: lowercase_sha256_of_actual_file_bytes
+  record_binding: observed_payload_exactly_matches_release_ledger_record
+  provider_origin_policy: >-
+    Repository files and hashes prove integrity only. A verified ledger record
+    additionally requires an authenticated external-evidence adapter supported
+    by the validator; no adapter is currently implemented.
+  source_commit_policy: >-
+    A verified source commit must exist in local Git history and its committed
+    plugin manifest, registry, license, provenance, skill tree, and marketplace
+    source must match the ledger identity.
+  cache_inventory_policy: >-
+    Install, reinstall, discovery, and rollback evidence must carry a complete
+    provider-exported cache inventory. The validator recomputes the cache
+    content identity from plugin/source, manifest, registry, complete skill
+    tree, and license digests; discovery must match one verified install cache,
+    and rollback must bind distinct current and previous cache instances.

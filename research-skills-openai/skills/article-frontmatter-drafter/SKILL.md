@@ -1,6 +1,6 @@
 ---
 name: article-frontmatter-drafter
-description: "Draft versioned article frontmatter—abstract, key points, titles, running title, highlights, and graphical-abstract text—from an evaluated manuscript and blueprint."
+description: "Draft versioned abstract, titles, key points, highlights, and related frontmatter from an evaluated manuscript and blueprint."
 ---
 # article-frontmatter-drafter
 

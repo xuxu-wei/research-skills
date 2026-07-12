@@ -1,6 +1,6 @@
 ---
 name: idea-portfolio-assembler
-description: "Assemble evaluated research ideas into a PI-review portfolio with rankings, lineage, limitations, dissent, and proposal-handoff status without rescoring or rewriting candidates."
+description: "Assemble evaluated ideas into a PI-review portfolio with ranking, lineage, limitations, dissent, and handoff status."
 ---
 # Idea Portfolio Assembler
 

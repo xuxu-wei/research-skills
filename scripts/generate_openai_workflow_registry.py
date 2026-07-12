@@ -197,6 +197,7 @@ WORKFLOW_STATE_MACHINES = {
     "idea": {
         "orchestrator": "research-idea-orchestrator",
         "evaluator_skill": "idea-evaluator",
+        "primary_writer_skills": ["multi-path-idea-generator"],
         "primary_artifact_type": "candidate_idea_set",
         "entry_modes": ["standard", "resume_candidates", "portfolio_only"],
         "entry_gates": {
@@ -210,6 +211,24 @@ WORKFLOW_STATE_MACHINES = {
                 "evidence_map_frozen": {"artifact_roles": ["evidence_map"]},
                 "candidate_set_versioned": {"artifact_roles": ["candidate_idea_set"]},
             },
+            "resume_candidates": {
+                "context_scope_validated": {"artifact_roles": ["research_context"]},
+                "evidence_scope_validated": {"artifact_roles": ["evidence_map"]},
+                "candidate_set_versioned": {"artifact_roles": ["candidate_idea_set"]},
+            },
+            "portfolio_only": {
+                "latest_version_independently_evaluated": {
+                    "review_skill": "idea-evaluator",
+                    "input_artifact_roles": ["candidate_idea_set"],
+                },
+                "adversarial_reports_complete": {
+                    "review_skill": "idea-adversarial-review-panel",
+                    "input_artifact_roles": ["candidate_idea_set"],
+                },
+                "dissent_and_fatal_findings_indexed": {
+                    "artifact_roles": ["review_finding_index"],
+                },
+            },
         },
         "before_panel": ["latest_version_independently_evaluated", "no_unresolved_fatal_finding"],
         "before_packaging": ["latest_version_independently_evaluated", "adversarial_reports_complete", "dissent_and_fatal_findings_indexed"],
@@ -219,6 +238,7 @@ WORKFLOW_STATE_MACHINES = {
     "proposal": {
         "orchestrator": "proposal-orchestrator",
         "evaluator_skill": "proposal-evaluator",
+        "primary_writer_skills": ["proposal-drafter"],
         "primary_artifact_type": "proposal",
         "entry_modes": ["standard", "existing_draft", "draft_and_external_review", "package_only"],
         "entry_gates": {
@@ -236,6 +256,32 @@ WORKFLOW_STATE_MACHINES = {
                 },
                 "proposal_versioned": {"artifact_roles": ["proposal"]},
             },
+            "existing_draft": {
+                "minimal_state_created": {"artifact_roles": ["minimal_workflow_state"]},
+                "scope_limitations_recorded": {"artifact_roles": ["scope_limitations"]},
+                "proposal_versioned": {"artifact_roles": ["proposal"]},
+            },
+            "draft_and_external_review": {
+                "minimal_state_created": {"artifact_roles": ["minimal_workflow_state"]},
+                "proposal_versioned": {"artifact_roles": ["proposal"]},
+                "external_review_qualified_or_fresh_evaluation_required": {
+                    "review_skill": "proposal-evaluator",
+                    "input_artifact_roles": ["proposal"],
+                },
+            },
+            "package_only": {
+                "latest_version_independently_evaluated": {
+                    "review_skill": "proposal-evaluator",
+                    "input_artifact_roles": ["proposal"],
+                },
+                "required_panel_reports_complete": {
+                    "review_skill": "proposal-review-panel",
+                    "input_artifact_roles": ["proposal"],
+                },
+                "dissent_and_fatal_findings_indexed": {
+                    "artifact_roles": ["review_finding_index"],
+                },
+            },
         },
         "before_panel": ["latest_version_independently_evaluated", "no_unresolved_fatal_finding"],
         "before_packaging": ["latest_version_independently_evaluated", "required_panel_reports_complete_or_not_applicable", "dissent_and_fatal_findings_indexed"],
@@ -245,6 +291,7 @@ WORKFLOW_STATE_MACHINES = {
     "article": {
         "orchestrator": "article-orchestrator",
         "evaluator_skill": "article-evaluator",
+        "primary_writer_skills": ["article-drafter"],
         "primary_artifact_type": "manuscript",
         "entry_modes": ["standard", "fast_track_draft", "fast_track_draft_and_evaluation", "blueprint_only", "section_specific", "submission_only"],
         "entry_gates": {
@@ -278,6 +325,64 @@ WORKFLOW_STATE_MACHINES = {
                     ],
                 },
             },
+            "fast_track_draft": {
+                "readiness_passed": {
+                    "review_skill": "article-readiness-triage",
+                    "input_artifact_roles": ["minimal_intake"],
+                },
+                "minimal_backfill_validated": {
+                    "review_skill": "article-methods-statistics-auditor",
+                    "input_artifact_roles": ["article_context", "method_facts"],
+                },
+                "manuscript_versioned": {"artifact_roles": ["manuscript"]},
+                "claim_audit_passed": {
+                    "review_skill": "article-claim-auditor",
+                    "input_artifact_roles": [
+                        "article_context",
+                        "article_blueprint",
+                        "claim_evidence_matrix",
+                        "evidence_ledger",
+                        "manuscript",
+                    ],
+                },
+            },
+            "fast_track_draft_and_evaluation": {
+                "readiness_passed": {
+                    "review_skill": "article-readiness-triage",
+                    "input_artifact_roles": ["minimal_intake"],
+                },
+                "manuscript_versioned": {"artifact_roles": ["manuscript"]},
+                "external_review_qualified_or_fresh_evaluation_required": {
+                    "review_skill": "article-evaluator",
+                    "input_artifact_roles": ["manuscript"],
+                },
+            },
+            "blueprint_only": {
+                "readiness_passed": {
+                    "review_skill": "article-readiness-triage",
+                    "input_artifact_roles": ["minimal_intake"],
+                },
+                "context_frozen": {"artifact_roles": ["article_context"]},
+                "methods_gate_passed": {
+                    "review_skill": "article-methods-statistics-auditor",
+                    "input_artifact_roles": ["article_context", "method_facts"],
+                },
+            },
+            "section_specific": {
+                "scoped_intake_frozen": {"artifact_roles": ["scoped_intake"]},
+                "minimal_context_frozen": {"artifact_roles": ["article_context"]},
+            },
+            "submission_only": {
+                "submission_scope_readiness_passed": {
+                    "review_skill": "article-readiness-triage",
+                    "input_artifact_roles": ["minimal_intake", "manuscript"],
+                },
+                "manuscript_versioned": {"artifact_roles": ["manuscript"]},
+                "latest_version_independently_evaluated": {
+                    "review_skill": "article-evaluator",
+                    "input_artifact_roles": ["manuscript"],
+                },
+            },
         },
         "before_panel": ["latest_version_independently_evaluated", "claim_audit_passed", "no_unresolved_fatal_finding"],
         "before_packaging": ["latest_version_independently_evaluated", "required_panel_reports_complete_or_not_applicable", "dissent_and_fatal_findings_indexed"],
@@ -287,6 +392,7 @@ WORKFLOW_STATE_MACHINES = {
     "perspective": {
         "orchestrator": "perspective-orchestrator",
         "evaluator_skill": "perspective-evaluator",
+        "primary_writer_skills": ["perspective-drafter"],
         "primary_artifact_type": "perspective",
         "entry_modes": ["lite", "standard", "full"],
         "entry_gates": {
@@ -295,6 +401,17 @@ WORKFLOW_STATE_MACHINES = {
             "full": ["input_brief_frozen", "claim_evidence_artifacts_frozen", "argument_architecture_frozen", "perspective_versioned"],
         },
         "scenario_entry_gate_contracts": {
+            "lite": {
+                "input_brief_frozen": {"artifact_roles": ["perspective_input_brief"]},
+                "provisional_claims_frozen": {"artifact_roles": ["provisional_claim_ledger"]},
+                "argument_architecture_frozen": {"artifact_roles": ["argument_architecture", "paragraph_map"]},
+            },
+            "standard": {
+                "input_brief_frozen": {"artifact_roles": ["perspective_input_brief"]},
+                "claim_evidence_artifacts_frozen": {"artifact_roles": ["claim_ledger", "claim_evidence_matrix"]},
+                "argument_architecture_frozen": {"artifact_roles": ["argument_architecture", "paragraph_map"]},
+                "perspective_versioned": {"artifact_roles": ["perspective"]},
+            },
             "full": {
                 "input_brief_frozen": {"artifact_roles": ["perspective_input_brief"]},
                 "claim_evidence_artifacts_frozen": {"artifact_roles": ["claim_ledger", "claim_evidence_matrix"]},
@@ -615,6 +732,47 @@ SCENARIO_EVAL_CONTRACT = {
         ],
         "final_verifier_may_read_sealed_review_reports": True,
         "panel_peer_outputs_visible": False,
+        "evaluator_may_read_prior_reviewer_outputs": False,
+        "evaluator_prior_scores_visible": False,
+        "runtime_evaluator_forbidden_source_actor_roles": [
+            "evaluator",
+            "panel",
+            "verifier_compositor",
+        ],
+    },
+    "runtime_actor_role_contract": {
+        "allowed_roles": [
+            "orchestrator",
+            "writer",
+            "evaluator",
+            "panel",
+            "builder",
+            "retrieval",
+            "controller",
+            "assembler",
+            "verifier_compositor",
+        ],
+        "registry_roles_by_actor_role": {
+            "orchestrator": ["orchestrator"],
+            "writer": ["drafter", "generator"],
+            "evaluator": ["reviewer"],
+            "panel": ["reviewer"],
+            "builder": ["builder"],
+            "retrieval": ["retrieval"],
+            "controller": ["controller"],
+            "assembler": ["assembler"],
+            "verifier_compositor": ["reviewer"],
+        },
+        "happy_required_roles": [
+            "orchestrator",
+            "writer",
+            "evaluator",
+            "panel",
+        ],
+        "finalizer_roles": ["assembler", "verifier_compositor"],
+        "unknown_roles_rejected": True,
+        "registry_role_mapping_enforced": True,
+        "orchestrator_skill_must_match_workflow": True,
     },
     "reviewer_isolation_mode": "fresh_subagent",
     "reviewer_source_edits_allowed": False,
@@ -748,8 +906,10 @@ def quote(value: str) -> str:
 def main() -> int:
     skill_files = sorted(SKILLS.rglob("SKILL.md"))
     names = {skill_name(path) for path in skill_files}
-    if len(skill_files) != 45 or len(names) != 45:
-        raise RuntimeError(f"Expected 45 unique skills, found {len(skill_files)} files and {len(names)} names")
+    if not skill_files or len(names) != len(skill_files):
+        raise RuntimeError(
+            f"Expected a non-empty unique skill set, found {len(skill_files)} files and {len(names)} names"
+        )
     if not REVIEWERS <= names:
         raise RuntimeError(f"Reviewer registry references missing skills: {sorted(REVIEWERS - names)}")
     hermes_by_name = {

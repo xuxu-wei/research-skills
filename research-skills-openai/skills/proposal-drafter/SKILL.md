@@ -1,6 +1,6 @@
 ---
 name: proposal-drafter
-description: "Draft or revise a versioned research proposal from an approved context, evidence set, structure, and revision plan. Use after proposal readiness triage."
+description: "Draft or revise a versioned proposal from approved context, evidence, structure, and revision instructions after readiness triage."
 ---
 # proposal-drafter
 

@@ -1,0 +1,865 @@
+{
+  "claims": {
+    "deep_research_cycles_claimed_without_receipts": 0,
+    "live_fresh_evaluator_repeats_counted_as_pass": 0,
+    "live_model_runs_performed_by_this_validator": false,
+    "live_search_receipts_counted_as_pass": 0,
+    "phase8_complete": false,
+    "repository_authored_files_counted_as_verified": false,
+    "self_attested_reviewer_snapshots_observed": 6,
+    "self_attested_search_snapshots_observed": 3
+  },
+  "corpus": {
+    "case_count": 16,
+    "case_results": [
+      {
+        "case_id": "ph8-idea-happy-001",
+        "critical_findings": 0,
+        "expected_state": "human_signoff_required",
+        "fixture_contract": "passed",
+        "outcome_class": "happy",
+        "risk_tier": "low",
+        "workflow": "idea"
+      },
+      {
+        "case_id": "ph8-idea-fixable-001",
+        "critical_findings": 1,
+        "expected_state": "revision_required",
+        "fixture_contract": "passed",
+        "outcome_class": "fixable",
+        "risk_tier": "medium",
+        "workflow": "idea"
+      },
+      {
+        "case_id": "ph8-idea-fatal-001",
+        "critical_findings": 1,
+        "expected_state": "stopped",
+        "fixture_contract": "passed",
+        "outcome_class": "fatal_or_pending",
+        "risk_tier": "high",
+        "workflow": "idea"
+      },
+      {
+        "case_id": "ph8-idea-no-gain-001",
+        "critical_findings": 1,
+        "expected_state": "stopped",
+        "fixture_contract": "passed",
+        "outcome_class": "revision_no_gain",
+        "risk_tier": "medium",
+        "workflow": "idea"
+      },
+      {
+        "case_id": "ph8-proposal-happy-001",
+        "critical_findings": 0,
+        "expected_state": "human_signoff_required",
+        "fixture_contract": "passed",
+        "outcome_class": "happy",
+        "risk_tier": "low",
+        "workflow": "proposal"
+      },
+      {
+        "case_id": "ph8-proposal-fixable-001",
+        "critical_findings": 1,
+        "expected_state": "revision_required",
+        "fixture_contract": "passed",
+        "outcome_class": "fixable",
+        "risk_tier": "medium",
+        "workflow": "proposal"
+      },
+      {
+        "case_id": "case-a01",
+        "critical_findings": 1,
+        "expected_state": "blocked",
+        "fixture_contract": "passed",
+        "outcome_class": "fatal_or_pending",
+        "risk_tier": "high",
+        "workflow": "proposal"
+      },
+      {
+        "case_id": "ph8-proposal-no-gain-001",
+        "critical_findings": 1,
+        "expected_state": "stopped",
+        "fixture_contract": "passed",
+        "outcome_class": "revision_no_gain",
+        "risk_tier": "medium",
+        "workflow": "proposal"
+      },
+      {
+        "case_id": "ph8-article-happy-001",
+        "critical_findings": 0,
+        "expected_state": "human_signoff_required",
+        "fixture_contract": "passed",
+        "outcome_class": "happy",
+        "risk_tier": "low",
+        "workflow": "article"
+      },
+      {
+        "case_id": "case-a02",
+        "critical_findings": 1,
+        "expected_state": "revision_required",
+        "fixture_contract": "passed",
+        "outcome_class": "fixable",
+        "risk_tier": "medium",
+        "workflow": "article"
+      },
+      {
+        "case_id": "ph8-article-fatal-001",
+        "critical_findings": 1,
+        "expected_state": "blocked",
+        "fixture_contract": "passed",
+        "outcome_class": "fatal_or_pending",
+        "risk_tier": "high",
+        "workflow": "article"
+      },
+      {
+        "case_id": "ph8-article-no-gain-001",
+        "critical_findings": 1,
+        "expected_state": "stopped",
+        "fixture_contract": "passed",
+        "outcome_class": "revision_no_gain",
+        "risk_tier": "medium",
+        "workflow": "article"
+      },
+      {
+        "case_id": "case-a03",
+        "critical_findings": 0,
+        "expected_state": "human_signoff_required",
+        "fixture_contract": "passed",
+        "outcome_class": "happy",
+        "risk_tier": "low",
+        "workflow": "perspective"
+      },
+      {
+        "case_id": "ph8-perspective-fixable-001",
+        "critical_findings": 1,
+        "expected_state": "revision_required",
+        "fixture_contract": "passed",
+        "outcome_class": "fixable",
+        "risk_tier": "medium",
+        "workflow": "perspective"
+      },
+      {
+        "case_id": "ph8-perspective-pending-001",
+        "critical_findings": 1,
+        "expected_state": "independent_review_pending",
+        "fixture_contract": "passed",
+        "outcome_class": "fatal_or_pending",
+        "risk_tier": "high",
+        "workflow": "perspective"
+      },
+      {
+        "case_id": "ph8-perspective-no-gain-001",
+        "critical_findings": 1,
+        "expected_state": "stopped",
+        "fixture_contract": "passed",
+        "outcome_class": "revision_no_gain",
+        "risk_tier": "medium",
+        "workflow": "perspective"
+      }
+    ],
+    "coverage": {
+      "article": {
+        "fatal_or_pending": 1,
+        "fixable": 1,
+        "happy": 1,
+        "revision_no_gain": 1
+      },
+      "idea": {
+        "fatal_or_pending": 1,
+        "fixable": 1,
+        "happy": 1,
+        "revision_no_gain": 1
+      },
+      "perspective": {
+        "fatal_or_pending": 1,
+        "fixable": 1,
+        "happy": 1,
+        "revision_no_gain": 1
+      },
+      "proposal": {
+        "fatal_or_pending": 1,
+        "fixable": 1,
+        "happy": 1,
+        "revision_no_gain": 1
+      }
+    },
+    "evidence_class": "synthetic_contract_oracle",
+    "metrics": {
+      "dissent_preservation_percent": 100.0,
+      "false_ready_count": 0,
+      "fatal_finding_recall_percent": 100.0,
+      "fatal_or_blocking_finding_recall_percent": 100.0,
+      "lineage_compliance_percent": 100.0,
+      "major_finding_recall_percent": 100.0,
+      "reviewer_edit_boundary_compliance_percent": 100.0,
+      "reviewer_isolation_compliance_percent": 100.0
+    },
+    "plugin_version_binding": "0.6.0-preview.1",
+    "runtime_claim": "none",
+    "status": "synthetic_contract_oracle_passed"
+  },
+  "evidence_scope": "synthetic_corpus_plus_self_attested_snapshots_and_pending_provider_verified_runtime_evidence",
+  "fresh_repeat": {
+    "budget_negative_guards": [
+      {
+        "error_code": "repeat_budget_exceeded",
+        "probe_id": "automatic-six-rejected",
+        "status": "rejected"
+      },
+      {
+        "error_code": "repeat_expansion_without_trigger",
+        "probe_id": "untriggered-four-rejected",
+        "status": "rejected"
+      },
+      {
+        "error_code": "repeat_expansion_reason",
+        "probe_id": "unsupported-trigger-rejected",
+        "status": "rejected"
+      }
+    ],
+    "default_case_count": 3,
+    "evidence_class": "synthetic_contract_replay",
+    "expansion_triggered": false,
+    "fresh_run_count": 6,
+    "live_repeat_gate_status": "pending_durable_execution_evidence",
+    "live_repeat_receipts_completed": 0,
+    "maximum_automatic_case_count": 5,
+    "missed_critical_findings": 0,
+    "observed_current_task_repeat_snapshots": 6,
+    "risk_tiers": [
+      "high",
+      "medium",
+      "low"
+    ],
+    "route_or_state_disagreements": 0,
+    "runtime_claim": "none",
+    "selected_case_count": 3,
+    "selected_case_ids": [
+      "case-a01",
+      "case-a02",
+      "case-a03"
+    ],
+    "status": "synthetic_repeat_passed_live_gate_pending_provider_verified_evidence",
+    "synthetic_contract_status": "passed"
+  },
+  "live_fresh_repeat": {
+    "blind_bundle_contract": "source-only sanitized bundle; prior reviewer/evaluator outputs, scores, decisions, expected findings, and review lineage are empty; the bound source file content and parsed metadata are scanned directly; embedded metadata uses an exact allowlist and based_on accepts only declared source-artifact kinds",
+    "blind_bundle_semantic_negative_guard": {
+      "error_code": "live_repeat_durable_binding",
+      "mutation": "blind_bundle_contains_prior_evaluator_score",
+      "status": "rejected"
+    },
+    "captured_at": "2026-07-12T12:32:36+00:00",
+    "case_count": 3,
+    "case_results": [
+      {
+        "case_id": "case-a01",
+        "critical_finding_labels": [
+          "data_access_impossible"
+        ],
+        "dissent_labels": [],
+        "fresh_runs": 2,
+        "input_digest": "sha256:6ef4cee688599ac40af9dd4ef170d3489f44e301009f6c302b68645870614cb6",
+        "input_path": "tests/openai_phase8/live-repeat-inputs/source-a01.md",
+        "review_stage_state": "blocked",
+        "reviewer_instance_ids": [
+          "/root/neutral_a01_r1",
+          "/root/neutral_a01_r2"
+        ],
+        "reviewer_skill": "proposal-readiness-triage",
+        "run_ids": [
+          "run-a01-01",
+          "run-a01-02"
+        ],
+        "state_agreement": true
+      },
+      {
+        "case_id": "case-a02",
+        "critical_finding_labels": [
+          "prespecified_sensitivity_result_omitted"
+        ],
+        "dissent_labels": [],
+        "fresh_runs": 2,
+        "input_digest": "sha256:fe271a3eb2eb6d9fb429d08e0221bceff54c5418ae7237ebeffe94a6cb689078",
+        "input_path": "tests/openai_phase8/live-repeat-inputs/source-a02.md",
+        "review_stage_state": "revision_required",
+        "reviewer_instance_ids": [
+          "/root/neutral_a02_r1",
+          "/root/neutral_a02_r2"
+        ],
+        "reviewer_skill": "article-evaluator",
+        "run_ids": [
+          "run-a02-01",
+          "run-a02-02"
+        ],
+        "state_agreement": true
+      },
+      {
+        "case_id": "case-a03",
+        "critical_finding_labels": [],
+        "dissent_labels": [
+          "annual_reassessment_frequency"
+        ],
+        "fresh_runs": 2,
+        "input_digest": "sha256:17d62fd9c5100b436925641e4205b6af005aab097bc82cd78bd67ccfc2144243",
+        "input_path": "tests/openai_phase8/live-repeat-inputs/source-a03.md",
+        "review_stage_state": "pre_panel_eligible",
+        "reviewer_instance_ids": [
+          "/root/neutral_a03_r10",
+          "/root/neutral_a03_r11"
+        ],
+        "reviewer_skill": "perspective-evaluator",
+        "run_ids": [
+          "run-a03-01",
+          "run-a03-02"
+        ],
+        "state_agreement": true
+      }
+    ],
+    "durable_binding_negative_guard_count": 6,
+    "durable_binding_negative_guards": [
+      {
+        "error_code": "live_repeat_durable_binding",
+        "probe_id": "label-only-promotion-rejected",
+        "status": "rejected"
+      },
+      {
+        "error_code": "live_repeat_durable_binding",
+        "probe_id": "platform-export-digest-mismatch-rejected",
+        "status": "rejected"
+      },
+      {
+        "error_code": "live_repeat_durable_binding",
+        "probe_id": "raw-output-digest-mismatch-rejected",
+        "status": "rejected"
+      },
+      {
+        "error_code": "live_repeat_durable_binding",
+        "probe_id": "raw-contract-mismatch-rejected",
+        "status": "rejected"
+      },
+      {
+        "error_code": "live_repeat_durable_binding",
+        "probe_id": "read-scope-mismatch-rejected",
+        "status": "rejected"
+      },
+      {
+        "error_code": "live_repeat_durable_binding",
+        "probe_id": "platform-receipt-mismatch-rejected",
+        "status": "rejected"
+      }
+    ],
+    "evidence_class": "current_task_self_attested_fresh_subagent_snapshot",
+    "freshness_days": 90,
+    "historical_oracle_exposed_snapshot_count": 6,
+    "historical_oracle_exposed_snapshots_count_as_evidence": false,
+    "internal_contract_validation": "passed",
+    "observed_review_snapshot_count": 6,
+    "provider_verifier_adapter_count": 0,
+    "review_content_digests": {
+      "run-a01-01": "sha256:fee66c3d37baf77be1d8720b3dd7682eb0f64ad76e6979851c2fc5a36fd1788c",
+      "run-a01-02": "sha256:2e70c8f42c920237015d80f0e234643d6c7bbb446d3cd36971ef6c38eb0750fe",
+      "run-a02-01": "sha256:6b691ebe0edf32cadc60c23a474c472e4cad65d256041fbfb773594a17869985",
+      "run-a02-02": "sha256:155fdae83f4c8d396119666b7a6c1e2e00a1eb989150b5d5fc0d19b1e61b856a",
+      "run-a03-01": "sha256:be3d99573c3a0cff96c4e1eea7d86daa7c1a25e27d3b7e289c26a9fca5e4233e",
+      "run-a03-02": "sha256:ac0e0713b64958d7538a71f3bed3b055c3b0385245e1a0ddf5734994120a4e2a"
+    },
+    "reviewer_visible_identifier_negative_guard_count": 4,
+    "reviewer_visible_identifier_negative_guards": [
+      {
+        "error_code": "reviewer_visible_outcome_oracle",
+        "mutation": "source_path_contains_outcome_token",
+        "status": "rejected"
+      },
+      {
+        "error_code": "reviewer_visible_outcome_oracle",
+        "mutation": "blind_bundle_id_contains_outcome_token",
+        "status": "rejected"
+      },
+      {
+        "error_code": "reviewer_visible_outcome_oracle",
+        "mutation": "dispatch_prompt_id_contains_outcome_token",
+        "status": "rejected"
+      },
+      {
+        "error_code": "reviewer_visible_outcome_oracle",
+        "mutation": "run_or_case_id_contains_outcome_token",
+        "status": "rejected"
+      }
+    ],
+    "runtime_claim": "Six earlier delegated reviewer responses are preserved below as oracle-exposed historical records and are excluded from evidence. Six new neutral-identifier fresh-subagent responses are preserved as self-attested snapshots. The repository still has no authenticated platform execution export or executable provider-verifier adapter, so no observation can satisfy the verified live gate.",
+    "self_attested_isolation_field_compliance_percent": 100.0,
+    "self_attested_source_edit_field_compliance_percent": 100.0,
+    "snapshot_contract_state_agreement_percent": 100.0,
+    "snapshot_critical_label_recall_percent": 100.0,
+    "snapshot_dissent_label_preservation_percent": 100.0,
+    "source_identity_binding_required": [
+      "source_commit",
+      "manifest_digest",
+      "registry_digest",
+      "skill_tree_digest"
+    ],
+    "source_input_semantic_negative_guard_count": 5,
+    "source_input_semantic_negative_guards": [
+      {
+        "error_code": "live_repeat_source_input_review_leak",
+        "mutation": "generic_review_instruction",
+        "polluted_surfaces": [
+          "source_content"
+        ],
+        "status": "rejected"
+      },
+      {
+        "error_code": "live_repeat_source_input_review_leak",
+        "mutation": "revision_brief_or_plan",
+        "polluted_surfaces": [
+          "source_content"
+        ],
+        "status": "rejected"
+      },
+      {
+        "error_code": "live_repeat_source_input_review_leak",
+        "mutation": "expected_result_oracle",
+        "polluted_surfaces": [
+          "source_content"
+        ],
+        "status": "rejected"
+      },
+      {
+        "error_code": "live_repeat_source_input_review_leak",
+        "mutation": "review_artifact_in_source_lineage",
+        "polluted_surfaces": [
+          "source_lineage"
+        ],
+        "status": "rejected"
+      },
+      {
+        "error_code": "live_repeat_source_input_review_leak",
+        "mutation": "undeclared_expected_metadata_field",
+        "polluted_surfaces": [
+          "embedded_metadata"
+        ],
+        "status": "rejected"
+      }
+    ],
+    "status": "observed_unverified",
+    "synthetic_provider_override_self_test": {
+      "counts_as_runtime_evidence": false,
+      "ephemeral_temp_root_required": true,
+      "status": "passed"
+    },
+    "task_id": "019f506d-01cc-7fa0-9839-db8f494b5ab4",
+    "unique_reviewer_instance_count": 6,
+    "verified_live_gate_status": "pending_durable_execution_evidence",
+    "verified_live_review_count": 0
+  },
+  "phase_status": "in_progress_live_runtime_evidence_pending",
+  "plugin_version": "0.6.0-preview.1",
+  "provider_trust": {
+    "real_adapter_count": 0,
+    "real_adapter_ids": [],
+    "repository_authored_files_are_trust_anchors": false,
+    "synthetic_override_counts_as_runtime_evidence": false
+  },
+  "retrieval": {
+    "completed_current_receipts": 0,
+    "completed_current_receipts_by_kind": {
+      "deep_research_completed": 0,
+      "deep_research_inactive_control": 0,
+      "search": 0
+    },
+    "deep_research_event_order": "handoff < user_start < provider_run_completed < mapper_return < resume",
+    "deep_research_semantic_negative_guard_count": 7,
+    "deep_research_semantic_negative_guards": [
+      {
+        "error_code": "retrieval_source_authority",
+        "mutation": "deep_source_not_authoritative",
+        "status": "rejected"
+      },
+      {
+        "error_code": "retrieval_source_identity",
+        "mutation": "deep_source_identity_unverified",
+        "status": "rejected"
+      },
+      {
+        "error_code": "retrieval_claim_trace",
+        "mutation": "deep_material_claim_trace_omits_opened_source",
+        "status": "rejected"
+      },
+      {
+        "error_code": "retrieval_durable_binding",
+        "mutation": "deep_evidence_artifact_digest_unbound",
+        "status": "rejected"
+      },
+      {
+        "error_code": "retrieval_durable_binding",
+        "mutation": "mapper_return_resume_evidence_set_mismatch",
+        "status": "rejected"
+      },
+      {
+        "error_code": "retrieval_durable_provenance",
+        "mutation": "provider_run_completed_status_not_completed",
+        "status": "rejected"
+      },
+      {
+        "error_code": "retrieval_durable_binding",
+        "mutation": "provider_completion_not_before_mapper_return",
+        "status": "rejected"
+      }
+    ],
+    "deep_research_unique_cycle_fields": [
+      "task_id",
+      "deep_research_session_id",
+      "deep_research_run_id",
+      "provider_run_completed_receipt_id",
+      "mapper_return_receipt_id",
+      "resume_transaction_id",
+      "resumed_pending_edge",
+      "evidence_artifact_id_and_path"
+    ],
+    "durable_provenance_negative_guard_count": 41,
+    "durable_provenance_negative_guards": [
+      {
+        "error_code": "retrieval_durable_provenance",
+        "probe_id": "label-only-promotion-rejected",
+        "status": "rejected"
+      },
+      {
+        "error_code": "retrieval_durable_provenance",
+        "probe_id": "deep_research_completed-missing-platform_receipt_or_export_id-rejected",
+        "status": "rejected"
+      },
+      {
+        "error_code": "retrieval_durable_provenance",
+        "probe_id": "deep_research_completed-missing-platform_receipt_or_export_path-rejected",
+        "status": "rejected"
+      },
+      {
+        "error_code": "retrieval_durable_provenance",
+        "probe_id": "deep_research_completed-missing-platform_receipt_or_export_digest-rejected",
+        "status": "rejected"
+      },
+      {
+        "error_code": "retrieval_durable_provenance",
+        "probe_id": "deep_research_completed-missing-query_or_request_digest-rejected",
+        "status": "rejected"
+      },
+      {
+        "error_code": "retrieval_durable_provenance",
+        "probe_id": "deep_research_completed-missing-raw_deep_research_output_path-rejected",
+        "status": "rejected"
+      },
+      {
+        "error_code": "retrieval_durable_provenance",
+        "probe_id": "deep_research_completed-missing-raw_deep_research_output_digest-rejected",
+        "status": "rejected"
+      },
+      {
+        "error_code": "retrieval_durable_provenance",
+        "probe_id": "deep_research_completed-missing-citation_export_path-rejected",
+        "status": "rejected"
+      },
+      {
+        "error_code": "retrieval_durable_provenance",
+        "probe_id": "deep_research_completed-missing-citation_export_digest-rejected",
+        "status": "rejected"
+      },
+      {
+        "error_code": "retrieval_durable_provenance",
+        "probe_id": "deep_research_completed-missing-handoff_artifact_digest-rejected",
+        "status": "rejected"
+      },
+      {
+        "error_code": "retrieval_durable_provenance",
+        "probe_id": "deep_research_completed-missing-mapper_return_artifact_digest-rejected",
+        "status": "rejected"
+      },
+      {
+        "error_code": "retrieval_durable_provenance",
+        "probe_id": "deep_research_completed-missing-resume_receipt_path-rejected",
+        "status": "rejected"
+      },
+      {
+        "error_code": "retrieval_durable_provenance",
+        "probe_id": "deep_research_completed-missing-resume_receipt_digest-rejected",
+        "status": "rejected"
+      },
+      {
+        "error_code": "retrieval_durable_query_binding",
+        "probe_id": "deep_research_completed-query-digest-mismatch-rejected",
+        "status": "rejected"
+      },
+      {
+        "error_code": "retrieval_durable_binding",
+        "probe_id": "deep_research_completed-platform-export-digest-mismatch-rejected",
+        "status": "rejected"
+      },
+      {
+        "error_code": "retrieval_durable_binding",
+        "probe_id": "deep_research_completed-platform-export-identity-mismatch-rejected",
+        "status": "rejected"
+      },
+      {
+        "error_code": "retrieval_durable_binding",
+        "probe_id": "deep-research-reused-handoff-as-return-rejected",
+        "status": "rejected"
+      },
+      {
+        "error_code": "retrieval_durable_binding",
+        "probe_id": "deep-research-fake-resume-edge-rejected",
+        "status": "rejected"
+      },
+      {
+        "error_code": "retrieval_durable_provenance",
+        "probe_id": "deep_research_inactive_control-missing-platform_receipt_or_export_id-rejected",
+        "status": "rejected"
+      },
+      {
+        "error_code": "retrieval_durable_provenance",
+        "probe_id": "deep_research_inactive_control-missing-platform_receipt_or_export_path-rejected",
+        "status": "rejected"
+      },
+      {
+        "error_code": "retrieval_durable_provenance",
+        "probe_id": "deep_research_inactive_control-missing-platform_receipt_or_export_digest-rejected",
+        "status": "rejected"
+      },
+      {
+        "error_code": "retrieval_durable_provenance",
+        "probe_id": "deep_research_inactive_control-missing-query_or_request_digest-rejected",
+        "status": "rejected"
+      },
+      {
+        "error_code": "retrieval_durable_provenance",
+        "probe_id": "deep_research_inactive_control-missing-capability_state_export_path-rejected",
+        "status": "rejected"
+      },
+      {
+        "error_code": "retrieval_durable_provenance",
+        "probe_id": "deep_research_inactive_control-missing-capability_state_export_digest-rejected",
+        "status": "rejected"
+      },
+      {
+        "error_code": "retrieval_durable_provenance",
+        "probe_id": "deep_research_inactive_control-missing-continuation_artifact_digest-rejected",
+        "status": "rejected"
+      },
+      {
+        "error_code": "retrieval_durable_query_binding",
+        "probe_id": "deep_research_inactive_control-query-digest-mismatch-rejected",
+        "status": "rejected"
+      },
+      {
+        "error_code": "retrieval_durable_binding",
+        "probe_id": "deep_research_inactive_control-platform-export-digest-mismatch-rejected",
+        "status": "rejected"
+      },
+      {
+        "error_code": "retrieval_durable_binding",
+        "probe_id": "deep_research_inactive_control-platform-export-identity-mismatch-rejected",
+        "status": "rejected"
+      },
+      {
+        "error_code": "retrieval_durable_binding",
+        "probe_id": "deep-research-inactive-capability-digest-mismatch-rejected",
+        "status": "rejected"
+      },
+      {
+        "error_code": "retrieval_durable_provenance",
+        "probe_id": "search-missing-platform_receipt_or_export_id-rejected",
+        "status": "rejected"
+      },
+      {
+        "error_code": "retrieval_durable_provenance",
+        "probe_id": "search-missing-platform_receipt_or_export_path-rejected",
+        "status": "rejected"
+      },
+      {
+        "error_code": "retrieval_durable_provenance",
+        "probe_id": "search-missing-platform_receipt_or_export_digest-rejected",
+        "status": "rejected"
+      },
+      {
+        "error_code": "retrieval_durable_provenance",
+        "probe_id": "search-missing-query_or_request_digest-rejected",
+        "status": "rejected"
+      },
+      {
+        "error_code": "retrieval_durable_provenance",
+        "probe_id": "search-missing-raw_search_output_path-rejected",
+        "status": "rejected"
+      },
+      {
+        "error_code": "retrieval_durable_provenance",
+        "probe_id": "search-missing-raw_search_output_digest-rejected",
+        "status": "rejected"
+      },
+      {
+        "error_code": "retrieval_durable_provenance",
+        "probe_id": "search-missing-citation_export_path-rejected",
+        "status": "rejected"
+      },
+      {
+        "error_code": "retrieval_durable_provenance",
+        "probe_id": "search-missing-citation_export_digest-rejected",
+        "status": "rejected"
+      },
+      {
+        "error_code": "retrieval_durable_query_binding",
+        "probe_id": "search-query-digest-mismatch-rejected",
+        "status": "rejected"
+      },
+      {
+        "error_code": "retrieval_durable_binding",
+        "probe_id": "search-platform-export-digest-mismatch-rejected",
+        "status": "rejected"
+      },
+      {
+        "error_code": "retrieval_durable_binding",
+        "probe_id": "search-platform-export-identity-mismatch-rejected",
+        "status": "rejected"
+      },
+      {
+        "error_code": "retrieval_durable_binding",
+        "probe_id": "search-raw-output-digest-mismatch-rejected",
+        "status": "rejected"
+      }
+    ],
+    "durable_verification_missing": [
+      "authenticated_platform_export",
+      "deep_research_authoritative_source_traceability",
+      "deep_research_session_run_and_event_receipts",
+      "evidence_artifact_path_digest_bindings",
+      "executable_provider_verifier_adapter",
+      "provider_attested_source_and_citation_provenance",
+      "provider_run_completed_receipt",
+      "source_commit_and_plugin_tree_identity"
+    ],
+    "freshness_days": 90,
+    "observed_unverified_receipts": 4,
+    "observed_unverified_receipts_by_kind": {
+      "deep_research_completed": 0,
+      "deep_research_inactive_control": 1,
+      "search": 3
+    },
+    "pending_receipts": 2,
+    "provider_verifier_adapter_count": 0,
+    "receipt_results": [
+      {
+        "artifact_digests": [
+          "sha256:945ba3939c5c1ef3dffc8a3625e0ca80a59b542703d865ac1131e9e00c7ff85c"
+        ],
+        "artifact_paths": [
+          "tests/openai_phase8/retrieval-artifacts/search-current-consort-2025.yaml"
+        ],
+        "captured_at": "2026-07-12T06:15:04+00:00",
+        "evidence_status": "observed_unverified",
+        "expected_completion_status": "search_verified",
+        "kind": "search",
+        "opened_source_count": 2,
+        "plugin_version": "0.6.0-preview.1",
+        "receipt_id": "ph8-search-current-001",
+        "task_id": "019f506d-01cc-7fa0-9839-db8f494b5ab4"
+      },
+      {
+        "artifact_digests": [
+          "sha256:c88766d31352f62a0cc03880b32e8e07648630ff1f15d6a5fdb905bd469a0d0b"
+        ],
+        "artifact_paths": [
+          "tests/openai_phase8/retrieval-artifacts/search-exact-ich-e9-r1.yaml"
+        ],
+        "captured_at": "2026-07-12T06:15:04+00:00",
+        "evidence_status": "observed_unverified",
+        "expected_completion_status": "search_verified",
+        "kind": "search",
+        "opened_source_count": 2,
+        "plugin_version": "0.6.0-preview.1",
+        "receipt_id": "ph8-search-exact-001",
+        "task_id": "019f506d-01cc-7fa0-9839-db8f494b5ab4"
+      },
+      {
+        "artifact_digests": [
+          "sha256:c1ae267a031ecaf14a70356c084f8a6e1b139e842b7082b719d1f285ab59e3fa"
+        ],
+        "artifact_paths": [
+          "tests/openai_phase8/retrieval-artifacts/search-narrow-k13.yaml"
+        ],
+        "captured_at": "2026-07-12T06:15:04+00:00",
+        "evidence_status": "observed_unverified",
+        "expected_completion_status": "search_verified",
+        "kind": "search",
+        "opened_source_count": 2,
+        "plugin_version": "0.6.0-preview.1",
+        "receipt_id": "ph8-search-narrow-academic-001",
+        "task_id": "019f506d-01cc-7fa0-9839-db8f494b5ab4"
+      },
+      {
+        "artifact_digests": [],
+        "artifact_paths": [],
+        "captured_at": null,
+        "evidence_status": "pending_live_evidence",
+        "expected_completion_status": "deep_research_cycle_completed",
+        "kind": "deep_research_completed",
+        "opened_source_count": 0,
+        "plugin_version": null,
+        "receipt_id": "ph8-deep-research-cycle-001",
+        "task_id": null
+      },
+      {
+        "artifact_digests": [],
+        "artifact_paths": [],
+        "captured_at": null,
+        "evidence_status": "pending_live_evidence",
+        "expected_completion_status": "deep_research_cycle_completed",
+        "kind": "deep_research_completed",
+        "opened_source_count": 0,
+        "plugin_version": null,
+        "receipt_id": "ph8-deep-research-cycle-002",
+        "task_id": null
+      },
+      {
+        "artifact_digests": [
+          "sha256:18f6523340216d12c49fa2578e2da162f211a5c82f33b89d77ac08521a14609d"
+        ],
+        "artifact_paths": [
+          "tests/openai_phase8/retrieval-artifacts/deep-research-inactive-continuation.yaml"
+        ],
+        "captured_at": "2026-07-12T06:15:04+00:00",
+        "evidence_status": "observed_unverified",
+        "expected_completion_status": "deep_research_handoff_required",
+        "kind": "deep_research_inactive_control",
+        "opened_source_count": 0,
+        "plugin_version": "0.6.0-preview.1",
+        "receipt_id": "ph8-deep-research-inactive-001",
+        "task_id": "019f506d-01cc-7fa0-9839-db8f494b5ab4"
+      }
+    ],
+    "repository_authored_files_count_as_verified": false,
+    "required_distribution": {
+      "deep_research_completed": 2,
+      "deep_research_inactive_control": 1,
+      "search": 3
+    },
+    "required_receipt_count": 6,
+    "source_identity_binding_required": [
+      "source_commit",
+      "manifest_digest",
+      "registry_digest",
+      "skill_tree_digest"
+    ],
+    "stale_receipts": 0,
+    "status": "pending_live_evidence",
+    "synthetic_provider_override_self_test": {
+      "counts_as_runtime_evidence": false,
+      "ephemeral_temp_root_required": true,
+      "status": "passed"
+    }
+  },
+  "schema_version": 1,
+  "validator_self_tests": {
+    "counts_as_runtime_evidence": false,
+    "future_timestamp_rejected": true,
+    "older_than_90_days_classified_stale": true,
+    "source_identity_mutation_rejected": true
+  }
+}

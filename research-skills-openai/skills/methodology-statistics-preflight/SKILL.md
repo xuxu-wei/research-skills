@@ -1,6 +1,6 @@
 ---
 name: methodology-statistics-preflight
-description: "Independently preflight research designs, ideas, proposals, protocols, or analysis plans for endpoint clarity, data-method fit, feasibility blockers, and minimal repair routes."
+description: "Independently preflight a frozen research plan for endpoint, data-method, and feasibility problems."
 ---
 # methodology-statistics-preflight
 

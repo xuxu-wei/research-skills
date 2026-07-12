@@ -24,13 +24,36 @@
   ],
   "live_forward_test_receipts": [
     {
+      "applicability": "historical_only_incomplete_identity",
+      "captured_manifest_sha256": null,
+      "captured_plugin_version": "0.5.0-preview.1",
+      "captured_receipt_schema_sha256": null,
+      "captured_registry_schema_version": null,
+      "captured_skills_tree_sha256": "2409b09f94a51228ce4e58472a744c5ede0e0be9275def825fac81e2f0f2a45e",
+      "captured_workflow_registry_sha256": null,
       "contract_assessment": "outcome_consistent_valid_gate_stop",
+      "current_manifest_sha256": "2010071db21776a63498c9813d9ea401574bd44dda157eb55ec25d6ca25a0809",
+      "current_plugin_version": "0.6.0-preview.1",
+      "current_receipt_schema_sha256": null,
+      "current_registry_schema_version": 5,
+      "current_skills_tree_sha256": "6e024f278845c3397518994335ba76f7d7fe07917fcb1fccbb0270153a6ff515",
+      "current_workflow_registry_sha256": "44e2c098eb6f3ab020189dec025a833be15e887691bd4b33a1c04c6b36205c8f",
       "evaluator_instances": [
         "/root/evaluator_r1",
         "/root/evaluator_r2_retry"
       ],
       "evidence_class": "self_attested_live_output_snapshot",
       "final_state": "blocked",
+      "identity_complete": false,
+      "mismatched_identity_components": [
+        "skills_tree"
+      ],
+      "missing_identity_components": [
+        "manifest",
+        "workflow_registry",
+        "registry_schema_version",
+        "receipt_schema"
+      ],
       "orchestrator_instance": "codex-cli:019f5310-d177-7872-826f-9cb0619ba50b",
       "outcome": "blocked_at_valid_gate",
       "panel_instances": {
@@ -45,7 +68,20 @@
       "workflow_id": "RID-K57-20260712-01"
     },
     {
+      "applicability": "historical_only_incomplete_identity",
+      "captured_manifest_sha256": null,
+      "captured_plugin_version": "0.5.0-preview.1",
+      "captured_receipt_schema_sha256": null,
+      "captured_registry_schema_version": null,
+      "captured_skills_tree_sha256": "2409b09f94a51228ce4e58472a744c5ede0e0be9275def825fac81e2f0f2a45e",
+      "captured_workflow_registry_sha256": null,
       "contract_assessment": "incomplete_panel_qualification",
+      "current_manifest_sha256": "2010071db21776a63498c9813d9ea401574bd44dda157eb55ec25d6ca25a0809",
+      "current_plugin_version": "0.6.0-preview.1",
+      "current_receipt_schema_sha256": null,
+      "current_registry_schema_version": 5,
+      "current_skills_tree_sha256": "6e024f278845c3397518994335ba76f7d7fe07917fcb1fccbb0270153a6ff515",
+      "current_workflow_registry_sha256": "44e2c098eb6f3ab020189dec025a833be15e887691bd4b33a1c04c6b36205c8f",
       "evaluator_instances": [
         "/root/proposal_eval_v1",
         "/root/proposal_eval_v2",
@@ -53,6 +89,16 @@
       ],
       "evidence_class": "self_attested_live_output_snapshot",
       "final_state": "independent_review_pending",
+      "identity_complete": false,
+      "mismatched_identity_components": [
+        "skills_tree"
+      ],
+      "missing_identity_components": [
+        "manifest",
+        "workflow_registry",
+        "registry_schema_version",
+        "receipt_schema"
+      ],
       "orchestrator_instance": "codex-cli:019f5306-0b38-75d0-834b-ca6fec110b57",
       "outcome": "independent_review_pending",
       "panel_instances": {
@@ -67,13 +113,36 @@
       "workflow_id": "TELE-HF90-STD-SAP-001"
     },
     {
+      "applicability": "historical_only_incomplete_identity",
+      "captured_manifest_sha256": null,
+      "captured_plugin_version": "0.5.0-preview.1",
+      "captured_receipt_schema_sha256": null,
+      "captured_registry_schema_version": null,
+      "captured_skills_tree_sha256": "2409b09f94a51228ce4e58472a744c5ede0e0be9275def825fac81e2f0f2a45e",
+      "captured_workflow_registry_sha256": null,
       "contract_assessment": "outcome_consistent_valid_gate_stop",
+      "current_manifest_sha256": "2010071db21776a63498c9813d9ea401574bd44dda157eb55ec25d6ca25a0809",
+      "current_plugin_version": "0.6.0-preview.1",
+      "current_receipt_schema_sha256": null,
+      "current_registry_schema_version": 5,
+      "current_skills_tree_sha256": "6e024f278845c3397518994335ba76f7d7fe07917fcb1fccbb0270153a6ff515",
+      "current_workflow_registry_sha256": "44e2c098eb6f3ab020189dec025a833be15e887691bd4b33a1c04c6b36205c8f",
       "evaluator_instances": [
         "article-evaluator-telehf90-v001-7f3c",
         "eval-v002-fresh-telehf90-20260712"
       ],
       "evidence_class": "self_attested_live_output_snapshot",
       "final_state": "stopped",
+      "identity_complete": false,
+      "mismatched_identity_components": [
+        "skills_tree"
+      ],
+      "missing_identity_components": [
+        "manifest",
+        "workflow_registry",
+        "registry_schema_version",
+        "receipt_schema"
+      ],
       "orchestrator_instance": "codex-cli:019f52fa-e3f5-74d2-b1b2-e0e84c20479c",
       "outcome": "stopped_at_valid_gate",
       "panel_instances": {},
@@ -84,7 +153,20 @@
       "workflow_id": "wf-telehf90-20260712"
     },
     {
+      "applicability": "historical_only_incomplete_identity",
+      "captured_manifest_sha256": null,
+      "captured_plugin_version": "0.5.0-preview.1",
+      "captured_receipt_schema_sha256": null,
+      "captured_registry_schema_version": null,
+      "captured_skills_tree_sha256": "2409b09f94a51228ce4e58472a744c5ede0e0be9275def825fac81e2f0f2a45e",
+      "captured_workflow_registry_sha256": null,
       "contract_assessment": "generic_outlet_caps_below_human_signoff",
+      "current_manifest_sha256": "2010071db21776a63498c9813d9ea401574bd44dda157eb55ec25d6ca25a0809",
+      "current_plugin_version": "0.6.0-preview.1",
+      "current_receipt_schema_sha256": null,
+      "current_registry_schema_version": 5,
+      "current_skills_tree_sha256": "6e024f278845c3397518994335ba76f7d7fe07917fcb1fccbb0270153a6ff515",
+      "current_workflow_registry_sha256": "44e2c098eb6f3ab020189dec025a833be15e887691bd4b33a1c04c6b36205c8f",
       "evaluator_instances": [
         "/root/evaluator_v001",
         "/root/evaluator_v002",
@@ -92,6 +174,16 @@
       ],
       "evidence_class": "self_attested_live_output_snapshot",
       "final_state": "stopped",
+      "identity_complete": false,
+      "mismatched_identity_components": [
+        "skills_tree"
+      ],
+      "missing_identity_components": [
+        "manifest",
+        "workflow_registry",
+        "registry_schema_version",
+        "receipt_schema"
+      ],
       "orchestrator_instance": "codex-cli:019f5302-7acb-7e90-98e7-48b3590b45c3",
       "outcome": "stopped_at_valid_gate",
       "panel_instances": {
@@ -104,6 +196,68 @@
       "raw_sha256": "d9eea2da397d8619f8a4753c58b51f6b1662ebe21524177e04efe84011887442",
       "workflow": "perspective",
       "workflow_id": "PVO-20260712-001"
+    }
+  ],
+  "live_identity_negative_guard_results": [
+    {
+      "applicability": "historical_only_identity_mismatch",
+      "case_id": "manifest-digest-mismatch",
+      "status": "rejected_as_expected"
+    },
+    {
+      "applicability": "historical_only_incomplete_identity",
+      "case_id": "missing-manifest-is-incomplete",
+      "status": "rejected_as_expected"
+    },
+    {
+      "applicability": "historical_only_incomplete_identity",
+      "case_id": "missing-receipt_schema-is-incomplete",
+      "status": "rejected_as_expected"
+    },
+    {
+      "applicability": "historical_only_incomplete_identity",
+      "case_id": "missing-registry_schema_version-is-incomplete",
+      "status": "rejected_as_expected"
+    },
+    {
+      "applicability": "historical_only_incomplete_identity",
+      "case_id": "missing-skills_tree-is-incomplete",
+      "status": "rejected_as_expected"
+    },
+    {
+      "applicability": "historical_only_incomplete_identity",
+      "case_id": "missing-workflow_registry-is-incomplete",
+      "status": "rejected_as_expected"
+    },
+    {
+      "applicability": "historical_only_identity_mismatch",
+      "case_id": "receipt-schema-digest-mismatch",
+      "status": "rejected_as_expected"
+    },
+    {
+      "applicability": "historical_only_identity_mismatch",
+      "case_id": "registry-schema-version-mismatch",
+      "status": "rejected_as_expected"
+    },
+    {
+      "applicability": "historical_only_identity_mismatch",
+      "case_id": "skills-tree-file-count-mismatch",
+      "status": "rejected_as_expected"
+    },
+    {
+      "applicability": "historical_only_incomplete_identity",
+      "case_id": "skills-tree-only-is-incomplete",
+      "status": "rejected_as_expected"
+    },
+    {
+      "applicability": "historical_only_identity_mismatch",
+      "case_id": "skills_tree-digest-mismatch",
+      "status": "rejected_as_expected"
+    },
+    {
+      "applicability": "historical_only_identity_mismatch",
+      "case_id": "workflow_registry-digest-mismatch",
+      "status": "rejected_as_expected"
     }
   ],
   "negative_guard_results": [
@@ -249,7 +403,7 @@
     },
     {
       "case_id": "unsupported-entry-mode-is-explicit",
-      "error_code": "unsupported_scenario_entry_mode",
+      "error_code": "entry_mode",
       "status": "rejected_as_expected"
     },
     {
@@ -303,11 +457,11 @@
       "status": "rejected_as_expected"
     }
   ],
-  "plugin_version": "0.5.0-preview.2",
+  "plugin_version": "0.6.0-preview.1",
   "registry_schema_version": 5,
   "retrieval_receipts": {
     "deep_research": "deep_research_handoff_required",
-    "targeted_search": "targeted_search_verified"
+    "targeted_search": "self_attested_search_snapshot_validated"
   },
   "scenario_results": [
     {
@@ -327,26 +481,26 @@
             "latest_qualifying_evaluation": null,
             "next_route": "idea-evaluator",
             "pending_edge": "research-idea-orchestrator -> idea-evaluator",
-            "plugin_version": "0.5.0-preview.2",
+            "plugin_version": "0.6.0-preview.1",
             "round_id": "round-001",
             "runtime_status": "context_handoff_required",
             "suspended_workflow_state": "artifact_frozen",
             "unresolved_finding_ids": [],
             "workflow_id": "wf-phase4-idea-001"
           },
-          "initial_load": 14340,
+          "initial_load": 13879,
           "interpretation": "conservative_initial-load_proxy_not_model_token_accounting",
           "measurement_unit": "characters",
           "minimum_working_reserve": 4000,
-          "remaining": 1660
+          "remaining": 2121
         },
         "standard_32k": {
           "behavior": "continue_current_phase",
-          "initial_load": 14340,
+          "initial_load": 13879,
           "interpretation": "conservative_initial-load_proxy_not_model_token_accounting",
           "measurement_unit": "characters",
           "minimum_working_reserve": 16000,
-          "remaining": 17660
+          "remaining": 18121
         }
       },
       "dissent_ids": [
@@ -826,26 +980,26 @@
             "latest_qualifying_evaluation": null,
             "next_route": "proposal-evaluator",
             "pending_edge": "proposal-orchestrator -> proposal-evaluator",
-            "plugin_version": "0.5.0-preview.2",
+            "plugin_version": "0.6.0-preview.1",
             "round_id": "round-001",
             "runtime_status": "context_handoff_required",
             "suspended_workflow_state": "artifact_frozen",
             "unresolved_finding_ids": [],
             "workflow_id": "wf-phase4-proposal-001"
           },
-          "initial_load": 14954,
+          "initial_load": 13083,
           "interpretation": "conservative_initial-load_proxy_not_model_token_accounting",
           "measurement_unit": "characters",
           "minimum_working_reserve": 4000,
-          "remaining": 1046
+          "remaining": 2917
         },
         "standard_32k": {
           "behavior": "continue_current_phase",
-          "initial_load": 14954,
+          "initial_load": 13083,
           "interpretation": "conservative_initial-load_proxy_not_model_token_accounting",
           "measurement_unit": "characters",
           "minimum_working_reserve": 16000,
-          "remaining": 17046
+          "remaining": 18917
         }
       },
       "dissent_ids": [
@@ -1451,26 +1605,26 @@
             "latest_qualifying_evaluation": null,
             "next_route": "article-evaluator",
             "pending_edge": "article-orchestrator -> article-evaluator",
-            "plugin_version": "0.5.0-preview.2",
+            "plugin_version": "0.6.0-preview.1",
             "round_id": "round-001",
             "runtime_status": "context_handoff_required",
             "suspended_workflow_state": "artifact_frozen",
             "unresolved_finding_ids": [],
             "workflow_id": "wf-phase4-article-001"
           },
-          "initial_load": 15704,
+          "initial_load": 13873,
           "interpretation": "conservative_initial-load_proxy_not_model_token_accounting",
           "measurement_unit": "characters",
           "minimum_working_reserve": 4000,
-          "remaining": 296
+          "remaining": 2127
         },
         "standard_32k": {
           "behavior": "continue_current_phase",
-          "initial_load": 15704,
+          "initial_load": 13873,
           "interpretation": "conservative_initial-load_proxy_not_model_token_accounting",
           "measurement_unit": "characters",
           "minimum_working_reserve": 16000,
-          "remaining": 16296
+          "remaining": 18127
         }
       },
       "dissent_ids": [
@@ -2214,26 +2368,26 @@
             "latest_qualifying_evaluation": null,
             "next_route": "perspective-evaluator",
             "pending_edge": "perspective-orchestrator -> perspective-evaluator",
-            "plugin_version": "0.5.0-preview.2",
+            "plugin_version": "0.6.0-preview.1",
             "round_id": "round-001",
             "runtime_status": "context_handoff_required",
             "suspended_workflow_state": "artifact_frozen",
             "unresolved_finding_ids": [],
             "workflow_id": "wf-phase4-perspective-001"
           },
-          "initial_load": 15534,
+          "initial_load": 13683,
           "interpretation": "conservative_initial-load_proxy_not_model_token_accounting",
           "measurement_unit": "characters",
           "minimum_working_reserve": 4000,
-          "remaining": 466
+          "remaining": 2317
         },
         "standard_32k": {
           "behavior": "continue_current_phase",
-          "initial_load": 15534,
+          "initial_load": 13683,
           "interpretation": "conservative_initial-load_proxy_not_model_token_accounting",
           "measurement_unit": "characters",
           "minimum_working_reserve": 16000,
-          "remaining": 16466
+          "remaining": 18317
         }
       },
       "dissent_ids": [
@@ -2993,7 +3147,20 @@
     "automatic_external_submission": false,
     "final_state": "human_signoff_required",
     "finding_routes_verified": 5,
+    "live_current_identity_compatible_receipts": 0,
+    "live_identity_negative_guards_rejected": 12,
     "live_raw_state_claims_corrected": 2,
+    "live_receipt_applicability": "historical_only_incomplete_identity",
+    "live_receipt_identity_complete": false,
+    "live_receipt_identity_mismatched_components": [
+      "skills_tree"
+    ],
+    "live_receipt_identity_missing_components": [
+      "manifest",
+      "workflow_registry",
+      "registry_schema_version",
+      "receipt_schema"
+    ],
     "live_workflows_blocked_at_valid_gate": 1,
     "live_workflows_independent_review_pending": 1,
     "live_workflows_reached_human_signoff_gate": 0,

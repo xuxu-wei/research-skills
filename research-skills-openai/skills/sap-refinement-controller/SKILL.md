@@ -1,6 +1,6 @@
 ---
 name: sap-refinement-controller
-description: "Plan and control targeted Statistical Analysis Plan revision after independent evaluation, route writing to sap-writer, preserve lineage, and require fresh re-evaluation."
+description: "Plan targeted SAP revision after evaluation, route writing to sap-writer, preserve lineage, and require fresh evaluation."
 ---
 # sap-refinement-controller
 

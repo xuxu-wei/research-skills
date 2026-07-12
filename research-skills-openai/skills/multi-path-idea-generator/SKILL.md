@@ -1,6 +1,6 @@
 ---
 name: multi-path-idea-generator
-description: "Generate a diverse, non-duplicative set of research ideas from approved context and opportunity maps using selected generation paths; do not evaluate or rank candidates."
+description: "Generate a diverse, non-duplicative research-idea set from approved context and opportunity maps; do not evaluate or rank it."
 ---
 # Multi-Path Idea Generator
 

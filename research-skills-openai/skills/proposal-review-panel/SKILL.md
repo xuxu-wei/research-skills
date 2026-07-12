@@ -1,6 +1,6 @@
 ---
 name: proposal-review-panel
-description: "Independently review a frozen proposal from one assigned panel role. Use after proposal evaluation passes or for an explicitly requested early mock/internal advisory review."
+description: "Independently review a frozen proposal from one assigned panel role after evaluation or in an early advisory review."
 ---
 # proposal-review-panel
 
