@@ -59,7 +59,6 @@ jobs:
       contents: read
       deployments: read
     env:
-      CONSUMER_RESULT: ${{ runner.temp }}/openai-preview-accepted-consumer-result.json
       SOURCE_COMMIT: ${{ github.event.workflow_run.head_sha }}
       SOURCE_RUN_ATTEMPT: ${{ github.event.workflow_run.run_attempt }}
       SOURCE_RUN_ID: ${{ github.event.workflow_run.id }}
@@ -76,6 +75,7 @@ jobs:
           python-version: "3.12"
       - name: Independently verify the protected run and accepted summary
         env:
+          CONSUMER_RESULT: ${{ runner.temp }}/openai-preview-accepted-consumer-result.json
           GH_TOKEN: ${{ github.token }}
         run: |
           python scripts/verify_openai_preview_accepted_summary.py \

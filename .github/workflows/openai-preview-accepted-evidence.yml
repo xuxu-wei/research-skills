@@ -114,23 +114,6 @@ jobs:
     permissions:
       actions: read
       contents: read
-    env:
-      BUNDLE_ROOT: ${{ runner.temp }}/openai-preview-accepted-bundles
-      CANDIDATE_ASSET_DIR: ${{ runner.temp }}/openai-preview-candidate-assets
-      CURRENT_ASSET_DIR: ${{ runner.temp }}/openai-preview-accepted-bundles/current-release
-      ISOLATED_WORKSPACE: ${{ runner.temp }}/accepted-workspace
-      RELEASE_RUNNER_WORKSPACE: ${{ runner.temp }}/accepted-release-runner-workspace
-      TRUSTED_WORKSPACE_HASH: ${{ runner.temp }}/trusted-workspace.sha256
-      EXPECTED_IDENTITY: ${{ runner.temp }}/openai-preview-accepted-source-identity.json
-      EVIDENCE_RELEASE_JSON: ${{ runner.temp }}/openai-preview-evidence-release.json
-      CANDIDATE_RELEASE_JSON: ${{ runner.temp }}/openai-preview-candidate-release.json
-      EVIDENCE_ASSETS_JSON: ${{ runner.temp }}/openai-preview-evidence-assets.json
-      CANDIDATE_ASSETS_JSON: ${{ runner.temp }}/openai-preview-candidate-assets.json
-      EVIDENCE_COMMIT_FILE: ${{ runner.temp }}/openai-preview-evidence-commit.txt
-      CANDIDATE_COMMIT_FILE: ${{ runner.temp }}/openai-preview-candidate-commit.txt
-      RELEASE_RUNNER_RESULT: ${{ runner.temp }}/openai-preview-release-runner-result.json
-      PHASE78_BRIDGE_RESULT: ${{ runner.temp }}/openai-preview-phase78-bridge-result.json
-      ACCEPTED_SUMMARY: ${{ runner.temp }}/openai-preview-accepted-summary/openai-preview-accepted-summary.json
     steps:
       - name: Check out the fixed trusted default-branch commit
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
@@ -145,6 +128,28 @@ jobs:
           python-version: "3.12"
       - name: Install validator dependency
         run: python -m pip install PyYAML==6.0.2
+      - name: Bind runner-temp paths for subsequent steps
+        shell: bash
+        run: |
+          set -euo pipefail
+          {
+            printf 'BUNDLE_ROOT=%s\n' "$RUNNER_TEMP/openai-preview-accepted-bundles"
+            printf 'CANDIDATE_ASSET_DIR=%s\n' "$RUNNER_TEMP/openai-preview-candidate-assets"
+            printf 'CURRENT_ASSET_DIR=%s\n' "$RUNNER_TEMP/openai-preview-accepted-bundles/current-release"
+            printf 'ISOLATED_WORKSPACE=%s\n' "$RUNNER_TEMP/accepted-workspace"
+            printf 'RELEASE_RUNNER_WORKSPACE=%s\n' "$RUNNER_TEMP/accepted-release-runner-workspace"
+            printf 'TRUSTED_WORKSPACE_HASH=%s\n' "$RUNNER_TEMP/trusted-workspace.sha256"
+            printf 'EXPECTED_IDENTITY=%s\n' "$RUNNER_TEMP/openai-preview-accepted-source-identity.json"
+            printf 'EVIDENCE_RELEASE_JSON=%s\n' "$RUNNER_TEMP/openai-preview-evidence-release.json"
+            printf 'CANDIDATE_RELEASE_JSON=%s\n' "$RUNNER_TEMP/openai-preview-candidate-release.json"
+            printf 'EVIDENCE_ASSETS_JSON=%s\n' "$RUNNER_TEMP/openai-preview-evidence-assets.json"
+            printf 'CANDIDATE_ASSETS_JSON=%s\n' "$RUNNER_TEMP/openai-preview-candidate-assets.json"
+            printf 'EVIDENCE_COMMIT_FILE=%s\n' "$RUNNER_TEMP/openai-preview-evidence-commit.txt"
+            printf 'CANDIDATE_COMMIT_FILE=%s\n' "$RUNNER_TEMP/openai-preview-candidate-commit.txt"
+            printf 'RELEASE_RUNNER_RESULT=%s\n' "$RUNNER_TEMP/openai-preview-release-runner-result.json"
+            printf 'PHASE78_BRIDGE_RESULT=%s\n' "$RUNNER_TEMP/openai-preview-phase78-bridge-result.json"
+            printf 'ACCEPTED_SUMMARY=%s\n' "$RUNNER_TEMP/openai-preview-accepted-summary/openai-preview-accepted-summary.json"
+          } >> "$GITHUB_ENV"
       - name: Hash the immutable trusted checkout
         env:
           DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}

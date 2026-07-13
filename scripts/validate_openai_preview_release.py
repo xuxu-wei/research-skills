@@ -1424,6 +1424,11 @@ def main(
                 "openai-preview-accepted-summary-${{ github.run_id }}-${{ github.run_attempt }}",
                 "non-overwriting accepted-state summary artifact",
             ),
+            (
+                "Bind runner-temp paths for subsequent steps",
+                "runner-allocated temporary path binding",
+            ),
+            ('} >> "$GITHUB_ENV"', "subsequent-step environment export"),
             ("git clone --no-hardlinks", "isolated trusted workspace"),
             ("data.get(\"immutable\") is True", "immutable Release API check"),
             (
@@ -1474,6 +1479,10 @@ def main(
             (
                 "verify_openai_preview_accepted_summary.py",
                 "independent accepted-summary verifier",
+            ),
+            (
+                "CONSUMER_RESULT: ${{ runner.temp }}/openai-preview-accepted-consumer-result.json",
+                "step-scoped runner-temp result path",
             ),
             ("--consumer-run-attempt", "consumer attempt lineage"),
             (

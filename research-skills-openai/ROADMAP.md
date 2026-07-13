@@ -475,7 +475,7 @@ Verification to date:
   ambiguity. All three validation workspaces receive a final immutability or
   allowlist proof before the non-overwriting summary is uploaded as the final
   step. The producer accepted-summary suite contains 41 guards; the independent
-  consumer suite contains 89 guards; workflow invariants contain 46 mutation
+  consumer suite contains 89 guards; workflow invariants contain 58 mutation
   guards, and a real first-pass-summary-to-ZIP-to-callback round trip passes
   locally. Producer schema v2 marks its result `producer_internal`, requires an
   external consumer, and cannot itself close Phase 7-8. The current first-pass

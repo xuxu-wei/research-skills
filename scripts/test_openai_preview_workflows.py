@@ -24,6 +24,7 @@ CONSUMER_PATH = (
     / "openai-preview-accepted-summary-consumer.yml"
 )
 PINNED_ACTION_RE = re.compile(r"^[^@\s]+@[0-9a-f]{40}$")
+RUNNER_CONTEXT_RE = re.compile(r"\brunner\b", re.IGNORECASE)
 
 
 class WorkflowViolation(AssertionError):
@@ -523,16 +524,58 @@ def validate_accepted(document: dict[str, Any], text: str) -> None:
         "accepted_secret_scope",
         "the built-in read token may enter only release identity and asset download steps",
     )
-    accepted_env = accepted.get("env", {})
     require(
-        accepted_env.get("BUNDLE_ROOT")
-        == "${{ runner.temp }}/openai-preview-accepted-bundles"
-        and accepted_env.get("CURRENT_ASSET_DIR")
-        == "${{ runner.temp }}/openai-preview-accepted-bundles/current-release"
-        and accepted_env.get("CANDIDATE_ASSET_DIR")
-        == "${{ runner.temp }}/openai-preview-candidate-assets",
+        RUNNER_CONTEXT_RE.search(str(document.get("env", {}))) is None
+        and all(
+            RUNNER_CONTEXT_RE.search(str(job.get("env", {}))) is None
+            for job in raw_jobs.values()
+        ),
+        "accepted_runner_temp_scope",
+        "runner context is unavailable in workflow/job env and must be bound by a runner step",
+    )
+    path_binding = next(
+        (
+            item
+            for item in accepted_steps
+            if item.get("name") == "Bind runner-temp paths for subsequent steps"
+        ),
+        None,
+    )
+    require(
+        isinstance(path_binding, dict)
+        and path_binding.get("shell") == "bash",
         "accepted_asset_isolation",
-        "candidate assets must have a fixed directory outside the evidence bundle root",
+        "runner-temp path binding step",
+    )
+    path_binding_run = str(path_binding.get("run", ""))
+    required_runner_paths = {
+        "BUNDLE_ROOT": "openai-preview-accepted-bundles",
+        "CANDIDATE_ASSET_DIR": "openai-preview-candidate-assets",
+        "CURRENT_ASSET_DIR": "openai-preview-accepted-bundles/current-release",
+        "ISOLATED_WORKSPACE": "accepted-workspace",
+        "RELEASE_RUNNER_WORKSPACE": "accepted-release-runner-workspace",
+        "TRUSTED_WORKSPACE_HASH": "trusted-workspace.sha256",
+        "EXPECTED_IDENTITY": "openai-preview-accepted-source-identity.json",
+        "EVIDENCE_RELEASE_JSON": "openai-preview-evidence-release.json",
+        "CANDIDATE_RELEASE_JSON": "openai-preview-candidate-release.json",
+        "EVIDENCE_ASSETS_JSON": "openai-preview-evidence-assets.json",
+        "CANDIDATE_ASSETS_JSON": "openai-preview-candidate-assets.json",
+        "EVIDENCE_COMMIT_FILE": "openai-preview-evidence-commit.txt",
+        "CANDIDATE_COMMIT_FILE": "openai-preview-candidate-commit.txt",
+        "RELEASE_RUNNER_RESULT": "openai-preview-release-runner-result.json",
+        "PHASE78_BRIDGE_RESULT": "openai-preview-phase78-bridge-result.json",
+        "ACCEPTED_SUMMARY": "openai-preview-accepted-summary/openai-preview-accepted-summary.json",
+    }
+    require(
+        "set -euo pipefail" in path_binding_run
+        and '} >> "$GITHUB_ENV"' in path_binding_run
+        and all(
+            f"printf '{name}=%s\\n' \"$RUNNER_TEMP/{suffix}\""
+            in path_binding_run
+            for name, suffix in required_runner_paths.items()
+        ),
+        "accepted_asset_isolation",
+        "runner paths must be fixed after runner allocation and keep candidate assets outside the evidence bundle root",
     )
 
     checkout = next(
@@ -555,6 +598,10 @@ def validate_accepted(document: dict[str, Any], text: str) -> None:
     )
 
     ordered_names = [
+        "Check out the fixed trusted default-branch commit",
+        "Set up Python",
+        "Install validator dependency",
+        "Bind runner-temp paths for subsequent steps",
         "Hash the immutable trusted checkout",
         "Create an isolated accepted-evidence workspace",
         "Verify both immutable release and tag identities",
@@ -580,9 +627,11 @@ def validate_accepted(document: dict[str, Any], text: str) -> None:
         for name in ordered_names
     ]
     require(
-        offsets == sorted(offsets) and all(offset >= 0 for offset in offsets),
+        [item.get("name") for item in accepted_steps] == ordered_names
+        and offsets == sorted(offsets)
+        and all(offset >= 0 for offset in offsets),
         "accepted_contract",
-        "trusted checkout, live bridges, independent release pass, summary, and final hash must be ordered",
+        "the exact trusted checkout, live bridge, independent release pass, summary, and final hash sequence is required",
     )
     immutability_step = next(
         item
@@ -708,10 +757,11 @@ def validate_accepted(document: dict[str, Any], text: str) -> None:
     require(
         summary_with.get("name")
         == "openai-preview-accepted-summary-${{ github.run_id }}-${{ github.run_attempt }}"
+        and "if" not in summary_upload
         and summary_with.get("overwrite") == "false"
         and summary_with.get("if-no-files-found") == "error",
         "accepted_summary",
-        "accepted summary must be run-attempt-bound, non-overwriting, and fail closed",
+        "accepted summary must run only after prior success, remain run-attempt-bound, non-overwriting, and fail closed",
     )
 
 
@@ -766,6 +816,15 @@ def validate_consumer(document: dict[str, Any], text: str) -> None:
         == "${{ needs.validate-source-run.result == 'success' }}",
         "consumer_dependency",
         "consumer must depend on the successful unprivileged source-run guard",
+    )
+    require(
+        RUNNER_CONTEXT_RE.search(str(document.get("env", {}))) is None
+        and all(
+            RUNNER_CONTEXT_RE.search(str(job.get("env", {}))) is None
+            for job in raw_jobs.values()
+        ),
+        "consumer_runner_temp_scope",
+        "runner context is unavailable in workflow/job env and must remain step-scoped",
     )
 
     preflight_steps = preflight.get("steps", [])
@@ -847,9 +906,13 @@ def validate_consumer(document: dict[str, Any], text: str) -> None:
     )
     require(isinstance(verify_step, dict), "consumer_contract", "verification step")
     require(
-        verify_step.get("env") == {"GH_TOKEN": "${{ github.token }}"},
+        verify_step.get("env")
+        == {
+            "CONSUMER_RESULT": "${{ runner.temp }}/openai-preview-accepted-consumer-result.json",
+            "GH_TOKEN": "${{ github.token }}",
+        },
         "consumer_token_scope",
-        "explicit github.token injection must be limited to the verification step",
+        "explicit github.token and runner-temp result path must be limited to the verification step",
     )
     actual_token_steps = {
         str(item.get("name", ""))
@@ -948,6 +1011,7 @@ def validate_consumer(document: dict[str, Any], text: str) -> None:
         and isinstance(consumer_steps[2].get("run"), str)
         and upload.get("uses")
         == "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02"
+        and "if" not in upload
         and upload_with.get("name")
         == "openai-preview-accepted-consumer-${{ github.event.workflow_run.id }}-${{ github.event.workflow_run.run_attempt }}"
         and upload_with.get("path")
@@ -1245,6 +1309,21 @@ def validate_mutation_guards(
         validate_accepted,
     )
 
+    accepted_always_upload = copy.deepcopy(accepted)
+    next(
+        item
+        for item in accepted_always_upload["jobs"]["validate-accepted-evidence"][
+            "steps"
+        ]
+        if item.get("name") == "Publish the non-overwriting accepted-run summary"
+    )["if"] = "${{ always() }}"
+    expect_rejected(
+        "accepted_summary",
+        accepted_always_upload,
+        accepted_text,
+        validate_accepted,
+    )
+
     accepted_upload_before_proof = copy.deepcopy(accepted)
     protected_steps = accepted_upload_before_proof["jobs"][
         "validate-accepted-evidence"
@@ -1309,12 +1388,112 @@ def validate_mutation_guards(
     )
 
     accepted_mixed_assets = copy.deepcopy(accepted)
-    accepted_mixed_assets["jobs"]["validate-accepted-evidence"]["env"][
-        "CANDIDATE_ASSET_DIR"
-    ] = "${{ runner.temp }}/openai-preview-accepted-bundles/candidate"
+    binding_step = next(
+        item
+        for item in accepted_mixed_assets["jobs"]["validate-accepted-evidence"][
+            "steps"
+        ]
+        if item.get("name") == "Bind runner-temp paths for subsequent steps"
+    )
+    binding_step["run"] = str(binding_step["run"]).replace(
+        '"$RUNNER_TEMP/openai-preview-candidate-assets"',
+        '"$RUNNER_TEMP/openai-preview-accepted-bundles/candidate"',
+        1,
+    )
     expect_rejected(
         "accepted_asset_isolation",
         accepted_mixed_assets,
+        accepted_text,
+        validate_accepted,
+    )
+
+    accepted_job_runner_context = copy.deepcopy(accepted)
+    accepted_job_runner_context["jobs"]["validate-accepted-evidence"]["env"] = {
+        "BUNDLE_ROOT": "${{ runner.temp }}/openai-preview-accepted-bundles"
+    }
+    expect_rejected(
+        "accepted_runner_temp_scope",
+        accepted_job_runner_context,
+        accepted_text,
+        validate_accepted,
+    )
+
+    accepted_preflight_runner_context = copy.deepcopy(accepted)
+    accepted_preflight_runner_context["jobs"]["validate-dispatch"]["env"] = {
+        "BAD": "${{ runner.temp }}/x"
+    }
+    expect_rejected(
+        "accepted_runner_temp_scope",
+        accepted_preflight_runner_context,
+        accepted_text,
+        validate_accepted,
+    )
+
+    accepted_compact_runner_context = copy.deepcopy(accepted)
+    accepted_compact_runner_context["jobs"]["validate-accepted-evidence"]["env"] = {
+        "BAD": "${{runner.temp}}/x"
+    }
+    expect_rejected(
+        "accepted_runner_temp_scope",
+        accepted_compact_runner_context,
+        accepted_text,
+        validate_accepted,
+    )
+
+    accepted_index_runner_context = copy.deepcopy(accepted)
+    accepted_index_runner_context["jobs"]["validate-accepted-evidence"]["env"] = {
+        "BAD": "${{ runner['temp'] }}/x"
+    }
+    expect_rejected(
+        "accepted_runner_temp_scope",
+        accepted_index_runner_context,
+        accepted_text,
+        validate_accepted,
+    )
+
+    accepted_nested_runner_context = copy.deepcopy(accepted)
+    accepted_nested_runner_context["jobs"]["validate-accepted-evidence"]["env"] = {
+        "BAD": "${{ format('{0}', runner.temp) }}"
+    }
+    expect_rejected(
+        "accepted_runner_temp_scope",
+        accepted_nested_runner_context,
+        accepted_text,
+        validate_accepted,
+    )
+
+    accepted_bare_runner_context = copy.deepcopy(accepted)
+    accepted_bare_runner_context["jobs"]["validate-dispatch"]["env"] = {
+        "BAD": "${{ toJSON(runner) }}"
+    }
+    expect_rejected(
+        "accepted_runner_temp_scope",
+        accepted_bare_runner_context,
+        accepted_text,
+        validate_accepted,
+    )
+
+    accepted_checkout_after_hash = copy.deepcopy(accepted)
+    ordered_steps = accepted_checkout_after_hash["jobs"]["validate-accepted-evidence"][
+        "steps"
+    ]
+    checkout_offset = next(
+        offset
+        for offset, item in enumerate(ordered_steps)
+        if item.get("name") == "Check out the fixed trusted default-branch commit"
+    )
+    hash_offset = next(
+        offset
+        for offset, item in enumerate(ordered_steps)
+        if item.get("name") == "Hash the immutable trusted checkout"
+    )
+    ordered_steps[checkout_offset], ordered_steps[hash_offset] = (
+        ordered_steps[hash_offset],
+        ordered_steps[checkout_offset],
+    )
+    expect_rejected(
+        "accepted_contract",
+        accepted_checkout_after_hash,
         accepted_text,
         validate_accepted,
     )
@@ -1468,6 +1647,39 @@ def validate_mutation_guards(
         validate_consumer,
     )
 
+    consumer_job_runner_context = copy.deepcopy(consumer)
+    consumer_job_runner_context["jobs"]["verify-accepted-summary"]["env"][
+        "CONSUMER_RESULT"
+    ] = "${{ runner.temp }}/openai-preview-accepted-consumer-result.json"
+    expect_rejected(
+        "consumer_runner_temp_scope",
+        consumer_job_runner_context,
+        consumer_text,
+        validate_consumer,
+    )
+
+    consumer_preflight_runner_context = copy.deepcopy(consumer)
+    consumer_preflight_runner_context["jobs"]["validate-source-run"]["env"] = {
+        "BAD": "${{ runner.temp }}/x"
+    }
+    expect_rejected(
+        "consumer_runner_temp_scope",
+        consumer_preflight_runner_context,
+        consumer_text,
+        validate_consumer,
+    )
+
+    consumer_compact_runner_context = copy.deepcopy(consumer)
+    consumer_compact_runner_context["jobs"]["verify-accepted-summary"]["env"][
+        "BAD"
+    ] = "${{runner.temp}}/x"
+    expect_rejected(
+        "consumer_runner_temp_scope",
+        consumer_compact_runner_context,
+        consumer_text,
+        validate_consumer,
+    )
+
     consumer_extra_step = copy.deepcopy(consumer)
     consumer_extra_step["jobs"]["verify-accepted-summary"]["steps"].insert(
         3, {"name": "Unreviewed extra command", "run": "echo extra"}
@@ -1484,6 +1696,21 @@ def validate_mutation_guards(
     )["with"]["overwrite"] = "true"
     expect_rejected(
         "consumer_result", consumer_overwrite, consumer_text, validate_consumer
+    )
+
+    consumer_always_upload = copy.deepcopy(consumer)
+    next(
+        item
+        for item in consumer_always_upload["jobs"]["verify-accepted-summary"][
+            "steps"
+        ]
+        if item.get("name") == "Publish the non-overwriting consumer result"
+    )["if"] = "${{ always() }}"
+    expect_rejected(
+        "consumer_result",
+        consumer_always_upload,
+        consumer_text,
+        validate_consumer,
     )
 
     consumer_unbound_artifact = copy.deepcopy(consumer)
@@ -1525,7 +1752,7 @@ def validate_mutation_guards(
         consumer_text,
         validate_consumer,
     )
-    return 46
+    return 58
 
 
 def main() -> int:
