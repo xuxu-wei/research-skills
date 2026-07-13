@@ -40,6 +40,7 @@ def main() -> int:
     marketplace_path = [".agents/plugins/marketplace.json"]
     future_runtime_path = ["research-skills-openai/hooks/preflight.yaml"]
     docs_path = ["research-skills-openai/README.md"]
+    runbook_path = ["research-skills-openai/PHASE7-8-RUNBOOK.md"]
     docs_tree_path = ["research-skills-openai/docs/development.md"]
     report_path = ["research-skills-openai/reports/validation.json"]
     require(not validate_version_transition("1.1.9-rc.4", "1.2.0-rc.1", behavior_path), "valid bump")
@@ -60,6 +61,10 @@ def main() -> int:
         "future runtime surface omission",
     )
     require(not validate_version_transition("1.1.9-rc.4", "1.1.9-rc.4", docs_path), "docs-only stability")
+    require(
+        not validate_version_transition("1.1.9-rc.4", "1.1.9-rc.4", runbook_path),
+        "runbook-only stability",
+    )
     require(
         not validate_version_transition("1.1.9-rc.4", "1.1.9-rc.4", docs_tree_path),
         "docs-tree-only stability",
