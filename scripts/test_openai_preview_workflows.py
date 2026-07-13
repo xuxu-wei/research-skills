@@ -96,6 +96,15 @@ def validate_action_pins(document: dict[str, Any]) -> None:
 def validate_main(document: dict[str, Any], text: str) -> None:
     validate_permissions(document, {"contents": "read"})
     validate_action_pins(document)
+    main_jobs = document.get("jobs", {})
+    require(
+        isinstance(main_jobs, dict)
+        and set(main_jobs) == {"validate"}
+        and isinstance(main_jobs.get("validate"), dict)
+        and main_jobs["validate"].get("name") == "OpenAI Plugin Preview / validate",
+        "main_required_check_name",
+        "the protected status-check context must equal the actual GitHub check-run name",
+    )
     triggers = document.get("on", {})
     require(
         isinstance(triggers, dict)
@@ -717,6 +726,15 @@ def validate_mutation_guards(
     accepted: dict[str, Any],
     accepted_text: str,
 ) -> int:
+    wrong_check_name = copy.deepcopy(main)
+    wrong_check_name["jobs"]["validate"]["name"] = "validate"
+    expect_rejected(
+        "main_required_check_name",
+        wrong_check_name,
+        main_text,
+        validate_main,
+    )
+
     mutable_action = copy.deepcopy(main)
     next(item for item in steps(mutable_action) if "uses" in item)["uses"] = (
         "actions/checkout@v4"
@@ -1044,7 +1062,7 @@ def validate_mutation_guards(
         accepted_text,
         validate_accepted,
     )
-    return 26
+    return 27
 
 
 def main() -> int:

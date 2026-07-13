@@ -1251,6 +1251,10 @@ def main(
             errors.append("CI Python validator dependency is not exactly version-pinned")
         for marker, label in (
             (
+                "name: OpenAI Plugin Preview / validate",
+                "unique protected Preview check-run name",
+            ),
+            (
                 "4ebc61c0f8df9852e709ff4b477b750fc816a69b",
                 "pinned OpenAI Codex validator source commit",
             ),
