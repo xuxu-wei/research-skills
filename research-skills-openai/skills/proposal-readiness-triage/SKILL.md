@@ -1,6 +1,6 @@
 ---
 name: proposal-readiness-triage
-description: "Independently triage whether an idea can enter proposal drafting; identify blockers and route clarification, refinement, or preflight."
+description: "Independently triage proposal-drafting readiness, identify blockers, and route clarification, refinement, or preflight."
 ---
 # proposal-readiness-triage
 

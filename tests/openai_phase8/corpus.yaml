@@ -458,3 +458,182 @@ cases:
       isolation: {fresh_subagent: true, writer_instance_id: perspective-writer-004, reviewer_instance_id: perspective-reviewer-004-r3, prior_scores_visible: false}
       edit_boundary: {source_edits_performed_by_reviewer: false, reviewer_write_paths: [reviews/perspective-no-gain-r3.md], allowed_prefixes: [reviews/]}
       preserved_dissent_ids: []
+
+  - case_id: ph8-research-polisher-happy-001
+    workflow: research_polisher
+    outcome_class: happy
+    research_domain: clinical_or_observational
+    risk_tier: medium
+    scenario: A synthetic completed observational study has defensible zero-, small-, and moderate-extension impact paths for human selection.
+    anonymity:
+      source_kind: synthetic
+      contains_identifying_material: false
+      statement: Synthetic case; no person, institution, unpublished dataset, or user source is represented.
+    expected:
+      route: research-polisher-strategy-reviewer -> research-polisher-plan-assembler -> research-polisher-methodology-publishability-reviewer -> research-polisher-plan-assembler
+      final_state: human_strategy_selection_required
+      required_outputs: [research_polisher_candidate_portfolio, research_polisher_evaluation_report, research_polisher_selection_dossier]
+      forbidden_outputs: [external_submission_receipt, automatic_winner, reviewer_edited_source]
+      critical_findings: []
+      dissent_ids: [polisher-dissent-practical-scope]
+    oracle_observation:
+      route: research-polisher-strategy-reviewer -> research-polisher-plan-assembler -> research-polisher-methodology-publishability-reviewer -> research-polisher-plan-assembler
+      final_state: human_strategy_selection_required
+      outputs: [research_polisher_candidate_portfolio, research_polisher_evaluation_report, research_polisher_selection_dossier]
+      detected_finding_ids: []
+      ready_claimed: true
+      lineage: {complete: true, artifact_id: polisher-selection-001, version_id: v001, round_id: r001, plugin_version_binding: manifest_current, source_skill: research-polisher-plan-assembler, based_on: [polisher-portfolio-001@v001, polisher-evaluation-001@v001], change_type: assembly}
+      isolation: {fresh_subagent: true, writer_instance_id: polisher-assembler-001, reviewer_instance_id: polisher-final-reviewer-001, prior_scores_visible: false}
+      edit_boundary: {source_edits_performed_by_reviewer: false, reviewer_write_paths: [reviews/polisher-strategy-sci-001.md, reviews/polisher-strategy-practical-001.md, reviews/polisher-strategy-editorial-001.md, reviews/polisher-evaluation-001.md], allowed_prefixes: [reviews/]}
+      preserved_dissent_ids: [polisher-dissent-practical-scope]
+      polisher_contract:
+        strategist_instances: {scientific_significance: polisher-strategist-sci-001, practical_value: polisher-strategist-practical-001, dissemination_editorial: polisher-strategist-editorial-001}
+        matrix:
+          scientific_significance: {reposition_only: option, small_extension: option, moderate_extension: option}
+          practical_value: {reposition_only: option, small_extension: option, moderate_extension: option}
+          dissemination_editorial: {reposition_only: option, small_extension: option, moderate_extension: option}
+        peer_outputs_visible: false
+        final_reviewer_instance_id: polisher-final-reviewer-001
+        raw_strategy_reports_visible_to_final: false
+        prior_scores_visible_to_final: false
+        assembler: {source_edits_performed: false, scoring_performed: false, ranking_performed: false, automatic_selection_performed: false, hybrid_options_created: false, dissent_preserved: true, lineage_complete: true, anonymous_portfolio: true}
+        portfolio_version: v001
+        evaluated_portfolio_version: v001
+        target_requirements_status: target_requirements_unverified
+        retained_option_count: 3
+        source_level_fatal_finding: false
+
+  - case_id: ph8-research-polisher-fixable-001
+    workflow: research_polisher
+    outcome_class: fixable
+    research_domain: computational_or_engineering
+    risk_tier: medium
+    scenario: A synthetic completed engineering study labels an external validation as highly feasible without confirming access to the benchmark data.
+    anonymity:
+      source_kind: synthetic
+      contains_identifying_material: false
+      statement: Synthetic case; no person, institution, unpublished dataset, or user source is represented.
+    expected:
+      route: research-polisher-methodology-publishability-reviewer -> anonymous-must-fix-brief
+      final_state: revision_required
+      required_outputs: [research_polisher_evaluation_report, research_polisher_revision_brief]
+      forbidden_outputs: [research_polisher_selection_dossier, automatic_winner, reviewer_edited_source]
+      critical_findings:
+        - {finding_id: polisher-major-feasibility-unsupported, severity: major, blocking: false}
+      dissent_ids: []
+    oracle_observation:
+      route: research-polisher-methodology-publishability-reviewer -> anonymous-must-fix-brief
+      final_state: revision_required
+      outputs: [research_polisher_evaluation_report, research_polisher_revision_brief]
+      detected_finding_ids: [polisher-major-feasibility-unsupported]
+      ready_claimed: false
+      lineage: {complete: true, artifact_id: polisher-revision-brief-001, version_id: v001, round_id: r001, plugin_version_binding: manifest_current, source_skill: research-polisher-plan-assembler, based_on: [polisher-portfolio-002@v001, polisher-evaluation-002@v001], change_type: revision_plan}
+      isolation: {fresh_subagent: true, writer_instance_id: polisher-assembler-002, reviewer_instance_id: polisher-final-reviewer-002, prior_scores_visible: false}
+      edit_boundary: {source_edits_performed_by_reviewer: false, reviewer_write_paths: [reviews/polisher-strategy-sci-002.md, reviews/polisher-strategy-practical-002.md, reviews/polisher-strategy-editorial-002.md, reviews/polisher-evaluation-002.md], allowed_prefixes: [reviews/]}
+      preserved_dissent_ids: []
+      polisher_contract:
+        strategist_instances: {scientific_significance: polisher-strategist-sci-002, practical_value: polisher-strategist-practical-002, dissemination_editorial: polisher-strategist-editorial-002}
+        matrix:
+          scientific_significance: {reposition_only: option, small_extension: option, moderate_extension: option}
+          practical_value: {reposition_only: option, small_extension: option, moderate_extension: option}
+          dissemination_editorial: {reposition_only: option, small_extension: option, moderate_extension: option}
+        peer_outputs_visible: false
+        final_reviewer_instance_id: polisher-final-reviewer-002
+        raw_strategy_reports_visible_to_final: false
+        prior_scores_visible_to_final: false
+        assembler: {source_edits_performed: false, scoring_performed: false, ranking_performed: false, automatic_selection_performed: false, hybrid_options_created: false, dissent_preserved: true, lineage_complete: true, anonymous_portfolio: true}
+        portfolio_version: v001
+        evaluated_portfolio_version: v001
+        target_requirements_status: target_requirements_unverified
+        retained_option_count: 0
+        source_level_fatal_finding: false
+
+  - case_id: ph8-research-polisher-fatal-001
+    workflow: research_polisher
+    outcome_class: fatal_or_pending
+    research_domain: basic_experimental
+    risk_tier: high
+    scenario: A synthetic completed experiment lacks the primary result required by every proposed central claim.
+    anonymity:
+      source_kind: synthetic
+      contains_identifying_material: false
+      statement: Synthetic case; no person, institution, unpublished dataset, or user source is represented.
+    expected:
+      route: research-polisher-methodology-publishability-reviewer -> blocked
+      final_state: blocked
+      required_outputs: [research_polisher_evaluation_report, source_level_fatal_finding]
+      forbidden_outputs: [research_polisher_selection_dossier, automatic_winner, reviewer_edited_source]
+      critical_findings:
+        - {finding_id: polisher-fatal-primary-result-absent, severity: fatal, blocking: true}
+      dissent_ids: []
+    oracle_observation:
+      route: research-polisher-methodology-publishability-reviewer -> blocked
+      final_state: blocked
+      outputs: [research_polisher_evaluation_report, source_level_fatal_finding]
+      detected_finding_ids: [polisher-fatal-primary-result-absent]
+      ready_claimed: false
+      lineage: {complete: true, artifact_id: polisher-fatal-001, version_id: v001, round_id: r001, plugin_version_binding: manifest_current, source_skill: research-polisher-methodology-publishability-reviewer, based_on: [polisher-dossier-003@v001, polisher-portfolio-003@v001], change_type: evaluation}
+      isolation: {fresh_subagent: true, writer_instance_id: polisher-assembler-003, reviewer_instance_id: polisher-final-reviewer-003, prior_scores_visible: false}
+      edit_boundary: {source_edits_performed_by_reviewer: false, reviewer_write_paths: [reviews/polisher-strategy-sci-003.md, reviews/polisher-strategy-practical-003.md, reviews/polisher-strategy-editorial-003.md, reviews/polisher-evaluation-003.md], allowed_prefixes: [reviews/]}
+      preserved_dissent_ids: []
+      polisher_contract:
+        strategist_instances: {scientific_significance: polisher-strategist-sci-003, practical_value: polisher-strategist-practical-003, dissemination_editorial: polisher-strategist-editorial-003}
+        matrix:
+          scientific_significance: {reposition_only: no_defensible_option, small_extension: no_defensible_option, moderate_extension: no_defensible_option}
+          practical_value: {reposition_only: no_defensible_option, small_extension: no_defensible_option, moderate_extension: no_defensible_option}
+          dissemination_editorial: {reposition_only: no_defensible_option, small_extension: no_defensible_option, moderate_extension: no_defensible_option}
+        peer_outputs_visible: false
+        final_reviewer_instance_id: polisher-final-reviewer-003
+        raw_strategy_reports_visible_to_final: false
+        prior_scores_visible_to_final: false
+        assembler: {source_edits_performed: false, scoring_performed: false, ranking_performed: false, automatic_selection_performed: false, hybrid_options_created: false, dissent_preserved: true, lineage_complete: true, anonymous_portfolio: true}
+        portfolio_version: v001
+        evaluated_portfolio_version: v001
+        target_requirements_status: not_applicable
+        retained_option_count: 0
+        source_level_fatal_finding: true
+
+  - case_id: ph8-research-polisher-no-gain-001
+    workflow: research_polisher
+    outcome_class: revision_no_gain
+    research_domain: qualitative_or_mixed_methods
+    risk_tier: medium
+    scenario: A synthetic mixed-methods portfolio is revised once but still depends on the same unavailable validation material.
+    anonymity:
+      source_kind: synthetic
+      contains_identifying_material: false
+      statement: Synthetic case; no person, institution, unpublished dataset, or user source is represented.
+    expected:
+      route: fresh research-polisher-methodology-publishability-reviewer -> stopped-no-gain
+      final_state: stopped
+      required_outputs: [fresh_research_polisher_evaluation_report, no_gain_stop_report]
+      forbidden_outputs: [research_polisher_selection_dossier, automatic_winner, reviewer_edited_source]
+      critical_findings:
+        - {finding_id: polisher-major-validation-dependency-unchanged, severity: major, blocking: true}
+      dissent_ids: []
+    oracle_observation:
+      route: fresh research-polisher-methodology-publishability-reviewer -> stopped-no-gain
+      final_state: stopped
+      outputs: [fresh_research_polisher_evaluation_report, no_gain_stop_report]
+      detected_finding_ids: [polisher-major-validation-dependency-unchanged]
+      ready_claimed: false
+      lineage: {complete: true, artifact_id: polisher-no-gain-001, version_id: v002, round_id: r002, plugin_version_binding: manifest_current, source_skill: research-polisher-methodology-publishability-reviewer, based_on: [polisher-dossier-004@v001, polisher-portfolio-004@v002], change_type: re_evaluation}
+      isolation: {fresh_subagent: true, writer_instance_id: polisher-assembler-004-r2, reviewer_instance_id: polisher-final-reviewer-004-r2, prior_scores_visible: false}
+      edit_boundary: {source_edits_performed_by_reviewer: false, reviewer_write_paths: [reviews/polisher-strategy-sci-004-r2.md, reviews/polisher-strategy-practical-004-r2.md, reviews/polisher-strategy-editorial-004-r2.md, reviews/polisher-evaluation-004-r2.md], allowed_prefixes: [reviews/]}
+      preserved_dissent_ids: []
+      polisher_contract:
+        strategist_instances: {scientific_significance: polisher-strategist-sci-004-r2, practical_value: polisher-strategist-practical-004-r2, dissemination_editorial: polisher-strategist-editorial-004-r2}
+        matrix:
+          scientific_significance: {reposition_only: option, small_extension: option, moderate_extension: no_defensible_option}
+          practical_value: {reposition_only: option, small_extension: option, moderate_extension: no_defensible_option}
+          dissemination_editorial: {reposition_only: option, small_extension: option, moderate_extension: no_defensible_option}
+        peer_outputs_visible: false
+        final_reviewer_instance_id: polisher-final-reviewer-004-r2
+        raw_strategy_reports_visible_to_final: false
+        prior_scores_visible_to_final: false
+        assembler: {source_edits_performed: false, scoring_performed: false, ranking_performed: false, automatic_selection_performed: false, hybrid_options_created: false, dissent_preserved: true, lineage_complete: true, anonymous_portfolio: true}
+        portfolio_version: v002
+        evaluated_portfolio_version: v002
+        target_requirements_status: target_requirements_unverified
+        retained_option_count: 0
+        source_level_fatal_finding: false

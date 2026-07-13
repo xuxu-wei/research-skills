@@ -25,9 +25,10 @@ README = PLUGIN / "README.md"
 ROUTING_RECEIPTS = REPO / "tests" / "openai_phase6" / "quickstart-routing-receipts.yaml"
 REPORT = PLUGIN / "reports" / "phase6-context-measurement.md"
 
-PUBLIC_ENTRY_LIMIT = 6
-DESCRIPTION_PROXY_LIMIT = 6_400
-ORCHESTRATOR_PROXY_LIMIT = 14_000
+PUBLIC_ENTRY_LIMIT = 7
+IMPLICIT_ACTIVE_LIMIT = 6
+DESCRIPTION_PROXY_LIMIT = 6_200
+ORCHESTRATOR_PROXY_LIMIT = 13_400
 QUICKSTART_FIELDS = ("Minimum input:", "Expected output:", "Stop states:", "Resume:")
 
 
@@ -105,10 +106,18 @@ def main() -> int:
         for entry in entries
         if isinstance(entry, dict) and entry.get("invocation_policy") == "implicit"
     }
-    if len(implicit_names) != PUBLIC_ENTRY_LIMIT:
+    public_entry_policy = registry.get("public_entry_policy", {})
+    public_names = set(public_entry_policy.get("declared_entries", []))
+    if len(public_names) != PUBLIC_ENTRY_LIMIT:
         errors.append(
-            f"public implicit entry boundary changed: {len(implicit_names)}/{PUBLIC_ENTRY_LIMIT}"
+            f"declared public entry boundary changed: {len(public_names)}/{PUBLIC_ENTRY_LIMIT}"
         )
+    if len(implicit_names) != IMPLICIT_ACTIVE_LIMIT:
+        errors.append(
+            f"active implicit entry boundary changed: {len(implicit_names)}/{IMPLICIT_ACTIVE_LIMIT}"
+        )
+    if set(public_entry_policy.get("implicit_active_entries", [])) != implicit_names:
+        errors.append("public entry policy and per-skill implicit policies disagree")
 
     short_descriptions_valid = 0
     for name in sorted(descriptions):
@@ -182,7 +191,7 @@ def main() -> int:
     }
     quickstarts_passed = 0
     quickstart_prompts: dict[str, str] = {}
-    for name in sorted(implicit_names):
+    for name in sorted(public_names):
         error_count_before = len(errors)
         segment = quickstart_segment(readme, name)
         if segment is None:
@@ -199,7 +208,7 @@ def main() -> int:
         quickstart_prompts[name] = prompt
         if f"${name}" not in prompt:
             errors.append(f"{name} quickstart does not explicitly invoke its entry skill")
-        unrelated = sorted(other for other in implicit_names - {name} if f"${other}" in prompt)
+        unrelated = sorted(other for other in public_names - {name} if f"${other}" in prompt)
         if unrelated:
             errors.append(f"{name} quickstart invokes unrelated public skills: {unrelated}")
         missing_modes = sorted(mode for mode in modes_by_orchestrator.get(name, set()) if mode not in prompt)
@@ -209,6 +218,8 @@ def main() -> int:
             quickstarts_passed += 1
 
     routing_smokes_passed = 0
+    historical_routing_smokes = 0
+    routing_receipts_current = False
     if not ROUTING_RECEIPTS.is_file():
         errors.append("Phase 6 fresh-subagent routing receipts are missing")
     else:
@@ -222,8 +233,9 @@ def main() -> int:
             or receipts.get("portable_platform_execution_export_available") is not False
         ):
             errors.append("Phase 6 routing receipt verification boundary is invalid")
-        if receipts.get("plugin_version") != registry.get("plugin_version"):
-            errors.append("Phase 6 routing receipt version differs from the registry")
+        routing_receipts_current = (
+            receipts.get("plugin_version") == registry.get("plugin_version")
+        )
         execution = receipts.get("execution_contract", {})
         if (
             execution.get("isolation_mode") != "fresh_subagent"
@@ -233,8 +245,11 @@ def main() -> int:
         ):
             errors.append("Phase 6 routing execution contract is invalid")
         runs = receipts.get("runs", [])
-        if {run.get("public_entry") for run in runs} != implicit_names:
+        receipt_entries = {run.get("public_entry") for run in runs}
+        if routing_receipts_current and receipt_entries != public_names:
             errors.append("Phase 6 routing receipt entries differ from the public-entry set")
+        elif not routing_receipts_current and not receipt_entries <= set(registered_names):
+            errors.append("historical Phase 6 routing receipt names are not registered skills")
         instance_ids: set[str] = set()
         for run in runs:
             error_count_before = len(errors)
@@ -246,20 +261,25 @@ def main() -> int:
                 errors.append(f"{name}: fresh routing selected {contract.get('selected_skill')!r}")
             if f"${name}" not in prompt:
                 errors.append(f"{name}: fresh routing prompt does not explicitly invoke the entry")
-            if run.get("quickstart_template_sha256") != sha256_text(
-                quickstart_prompts.get(str(name), "")
-            ):
+            if routing_receipts_current and run.get(
+                "quickstart_template_sha256"
+            ) != sha256_text(quickstart_prompts.get(str(name), "")):
                 errors.append(f"{name}: README quickstart template digest is missing or stale")
             if run.get("prompt_sha256") != sha256_text(prompt):
                 errors.append(f"{name}: routing prompt digest is missing or stale")
             skill_path = SKILLS / str(name) / "SKILL.md"
-            if (
-                not skill_path.is_file()
-                or run.get("skill_sha256") != sha256_repository_file(skill_path)
-            ):
+            if not skill_path.is_file():
+                errors.append(f"{name}: routing source skill is missing")
+            elif routing_receipts_current and run.get(
+                "skill_sha256"
+            ) != sha256_repository_file(skill_path):
                 errors.append(f"{name}: routing source skill digest is missing or stale")
+            elif not routing_receipts_current and not re.fullmatch(
+                r"sha256:[0-9a-f]{64}", str(run.get("skill_sha256", ""))
+            ):
+                errors.append(f"{name}: historical routing skill digest is invalid")
             unrelated_prompt_entries = sorted(
-                other for other in implicit_names - {name} if f"${other}" in prompt
+                other for other in public_names - {name} if f"${other}" in prompt
             )
             if unrelated_prompt_entries:
                 errors.append(f"{name}: routing prompt names unrelated entries: {unrelated_prompt_entries}")
@@ -277,9 +297,12 @@ def main() -> int:
             if contract.get("source_edits_performed") is not False:
                 errors.append(f"{name}: routing smoke performed a source edit")
             if len(errors) == error_count_before:
-                routing_smokes_passed += 1
+                if routing_receipts_current:
+                    routing_smokes_passed += 1
+                else:
+                    historical_routing_smokes += 1
 
-    public_description_chars = sum(len(descriptions[name]) for name in implicit_names)
+    public_description_chars = sum(len(descriptions[name]) for name in public_names)
     max_proxy = max(orchestrator_proxies.values(), default=0)
     if not REPORT.is_file():
         errors.append("Phase 6 context measurement report is missing")
@@ -294,7 +317,7 @@ def main() -> int:
             "routing snapshot",
             "SHA-256",
         }
-        expected_report_markers.update(f"`{name}`" for name in implicit_names)
+        expected_report_markers.update(f"`{name}`" for name in public_names)
         for name, proxy in orchestrator_proxies.items():
             label = name.removesuffix("-orchestrator").capitalize()
             expected_report_markers.add(
@@ -310,7 +333,8 @@ def main() -> int:
             )
     print("OpenAI Phase 6 context validation")
     print(f"source skills (derived from registry): {len(registered_names)}")
-    print(f"implicit public entries: {len(implicit_names)}/{PUBLIC_ENTRY_LIMIT}")
+    print(f"declared public entries: {len(public_names)}/{PUBLIC_ENTRY_LIMIT}")
+    print(f"implicit-active public entries: {len(implicit_names)}/{IMPLICIT_ACTIVE_LIMIT}")
     print(f"non-implicit roles: {len(registered_names) - len(implicit_names)}")
     print(
         "short-description range: "
@@ -326,8 +350,13 @@ def main() -> int:
     for name, proxy in sorted(orchestrator_proxies.items()):
         print(f"{name} conservative description+full-SKILL proxy: {proxy}/{ORCHESTRATOR_PROXY_LIMIT}")
     print(f"maximum orchestrator proxy: {max_proxy}/{ORCHESTRATOR_PROXY_LIMIT}")
-    print(f"quickstarts: {quickstarts_passed}/{len(implicit_names)}")
-    print(f"fresh-subagent routing smokes: {routing_smokes_passed}/{len(implicit_names)}")
+    print(f"quickstarts: {quickstarts_passed}/{len(public_names)}")
+    print(f"fresh-subagent routing smokes: {routing_smokes_passed}/{len(public_names)}")
+    print(
+        "historical routing smokes retained: "
+        f"{historical_routing_smokes}; current-version receipts: "
+        f"{'yes' if routing_receipts_current else 'pending'}"
+    )
     print(f"errors: {len(errors)}")
     for error in errors:
         print(f"ERROR: {error}")

@@ -21,14 +21,28 @@ REGISTRY = PLUGIN / "workflow-registry.yaml"
 MANIFEST = PLUGIN / ".codex-plugin" / "plugin.json"
 MARKETPLACE = REPO / ".agents" / "plugins" / "marketplace.json"
 
-EXPECTED_REVIEWERS = 18
-EXPECTED_IMPLICIT = 6
+EXPECTED_REVIEWERS = 20
+EXPECTED_PUBLIC_ENTRIES = 7
+EXPECTED_IMPLICIT_ACTIVE = 6
 SKILL_LINE_HARD_LIMIT = 250
 SKILL_CHAR_HARD_LIMIT = 12_000
 SKILL_LINE_TARGET = 180
 SKILL_CHAR_TARGET = 8_000
-DESCRIPTION_BUDGET = 6_400
-INITIAL_LOAD_BUDGET = 14_000
+DESCRIPTION_BUDGET = 6_200
+INITIAL_LOAD_BUDGET = 13_400
+EXPECTED_WORKFLOWS = {
+    "idea",
+    "proposal",
+    "article",
+    "perspective",
+    "research_polisher",
+}
+OPENAI_NATIVE_SKILLS = {
+    "research-polisher-methodology-publishability-reviewer",
+    "research-polisher-orchestrator",
+    "research-polisher-plan-assembler",
+    "research-polisher-strategy-reviewer",
+}
 
 FORBIDDEN_RESIDUES = {
     "delegate_task": re.compile(r"\bdelegate_task\b"),
@@ -67,6 +81,40 @@ FINAL_SUBMISSION_SKILLS = {
     "perspective-input-builder",
     "perspective-argument-architect",
 }
+
+PRE_SUBMISSION_POLICY_SCAN_SKILLS = {
+    "academic-language-assessor",
+    "article-claim-auditor",
+    "article-context-builder",
+    "article-drafter",
+    "article-evaluator",
+    "article-frontmatter-drafter",
+    "article-methods-statistics-auditor",
+    "article-readiness-triage",
+    "article-review-panel",
+    "idea-adversarial-review-panel",
+    "idea-evaluator",
+    "medical-journal-review",
+    "methodology-statistics-preflight",
+    "multi-path-idea-generator",
+    "perspective-evaluator",
+    "perspective-review-panel",
+    "proposal-context-brief-builder",
+    "proposal-drafter",
+    "proposal-evaluator",
+    "proposal-readiness-triage",
+    "proposal-review-panel",
+    "research-context-builder",
+    "research-idea-orchestrator",
+    "research-polisher-methodology-publishability-reviewer",
+    "research-polisher-strategy-reviewer",
+    "sap-evaluator",
+    "sap-writer",
+}
+PRE_SUBMISSION_POLICY_RE = re.compile(
+    r"\b(?:ethics?|ethical|IRB|privacy|regulatory|informed consent)\b|伦理|隐私|监管|知情同意",
+    re.I,
+)
 
 
 def read(path: Path) -> str:
@@ -228,10 +276,21 @@ def main() -> int:
             if short_error:
                 errors.append(f"{relative(openai_yaml)}: {short_error}")
         errors.extend(resource_ownership_errors(skill_md))
-        if name not in FINAL_SUBMISSION_SKILLS and re.search(
-            r"\b(?:ethics?|ethical|IRB|privacy|regulatory|informed consent)\b", body, re.I
-        ):
+        if name not in FINAL_SUBMISSION_SKILLS and PRE_SUBMISSION_POLICY_RE.search(body):
             errors.append(f"{relative(skill_md)}: pre-submission ethics/privacy/regulatory gate residue")
+        if name in PRE_SUBMISSION_POLICY_SCAN_SKILLS:
+            for resource_path in sorted(skill_md.parent.rglob("*")):
+                if (
+                    not resource_path.is_file()
+                    or resource_path == skill_md
+                    or resource_path.suffix.lower()
+                    not in {".md", ".yaml", ".yml", ".json", ".txt"}
+                ):
+                    continue
+                if PRE_SUBMISSION_POLICY_RE.search(read(resource_path)):
+                    errors.append(
+                        f"{relative(resource_path)}: pre-submission ethics/privacy/regulatory gate residue"
+                    )
 
     if not REGISTRY.exists():
         errors.append("missing workflow-registry.yaml")
@@ -260,6 +319,17 @@ def main() -> int:
     if registry_names != set(names):
         errors.append(
             f"registry/skill name mismatch: missing={sorted(set(names)-registry_names)} extra={sorted(registry_names-set(names))}"
+        )
+    native_registry_names = {
+        entry.get("name", "")
+        for entry in entries
+        if entry.get("package") == "research-polisher"
+    }
+    if native_registry_names != OPENAI_NATIVE_SKILLS:
+        errors.append(
+            "OpenAI-native research-polisher registry inventory differs: "
+            f"missing={sorted(OPENAI_NATIVE_SKILLS - native_registry_names)} "
+            f"extra={sorted(native_registry_names - OPENAI_NATIVE_SKILLS)}"
         )
     if "pubmed" in names or (SKILLS / "pubmed").exists():
         errors.append("standalone OpenAI pubmed skill must remain removed")
@@ -293,8 +363,30 @@ def main() -> int:
             errors.append(f"{relative(path)}: reviewer must disable implicit invocation")
 
     implicit = [entry for entry in entries if entry.get("invocation_policy") == "implicit"]
-    if len(implicit) != EXPECTED_IMPLICIT:
-        errors.append(f"expected {EXPECTED_IMPLICIT} implicit entry skills, found {len(implicit)}")
+    if len(implicit) != EXPECTED_IMPLICIT_ACTIVE:
+        errors.append(
+            f"expected {EXPECTED_IMPLICIT_ACTIVE} currently active implicit entry skills, "
+            f"found {len(implicit)}"
+        )
+    public_entry_policy = registry_data.get("public_entry_policy", {}) if REGISTRY.exists() else {}
+    declared_entries = set(public_entry_policy.get("declared_entries", []))
+    implicit_active_entries = set(public_entry_policy.get("implicit_active_entries", []))
+    if len(declared_entries) != EXPECTED_PUBLIC_ENTRIES:
+        errors.append(
+            f"expected {EXPECTED_PUBLIC_ENTRIES} declared public entries, found {len(declared_entries)}"
+        )
+    if implicit_active_entries != {entry.get("name") for entry in implicit}:
+        errors.append("public entry policy and skill invocation policies disagree")
+    polisher_gate = public_entry_policy.get("gated_entries", {}).get(
+        "research-polisher-orchestrator", {}
+    )
+    if (
+        "research-polisher-orchestrator" not in declared_entries
+        or "research-polisher-orchestrator" in implicit_active_entries
+        or polisher_gate.get("status")
+        != "explicit_only_pending_phase_7_8_external_evidence"
+    ):
+        errors.append("Research Polisher public entry must remain explicit-only until Phase 7-8 external gates pass")
 
     edge_fields = {
         "workflow",
@@ -371,10 +463,45 @@ def main() -> int:
         errors.append("registry fatal finding route must be blocked")
     if state_policy.get("final_handoff_state") != "human_signoff_required":
         errors.append("registry final handoff must be human_signoff_required")
+    if "human_strategy_selection_required" not in terminal_states:
+        errors.append("registry lacks the Research Polisher human-selection terminal state")
+    for state in (
+        "specialist_review_pending",
+        "clarification_stop",
+        "deep_research_handoff_required",
+        "no_defensible_option",
+        "additional_work_required",
+    ):
+        if state not in policy_states:
+            errors.append(f"registry lacks Research Polisher state `{state}`")
     if state_policy.get("wildcard_transition_scope") != "nonterminal_states_only":
         errors.append("registry wildcard transitions must exclude terminal states")
     if state_policy.get("resume_policy", {}).get("independent_review_pending") != "pending_review":
         errors.append("registry independent-review pause lacks a resume policy")
+    lifecycle_triples = {
+        (item.get("from"), item.get("to"), item.get("trigger"))
+        for item in state_policy.get("lifecycle_transitions", [])
+        if isinstance(item, dict)
+    }
+    for transition in (
+        (
+            "pending_review",
+            "specialist_review_pending",
+            "specialist_review_requested",
+        ),
+        (
+            "specialist_review_pending",
+            "pending_review",
+            "sanitized_specialist_findings_ready",
+        ),
+        (
+            "human_strategy_selection_required",
+            "additional_work_required",
+            "human_selected_extension_option",
+        ),
+    ):
+        if transition not in lifecycle_triples:
+            errors.append(f"registry Research Polisher transition missing: {transition}")
     version_gate = state_policy.get("version_gate", {})
     for field in (
         "changed_artifact_requires_new_version",
@@ -390,10 +517,26 @@ def main() -> int:
         errors.append("registry must enforce one writer per source artifact")
     if concurrency.get("concurrent_writes_to_same_source_artifact") is not False:
         errors.append("registry must forbid concurrent writes to the same source artifact")
-    if set(state_machines) != {"idea", "proposal", "article", "perspective"}:
-        errors.append("registry must contain exactly four workflow state machines")
+    if set(state_machines) != EXPECTED_WORKFLOWS:
+        errors.append(
+            "registry workflow state machines differ from the five-workflow contract: "
+            f"missing={sorted(EXPECTED_WORKFLOWS - set(state_machines))} "
+            f"extra={sorted(set(state_machines) - EXPECTED_WORKFLOWS)}"
+        )
     for workflow, machine in state_machines.items():
-        if "latest_version_independently_evaluated" not in machine.get("before_panel", []):
+        if machine.get("post_evaluation_panel_required") is False:
+            if machine.get("workflow_profile") != "reviewer_matrix_assemble_evaluate":
+                errors.append(f"{workflow} state machine: panel-free profile is not declared")
+            for gate in (
+                "three_strategy_roles_complete",
+                "nine_matrix_cells_accounted",
+                "dissent_and_conflicts_indexed",
+            ):
+                if gate not in machine.get("before_strategy_assembly", []):
+                    errors.append(f"{workflow} state machine: strategy assembly gate missing {gate}")
+            if "candidate_portfolio_versioned" not in machine.get("before_evaluation", []):
+                errors.append(f"{workflow} state machine: evaluation lacks a versioned portfolio gate")
+        elif "latest_version_independently_evaluated" not in machine.get("before_panel", []):
             errors.append(f"{workflow} state machine: panel lacks current-version evaluation gate")
         if "latest_version_independently_evaluated" not in machine.get("before_packaging", []):
             errors.append(f"{workflow} state machine: packaging lacks current-version evaluation gate")
@@ -415,8 +558,8 @@ def main() -> int:
         "content_digest",
         "frozen",
     }
-    if set(scenario_contract.get("required_workflows", [])) != {"idea", "proposal", "article", "perspective"}:
-        errors.append("scenario eval contract must cover exactly four workflows")
+    if set(scenario_contract.get("required_workflows", [])) != EXPECTED_WORKFLOWS:
+        errors.append("scenario eval contract must cover exactly five workflows")
     if set(scenario_contract.get("required_lineage_fields", [])) != canonical_lineage:
         errors.append("scenario eval contract canonical lineage fields are incomplete")
     required_dispatch = set(scenario_contract.get("required_dispatch_fields", []))
@@ -433,6 +576,132 @@ def main() -> int:
             errors.append(f"scenario eval write-scope policy disabled: {field}")
     if scenario_contract.get("automatic_external_submission") is not False:
         errors.append("scenario eval contract must prohibit automatic external submission")
+    if (
+        state_machines.get("research_polisher", {}).get("final_state")
+        != "human_strategy_selection_required"
+        or scenario_contract.get("workflow_final_states", {}).get("research_polisher")
+        != "human_strategy_selection_required"
+    ):
+        errors.append("Research Polisher final state must require human strategy selection")
+    polisher_group = scenario_contract.get("review_group_contracts", {}).get(
+        "research_polisher", {}
+    )
+    if polisher_group.get("skill") != "research-polisher-strategy-reviewer":
+        errors.append("Research Polisher strategy review-group skill is incorrect")
+    if polisher_group.get("roles") != [
+        "scientific_significance",
+        "practical_value",
+        "dissemination_editorial",
+    ]:
+        errors.append("Research Polisher must declare the three strategy reviewer roles")
+    if polisher_group.get("effort_tiers") != [
+        "reposition_only",
+        "small_extension",
+        "moderate_extension",
+    ]:
+        errors.append("Research Polisher must declare the three effort tiers")
+    for field, expected in (
+        ("required_instance_count", 3),
+        ("required_matrix_cell_count", 9),
+        ("instances_must_be_distinct", True),
+        ("peer_outputs_visible", False),
+        ("raw_reports_visible_to_final_evaluator", False),
+    ):
+        if polisher_group.get(field) != expected:
+            errors.append(f"Research Polisher review-group contract is invalid: {field}")
+    specialist_return = state_machines.get("research_polisher", {}).get(
+        "specialist_review_return_contract", {}
+    )
+    if specialist_return != {
+        "state": "specialist_review_pending",
+        "sanitizer_skill": "research-polisher-plan-assembler",
+        "sanitized_artifact_type": "research_polisher_specialist_findings_bundle",
+        "raw_specialist_reports_visible_to_final_reviewer": False,
+        "requires_fresh_final_reviewer": True,
+        "counts_as_evaluator_round": True,
+    }:
+        errors.append("Research Polisher specialist-review return contract is incomplete")
+    polisher_decisions = scenario_contract.get("review_decision_contracts", {})
+    if polisher_decisions.get("research-polisher-strategy-reviewer", {}) != {
+        "allowed": [
+            "matrix_complete",
+            "matrix_complete_with_no_defensible_option",
+            "clarification_required",
+            "independent_review_pending",
+        ],
+        "pass": ["matrix_complete", "matrix_complete_with_no_defensible_option"],
+        "revise": ["clarification_required"],
+        "stop": ["independent_review_pending"],
+    }:
+        errors.append("Research Polisher strategy-review decision routing is invalid")
+    if polisher_decisions.get(
+        "research-polisher-methodology-publishability-reviewer", {}
+    ) != {
+        "allowed": [
+            "ready_for_human_selection",
+            "revision_required",
+            "specialist_review_required",
+            "no_defensible_option",
+            "not_assessable",
+            "independent_review_pending",
+        ],
+        "pass": ["ready_for_human_selection"],
+        "revise": ["revision_required", "specialist_review_required"],
+        "stop": [
+            "no_defensible_option",
+            "not_assessable",
+            "independent_review_pending",
+        ],
+    }:
+        errors.append("Research Polisher final-review decision routing is invalid")
+    polisher_package = scenario_contract.get("package_input_contracts", {}).get(
+        "research_polisher", {}
+    )
+    polisher_allowed_roles = set(polisher_package.get("allowed_roles", []))
+    if "research_polisher_strategy_report" in polisher_allowed_roles:
+        errors.append("Research Polisher final package must not expose raw strategy reports")
+    if not {
+        "research_polisher_dossier",
+        "research_polisher_sealed_provenance",
+        "research_polisher_candidate_portfolio",
+        "research_polisher_evaluation_report",
+        "research_polisher_review_finding_index",
+    } <= polisher_allowed_roles:
+        errors.append("Research Polisher final package contract lacks required artifact roles")
+    polisher_final_entry = next(
+        (
+            item
+            for item in entries
+            if item.get("name")
+            == "research-polisher-methodology-publishability-reviewer"
+        ),
+        {},
+    )
+    final_inputs = str(polisher_final_entry.get("allowed_input_artifacts", ""))
+    for marker in (
+        "dossier",
+        "evidence",
+        "candidate_portfolio",
+        "verified_target_adapter",
+        "sanitized_specialist_findings_bundle",
+    ):
+        if marker not in final_inputs:
+            errors.append(f"Research Polisher final-review registry inputs omit `{marker}`")
+    polisher_assembler_entry = next(
+        (
+            item
+            for item in entries
+            if item.get("name") == "research-polisher-plan-assembler"
+        ),
+        {},
+    )
+    assembler_io = " ".join(
+        str(polisher_assembler_entry.get(field, ""))
+        for field in ("allowed_input_artifacts", "output_artifact_type")
+    )
+    for marker in ("sealed_provenance", "revision_brief", "specialist_findings_bundle"):
+        if marker not in assembler_io:
+            errors.append(f"Research Polisher assembler registry I/O omits `{marker}`")
     for compositor in ("article-submission-compositor", "perspective-final-compositor"):
         entry = next((item for item in entries if item.get("name") == compositor), {})
         if entry.get("output_artifact_type") != "verification_report_and_final_handoff_package":
@@ -508,6 +777,7 @@ def main() -> int:
         SKILLS / "proposal-orchestrator" / "references" / "artifact-naming-and-directory-rules.md",
         SKILLS / "article-orchestrator" / "references" / "artifact-contracts.md",
         SKILLS / "perspective-orchestrator" / "references" / "artifact-naming-and-directory-rules.md",
+        SKILLS / "research-polisher-orchestrator" / "references" / "workflow-contract.md",
     ]
     for contract in lineage_contracts:
         contract_text = read(contract)
@@ -594,8 +864,11 @@ def main() -> int:
         errors.append("perspective: paragraph maps are assigned to two directories")
     if "draft-v{" in perspective_drafter + perspective_refiner + perspective_orchestrator:
         errors.append("perspective: draft naming must use perspective-vNNN")
-    if "09_state/workflow-manifest.yaml" not in perspective_orchestrator:
-        errors.append("perspective: workflow manifest path is not canonical")
+    if not (
+        "09_state/" in perspective_orchestrator
+        and "references/workflow-manifest-schema.md" in perspective_orchestrator
+    ):
+        errors.append("perspective: workflow manifest location or schema route is missing")
     deep_research_rules = read(
         SKILLS / "research-opportunity-mapper" / "references" / "deep-research-prompt-rules.md"
     )
@@ -626,23 +899,46 @@ def main() -> int:
         for residue in ("built-in Search", "Deep Research", "evidence_search.py", "local retrieval script"):
             if residue in orchestrator_text:
                 errors.append(f"{orchestrator_name}: direct retrieval-policy residue `{residue}`")
-        for state in canonical_states:
+        machine = next(
+            (
+                value
+                for value in state_machines.values()
+                if value.get("orchestrator") == orchestrator_name
+            ),
+            {},
+        )
+        required_states = set(canonical_states)
+        if machine.get("workflow_profile") == "reviewer_matrix_assemble_evaluate":
+            required_states.discard("human_signoff_required")
+            required_states.add("human_strategy_selection_required")
+        for state in required_states:
             if state not in orchestrator_text:
                 errors.append(f"{orchestrator_name}: canonical workflow state missing `{state}`")
-        if "one writer" not in orchestrator_text or "concurrent writes" not in orchestrator_text:
+        if not re.search(r"\b(?:one|single) writer\b", orchestrator_text, re.I) or not re.search(
+            r"\bconcurrent(?: source)? writes\b", orchestrator_text, re.I
+        ):
             errors.append(f"{orchestrator_name}: single-writer/concurrency contract missing")
     article_orchestrator = read(SKILLS / "article-orchestrator" / "SKILL.md")
     if (
         "`fast_track_draft`" not in article_orchestrator
-        or "Step 1 (independent readiness triage)" not in article_orchestrator
+        or re.search(
+            r"`fast_track_draft`[^\n]*readiness triage",
+            article_orchestrator,
+            re.I,
+        )
+        is None
     ):
         errors.append("article fast-track draft path must run independent readiness triage")
     perspective_minor_patch = perspective_orchestrator.split("### STEP 8.5: Panel Minor Revision Patch", 1)[1].split(
         "### STEP 9: Final Compositor", 1
     )[0]
     if (
-        "fresh independent `perspective-evaluator`" not in perspective_minor_patch
-        or "Never route a panel minor patch directly to the final compositor" not in perspective_minor_patch
+        re.search(r"fresh[^\n]*evaluator", perspective_minor_patch, re.I) is None
+        or not (
+            "no changed draft goes directly to the compositor" in perspective_minor_patch.lower()
+            or "never route a panel minor patch directly to the final compositor"
+            in perspective_minor_patch.lower()
+        )
     ):
         errors.append("perspective panel minor patch must receive fresh re-evaluation before final composition")
     perspective_architect = read(SKILLS / "perspective-argument-architect" / "SKILL.md")
@@ -654,6 +950,63 @@ def main() -> int:
     perspective_compositor = read(SKILLS / "perspective-final-compositor" / "SKILL.md")
     if "text-identical" not in perspective_compositor or "Do not edit" not in perspective_compositor:
         errors.append("perspective compositor may change final prose after evaluation")
+
+    polisher_orchestrator = read(
+        SKILLS / "research-polisher-orchestrator" / "SKILL.md"
+    )
+    for marker in (
+        "scientific_significance",
+        "practical_value",
+        "dissemination_editorial",
+        "reposition_only",
+        "small_extension",
+        "moderate_extension",
+        "human_strategy_selection_required",
+    ):
+        if marker not in polisher_orchestrator:
+            errors.append(f"research-polisher-orchestrator lacks required contract marker `{marker}`")
+    if not all(
+        marker in polisher_orchestrator.lower()
+        for marker in ("language polishing", "drafting", "idea generation", "general literature search")
+    ):
+        errors.append("Research Polisher public route does not exclude ordinary writing/search tasks")
+
+    polisher_strategy = read(
+        SKILLS / "research-polisher-strategy-reviewer" / "SKILL.md"
+    )
+    for marker in (
+        "no_defensible_option",
+        "added work",
+        "peer strategist reports",
+        "reposition_only",
+    ):
+        if marker.lower() not in polisher_strategy.lower():
+            errors.append(f"Research Polisher strategy reviewer lacks `{marker}` contract")
+
+    polisher_assembler = read(
+        SKILLS / "research-polisher-plan-assembler" / "SKILL.md"
+    )
+    if not all(
+        marker in polisher_assembler.lower()
+        for marker in ("do not score", "do not invent", "dissent", "automatic winner")
+    ):
+        errors.append("Research Polisher assembler may judge, invent, or hide strategy options")
+
+    polisher_final_reviewer = read(
+        SKILLS
+        / "research-polisher-methodology-publishability-reviewer"
+        / "SKILL.md"
+    )
+    if not all(
+        marker in polisher_final_reviewer.lower()
+        for marker in (
+            "raw strategist reports",
+            "acceptance probability",
+            "target_requirements_unverified",
+            "not_assessable",
+        )
+    ):
+        errors.append("Research Polisher final reviewer lacks blindness or publication-boundary controls")
 
     for report_name in ("phase2-targeted-search-smoke.md", "phase2-deep-research-handoff-smoke.md"):
         if not (PLUGIN / "reports" / report_name).exists():

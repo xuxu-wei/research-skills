@@ -16,36 +16,46 @@ from openai_ui_utils import short_description_error
 REPO = Path(__file__).resolve().parents[1]
 SKILLS_ROOT = REPO / "research-skills-openai" / "skills"
 
-IMPLICIT_SKILLS = {
+PUBLIC_ENTRY_SKILLS = {
     "research-idea-orchestrator",
     "proposal-orchestrator",
     "article-orchestrator",
     "perspective-orchestrator",
+    "research-polisher-orchestrator",
     "research-opportunity-mapper",
     "academic-deep-search",
 }
 
+# The seventh public entry is discoverable and explicitly callable in 0.7, but
+# the owner-approved roadmap keeps implicit routing frozen until the Phase 7-8
+# external evidence gates are complete.
+IMPLICIT_SKILLS = PUBLIC_ENTRY_SKILLS - {"research-polisher-orchestrator"}
+
+DISPLAY_NAMES = {
+    "research-polisher-orchestrator": "Research Polisher",
+}
+
 DESCRIPTIONS = {
-    "academic-deep-search": "Answer a specific academic question by closely reading 2-5 papers. Use for a bounded method, marker, finding, or figure; route broader synthesis to research-opportunity-mapper.",
+    "academic-deep-search": "Answer one bounded academic question from 2-5 closely read papers; route broader or multi-stage synthesis to research-opportunity-mapper.",
     "academic-language-assessor": "Independently assess academic language in a frozen research artifact; report locatable issues without rewriting.",
-    "article-architect": "Design a manuscript blueprint, claim-evidence structure, displays, supplements, results skeleton, and reviewer-risk plan before drafting.",
+    "article-architect": "Design a pre-drafting manuscript blueprint, claim-evidence structure, displays, supplements, results skeleton, and risk plan.",
     "article-claim-auditor": "Independently audit frozen manuscript claims against evidence; report unsupported inference, overclaiming, and wording mismatch.",
-    "article-context-builder": "Normalize study materials into an article context brief. Use before readiness review, architecture, or drafting to expose missing inputs.",
-    "article-cover-letter": "Draft a journal cover letter and quality-check artifact from frozen evaluated materials; never alter manuscript or frontmatter sources.",
+    "article-context-builder": "Normalize study materials into an article context brief before readiness review, architecture, or drafting; expose missing inputs.",
+    "article-cover-letter": "Draft a journal cover letter and quality check from frozen evaluated materials without altering source artifacts.",
     "article-drafter": "Draft or revise a versioned manuscript and supplements from approved context, blueprint, evidence, audits, and revision instructions.",
     "article-evaluator": "Independently evaluate a frozen manuscript against scientific, evidence-claim, reporting, language, and submission-readiness gates.",
     "article-frontmatter-drafter": "Draft versioned abstract, titles, key points, highlights, and related frontmatter from an evaluated manuscript and blueprint.",
-    "article-literature-grounder": "Build an auditable article literature-grounding report covering search scope, novelty, competing evidence, limits, and citation risk.",
+    "article-literature-grounder": "Build an auditable literature-grounding report covering scope, novelty, competing evidence, limits, and citation risk.",
     "article-methods-statistics-auditor": "Independently audit a frozen study's design, methods, endpoints, and statistics before drafting; report reanalysis needs or blocks.",
-    "article-orchestrator": "Orchestrate article drafting, independent review, revision, and human-review packaging. Use for full, fast-track, blueprint-only, section-specific, or submission-only workflows.",
+    "article-orchestrator": "Orchestrate full, fast-track, blueprint-only, section-specific, or submission-only article workflows through review and human handoff.",
     "article-readiness-triage": "Independently triage study materials for article readiness, article type, blocking gaps, and workflow route without drafting.",
-    "article-refinement-controller": "Plan targeted manuscript revision after independent review, route edits to the drafter, preserve lineage, and require fresh evaluation.",
+    "article-refinement-controller": "Plan reviewed manuscript revisions, route edits to the drafter, preserve lineage, and require fresh evaluation.",
     "article-review-panel": "Run one isolated article peer-review role on a frozen manuscript; preserve fatal findings, conflicts, and dissent without editing.",
     "article-submission-compositor": "Independently verify and assemble a frozen article and qualifying reviews into a package for human sign-off.",
     "idea-adversarial-review-panel": "Independently challenge a frozen promoted idea in one assigned novelty, feasibility, or strategy role before proposal handoff.",
     "idea-evaluator": "Independently score and gate frozen ideas for novelty, feasibility, impact, relevance, clarity, and completion.",
     "idea-portfolio-assembler": "Assemble evaluated ideas into a PI-review portfolio with ranking, lineage, limitations, dissent, and handoff status.",
-    "medical-journal-review": "Independently review a frozen medical study, protocol, manuscript, or cover letter for editorial, methods, statistics, claims, and fit.",
+    "medical-journal-review": "Independently review frozen medical research artifacts for editorial fit, methods, statistics, and claims.",
     "methodology-statistics-preflight": "Independently preflight a frozen research plan for endpoint, data-method, and feasibility problems.",
     "multi-path-idea-generator": "Generate a diverse, non-duplicative research-idea set from approved context and opportunity maps; do not evaluate or rank it.",
     "perspective-argument-architect": "Design a contestable Perspective argument chain, contribution, narrative, paragraph plan, and claim mapping before prose drafting.",
@@ -54,21 +64,25 @@ DESCRIPTIONS = {
     "perspective-evaluator": "Independently evaluate a frozen Perspective for argument, evidence, contribution, narrative, claim discipline, and outlet fit.",
     "perspective-final-compositor": "Independently verify and assemble a text-identical Perspective package for human review from current qualifying review artifacts.",
     "perspective-input-builder": "Normalize a Perspective thesis, audience, outlet, evidence, and constraints into an input brief and target-outlet profile.",
-    "perspective-orchestrator": "Orchestrate a Perspective, Viewpoint, or Commentary from thesis and evidence through independent review, revision, panel, and human-review delivery.",
+    "perspective-orchestrator": "Orchestrate a Perspective, Viewpoint, or Commentary from thesis and evidence through review, revision, panel, and human delivery.",
     "perspective-refinement-controller": "Plan Perspective revision after independent review, route prose to the drafter, preserve lineage, and require fresh evaluation.",
-    "perspective-review-panel": "Independently review a frozen Perspective from one assigned counter-position, evidence, narrative, method, clinician, or outlet-fit role.",
+    "perspective-review-panel": "Independently review a frozen Perspective from one assigned counter-position, evidence, narrative, method, or outlet role.",
     "proposal-context-brief-builder": "Normalize an idea, package, draft, funding call, or data opportunity into a proposal context brief with constraints and open facts.",
     "proposal-drafter": "Draft or revise a versioned proposal from approved context, evidence, structure, and revision instructions after readiness triage.",
     "proposal-evaluator": "Independently evaluate a frozen proposal for significance, logic, evidence, methods, feasibility, and reviewer defensibility.",
-    "proposal-orchestrator": "Orchestrate an idea, funding call, data opportunity, or draft through proposal evaluation, revision, optional SAP, panel, and human-review packaging.",
-    "proposal-package-assembler": "Assemble evaluated proposal, review, revision, panel, issue, and optional SAP artifacts into a human-review package without rewriting.",
-    "proposal-readiness-triage": "Independently triage whether an idea can enter proposal drafting; identify blockers and route clarification, refinement, or preflight.",
+    "proposal-orchestrator": "Orchestrate an idea, call, data opportunity, or draft through proposal review, revision, optional SAP, panel, and human handoff.",
+    "proposal-package-assembler": "Assemble evaluated proposal, review, revision, panel, issue, and optional SAP artifacts without rewriting.",
+    "proposal-readiness-triage": "Independently triage proposal-drafting readiness, identify blockers, and route clarification, refinement, or preflight.",
     "proposal-refinement-controller": "Plan targeted proposal revision after evaluation, route fixes to the drafter, preserve lineage, and require fresh evaluation.",
     "proposal-review-panel": "Independently review a frozen proposal from one assigned panel role after evaluation or in an early advisory review.",
     "research-context-builder": "Normalize a research direction, problem, evidence set, funding call, or data asset into a structured brief for idea generation.",
-    "research-idea-orchestrator": "Orchestrate a topic, evidence set, funding call, problem, or data asset into independently evaluated ideas and a ranked PI-review portfolio.",
-    "research-opportunity-mapper": "Build source-grounded evidence and opportunity maps. Use for broad retrieval, claim verification, novelty positioning, evidence limits, and research gaps.",
-    "sap-evaluator": "Independently evaluate a frozen SAP for endpoint alignment, data-method fit, feasibility, missing data, sensitivity, and reproducibility.",
+    "research-idea-orchestrator": "Orchestrate a topic, evidence, call, problem, or data asset into independently evaluated ideas and a PI-review portfolio.",
+    "research-opportunity-mapper": "Build source-grounded evidence and opportunity maps for broad retrieval, claim checks, novelty, evidence limits, and research gaps.",
+    "research-polisher-methodology-publishability-reviewer": "Independently review a frozen impact portfolio for method rigor, claim fit, feasibility, tier validity, and publishability.",
+    "research-polisher-orchestrator": "Orchestrate reviewed impact strategies for completed research. Use for reframing or bounded extensions; exclude language editing, drafting, idea generation, and general search.",
+    "research-polisher-plan-assembler": "Assemble sealed Research Polisher reports into an anonymous portfolio without scoring, inventing options, or hiding dissent.",
+    "research-polisher-strategy-reviewer": "Independently propose scientific, practical, or dissemination impact strategies across three effort tiers for frozen research.",
+    "sap-evaluator": "Independently evaluate a frozen SAP for endpoint alignment, data-method fit, feasibility, sensitivity, and reproducibility.",
     "sap-refinement-controller": "Plan targeted SAP revision after evaluation, route writing to sap-writer, preserve lineage, and require fresh evaluation.",
     "sap-writer": "Draft or revise a versioned SAP from approved endpoints, design, data structure, preflight findings, and revision instructions.",
 }
@@ -116,6 +130,10 @@ SHORT_DESCRIPTIONS = {
     "research-context-builder": "Normalize research inputs into an idea-generation brief",
     "research-idea-orchestrator": "Orchestrate research ideas into evaluated PI-review portfolios",
     "research-opportunity-mapper": "Build source-grounded evidence and opportunity maps.",
+    "research-polisher-methodology-publishability-reviewer": "Independently review strategy rigor and publishability",
+    "research-polisher-orchestrator": "Orchestrate research impact strategies and independent review",
+    "research-polisher-plan-assembler": "Assemble anonymous Research Polisher strategy portfolios",
+    "research-polisher-strategy-reviewer": "Propose tiered research impact strategies independently",
     "sap-evaluator": "Independently evaluate statistical analysis plans",
     "sap-refinement-controller": "Plan reviewed SAP revisions and fresh evaluation",
     "sap-writer": "Draft and revise versioned statistical analysis plans",
@@ -169,7 +187,10 @@ def yaml_quote(value: str) -> str:
 
 
 def display_name(name: str) -> str:
-    return " ".join(part.capitalize() for part in name.split("-"))
+    return DISPLAY_NAMES.get(
+        name,
+        " ".join(part.capitalize() for part in name.split("-")),
+    )
 
 
 def short_description(name: str) -> str:

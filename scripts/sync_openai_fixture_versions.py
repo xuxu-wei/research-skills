@@ -21,6 +21,7 @@ CURRENT_FIXTURES = (
     REPO / "tests" / "openai_phase4" / "proposal.yaml",
     REPO / "tests" / "openai_phase4" / "article.yaml",
     REPO / "tests" / "openai_phase4" / "perspective.yaml",
+    REPO / "tests" / "openai_phase4" / "research-polisher.yaml",
 )
 VERSION_LINE = re.compile(r"(?m)^(?P<indent>[ \t]*)plugin_version:[ \t]*[^\r\n#]+(?P<suffix>[ \t]*(?:#.*)?)$")
 

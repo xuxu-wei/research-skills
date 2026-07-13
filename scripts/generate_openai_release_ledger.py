@@ -36,6 +36,8 @@ VALIDATION_TEST_ROOTS = (
 VALIDATION_CONTRACT_FILES = (
     ".gitattributes",
     ".github/workflows/openai-plugin-preview.yml",
+    ".github/workflows/openai-preview-accepted-evidence.yml",
+    ".github/workflows/openai-preview-evidence.yml",
     "codex-plugin-validation.json",
 )
 MUTABLE_RUNTIME_EVIDENCE_FILES = {
@@ -130,10 +132,13 @@ def default_external_evidence(version: str) -> dict[str, Any]:
         "external_evidence_trust": {
             "adapter_status": "unavailable",
             "adapter_id": None,
+            "verification_level": None,
             "provider_authenticated": False,
             "reason": (
-                "No authenticated GitHub/Codex external-evidence adapter is "
-                "implemented; repository-authored envelopes prove integrity, not origin."
+                "No registered live external verifier has re-queried a GitHub "
+                "Release evidence bundle for this release. Repository files, "
+                "status text, screenshots, and manual notes do not establish "
+                "Preview acceptance."
             ),
         },
         "source_commit": pending(release_reason, sha=None),
@@ -145,8 +150,7 @@ def default_external_evidence(version: str) -> dict[str, Any]:
                 run_url=None,
                 commit_sha=None,
                 conclusion=None,
-                evidence_path=None,
-                evidence_sha256=None,
+                evidence_locator=None,
             ),
             "canonical_plugin_validator": {
                 "local": pending(
@@ -165,8 +169,7 @@ def default_external_evidence(version: str) -> dict[str, Any]:
                     run_id=None,
                     commit_sha=None,
                     conclusion=None,
-                    evidence_path=None,
-                    evidence_sha256=None,
+                    evidence_locator=None,
                 ),
             },
         },
@@ -176,15 +179,13 @@ def default_external_evidence(version: str) -> dict[str, Any]:
                 branch="main",
                 required_check="OpenAI Plugin Preview / validate",
                 verified_at=None,
-                evidence_path=None,
-                evidence_sha256=None,
+                evidence_locator=None,
             ),
         },
         "marketplace_resolved_commit": pending(
             "The rolling marketplace ref has not yet been resolved and bound to this release.",
             sha=None,
-            evidence_path=None,
-            evidence_sha256=None,
+            evidence_locator=None,
         ),
         "receipts": {
             "marketplace_upgrade": pending(
@@ -193,8 +194,7 @@ def default_external_evidence(version: str) -> dict[str, Any]:
                 source_commit=None,
                 cache_path=None,
                 cache_artifact=None,
-                evidence_path=None,
-                evidence_sha256=None,
+                evidence_locator=None,
             ),
             "explicit_reinstall": pending(
                 receipt_reason,
@@ -202,20 +202,21 @@ def default_external_evidence(version: str) -> dict[str, Any]:
                 source_commit=None,
                 cache_path=None,
                 cache_artifact=None,
-                evidence_path=None,
-                evidence_sha256=None,
+                evidence_locator=None,
             ),
             "fresh_task_discovery": pending(
                 receipt_reason,
                 plugin_version=None,
                 source_commit=None,
                 task_id=None,
-                skill_count=None,
-                visible_entry_skills=None,
+                installed_skill_count=None,
+                explicit_callable_entries=None,
+                implicit_prompt_entries=None,
+                explicit_callable_entry_skills=None,
+                implicit_prompt_entry_skills=None,
                 installed_via=None,
                 cache_artifact=None,
-                evidence_path=None,
-                evidence_sha256=None,
+                evidence_locator=None,
             ),
             "rollback": pending(
                 "Rollback evidence must be captured against the previous artifact and an immutable commit.",
@@ -228,8 +229,7 @@ def default_external_evidence(version: str) -> dict[str, Any]:
                 candidate_cache_artifact=None,
                 restored_cache_artifact=None,
                 cache_mixing_absent=None,
-                evidence_path=None,
-                evidence_sha256=None,
+                evidence_locator=None,
             ),
         },
     }
@@ -366,10 +366,13 @@ def build_ledger(existing: dict[str, Any] | None = None) -> dict[str, Any]:
         "evidence_policy": (
             "Derived fields come from the current tree. External evidence is preserved only "
             "for an unchanged version, manifest, registry/schema, license, provenance, "
-            "skill-tree digest, validation-contract tree, and marketplace source. Verified external records require a "
-            "repository-relative evidence file whose raw SHA-256 and observed payload match "
-            "the ledger. Repository files alone do not authenticate provider origin; verified "
-            "external records additionally require an implemented authenticated adapter. "
+            "skill-tree digest, validation-contract tree, and marketplace source. Accepted "
+            "external records store only immutable GitHub Release/run/asset locators and "
+            "digests, and require a registered verifier to live re-query those external assets. "
+            "Shared bundle validation proves integrity only and never determines gate eligibility. "
+            "preview_attested is explicitly not verified or provider_verified. provider_verified "
+            "is unavailable until a separately registered authenticated provider adapter exists. "
+            "Repository files, status text, screenshots, and manual notes never suffice. "
             "Unobserved evidence remains pending."
         ),
         "release": derived_release,

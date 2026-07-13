@@ -46,7 +46,7 @@ overall = mean(novelty, feasibility, impact, relevance, clarity, completion)
 
 ### Feasibility
 
-在现有数据、方法、时间、伦理和资源条件下是否可执行？
+在现有数据、方法、时间和资源条件下是否可执行？
 
 ### Impact
 
@@ -104,7 +104,7 @@ F: overall < 2.5 or unfixable gate failure -> reject
 - method 与 hypothesis 不匹配；
 - 用户目标或目标产出明显不匹配；
 - novelty claim 经 evidence 检查明显不成立；
-- feasibility 依赖无法满足的资源、伦理或监管条件；
+- feasibility 依赖无法满足的数据、技术或资源条件；
 - 临床相关 idea 未联网且无用户 evidence 时，仍声称 novelty 或 guideline alignment 已确认。
 
 ## 7. Required Evaluation Output

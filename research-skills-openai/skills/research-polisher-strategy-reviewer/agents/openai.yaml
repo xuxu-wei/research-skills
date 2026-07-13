@@ -1,0 +1,6 @@
+interface:
+  display_name: "Research Polisher Strategy Reviewer"
+  short_description: "Propose tiered research impact strategies independently"
+  default_prompt: "Use $research-polisher-strategy-reviewer for this task and follow its workflow and output contract."
+policy:
+  allow_implicit_invocation: false

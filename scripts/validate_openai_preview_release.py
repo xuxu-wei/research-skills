@@ -3,25 +3,63 @@
 
 from __future__ import annotations
 
+import argparse
 import json
 import re
 from pathlib import Path
+from typing import Mapping, Sequence
 
 import yaml
 
 from openai_release_utils import compare_semver, parse_semver
+from build_openai_preview_accepted_summary import (
+    AcceptedSummaryError,
+    PHASE7_COMPLETION_GATE_IDS,
+    strict_phase78_snapshot,
+)
 from test_openai_release_ledger import (
     authenticated_external_evidence_adapter_available,
+    configured_external_evidence_level,
     validate_release_evidence,
     validate_rollback_history_binding,
     validate_verified_source_commit_tree,
 )
 from test_openai_phase7_modes import release_gate_statuses, run_all as build_phase7_report
 from test_openai_phase8_corpus import run_all as build_phase8_report
+from validate_openai_release_evidence import (
+    ReleaseEvidenceRunnerError,
+    create_production_callback,
+)
 
 
 REPO = Path(__file__).resolve().parents[1]
 PLUGIN = REPO / "research-skills-openai"
+
+
+def _build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(
+        description="Validate the complete OpenAI Preview release contract."
+    )
+    parser.add_argument(
+        "--bundle-root",
+        help=(
+            "Directory containing downloaded current and accepted-history evidence "
+            "bundles. When supplied, accepted external records are re-queried through "
+            "the fixed production GitHub verifier in this process."
+        ),
+    )
+    parser.add_argument(
+        "--require-phase78-complete-preview",
+        action="store_true",
+        help=(
+            "Protected accepted-state mode: require the live-bridge reports to be "
+            "complete_preview_attested for all Phase 7 and Phase 8 slots. This mode "
+            "requires --bundle-root and is not an ordinary structural replay."
+        ),
+    )
+    return parser
+
+
 def markdown_h2_section(markdown: str, title: str) -> str | None:
     heading = re.search(rf"^##[ \t]+{re.escape(title)}(?:[ \t]+.*)?$", markdown, re.MULTILINE)
     if not heading:
@@ -53,17 +91,19 @@ def validate_phase5_upgrade_receipt(upgrade: str, current_version: str, expected
         re.MULTILINE,
     )
     upgraded_version = upgrade_match.group(1) if upgrade_match else ""
+    historical_count_match = re.search(r'"skill_count"\s*:\s*(\d+)', upgrade)
     required_upgrade_evidence = (
         "Status: upgrade_verified",
         upgraded_version,
         '"discovery_status": "verified"',
-        f'"skill_count": {expected_skill_count}',
         '"pubmed_present": false',
         "human_signoff_required",
     )
     for marker in required_upgrade_evidence:
         if marker not in upgrade:
             errors.append(f"Phase 5 upgrade receipt missing evidence: {marker}")
+    if not historical_count_match or int(historical_count_match.group(1)) <= 0:
+        errors.append("Phase 5 upgrade receipt lacks its historical discovered skill count")
 
     automatic_submission_false = any(
         re.search(pattern, upgrade, re.MULTILINE)
@@ -117,8 +157,45 @@ def validate_phase5_upgrade_receipt(upgrade: str, current_version: str, expected
     return errors
 
 
-def main() -> int:
+def main(
+    argv: Sequence[str] | None = None,
+    *,
+    _accepted_phase78_reports: tuple[Mapping[str, object], Mapping[str, object]]
+    | None = None,
+) -> int:
+    args = _build_parser().parse_args(argv)
     errors: list[str] = []
+    if args.require_phase78_complete_preview and not args.bundle_root:
+        errors.append(
+            "--require-phase78-complete-preview requires --bundle-root and the "
+            "protected live-evidence workflow"
+        )
+    if args.require_phase78_complete_preview and _accepted_phase78_reports is None:
+        errors.append(
+            "protected Phase 7-8 completion requires the same-process live-bridge "
+            "reports; serialized report files cannot enable this CLI mode"
+        )
+    if _accepted_phase78_reports is not None and not args.require_phase78_complete_preview:
+        errors.append(
+            "same-process Phase 7-8 reports are valid only with the protected "
+            "completion gate"
+        )
+    live_evidence_verifier = None
+    phase7_gate_evidence_verifier = None
+    if args.bundle_root:
+        try:
+            live_evidence_verifier = create_production_callback(
+                Path(args.bundle_root)
+            )
+            if args.require_phase78_complete_preview:
+                phase7_gate_evidence_verifier = create_production_callback(
+                    Path(args.bundle_root)
+                )
+        except (OSError, ReleaseEvidenceRunnerError) as exc:
+            errors.append(
+                "production live evidence callback could not be initialized: "
+                f"{type(exc).__name__}: {exc}"
+            )
     manifest = json.loads((PLUGIN / ".codex-plugin" / "plugin.json").read_text(encoding="utf-8"))
     registry = yaml.safe_load((PLUGIN / "workflow-registry.yaml").read_text(encoding="utf-8"))
     marketplace = json.loads((REPO / ".agents" / "plugins" / "marketplace.json").read_text(encoding="utf-8"))
@@ -135,6 +212,14 @@ def main() -> int:
         for entry in registry.get("skills", [])
         if entry.get("invocation_policy") == "implicit"
     }
+    public_entry_names = set(
+        registry.get("public_entry_policy", {}).get("declared_entries", [])
+    )
+    if len(public_entry_names) != 7 or len(implicit_entry_names) != 6:
+        errors.append(
+            "release requires seven declared public entries with six implicit-active "
+            "until the Research Polisher Phase 7-8 gate passes"
+        )
     if not registry_skill_names or discovered_skill_names != registry_skill_names:
         errors.append(
             "release skill discovery differs from registry: "
@@ -194,8 +279,10 @@ def main() -> int:
             errors.append("Phase 4 report version differs from the plugin")
         summary = phase4.get("summary", {})
         if (
-            summary.get("workflows_passed") != 4
-            or summary.get("negative_guards_rejected", 0) < 39
+            summary.get("workflows_passed")
+            != len(registry.get("workflow_state_machines", {}))
+            or summary.get("negative_guards_rejected", 0) < 53
+            or summary.get("research_polisher_component_guards_rejected", 0) < 12
             or summary.get("finding_routes_verified") != 5
             or summary.get("live_workflows_receipts_audited") != 4
             or summary.get("live_workflows_reached_human_signoff_gate") != 0
@@ -241,13 +328,29 @@ def main() -> int:
     if not phase6_path.is_file():
         errors.append("Phase 6 context measurement is missing")
 
+    phase7: dict[str, object] | None = None
     phase7_path = PLUGIN / "reports" / "phase7-mode-results.json"
     if not phase7_path.is_file():
         errors.append("Phase 7 mode report is missing")
     else:
-        phase7 = json.loads(phase7_path.read_text(encoding="utf-8"))
-        if phase7 != build_phase7_report():
-            errors.append("Phase 7 report differs from a fresh validator replay")
+        recorded_phase7 = json.loads(phase7_path.read_text(encoding="utf-8"))
+        if args.require_phase78_complete_preview:
+            # The accepted report is produced and retained by the protected live
+            # bridge in this process. A capability-free replay is intentionally
+            # pending and serialized files alone may not enable this branch.
+            phase7 = (
+                dict(_accepted_phase78_reports[0])
+                if _accepted_phase78_reports is not None
+                else recorded_phase7
+            )
+            if _accepted_phase78_reports is not None and recorded_phase7 != phase7:
+                errors.append(
+                    "Phase 7 report file differs from the same-process live report"
+                )
+        else:
+            phase7 = build_phase7_report()
+            if recorded_phase7 != phase7:
+                errors.append("Phase 7 report differs from a fresh validator replay")
         phase7_summary = phase7.get("summary", {})
         declared_modes = sum(
             len(machine.get("entry_modes", []))
@@ -273,6 +376,22 @@ def main() -> int:
             for result in positive_results
             if isinstance(result, dict)
         )
+        strategy_group_modes = sum(
+            bool(result.get("synthetic_strategy_reviewer_receipt_ids"))
+            for result in positive_results
+            if isinstance(result, dict)
+        )
+        strategy_receipt_total = sum(
+            len(result.get("synthetic_strategy_reviewer_receipt_ids", []))
+            for result in positive_results
+            if isinstance(result, dict)
+        )
+        polisher_results = [
+            result
+            for result in positive_results
+            if isinstance(result, dict)
+            and result.get("workflow") == "research_polisher"
+        ]
         entry_negative_count = sum(
             result.get("guard_scope") == "entry_gate_receipt_or_artifact_lineage"
             for result in negative_results
@@ -294,6 +413,9 @@ def main() -> int:
                 "stale_evaluator_receipt",
                 "missing_panel_receipt",
                 "stale_panel_receipt",
+                "missing_strategy_reviewer_receipt",
+                "stale_strategy_reviewer_receipt",
+                "duplicate_strategy_reviewer_instance",
             )
         }
         runtime_receipts = phase7.get("runtime_receipts", {})
@@ -331,42 +453,54 @@ def main() -> int:
             if isinstance(result, dict)
         }
         completion_gates = phase7.get("completion_gates", {})
-        expected_completion_gate_ids = {
-            "authenticated_platform_capture_adapter",
-            "authenticated_external_evidence_adapter",
-            "four_current_version_live_happy_paths",
-            "four_current_version_valid_control_paths",
-            "release_source_commit",
-            "repository_preview_ci",
-            "canonical_plugin_validator_ci",
-            "marketplace_resolved_commit",
-            "marketplace_upgrade",
-            "explicit_reinstall",
-            "fresh_task_discovery",
-            "immutable_previous_artifact_rollback",
-            "main_branch_required_check_protection",
-        }
+        expected_completion_gate_ids = PHASE7_COMPLETION_GATE_IDS
         derived_pending_gates = [
             gate_id
             for gate_id, gate in completion_gates.items()
             if not isinstance(gate, dict) or gate.get("status") != "verified"
         ]
-        expected_phase7_status = (
-            "complete"
-            if not derived_pending_gates
-            else "in_progress_live_and_release_evidence_pending"
-        )
+        phase7_verification_level = phase7.get("verification_level")
+        if derived_pending_gates:
+            expected_phase7_status = "in_progress_live_and_release_evidence_pending"
+        elif phase7_verification_level == "preview_attested":
+            expected_phase7_status = "complete_preview_attested"
+        elif phase7_verification_level == "provider_verified":
+            expected_phase7_status = "complete_provider_verified"
+        else:
+            expected_phase7_status = None
         reachability = runtime_receipts.get("completion_reachability_self_test", {})
         phase7_platform_trust = runtime_receipts.get("platform_trust", {})
+        phase7_discovery = phase7.get("discovery_contract", {})
+        expected_phase7_evidence_class = (
+            "synthetic_contract_and_external_runtime_evidence"
+            if args.require_phase78_complete_preview
+            else "synthetic_contract_evidence_only"
+        )
+        expected_phase7_execution_kind = (
+            "deterministic_replay_with_external_runtime_evidence"
+            if args.require_phase78_complete_preview
+            else "deterministic_replay"
+        )
         if phase7.get("plugin_version") != version:
             errors.append("Phase 7 mode report version differs from the plugin")
         if phase7.get("phase_status") not in {
             "in_progress_live_and_release_evidence_pending",
-            "complete",
+            "complete_preview_attested",
+            "complete_provider_verified",
         }:
             errors.append("Phase 7 report has no valid phase status")
         if (
             phase7_summary.get("declared_entry_modes") != declared_modes
+            or phase7_discovery
+            != {
+                "installed_skill_count": 49,
+                "explicit_callable_entries": 7,
+                "implicit_prompt_entries": 6,
+                "release_stage": "A",
+            }
+            or phase7_summary.get("installed_skill_count") != 49
+            or phase7_summary.get("explicit_callable_entries") != 7
+            or phase7_summary.get("implicit_prompt_entries") != 6
             or phase7_summary.get("positive_modes_passed") != declared_modes
             or len(positive_results) != declared_modes
             or phase7_summary.get("registry_entry_mode_contracts_verified")
@@ -386,36 +520,74 @@ def main() -> int:
             != evaluator_modes
             or reviewer_mutation_counts["missing_panel_receipt"] != panel_modes
             or reviewer_mutation_counts["stale_panel_receipt"] != panel_modes
+            or reviewer_mutation_counts["missing_strategy_reviewer_receipt"]
+            != strategy_group_modes
+            or reviewer_mutation_counts["stale_strategy_reviewer_receipt"]
+            != strategy_group_modes
+            or reviewer_mutation_counts["duplicate_strategy_reviewer_instance"]
+            != strategy_group_modes
             or phase7_summary.get("missing_evaluator_receipts_rejected")
             != evaluator_modes
             or phase7_summary.get("stale_evaluator_receipts_rejected")
             != evaluator_modes
             or phase7_summary.get("missing_panel_receipts_rejected") != panel_modes
             or phase7_summary.get("stale_panel_receipts_rejected") != panel_modes
-            or reviewer_negative_count != 2 * (evaluator_modes + panel_modes)
+            or phase7_summary.get("strategy_reviewer_group_mutations_rejected")
+            != 3 * strategy_group_modes
+            or reviewer_negative_count
+            != 2 * (evaluator_modes + panel_modes) + 3 * strategy_group_modes
+            or len(polisher_results) != 1
+            or polisher_results[0].get("final_state")
+            != "human_strategy_selection_required"
+            or polisher_results[0].get("writer_skill") is not None
+            or polisher_results[0].get("panel_skill") is not None
+            or polisher_results[0].get("synthetic_panel_receipt_ids") != []
+            or len(
+                polisher_results[0].get(
+                    "synthetic_strategy_reviewer_receipt_ids", []
+                )
+            )
+            != 3
+            or phase7_summary.get(
+                "synthetic_strategy_reviewer_receipts_validated"
+            )
+            != strategy_receipt_total
+            or phase7_summary.get(
+                "human_strategy_selection_required_modes"
+            )
+            != 1
+            or phase7_summary.get(
+                "research_polisher_routing_boundaries_verified"
+            )
+            != 7
+            or phase7_summary.get(
+                "research_polisher_takeover_mutations_rejected"
+            )
+            != 6
             or phase7_summary.get("negative_guards_rejected")
             != len(negative_results)
             or len(negative_results) != entry_negative_count + reviewer_negative_count
             or phase7_summary.get("false_ready_count") != 0
             or phase7_summary.get("automatic_external_submission") is not False
             or phase7_summary.get("live_model_runs_claimed") != runtime_verified
-            or phase7.get("evidence_class") != "synthetic_contract_evidence_only"
-            or phase7.get("execution_kind") != "deterministic_replay"
-            or phase7.get("live_model_execution") is not False
+            or phase7.get("evidence_class") != expected_phase7_evidence_class
+            or phase7.get("execution_kind") != expected_phase7_execution_kind
+            or phase7.get("live_model_execution")
+            is not args.require_phase78_complete_preview
             or phase7.get("state_advance_order")
             != "validate_qualifying_receipt_then_validate_registry_prerequisites_then_commit_derived_state_then_execute_transition"
         ):
-            errors.append("Phase 7 deterministic mode coverage is incomplete")
+            errors.append("Phase 7 mode and runtime evidence coverage is incomplete")
         if (
             not isinstance(runtime_results, list)
-            or len(runtime_results) != 8
+            or len(runtime_results) != 10
             or expected_runtime_pairs != actual_runtime_pairs
-            or runtime_verified + runtime_pending != 8
-            or runtime_receipts.get("expected_receipt_count") != 8
+            or runtime_verified + runtime_pending != 10
+            or runtime_receipts.get("expected_receipt_count") != 10
             or runtime_receipts.get("verified_receipt_count") != runtime_verified
             or runtime_receipts.get("pending_receipt_count") != runtime_pending
             or runtime_receipts.get("live_evidence_claimed") is not (runtime_verified > 0)
-            or phase7_summary.get("runtime_receipts_expected") != 8
+            or phase7_summary.get("runtime_receipts_expected") != 10
             or phase7_summary.get("runtime_receipts_verified") != runtime_verified
             or phase7_summary.get("runtime_receipts_pending") != runtime_pending
             or len(runtime_guards) < 9
@@ -427,6 +599,8 @@ def main() -> int:
                 for guard in runtime_guards
             )
             or {
+                "integrity_only_result_promoted_without_attestation",
+                "single_screenshot_without_raw_export",
                 "label_only_verified_status",
                 "missing_durable_actor_manifest_binding",
                 "task_export_digest_mismatch",
@@ -449,7 +623,7 @@ def main() -> int:
                 for gate in completion_gates.values()
             )
             or completion_gates.get(
-                "authenticated_platform_capture_adapter", {}
+                "accepted_platform_capture_adapter", {}
             ).get("status")
             != (
                 "verified"
@@ -461,17 +635,23 @@ def main() -> int:
             )
             is not False
             or not isinstance(
+                phase7_platform_trust.get(
+                    "supported_preview_attestation_adapter_ids"
+                ),
+                list,
+            )
+            or not isinstance(
                 phase7_platform_trust.get("supported_authenticated_adapter_ids"),
                 list,
             )
             or completion_gates.get(
-                "four_current_version_live_happy_paths", {}
+                "five_current_version_live_happy_paths", {}
             ).get("status")
-            != ("verified" if runtime_happy_verified == 4 else "pending")
+            != ("verified" if runtime_happy_verified == 5 else "pending")
             or completion_gates.get(
-                "four_current_version_valid_control_paths", {}
+                "five_current_version_valid_control_paths", {}
             ).get("status")
-            != ("verified" if runtime_control_verified == 4 else "pending")
+            != ("verified" if runtime_control_verified == 5 else "pending")
             or not isinstance(phase7.get("pending_gates"), list)
             or len(phase7.get("pending_gates", [])) != len(derived_pending_gates)
             or set(phase7.get("pending_gates", [])) != set(derived_pending_gates)
@@ -480,37 +660,121 @@ def main() -> int:
             or phase7_summary.get("completion_gates_pending")
             != len(derived_pending_gates)
             or phase7.get("phase_status") != expected_phase7_status
+            or phase7_verification_level
+            not in {None, "preview_attested", "provider_verified"}
+            or phase7.get("provider_verified")
+            is not (phase7_verification_level == "provider_verified")
+            or phase7.get("counts_as_preview_acceptance")
+            is not (
+                not derived_pending_gates
+                and phase7_verification_level
+                in {"preview_attested", "provider_verified"}
+            )
+            or phase7_platform_trust.get("accepted_verification_level")
+            != phase7_verification_level
+            or any(
+                isinstance(result, dict)
+                and result.get("status") == "verified"
+                and result.get("verification_level")
+                != phase7_verification_level
+                for result in runtime_results
+            )
             or (
-                phase7.get("phase_status") == "complete"
-                and runtime_verified != 8
+                phase7.get("phase_status")
+                in {"complete_preview_attested", "complete_provider_verified"}
+                and runtime_verified != 10
             )
             or reachability.get("status") != "passed"
             or reachability.get("evidence_kind")
             != "synthetic_gate_logic_self_test_only"
             or reachability.get("counts_as_runtime_evidence") is not False
-            or reachability.get("derived_phase_status") != "complete"
-            or reachability.get("verified_gate_count") != len(completion_gates)
+            or reachability.get("verification_levels", {})
+            .get("preview_attested", {})
+            .get("derived_phase_status")
+            != "complete_preview_attested"
+            or reachability.get("verification_levels", {})
+            .get("preview_attested", {})
+            .get("provider_verified")
+            is not False
+            or reachability.get("verification_levels", {})
+            .get("preview_attested", {})
+            .get("counts_as_runtime_evidence")
+            is not False
+            or reachability.get("verification_levels", {})
+            .get("preview_attested", {})
+            .get("verified_gate_count")
+            != len(completion_gates)
+            or reachability.get("verification_levels", {})
+            .get("provider_verified", {})
+            .get("derived_phase_status")
+            != "complete_provider_verified"
+            or reachability.get("verification_levels", {})
+            .get("provider_verified", {})
+            .get("provider_verified")
+            is not True
+            or reachability.get("verification_levels", {})
+            .get("provider_verified", {})
+            .get("counts_as_runtime_evidence")
+            is not False
+            or reachability.get("verification_levels", {})
+            .get("provider_verified", {})
+            .get("verified_gate_count")
+            != len(completion_gates)
+            or {
+                "bare_boolean_gate_override",
+                "forged_attestation_capability",
+            }
+            - {
+                guard.get("mutation")
+                for guard in reachability.get("capability_negative_guards", [])
+                if isinstance(guard, dict)
+                and guard.get("status") == "rejected_as_expected"
+            }
         ):
             errors.append("Phase 7 runtime receipt or completion-gate accounting is invalid")
 
+    phase8: dict[str, object] | None = None
     phase8_path = PLUGIN / "reports" / "phase8-corpus-results.json"
     if not phase8_path.is_file():
         errors.append("Phase 8 corpus report is missing")
     else:
-        phase8 = json.loads(phase8_path.read_text(encoding="utf-8"))
-        if phase8 != build_phase8_report():
-            errors.append("Phase 8 report differs from a fresh validator replay")
+        recorded_phase8 = json.loads(phase8_path.read_text(encoding="utf-8"))
+        if args.require_phase78_complete_preview:
+            # See the Phase 7 note above: accepted state comes from the protected
+            # same-process live bridge, never from a serialized replay capability.
+            phase8 = (
+                dict(_accepted_phase78_reports[1])
+                if _accepted_phase78_reports is not None
+                else recorded_phase8
+            )
+            if _accepted_phase78_reports is not None and recorded_phase8 != phase8:
+                errors.append(
+                    "Phase 8 report file differs from the same-process live report"
+                )
+        else:
+            phase8 = build_phase8_report()
+            if recorded_phase8 != phase8:
+                errors.append("Phase 8 report differs from a fresh validator replay")
         corpus = phase8.get("corpus", {})
         live_repeat = phase8.get("live_fresh_repeat", {})
         retrieval = phase8.get("retrieval", {})
         claims = phase8.get("claims", {})
+        acceptance_status = phase8.get("acceptance_status", {})
+        provider_trust = phase8.get("provider_trust", {})
+        validator_self_tests = phase8.get("validator_self_tests", {})
+        preview_adapter_count = provider_trust.get("preview_adapter_count", 0)
+        provider_adapter_count = provider_trust.get("real_adapter_count", 0)
         phase8_status = phase8.get("phase_status")
         required_distribution = {
             "search": 3,
             "deep_research_completed": 2,
             "deep_research_inactive_control": 1,
         }
-        completed_by_kind = retrieval.get("completed_current_receipts_by_kind", {})
+        required_receipts = sum(required_distribution.values())
+        provider_by_kind = retrieval.get("completed_current_receipts_by_kind", {})
+        preview_by_kind = retrieval.get(
+            "preview_attested_current_receipts_by_kind", {}
+        )
         observed_by_kind = retrieval.get("observed_unverified_receipts_by_kind", {})
         durable_retrieval_guards = retrieval.get(
             "durable_provenance_negative_guards", []
@@ -518,34 +782,91 @@ def main() -> int:
         durable_live_guards = live_repeat.get(
             "durable_binding_negative_guards", []
         )
-        completed_receipts = retrieval.get("completed_current_receipts", 0)
+        provider_receipts = retrieval.get("completed_current_receipts", 0)
+        preview_receipts = retrieval.get("preview_attested_current_receipts", 0)
         observed_receipts = retrieval.get("observed_unverified_receipts", 0)
+        historical_receipts = retrieval.get(
+            "historical_release_mismatch_receipts", 0
+        )
         pending_receipts = retrieval.get("pending_receipts", 0)
         stale_receipts = retrieval.get("stale_receipts", 0)
-        verified_reviews = live_repeat.get("verified_live_review_count", 0)
-        live_gate_complete = (
-            verified_reviews == 6
-            and live_repeat.get("status") == "completed"
-            and live_repeat.get("verified_live_gate_status") == "completed"
+        provider_reviews = live_repeat.get(
+            "provider_verified_live_review_count", 0
         )
-        retrieval_gate_complete = (
-            completed_by_kind == required_distribution
-            and completed_receipts == sum(required_distribution.values())
-            and observed_receipts == 0
-            and pending_receipts == 0
-            and stale_receipts == 0
+        preview_reviews = live_repeat.get("preview_attested_review_count", 0)
+        preview_or_provider_reviews = preview_reviews + provider_reviews
+        expected_live_status = (
+            "provider_verified"
+            if provider_reviews == 6
+            else "preview_attested"
+            if preview_reviews == 6
+            else "historical_release_mismatch"
+            if live_repeat.get("historical_release_mismatch") is True
+            else "observed_unverified"
+        )
+        provider_live_gate_complete = (
+            provider_reviews == 6
+            and live_repeat.get("verified_live_gate_status") == "completed"
+            and live_repeat.get("status") == "provider_verified"
+        )
+        preview_live_gate_complete = (
+            preview_or_provider_reviews == 6
+            and live_repeat.get("preview_gate_status") == "completed"
+            and live_repeat.get("status")
+            in {"preview_attested", "provider_verified"}
+        )
+        provider_retrieval_gate_complete = (
+            provider_by_kind == required_distribution
+            and provider_receipts == required_receipts
             and retrieval.get("status") == "completed"
+        )
+        combined_retrieval_by_kind = {
+            kind: provider_by_kind.get(kind, 0) + preview_by_kind.get(kind, 0)
+            for kind in required_distribution
+        }
+        preview_retrieval_gate_complete = (
+            combined_retrieval_by_kind == required_distribution
+            and provider_receipts + preview_receipts == required_receipts
+            and retrieval.get("preview_gate_status") == "completed"
+        )
+        provider_acceptance_complete = (
+            provider_live_gate_complete and provider_retrieval_gate_complete
+        )
+        preview_acceptance_complete = (
+            preview_live_gate_complete and preview_retrieval_gate_complete
+        )
+        expected_phase8_status = (
+            "complete_provider_verified"
+            if provider_acceptance_complete
+            else "complete_preview_attested"
+            if preview_acceptance_complete
+            else "in_progress"
+        )
+        accepted_verification_level = (
+            "provider_verified"
+            if provider_acceptance_complete
+            else "preview_attested"
+            if preview_acceptance_complete
+            else None
         )
         if phase8.get("plugin_version") != version:
             errors.append("Phase 8 report version differs from the plugin")
         if phase8_status not in {
-            "in_progress_live_runtime_evidence_pending",
-            "complete",
+            "in_progress",
+            "complete_preview_attested",
+            "complete_provider_verified",
         }:
             errors.append("Phase 8 report has no valid phase status")
         if (
             corpus.get("case_count", 0)
             < 4 * len(registry.get("workflow_state_machines", {}))
+            or corpus.get("research_polisher_domain_coverage")
+            != {
+                "basic_experimental": 1,
+                "clinical_or_observational": 1,
+                "computational_or_engineering": 1,
+                "qualitative_or_mixed_methods": 1,
+            }
             or corpus.get("metrics", {}).get("false_ready_count") != 0
             or corpus.get("metrics", {}).get("fatal_or_blocking_finding_recall_percent")
             != 100.0
@@ -561,7 +882,11 @@ def main() -> int:
                 )
             )
             or live_repeat.get("case_count") != 3
-            or live_repeat.get("observed_review_snapshot_count") != 6
+            or live_repeat.get("observed_review_snapshot_count") not in {0, 6}
+            or (
+                live_repeat.get("historical_release_mismatch") is True
+                and live_repeat.get("historical_release_mismatch_snapshot_count") != 6
+            )
             or live_repeat.get("unique_reviewer_instance_count") != 6
             or live_repeat.get("snapshot_contract_state_agreement_percent") != 100.0
             or live_repeat.get("durable_binding_negative_guard_count") != 6
@@ -572,25 +897,68 @@ def main() -> int:
                 or guard.get("error_code") != "live_repeat_durable_binding"
                 for guard in durable_live_guards
             )
-            or verified_reviews not in {0, 6}
+            or provider_reviews not in {0, 6}
+            or preview_reviews not in {0, 6}
+            or preview_or_provider_reviews not in {0, 6}
+            or live_repeat.get("verified_live_review_count") != provider_reviews
+            or live_repeat.get("provider_verified_slots_pending")
+            != 6 - provider_reviews
+            or live_repeat.get("preview_verifier_adapter_count")
+            != preview_adapter_count
+            or live_repeat.get("provider_verifier_adapter_count")
+            != provider_adapter_count
+            or live_repeat.get("status") != expected_live_status
+            or live_repeat.get("preview_gate_status")
+            != (
+                "completed"
+                if preview_or_provider_reviews == 6
+                else "pending_preview_attested_execution_evidence"
+            )
+            or live_repeat.get("verified_live_gate_status")
+            != (
+                "completed"
+                if provider_reviews == 6
+                else "pending_provider_verified_execution_evidence"
+            )
             or (
-                verified_reviews == 0
+                preview_or_provider_reviews == 0
                 and (
-                    live_repeat.get("status") != "observed_unverified"
-                    or live_repeat.get("verified_live_gate_status")
-                    != "pending_durable_execution_evidence"
+                    live_repeat.get("status")
+                    not in {"observed_unverified", "historical_release_mismatch"}
+                    or live_repeat.get("preview_gate_status")
+                    != "pending_preview_attested_execution_evidence"
                 )
             )
-            or (verified_reviews == 6 and not live_gate_complete)
+            or (
+                provider_reviews == 0
+                and live_repeat.get("verified_live_gate_status")
+                != "pending_provider_verified_execution_evidence"
+            )
+            or (provider_reviews == 6 and not provider_live_gate_complete)
+            or (
+                preview_or_provider_reviews == 6
+                and not preview_live_gate_complete
+            )
             or retrieval.get("required_distribution") != required_distribution
-            or retrieval.get("required_receipt_count")
-            != sum(required_distribution.values())
-            or completed_receipts != sum(completed_by_kind.values())
+            or retrieval.get("required_receipt_count") != required_receipts
+            or provider_receipts != sum(provider_by_kind.values())
+            or preview_receipts != sum(preview_by_kind.values())
             or observed_receipts != sum(observed_by_kind.values())
-            or completed_receipts + observed_receipts + pending_receipts + stale_receipts
-            != sum(required_distribution.values())
-            or retrieval.get("durable_provenance_negative_guard_count") != 41
-            or len(durable_retrieval_guards) != 41
+            or provider_receipts
+            + preview_receipts
+            + observed_receipts
+            + historical_receipts
+            + pending_receipts
+            + stale_receipts
+            != required_receipts
+            or retrieval.get("provider_verified_slots_pending")
+            != required_receipts - provider_receipts
+            or retrieval.get("preview_verifier_adapter_count")
+            != preview_adapter_count
+            or retrieval.get("provider_verifier_adapter_count")
+            != provider_adapter_count
+            or retrieval.get("durable_provenance_negative_guard_count") != 44
+            or len(durable_retrieval_guards) != 44
             or any(not isinstance(guard, dict) for guard in durable_retrieval_guards)
             or any(
                 guard.get("status") != "rejected"
@@ -599,6 +967,7 @@ def main() -> int:
                     "retrieval_durable_provenance",
                     "retrieval_durable_query_binding",
                     "retrieval_durable_binding",
+                    "retrieval_verified_evidence_class",
                 }
                 for guard in durable_retrieval_guards
                 if isinstance(guard, dict)
@@ -615,27 +984,110 @@ def main() -> int:
                 if isinstance(guard, dict)
             )
             != 10
+            or sum(
+                guard.get("error_code") == "retrieval_verified_evidence_class"
+                for guard in durable_retrieval_guards
+                if isinstance(guard, dict)
+            )
+            != 3
+            or retrieval.get("status")
+            != (
+                "completed"
+                if provider_receipts == required_receipts and stale_receipts == 0
+                else "pending_provider_verified_evidence"
+            )
+            or retrieval.get("preview_gate_status")
+            != (
+                "completed"
+                if provider_receipts + preview_receipts == required_receipts
+                and stale_receipts == 0
+                else "pending_preview_attested_evidence"
+            )
             or claims.get("live_fresh_evaluator_repeats_counted_as_pass")
-            != verified_reviews
+            != provider_reviews
+            or claims.get("preview_attested_reviewer_receipts")
+            != preview_reviews
+            or claims.get("provider_verified_reviewer_slots_pending")
+            != 6 - provider_reviews
             or claims.get("live_search_receipts_counted_as_pass")
-            != completed_by_kind.get("search", 0)
+            != provider_by_kind.get("search", 0)
+            or claims.get("preview_attested_retrieval_receipts")
+            != preview_receipts
+            or claims.get("provider_verified_retrieval_slots_pending")
+            != required_receipts - provider_receipts
             or claims.get("deep_research_cycles_claimed_without_receipts") != 0
+            or claims.get("repository_authored_files_counted_as_verified")
+            is not False
+            or claims.get("synthetic_preview_contract_counts_as_real_evidence")
+            is not False
+            or not isinstance(preview_adapter_count, int)
+            or preview_adapter_count < 1
+            or not isinstance(provider_adapter_count, int)
+            or provider_adapter_count < 0
+            or (provider_acceptance_complete and provider_adapter_count < 1)
+            or provider_trust.get("repository_authored_files_are_trust_anchors")
+            is not False
+            or provider_trust.get("synthetic_override_counts_as_runtime_evidence")
+            is not False
+            or validator_self_tests.get("counts_as_runtime_evidence") is not False
+            or validator_self_tests.get("naked_boolean_override_rejected") is not True
+            or validator_self_tests.get("arbitrary_external_root_rejected") is not True
+            or validator_self_tests.get("expired_capability_rejected") is not True
+            or validator_self_tests.get("phase8_acceptance_state_machine", {})
+            .get("states")
+            != {
+                "none": "in_progress",
+                "preview": "complete_preview_attested",
+                "provider": "complete_provider_verified",
+            }
+            or validator_self_tests.get("phase8_acceptance_state_machine", {})
+            .get("inconsistent_promotion_rejected")
+            is not True
         ):
             errors.append("Phase 8 corpus or evidence accounting is incomplete")
-        if phase8_status == "complete":
-            if (
-                not live_gate_complete
-                or not retrieval_gate_complete
-                or claims.get("phase8_complete") is not True
-            ):
-                errors.append("Phase 8 is marked complete without all durable live gates")
-        elif (
-            live_gate_complete
-            and retrieval_gate_complete
-            or claims.get("phase8_complete") is not False
-            or retrieval.get("status") not in {"pending_live_evidence", "completed"}
+        if (
+            phase8_status != expected_phase8_status
+            or claims.get("preview_gate_complete")
+            is not preview_acceptance_complete
+            or claims.get("provider_gate_complete")
+            is not provider_acceptance_complete
+            or claims.get("preview_phase8_acceptance_complete")
+            is not preview_acceptance_complete
+            or claims.get("preview_attested_phase8_complete")
+            is not (
+                preview_acceptance_complete and not provider_acceptance_complete
+            )
+            or claims.get("provider_verified_phase8_complete")
+            is not provider_acceptance_complete
+            or claims.get("accepted_verification_level")
+            != accepted_verification_level
+            or claims.get("phase8_complete")
+            is not (phase8_status != "in_progress")
+            or acceptance_status.get("preview_attested")
+            != (
+                "complete"
+                if preview_acceptance_complete
+                else "pending_real_preview_attested_slots"
+            )
+            or acceptance_status.get("provider_verified")
+            != (
+                "complete"
+                if provider_acceptance_complete
+                else "pending_strict_provider_evidence"
+            )
         ):
             errors.append("Phase 8 pending status is inconsistent with its evidence gates")
+
+    if args.require_phase78_complete_preview:
+        if phase7 is None or phase8 is None:
+            errors.append(
+                "protected Preview completion requires both Phase 7 and Phase 8 reports"
+            )
+        else:
+            try:
+                strict_phase78_snapshot(phase7, phase8)
+            except AcceptedSummaryError as exc:
+                errors.append(f"protected Phase 7-8 completion gate failed: {exc}")
 
     ledger_path = PLUGIN / "reports" / "release-ledger.json"
     if not ledger_path.is_file():
@@ -646,6 +1098,14 @@ def main() -> int:
         if release.get("version") != version:
             errors.append("release ledger version differs from the plugin")
         ledger_evidence_errors: list[str] = []
+        if live_evidence_verifier is not None:
+            try:
+                live_evidence_verifier.prepare_ledger(ledger)
+            except (OSError, ReleaseEvidenceRunnerError) as exc:
+                ledger_evidence_errors.append(
+                    "production live evidence preparation failed: "
+                    f"{type(exc).__name__}: {exc}"
+                )
         validate_release_evidence(
             release,
             version,
@@ -654,6 +1114,10 @@ def main() -> int:
             authenticated_external_adapter=(
                 authenticated_external_evidence_adapter_available(release)
             ),
+            expected_explicit_entries=sorted(public_entry_names),
+            expected_implicit_entries=sorted(implicit_entry_names),
+            live_evidence_verifier=live_evidence_verifier,
+            defer_live_external_requery=(live_evidence_verifier is None),
         )
         validate_verified_source_commit_tree(release, ledger_evidence_errors)
         previous_releases = ledger.get("previous_releases", [])
@@ -673,6 +1137,8 @@ def main() -> int:
                     authenticated_external_adapter=(
                         authenticated_external_evidence_adapter_available(previous)
                     ),
+                    live_evidence_verifier=live_evidence_verifier,
+                    defer_live_external_requery=(live_evidence_verifier is None),
                 )
                 validate_verified_source_commit_tree(
                     previous,
@@ -686,12 +1152,41 @@ def main() -> int:
             )
         else:
             ledger_evidence_errors.append("previous_releases is not a list")
+        if live_evidence_verifier is not None and not ledger_evidence_errors:
+            try:
+                live_evidence_verifier.assert_complete()
+            except ReleaseEvidenceRunnerError as exc:
+                ledger_evidence_errors.append(
+                    "production live evidence coverage failed: "
+                    f"{type(exc).__name__}: {exc}"
+                )
         errors.extend(
             f"release ledger evidence invalid: {error}"
             for error in ledger_evidence_errors
         )
         if phase7_path.is_file():
-            expected_release_gates = release_gate_statuses(ledger, registry)
+            if args.require_phase78_complete_preview:
+                try:
+                    if phase7_gate_evidence_verifier is None:
+                        raise ReleaseEvidenceRunnerError(
+                            "live_verifier_missing",
+                            "strict Phase 7 release gates require a fresh production callback",
+                        )
+                    phase7_gate_evidence_verifier.prepare_ledger(ledger)
+                    expected_release_gates = release_gate_statuses(
+                        ledger,
+                        registry,
+                        live_evidence_verifier=phase7_gate_evidence_verifier,
+                    )
+                    phase7_gate_evidence_verifier.assert_complete()
+                except (OSError, ReleaseEvidenceRunnerError, ValueError) as exc:
+                    errors.append(
+                        "strict Phase 7 release-gate live re-query failed: "
+                        f"{type(exc).__name__}: {exc}"
+                    )
+                    expected_release_gates = {}
+            else:
+                expected_release_gates = release_gate_statuses(ledger, registry)
             reported_release_gates = {
                 gate_id: phase7.get("completion_gates", {}).get(gate_id)
                 for gate_id in expected_release_gates
@@ -700,12 +1195,17 @@ def main() -> int:
                 errors.append(
                     "Phase 7 release completion gates differ from durable ledger evidence"
                 )
-        if phase7_path.is_file() and phase7.get("phase_status") == "complete":
+        if phase7_path.is_file() and phase7.get("phase_status") in {
+            "complete_preview_attested",
+            "complete_provider_verified",
+        }:
             canonical = release.get("ci", {}).get("canonical_plugin_validator", {})
-            phase7_release_records = (
+            phase7_internal_records = (
                 release.get("source_commit", {}),
-                release.get("ci", {}).get("repository_preview", {}),
                 canonical.get("local", {}),
+            )
+            phase7_external_records = (
+                release.get("ci", {}).get("repository_preview", {}),
                 canonical.get("ci", {}),
                 release.get("governance", {}).get("main_branch_protection", {}),
                 release.get("marketplace_source", {}).get("resolved_commit", {}),
@@ -714,11 +1214,16 @@ def main() -> int:
                 release.get("receipts", {}).get("fresh_task_discovery", {}),
                 release.get("receipts", {}).get("rollback", {}),
             )
+            phase7_external_level = phase7.get("verification_level")
             if phase7.get("pending_gates") or any(
                 record.get("status") != "verified"
-                for record in phase7_release_records
+                for record in phase7_internal_records
                 if isinstance(record, dict)
-            ):
+            ) or any(
+                record.get("status") != phase7_external_level
+                for record in phase7_external_records
+                if isinstance(record, dict)
+            ) or configured_external_evidence_level(release) != phase7_external_level:
                 errors.append(
                     "Phase 7 is marked complete without all runtime, release, rollback, and governance gates"
                 )
@@ -744,6 +1249,23 @@ def main() -> int:
             workflow,
         ):
             errors.append("CI Python validator dependency is not exactly version-pinned")
+        for marker, label in (
+            (
+                "4ebc61c0f8df9852e709ff4b477b750fc816a69b",
+                "pinned OpenAI Codex validator source commit",
+            ),
+            (
+                "4e84c911479e4d158d723ed8ccc881d3499e580fbf5650e60d379a1a25ac3186",
+                "canonical validator source digest",
+            ),
+            ("sha256sum --check --strict", "canonical validator digest check"),
+            (
+                'python "$OPENAI_CODEX_VALIDATOR_PATH" research-skills-openai',
+                "canonical OpenAI plugin validator execution",
+            ),
+        ):
+            if marker not in workflow:
+                errors.append(f"CI workflow missing {label}")
         for command in (
             "audit_openai_research_plugin.py",
             "test_openai_release_contract.py",
@@ -753,6 +1275,16 @@ def main() -> int:
             "test_openai_phase6_context.py",
             "test_openai_phase7_modes.py --check-report",
             "test_openai_phase8_corpus.py --check-report",
+            "test_openai_preview_evidence.py",
+            "test_build_openai_preview_verifier_summary.py",
+            "test_download_openai_release_ledger_assets.py",
+            "test_validate_openai_preview_evidence_bundle.py",
+            "test_openai_app_server_capture.py",
+            "test_validate_openai_phase7_runtime_evidence.py",
+            "test_validate_openai_phase8_external_evidence.py",
+            "test_validate_openai_release_evidence.py",
+            "test_openai_phase8_preview_verifier.py",
+            "test_openai_preview_workflows.py",
             "codex_plugin_converter.py --mode codex --fail-on-invalid",
             "generate_openai_release_ledger.py --check",
             "test_openai_release_ledger.py",
@@ -762,16 +1294,152 @@ def main() -> int:
             if command not in workflow:
                 errors.append(f"CI workflow missing command: {command}")
 
+    evidence_workflow_path = (
+        REPO / ".github" / "workflows" / "openai-preview-evidence.yml"
+    )
+    if not evidence_workflow_path.is_file():
+        errors.append("GitHub Actions Preview evidence workflow is missing")
+    else:
+        evidence_workflow = evidence_workflow_path.read_text(encoding="utf-8")
+        evidence_action_refs = re.findall(
+            r"^[ \t]*(?:-[ \t]+)?uses:[ \t]+([^@\s]+)@([^\s#]+)",
+            evidence_workflow,
+            re.MULTILINE,
+        )
+        if not evidence_action_refs:
+            errors.append("Preview evidence workflow contains no pinned actions")
+        elif any(
+            not re.fullmatch(r"[0-9a-f]{40}", ref)
+            for _, ref in evidence_action_refs
+        ):
+            errors.append(
+                "Preview evidence workflow action dependencies are not pinned to immutable commits"
+            )
+        for marker, label in (
+            ("workflow_dispatch:", "manual immutable-asset trigger"),
+            ("fetch-depth: 0", "full source history checkout"),
+            ("fetch-tags: true", "immutable release tag checkout"),
+            ("persist-credentials: false", "credential-minimized checkout"),
+            (
+                "generate_openai_release_ledger.py --check",
+                "source-identity ledger check",
+            ),
+            (
+                "validate_openai_preview_evidence_bundle.py",
+                "offline integrity-only validator",
+            ),
+            (
+                "tests/openai_phase8/verify_preview_evidence.py",
+                "live GitHub Preview verifier",
+            ),
+            (
+                "validate_openai_phase8_external_evidence.py",
+                "Phase 8 twelve-slot external semantic runner",
+            ),
+            (
+                "build_openai_preview_verifier_summary.py",
+                "historical live-verifier run-summary builder",
+            ),
+            (
+                "openai-preview-live-verifier-summary-${{ github.run_id }}",
+                "run-bound verifier summary artifact",
+            ),
+            ("gate_eligible\") is False", "offline non-promotion assertion"),
+            (
+                "counts_as_preview_attested\") is True",
+                "Preview-attested acceptance assertion",
+            ),
+            (
+                "counts_as_provider_verified\") is True",
+                "provider-promotion rejection assertion",
+            ),
+            ("provider==0", "zero provider-verification assertion"),
+        ):
+            if marker not in evidence_workflow:
+                errors.append(
+                    f"Preview evidence workflow missing {label}: {marker}"
+                )
+
+    accepted_workflow_path = (
+        REPO / ".github" / "workflows" / "openai-preview-accepted-evidence.yml"
+    )
+    if not accepted_workflow_path.is_file():
+        errors.append("GitHub Actions protected accepted-state workflow is missing")
+    else:
+        accepted_workflow = accepted_workflow_path.read_text(encoding="utf-8")
+        accepted_action_refs = re.findall(
+            r"^[ \t]*(?:-[ \t]+)?uses:[ \t]+([^@\s]+)@([^\s#]+)",
+            accepted_workflow,
+            re.MULTILINE,
+        )
+        if not accepted_action_refs:
+            errors.append("protected accepted-state workflow contains no pinned actions")
+        elif any(
+            not re.fullmatch(r"[0-9a-f]{40}", ref)
+            for _, ref in accepted_action_refs
+        ):
+            errors.append(
+                "protected accepted-state workflow action dependencies are not pinned"
+            )
+        for marker, label in (
+            ("workflow_dispatch:", "manual accepted-state trigger"),
+            ("evidence_release_tag:", "separate immutable evidence release"),
+            ("candidate_release_tag:", "separate immutable candidate release"),
+            ("name: openai-preview-governance", "protected governance environment"),
+            (
+                "secrets.OPENAI_PREVIEW_GOVERNANCE_TOKEN",
+                "protected governance credential",
+            ),
+            (
+                "download_openai_release_ledger_assets.py",
+                "accepted historical-release bundle downloader",
+            ),
+            (
+                "validate_openai_release_evidence.py",
+                "standalone production live release verifier",
+            ),
+            (
+                "validate_openai_preview_accepted_phase78.py",
+                "same-process Phase 7/8 and complete release validator bridge",
+            ),
+            (
+                "--phase7-asset-index-pattern",
+                "separate ten-slot Phase 7 evidence selection",
+            ),
+            (
+                "--phase8-asset-index-pattern",
+                "separate twelve-slot Phase 8 evidence selection",
+            ),
+            (
+                "build_openai_preview_accepted_summary.py",
+                "run-bound accepted-state summary builder",
+            ),
+            (
+                "openai-preview-accepted-summary-${{ github.run_id }}-${{ github.run_attempt }}",
+                "non-overwriting accepted-state summary artifact",
+            ),
+            ("git clone --no-hardlinks", "isolated trusted workspace"),
+            ("data.get(\"immutable\") is True", "immutable Release API check"),
+            (
+                "candidate asset directory must remain outside the evidence bundle root",
+                "candidate/evidence bundle separation",
+            ),
+        ):
+            if marker not in accepted_workflow:
+                errors.append(
+                    f"protected accepted-state workflow missing {label}: {marker}"
+                )
+
     readme = (PLUGIN / "README.md").read_text(encoding="utf-8")
     roadmap = (PLUGIN / "ROADMAP.md").read_text(encoding="utf-8")
     if f"contains {expected_skill_count} skills" not in readme:
         errors.append("README skill-count claim differs from registry discovery")
     quickstart_names = set(re.findall(r"^### `\$([^`]+)`[ \t]*$", readme, re.MULTILINE))
-    if quickstart_names != implicit_entry_names:
+    if quickstart_names != public_entry_names:
         errors.append(
             "README quickstart/public-entry mismatch: "
-            f"missing={sorted(implicit_entry_names - quickstart_names)} "
-            f"extra={sorted(quickstart_names - implicit_entry_names)}"
+            f"missing={sorted(public_entry_names - quickstart_names)} "
+            f"extra={sorted(quickstart_names - public_entry_names)}"
         )
     scope_match = re.search(r"^Current scope:[ \t]*(\d+)[ \t]+skills\b", roadmap, re.MULTILINE)
     if not scope_match or int(scope_match.group(1)) != expected_skill_count:
@@ -802,10 +1470,22 @@ def main() -> int:
         for error in errors:
             print(f"ERROR: {error}")
         return 1
-    print("OpenAI Preview release validation passed")
+    print(
+        "OpenAI Preview release validation passed"
+        if live_evidence_verifier is not None
+        else "OpenAI Preview release structural validation passed"
+    )
     print(f"version: {version}")
     print(f"skills: {expected_skill_count}")
     print("channel: GitHub main Preview")
+    print(
+        "external evidence: "
+        + (
+            "production live re-query"
+            if live_evidence_verifier is not None
+            else "pending/offline validation path"
+        )
+    )
     return 0
 
 

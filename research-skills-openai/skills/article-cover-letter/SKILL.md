@@ -1,6 +1,6 @@
 ---
 name: article-cover-letter
-description: "Draft a journal cover letter and quality-check artifact from frozen evaluated materials; never alter manuscript or frontmatter sources."
+description: "Draft a journal cover letter and quality check from frozen evaluated materials without altering source artifacts."
 ---
 # article-cover-letter
 

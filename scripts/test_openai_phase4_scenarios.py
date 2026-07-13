@@ -26,14 +26,22 @@ PLUGIN = REPO / "research-skills-openai"
 FIXTURE_ROOT = REPO / "tests" / "openai_phase4"
 SCHEMA_PATH = FIXTURE_ROOT / "runtime-trace.schema.yaml"
 REPORT_PATH = PLUGIN / "reports" / "phase4-scenario-results.json"
-FIXTURE_NAMES = ("idea.yaml", "proposal.yaml", "article.yaml", "perspective.yaml")
+FIXTURE_NAMES = (
+    "idea.yaml",
+    "proposal.yaml",
+    "article.yaml",
+    "perspective.yaml",
+    "research-polisher.yaml",
+)
 LIVE_RECEIPT_PATH = FIXTURE_ROOT / "live-forward-test-receipts.yaml"
 PANEL_SKILLS = {
     "idea": "idea-adversarial-review-panel",
     "proposal": "proposal-review-panel",
     "article": "article-review-panel",
     "perspective": "perspective-review-panel",
+    "research_polisher": None,
 }
+LIVE_RECEIPT_WORKFLOWS = ("idea", "proposal", "article", "perspective")
 LIVE_IDENTITY_COMPONENTS = (
     "manifest",
     "workflow_registry",
@@ -43,6 +51,85 @@ LIVE_IDENTITY_COMPONENTS = (
 )
 DIGEST_ALGORITHM = "sha256_crlf_normalized_bytes"
 SKILLS_TREE_DIGEST_ALGORITHM = "sha256_sorted_posix_relative_path_nul_crlf_normalized_bytes_nul"
+POLISHER_ROLE_ALIASES = {
+    "research_polisher_strategy_report": "strategy_report",
+    "research_polisher_sealed_provenance": "strategy_report_manifest",
+    "research_polisher_evaluation_report": "evaluation_report",
+    "research_polisher_review_finding_index": "review_finding_index",
+    "research_polisher_revision_brief": "revision_plan",
+    "research_polisher_revision_delta": "revision_delta",
+    "research_polisher_selection_dossier": "final_handoff_package",
+}
+POLISHER_PLAN_REQUIRED_FIELDS = (
+    "proposed_repositioning",
+    "value_mechanism",
+    "scientific_significance_delta",
+    "practical_value_delta",
+    "dissemination_impact_delta",
+    "story_arc",
+    "target_audiences",
+    "outlet_archetypes",
+    "claim_delta",
+    "existing_evidence_ids",
+    "evidence_dependencies",
+    "added_work_items",
+    "feasibility_basis",
+    "dependencies",
+    "incompatible_with",
+    "risks",
+    "unknowns",
+    "fallback",
+    "stop_condition",
+    "target_requirements_status",
+)
+POLISHER_DOSSIER_REQUIRED_FIELDS = (
+    "source_artifacts",
+    "normalized_context_artifact",
+    "research_question",
+    "design",
+    "methods",
+    "data",
+    "existing_results",
+    "current_claims",
+    "current_framing",
+    "intended_audiences",
+    "target_outlets",
+    "resource_constraints",
+    "evidence_map",
+    "target_requirements_adapter",
+    "assumptions",
+    "unresolved_inputs",
+)
+POLISHER_PARETO_AXES = (
+    "effort",
+    "feasibility",
+    "methodological_risk",
+    "scientific_significance_potential",
+    "practical_value_potential",
+    "dissemination_potential",
+    "publication_positioning",
+)
+POLISHER_OPTION_DECISIONS = {"retain", "revise", "reject", "not_assessable"}
+POLISHER_ANONYMOUS_OPTION_ID = re.compile(r"^anon-[0-9a-f]{8}$")
+POLISHER_OPTION_DECISION_REQUIRED_FIELDS = (
+    "option_id",
+    "effort_tier",
+    "decision",
+    "method_design_compatibility",
+    "evidence_claim_fit",
+    "tier_correctness",
+    "feasibility",
+    "scientific_significance_potential",
+    "practical_value_potential",
+    "dissemination_potential",
+    "narrative_differentiation",
+    "publication_positioning",
+    "target_fit",
+    "fatal_findings",
+    "major_findings",
+    "required_repairs",
+    "unresolved_issues",
+)
 
 
 class ScenarioViolation(AssertionError):
@@ -118,6 +205,7 @@ class ScenarioEngine:
         self.panel_complete = False
         self.panel_patch_pending = False
         self.panel_revision_scope: str | None = None
+        self.strategy_reports_by_role: dict[str, list[str]] = {}
         self.pending_revision_review_ids: set[str] = set()
         self.entry_gate_verified = False
         self.dissent_ids: set[str] = set()
@@ -126,6 +214,63 @@ class ScenarioEngine:
         self.edge_receipts: list[str] = []
         self.lifecycle_receipts: list[dict[str, Any]] = []
         self.initial_artifact_ids: list[str] = []
+
+    def canonical_artifact_role(self, role: str) -> str:
+        if self.workflow == "research_polisher":
+            return POLISHER_ROLE_ALIASES.get(role, role)
+        return role
+
+    def artifact_has_role(self, artifact: dict[str, Any], role: str) -> bool:
+        return self.canonical_artifact_role(str(artifact.get("artifact_role", ""))) == role
+
+    @staticmethod
+    def polisher_decision_state(skill_name: str, decision: str) -> str:
+        routes = {
+            "research-polisher-strategy-reviewer": {
+                "matrix_complete": "continue",
+                "matrix_complete_with_no_defensible_option": "continue",
+                "clarification_required": "clarification_stop",
+                "independent_review_pending": "independent_review_pending",
+            },
+            "research-polisher-methodology-publishability-reviewer": {
+                "ready_for_human_selection": "packaging_pending",
+                "revision_required": "revision_required",
+                "specialist_review_required": "specialist_review_pending",
+                "no_defensible_option": "no_defensible_option",
+                "not_assessable": "clarification_stop",
+                "independent_review_pending": "independent_review_pending",
+            },
+        }
+        route = routes.get(skill_name, {}).get(decision)
+        require(route is not None, "polisher_decision_route", f"{skill_name}: {decision}")
+        return route
+
+    def set_polisher_route_state(self, target: str, decision: str, event_id: str) -> None:
+        require(
+            target
+            in {
+                "clarification_stop",
+                "specialist_review_pending",
+                "no_defensible_option",
+            },
+            "polisher_decision_route",
+            f"unsupported direct state: {target}",
+        )
+        source = self.state
+        self.state = target
+        self.lifecycle_receipts.append(
+            {
+                "event_id": event_id,
+                "from": source,
+                "to": target,
+                "trigger": decision,
+            }
+        )
+
+    @staticmethod
+    def polisher_plan_digest(plan: dict[str, Any]) -> str:
+        encoded = json.dumps(plan, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8")
+        return sha256_bytes(encoded)
 
     def validate_header(self) -> None:
         missing = missing_fields(self.fixture, self.schema["fixture_required"])
@@ -169,6 +314,15 @@ class ScenarioEngine:
             "panel_contract",
             "mandatory panel role missing",
         )
+        panel_required = self.machine.get("post_evaluation_panel_required", True)
+        if not panel_required:
+            require(
+                panel["mode"] == "not_applicable"
+                and panel["tier"] == "not_applicable"
+                and panel["required_roles"] == [],
+                "panel_contract",
+                f"{self.workflow}: no-panel workflow must declare not_applicable",
+            )
         if self.workflow == "proposal" and panel["tier"] == "lightweight_panel":
             require(
                 panel.get("selection_basis") == "explicit_user_direction",
@@ -232,6 +386,10 @@ class ScenarioEngine:
             require(artifact["frozen"] is True, "artifact_not_frozen", artifact["artifact_id"])
             require(artifact["content_digest"] == "computed", "artifact_digest", artifact["artifact_id"])
             artifact["path"] = safe_relative(artifact["path"])
+            if self.workflow == "research_polisher":
+                self.validate_polisher_artifact_path(artifact)
+                if artifact["artifact_role"] == "research_polisher_dossier":
+                    self.validate_polisher_dossier(artifact)
             require(artifact["artifact_id"] not in self.artifacts, "duplicate_artifact_id", artifact["artifact_id"])
             target = self.workspace / artifact["path"]
             require(not target.exists(), "artifact_path_overwrite", artifact["path"])
@@ -300,6 +458,8 @@ class ScenarioEngine:
         require(artifact["frozen"] is True, "artifact_not_frozen", artifact["artifact_id"])
         require(artifact["content_digest"] == "computed", "artifact_digest", "fixtures must require runtime-computed digests")
         artifact["path"] = safe_relative(artifact["path"])
+        if self.workflow == "research_polisher":
+            self.validate_polisher_artifact_path(artifact)
         require(artifact["artifact_id"] not in self.artifacts, "duplicate_artifact_id", artifact["artifact_id"])
         pending_output_ids = pending_output_ids or set()
         pending_outputs = {item["artifact_id"]: item for item in event.get("outputs", [])}
@@ -333,7 +493,7 @@ class ScenarioEngine:
                 content = (self.workspace / source["path"]).read_bytes()
                 if "content_override" in artifact:
                     content = str(artifact["content_override"]).encode("utf-8")
-            elif report is not None and artifact["artifact_role"] in {"evaluation_report", "audit_report", "panel_report", "verification_report", "review_report"}:
+            elif report is not None and self.canonical_artifact_role(artifact["artifact_role"]) in {"evaluation_report", "audit_report", "panel_report", "verification_report", "review_report", "strategy_report"}:
                 content = yaml.safe_dump(report, sort_keys=False, allow_unicode=True).encode("utf-8")
             else:
                 content = str(artifact.get("content", f"{artifact['artifact_id']} {artifact['version_id']}\n")).encode("utf-8")
@@ -380,11 +540,21 @@ class ScenarioEngine:
             plans = [
                 self.artifacts[artifact_id]
                 for artifact_id in event["input_artifact_ids"]
-                if self.artifacts[artifact_id]["artifact_role"] == revision_contract["controller_output_role"]
+                if self.artifact_has_role(
+                    self.artifacts[artifact_id], revision_contract["controller_output_role"]
+                )
             ]
             require(len(plans) == 1, "revision_plan_missing", event["event_id"])
-            require(plans[0]["source_skill"] == event["source_skill"], "revision_plan_missing", event["event_id"])
-            output_roles = {artifact["artifact_role"] for artifact in outputs}
+            expected_plan_source = (
+                self.machine.get("primary_assembler_skill")
+                if self.workflow == "research_polisher"
+                else event["source_skill"]
+            )
+            require(plans[0]["source_skill"] == expected_plan_source, "revision_plan_missing", event["event_id"])
+            output_roles = {
+                self.canonical_artifact_role(artifact["artifact_role"])
+                for artifact in outputs
+            }
             required_output_roles = {"revision_delta"}
             if self.skills[event["destination_skill"]]["role"] == "drafter":
                 required_output_roles.add("response_to_reviewers")
@@ -393,6 +563,9 @@ class ScenarioEngine:
                 "revision_artifacts_missing",
                 event["event_id"],
             )
+        if self.workflow == "research_polisher":
+            self.validate_polisher_revision_brief(event, outputs)
+            self.validate_polisher_assembler_outputs(event, outputs)
         observation = self.materialize_outputs(event, outputs, None)
         self.writer_instances.add(event["actor_instance_id"])
         for artifact in outputs:
@@ -400,7 +573,8 @@ class ScenarioEngine:
                 continue
             if self.current_primary is not None:
                 expected_parent = f"{self.current_primary['artifact_id']}@{self.current_primary['version_id']}"
-                require(expected_parent in artifact["based_on"], "artifact_lineage", f"missing {expected_parent}")
+                if self.workflow != "research_polisher":
+                    require(expected_parent in artifact["based_on"], "artifact_lineage", f"missing {expected_parent}")
                 require(artifact["version_id"] != self.current_primary["version_id"], "version_not_advanced", artifact["version_id"])
                 require(self.state == "revision_required", "registry_lifecycle_mismatch", event["event_id"])
             self.current_primary = artifact
@@ -502,6 +676,923 @@ class ScenarioEngine:
             return "blocked"
         return "revision_required"
 
+    def polisher_strategy_roles(self) -> list[str]:
+        return list(
+            self.machine.get(
+                "strategy_reviewer_roles",
+                ["scientific_significance", "practical_value", "dissemination_editorial"],
+            )
+        )
+
+    def validate_polisher_artifact_path(self, artifact: dict[str, Any]) -> None:
+        path = Path(artifact["path"])
+        require(
+            path.name.startswith("research_polisher_"),
+            "polisher_artifact_path",
+            artifact["path"],
+        )
+        canonical_role = self.canonical_artifact_role(artifact["artifact_role"])
+        expected_root = {
+            "research_polisher_dossier": "01_context",
+            "evidence_map": "02_evidence",
+            "strategy_report": "03_strategy",
+            "strategy_report_manifest": "04_portfolios",
+            "research_polisher_candidate_portfolio": "04_portfolios",
+            "evaluation_report": "05_evaluations",
+            "revision_plan": "06_revisions",
+            "revision_delta": "06_revisions",
+            "review_finding_index": "07_delivery",
+            "final_handoff_package": "07_delivery",
+        }.get(canonical_role)
+        if expected_root:
+            require(path.parts[0] == expected_root, "polisher_artifact_path", artifact["path"])
+
+    def validate_polisher_dossier(self, artifact: dict[str, Any]) -> None:
+        dossier = artifact.get("dossier_contract")
+        require(isinstance(dossier, dict), "polisher_dossier_field_missing", artifact["artifact_id"])
+        missing = missing_fields(dossier, list(POLISHER_DOSSIER_REQUIRED_FIELDS))
+        require(not missing, "polisher_dossier_field_missing", f"{artifact['artifact_id']}: {missing}")
+        sources = dossier["source_artifacts"]
+        require(isinstance(sources, list) and sources, "polisher_dossier_field_missing", "source_artifacts")
+        for source in sources:
+            source_missing = missing_fields(
+                source,
+                [
+                    "artifact_id",
+                    "path",
+                    "version",
+                    "sha256",
+                    "summary",
+                    "summary_sha256",
+                ],
+            )
+            require(not source_missing, "polisher_dossier_field_missing", f"source_artifacts: {source_missing}")
+            safe_relative(source["path"])
+            require(
+                bool(source["artifact_id"])
+                and bool(source["version"])
+                and re.fullmatch(r"sha256:[0-9a-f]{64}", source["sha256"]),
+                "polisher_dossier_source_binding",
+                str(source.get("artifact_id")),
+            )
+            require(
+                isinstance(source["summary"], str)
+                and source["summary"].strip()
+                and re.fullmatch(r"sha256:[0-9a-f]{64}", source["summary_sha256"]),
+                "polisher_dossier_source_binding",
+                str(source.get("artifact_id")),
+            )
+        for field in ("current_claims", "intended_audiences", "target_outlets"):
+            require(isinstance(dossier[field], list) and dossier[field], "polisher_dossier_field_missing", field)
+        for field in ("assumptions", "unresolved_inputs"):
+            require(isinstance(dossier[field], list), "polisher_dossier_field_missing", field)
+        constraints = dossier["resource_constraints"]
+        constraint_fields = [
+            "time",
+            "people",
+            "budget",
+            "data_access",
+            "technical_capacity",
+            "maximum_effort_tier",
+        ]
+        require(
+            isinstance(constraints, dict)
+            and not missing_fields(constraints, constraint_fields)
+            and all(isinstance(constraints[field], str) and constraints[field].strip() for field in constraint_fields),
+            "polisher_dossier_field_missing",
+            "resource_constraints",
+        )
+        for field in (
+            "normalized_context_artifact",
+            "research_question",
+            "design",
+            "methods",
+            "data",
+            "existing_results",
+            "current_framing",
+        ):
+            require(isinstance(dossier[field], str) and bool(dossier[field].strip()), "polisher_dossier_field_missing", field)
+        for field in ("evidence_map", "target_requirements_adapter"):
+            value = dossier[field]
+            require(
+                value is None or value == "not_provided" or isinstance(value, dict),
+                "polisher_dossier_field_missing",
+                field,
+            )
+            if isinstance(value, dict):
+                binding_fields = ["artifact_id", "version", "sha256"]
+                require(
+                    not missing_fields(value, binding_fields)
+                    and bool(value["artifact_id"])
+                    and bool(value["version"])
+                    and re.fullmatch(r"sha256:[0-9a-f]{64}", value["sha256"]),
+                    "polisher_dossier_source_binding",
+                    field,
+                )
+
+    def polisher_effort_tiers(self) -> list[str]:
+        return list(
+            self.machine.get(
+                "effort_tiers",
+                ["reposition_only", "small_extension", "moderate_extension"],
+            )
+        )
+
+    def validate_polisher_strategy_report(
+        self, event: dict[str, Any], report: dict[str, Any]
+    ) -> None:
+        roles = self.polisher_strategy_roles()
+        tiers = self.polisher_effort_tiers()
+        role = report.get("reviewer_role")
+        require(role in roles, "polisher_strategy_role", event["event_id"])
+        require(
+            report.get("peer_outputs_visible") is False,
+            "peer_output_visible",
+            event["event_id"],
+        )
+        visible_roles = {
+            self.canonical_artifact_role(self.artifacts[artifact_id]["artifact_role"])
+            for artifact_id in event["input_artifact_ids"]
+        }
+        require(
+            not visible_roles.intersection(
+                {"strategy_report", "strategy_report_manifest", "evaluation_report"}
+            ),
+            "polisher_strategy_peer_input",
+            event["event_id"],
+        )
+        options = report.get("strategy_options")
+        require(
+            isinstance(options, list) and len(options) == len(tiers),
+            "polisher_strategy_matrix_incomplete",
+            event["event_id"],
+        )
+        observed_tiers = [option.get("effort_tier") for option in options]
+        require(
+            observed_tiers == tiers and len(set(observed_tiers)) == len(tiers),
+            "polisher_strategy_matrix_incomplete",
+            event["event_id"],
+        )
+        option_ids: set[str] = set()
+        for option in options:
+            tier = option.get("effort_tier")
+            status = option.get("status")
+            option_id = option.get("provisional_option_id") or f"no-defensible:{tier}"
+            require(
+                isinstance(option_id, str)
+                and bool(option_id)
+                and option_id not in option_ids,
+                "polisher_strategy_option_id",
+                event["event_id"],
+            )
+            option_ids.add(option_id)
+            require(
+                status in {"proposed", "no_defensible_option"},
+                "polisher_strategy_option_status",
+                option_id,
+            )
+            if status == "no_defensible_option":
+                require(
+                    option.get("plan") is None
+                    and isinstance(option.get("reason"), str)
+                    and bool(option["reason"].strip())
+                    and isinstance(option.get("missing_or_infeasible_dependencies"), list)
+                    and isinstance(option.get("clarification_needed"), list),
+                    "polisher_no_defensible_option_schema",
+                    option_id,
+                )
+                continue
+            plan = option.get("plan")
+            require(isinstance(plan, dict), "polisher_option_field_missing", option_id)
+            missing_plan = missing_fields(plan, list(POLISHER_PLAN_REQUIRED_FIELDS))
+            require(
+                not missing_plan,
+                "polisher_option_field_missing",
+                f"{option_id}: {missing_plan}",
+            )
+            for field in (
+                "proposed_repositioning",
+                "value_mechanism",
+                "scientific_significance_delta",
+                "practical_value_delta",
+                "dissemination_impact_delta",
+                "story_arc",
+                "feasibility_basis",
+                "fallback",
+                "stop_condition",
+            ):
+                require(isinstance(plan[field], str) and bool(plan[field].strip()), "polisher_option_field_missing", f"{option_id}: {field}")
+            require(
+                plan["target_requirements_status"]
+                in {"verified", "target_requirements_unverified", "not_applicable"},
+                "polisher_option_field_missing",
+                f"{option_id}: target_requirements_status",
+            )
+            for field in (
+                "target_audiences",
+                "outlet_archetypes",
+                "claim_delta",
+                "existing_evidence_ids",
+                "evidence_dependencies",
+                "added_work_items",
+                "incompatible_with",
+                "risks",
+                "unknowns",
+            ):
+                require(isinstance(plan[field], list), "polisher_option_field_missing", f"{option_id}: {field}")
+            require(
+                plan["target_audiences"]
+                and plan["outlet_archetypes"]
+                and plan["claim_delta"]
+                and plan["existing_evidence_ids"]
+                and plan["evidence_dependencies"]
+                and plan["risks"],
+                "polisher_option_field_missing",
+                option_id,
+            )
+            dependencies = plan["dependencies"]
+            require(
+                isinstance(dependencies, dict)
+                and set(dependencies) == {"data", "resources", "technical", "time"}
+                and all(isinstance(value, list) for value in dependencies.values()),
+                "polisher_option_field_missing",
+                f"{option_id}: dependencies",
+            )
+            added_work = plan["added_work_items"]
+            feasibility = option.get("feasibility")
+            require(
+                feasibility in {"certain", "high"},
+                "polisher_extension_feasibility",
+                option_id,
+            )
+            if tier == "reposition_only":
+                require(
+                    added_work == []
+                    and option.get("introduces_new_analysis") is False
+                    and option.get("introduces_new_data") is False
+                    and option.get("introduces_new_experiment") is False,
+                    "polisher_reposition_adds_work",
+                    option_id,
+                )
+                require(
+                    option.get("claim_traceable_to_frozen_source") is True,
+                    "polisher_reposition_untraceable",
+                    option_id,
+                )
+            else:
+                require(
+                    bool(added_work) and option.get("work_package_count") == 1,
+                    "polisher_extension_scope",
+                    option_id,
+                )
+            require(
+                option.get("changes_core_design") is False
+                and option.get("independent_new_study") is False
+                and option.get("core_sample_rebuild") is False,
+                "polisher_extension_scope",
+                option_id,
+            )
+
+    def validate_polisher_assembler_outputs(
+        self, event: dict[str, Any], outputs: list[dict[str, Any]]
+    ) -> None:
+        primary_outputs = [
+            artifact
+            for artifact in outputs
+            if artifact["artifact_role"] == self.machine["primary_artifact_type"]
+        ]
+        if not primary_outputs:
+            return
+        require(
+            event["destination_skill"]
+            == self.machine.get("primary_assembler_skill", "research-polisher-plan-assembler"),
+            "polisher_primary_assembler",
+            event["event_id"],
+        )
+        strategy_skill = self.machine.get(
+            "strategy_reviewer_skill", "research-polisher-strategy-reviewer"
+        )
+        strategy_artifacts = [
+            self.artifacts[artifact_id]
+            for artifact_id in event["input_artifact_ids"]
+            if self.artifacts[artifact_id]["source_skill"] == strategy_skill
+            and self.artifact_has_role(self.artifacts[artifact_id], "strategy_report")
+        ]
+        roles = self.polisher_strategy_roles()
+        reports_by_role: dict[str, tuple[dict[str, Any], dict[str, Any]]] = {}
+        for artifact in strategy_artifacts:
+            review_id = self.review_artifact_reports.get(artifact["artifact_id"])
+            report = self.review_reports.get(review_id or "")
+            require(report is not None, "polisher_strategy_report_missing", artifact["artifact_id"])
+            role = report["reviewer_role"]
+            require(role not in reports_by_role, "polisher_strategy_role_duplicate", role)
+            reports_by_role[role] = (artifact, report)
+        require(
+            set(reports_by_role) == set(roles),
+            "polisher_strategy_matrix_incomplete",
+            event["event_id"],
+        )
+        instances = [report["reviewer_instance_id"] for _, report in reports_by_role.values()]
+        require(
+            len(instances) == len(set(instances)),
+            "duplicate_reviewer_instance",
+            event["event_id"],
+        )
+        portfolio = primary_outputs[0]
+        allowed_visible_parent_roles = {"research_polisher_dossier", "evidence_map"}
+        for parent in portfolio["based_on"]:
+            parent_id = parent.split("@", 1)[0]
+            parent_artifact = self.artifacts.get(parent_id)
+            require(
+                parent_artifact is not None
+                and self.canonical_artifact_role(parent_artifact["artifact_role"])
+                in allowed_visible_parent_roles
+                and parent_artifact["source_skill"] != strategy_skill,
+                "polisher_portfolio_lineage_leak",
+                parent,
+            )
+        serialized_portfolio = json.dumps(portfolio, ensure_ascii=False, sort_keys=True)
+        for forbidden_key in (
+            "reviewer_role",
+            "reviewer_lens",
+            "source_report_ref",
+            "source_option_id",
+            "reviewer_instance_id",
+            "report_refs",
+        ):
+            require(
+                f'"{forbidden_key}"' not in serialized_portfolio,
+                "polisher_portfolio_identity_leak",
+                forbidden_key,
+            )
+        anonymous_options = portfolio.get("options")
+        no_defensible_cells = portfolio.get("no_defensible_cells")
+        expected_pairs = {
+            (role, tier) for role in roles for tier in self.polisher_effort_tiers()
+        }
+        require(
+            isinstance(anonymous_options, list)
+            and isinstance(no_defensible_cells, list)
+            and len(anonymous_options) + len(no_defensible_cells)
+            == len(expected_pairs),
+            "polisher_strategy_matrix_incomplete",
+            portfolio["artifact_id"],
+        )
+        anonymous_ids = [option.get("anonymous_option_id") for option in anonymous_options]
+        require(
+            len(set(anonymous_ids)) == len(anonymous_options)
+            and all(
+                isinstance(option_id, str)
+                and POLISHER_ANONYMOUS_OPTION_ID.fullmatch(option_id)
+                for option_id in anonymous_ids
+            ),
+            "polisher_anonymous_option_id",
+            portfolio["artifact_id"],
+        )
+        tiers = self.polisher_effort_tiers()
+        require(
+            all(cell.get("status") == "no_defensible_option" for cell in no_defensible_cells)
+            and len(
+                {
+                    cell.get("anonymous_cell_id")
+                    for cell in no_defensible_cells
+                }
+            )
+            == len(no_defensible_cells)
+            and all(
+                POLISHER_ANONYMOUS_OPTION_ID.fullmatch(cell.get("anonymous_cell_id", ""))
+                for cell in no_defensible_cells
+            )
+            and all(
+                option.get("effort_tier") in tiers for option in anonymous_options
+            )
+            and all(
+                cell.get("effort_tier") in tiers for cell in no_defensible_cells
+            ),
+            "polisher_strategy_matrix_incomplete",
+            portfolio["artifact_id"],
+        )
+        for option in anonymous_options:
+            require(
+                option.get("status") == "proposed"
+                and option.get("feasibility") in {"certain", "high"}
+                and isinstance(option.get("plan"), dict)
+                and not missing_fields(option["plan"], list(POLISHER_PLAN_REQUIRED_FIELDS)),
+                "polisher_anonymous_portfolio_schema",
+                str(option.get("anonymous_option_id")),
+            )
+        input_report_refs = {
+            f"{artifact['artifact_id']}@{artifact['version_id']}": report
+            for artifact, report in reports_by_role.values()
+        }
+        assembly = portfolio.get("assembler_contract", {})
+        require(
+            assembly.get("scoring_performed") is False
+            and assembly.get("ranking_performed") is False
+            and assembly.get("automatic_selection_performed") is False,
+            "polisher_assembler_judgment",
+            portfolio["artifact_id"],
+        )
+        require(
+            assembly.get("invented_option_ids") == [],
+            "polisher_assembler_invented_option",
+            portfolio["artifact_id"],
+        )
+        require(
+            set(portfolio.get("preserved_dissent_ids", [])) >= self.dissent_ids,
+            "dissent_not_preserved",
+            portfolio["artifact_id"],
+        )
+        require(
+            portfolio.get("target_requirements_verified") is True
+            or portfolio.get("target_specific_fit_claimed") is False,
+            "target_requirements_unverified",
+            portfolio["artifact_id"],
+        )
+        manifests = [
+            artifact
+            for artifact in outputs
+            if self.artifact_has_role(artifact, "strategy_report_manifest")
+        ]
+        require(len(manifests) == 1, "polisher_strategy_manifest", event["event_id"])
+        manifest = manifests[0].get("strategy_manifest", {})
+        require(
+            manifest.get("matrix_cell_count") == len(expected_pairs)
+            and manifest.get("peer_outputs_visible") is False
+            and manifest.get("sealed") is True
+            and manifest.get("evaluator_visible") is False,
+            "polisher_strategy_manifest",
+            manifests[0]["artifact_id"],
+        )
+        mapping = manifest.get("source_report_bindings")
+        require(
+            isinstance(mapping, list) and len(mapping) == len(expected_pairs),
+            "polisher_strategy_matrix_incomplete",
+            manifests[0]["artifact_id"],
+        )
+        observed_pairs = {
+            (
+                cell.get("review_perspective"),
+                cell.get("source_cell", {}).get("effort_tier"),
+            )
+            for cell in mapping
+        }
+        require(
+            observed_pairs == expected_pairs and len(observed_pairs) == len(mapping),
+            "polisher_strategy_matrix_incomplete",
+            manifests[0]["artifact_id"],
+        )
+        mapped_anonymous_ids = {
+            cell.get("anonymous_option_id")
+            for cell in mapping
+            if cell.get("source_cell", {}).get("status") == "proposed"
+        }
+        mapped_no_defensible_ids = {
+            cell.get("anonymous_cell_id")
+            for cell in mapping
+            if cell.get("source_cell", {}).get("status") == "no_defensible_option"
+        }
+        require(
+            mapped_anonymous_ids == set(anonymous_ids)
+            and mapped_no_defensible_ids
+            == {cell["anonymous_cell_id"] for cell in no_defensible_cells},
+            "polisher_manifest_portfolio_mismatch",
+            manifests[0]["artifact_id"],
+        )
+        anonymous_by_id = {
+            option["anonymous_option_id"]: option for option in anonymous_options
+        }
+        mapped_instances: list[str] = []
+        for cell in mapping:
+            source_ref = cell.get("source_report_ref")
+            report = input_report_refs.get(source_ref)
+            require(
+                report is not None
+                and report["reviewer_role"] == cell.get("review_perspective")
+                and report["reviewer_instance_id"] == cell.get("reviewer_instance_id")
+                and report["review_id"] == cell.get("review_id"),
+                "polisher_matrix_lineage",
+                str(source_ref),
+            )
+            source_artifact = next(
+                artifact
+                for artifact, candidate_report in reports_by_role.values()
+                if candidate_report is report
+            )
+            require(
+                cell.get("raw_report_path") == source_artifact["path"]
+                and cell.get("raw_report_sha256")
+                in {"computed", source_artifact["content_digest"]},
+                "polisher_matrix_lineage",
+                str(source_ref),
+            )
+            cell["raw_report_sha256"] = source_artifact["content_digest"]
+            mapped_instances.append(cell["reviewer_instance_id"])
+            source_option = next(
+                (
+                    item
+                    for item in report["strategy_options"]
+                    if item["effort_tier"]
+                    == cell.get("source_cell", {}).get("effort_tier")
+                ),
+                None,
+            )
+            require(source_option is not None, "polisher_matrix_lineage", str(source_ref))
+            if source_option["status"] == "proposed":
+                anonymous_option = anonymous_by_id[cell["anonymous_option_id"]]
+                computed_plan_digest = self.polisher_plan_digest(source_option["plan"])
+                require(
+                    source_option["provisional_option_id"]
+                    == cell.get("source_cell", {}).get("provisional_option_id")
+                    and source_option["status"]
+                    == cell.get("source_cell", {}).get("status")
+                    and source_option["status"] == anonymous_option.get("status")
+                    and source_option["effort_tier"] == anonymous_option.get("effort_tier")
+                    and source_option.get("feasibility") == anonymous_option.get("feasibility")
+                    and source_option.get("plan") == anonymous_option.get("plan")
+                    and cell.get("plan_digest") in {"computed", computed_plan_digest},
+                    "polisher_manifest_portfolio_mismatch",
+                    str(source_ref),
+                )
+                cell["plan_digest"] = computed_plan_digest
+            else:
+                no_defensible = next(
+                    item
+                    for item in no_defensible_cells
+                    if item["anonymous_cell_id"] == cell.get("anonymous_cell_id")
+                )
+                require(
+                    cell.get("source_cell", {}).get("status")
+                    == "no_defensible_option"
+                    and no_defensible.get("effort_tier") == source_option["effort_tier"]
+                    and no_defensible.get("reason") == source_option.get("reason"),
+                    "polisher_manifest_portfolio_mismatch",
+                    str(source_ref),
+                )
+        require(
+            set(mapped_instances) == set(instances),
+            "polisher_strategy_manifest",
+            manifests[0]["artifact_id"],
+        )
+        require(
+            manifest.get("access_scope")
+            == "orchestrator_and_lineage_validator_only",
+            "polisher_strategy_manifest",
+            manifests[0]["artifact_id"],
+        )
+        report_refs = set(input_report_refs)
+        manifest_parents = set(manifests[0]["based_on"])
+        portfolio_ref = f"{portfolio['artifact_id']}@{portfolio['version_id']}"
+        input_refs = {
+            f"{self.artifacts[artifact_id]['artifact_id']}@{self.artifacts[artifact_id]['version_id']}"
+            for artifact_id in event["input_artifact_ids"]
+        }
+        require(
+            report_refs | input_refs | {portfolio_ref} <= manifest_parents,
+            "polisher_matrix_lineage",
+            manifests[0]["artifact_id"],
+        )
+
+    def validate_polisher_revision_brief(
+        self, event: dict[str, Any], outputs: list[dict[str, Any]]
+    ) -> None:
+        briefs = [artifact for artifact in outputs if self.artifact_has_role(artifact, "revision_plan")]
+        if not briefs:
+            return
+        require(
+            event["destination_skill"]
+            == self.machine.get("primary_assembler_skill", "research-polisher-plan-assembler")
+            and len(briefs) == 1,
+            "polisher_revision_brief_creator",
+            event["event_id"],
+        )
+        input_artifacts = [self.artifacts[artifact_id] for artifact_id in event["input_artifact_ids"]]
+        require(
+            any(self.artifact_has_role(artifact, "strategy_report_manifest") for artifact in input_artifacts),
+            "polisher_revision_brief_provenance",
+            event["event_id"],
+        )
+        portfolio = next(
+            (artifact for artifact in input_artifacts if self.artifact_has_role(artifact, self.machine["primary_artifact_type"])),
+            None,
+        )
+        evaluation = next(
+            (artifact for artifact in input_artifacts if self.artifact_has_role(artifact, "evaluation_report")),
+            None,
+        )
+        require(portfolio is not None and evaluation is not None, "polisher_revision_brief_provenance", event["event_id"])
+        contract = briefs[0].get("revision_brief_contract", {})
+        require(
+            contract.get("anonymous") is True
+            and contract.get("source_reviewer_identities_included") is False
+            and contract.get("raw_report_refs_included") is False
+            and contract.get("prior_scores_included") is False
+            and contract.get("overall_decision_included") is False,
+            "polisher_revision_brief_identity_leak",
+            briefs[0]["artifact_id"],
+        )
+        portfolio_ids = {
+            option["anonymous_option_id"] for option in portfolio.get("options", [])
+        }
+        brief_ids = contract.get("anonymous_option_ids")
+        require(
+            isinstance(brief_ids, list)
+            and bool(brief_ids)
+            and set(brief_ids) <= portfolio_ids
+            and all(POLISHER_ANONYMOUS_OPTION_ID.fullmatch(option_id) for option_id in brief_ids),
+            "polisher_revision_brief_identity_leak",
+            briefs[0]["artifact_id"],
+        )
+        must_fix_items = contract.get("must_fix_items")
+        require(
+            isinstance(must_fix_items, list)
+            and must_fix_items
+            and all(
+                item.get("anonymous_option_id") in brief_ids
+                and item.get("effort_tier") in self.polisher_effort_tiers()
+                and isinstance(item.get("finding_scope"), str)
+                and item["finding_scope"].strip()
+                and isinstance(item.get("required_evidence_ids"), list)
+                for item in must_fix_items
+            ),
+            "polisher_revision_brief_schema",
+            briefs[0]["artifact_id"],
+        )
+        serialized = json.dumps(contract, ensure_ascii=False, sort_keys=True)
+        require(
+            "source_report_ref" not in serialized
+            and "reviewer_instance_id" not in serialized,
+            "polisher_revision_brief_identity_leak",
+            briefs[0]["artifact_id"],
+        )
+        required_parents = {
+            f"{portfolio['artifact_id']}@{portfolio['version_id']}",
+            f"{evaluation['artifact_id']}@{evaluation['version_id']}",
+        }
+        require(required_parents <= set(briefs[0]["based_on"]), "polisher_revision_brief_provenance", event["event_id"])
+        self.pending_revision_review_ids = set()
+
+    def validate_polisher_evaluation_report(
+        self, event: dict[str, Any], report: dict[str, Any]
+    ) -> None:
+        portfolio = next(
+            (
+                self.artifacts[artifact_id]
+                for artifact_id in event["input_artifact_ids"]
+                if self.artifact_has_role(
+                    self.artifacts[artifact_id], self.machine["primary_artifact_type"]
+                )
+            ),
+            None,
+        )
+        require(portfolio is not None, "polisher_option_adjudication_incomplete", event["event_id"])
+        portfolio_ids = {
+            option["anonymous_option_id"] for option in portfolio.get("options", [])
+        }
+        portfolio_tiers = {
+            option["anonymous_option_id"]: option["effort_tier"]
+            for option in portfolio.get("options", [])
+        }
+        adjudications = report.get("option_decisions")
+        require(
+            isinstance(adjudications, list)
+            and len(adjudications) == len(portfolio_ids),
+            "polisher_option_adjudication_incomplete",
+            event["event_id"],
+        )
+        adjudication_ids = [item.get("option_id") for item in adjudications]
+        require(
+            set(adjudication_ids) == portfolio_ids
+            and len(set(adjudication_ids)) == len(portfolio_ids),
+            "polisher_option_adjudication_incomplete",
+            event["event_id"],
+        )
+        for item in adjudications:
+            missing = missing_fields(item, list(POLISHER_OPTION_DECISION_REQUIRED_FIELDS))
+            require(not missing, "polisher_option_adjudication_incomplete", f"{item.get('option_id')}: {missing}")
+            require(
+                item.get("decision") in POLISHER_OPTION_DECISIONS,
+                "polisher_option_adjudication_invalid",
+                str(item.get("option_id")),
+            )
+            require(
+                item.get("effort_tier") == portfolio_tiers[item["option_id"]],
+                "polisher_option_tier_mismatch",
+                item["option_id"],
+            )
+            for field in (
+                "method_design_compatibility",
+                "evidence_claim_fit",
+                "tier_correctness",
+                "feasibility",
+                "scientific_significance_potential",
+                "practical_value_potential",
+                "dissemination_potential",
+                "narrative_differentiation",
+                "publication_positioning",
+                "target_fit",
+            ):
+                require(isinstance(item[field], str) and item[field].strip(), "polisher_option_adjudication_incomplete", f"{item['option_id']}: {field}")
+            for field in ("fatal_findings", "major_findings", "required_repairs", "unresolved_issues"):
+                require(isinstance(item[field], list), "polisher_option_adjudication_incomplete", f"{item['option_id']}: {field}")
+            require(
+                item["target_fit"] in {"verified_assessment", "not_assessed"},
+                "target_requirements_unverified",
+                item["option_id"],
+            )
+        target_requirements = report.get("target_requirements", {})
+        require(
+            target_requirements.get("status")
+            in {"verified", "target_requirements_unverified", "not_applicable"},
+            "target_requirements_unverified",
+            event["event_id"],
+        )
+        dossier = next(
+            self.artifacts[artifact_id]
+            for artifact_id in event["input_artifact_ids"]
+            if self.artifacts[artifact_id]["artifact_role"] == "research_polisher_dossier"
+        )
+        adapter = dossier["dossier_contract"]["target_requirements_adapter"]
+        if adapter is None or adapter == "not_provided":
+            require(
+                target_requirements["status"] == "target_requirements_unverified"
+                and all(item["target_fit"] == "not_assessed" for item in adjudications),
+                "target_requirements_unverified",
+                event["event_id"],
+            )
+        else:
+            require(
+                target_requirements["status"] == "verified"
+                and all(
+                    target_requirements.get(field) == adapter.get(field)
+                    for field in ("artifact_id", "version", "sha256")
+                ),
+                "target_requirements_unverified",
+                event["event_id"],
+            )
+        pareto_values = report.get("pareto_axis_values")
+        require(
+            isinstance(pareto_values, list)
+            and len(pareto_values) == len(portfolio_ids)
+            and {item.get("option_id") for item in pareto_values} == portfolio_ids,
+            "polisher_pareto_axes_incomplete",
+            event["event_id"],
+        )
+        for item in pareto_values:
+            axes = item.get("values")
+            require(
+                isinstance(axes, dict) and set(axes) == set(POLISHER_PARETO_AXES),
+                "polisher_pareto_axes_incomplete",
+                str(item.get("option_id")),
+            )
+            require(
+                all(isinstance(value, str) and bool(value.strip()) for value in axes.values()),
+                "polisher_pareto_axes_invalid",
+                str(item.get("option_id")),
+            )
+        pareto_contract = report.get("pareto_axis_contract", {})
+        directions = pareto_contract.get("axis_directions")
+        ordered_values = pareto_contract.get("ordered_values")
+        require(
+            pareto_contract.get("comparison_scope") == "within_portfolio_only"
+            and pareto_contract.get("values_are_qualitative") is True
+            and pareto_contract.get("weighted_total_prohibited") is True
+            and isinstance(directions, dict)
+            and set(directions) == set(POLISHER_PARETO_AXES)
+            and all(value in {"higher_is_better", "lower_is_better"} for value in directions.values())
+            and isinstance(ordered_values, list)
+            and len(ordered_values) >= 3
+            and len(set(ordered_values)) == len(ordered_values)
+            and all(
+                value in set(ordered_values)
+                for item in pareto_values
+                for value in item["values"].values()
+            ),
+            "polisher_pareto_axes_incomplete",
+            event["event_id"],
+        )
+        decisions = [item["decision"] for item in adjudications]
+        if report["decision"] == "ready_for_human_selection":
+            require(
+                "retain" in decisions and "revise" not in decisions,
+                "polisher_false_ready_adjudication",
+                event["event_id"],
+            )
+        elif report["decision"] in {"revision_required", "specialist_review_required"}:
+            require("revise" in decisions, "polisher_revision_adjudication_missing", event["event_id"])
+        elif report["decision"] == "no_defensible_option":
+            require("retain" not in decisions and "revise" not in decisions, "polisher_decision_route", event["event_id"])
+
+    def validate_polisher_selection_outputs(
+        self, event: dict[str, Any], outputs: list[dict[str, Any]]
+    ) -> None:
+        require(len(outputs) == 1, "polisher_selection_output", event["event_id"])
+        package = outputs[0]
+        contract = package.get("selection_dossier_contract", {})
+        require(
+            package["artifact_role"] == "research_polisher_selection_dossier"
+            and contract.get("selection_status")
+            == "human_strategy_selection_required",
+            "polisher_selection_output",
+            package["artifact_id"],
+        )
+        require(
+            contract.get("pareto_comparison") is True
+            and contract.get("weighted_total_score_used") is False
+            and contract.get("automatic_selection_performed") is False
+            and contract.get("unique_best_declared") is False
+            and contract.get("source_content_modified") is False,
+            "polisher_selection_judgment",
+            package["artifact_id"],
+        )
+        require(
+            set(contract.get("preserved_dissent_ids", [])) >= self.dissent_ids,
+            "dissent_not_preserved",
+            package["artifact_id"],
+        )
+        require(
+            contract.get("target_requirements_verified") is True
+            or contract.get("target_specific_fit_claimed") is False,
+            "target_requirements_unverified",
+            package["artifact_id"],
+        )
+        evaluation_artifacts = [
+            self.artifacts[artifact_id]
+            for artifact_id in event["input_artifact_ids"]
+            if self.artifact_has_role(self.artifacts[artifact_id], "evaluation_report")
+        ]
+        require(len(evaluation_artifacts) == 1, "polisher_selection_adjudication", event["event_id"])
+        review_id = self.review_artifact_reports.get(evaluation_artifacts[0]["artifact_id"])
+        evaluation = self.review_reports.get(review_id or "")
+        require(evaluation is not None, "polisher_selection_adjudication", event["event_id"])
+        adjudications = evaluation.get("option_decisions", [])
+        expected = {
+            decision: sorted(
+                item["option_id"]
+                for item in adjudications
+                if item["decision"] == decision
+            )
+            for decision in ("retain", "reject", "not_assessable", "revise")
+        }
+        require(
+            expected["retain"]
+            and not expected["revise"]
+            and sorted(contract.get("retained_option_ids", [])) == expected["retain"]
+            and sorted(contract.get("rejected_option_ids", [])) == expected["reject"]
+            and sorted(contract.get("not_assessable_option_ids", []))
+            == expected["not_assessable"],
+            "polisher_selection_adjudication",
+            package["artifact_id"],
+        )
+        pareto_data = contract.get("pareto_data")
+        require(
+            isinstance(pareto_data, list) and len(pareto_data) == len(expected["retain"]),
+            "polisher_selection_adjudication",
+            package["artifact_id"],
+        )
+        pareto_by_id = {
+            item.get("option_id"): item.get("values") for item in pareto_data
+        }
+        evaluation_pareto = {
+            item["option_id"]: item["values"]
+            for item in evaluation.get("pareto_axis_values", [])
+            if item["option_id"] in expected["retain"]
+        }
+        axis_contract = evaluation["pareto_axis_contract"]
+        rank = {value: index for index, value in enumerate(axis_contract["ordered_values"])}
+
+        def benefit(option_id: str, axis: str) -> int:
+            raw = rank[evaluation_pareto[option_id][axis]]
+            return raw if axis_contract["axis_directions"][axis] == "higher_is_better" else -raw
+
+        expected_non_dominated = []
+        for candidate in expected["retain"]:
+            dominated = False
+            for challenger in expected["retain"]:
+                if challenger == candidate:
+                    continue
+                comparisons = [
+                    (benefit(challenger, axis), benefit(candidate, axis))
+                    for axis in POLISHER_PARETO_AXES
+                ]
+                if all(left >= right for left, right in comparisons) and any(
+                    left > right for left, right in comparisons
+                ):
+                    dominated = True
+                    break
+            if not dominated:
+                expected_non_dominated.append(candidate)
+        require(
+            set(pareto_by_id) == set(expected["retain"])
+            and pareto_by_id == evaluation_pareto
+            and expected_non_dominated
+            and sorted(contract.get("non_dominated_option_ids", []))
+            == sorted(expected_non_dominated)
+            and contract.get("pareto_axis_contract") == axis_contract,
+            "polisher_selection_adjudication",
+            package["artifact_id"],
+        )
+
     def process_entry_gate(self, event: dict[str, Any]) -> dict[str, Any]:
         require(not self.entry_gate_verified, "entry_gate_receipts", "entry gate repeated")
         require(self.current_primary is not None, "entry_gate_receipts", "primary artifact missing")
@@ -523,7 +1614,13 @@ class ScenarioEngine:
                 expected_roles = gate_contracts[gate_name].get("artifact_roles")
                 require(
                     expected_roles is not None
-                    and sorted(artifact["artifact_role"] for artifact in artifacts) == sorted(expected_roles),
+                    and sorted(
+                        self.canonical_artifact_role(artifact["artifact_role"])
+                        for artifact in artifacts
+                    )
+                    == sorted(
+                        self.canonical_artifact_role(role) for role in expected_roles
+                    ),
                     "entry_gate_contract",
                     gate_name,
                 )
@@ -603,11 +1700,55 @@ class ScenarioEngine:
         for artifact_id in event["input_artifact_ids"]:
             require(self.artifacts[artifact_id]["created_by_instance_id"] != event["actor_instance_id"], "reviewer_is_writer", event["event_id"])
 
+        if (
+            self.workflow == "research_polisher"
+            and destination
+            == self.machine.get(
+                "strategy_reviewer_skill", "research-polisher-strategy-reviewer"
+            )
+        ):
+            self.validate_polisher_strategy_report(event, report)
+        if (
+            self.workflow == "research_polisher"
+            and destination == self.machine["evaluator_skill"]
+        ):
+            visible_roles = {
+                self.canonical_artifact_role(self.artifacts[item]["artifact_role"])
+                for item in event["input_artifact_ids"]
+            }
+            require(
+                not visible_roles.intersection(
+                    {
+                        "strategy_report",
+                        "strategy_report_manifest",
+                        "evaluation_report",
+                        "revision_plan",
+                    }
+                ),
+                "forbidden_review_input",
+                event["event_id"],
+            )
+            require(
+                report.get("raw_strategy_reports_visible") is False
+                and report.get("strategist_identities_visible") is False,
+                "polisher_evaluator_blindness",
+                event["event_id"],
+            )
+            require(
+                report.get("sealed_provenance_visible") is False,
+                "polisher_evaluator_blindness",
+                event["event_id"],
+            )
+            self.validate_polisher_evaluation_report(event, report)
+
         final_verifier = destination in self.contract["verifier_compositor_outputs"]
         is_panel = destination == PANEL_SKILLS[self.workflow]
         forbidden_roles = set(self.contract["blindness_policy"]["forbidden_input_roles_for_evaluator_or_panel"])
         if destination == self.machine["evaluator_skill"] or is_panel:
-            visible_roles = {self.artifacts[item]["artifact_role"] for item in event["input_artifact_ids"]}
+            visible_roles = {
+                self.canonical_artifact_role(self.artifacts[item]["artifact_role"])
+                for item in event["input_artifact_ids"]
+            }
             require(not (visible_roles & forbidden_roles), "forbidden_review_input", f"{event['event_id']}: {visible_roles & forbidden_roles}")
             if is_panel:
                 mode = self.fixture["panel"]["mode"]
@@ -661,6 +1802,16 @@ class ScenarioEngine:
         self.review_reports[report["review_id"]] = report
 
         destination = event["destination_skill"]
+        if (
+            self.workflow == "research_polisher"
+            and destination
+            == self.machine.get(
+                "strategy_reviewer_skill", "research-polisher-strategy-reviewer"
+            )
+        ):
+            self.strategy_reports_by_role.setdefault(report["reviewer_role"], []).append(
+                report["review_id"]
+            )
         is_panel = destination == PANEL_SKILLS[self.workflow]
         category = self.decision_category(destination, report["decision"])
         for finding in report["findings"]:
@@ -674,8 +1825,30 @@ class ScenarioEngine:
             ):
                 self.fatal_ids.add(finding["finding_id"])
         route = self.finding_route(report["findings"])
+        is_polisher_strategy = (
+            self.workflow == "research_polisher"
+            and destination
+            == self.machine.get(
+                "strategy_reviewer_skill", "research-polisher-strategy-reviewer"
+            )
+        )
 
-        if is_panel:
+        if is_polisher_strategy:
+            if route in {"blocked", "stopped"}:
+                self.transition(route, "fatal_or_blocking_finding" if route == "blocked" else "unfixable_no_gain_or_user_stop", event["event_id"])
+            else:
+                routed_state = self.polisher_decision_state(destination, report["decision"])
+                if routed_state == "independent_review_pending":
+                    self.transition(
+                        "independent_review_pending",
+                        "required_reviewer_unavailable",
+                        event["event_id"],
+                    )
+                elif routed_state in {"clarification_stop", "no_defensible_option"}:
+                    self.set_polisher_route_state(routed_state, report["decision"], event["event_id"])
+                else:
+                    require(routed_state == "continue" and route is None, "polisher_decision_route", event["event_id"])
+        elif is_panel:
             require(self.state == "panel_pending", "registry_lifecycle_mismatch", event["event_id"])
             require(self.current_primary is not None, "missing_primary_artifact", event["event_id"])
             require(self.current_primary["artifact_id"] in report["input_artifact_ids"], "panel_current_artifact", event["event_id"])
@@ -694,8 +1867,21 @@ class ScenarioEngine:
             require(self.current_primary["version_id"] in report["input_versions"], "review_inputs", event["event_id"])
             self.evaluator_instances.append(event["actor_instance_id"])
             self.transition("pending_review", "independent_review_dispatched", event["event_id"])
+            polisher_route = (
+                self.polisher_decision_state(destination, report["decision"])
+                if self.workflow == "research_polisher"
+                else None
+            )
             if route in {"blocked", "stopped"}:
                 self.transition(route, "fatal_or_blocking_finding" if route == "blocked" else "unfixable_no_gain_or_user_stop", event["event_id"])
+            elif polisher_route == "independent_review_pending":
+                self.transition("independent_review_pending", "required_reviewer_unavailable", event["event_id"])
+            elif polisher_route in {
+                "clarification_stop",
+                "specialist_review_pending",
+                "no_defensible_option",
+            }:
+                self.set_polisher_route_state(polisher_route, report["decision"], event["event_id"])
             elif category == "revise":
                 self.pending_revision_review_ids = {report["review_id"]}
                 self.transition("revision_required", "fixable_revision_requested", event["event_id"])
@@ -706,6 +1892,12 @@ class ScenarioEngine:
                     require(self.panel_complete, "panel_gate", "panel patch lacks completed panel")
                     self.transition("packaging_pending", "panel_patch_latest_version_accepted", event["event_id"])
                     self.panel_patch_pending = False
+                elif not self.machine.get("post_evaluation_panel_required", True):
+                    self.transition(
+                        "packaging_pending",
+                        "latest_strategy_portfolio_accepted",
+                        event["event_id"],
+                    )
                 else:
                     self.transition("panel_pending", "latest_version_accepted", event["event_id"])
             else:
@@ -832,7 +2024,8 @@ class ScenarioEngine:
         qualifying = event.get("qualifying_evaluation_version", self.latest_evaluated_version)
         require(qualifying == self.current_primary["version_id"], "stale_evaluation", f"{qualifying} != {self.current_primary['version_id']}")
         require(self.latest_evaluated_version == self.current_primary["version_id"], "stale_evaluation", event["event_id"])
-        require(self.panel_complete, "panel_gate", event["event_id"])
+        if self.machine.get("post_evaluation_panel_required", True):
+            require(self.panel_complete, "panel_gate", event["event_id"])
         require(not self.fatal_ids, "fatal_gate_bypassed", event["event_id"])
         require(set(event.get("preserved_dissent_ids", [])) >= self.dissent_ids, "dissent_not_preserved", event["event_id"])
         require(set(event.get("artifact_index_dissent_ids", [])) >= self.dissent_ids, "dissent_not_indexed", event["event_id"])
@@ -841,7 +2034,14 @@ class ScenarioEngine:
         input_artifacts = [self.artifacts[artifact_id] for artifact_id in event.get("input_artifact_ids", [])]
         require(input_artifacts, "package_input_contract", event["event_id"])
         require(
-            {artifact["artifact_role"] for artifact in input_artifacts} <= set(contract["allowed_roles"]),
+            {
+                self.canonical_artifact_role(artifact["artifact_role"])
+                for artifact in input_artifacts
+            }
+            <= {
+                self.canonical_artifact_role(role)
+                for role in contract["allowed_roles"]
+            },
             "verifier_forbidden_input",
             event["event_id"],
         )
@@ -850,7 +2050,8 @@ class ScenarioEngine:
             matches = [
                 artifact
                 for artifact in input_artifacts
-                if artifact["artifact_role"] == requirement["artifact_role"]
+                if self.canonical_artifact_role(artifact["artifact_role"])
+                == self.canonical_artifact_role(requirement["artifact_role"])
                 and (
                     "source_skill" not in requirement
                     or artifact["source_skill"] == requirement["source_skill"]
@@ -868,7 +2069,8 @@ class ScenarioEngine:
                 all_created = {
                     artifact_id
                     for artifact_id, artifact in self.artifacts.items()
-                    if artifact["artifact_role"] == requirement["artifact_role"]
+                    if self.canonical_artifact_role(artifact["artifact_role"])
+                    == self.canonical_artifact_role(requirement["artifact_role"])
                     and artifact["source_skill"] == requirement["source_skill"]
                 }
                 require({artifact["artifact_id"] for artifact in matches} == all_created, "package_input_contract", event["event_id"])
@@ -880,7 +2082,10 @@ class ScenarioEngine:
                 selected = [
                     artifact
                     for artifact in input_artifacts
-                    if artifact["artifact_role"] == requirement["selected_artifact_lineage_role"]
+                    if self.canonical_artifact_role(artifact["artifact_role"])
+                    == self.canonical_artifact_role(
+                        requirement["selected_artifact_lineage_role"]
+                    )
                 ]
                 require(len(selected) == 1, "package_input_contract", event["event_id"])
                 selected_ref = f"{selected[0]['artifact_id']}@{selected[0]['version_id']}"
@@ -930,10 +2135,18 @@ class ScenarioEngine:
         self.validate_ready_for_package(event)
         outputs = event.get("outputs", [])
         require(outputs, "event_schema", f"{event['event_id']} has no package outputs")
+        if self.workflow == "research_polisher":
+            self.validate_polisher_selection_outputs(event, outputs)
         observation = self.materialize_outputs(event, outputs, None)
         self.validate_package_output_lineage(event, outputs)
         self.writer_instances.add(event["actor_instance_id"])
-        self.transition("human_signoff_required", "package_verified", event["event_id"])
+        final_state = self.machine.get("final_state", "human_signoff_required")
+        trigger = (
+            "selection_dossier_verified"
+            if final_state == "human_strategy_selection_required"
+            else "package_verified"
+        )
+        self.transition(final_state, trigger, event["event_id"])
         return observation
 
     def validate_expected(self) -> None:
@@ -1076,11 +2289,23 @@ def mutate_fixture(fixture: dict[str, Any], mutation: str) -> None:
         "proposal": "proposal-evaluator",
         "article": "article-evaluator",
         "perspective": "perspective-evaluator",
+        "research_polisher": "research-polisher-methodology-publishability-reviewer",
     }[evaluator]
     evaluator_reviews = [event for event in reviews if event["destination_skill"] == evaluator_name]
     primary_produces = [
         event for event in fixture["events"]
-        if event["type"] == "produce" and any(item["artifact_role"] in {"candidate_idea_set", "proposal", "manuscript", "perspective"} for item in event["outputs"])
+        if event["type"] == "produce"
+        and any(
+            item["artifact_role"]
+            in {
+                "candidate_idea_set",
+                "proposal",
+                "manuscript",
+                "perspective",
+                "research_polisher_candidate_portfolio",
+            }
+            for item in event["outputs"]
+        )
     ]
 
     if mutation == "duplicate_panel_instance":
@@ -1294,6 +2519,151 @@ def mutate_fixture(fixture: dict[str, Any], mutation: str) -> None:
     elif mutation == "revision_plan_drops_one_trigger":
         event = next(event for event in panel_reviews if event["event_id"] == "perspective-panel-evidence")
         event["review_report"]["decision"] = "support_with_minor_revision"
+    elif mutation == "polisher_remove_matrix_cell":
+        event = next(event for event in fixture["events"] if event["event_id"] == "polisher-assemble-v1")
+        event["outputs"][0]["options"].pop()
+    elif mutation == "polisher_duplicate_strategy_instance":
+        first = next(event for event in reviews if event["event_id"] == "polisher-strategy-scientific-v1")
+        second = next(event for event in reviews if event["event_id"] == "polisher-strategy-practical-v1")
+        second["actor_instance_id"] = first["actor_instance_id"]
+        second["review_report"]["reviewer_instance_id"] = first["actor_instance_id"]
+        for output in second["outputs"]:
+            output["created_by_instance_id"] = first["actor_instance_id"]
+    elif mutation == "polisher_peer_output_visible":
+        event = next(event for event in reviews if event["event_id"] == "polisher-strategy-scientific-v1")
+        event["review_report"]["peer_outputs_visible"] = True
+    elif mutation == "polisher_reposition_adds_analysis":
+        event = next(event for event in reviews if event["event_id"] == "polisher-strategy-scientific-v1")
+        option = event["review_report"]["strategy_options"][0]
+        option["plan"]["added_work_items"] = ["new subgroup analysis"]
+        option["introduces_new_analysis"] = True
+    elif mutation == "polisher_small_low_feasibility":
+        event = next(event for event in reviews if event["event_id"] == "polisher-strategy-practical-v1")
+        event["review_report"]["strategy_options"][1]["feasibility"] = "unknown"
+    elif mutation == "polisher_small_changes_core_design":
+        event = next(event for event in reviews if event["event_id"] == "polisher-strategy-practical-v1")
+        event["review_report"]["strategy_options"][1]["changes_core_design"] = True
+    elif mutation == "polisher_moderate_new_study":
+        event = next(event for event in reviews if event["event_id"] == "polisher-strategy-dissemination-v1")
+        event["review_report"]["strategy_options"][2]["independent_new_study"] = True
+    elif mutation == "polisher_assembler_scores":
+        event = next(event for event in fixture["events"] if event["event_id"] == "polisher-assemble-v1")
+        event["outputs"][0]["assembler_contract"]["scoring_performed"] = True
+    elif mutation == "polisher_assembler_invents_option":
+        event = next(event for event in fixture["events"] if event["event_id"] == "polisher-assemble-v1")
+        event["outputs"][0]["assembler_contract"]["invented_option_ids"] = ["invented-hybrid-001"]
+    elif mutation == "polisher_assembler_drops_dissent":
+        event = next(event for event in fixture["events"] if event["event_id"] == "polisher-assemble-v1")
+        event["outputs"][0]["preserved_dissent_ids"] = []
+    elif mutation == "polisher_evaluator_reads_strategy_report":
+        event = next(event for event in evaluator_reviews if event["event_id"] == "polisher-evaluate-v1")
+        event["input_artifact_ids"].append("polisher-strategy-scientific-report-v1")
+        event["input_versions"].append("sr001")
+        event["allowed_read_paths"].append("03_strategy/research_polisher_strategy_report-scientific_significance-v001.yaml")
+        event["review_report"]["input_artifact_ids"].append("polisher-strategy-scientific-report-v1")
+        event["review_report"]["input_versions"].append("sr001")
+        event["review_report"]["files_read"].append("03_strategy/research_polisher_strategy_report-scientific_significance-v001.yaml")
+    elif mutation == "polisher_evaluator_reuses_strategy_instance":
+        strategy = next(event for event in reviews if event["event_id"] == "polisher-strategy-scientific-v1")
+        event = next(event for event in evaluator_reviews if event["event_id"] == "polisher-evaluate-v1")
+        event["actor_instance_id"] = strategy["actor_instance_id"]
+        event["review_report"]["reviewer_instance_id"] = strategy["actor_instance_id"]
+        for output in event["outputs"]:
+            output["created_by_instance_id"] = strategy["actor_instance_id"]
+    elif mutation == "polisher_target_fit_unverified":
+        event = next(event for event in fixture["events"] if event["event_id"] == "polisher-assemble-v1")
+        event["outputs"][0]["target_specific_fit_claimed"] = True
+    elif mutation == "polisher_fatal_then_selection":
+        event = next(event for event in evaluator_reviews if event["event_id"] == "polisher-evaluate-v2")
+        review_id = event["review_report"]["review_id"]
+        event["review_report"]["findings"].append(
+            {
+                "finding_id": "polisher-fatal-mutated",
+                "source_review_id": review_id,
+                "severity": "fatal",
+                "blocking": True,
+                "fixability": "unfixable",
+                "status": "unresolved",
+                "owner": "human_expert",
+                "route": "blocked",
+            }
+        )
+        event["expected_state_after"] = "blocked"
+    elif mutation == "polisher_portfolio_identity_leak":
+        event = next(event for event in fixture["events"] if event["event_id"] == "polisher-assemble-v1")
+        event["outputs"][0]["options"][0]["reviewer_role"] = "scientific_significance"
+    elif mutation == "polisher_portfolio_lineage_leak":
+        event = next(event for event in fixture["events"] if event["event_id"] == "polisher-assemble-v1")
+        event["outputs"][0]["based_on"].append(
+            "polisher-strategy-scientific-report-v1@sr001"
+        )
+    elif mutation == "polisher_dossier_missing_method":
+        dossier = next(
+            artifact
+            for artifact in fixture["initial_artifacts"]
+            if artifact["artifact_role"] == "research_polisher_dossier"
+        )
+        dossier["dossier_contract"].pop("methods")
+    elif mutation == "polisher_option_missing_evidence_dependency":
+        event = next(
+            event
+            for event in reviews
+            if event["event_id"] == "polisher-strategy-scientific-v1"
+        )
+        event["review_report"]["strategy_options"][0]["plan"].pop(
+            "evidence_dependencies"
+        )
+    elif mutation == "polisher_evaluation_missing_decision":
+        event = next(
+            event
+            for event in evaluator_reviews
+            if event["event_id"] == "polisher-evaluate-v2"
+        )
+        event["review_report"]["option_decisions"].pop()
+    elif mutation == "polisher_evaluation_pareto_incomplete":
+        event = next(
+            event
+            for event in evaluator_reviews
+            if event["event_id"] == "polisher-evaluate-v2"
+        )
+        event["review_report"]["pareto_axis_values"].pop()
+    elif mutation == "polisher_selection_missing_nondominated":
+        event = next(
+            event for event in fixture["events"] if event["event_id"] == "polisher-package"
+        )
+        event["outputs"][0]["selection_dossier_contract"][
+            "non_dominated_option_ids"
+        ] = []
+    elif mutation == "polisher_revision_brief_identity_leak":
+        event = next(
+            event for event in fixture["events"] if event["event_id"] == "polisher-plan-v2"
+        )
+        event["outputs"][0]["revision_brief_contract"][
+            "source_reviewer_identities_included"
+        ] = True
+    elif mutation == "polisher_reevaluator_reads_prior_evaluation":
+        event = next(
+            event
+            for event in evaluator_reviews
+            if event["event_id"] == "polisher-evaluate-v2"
+        )
+        event["input_artifact_ids"].append("polisher-evaluation-v1")
+        event["input_versions"].append("er001")
+        event["allowed_read_paths"].append(
+            "05_evaluations/research_polisher_evaluation_report-v001.yaml"
+        )
+        event["review_report"]["input_artifact_ids"].append("polisher-evaluation-v1")
+        event["review_report"]["input_versions"].append("er001")
+        event["review_report"]["files_read"].append(
+            "05_evaluations/research_polisher_evaluation_report-v001.yaml"
+        )
+    elif mutation == "polisher_final_reviewer_edits_source":
+        event = next(
+            event
+            for event in evaluator_reviews
+            if event["event_id"] == "polisher-evaluate-v2"
+        )
+        event["review_report"]["source_edits_performed"] = True
     else:
         raise ValueError(f"Unknown mutation: {mutation}")
 
@@ -1327,6 +2697,60 @@ def validate_finding_route_cases() -> list[dict[str, Any]]:
         require(actual == case.get("expected_route"), "finding_route_cases", case["case_id"])
         results.append({"case_id": case["case_id"], "route": actual})
     require(len(results) >= 5, "finding_route_cases", "insufficient route coverage")
+    return results
+
+
+def validate_polisher_decision_route_cases() -> list[dict[str, str]]:
+    cases = (
+        ("research-polisher-strategy-reviewer", "matrix_complete", "continue"),
+        (
+            "research-polisher-strategy-reviewer",
+            "matrix_complete_with_no_defensible_option",
+            "continue",
+        ),
+        (
+            "research-polisher-strategy-reviewer",
+            "clarification_required",
+            "clarification_stop",
+        ),
+        (
+            "research-polisher-strategy-reviewer",
+            "independent_review_pending",
+            "independent_review_pending",
+        ),
+        (
+            "research-polisher-methodology-publishability-reviewer",
+            "specialist_review_required",
+            "specialist_review_pending",
+        ),
+        (
+            "research-polisher-methodology-publishability-reviewer",
+            "no_defensible_option",
+            "no_defensible_option",
+        ),
+        (
+            "research-polisher-methodology-publishability-reviewer",
+            "not_assessable",
+            "clarification_stop",
+        ),
+        (
+            "research-polisher-methodology-publishability-reviewer",
+            "independent_review_pending",
+            "independent_review_pending",
+        ),
+    )
+    results = []
+    for skill, decision, expected in cases:
+        actual = ScenarioEngine.polisher_decision_state(skill, decision)
+        require(actual == expected, "polisher_decision_route", f"{decision}: {actual}")
+        results.append(
+            {
+                "skill": skill,
+                "decision": decision,
+                "state": actual,
+                "status": "verified",
+            }
+        )
     return results
 
 
@@ -1607,7 +3031,11 @@ def validate_live_forward_test_receipts(registry: dict[str, Any]) -> tuple[list[
     current_digest = str(current_identity["skills_tree"]["sha256"])
     receipts = data.get("workflows", [])
     by_workflow = {item.get("workflow"): item for item in receipts}
-    require(set(by_workflow) == {Path(name).stem for name in FIXTURE_NAMES}, "live_receipt_workflows", str(sorted(by_workflow)))
+    require(
+        set(by_workflow) == set(LIVE_RECEIPT_WORKFLOWS),
+        "live_receipt_workflows",
+        str(sorted(by_workflow)),
+    )
 
     audited = 0
     completed = 0
@@ -1617,7 +3045,7 @@ def validate_live_forward_test_receipts(registry: dict[str, Any]) -> tuple[list[
     corrected_claims = 0
     orchestrators: list[str] = []
     summaries: list[dict[str, Any]] = []
-    for workflow in ("idea", "proposal", "article", "perspective"):
+    for workflow in LIVE_RECEIPT_WORKFLOWS:
         receipt = by_workflow[workflow]
         orchestrator = str(receipt.get("orchestrator_instance", ""))
         require(orchestrator.startswith("codex-cli:"), "live_orchestrator_instance", workflow)
@@ -1780,6 +3208,16 @@ def run_all() -> dict[str, Any]:
             scenario_results.append(ScenarioEngine(fixture, registry, schema, Path(temp)).run())
 
     guard_spec = load_yaml(FIXTURE_ROOT / "guard-cases.yaml")
+    polisher_guard_case_ids = {
+        case["case_id"]
+        for case in guard_spec["cases"]
+        if case.get("base_fixture") == "research-polisher.yaml"
+    }
+    require(
+        len(polisher_guard_case_ids) >= 12,
+        "polisher_component_guard_coverage",
+        str(len(polisher_guard_case_ids)),
+    )
     guard_results = []
     for case in guard_spec["cases"]:
         fixture = copy.deepcopy(load_yaml(FIXTURE_ROOT / case["base_fixture"]))
@@ -1797,6 +3235,10 @@ def run_all() -> dict[str, Any]:
     live_identity_guard_results = validate_live_identity_negative_guards(
         current_live_runtime_identity(registry)
     )
+    final_states: dict[str, int] = {}
+    for result in scenario_results:
+        state = result["final_state"]
+        final_states[state] = final_states.get(state, 0) + 1
     return {
         "schema_version": 1,
         "plugin_version": registry["plugin_version"],
@@ -1806,12 +3248,17 @@ def run_all() -> dict[str, Any]:
         "negative_guard_results": guard_results,
         "live_identity_negative_guard_results": live_identity_guard_results,
         "finding_route_results": validate_finding_route_cases(),
+        "polisher_decision_route_results": validate_polisher_decision_route_cases(),
         "live_forward_test_receipts": live_results,
         "retrieval_receipts": validate_retrieval_receipts(),
         "summary": {
             "workflows_passed": len(scenario_results),
             "negative_guards_rejected": len(guard_results),
+            "research_polisher_component_guards_rejected": sum(
+                item["case_id"] in polisher_guard_case_ids for item in guard_results
+            ),
             "finding_routes_verified": 5,
+            "polisher_decision_routes_verified": 8,
             "live_workflows_receipts_audited": live_counts["receipts_audited"],
             "live_workflows_reached_human_signoff_gate": live_counts["reached_human_signoff_gate"],
             "live_workflows_stopped_at_valid_gate": live_counts["stopped_at_valid_gate"],
@@ -1824,7 +3271,7 @@ def run_all() -> dict[str, Any]:
             "live_receipt_identity_mismatched_components": live_counts["identity_mismatched_components"],
             "live_current_identity_compatible_receipts": live_counts["current_identity_compatible_receipts"],
             "live_identity_negative_guards_rejected": len(live_identity_guard_results),
-            "final_state": "human_signoff_required",
+            "final_states": final_states,
             "automatic_external_submission": False,
         },
     }
@@ -1845,8 +3292,15 @@ def main() -> int:
         require(REPORT_PATH.is_file(), "report_missing", str(REPORT_PATH))
         require(REPORT_PATH.read_text(encoding="utf-8") == rendered, "report_drift", str(REPORT_PATH))
     print("Phase 4 scenario evaluations passed")
-    print(f"workflows: {result['summary']['workflows_passed']}/4")
+    print(
+        f"workflows: {result['summary']['workflows_passed']}/{len(FIXTURE_NAMES)}"
+    )
     print(f"negative guards: {result['summary']['negative_guards_rejected']}/{len(result['negative_guard_results'])}")
+    print(
+        "Research Polisher component guards: "
+        f"{result['summary']['research_polisher_component_guards_rejected']} passed "
+        "(minimum 12)"
+    )
     print(
         "live identity negative guards: "
         f"{result['summary']['live_identity_negative_guards_rejected']}/"
@@ -1854,8 +3308,13 @@ def main() -> int:
     )
     print(f"finding routes: {result['summary']['finding_routes_verified']}/5")
     print(
+        "polisher decision routes: "
+        f"{result['summary']['polisher_decision_routes_verified']}/8"
+    )
+    print(
         "live output snapshots: "
-        f"{result['summary']['live_workflows_receipts_audited']}/4 raw-bound receipts audited; "
+        f"{result['summary']['live_workflows_receipts_audited']}/"
+        f"{len(LIVE_RECEIPT_WORKFLOWS)} raw-bound receipts audited; "
         f"{result['summary']['live_workflows_reached_human_signoff_gate']} reached a validated human-signoff gate; "
         f"{result['summary']['live_workflows_stopped_at_valid_gate']} stopped at valid gates; "
         f"{result['summary']['live_workflows_blocked_at_valid_gate']} blocked at a valid gate; "

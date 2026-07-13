@@ -2,14 +2,15 @@
   "schema_version": 1,
   "plugin": "research-skills-openai",
   "external_evidence_schema": "tests/openai_phase7/release-evidence.schema.yaml",
-  "evidence_policy": "Derived fields come from the current tree. External evidence is preserved only for an unchanged version, manifest, registry/schema, license, provenance, skill-tree digest, validation-contract tree, and marketplace source. Verified external records require a repository-relative evidence file whose raw SHA-256 and observed payload match the ledger. Repository files alone do not authenticate provider origin; verified external records additionally require an implemented authenticated adapter. Unobserved evidence remains pending.",
+  "evidence_policy": "Derived fields come from the current tree. External evidence is preserved only for an unchanged version, manifest, registry/schema, license, provenance, skill-tree digest, validation-contract tree, and marketplace source. Accepted external records store only immutable GitHub Release/run/asset locators and digests, and require a registered verifier to live re-query those external assets. Shared bundle validation proves integrity only and never determines gate eligibility. preview_attested is explicitly not verified or provider_verified. provider_verified is unavailable until a separately registered authenticated provider adapter exists. Repository files, status text, screenshots, and manual notes never suffice. Unobserved evidence remains pending.",
   "release": {
-    "version": "0.6.0-preview.1",
+    "version": "0.7.0-preview.1",
     "external_evidence_trust": {
       "adapter_status": "unavailable",
       "adapter_id": null,
+      "verification_level": null,
       "provider_authenticated": false,
-      "reason": "No authenticated GitHub/Codex external-evidence adapter is implemented; repository-authored envelopes prove integrity, not origin."
+      "reason": "No registered live external verifier has re-queried a GitHub Release evidence bundle for this release. Repository files, status text, screenshots, and manual notes do not establish Preview acceptance."
     },
     "source_commit": {
       "status": "pending",
@@ -19,20 +20,20 @@
     "installable_skill_tree": {
       "root": "skills/",
       "algorithm": "sha256_sorted_posix_relative_path_nul_crlf_normalized_bytes_nul",
-      "file_count": 330,
-      "sha256": "6e024f278845c3397518994335ba76f7d7fe07917fcb1fccbb0270153a6ff515"
+      "file_count": 344,
+      "sha256": "2a709b1d9d1f9484112fffb0b0c50b749316c32a29718711b1ca47692c091416"
     },
     "installable_contracts": {
-      "manifest_sha256": "2010071db21776a63498c9813d9ea401574bd44dda157eb55ec25d6ca25a0809",
-      "registry_sha256": "44e2c098eb6f3ab020189dec025a833be15e887691bd4b33a1c04c6b36205c8f",
+      "manifest_sha256": "93788fff78bd32c2f94d2da7463920464f642c6f8951aebdb733878e629a57a7",
+      "registry_sha256": "43e621b09d663f3dad8fc13e7fd88fea860da8a14f26db4c9c75401214f4052a",
       "registry_schema_version": 5,
       "license_sha256": "0200f93cb786f526f23f9a901367dda528e65c3d8c3d9a1c92bcedb3fe5cba1a",
-      "provenance_sha256": "06da633f584e35d66c1762e56171175ae8166690716aaf0676cc399f89dd01ca"
+      "provenance_sha256": "998cf2ea86ae717174bdfc393dbf85feec943b1ad9fc8527155540b05b89ddd7"
     },
     "validation_contract_tree": {
       "algorithm": "sha256_sorted_repository_relative_path_nul_crlf_normalized_bytes_nul",
-      "file_count": 49,
-      "sha256": "1e9baa269d9db1c9facf680158d28539c36a14dbd52d1ae65aee7a4528c9cd0d",
+      "file_count": 80,
+      "sha256": "b3d765bca1a8faa913455f740bbabbfdd61477b7e964e4be9d88f2cb5d4cde21",
       "mutable_runtime_evidence_excluded": [
         "tests/openai_phase7/current-version-runtime-receipts.yaml",
         "tests/openai_phase8/live-repeat-receipts.yaml",
@@ -50,8 +51,7 @@
         "run_url": null,
         "commit_sha": null,
         "conclusion": null,
-        "evidence_path": null,
-        "evidence_sha256": null,
+        "evidence_locator": null,
         "reason": "A successful GitHub Actions run bound to the release commit is not yet recorded."
       },
       "canonical_plugin_validator": {
@@ -68,8 +68,7 @@
           "run_id": null,
           "commit_sha": null,
           "conclusion": null,
-          "evidence_path": null,
-          "evidence_sha256": null,
+          "evidence_locator": null,
           "reason": "No stable public canonical-validator CI entry point is available; the bundled system validator is not vendored into this repository."
         }
       }
@@ -80,8 +79,7 @@
         "branch": "main",
         "required_check": "OpenAI Plugin Preview / validate",
         "verified_at": null,
-        "evidence_path": null,
-        "evidence_sha256": null,
+        "evidence_locator": null,
         "reason": "Repository branch protection and the required Preview check have not been verified through an authenticated repository API."
       }
     },
@@ -94,8 +92,7 @@
       "resolved_commit": {
         "status": "pending",
         "sha": null,
-        "evidence_path": null,
-        "evidence_sha256": null,
+        "evidence_locator": null,
         "reason": "The rolling marketplace ref has not yet been resolved and bound to this release."
       }
     },
@@ -106,8 +103,7 @@
         "source_commit": null,
         "cache_path": null,
         "cache_artifact": null,
-        "evidence_path": null,
-        "evidence_sha256": null,
+        "evidence_locator": null,
         "reason": "A current-version external receipt has not yet been captured."
       },
       "explicit_reinstall": {
@@ -116,8 +112,7 @@
         "source_commit": null,
         "cache_path": null,
         "cache_artifact": null,
-        "evidence_path": null,
-        "evidence_sha256": null,
+        "evidence_locator": null,
         "reason": "A current-version external receipt has not yet been captured."
       },
       "fresh_task_discovery": {
@@ -125,17 +120,19 @@
         "plugin_version": null,
         "source_commit": null,
         "task_id": null,
-        "skill_count": null,
-        "visible_entry_skills": null,
+        "installed_skill_count": null,
+        "explicit_callable_entries": null,
+        "implicit_prompt_entries": null,
+        "explicit_callable_entry_skills": null,
+        "implicit_prompt_entry_skills": null,
         "installed_via": null,
         "cache_artifact": null,
-        "evidence_path": null,
-        "evidence_sha256": null,
+        "evidence_locator": null,
         "reason": "A current-version external receipt has not yet been captured."
       },
       "rollback": {
         "status": "pending",
-        "from_version": "0.6.0-preview.1",
+        "from_version": "0.7.0-preview.1",
         "to_version": null,
         "target_commit": null,
         "restored_cache_path": null,
@@ -144,8 +141,7 @@
         "candidate_cache_artifact": null,
         "restored_cache_artifact": null,
         "cache_mixing_absent": null,
-        "evidence_path": null,
-        "evidence_sha256": null,
+        "evidence_locator": null,
         "reason": "Rollback evidence must be captured against the previous artifact and an immutable commit."
       }
     }

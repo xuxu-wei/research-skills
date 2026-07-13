@@ -156,3 +156,123 @@ cases:
     base_fixture: perspective.yaml
     mutation: revision_plan_drops_one_trigger
     expected_error: revision_plan_trigger_missing
+
+  - case_id: polisher-requires-complete-three-by-three-matrix
+    base_fixture: research-polisher.yaml
+    mutation: polisher_remove_matrix_cell
+    expected_error: polisher_strategy_matrix_incomplete
+
+  - case_id: polisher-strategist-instances-are-unique
+    base_fixture: research-polisher.yaml
+    mutation: polisher_duplicate_strategy_instance
+    expected_error: duplicate_reviewer_instance
+
+  - case_id: polisher-strategists-remain-mutually-blind
+    base_fixture: research-polisher.yaml
+    mutation: polisher_peer_output_visible
+    expected_error: peer_output_visible
+
+  - case_id: polisher-reposition-only-cannot-add-analysis
+    base_fixture: research-polisher.yaml
+    mutation: polisher_reposition_adds_analysis
+    expected_error: polisher_reposition_adds_work
+
+  - case_id: polisher-small-extension-needs-high-feasibility
+    base_fixture: research-polisher.yaml
+    mutation: polisher_small_low_feasibility
+    expected_error: polisher_extension_feasibility
+
+  - case_id: polisher-small-extension-cannot-change-core-design
+    base_fixture: research-polisher.yaml
+    mutation: polisher_small_changes_core_design
+    expected_error: polisher_extension_scope
+
+  - case_id: polisher-moderate-extension-cannot-be-new-study
+    base_fixture: research-polisher.yaml
+    mutation: polisher_moderate_new_study
+    expected_error: polisher_extension_scope
+
+  - case_id: polisher-assembler-cannot-score-or-rank
+    base_fixture: research-polisher.yaml
+    mutation: polisher_assembler_scores
+    expected_error: polisher_assembler_judgment
+
+  - case_id: polisher-assembler-cannot-invent-options
+    base_fixture: research-polisher.yaml
+    mutation: polisher_assembler_invents_option
+    expected_error: polisher_assembler_invented_option
+
+  - case_id: polisher-assembler-must-preserve-dissent
+    base_fixture: research-polisher.yaml
+    mutation: polisher_assembler_drops_dissent
+    expected_error: dissent_not_preserved
+
+  - case_id: polisher-final-reviewer-cannot-read-strategy-reports
+    base_fixture: research-polisher.yaml
+    mutation: polisher_evaluator_reads_strategy_report
+    expected_error: forbidden_review_input
+
+  - case_id: polisher-final-reviewer-instance-is-fresh
+    base_fixture: research-polisher.yaml
+    mutation: polisher_evaluator_reuses_strategy_instance
+    expected_error: duplicate_reviewer_instance
+
+  - case_id: polisher-target-fit-requires-verified-requirements
+    base_fixture: research-polisher.yaml
+    mutation: polisher_target_fit_unverified
+    expected_error: target_requirements_unverified
+
+  - case_id: polisher-fatal-finding-blocks-selection
+    base_fixture: research-polisher.yaml
+    mutation: polisher_fatal_then_selection
+    expected_error: event_after_terminal
+
+  - case_id: polisher-anonymous-portfolio-hides-reviewer-lens
+    base_fixture: research-polisher.yaml
+    mutation: polisher_portfolio_identity_leak
+    expected_error: polisher_portfolio_identity_leak
+
+  - case_id: polisher-anonymous-portfolio-hides-raw-lineage
+    base_fixture: research-polisher.yaml
+    mutation: polisher_portfolio_lineage_leak
+    expected_error: polisher_portfolio_lineage_leak
+
+  - case_id: polisher-dossier-requires-methods-and-source-bindings
+    base_fixture: research-polisher.yaml
+    mutation: polisher_dossier_missing_method
+    expected_error: polisher_dossier_field_missing
+
+  - case_id: polisher-strategy-option-requires-evidence-dependencies
+    base_fixture: research-polisher.yaml
+    mutation: polisher_option_missing_evidence_dependency
+    expected_error: polisher_option_field_missing
+
+  - case_id: polisher-final-review-must-adjudicate-every-option
+    base_fixture: research-polisher.yaml
+    mutation: polisher_evaluation_missing_decision
+    expected_error: polisher_option_adjudication_incomplete
+
+  - case_id: polisher-final-review-must-provide-complete-pareto-axes
+    base_fixture: research-polisher.yaml
+    mutation: polisher_evaluation_pareto_incomplete
+    expected_error: polisher_pareto_axes_incomplete
+
+  - case_id: polisher-selection-must-preserve-nondominated-set
+    base_fixture: research-polisher.yaml
+    mutation: polisher_selection_missing_nondominated
+    expected_error: polisher_selection_adjudication
+
+  - case_id: polisher-revision-brief-must-remain-anonymous
+    base_fixture: research-polisher.yaml
+    mutation: polisher_revision_brief_identity_leak
+    expected_error: polisher_revision_brief_identity_leak
+
+  - case_id: polisher-fresh-reevaluator-cannot-read-prior-evaluation
+    base_fixture: research-polisher.yaml
+    mutation: polisher_reevaluator_reads_prior_evaluation
+    expected_error: forbidden_review_input
+
+  - case_id: polisher-final-reviewer-cannot-edit-source
+    base_fixture: research-polisher.yaml
+    mutation: polisher_final_reviewer_edits_source
+    expected_error: source_edit_claim

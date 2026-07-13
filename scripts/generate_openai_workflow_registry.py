@@ -34,6 +34,8 @@ REVIEWERS = {
     "perspective-evaluator",
     "perspective-review-panel",
     "perspective-final-compositor",
+    "research-polisher-strategy-reviewer",
+    "research-polisher-methodology-publishability-reviewer",
 }
 
 VERIFIER_COMPOSITORS = {
@@ -41,13 +43,79 @@ VERIFIER_COMPOSITORS = {
     "perspective-final-compositor",
 }
 
-IMPLICIT = {
+PUBLIC_ENTRY_SKILLS = {
     "research-idea-orchestrator",
     "proposal-orchestrator",
     "article-orchestrator",
     "perspective-orchestrator",
+    "research-polisher-orchestrator",
     "research-opportunity-mapper",
     "academic-deep-search",
+}
+
+IMPLICIT = PUBLIC_ENTRY_SKILLS - {"research-polisher-orchestrator"}
+
+# These skills originate in the OpenAI plugin rather than the maintained
+# Hermes profile. Keep their package and dependency declarations explicit so
+# registry generation never infers a nonexistent Hermes source directory.
+OPENAI_NATIVE_SKILLS = {
+    "research-polisher-orchestrator": {
+        "package": "research-polisher",
+        "related_skills": [
+            "academic-deep-search",
+            "article-architect",
+            "article-context-builder",
+            "medical-journal-review",
+            "methodology-statistics-preflight",
+            "research-opportunity-mapper",
+            "research-polisher-methodology-publishability-reviewer",
+            "research-polisher-plan-assembler",
+            "research-polisher-strategy-reviewer",
+        ],
+    },
+    "research-polisher-strategy-reviewer": {
+        "package": "research-polisher",
+        "related_skills": [
+            "research-opportunity-mapper",
+            "research-polisher-orchestrator",
+        ],
+    },
+    "research-polisher-plan-assembler": {
+        "package": "research-polisher",
+        "related_skills": [
+            "research-polisher-methodology-publishability-reviewer",
+            "research-polisher-orchestrator",
+            "research-polisher-strategy-reviewer",
+        ],
+    },
+    "research-polisher-methodology-publishability-reviewer": {
+        "package": "research-polisher",
+        "related_skills": [
+            "medical-journal-review",
+            "methodology-statistics-preflight",
+            "research-polisher-orchestrator",
+            "research-polisher-plan-assembler",
+        ],
+    },
+}
+
+SKILL_IO_OVERRIDES = {
+    "research-polisher-orchestrator": (
+        "completed_or_near_complete_research_assets_and_constraints",
+        "research_polisher_workflow_state_and_human_selection_handoff",
+    ),
+    "research-polisher-strategy-reviewer": (
+        "frozen_research_polisher_dossier_evidence_optional_verified_target_adapter_one_lens_and_optional_anonymous_must_fix_brief",
+        "research_polisher_strategy_report",
+    ),
+    "research-polisher-plan-assembler": (
+        "sealed_strategy_reports_anonymous_portfolio_evaluation_sealed_provenance_requested_specialist_reports_and_current_lineage_by_mode",
+        "research_polisher_candidate_portfolio_revision_brief_specialist_findings_bundle_or_selection_dossier",
+    ),
+    "research-polisher-methodology-publishability-reviewer": (
+        "frozen_research_polisher_dossier_necessary_evidence_anonymous_candidate_portfolio_optional_verified_target_adapter_and_sanitized_specialist_findings_bundle",
+        "research_polisher_evaluation_report",
+    ),
 }
 
 # workflow, source, destination, dispatch mode, trigger, input contract,
@@ -114,6 +182,16 @@ WORKFLOW_EDGES = [
     ("perspective", "perspective-orchestrator", "academic-language-assessor", "delegated", "final_perspective_language_check", "frozen_perspective_and_language_scope", "language_assessment_report", "independent_review_pending"),
     ("perspective", "perspective-orchestrator", "medical-journal-review", "delegated", "biomedical_journal_review_required", "frozen_perspective_and_journal_scope", "medical_journal_review_report", "independent_review_pending"),
     ("perspective", "perspective-orchestrator", "perspective-final-compositor", "delegated", "all_required_artifacts_and_reviews_frozen", "frozen_final_artifacts_reviews_and_dissent", "verified_human_review_package", "independent_review_pending"),
+
+    ("research_polisher", "research-polisher-orchestrator", "article-context-builder", "orchestrated", "dossier_normalization_required", "frozen_research_assets_scope_and_constraints", "article_context_brief_for_research_polisher", "clarification_required"),
+    ("research_polisher", "research-polisher-orchestrator", "research-opportunity-mapper", "orchestrated", "broad_positioning_evidence_required", "frozen_dossier_questions_sources_and_scope", "evidence_and_opportunity_maps", "evidence_mapping_pending"),
+    ("research_polisher", "research-polisher-orchestrator", "academic-deep-search", "orchestrated", "bounded_two_to_five_paper_question_required", "one_bounded_question_scope_and_source_constraints", "focused_academic_synthesis", "evidence_mapping_pending"),
+    ("research_polisher", "research-polisher-orchestrator", "research-polisher-strategy-reviewer", "delegated", "dossier_frozen_or_anonymous_revision_brief_ready", "frozen_dossier_evidence_one_lens_and_three_tiers", "sealed_research_polisher_strategy_report", "independent_review_pending"),
+    ("research_polisher", "research-polisher-orchestrator", "research-polisher-plan-assembler", "orchestrated", "strategy_reports_evaluation_or_specialist_reports_ready", "sealed_strategy_reports_evaluation_or_current_requested_specialist_reports_with_lineage", "candidate_portfolio_revision_brief_sanitized_specialist_findings_or_selection_dossier", "assembly_blocked"),
+    ("research_polisher", "research-polisher-orchestrator", "research-polisher-methodology-publishability-reviewer", "delegated", "candidate_portfolio_version_frozen_or_revised", "frozen_anonymous_candidate_portfolio_dossier_and_necessary_evidence", "research_polisher_evaluation_report", "independent_review_pending"),
+    ("research_polisher", "research-polisher-orchestrator", "methodology-statistics-preflight", "delegated", "specialist_method_preflight_requested", "frozen_selected_option_and_method_facts", "preflight_report", "independent_review_pending"),
+    ("research_polisher", "research-polisher-orchestrator", "medical-journal-review", "delegated", "biomedical_specialist_review_requested", "frozen_selected_option_research_facts_and_review_scope", "medical_journal_review_report", "independent_review_pending"),
+    ("research_polisher", "research-polisher-orchestrator", "article-architect", "handoff", "human_selected_reposition_only_option", "selected_evaluator_qualified_repositioning_constraints", "article_blueprint_state", "handoff_blocked"),
 ]
 
 WORKFLOW_STATE_POLICY = {
@@ -126,26 +204,47 @@ WORKFLOW_STATE_POLICY = {
         "panel_pending",
         "packaging_pending",
     ],
-    "pause_states": ["pending_review", "independent_review_pending"],
-    "terminal_states": ["stopped", "blocked", "human_signoff_required"],
+    "pause_states": [
+        "pending_review",
+        "specialist_review_pending",
+        "independent_review_pending",
+        "clarification_stop",
+        "deep_research_handoff_required",
+    ],
+    "terminal_states": [
+        "stopped",
+        "blocked",
+        "no_defensible_option",
+        "human_signoff_required",
+        "human_strategy_selection_required",
+        "additional_work_required",
+    ],
     "review_unavailable_state": "independent_review_pending",
     "fatal_finding_state": "blocked",
     "final_handoff_state": "human_signoff_required",
     "wildcard_transition_scope": "nonterminal_states_only",
     "resume_policy": {
         "independent_review_pending": "pending_review",
+        "clarification_stop": "preprocessing",
+        "deep_research_handoff_required": "preprocessing",
     },
     "version_gate": {
         "changed_artifact_requires_new_version": True,
         "evaluator_instance_must_be_fresh": True,
         "evaluated_version_must_equal_current_version": True,
         "prior_scores_visible_to_fresh_evaluator": False,
-        "required_before_states": ["panel_pending", "packaging_pending", "human_signoff_required"],
+        "required_before_states": [
+            "panel_pending",
+            "packaging_pending",
+            "human_signoff_required",
+            "human_strategy_selection_required",
+        ],
     },
     "finding_gate": {
         "fatal_or_blocking_finding_prevents_accept": True,
         "fatal_or_blocking_finding_prevents_promoted": True,
         "fatal_or_blocking_finding_prevents_human_signoff": True,
+        "fatal_or_blocking_finding_prevents_human_strategy_selection": True,
         "panel_dissent_must_remain_visible": True,
     },
     "concurrency_policy": {
@@ -185,9 +284,41 @@ WORKFLOW_STATE_POLICY = {
             "trigger": "panel_gate_passed",
             "requires": ["prior_panel_complete", "fresh_evaluation_current", "no_unresolved_fatal_finding"],
         },
+        {
+            "from": "pending_review",
+            "to": "packaging_pending",
+            "trigger": "latest_strategy_portfolio_accepted",
+            "requires": ["fresh_evaluation_current", "no_unresolved_fatal_finding"],
+        },
+        {
+            "from": "pending_review",
+            "to": "specialist_review_pending",
+            "trigger": "specialist_review_requested",
+            "requires": ["bounded_specialist_question", "evaluator_round_available"],
+        },
+        {
+            "from": "specialist_review_pending",
+            "to": "pending_review",
+            "trigger": "sanitized_specialist_findings_ready",
+            "requires": ["specialist_reports_current", "sanitized_findings_bundle_current", "fresh_evaluator_instance"],
+        },
         {"from": "packaging_pending", "to": "human_signoff_required", "trigger": "package_verified"},
+        {
+            "from": "packaging_pending",
+            "to": "human_strategy_selection_required",
+            "trigger": "selection_dossier_verified",
+        },
+        {
+            "from": "human_strategy_selection_required",
+            "to": "additional_work_required",
+            "trigger": "human_selected_extension_option",
+            "requires": ["current_selection_dossier", "selected_option_is_small_or_moderate_extension"],
+        },
         {"from": "*", "to": "independent_review_pending", "trigger": "required_reviewer_unavailable"},
+        {"from": "*", "to": "clarification_stop", "trigger": "required_source_facts_missing_or_inconsistent"},
+        {"from": "*", "to": "deep_research_handoff_required", "trigger": "inactive_deep_research_required"},
         {"from": "*", "to": "blocked", "trigger": "fatal_or_blocking_finding"},
+        {"from": "*", "to": "no_defensible_option", "trigger": "no_defensible_strategy_remains"},
         {"from": "*", "to": "stopped", "trigger": "unfixable_no_gain_or_user_stop"},
         {"from": "independent_review_pending", "to": "pending_review", "trigger": "reviewer_delegation_resumed"},
     ],
@@ -424,6 +555,78 @@ WORKFLOW_STATE_MACHINES = {
         "non_ready_modes": ["lite", "standard"],
         "final_package_skill": "perspective-final-compositor",
     },
+    "research_polisher": {
+        "workflow_profile": "reviewer_matrix_assemble_evaluate",
+        "orchestrator": "research-polisher-orchestrator",
+        "strategy_reviewer_skill": "research-polisher-strategy-reviewer",
+        "strategy_reviewer_roles": [
+            "scientific_significance",
+            "practical_value",
+            "dissemination_editorial",
+        ],
+        "effort_tiers": [
+            "reposition_only",
+            "small_extension",
+            "moderate_extension",
+        ],
+        "primary_assembler_skill": "research-polisher-plan-assembler",
+        "evaluator_skill": "research-polisher-methodology-publishability-reviewer",
+        "primary_writer_skills": [],
+        "primary_artifact_creator_skills": ["research-polisher-plan-assembler"],
+        "primary_artifact_type": "research_polisher_candidate_portfolio",
+        "entry_modes": ["standard"],
+        "entry_gates": {
+            "standard": [
+                "dossier_frozen",
+                "strategy_matrix_complete",
+                "candidate_portfolio_versioned",
+            ],
+        },
+        "scenario_entry_gate_contracts": {
+            "standard": {
+                "dossier_frozen": {
+                    "artifact_roles": ["research_polisher_dossier"],
+                },
+                "strategy_matrix_complete": {
+                    "artifact_roles": ["strategy_report_manifest"],
+                },
+                "candidate_portfolio_versioned": {
+                    "artifact_roles": ["research_polisher_candidate_portfolio"],
+                },
+            },
+        },
+        "before_strategy_assembly": [
+            "three_strategy_roles_complete",
+            "nine_matrix_cells_accounted",
+            "dissent_and_conflicts_indexed",
+        ],
+        "before_evaluation": [
+            "candidate_portfolio_versioned",
+            "reviewer_identity_mapping_sealed",
+        ],
+        "before_panel": [],
+        "before_packaging": [
+            "latest_version_independently_evaluated",
+            "dissent_and_fatal_findings_indexed",
+        ],
+        "post_evaluation_panel_required": False,
+        "maximum_evaluator_rounds": 2,
+        "conditional_specialist_review_skills": [
+            "methodology-statistics-preflight",
+            "medical-journal-review",
+        ],
+        "specialist_review_return_contract": {
+            "state": "specialist_review_pending",
+            "sanitizer_skill": "research-polisher-plan-assembler",
+            "sanitized_artifact_type": "research_polisher_specialist_findings_bundle",
+            "raw_specialist_reports_visible_to_final_reviewer": False,
+            "requires_fresh_final_reviewer": True,
+            "counts_as_evaluator_round": True,
+        },
+        "non_ready_modes": [],
+        "final_package_skill": "research-polisher-plan-assembler",
+        "final_state": "human_strategy_selection_required",
+    },
 }
 
 REVIEW_DECISION_CONTRACTS = {
@@ -535,6 +738,34 @@ REVIEW_DECISION_CONTRACTS = {
         "revise": [],
         "stop": ["blocked", "stopped", "independent_review_pending"],
     },
+    "research-polisher-strategy-reviewer": {
+        "allowed": [
+            "matrix_complete",
+            "matrix_complete_with_no_defensible_option",
+            "clarification_required",
+            "independent_review_pending",
+        ],
+        "pass": ["matrix_complete", "matrix_complete_with_no_defensible_option"],
+        "revise": ["clarification_required"],
+        "stop": ["independent_review_pending"],
+    },
+    "research-polisher-methodology-publishability-reviewer": {
+        "allowed": [
+            "ready_for_human_selection",
+            "revision_required",
+            "specialist_review_required",
+            "no_defensible_option",
+            "not_assessable",
+            "independent_review_pending",
+        ],
+        "pass": ["ready_for_human_selection"],
+        "revise": ["revision_required", "specialist_review_required"],
+        "stop": [
+            "no_defensible_option",
+            "not_assessable",
+            "independent_review_pending",
+        ],
+    },
 }
 
 PACKAGE_INPUT_CONTRACTS = {
@@ -601,6 +832,58 @@ PACKAGE_INPUT_CONTRACTS = {
             {"artifact_role": "artifact_index", "sealed_review_lineage": True, "count": 1},
         ],
     },
+    "research_polisher": {
+        "allowed_roles": [
+            "research_polisher_dossier",
+            "evidence_map",
+            "research_polisher_sealed_provenance",
+            "research_polisher_candidate_portfolio",
+            "research_polisher_evaluation_report",
+            "research_polisher_specialist_findings_bundle",
+            "research_polisher_review_finding_index",
+            "research_polisher_revision_brief",
+            "research_polisher_revision_delta",
+        ],
+        "required_inputs": [
+            {"artifact_role": "research_polisher_dossier", "count": 1},
+            {"artifact_role": "evidence_map", "count": 1},
+            {
+                "artifact_role": "research_polisher_sealed_provenance",
+                "source_skill": "research-polisher-plan-assembler",
+                "count": 1,
+            },
+            {
+                "artifact_role": "research_polisher_candidate_portfolio",
+                "current_primary": True,
+                "count": 1,
+            },
+            {
+                "artifact_role": "research_polisher_evaluation_report",
+                "source_skill": "research-polisher-methodology-publishability-reviewer",
+                "current_primary_lineage": True,
+                "count": 1,
+            },
+            {
+                "artifact_role": "research_polisher_specialist_findings_bundle",
+                "source_skill": "research-polisher-plan-assembler",
+                "minimum_count": 0,
+                "include_all_created": True,
+            },
+            {"artifact_role": "research_polisher_review_finding_index", "count": 1},
+            {
+                "artifact_role": "research_polisher_revision_brief",
+                "source_skill": "research-polisher-plan-assembler",
+                "minimum_count": 0,
+                "include_all_created": True,
+            },
+            {
+                "artifact_role": "research_polisher_revision_delta",
+                "source_skill": "research-polisher-plan-assembler",
+                "minimum_count": 0,
+                "include_all_created": True,
+            },
+        ],
+    },
 }
 
 PANEL_CONTRACTS = {
@@ -659,11 +942,46 @@ PANEL_CONTRACTS = {
         "minor_revision_decisions": ["support_with_minor_revision"],
         "substantive_revision_decisions": ["support_after_major_revision"],
     },
+    "research_polisher": {
+        "default_tier": "not_applicable",
+        "modes": ["not_applicable"],
+        "tiers": {"not_applicable": []},
+        "mandatory_roles": [],
+        "mode_forbidden_input_roles": {"not_applicable": []},
+    },
+}
+
+REVIEW_GROUP_CONTRACTS = {
+    "research_polisher": {
+        "skill": "research-polisher-strategy-reviewer",
+        "roles": [
+            "scientific_significance",
+            "practical_value",
+            "dissemination_editorial",
+        ],
+        "effort_tiers": [
+            "reposition_only",
+            "small_extension",
+            "moderate_extension",
+        ],
+        "required_instance_count": 3,
+        "required_matrix_cell_count": 9,
+        "instances_must_be_distinct": True,
+        "peer_outputs_visible": False,
+        "raw_reports_visible_to_final_evaluator": False,
+        "manifest_artifact_role": "strategy_report_manifest",
+    },
 }
 
 SCENARIO_EVAL_CONTRACT = {
     "fixture_schema_version": 2,
-    "required_workflows": ["idea", "proposal", "article", "perspective"],
+    "required_workflows": [
+        "idea",
+        "proposal",
+        "article",
+        "perspective",
+        "research_polisher",
+    ],
     "required_lineage_fields": [
         "artifact_id",
         "version_id",
@@ -737,6 +1055,7 @@ SCENARIO_EVAL_CONTRACT = {
         "runtime_evaluator_forbidden_source_actor_roles": [
             "evaluator",
             "panel",
+            "strategy_reviewer",
             "verifier_compositor",
         ],
     },
@@ -750,6 +1069,7 @@ SCENARIO_EVAL_CONTRACT = {
             "retrieval",
             "controller",
             "assembler",
+            "strategy_reviewer",
             "verifier_compositor",
         ],
         "registry_roles_by_actor_role": {
@@ -761,6 +1081,7 @@ SCENARIO_EVAL_CONTRACT = {
             "retrieval": ["retrieval"],
             "controller": ["controller"],
             "assembler": ["assembler"],
+            "strategy_reviewer": ["reviewer"],
             "verifier_compositor": ["reviewer"],
         },
         "happy_required_roles": [
@@ -769,6 +1090,15 @@ SCENARIO_EVAL_CONTRACT = {
             "evaluator",
             "panel",
         ],
+        "happy_required_roles_by_workflow_profile": {
+            "default": ["orchestrator", "writer", "evaluator", "panel"],
+            "reviewer_matrix_assemble_evaluate": [
+                "orchestrator",
+                "strategy_reviewer",
+                "assembler",
+                "evaluator",
+            ],
+        },
         "finalizer_roles": ["assembler", "verifier_compositor"],
         "unknown_roles_rejected": True,
         "registry_role_mapping_enforced": True,
@@ -781,6 +1111,7 @@ SCENARIO_EVAL_CONTRACT = {
     "panel_role_instance_mapping_must_be_one_to_one": True,
     "review_decision_contracts": REVIEW_DECISION_CONTRACTS,
     "panel_contracts": PANEL_CONTRACTS,
+    "review_group_contracts": REVIEW_GROUP_CONTRACTS,
     "package_input_contracts": PACKAGE_INPUT_CONTRACTS,
     "revision_artifact_contract": {
         "controller_output_role": "revision_plan",
@@ -791,6 +1122,13 @@ SCENARIO_EVAL_CONTRACT = {
         "perspective-final-compositor": ["verification_report", "final_handoff_package"],
     },
     "final_state": "human_signoff_required",
+    "workflow_final_states": {
+        "idea": "human_signoff_required",
+        "proposal": "human_signoff_required",
+        "article": "human_signoff_required",
+        "perspective": "human_signoff_required",
+        "research_polisher": "human_strategy_selection_required",
+    },
     "automatic_external_submission": False,
 }
 
@@ -917,15 +1255,36 @@ def main() -> int:
         for path in HERMES_SKILLS.rglob("SKILL.md")
         if skill_name(path) in names
     }
-    missing_sources = names - set(hermes_by_name)
+    native_names = set(OPENAI_NATIVE_SKILLS)
+    if native_names - names:
+        raise RuntimeError(
+            f"Declared OpenAI-native skills are missing: {sorted(native_names - names)}"
+        )
+    duplicate_origins = native_names & set(hermes_by_name)
+    if duplicate_origins:
+        raise RuntimeError(
+            f"Skills cannot be both Hermes-adapted and OpenAI-native: {sorted(duplicate_origins)}"
+        )
+    missing_sources = names - set(hermes_by_name) - native_names
     if missing_sources:
-        raise RuntimeError(f"Missing Hermes lineage sources: {sorted(missing_sources)}")
+        raise RuntimeError(
+            f"Skills lack a Hermes source or OpenAI-native declaration: {sorted(missing_sources)}"
+        )
     manifest = json.loads(read(PLUGIN / ".codex-plugin" / "plugin.json"))
     plugin_version = str(manifest["version"])
 
     lines = [
         "schema_version: 5",
         f"plugin_version: {quote(plugin_version)}",
+        "public_entry_policy:",
+        "  declared_entries:",
+        *[f"    - {name}" for name in sorted(PUBLIC_ENTRY_SKILLS)],
+        "  implicit_active_entries:",
+        *[f"    - {name}" for name in sorted(IMPLICIT)],
+        "  gated_entries:",
+        "    research-polisher-orchestrator:",
+        "      status: explicit_only_pending_phase_7_8_external_evidence",
+        "      activation_gate: phase_7_and_phase_8_external_acceptance_complete",
         "review_execution:",
         "  isolation_mode: fresh_subagent",
         "  inline_fallback: false",
@@ -935,14 +1294,27 @@ def main() -> int:
     ]
     for skill_md in skill_files:
         name = skill_name(skill_md)
-        source_skill = hermes_by_name[name]
-        source_relative = source_skill.parent.relative_to(HERMES_SKILLS)
-        package = source_relative.parts[0]
+        if name in OPENAI_NATIVE_SKILLS:
+            native = OPENAI_NATIVE_SKILLS[name]
+            package = str(native["package"])
+            related = sorted(set(native["related_skills"]))
+            unresolved = set(related) - names
+            if unresolved:
+                raise RuntimeError(
+                    f"OpenAI-native skill {name} has unresolved related skills: {sorted(unresolved)}"
+                )
+        else:
+            source_skill = hermes_by_name[name]
+            source_relative = source_skill.parent.relative_to(HERMES_SKILLS)
+            package = source_relative.parts[0]
+            related = related_skills(source_skill, names)
         role = role_for(name)
-        allowed_inputs, output = io_contract(role)
+        if name in SKILL_IO_OVERRIDES:
+            allowed_inputs, output = SKILL_IO_OVERRIDES[name]
+        else:
+            allowed_inputs, output = io_contract(role)
         if name in VERIFIER_COMPOSITORS:
             output = "verification_report_and_final_handoff_package"
-        related = related_skills(source_skill, names)
         lines.extend(
             [
                 f"  - name: {quote(name)}",

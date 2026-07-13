@@ -4,7 +4,8 @@ provider_verifier_registry: tests/openai_phase8/provider-verifier-registry.yaml
 allowed_evidence_statuses:
   - pending_live_evidence
   - observed_unverified
-  - verified_live_evidence
+  - preview_attested_evidence
+  - provider_verified_live_evidence
 common_required:
   - receipt_id
   - kind
@@ -52,7 +53,15 @@ pending_policy:
   prohibited_claims: [verified, passed, completed]
 verification_policy:
   observed_unverified_is_not_pass: true
-  verified_live_evidence_requires_durable_tool_or_task_provenance: true
+  preview_attested_is_not_provider_verified: true
+  preview_attested_requires_durable_tool_or_task_provenance: true
+  preview_attested_requires_external_github_witness: true
+  preview_attested_requires_executable_verifier: true
+  preview_attested_requires_committed_verifier_and_registry: true
+  preview_attested_requires_workflow_run_identity: true
+  preview_attested_requires_release_asset_identity: true
+  synthetic_override_requires_internal_capability: true
+  provider_verified_live_evidence_requires_durable_tool_or_task_provenance: true
   repository_files_alone_are_not_provider_provenance: true
   provider_verifier_adapter_required: true
   source_identity_required:
@@ -60,8 +69,41 @@ verification_policy:
     - manifest_digest
     - registry_digest
     - skill_tree_digest
-  verified_evidence_class: durable_platform_retrieval_receipts
+  trust_levels:
+    provider_verified:
+      evidence_status: provider_verified_live_evidence
+      verification_level: provider_authenticated_provenance
+      evidence_class: provider_verified_platform_retrieval_receipts
+      counts_as_provider_verified: true
+    preview_attested:
+      evidence_status: preview_attested_evidence
+      verification_level: preview_github_witness
+      evidence_class: preview_attested_platform_retrieval_receipts
+      counts_as_provider_verified: false
+  preview_attestation_required:
+    - adapter_id
+    - envelope_path
+    - envelope_digest
+    - release_asset_index_path
+    - release_asset_index_digest
+    - raw_export_path
+    - raw_export_digest
+    - raw_export_reference
+    - capture_timestamp_digest
+    - verifier_path
+    - verifier_digest
+    - provider_registry_path
+    - provider_registry_digest
+    - workflow_path
+    - workflow_id
+    - workflow_event
+    - workflow_run_id
+    - run_head_sha
+    - release_asset_ids
+    - release_asset_digests
+    - synthetic_test_only
   verified_live_common_required:
+    - evidence_trust_level
     - platform_receipt_or_export_id
     - platform_receipt_or_export_path
     - platform_receipt_or_export_digest

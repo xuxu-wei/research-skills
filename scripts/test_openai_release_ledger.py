@@ -9,13 +9,22 @@ import json
 import re
 import subprocess
 import tempfile
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from pathlib import PurePosixPath
-from typing import Any
+from typing import Any, Callable
 
 import yaml
 
 from openai_release_utils import compare_semver, parse_semver
+from openai_preview_evidence import (
+    PREVIEW_ATTESTED,
+    PROVIDER_VERIFIED,
+    EvidenceValidationError,
+    canonical_json_bytes,
+    sha256_bytes as evidence_sha256_bytes,
+    validate_evidence_bundle,
+)
 
 from generate_openai_release_ledger import (
     LEDGER_PATH,
@@ -37,8 +46,16 @@ from generate_openai_release_ledger import (
 COMMIT_SHA_RE = re.compile(r"^[0-9a-f]{40}$")
 SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
 DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
-VALID_STATUS = {"pending", "verified"}
-EVIDENCE_META_FIELDS = {"status", "reason", "evidence_path", "evidence_sha256"}
+INTERNAL_VALID_STATUS = {"pending", "verified"}
+EXTERNAL_ACCEPTED_STATUS = {PREVIEW_ATTESTED, PROVIDER_VERIFIED}
+EXTERNAL_VALID_STATUS = {"pending", *EXTERNAL_ACCEPTED_STATUS}
+EVIDENCE_META_FIELDS = {
+    "status",
+    "reason",
+    "evidence_path",
+    "evidence_sha256",
+    "evidence_locator",
+}
 CACHE_IDENTITY_ALGORITHM = "sha256_canonical_json_installable_cache_identity_v1"
 CACHE_ARTIFACT_FIELDS = {
     "cache_path",
@@ -61,6 +78,14 @@ CACHE_EVIDENCE_TYPES = {
     "rollback",
 }
 RELEASE_EVIDENCE_SCHEMA_PATH = REPO / "tests" / "openai_phase7" / "release-evidence.schema.yaml"
+PROVIDER_VERIFIER_REGISTRY_PATH = (
+    REPO / "tests" / "openai_phase8" / "provider-verifier-registry.yaml"
+)
+LIVE_VERIFIER_MAX_FUTURE_SKEW = timedelta(minutes=5)
+LIVE_VERIFIER_MAX_AGE = timedelta(days=90)
+# Synthetic timestamps use an injected clock so self-tests do not decay as the
+# wall clock advances. Production ledger validation continues to use UTC now.
+SYNTHETIC_VALIDATION_NOW = datetime(2026, 7, 13, 0, 4, tzinfo=timezone.utc)
 EXTERNAL_EVIDENCE_TYPES = {
     "repository_preview_ci",
     "canonical_plugin_validator_ci",
@@ -75,11 +100,123 @@ EXTERNAL_EVIDENCE_TYPES = {
 # provider origin. Add an adapter only with a verifier that checks evidence
 # outside the record being validated.
 SUPPORTED_AUTHENTICATED_EXTERNAL_EVIDENCE_ADAPTERS: frozenset[str] = frozenset()
+SUPPORTED_PREVIEW_EXTERNAL_EVIDENCE_ADAPTERS: frozenset[str] = frozenset(
+    {"github_release_asset_preview_v1"}
+)
+LiveEvidenceVerifier = Callable[..., dict[str, Any]]
+OPENAI_NATIVE_SKILLS = {
+    "research-polisher-methodology-publishability-reviewer",
+    "research-polisher-orchestrator",
+    "research-polisher-plan-assembler",
+    "research-polisher-strategy-reviewer",
+}
 
 
 def require(condition: bool, message: str, errors: list[str]) -> None:
     if not condition:
         errors.append(message)
+
+
+def normalized_utc_now(value: datetime | None = None) -> datetime:
+    now = datetime.now(timezone.utc) if value is None else value
+    if now.tzinfo is None or now.utcoffset() is None:
+        raise ValueError("validation clock must be timezone-aware")
+    return now.astimezone(timezone.utc)
+
+
+def parse_aware_iso_timestamp(value: Any) -> datetime | None:
+    if not isinstance(value, str) or not value.strip():
+        return None
+    try:
+        parsed = datetime.fromisoformat(value.strip().replace("Z", "+00:00"))
+    except ValueError:
+        return None
+    if parsed.tzinfo is None or parsed.utcoffset() is None:
+        return None
+    return parsed.astimezone(timezone.utc)
+
+
+def validate_live_verifier_timestamp(
+    value: Any,
+    label: str,
+    errors: list[str],
+    *,
+    now: datetime | None = None,
+) -> None:
+    verified_at = parse_aware_iso_timestamp(value)
+    require(
+        verified_at is not None,
+        f"{label} live verifier verified_at is not a timezone-aware ISO timestamp",
+        errors,
+    )
+    if verified_at is None:
+        return
+    current = normalized_utc_now(now)
+    require(
+        verified_at <= current + LIVE_VERIFIER_MAX_FUTURE_SKEW,
+        f"{label} live verifier verified_at is more than 5 minutes in the future",
+        errors,
+    )
+    require(
+        verified_at >= current - LIVE_VERIFIER_MAX_AGE,
+        f"{label} live verifier verified_at is older than 90 days",
+        errors,
+    )
+
+
+def registered_adapter_verifier_digest(
+    adapter_id: str,
+    label: str,
+    errors: list[str],
+) -> str | None:
+    """Read the repository-controlled adapter digest used by the live gate.
+
+    The registry is part of the committed validation-contract tree. The Phase 8
+    production verifier first uses the source commit to ``git show`` and bind
+    its committed code; this ledger layer then requires its result to repeat the
+    verifier digest from the same repository-controlled registry. Runtime output
+    cannot choose or override its own accepted code digest.
+    """
+
+    try:
+        registry = yaml.safe_load(
+            PROVIDER_VERIFIER_REGISTRY_PATH.read_text(encoding="utf-8-sig")
+        )
+    except (OSError, UnicodeError, yaml.YAMLError) as exc:
+        require(
+            False,
+            f"{label} committed provider verifier registry cannot be read: {type(exc).__name__}",
+            errors,
+        )
+        return None
+    adapters = registry.get("adapters", []) if isinstance(registry, dict) else []
+    matches = [
+        item
+        for item in adapters
+        if isinstance(item, dict)
+        and item.get("adapter_id") == adapter_id
+        and item.get("enabled") is True
+    ]
+    require(
+        len(matches) == 1,
+        f"{label} live verifier adapter is not uniquely enabled in the committed provider verifier registry",
+        errors,
+    )
+    if len(matches) != 1:
+        return None
+    declared = matches[0].get("verifier_digest")
+    if not (
+        isinstance(declared, str)
+        and declared.startswith("sha256:")
+        and SHA256_RE.fullmatch(declared.removeprefix("sha256:"))
+    ):
+        require(
+            False,
+            f"{label} committed provider verifier registry digest is invalid",
+            errors,
+        )
+        return None
+    return declared.removeprefix("sha256:")
 
 
 def load_json(path: Path) -> dict[str, Any]:
@@ -237,10 +374,35 @@ def authenticated_external_evidence_adapter_available(release: Any) -> bool:
     adapter_id = trust.get("adapter_id")
     return (
         trust.get("adapter_status") == "configured"
+        and trust.get("verification_level") == PROVIDER_VERIFIED
         and trust.get("provider_authenticated") is True
         and isinstance(adapter_id, str)
         and adapter_id in SUPPORTED_AUTHENTICATED_EXTERNAL_EVIDENCE_ADAPTERS
     )
+
+
+def preview_external_evidence_adapter_available(release: Any) -> bool:
+    if not isinstance(release, dict):
+        return False
+    trust = release.get("external_evidence_trust", {})
+    if not isinstance(trust, dict):
+        return False
+    adapter_id = trust.get("adapter_id")
+    return (
+        trust.get("adapter_status") == "configured"
+        and trust.get("verification_level") == PREVIEW_ATTESTED
+        and trust.get("provider_authenticated") is False
+        and isinstance(adapter_id, str)
+        and adapter_id in SUPPORTED_PREVIEW_EXTERNAL_EVIDENCE_ADAPTERS
+    )
+
+
+def configured_external_evidence_level(release: Any) -> str | None:
+    if authenticated_external_evidence_adapter_available(release):
+        return PROVIDER_VERIFIED
+    if preview_external_evidence_adapter_available(release):
+        return PREVIEW_ATTESTED
+    return None
 
 
 def resolve_repository_evidence_path(value: Any) -> Path | None:
@@ -271,6 +433,104 @@ def load_structured_evidence(path: Path) -> Any:
     return None
 
 
+def validate_external_evidence_locator(
+    locator: Any, label: str, errors: list[str]
+) -> None:
+    """Validate an immutable external Release/run/asset locator.
+
+    A locator deliberately contains no local path. Its assets must be fetched
+    again by the registered live verifier before an accepted status can count.
+    """
+
+    require(isinstance(locator, dict), f"{label} external evidence locator is missing", errors)
+    if not isinstance(locator, dict):
+        return
+    required = {
+        "repository",
+        "release_id",
+        "release_tag",
+        "capture_workflow_run_id",
+        "verifier_workflow_run_id",
+        "verifier_run_url",
+        "envelope_asset",
+        "release_asset_index_asset",
+        "raw_export_asset",
+        "verifier_report_asset",
+    }
+    require(set(locator) == required, f"{label} external evidence locator fields are incomplete or undeclared", errors)
+    require(
+        bool(re.fullmatch(r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+", str(locator.get("repository", "")))),
+        f"{label} locator repository is invalid",
+        errors,
+    )
+    for field in ("release_id", "capture_workflow_run_id", "verifier_workflow_run_id"):
+        require(
+            isinstance(locator.get(field), int)
+            and not isinstance(locator.get(field), bool)
+            and locator[field] > 0,
+            f"{label} locator {field} is invalid",
+            errors,
+        )
+    require(
+        isinstance(locator.get("release_tag"), str)
+        and bool(locator["release_tag"].strip()),
+        f"{label} locator release_tag is invalid",
+        errors,
+    )
+    require(
+        isinstance(locator.get("verifier_run_url"), str)
+        and locator["verifier_run_url"].startswith("https://"),
+        f"{label} locator verifier_run_url is invalid",
+        errors,
+    )
+    asset_fields = {
+        "envelope_asset",
+        "release_asset_index_asset",
+        "raw_export_asset",
+        "verifier_report_asset",
+    }
+    asset_ids: set[int] = set()
+    asset_names: set[str] = set()
+    for field in sorted(asset_fields):
+        asset = locator.get(field)
+        require(isinstance(asset, dict), f"{label} locator {field} is missing", errors)
+        if not isinstance(asset, dict):
+            continue
+        require(
+            set(asset) == {"asset_id", "name", "sha256"},
+            f"{label} locator {field} fields are incomplete or undeclared",
+            errors,
+        )
+        asset_id = asset.get("asset_id")
+        name = asset.get("name")
+        require(
+            isinstance(asset_id, int)
+            and not isinstance(asset_id, bool)
+            and asset_id > 0,
+            f"{label} locator {field} asset_id is invalid",
+            errors,
+        )
+        require(
+            isinstance(name, str)
+            and bool(name.strip())
+            and "/" not in name
+            and "\\" not in name,
+            f"{label} locator {field} name is invalid",
+            errors,
+        )
+        require(
+            bool(SHA256_RE.fullmatch(str(asset.get("sha256", "")))),
+            f"{label} locator {field} digest is invalid",
+            errors,
+        )
+        if isinstance(asset_id, int):
+            require(asset_id not in asset_ids, f"{label} locator asset ids are not unique", errors)
+            asset_ids.add(asset_id)
+        if isinstance(name, str):
+            require(name not in asset_names, f"{label} locator asset names are not unique", errors)
+            asset_names.add(name)
+
+
 def validate_bound_external_evidence(
     record: Any,
     evidence_type: str,
@@ -279,70 +539,313 @@ def validate_bound_external_evidence(
     *,
     authenticated_external_adapter: bool = False,
     synthetic_external_trust_override: bool = False,
+    expected_source_identity: dict[str, Any] | None = None,
+    expected_adapter_id: str | None = None,
+    live_evidence_verifier: LiveEvidenceVerifier | None = None,
+    defer_live_external_requery: bool = False,
+    validation_now: datetime | None = None,
 ) -> None:
-    """Require a verified external claim to match one durable raw evidence file."""
+    """Bind an accepted record to a shared, externally witnessed evidence bundle."""
 
-    if not isinstance(record, dict) or record.get("status") != "verified":
+    if not isinstance(record, dict) or record.get("status") == "pending":
         return
-    require(
-        authenticated_external_adapter or synthetic_external_trust_override,
-        f"{label} cannot be verified without an authenticated external-evidence adapter",
-        errors,
-    )
     require(evidence_type in EXTERNAL_EVIDENCE_TYPES, f"{label} uses unknown evidence type", errors)
-    evidence_path = resolve_repository_evidence_path(record.get("evidence_path"))
-    require(evidence_path is not None, f"{label} verified without a safe evidence_path", errors)
-    require(
-        bool(SHA256_RE.fullmatch(str(record.get("evidence_sha256", "")))),
-        f"{label} verified without a valid evidence_sha256",
-        errors,
-    )
-    if evidence_path is None:
+
+    # Preserve old synthetic mutation fixtures without allowing legacy `verified`
+    # records to count as Preview or provider evidence.
+    if record.get("status") == "verified" and synthetic_external_trust_override:
+        evidence_path = resolve_repository_evidence_path(record.get("evidence_path"))
+        require(evidence_path is not None, f"{label} verified without a safe evidence_path", errors)
+        require(
+            bool(SHA256_RE.fullmatch(str(record.get("evidence_sha256", "")))),
+            f"{label} verified without a valid evidence_sha256",
+            errors,
+        )
+        if evidence_path is None or not evidence_path.is_file():
+            require(False, f"{label} evidence file does not exist", errors)
+            return
+        require(
+            record.get("evidence_sha256")
+            == hashlib.sha256(evidence_path.read_bytes()).hexdigest(),
+            f"{label} evidence digest does not match the actual file",
+            errors,
+        )
+        document = load_structured_evidence(evidence_path)
+        require(isinstance(document, dict), f"{label} evidence file is not JSON/YAML object", errors)
+        if not isinstance(document, dict):
+            return
+        require(document.get("schema_version") == 1, f"{label} evidence schema_version is not 1", errors)
+        require(document.get("evidence_type") == evidence_type, f"{label} evidence_type mismatch", errors)
+        require(isinstance(document.get("raw_export"), dict), f"{label} raw provider export is missing", errors)
+        require(document.get("observed") == evidence_payload(record), f"{label} evidence observed payload does not match the ledger record", errors)
+        expected_cache_inventory = cache_inventory_for_evidence(record, evidence_type)
+        if expected_cache_inventory is not None:
+            raw_export = document.get("raw_export", {})
+            require(raw_export.get("cache_inventory_complete") is True, f"{label} provider export does not attest a complete cache inventory", errors)
+            require(raw_export.get("cache_inventory") == expected_cache_inventory, f"{label} provider cache inventory does not match the ledger record", errors)
         return
-    require(evidence_path.is_file(), f"{label} evidence file does not exist", errors)
-    if not evidence_path.is_file():
+
+    status = record.get("status")
+    require(
+        status in EXTERNAL_ACCEPTED_STATUS,
+        f"{label} has invalid external evidence status: {status}",
+        errors,
+    )
+    if status not in EXTERNAL_ACCEPTED_STATUS:
         return
-    actual_digest = hashlib.sha256(evidence_path.read_bytes()).hexdigest()
+
+    # Provider status is a separate trust tier. A provider-looking Release
+    # asset or envelope boolean is never enough; only a registered authenticated
+    # provider adapter can enable it. The allowlist is intentionally empty.
+    if status == PROVIDER_VERIFIED:
+        require(
+            authenticated_external_adapter
+            and isinstance(expected_adapter_id, str)
+            and expected_adapter_id
+            in SUPPORTED_AUTHENTICATED_EXTERNAL_EVIDENCE_ADAPTERS,
+            f"{label} provider_verified without a registered authenticated provider adapter",
+            errors,
+        )
+        if not authenticated_external_adapter:
+            return
+    else:
+        require(
+            isinstance(expected_adapter_id, str)
+            and expected_adapter_id in SUPPORTED_PREVIEW_EXTERNAL_EVIDENCE_ADAPTERS,
+            f"{label} preview_attested without a registered live-requery verifier",
+            errors,
+        )
+
     require(
-        record.get("evidence_sha256") == actual_digest,
-        f"{label} evidence digest does not match the actual file",
+        expected_source_identity is not None,
+        f"{label} accepted without a release source identity",
         errors,
     )
-    document = load_structured_evidence(evidence_path)
-    require(isinstance(document, dict), f"{label} evidence file is not JSON/YAML object", errors)
-    if not isinstance(document, dict):
+    require(
+        record.get("evidence_path") in (None, "")
+        and record.get("evidence_sha256") in (None, ""),
+        f"{label} repository-relative evidence cannot establish external acceptance",
+        errors,
+    )
+    locator = record.get("evidence_locator")
+    validate_external_evidence_locator(locator, label, errors)
+    if not isinstance(locator, dict) or expected_source_identity is None:
         return
-    require(document.get("schema_version") == 1, f"{label} evidence schema_version is not 1", errors)
-    require(document.get("evidence_type") == evidence_type, f"{label} evidence_type mismatch", errors)
+    expected_adapter_code_sha256 = registered_adapter_verifier_digest(
+        expected_adapter_id,
+        label,
+        errors,
+    )
+    if expected_adapter_code_sha256 is None:
+        return
+    if defer_live_external_requery:
+        require(
+            live_evidence_verifier is None,
+            f"{label} structural-only validation cannot ignore a supplied live verifier",
+            errors,
+        )
+        return
     require(
-        isinstance(document.get("provider"), str)
-        and bool(document["provider"].strip()),
-        f"{label} evidence provider is missing",
+        callable(live_evidence_verifier),
+        f"{label} accepted without a live external re-query verifier",
+        errors,
+    )
+    if not callable(live_evidence_verifier):
+        return
+    require(
+        getattr(live_evidence_verifier, "adapter_id", None) == expected_adapter_id,
+        f"{label} live verifier is not registered for the configured adapter id",
+        errors,
+    )
+    if getattr(live_evidence_verifier, "adapter_id", None) != expected_adapter_id:
+        return
+    try:
+        result_document = live_evidence_verifier(
+            evidence_locator=copy.deepcopy(locator),
+            evidence_type=evidence_type,
+            expected_source_identity=copy.deepcopy(expected_source_identity),
+            expected_adapter_id=expected_adapter_id,
+            expected_verification_level=status,
+        )
+    except Exception as exc:
+        require(
+            False,
+            f"{label} live external re-query failed: {type(exc).__name__}: {exc}",
+            errors,
+        )
+        return
+    require(
+        isinstance(result_document, dict),
+        f"{label} live verifier result is not an object",
+        errors,
+    )
+    if not isinstance(result_document, dict):
+        return
+
+    require(
+        result_document.get("schema_version") == 3,
+        f"{label} live verifier result schema_version is not 3",
         errors,
     )
     require(
-        isinstance(document.get("raw_export"), dict),
-        f"{label} raw provider export is missing",
+        result_document.get("evidence_type") == evidence_type,
+        f"{label} live verifier evidence_type mismatch",
         errors,
     )
     require(
-        document.get("observed") == evidence_payload(record),
-        f"{label} evidence observed payload does not match the ledger record",
+        result_document.get("verification_level") == status,
+        f"{label} live verifier level differs from record status",
         errors,
     )
+    require(
+        result_document.get("provider_verified") is (status == PROVIDER_VERIFIED),
+        f"{label} live verifier provider flag conflicts with status",
+        errors,
+    )
+    require(
+        result_document.get("locator") == locator,
+        f"{label} live verifier locator differs from the ledger locator",
+        errors,
+    )
+    require(
+        result_document.get("source_identity") == expected_source_identity,
+        f"{label} live verifier source identity mismatch",
+        errors,
+    )
+    require(
+        result_document.get("observed") == evidence_payload(record),
+        f"{label} live verifier observed payload does not match the ledger record",
+        errors,
+    )
+
+    integrity = result_document.get("integrity_result")
+    require(isinstance(integrity, dict), f"{label} integrity result is missing", errors)
+    if isinstance(integrity, dict):
+        require(
+            isinstance(integrity.get("evidence_id"), str)
+            and bool(integrity["evidence_id"].strip()),
+            f"{label} integrity result evidence_id is empty",
+            errors,
+        )
+        require(integrity.get("integrity_valid") is True, f"{label} bundle integrity was not validated", errors)
+        require(
+            integrity.get("gate_eligible") is False,
+            f"{label} shared integrity validator incorrectly claimed gate eligibility",
+            errors,
+        )
+        require(
+            integrity.get("claimed_verification_level") == status,
+            f"{label} envelope claimed level differs from status",
+            errors,
+        )
+        require(
+            integrity.get("claimed_provider_verified") is (status == PROVIDER_VERIFIED),
+            f"{label} envelope provider claim conflicts with status",
+            errors,
+        )
+        require(
+            integrity.get("claimed_counts_as_preview_acceptance") is True,
+            f"{label} envelope does not claim Preview acceptance",
+            errors,
+        )
+        require(
+            integrity.get("source_identity_bound") is True,
+            f"{label} shared integrity result did not bind source identity",
+            errors,
+        )
+        require(
+            integrity.get("raw_export_asset_id")
+            == locator.get("raw_export_asset", {}).get("asset_id"),
+            f"{label} raw export asset id differs from the locator",
+            errors,
+        )
+        require(
+            str(integrity.get("raw_export_sha256", "")).removeprefix("sha256:")
+            == locator.get("raw_export_asset", {}).get("sha256"),
+            f"{label} raw export digest differs from the locator",
+            errors,
+        )
+        require(
+            str(integrity.get("envelope_sha256", "")).removeprefix("sha256:")
+            == locator.get("envelope_asset", {}).get("sha256"),
+            f"{label} envelope digest differs from the locator",
+            errors,
+        )
+        require(
+            integrity.get("verifier_report_asset_id")
+            == locator.get("verifier_report_asset", {}).get("asset_id"),
+            f"{label} verifier report asset id differs from the locator",
+            errors,
+        )
+        require(
+            str(integrity.get("verifier_report_sha256", "")).removeprefix("sha256:")
+            == locator.get("verifier_report_asset", {}).get("sha256"),
+            f"{label} verifier report digest differs from the locator",
+            errors,
+        )
+        require(
+            str(integrity.get("release_asset_index_sha256", "")).removeprefix("sha256:")
+            == locator.get("release_asset_index_asset", {}).get("sha256"),
+            f"{label} Release asset index digest differs from the locator",
+            errors,
+        )
+
+    verifier = result_document.get("live_verifier")
+    require(isinstance(verifier, dict), f"{label} live verifier metadata is missing", errors)
+    if isinstance(verifier, dict):
+        require(verifier.get("adapter_id") == expected_adapter_id, f"{label} live verifier adapter mismatch", errors)
+        require(verifier.get("live_requery_performed") is True, f"{label} verifier did not perform a live re-query", errors)
+        require(verifier.get("requery_source") == "github_api", f"{label} verifier did not query the GitHub API", errors)
+        require(verifier.get("independent") is True, f"{label} live verifier is not independent", errors)
+        require(
+            verifier.get("verifier_workflow_run_id") == locator.get("verifier_workflow_run_id")
+            and verifier.get("verifier_run_url") == locator.get("verifier_run_url"),
+            f"{label} verifier workflow witness differs from the locator",
+            errors,
+        )
+        require(
+            verifier.get("adapter_code_sha256") == expected_adapter_code_sha256,
+            f"{label} verifier code digest differs from the committed provider verifier registry",
+            errors,
+        )
+        validate_live_verifier_timestamp(
+            verifier.get("verified_at"),
+            label,
+            errors,
+            now=validation_now,
+        )
+
+    gate = result_document.get("gate_eligibility")
+    require(isinstance(gate, dict), f"{label} gate eligibility result is missing", errors)
+    if isinstance(gate, dict):
+        require(gate.get("eligible") is True, f"{label} external verifier did not mark the record eligible", errors)
+        require(gate.get("level") == status, f"{label} gate eligibility level differs from status", errors)
+        require(
+            gate.get("determined_by") == "registered_live_verifier",
+            f"{label} gate eligibility was not determined by the registered live verifier",
+            errors,
+        )
+        if status == PREVIEW_ATTESTED:
+            require(gate.get("provider_adapter_id") is None, f"{label} Preview evidence claims a provider adapter", errors)
+            require(gate.get("provider_authenticated") is False, f"{label} Preview evidence claims provider authentication", errors)
+        else:
+            require(
+                gate.get("provider_authenticated") is True
+                and gate.get("provider_adapter_id") in SUPPORTED_AUTHENTICATED_EXTERNAL_EVIDENCE_ADAPTERS,
+                f"{label} provider eligibility lacks a registered authenticated adapter",
+                errors,
+            )
+
+    raw_export = result_document.get("raw_export")
+    require(isinstance(raw_export, dict), f"{label} raw export is not machine-readable JSON", errors)
+    if not isinstance(raw_export, dict):
+        return
+    require(raw_export.get("evidence_type") == evidence_type, f"{label} raw export evidence_type mismatch", errors)
+    require(raw_export.get("observed") == evidence_payload(record), f"{label} raw export observed payload mismatch", errors)
     expected_cache_inventory = cache_inventory_for_evidence(record, evidence_type)
     if expected_cache_inventory is not None:
-        raw_export = document.get("raw_export", {})
-        require(
-            raw_export.get("cache_inventory_complete") is True,
-            f"{label} provider export does not attest a complete cache inventory",
-            errors,
-        )
-        require(
-            raw_export.get("cache_inventory") == expected_cache_inventory,
-            f"{label} provider cache inventory does not match the ledger record",
-            errors,
-        )
+        require(raw_export.get("cache_inventory_complete") is True, f"{label} raw export does not attest a complete cache inventory", errors)
+        require(raw_export.get("cache_inventory") == expected_cache_inventory, f"{label} raw export cache inventory does not match the ledger record", errors)
 
 
 def git_bytes(*args: str) -> tuple[int, bytes, str]:
@@ -572,17 +1075,23 @@ def validate_status_record(
     label: str,
     errors: list[str],
     verified_fields: tuple[str, ...] = (),
+    *,
+    external: bool = False,
+    allow_legacy_synthetic_verified: bool = False,
 ) -> None:
     require(isinstance(record, dict), f"{label} is not an object", errors)
     if not isinstance(record, dict):
         return
     status = record.get("status")
-    require(status in VALID_STATUS, f"{label} has invalid status: {status}", errors)
+    valid_status = EXTERNAL_VALID_STATUS if external else INTERNAL_VALID_STATUS
+    if external and allow_legacy_synthetic_verified:
+        valid_status = {*valid_status, "verified"}
+    require(status in valid_status, f"{label} has invalid status: {status}", errors)
     if status == "pending":
         require(bool(record.get("reason")), f"{label} pending status lacks a reason", errors)
-    elif status == "verified":
+    elif status in {"verified", *EXTERNAL_ACCEPTED_STATUS}:
         for field in verified_fields:
-            require(record.get(field) not in (None, ""), f"{label} verified without {field}", errors)
+            require(record.get(field) not in (None, ""), f"{label} accepted without {field}", errors)
 
 
 def validate_all_sha_fields(value: Any, label: str, errors: list[str]) -> None:
@@ -618,11 +1127,11 @@ def require_verified_commit_binding(
     source_commit: Any,
     errors: list[str],
 ) -> None:
-    if not isinstance(record, dict) or record.get("status") != "verified":
+    if not isinstance(record, dict) or record.get("status") == "pending":
         return
     require(
         isinstance(source_commit, dict) and source_commit.get("status") == "verified",
-        f"{label} is verified while source_commit is not verified",
+        f"{label} is accepted while source_commit is not verified",
         errors,
     )
     expected = source_commit.get("sha") if isinstance(source_commit, dict) else None
@@ -631,6 +1140,39 @@ def require_verified_commit_binding(
         f"{label} commit does not match immutable source_commit",
         errors,
     )
+
+
+def release_source_identity(release: dict[str, Any]) -> dict[str, Any] | None:
+    source = release.get("source_commit", {})
+    contracts = release.get("installable_contracts", {})
+    tree = release.get("installable_skill_tree", {})
+    if not (
+        isinstance(source, dict)
+        and source.get("status") == "verified"
+        and COMMIT_SHA_RE.fullmatch(str(source.get("sha", "")))
+    ):
+        return None
+    fields = {
+        "plugin_version": release.get("version"),
+        "source_commit": source.get("sha"),
+        "manifest_sha256": contracts.get("manifest_sha256"),
+        "registry_sha256": contracts.get("registry_sha256"),
+        "skill_tree_sha256": tree.get("sha256"),
+    }
+    if not (
+        isinstance(fields["plugin_version"], str)
+        and parse_semver(fields["plugin_version"]) is not None
+        and all(
+            SHA256_RE.fullmatch(str(fields[field] or ""))
+            for field in (
+                "manifest_sha256",
+                "registry_sha256",
+                "skill_tree_sha256",
+            )
+        )
+    ):
+        return None
+    return fields
 
 
 def validate_release_evidence(
@@ -642,11 +1184,35 @@ def validate_release_evidence(
     *,
     authenticated_external_adapter: bool = False,
     synthetic_external_trust_override: bool = False,
+    expected_explicit_entries: list[str] | None = None,
+    expected_implicit_entries: list[str] | None = None,
+    live_evidence_verifier: LiveEvidenceVerifier | None = None,
+    defer_live_external_requery: bool = False,
+    validation_now: datetime | None = None,
 ) -> None:
     def named(label: str) -> str:
         return f"{prefix}{label}"
 
+    def is_external_accepted(record: Any) -> bool:
+        return isinstance(record, dict) and (
+            record.get("status") in EXTERNAL_ACCEPTED_STATUS
+            or (
+                synthetic_external_trust_override
+                and record.get("status") == "verified"
+            )
+        )
+
+    trust = release.get("external_evidence_trust", {})
+    expected_source_identity = release_source_identity(release)
+    expected_adapter_id = trust.get("adapter_id") if isinstance(trust, dict) else None
+
     def validate_external(record: Any, evidence_type: str, label: str) -> None:
+        if isinstance(record, dict) and record.get("status") in EXTERNAL_ACCEPTED_STATUS:
+            require(
+                record.get("status") == trust.get("verification_level"),
+                f"{label} status differs from release verification level",
+                errors,
+            )
         validate_bound_external_evidence(
             record,
             evidence_type,
@@ -654,14 +1220,27 @@ def validate_release_evidence(
             errors,
             authenticated_external_adapter=authenticated_external_adapter,
             synthetic_external_trust_override=synthetic_external_trust_override,
+            expected_source_identity=expected_source_identity,
+            expected_adapter_id=expected_adapter_id,
+            live_evidence_verifier=live_evidence_verifier,
+            defer_live_external_requery=defer_live_external_requery,
+            validation_now=validation_now,
         )
 
-    trust = release.get("external_evidence_trust", {})
     require(isinstance(trust, dict), named("external evidence trust is not an object"), errors)
     if isinstance(trust, dict):
         require(
             trust.get("adapter_status") in {"unavailable", "configured"},
             named("external evidence trust adapter_status is invalid"),
+            errors,
+        )
+        require(
+            trust.get("verification_level") in {
+                None,
+                PREVIEW_ATTESTED,
+                PROVIDER_VERIFIED,
+            },
+            named("external evidence trust verification_level is invalid"),
             errors,
         )
         require(
@@ -671,6 +1250,7 @@ def validate_release_evidence(
         )
         if trust.get("adapter_status") == "unavailable":
             require(trust.get("adapter_id") is None, named("unavailable external adapter has an id"), errors)
+            require(trust.get("verification_level") is None, named("unavailable external adapter has a verification level"), errors)
             require(
                 trust.get("provider_authenticated") is False,
                 named("unavailable external adapter claims provider authentication"),
@@ -678,7 +1258,7 @@ def validate_release_evidence(
             )
         else:
             require(
-                authenticated_external_evidence_adapter_available(release),
+                configured_external_evidence_level(release) is not None,
                 named("configured external adapter is not supported by the validator"),
                 errors,
             )
@@ -695,7 +1275,14 @@ def validate_release_evidence(
 
     marketplace_source = release.get("marketplace_source", {})
     resolved_commit = marketplace_source.get("resolved_commit") if isinstance(marketplace_source, dict) else None
-    validate_status_record(resolved_commit, named("marketplace_resolved_commit"), errors, ("sha",))
+    validate_status_record(
+        resolved_commit,
+        named("marketplace_resolved_commit"),
+        errors,
+        ("sha",),
+        external=True,
+        allow_legacy_synthetic_verified=synthetic_external_trust_override,
+    )
     require_verified_commit_binding(
         resolved_commit,
         "sha",
@@ -716,8 +1303,10 @@ def validate_release_evidence(
         named("repository_preview CI"),
         errors,
         ("run_id", "run_url", "commit_sha", "conclusion"),
+        external=True,
+        allow_legacy_synthetic_verified=synthetic_external_trust_override,
     )
-    if isinstance(repository_ci, dict) and repository_ci.get("status") == "verified":
+    if is_external_accepted(repository_ci):
         require(repository_ci.get("conclusion") == "success", named("repository CI conclusion is not success"), errors)
     require_verified_commit_binding(
         repository_ci,
@@ -753,8 +1342,10 @@ def validate_release_evidence(
         named("canonical validator CI"),
         errors,
         ("run_id", "commit_sha", "conclusion"),
+        external=True,
+        allow_legacy_synthetic_verified=synthetic_external_trust_override,
     )
-    if isinstance(canonical_ci, dict) and canonical_ci.get("status") == "verified":
+    if is_external_accepted(canonical_ci):
         require(canonical_ci.get("conclusion") == "success", named("canonical validator CI conclusion is not success"), errors)
     require_verified_commit_binding(
         canonical_ci,
@@ -776,10 +1367,12 @@ def validate_release_evidence(
         named("main branch protection"),
         errors,
         ("branch", "required_check", "verified_at"),
+        external=True,
+        allow_legacy_synthetic_verified=synthetic_external_trust_override,
     )
     if isinstance(branch_protection, dict):
         require(branch_protection.get("branch") == "main", named("branch protection target is not main"), errors)
-        if branch_protection.get("status") == "verified":
+        if is_external_accepted(branch_protection):
             require(
                 branch_protection.get("required_check") == "OpenAI Plugin Preview / validate",
                 named("branch protection required check is invalid"),
@@ -800,8 +1393,10 @@ def validate_release_evidence(
             receipt_label,
             errors,
             ("installed_version", "source_commit", "cache_path", "cache_artifact"),
+            external=True,
+            allow_legacy_synthetic_verified=synthetic_external_trust_override,
         )
-        if isinstance(receipt, dict) and receipt.get("status") == "verified":
+        if is_external_accepted(receipt):
             require(receipt.get("installed_version") == current_version, f"{receipt_label} version mismatch", errors)
             cache_artifact = receipt.get("cache_artifact")
             validate_cache_artifact(cache_artifact, release, receipt_label, errors)
@@ -824,24 +1419,76 @@ def validate_release_evidence(
             "plugin_version",
             "source_commit",
             "task_id",
-            "skill_count",
-            "visible_entry_skills",
+            "installed_skill_count",
+            "explicit_callable_entries",
+            "implicit_prompt_entries",
+            "explicit_callable_entry_skills",
+            "implicit_prompt_entry_skills",
             "installed_via",
             "cache_artifact",
         ),
+        external=True,
+        allow_legacy_synthetic_verified=synthetic_external_trust_override,
     )
-    if isinstance(discovery, dict) and discovery.get("status") == "verified":
+    if is_external_accepted(discovery):
         require(discovery.get("plugin_version") == current_version, f"{discovery_label} version mismatch", errors)
         if expected_skill_count is None:
             require(
-                isinstance(discovery.get("skill_count"), int) and discovery.get("skill_count") > 0,
+                isinstance(discovery.get("installed_skill_count"), int)
+                and discovery.get("installed_skill_count") > 0,
                 f"{discovery_label} skill count is invalid",
                 errors,
             )
         else:
             require(
-                discovery.get("skill_count") == expected_skill_count,
+                discovery.get("installed_skill_count") == expected_skill_count,
                 f"{discovery_label} skill count mismatch",
+                errors,
+            )
+        explicit_skills = discovery.get("explicit_callable_entry_skills")
+        implicit_skills = discovery.get("implicit_prompt_entry_skills")
+        require(
+            isinstance(explicit_skills, list)
+            and len(explicit_skills) == len(set(explicit_skills))
+            and all(isinstance(item, str) and item for item in explicit_skills),
+            f"{discovery_label} explicit entry list is invalid",
+            errors,
+        )
+        require(
+            isinstance(implicit_skills, list)
+            and len(implicit_skills) == len(set(implicit_skills))
+            and all(isinstance(item, str) and item for item in implicit_skills),
+            f"{discovery_label} implicit entry list is invalid",
+            errors,
+        )
+        if isinstance(explicit_skills, list):
+            require(
+                discovery.get("explicit_callable_entries") == len(explicit_skills),
+                f"{discovery_label} explicit entry count mismatch",
+                errors,
+            )
+        if isinstance(implicit_skills, list):
+            require(
+                discovery.get("implicit_prompt_entries") == len(implicit_skills),
+                f"{discovery_label} implicit entry count mismatch",
+                errors,
+            )
+        if isinstance(explicit_skills, list) and isinstance(implicit_skills, list):
+            require(
+                set(implicit_skills) <= set(explicit_skills),
+                f"{discovery_label} implicit entries are not explicit-callable",
+                errors,
+            )
+        if expected_explicit_entries is not None:
+            require(
+                set(explicit_skills or []) == set(expected_explicit_entries),
+                f"{discovery_label} explicit entry identities mismatch",
+                errors,
+            )
+        if expected_implicit_entries is not None:
+            require(
+                set(implicit_skills or []) == set(expected_implicit_entries),
+                f"{discovery_label} implicit entry identities mismatch",
                 errors,
             )
         installed_via = discovery.get("installed_via")
@@ -857,8 +1504,8 @@ def validate_release_evidence(
         )
         require(
             isinstance(selected_install, dict)
-            and selected_install.get("status") == "verified",
-            f"{discovery_label} does not reference a verified install receipt",
+            and is_external_accepted(selected_install),
+            f"{discovery_label} does not reference an accepted install receipt",
             errors,
         )
         validate_cache_artifact(
@@ -895,8 +1542,10 @@ def validate_release_evidence(
             "restored_cache_artifact",
             "cache_mixing_absent",
         ),
+        external=True,
+        allow_legacy_synthetic_verified=synthetic_external_trust_override,
     )
-    if isinstance(rollback, dict) and rollback.get("status") == "verified":
+    if is_external_accepted(rollback):
         require(rollback.get("from_version") == current_version, f"{rollback_label} from_version mismatch", errors)
         require(rollback.get("to_version") != current_version, f"{rollback_label} did not target a previous version", errors)
         require(rollback.get("cache_mixing_absent") is True, f"{rollback_label} cache isolation not proven", errors)
@@ -917,9 +1566,9 @@ def validate_release_evidence(
         validate_cache_artifact(restored_cache, None, f"{rollback_label} restored", errors)
         require(
             isinstance(selected_install, dict)
-            and selected_install.get("status") == "verified"
+            and is_external_accepted(selected_install)
             and candidate_cache == selected_install.get("cache_artifact"),
-            f"{rollback_label} candidate cache does not match a verified current install",
+            f"{rollback_label} candidate cache does not match an accepted current install",
             errors,
         )
         if isinstance(candidate_cache, dict) and isinstance(restored_cache, dict):
@@ -948,19 +1597,22 @@ def validate_rollback_history_binding(
     release: dict[str, Any], previous_releases: list[Any], errors: list[str]
 ) -> None:
     rollback = release.get("receipts", {}).get("rollback", {})
-    if not isinstance(rollback, dict) or rollback.get("status") != "verified":
+    if not isinstance(rollback, dict) or rollback.get("status") not in {
+        "verified",
+        *EXTERNAL_ACCEPTED_STATUS,
+    }:
         return
     target_version = rollback.get("to_version")
     target_commit = rollback.get("target_commit")
     from_version = rollback.get("from_version")
     if not isinstance(from_version, str) or not isinstance(target_version, str):
-        require(False, "verified rollback versions are invalid", errors)
+        require(False, "accepted rollback versions are invalid", errors)
     elif parse_semver(from_version) is None or parse_semver(target_version) is None:
-        require(False, "verified rollback versions are not strict SemVer", errors)
+        require(False, "accepted rollback versions are not strict SemVer", errors)
     else:
         require(
             compare_semver(target_version, from_version) < 0,
-            "verified rollback target version is not strictly older than the current version",
+            "accepted rollback target version is not strictly older than the current version",
             errors,
         )
     matches = [
@@ -970,7 +1622,7 @@ def validate_rollback_history_binding(
     ]
     require(
         len(matches) == 1,
-        "verified rollback must target exactly one previous release ledger entry",
+        "accepted rollback must target exactly one previous release ledger entry",
         errors,
     )
     if len(matches) != 1:
@@ -979,19 +1631,19 @@ def validate_rollback_history_binding(
     require(
         isinstance(previous_source, dict)
         and previous_source.get("status") == "verified",
-        "verified rollback targets a previous release without a verified immutable source commit",
+        "accepted rollback targets a previous release without a verified immutable source commit",
         errors,
     )
     require(
         isinstance(previous_source, dict)
         and previous_source.get("sha") == target_commit,
-        "verified rollback target_commit does not match the previous release source_commit",
+        "accepted rollback target_commit does not match the previous release source_commit",
         errors,
     )
     validate_cache_artifact(
         rollback.get("restored_cache_artifact"),
         matches[0],
-        "verified rollback restored",
+        "accepted rollback restored",
         errors,
     )
     current_source = release.get("source_commit", {})
@@ -1007,7 +1659,7 @@ def validate_rollback_history_binding(
         )
         require(
             returncode == 0,
-            "verified rollback target commit is not an ancestor of the current release commit",
+            "accepted rollback target commit is not an ancestor of the current release commit",
             errors,
         )
 
@@ -1041,6 +1693,389 @@ def bind_fixture_evidence(
     record["evidence_sha256"] = hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+class SyntheticLiveVerifier:
+    """In-memory stand-in for a registered workflow that re-queries GitHub.
+
+    The ledger receives only external locators. This test adapter owns the
+    fetched bytes separately, re-runs the shared integrity validator for every
+    request, and then makes an independent gate decision. It intentionally does
+    not read repository-relative evidence files.
+    """
+
+    adapter_id = "github_release_asset_preview_v1"
+
+    def __init__(self) -> None:
+        self.bundles: dict[str, dict[str, Any]] = {}
+        registry_errors: list[str] = []
+        self.adapter_code_sha256 = registered_adapter_verifier_digest(
+            self.adapter_id,
+            "synthetic live verifier",
+            registry_errors,
+        )
+        if self.adapter_code_sha256 is None:
+            raise ValueError("; ".join(registry_errors))
+
+    @staticmethod
+    def _key(locator: dict[str, Any]) -> str:
+        return json.dumps(locator, sort_keys=True, separators=(",", ":"))
+
+    def bind(
+        self,
+        record: dict[str, Any],
+        evidence_type: str,
+        release: dict[str, Any],
+        *,
+        verification_level: str = PREVIEW_ATTESTED,
+        raw_evidence_kind: str = "structured_export",
+    ) -> dict[str, Any]:
+        identity = release_source_identity(release)
+        if identity is None:
+            raise ValueError("synthetic release has no complete source identity")
+        raw_export: dict[str, Any] = {
+            "schema_version": 3,
+            "evidence_type": evidence_type,
+            "observed": evidence_payload(record),
+        }
+        cache_inventory = cache_inventory_for_evidence(record, evidence_type)
+        if cache_inventory is not None:
+            raw_export.update(
+                cache_inventory_complete=True,
+                cache_inventory=cache_inventory,
+            )
+        raw_bytes = canonical_json_bytes(raw_export)
+        assets: list[dict[str, Any]] = [
+            {
+                "asset_id": 101,
+                "name": "raw-export.json",
+                "sha256": evidence_sha256_bytes(raw_bytes),
+                "size": len(raw_bytes),
+                "evidence_kind": raw_evidence_kind,
+            },
+        ]
+        payloads: dict[int, bytes] = {101: raw_bytes}
+        if verification_level == PROVIDER_VERIFIED:
+            provider_bytes = canonical_json_bytes({"provider": "synthetic-provider"})
+            assets.append(
+                {
+                    "asset_id": 102,
+                    "name": "provider-receipt.json",
+                    "sha256": evidence_sha256_bytes(provider_bytes),
+                    "size": len(provider_bytes),
+                    "evidence_kind": "provider_receipt",
+                }
+            )
+            payloads[102] = provider_bytes
+        capture: dict[str, Any] = {
+            "surface": "github_release",
+            "task_or_thread_id": "release-ledger-self-test",
+            "captured_at": "2026-07-13T00:00:00Z",
+            "raw_export_asset_id": 101,
+            "raw_export_sha256": evidence_sha256_bytes(raw_bytes),
+        }
+        expected_verifier: dict[str, Any] = {
+            "verifier_id": "independent-release-ledger-self-test",
+            "verifier_code_sha256": "sha256:" + "8" * 64,
+            "independent": True,
+        }
+        if verification_level == PROVIDER_VERIFIED:
+            capture["provider_receipt_asset_id"] = 102
+        envelope = {
+            "schema_version": "openai-preview-evidence-envelope/v1",
+            "evidence_id": f"release-ledger-{verification_level}-self-test",
+            "verification_level": verification_level,
+            "provider_verified": verification_level == PROVIDER_VERIFIED,
+            "counts_as_preview_acceptance": True,
+            "source_identity": identity,
+            "adapter": {
+                "adapter_id": "capture-adapter-self-test",
+                "adapter_code_sha256": "sha256:" + "7" * 64,
+            },
+            "capture": capture,
+            "github_witness": {
+                "repository": "xuxu-wei/research-skills",
+                "release_id": 7101,
+                "release_tag": "release-ledger-self-test",
+                "workflow_run_id": 7102,
+                "actor": "release-ledger-self-test",
+                "raw_export_asset_id": 101,
+                "source_commit": identity["source_commit"],
+            },
+            "expected_verifier": expected_verifier,
+        }
+        envelope_bytes = canonical_json_bytes(envelope)
+        verifier_report = {
+            "schema_version": "openai-preview-verifier-report/v1",
+            "verifier_id": expected_verifier["verifier_id"],
+            "verifier_code_sha256": expected_verifier["verifier_code_sha256"],
+            "independent": True,
+            "verified_at": "2026-07-13T00:02:00Z",
+            "source_identity": identity,
+            "envelope_asset_id": 104,
+            "envelope_sha256": evidence_sha256_bytes(envelope_bytes),
+            "raw_export_asset_id": 101,
+            "raw_export_sha256": evidence_sha256_bytes(raw_bytes),
+            "verdict": "accepted",
+        }
+        if verification_level == PROVIDER_VERIFIED:
+            verifier_report.update(
+                provider_receipt_asset_id=102,
+                provider_receipt_sha256=evidence_sha256_bytes(payloads[102]),
+                provider_attestation_checked=True,
+            )
+        verifier_report_bytes = canonical_json_bytes(verifier_report)
+        assets.extend(
+            [
+                {
+                    "asset_id": 104,
+                    "name": "evidence-envelope.json",
+                    "sha256": evidence_sha256_bytes(envelope_bytes),
+                    "size": len(envelope_bytes),
+                    "evidence_kind": "evidence_envelope",
+                },
+                {
+                    "asset_id": 105,
+                    "name": "verifier-report.json",
+                    "sha256": evidence_sha256_bytes(verifier_report_bytes),
+                    "size": len(verifier_report_bytes),
+                    "evidence_kind": "verifier_report",
+                },
+            ]
+        )
+        payloads[104] = envelope_bytes
+        payloads[105] = verifier_report_bytes
+        index = {
+            "schema_version": "openai-preview-release-asset-index/v1",
+            "source_identity": identity,
+            "github_release": {
+                "repository": "xuxu-wei/research-skills",
+                "release_id": 7101,
+                "release_tag": "release-ledger-self-test",
+            },
+            "github_witness": {
+                "workflow_run_id": 7102,
+                "actor": "release-ledger-self-test",
+                "source_commit": identity["source_commit"],
+                "witnessed_at": "2026-07-13T00:01:00Z",
+            },
+            "assets": assets,
+        }
+        index_bytes = canonical_json_bytes(index)
+        locator = {
+            "repository": "xuxu-wei/research-skills",
+            "release_id": 7101,
+            "release_tag": "release-ledger-self-test",
+            "capture_workflow_run_id": 7102,
+            "verifier_workflow_run_id": 7103,
+            "verifier_run_url": "https://github.com/xuxu-wei/research-skills/actions/runs/7103",
+            "envelope_asset": {
+                "asset_id": 104,
+                "name": "evidence-envelope.json",
+                "sha256": hashlib.sha256(envelope_bytes).hexdigest(),
+            },
+            "release_asset_index_asset": {
+                "asset_id": 202,
+                "name": "release-asset-index.json",
+                "sha256": hashlib.sha256(index_bytes).hexdigest(),
+            },
+            "raw_export_asset": {
+                "asset_id": 101,
+                "name": "raw-export.json",
+                "sha256": hashlib.sha256(raw_bytes).hexdigest(),
+            },
+            "verifier_report_asset": {
+                "asset_id": 105,
+                "name": "verifier-report.json",
+                "sha256": hashlib.sha256(verifier_report_bytes).hexdigest(),
+            },
+        }
+        record["status"] = verification_level
+        record.pop("reason", None)
+        record["evidence_path"] = None
+        record["evidence_sha256"] = None
+        record["evidence_locator"] = locator
+        self.bundles[self._key(locator)] = {
+            "envelope": envelope,
+            "index": index,
+            "index_bytes": index_bytes,
+            "payloads": payloads,
+            "raw_export": raw_export,
+            "result_mutator": None,
+        }
+        return self.bundles[self._key(locator)]
+
+    def reseal(self, record: dict[str, Any], bundle: dict[str, Any]) -> None:
+        """Rebuild synthetic external digests after an intentional fixture edit."""
+
+        envelope_bytes = canonical_json_bytes(bundle["envelope"])
+        report = json.loads(bundle["payloads"][105].decode("utf-8"))
+        report["envelope_sha256"] = evidence_sha256_bytes(envelope_bytes)
+        report_bytes = canonical_json_bytes(report)
+        bundle["payloads"][104] = envelope_bytes
+        bundle["payloads"][105] = report_bytes
+        for asset in bundle["index"]["assets"]:
+            if asset["asset_id"] in {104, 105}:
+                payload = bundle["payloads"][asset["asset_id"]]
+                asset["sha256"] = evidence_sha256_bytes(payload)
+                asset["size"] = len(payload)
+        index_bytes = canonical_json_bytes(bundle["index"])
+        bundle["index_bytes"] = index_bytes
+        locator = record["evidence_locator"]
+        locator["envelope_asset"]["sha256"] = hashlib.sha256(envelope_bytes).hexdigest()
+        locator["verifier_report_asset"]["sha256"] = hashlib.sha256(report_bytes).hexdigest()
+        locator["release_asset_index_asset"]["sha256"] = hashlib.sha256(index_bytes).hexdigest()
+        for key, value in list(self.bundles.items()):
+            if value is bundle:
+                del self.bundles[key]
+        self.bundles[self._key(locator)] = bundle
+
+    def __call__(self, **request: Any) -> dict[str, Any]:
+        locator = request["evidence_locator"]
+        bundle = self.bundles.get(self._key(locator))
+        if bundle is None:
+            raise ValueError("external locator was not returned by the live GitHub query")
+        envelope = bundle["envelope"]
+        index = bundle["index"]
+        index_bytes = bundle.get("index_bytes", canonical_json_bytes(index))
+        payloads = bundle["payloads"]
+
+        expected_locator_digests = {
+            "envelope_asset": hashlib.sha256(payloads[104]).hexdigest(),
+            "release_asset_index_asset": hashlib.sha256(index_bytes).hexdigest(),
+            "verifier_report_asset": hashlib.sha256(payloads[105]).hexdigest(),
+        }
+        for field, digest in expected_locator_digests.items():
+            if locator[field]["sha256"] != digest:
+                raise ValueError(f"live re-query {field} digest mismatch")
+        release = index.get("github_release", {})
+        witness = index.get("github_witness", {})
+        if (
+            locator.get("repository") != release.get("repository")
+            or locator.get("release_id") != release.get("release_id")
+            or locator.get("release_tag") != release.get("release_tag")
+            or locator.get("capture_workflow_run_id") != witness.get("workflow_run_id")
+        ):
+            raise ValueError("live re-query Release or workflow locator mismatch")
+
+        fetched: dict[int, bytes] = {}
+
+        def fetch_asset(asset: dict[str, Any]) -> bytes:
+            payload = payloads[int(asset["asset_id"])]
+            fetched[int(asset["asset_id"])] = payload
+            return payload
+
+        integrity = validate_evidence_bundle(
+            envelope,
+            index,
+            fetch_asset,
+            envelope_bytes=payloads[104],
+            expected_source_identity=request["expected_source_identity"],
+            index_bytes=index_bytes,
+            now=SYNTHETIC_VALIDATION_NOW,
+        )
+        raw_id = integrity.raw_export_asset_id
+        raw_bytes = fetched[raw_id]
+        if locator["raw_export_asset"]["asset_id"] != raw_id:
+            raise ValueError("live re-query raw asset id mismatch")
+        if locator["raw_export_asset"]["sha256"] != hashlib.sha256(raw_bytes).hexdigest():
+            raise ValueError("live re-query raw asset digest mismatch")
+        raw_export = json.loads(raw_bytes.decode("utf-8"))
+        claimed_level = getattr(
+            integrity,
+            "claimed_verification_level",
+            getattr(integrity, "verification_level", request["expected_verification_level"]),
+        )
+        claimed_provider = getattr(
+            integrity,
+            "claimed_provider_verified",
+            getattr(integrity, "provider_verified", False),
+        )
+        claimed_counts = getattr(
+            integrity,
+            "claimed_counts_as_preview_acceptance",
+            getattr(integrity, "counts_as_preview_acceptance", False),
+        )
+        result = {
+            "schema_version": 3,
+            "evidence_type": request["evidence_type"],
+            "verification_level": request["expected_verification_level"],
+            "provider_verified": request["expected_verification_level"]
+            == PROVIDER_VERIFIED,
+            "observed": raw_export.get("observed"),
+            "raw_export": raw_export,
+            "source_identity": request["expected_source_identity"],
+            "locator": locator,
+            "integrity_result": {
+                "evidence_id": integrity.evidence_id,
+                "integrity_valid": getattr(integrity, "integrity_valid", True),
+                "gate_eligible": getattr(integrity, "gate_eligible", False),
+                "claimed_verification_level": claimed_level,
+                "claimed_provider_verified": claimed_provider,
+                "claimed_counts_as_preview_acceptance": claimed_counts,
+                "source_identity_bound": getattr(integrity, "source_identity_bound", True),
+                "raw_export_asset_id": integrity.raw_export_asset_id,
+                "raw_export_sha256": integrity.raw_export_sha256,
+                "envelope_sha256": evidence_sha256_bytes(payloads[104]),
+                "verifier_report_asset_id": integrity.verifier_report_asset_id,
+                "verifier_report_sha256": integrity.verifier_report_sha256,
+                "release_asset_index_sha256": integrity.release_asset_index_sha256,
+            },
+            "live_verifier": {
+                "adapter_id": self.adapter_id,
+                "adapter_code_sha256": self.adapter_code_sha256,
+                "live_requery_performed": True,
+                "requery_source": "github_api",
+                "independent": True,
+                "verified_at": "2026-07-13T00:03:00Z",
+                "verifier_workflow_run_id": locator["verifier_workflow_run_id"],
+                "verifier_run_url": locator["verifier_run_url"],
+            },
+            "gate_eligibility": {
+                "eligible": True,
+                "level": request["expected_verification_level"],
+                "determined_by": "registered_live_verifier",
+                "provider_adapter_id": None,
+                "provider_authenticated": False,
+            },
+        }
+        mutator = bundle.get("result_mutator")
+        if callable(mutator):
+            mutator(result)
+        return result
+
+
+def external_records(release: dict[str, Any]) -> dict[str, dict[str, Any]]:
+    ci = release["ci"]
+    receipts = release["receipts"]
+    return {
+        "repository_preview_ci": ci["repository_preview"],
+        "canonical_plugin_validator_ci": ci["canonical_plugin_validator"]["ci"],
+        "main_branch_protection": release["governance"]["main_branch_protection"],
+        "marketplace_resolved_commit": release["marketplace_source"]["resolved_commit"],
+        "marketplace_upgrade": receipts["marketplace_upgrade"],
+        "explicit_reinstall": receipts["explicit_reinstall"],
+        "fresh_task_discovery": receipts["fresh_task_discovery"],
+        "rollback": receipts["rollback"],
+    }
+
+
+def preview_release_fixture(evidence_dir: Path) -> dict[str, Any]:
+    release = verified_release_fixture(evidence_dir, "preview-base")
+    release["external_evidence_trust"] = {
+        "adapter_status": "configured",
+        "adapter_id": SyntheticLiveVerifier.adapter_id,
+        "verification_level": PREVIEW_ATTESTED,
+        "provider_authenticated": False,
+        "reason": "Synthetic registered live-requery verifier for mutation tests.",
+    }
+    for record in external_records(release).values():
+        record["status"] = "pending"
+        record["reason"] = "Synthetic evidence has not been bound."
+        record["evidence_path"] = None
+        record["evidence_sha256"] = None
+        record["evidence_locator"] = None
+    return release
+
+
 def verified_release_fixture(evidence_dir: Path, prefix: str = "fixture") -> dict[str, Any]:
     sha = "a" * 40
     fixture = {
@@ -1048,6 +2083,7 @@ def verified_release_fixture(evidence_dir: Path, prefix: str = "fixture") -> dic
         "external_evidence_trust": {
             "adapter_status": "unavailable",
             "adapter_id": None,
+            "verification_level": None,
             "provider_authenticated": False,
             "reason": "synthetic fixture uses an explicit test-only trust override",
         },
@@ -1118,8 +2154,11 @@ def verified_release_fixture(evidence_dir: Path, prefix: str = "fixture") -> dic
                 "plugin_version": "1.2.0-preview.1",
                 "source_commit": sha,
                 "task_id": "task-1",
-                "skill_count": 45,
-                "visible_entry_skills": ["article-orchestrator"],
+                "installed_skill_count": 45,
+                "explicit_callable_entries": 1,
+                "implicit_prompt_entries": 1,
+                "explicit_callable_entry_skills": ["article-orchestrator"],
+                "implicit_prompt_entry_skills": ["article-orchestrator"],
                 "installed_via": "explicit_reinstall",
                 "cache_artifact": None,
             },
@@ -1172,6 +2211,337 @@ def verified_release_fixture(evidence_dir: Path, prefix: str = "fixture") -> dic
             evidence_dir / f"{prefix}-{evidence_type}.json",
         )
     return fixture
+
+
+def run_live_evidence_mutation_tests(evidence_dir: Path) -> tuple[int, list[str]]:
+    """Exercise the externally re-queried Preview tier and its fail-closed edges."""
+
+    failures: list[str] = []
+    count = 0
+
+    def validate_case(
+        release: dict[str, Any],
+        verifier: LiveEvidenceVerifier | None,
+        *,
+        expected_skill_count: int = 45,
+        explicit_entries: list[str] | None = None,
+        implicit_entries: list[str] | None = None,
+        defer_live_external_requery: bool = False,
+    ) -> list[str]:
+        case_errors: list[str] = []
+        validate_all_sha_fields({"release": release}, "ledger", case_errors)
+        validate_release_evidence(
+            release,
+            release["version"],
+            expected_skill_count,
+            case_errors,
+            expected_explicit_entries=explicit_entries,
+            expected_implicit_entries=implicit_entries,
+            live_evidence_verifier=verifier,
+            defer_live_external_requery=defer_live_external_requery,
+            validation_now=SYNTHETIC_VALIDATION_NOW,
+        )
+        return case_errors
+
+    def preview_repository_case(
+        *, raw_evidence_kind: str = "structured_export"
+    ) -> tuple[dict[str, Any], SyntheticLiveVerifier, dict[str, Any]]:
+        release = preview_release_fixture(evidence_dir)
+        verifier = SyntheticLiveVerifier()
+        bundle = verifier.bind(
+            release["ci"]["repository_preview"],
+            "repository_preview_ci",
+            release,
+            raw_evidence_kind=raw_evidence_kind,
+        )
+        return release, verifier, bundle
+
+    release, verifier, _ = preview_repository_case()
+    errors = validate_case(release, verifier)
+    if errors:
+        failures.extend(f"live Preview fixture is invalid: {error}" for error in errors)
+    count += 1
+
+    errors = validate_case(release, None)
+    if not any("without a live external re-query verifier" in error for error in errors):
+        failures.append("Preview status without a live re-query verifier was not rejected")
+    count += 1
+
+    errors = validate_case(
+        release,
+        None,
+        defer_live_external_requery=True,
+    )
+    if errors:
+        failures.extend(
+            f"structural-only accepted-ledger validation failed: {error}"
+            for error in errors
+        )
+    count += 1
+
+    errors = validate_case(
+        release,
+        verifier,
+        defer_live_external_requery=True,
+    )
+    if not any(
+        "structural-only validation cannot ignore a supplied live verifier" in error
+        for error in errors
+    ):
+        failures.append(
+            "structural-only validation silently ignored a supplied live verifier"
+        )
+    count += 1
+
+    malformed_structural = copy.deepcopy(release)
+    malformed_structural["ci"]["repository_preview"]["evidence_locator"][
+        "raw_export_asset"
+    ]["sha256"] = "not-a-digest"
+    errors = validate_case(
+        malformed_structural,
+        None,
+        defer_live_external_requery=True,
+    )
+    if not any("locator raw_export_asset digest is invalid" in error for error in errors):
+        failures.append("structural-only validation accepted a malformed locator")
+    count += 1
+
+    def unregistered_verifier(**request: Any) -> dict[str, Any]:
+        return verifier(**request)
+
+    errors = validate_case(release, unregistered_verifier)
+    if not any("live verifier is not registered" in error for error in errors):
+        failures.append("unregistered live verifier callback was not rejected")
+    count += 1
+
+    result_contract_mutations: tuple[
+        tuple[str, Callable[[dict[str, Any]], None], str], ...
+    ] = (
+        (
+            "empty integrity evidence id",
+            lambda result: result["integrity_result"].__setitem__("evidence_id", ""),
+            "integrity result evidence_id is empty",
+        ),
+        (
+            "false claimed Preview acceptance",
+            lambda result: result["integrity_result"].__setitem__(
+                "claimed_counts_as_preview_acceptance", False
+            ),
+            "envelope does not claim Preview acceptance",
+        ),
+        (
+            "unregistered verifier code digest",
+            lambda result: result["live_verifier"].__setitem__(
+                "adapter_code_sha256", "0" * 64
+            ),
+            "verifier code digest differs from the committed provider verifier registry",
+        ),
+        (
+            "timezone-naive live verifier timestamp",
+            lambda result: result["live_verifier"].__setitem__(
+                "verified_at", "2026-07-13T00:03:00"
+            ),
+            "verified_at is not a timezone-aware ISO timestamp",
+        ),
+        (
+            "future live verifier timestamp",
+            lambda result: result["live_verifier"].__setitem__(
+                "verified_at", "2026-07-13T00:10:01Z"
+            ),
+            "verified_at is more than 5 minutes in the future",
+        ),
+        (
+            "stale live verifier timestamp",
+            lambda result: result["live_verifier"].__setitem__(
+                "verified_at", "2026-04-13T00:03:00Z"
+            ),
+            "verified_at is older than 90 days",
+        ),
+    )
+    for description, mutation, expected_error in result_contract_mutations:
+        contract_release, contract_verifier, contract_bundle = preview_repository_case()
+        contract_bundle["result_mutator"] = mutation
+        errors = validate_case(contract_release, contract_verifier)
+        if not any(expected_error in error for error in errors):
+            failures.append(f"{description} was not rejected")
+        count += 1
+
+    local_binding_release, local_binding_verifier, _ = preview_repository_case()
+    local_record = local_binding_release["ci"]["repository_preview"]
+    local_record["evidence_path"] = "tests/openai_phase7/runtime-evidence/self-signed.json"
+    local_record["evidence_sha256"] = "0" * 64
+    errors = validate_case(local_binding_release, local_binding_verifier)
+    if not any("repository-relative evidence cannot establish" in error for error in errors):
+        failures.append("repository-relative self-signed evidence was not rejected")
+    count += 1
+
+    tampered_release, tampered_verifier, tampered_bundle = preview_repository_case()
+    tampered_bundle["payloads"][101] += b"tamper"
+    errors = validate_case(tampered_release, tampered_verifier)
+    if not any("live external re-query failed" in error for error in errors):
+        failures.append("tampered raw Release asset was not rejected")
+    count += 1
+
+    for evidence_kind in ("screenshot", "manual_note"):
+        non_substantive_release, non_substantive_verifier, _ = preview_repository_case(
+            raw_evidence_kind=evidence_kind
+        )
+        errors = validate_case(non_substantive_release, non_substantive_verifier)
+        if not any("non_substantive_evidence_only" in error for error in errors):
+            failures.append(f"{evidence_kind}-only Preview evidence was not rejected")
+        count += 1
+
+    identity_mutations = (
+        ("plugin_version", "9.9.9-preview.1", "version"),
+        ("source_commit", "b" * 40, "commit"),
+        ("manifest_sha256", "0" * 64, "source identity"),
+    )
+    for field, value, description in identity_mutations:
+        identity_release, identity_verifier, identity_bundle = preview_repository_case()
+        identity_bundle["index"]["source_identity"][field] = value
+        errors = validate_case(identity_release, identity_verifier)
+        if not any("source_identity_mismatch" in error for error in errors):
+            failures.append(f"external evidence {description} mismatch was not rejected")
+        count += 1
+
+    index_release, index_verifier, index_bundle = preview_repository_case()
+    index_bundle["index_bytes"] += b"tamper"
+    errors = validate_case(index_release, index_verifier)
+    if not any("release_asset_index_asset digest mismatch" in error for error in errors):
+        failures.append("tampered Release asset index was not rejected")
+    count += 1
+
+    witness_release, witness_verifier, witness_bundle = preview_repository_case()
+    witness_bundle["envelope"]["github_witness"]["release_id"] = 9999
+    witness_verifier.reseal(
+        witness_release["ci"]["repository_preview"], witness_bundle
+    )
+    errors = validate_case(witness_release, witness_verifier)
+    if not any("github_witness_mismatch" in error for error in errors):
+        failures.append("mismatched GitHub witness was not rejected")
+    count += 1
+
+    downgraded_release, downgraded_verifier, downgraded_bundle = preview_repository_case()
+
+    def forge_provider(result: dict[str, Any]) -> None:
+        result["provider_verified"] = True
+
+    downgraded_bundle["result_mutator"] = forge_provider
+    errors = validate_case(downgraded_release, downgraded_verifier)
+    if not any("provider flag conflicts" in error for error in errors):
+        failures.append("Preview-to-provider result downgrade/forgery was not rejected")
+    count += 1
+
+    provider_release = preview_release_fixture(evidence_dir)
+    provider_release["external_evidence_trust"] = {
+        "adapter_status": "configured",
+        "adapter_id": SyntheticLiveVerifier.adapter_id,
+        "verification_level": PROVIDER_VERIFIED,
+        "provider_authenticated": True,
+        "reason": "Synthetic provider claim without a registered provider adapter.",
+    }
+    provider_verifier = SyntheticLiveVerifier()
+    provider_verifier.bind(
+        provider_release["ci"]["repository_preview"],
+        "repository_preview_ci",
+        provider_release,
+        verification_level=PROVIDER_VERIFIED,
+    )
+    errors = validate_case(provider_release, provider_verifier)
+    if not any("without a registered authenticated provider adapter" in error for error in errors):
+        failures.append("provider receipt/boolean without a registered adapter was not rejected")
+    count += 1
+
+    explicit = [
+        "academic-deep-search",
+        "article-orchestrator",
+        "perspective-orchestrator",
+        "proposal-orchestrator",
+        "research-idea-orchestrator",
+        "research-opportunity-mapper",
+        "research-polisher-orchestrator",
+    ]
+    implicit_a = explicit[:6]
+
+    def discovery_case(
+        *,
+        installed_count: int = 49,
+        explicit_count: int = 7,
+        implicit_count: int = 6,
+        explicit_skills: list[str] | None = None,
+        implicit_skills: list[str] | None = None,
+    ) -> tuple[dict[str, Any], SyntheticLiveVerifier]:
+        candidate = preview_release_fixture(evidence_dir)
+        discovery = candidate["receipts"]["fresh_task_discovery"]
+        discovery["installed_skill_count"] = installed_count
+        discovery["explicit_callable_entries"] = explicit_count
+        discovery["implicit_prompt_entries"] = implicit_count
+        discovery["explicit_callable_entry_skills"] = list(
+            explicit if explicit_skills is None else explicit_skills
+        )
+        discovery["implicit_prompt_entry_skills"] = list(
+            implicit_a if implicit_skills is None else implicit_skills
+        )
+        live = SyntheticLiveVerifier()
+        live.bind(
+            candidate["receipts"]["explicit_reinstall"],
+            "explicit_reinstall",
+            candidate,
+        )
+        live.bind(discovery, "fresh_task_discovery", candidate)
+        return candidate, live
+
+    phase_a_release, phase_a_verifier = discovery_case()
+    errors = validate_case(
+        phase_a_release,
+        phase_a_verifier,
+        expected_skill_count=49,
+        explicit_entries=explicit,
+        implicit_entries=implicit_a,
+    )
+    if errors:
+        failures.extend(f"Phase-7A discovery fixture is invalid: {error}" for error in errors)
+    count += 1
+
+    phase_b_release, phase_b_verifier = discovery_case(
+        implicit_count=7,
+        implicit_skills=explicit,
+    )
+    errors = validate_case(
+        phase_b_release,
+        phase_b_verifier,
+        expected_skill_count=49,
+        explicit_entries=explicit,
+        implicit_entries=explicit,
+    )
+    if errors:
+        failures.extend(f"Phase-7B discovery fixture is invalid: {error}" for error in errors)
+    count += 1
+
+    count_mutations = (
+        ({"installed_count": 48}, "skill count mismatch", "installed skill count"),
+        ({"explicit_count": 6}, "explicit entry count mismatch", "explicit entry count"),
+        ({"implicit_count": 5}, "implicit entry count mismatch", "implicit entry count"),
+        (
+            {"explicit_skills": [*explicit[:-1], "not-an-entry"]},
+            "explicit entry identities mismatch",
+            "explicit entry identity list",
+        ),
+    )
+    for arguments, expected_error, description in count_mutations:
+        count_release, count_verifier = discovery_case(**arguments)
+        errors = validate_case(
+            count_release,
+            count_verifier,
+            expected_skill_count=49,
+            explicit_entries=explicit,
+            implicit_entries=implicit_a,
+        )
+        if not any(expected_error in error for error in errors):
+            failures.append(f"wrong discovery {description} was not rejected")
+        count += 1
+
+    return count, failures
 
 
 def run_mutation_self_tests() -> tuple[int, list[str]]:
@@ -1344,11 +2714,11 @@ def run_mutation_self_tests() -> tuple[int, list[str]]:
             authenticated_external_adapter=False,
         )
         if not any(
-            "without an authenticated external-evidence adapter" in error
+            "invalid external evidence status" in error
             for error in mutation_errors
         ):
             failures.append(
-                "repository-authored external evidence without a trust adapter was not rejected"
+                "legacy repository-authored verified evidence was not rejected"
             )
         count += 1
 
@@ -1609,6 +2979,9 @@ def run_mutation_self_tests() -> tuple[int, list[str]]:
                     "committed validation-contract tree mismatch was not rejected"
                 )
             count += 1
+        live_count, live_failures = run_live_evidence_mutation_tests(evidence_dir)
+        count += live_count
+        failures.extend(live_failures)
         return count, failures
 
 
@@ -1643,6 +3016,50 @@ def validate_provenance(registry: dict[str, Any], errors: list[str]) -> None:
         errors,
     )
     require(
+        derivation.get("openai_native_package") == "research-polisher",
+        "OpenAI-native package declaration is invalid",
+        errors,
+    )
+    declared_native = set(derivation.get("openai_native_skills", []))
+    require(
+        declared_native == OPENAI_NATIVE_SKILLS,
+        "OpenAI-native skill provenance inventory is incomplete",
+        errors,
+    )
+    origin_profiles = derivation.get("origin_profiles", {})
+    require(
+        origin_profiles.get("hermes_adapted", {}).get("source_template")
+        == "../research-skills/{package}/{name}/",
+        "Hermes-adapted origin profile is invalid",
+        errors,
+    )
+    require(
+        origin_profiles.get("openai_native", {}).get("source_template")
+        == "skills/{name}/**",
+        "OpenAI-native origin profile is invalid",
+        errors,
+    )
+    require(
+        derivation.get("content_origin") == "resolved_by_skill_origin_profile",
+        "skill content origin must be resolved by origin profile",
+        errors,
+    )
+    native_group = next(
+        (
+            group
+            for group in provenance.get("resource_groups", [])
+            if group.get("name") == "openai_native_research_polisher_skills"
+        ),
+        {},
+    )
+    require(
+        native_group.get("origin")
+        == "maintained_in_this_repository_for_openai_runtime"
+        and native_group.get("origin_status") == "resolved",
+        "OpenAI-native resource group is unresolved",
+        errors,
+    )
+    require(
         derivation.get("per_resource_declared_authors") == "unknown_not_declared",
         "skill-level unknown authorship must be explicit",
         errors,
@@ -1650,13 +3067,41 @@ def validate_provenance(registry: dict[str, Any], errors: list[str]) -> None:
 
     skills = registry.get("skills", [])
     require(bool(skills), "registry contains no skills for provenance", errors)
+    registry_native = {
+        str(skill.get("name", ""))
+        for skill in skills
+        if str(skill.get("package", "")) == derivation.get("openai_native_package")
+    }
+    require(
+        registry_native == declared_native,
+        "registry and provenance OpenAI-native inventories differ",
+        errors,
+    )
     for skill in skills:
         name = str(skill.get("name", ""))
         package = str(skill.get("package", ""))
-        source = REPO / "research-skills" / package / name
         plugin_dir = PLUGIN / "skills" / name
-        require(source.is_dir(), f"unresolved Hermes source for {name}: {source}", errors)
         require(plugin_dir.is_dir(), f"unresolved plugin resource scope for {name}", errors)
+        if name in declared_native:
+            require(
+                package == derivation.get("openai_native_package"),
+                f"OpenAI-native package mismatch for {name}: {package}",
+                errors,
+            )
+            separate_licenses = [
+                item
+                for item in plugin_dir.rglob("*")
+                if item.is_file()
+                and item.name.upper().split(".", 1)[0] in {"LICENSE", "NOTICE"}
+            ]
+            require(
+                not separate_licenses,
+                f"{name} has a separate license/notice requiring a declared exception",
+                errors,
+            )
+            continue
+        source = REPO / "research-skills" / package / name
+        require(source.is_dir(), f"unresolved Hermes source for {name}: {source}", errors)
         separate_licenses = [
             item for item in source.rglob("*")
             if item.is_file() and item.name.upper().split(".", 1)[0] in {"LICENSE", "NOTICE"}
@@ -1668,7 +3113,13 @@ def validate_provenance(registry: dict[str, Any], errors: list[str]) -> None:
         )
 
     expected_top_files = {
-        "AGENTS.md", "README.md", "ROADMAP.md", "workflow-registry.yaml", "LICENSE", "PROVENANCE.yaml"
+        "AGENTS.md",
+        "README.md",
+        "ROADMAP.md",
+        "PHASE7-8-RUNBOOK.md",
+        "workflow-registry.yaml",
+        "LICENSE",
+        "PROVENANCE.yaml",
     }
     actual_top_files = {item.name for item in PLUGIN.iterdir() if item.is_file()}
     require(actual_top_files == expected_top_files, f"unscoped plugin top files: {sorted(actual_top_files ^ expected_top_files)}", errors)
@@ -1694,9 +3145,59 @@ def main() -> int:
             errors,
         )
         require(
-            {"schema_version", "evidence_type", "observed", "provider", "raw_export"}
+            {
+                "schema_version",
+                "evidence_type",
+                "verification_level",
+                "provider_verified",
+                "observed",
+                "raw_export",
+                "source_identity",
+                "locator",
+                "integrity_result",
+                "live_verifier",
+                "gate_eligibility",
+            }
             <= set(evidence_schema.get("required", [])),
-            "release evidence schema does not require provider raw export binding",
+            "release evidence schema does not require the live-verifier result contract",
+            errors,
+        )
+        require(
+            evidence_schema.get("properties", {})
+            .get("schema_version", {})
+            .get("const")
+            == 3,
+            "release evidence schema_version is not 3",
+            errors,
+        )
+        integrity_schema = evidence_schema.get("properties", {}).get(
+            "integrity_result", {}
+        )
+        require(
+            integrity_schema.get("properties", {})
+            .get("evidence_id", {})
+            .get("minLength")
+            == 1,
+            "release evidence schema does not require a non-empty evidence_id",
+            errors,
+        )
+        require(
+            integrity_schema.get("properties", {})
+            .get("claimed_counts_as_preview_acceptance", {})
+            .get("const")
+            is True,
+            "release evidence schema does not require the envelope acceptance claim",
+            errors,
+        )
+        live_verifier_schema = evidence_schema.get("properties", {}).get(
+            "live_verifier", {}
+        )
+        require(
+            live_verifier_schema.get("properties", {})
+            .get("verified_at", {})
+            .get("format")
+            == "date-time",
+            "release evidence schema does not require a date-time verifier timestamp",
             errors,
         )
         cache_schema = evidence_schema.get("$defs", {}).get("cache_artifact", {})
@@ -1708,6 +3209,20 @@ def main() -> int:
         require(
             evidence_schema.get("x-evidence-contract", {}).get("cache_inventory_policy"),
             "release evidence schema does not declare the cache inventory policy",
+            errors,
+        )
+        require(
+            evidence_schema.get("x-evidence-contract", {}).get("live_requery_policy")
+            and evidence_schema.get("x-evidence-contract", {}).get("integrity_boundary")
+            and evidence_schema.get("x-evidence-contract", {}).get("persistence_policy"),
+            "release evidence schema does not declare external live-requery and integrity boundaries",
+            errors,
+        )
+        require(
+            evidence_schema.get("x-evidence-contract", {}).get(
+                "adapter_digest_policy"
+            ),
+            "release evidence schema does not declare adapter digest binding",
             errors,
         )
     require(LEDGER_PATH.is_file(), "release ledger is missing", errors)
@@ -1731,6 +3246,25 @@ def main() -> int:
     )
     require(release.get("version") == manifest.get("version"), "ledger version differs from manifest", errors)
     require(registry.get("plugin_version") == manifest.get("version"), "registry version differs from manifest", errors)
+    public_policy = registry.get("public_entry_policy", {})
+    declared_entries = public_policy.get("declared_entries", [])
+    implicit_entries = public_policy.get("implicit_active_entries", [])
+    require(len(registry.get("skills", [])) == 49, "release discovery baseline must contain 49 skills", errors)
+    require(
+        isinstance(declared_entries, list)
+        and len(declared_entries) == 7
+        and len(set(declared_entries)) == 7,
+        "release discovery baseline must contain 7 unique explicit entries",
+        errors,
+    )
+    require(
+        isinstance(implicit_entries, list)
+        and len(implicit_entries) in {6, 7}
+        and len(set(implicit_entries)) == len(implicit_entries)
+        and set(implicit_entries) <= set(declared_entries),
+        "release discovery baseline must contain 6 Phase-7A or 7 Phase-7B implicit entries",
+        errors,
+    )
 
     file_count, digest = normalized_skill_tree_digest(PLUGIN / "skills")
     tree = release.get("installable_skill_tree", {})
@@ -1785,6 +3319,9 @@ def main() -> int:
         authenticated_external_adapter=(
             authenticated_external_evidence_adapter_available(release)
         ),
+        expected_explicit_entries=declared_entries,
+        expected_implicit_entries=implicit_entries,
+        defer_live_external_requery=True,
     )
     validate_verified_source_commit_tree(release, errors)
 
@@ -1806,6 +3343,7 @@ def main() -> int:
                             previous_release
                         )
                     ),
+                    defer_live_external_requery=True,
                 )
                 validate_verified_source_commit_tree(previous_release, errors, label)
         validate_rollback_history_binding(release, previous_releases, errors)
@@ -1824,9 +3362,13 @@ def main() -> int:
             print(f"ERROR: {error}")
         return 1
     pending_count = len(re.findall(r'"status": "pending"', LEDGER_PATH.read_text(encoding="utf-8")))
-    print("OpenAI release-ledger validation passed")
+    print("OpenAI release-ledger structural validation passed")
     print(f"version: {current_version}")
     print(f"skill tree: {file_count} files / {digest}")
+    print(
+        "external acceptance replay: structural-only in this offline command; "
+        "the protected accepted-state workflow must perform the production live re-query"
+    )
     print(f"provenance: {len(registry.get('skills', []))} skills resolved / 0 unresolved resources")
     print(f"external evidence still pending: {pending_count}")
     print(f"release-ledger mutation self-tests: {mutation_count} passed")

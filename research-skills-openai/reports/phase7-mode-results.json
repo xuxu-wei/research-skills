@@ -1,12 +1,13 @@
 {
   "completion_gates": {
-    "authenticated_external_evidence_adapter": {
-      "reason": "No authenticated GitHub/Codex external-evidence adapter is available; repository envelopes alone cannot prove provider origin.",
+    "accepted_external_evidence_adapter": {
+      "reason": "No accepted live-requery Preview or authenticated provider adapter is configured.",
       "status": "pending"
     },
-    "authenticated_platform_capture_adapter": {
-      "reason": "No provider-authenticated Codex/ChatGPT capture adapter is available; repository files alone cannot prove platform origin.",
-      "status": "pending"
+    "accepted_platform_capture_adapter": {
+      "reason": "No accepted Preview or provider-verified evidence adapter is configured.",
+      "status": "pending",
+      "verification_level": null
     },
     "canonical_plugin_validator_ci": {
       "reason": "Canonical plugin validator CI is not verified on the release commit.",
@@ -16,13 +17,15 @@
       "reason": "Explicit reinstall receipt is not verified for the release identity.",
       "status": "pending"
     },
-    "four_current_version_live_happy_paths": {
-      "reason": "0/4 durable current-version happy receipts verified.",
-      "status": "pending"
+    "five_current_version_live_happy_paths": {
+      "reason": "0/5 durable unconfigured happy receipts verified.",
+      "status": "pending",
+      "verification_level": null
     },
-    "four_current_version_valid_control_paths": {
-      "reason": "0/4 durable current-version control receipts verified.",
-      "status": "pending"
+    "five_current_version_valid_control_paths": {
+      "reason": "0/5 durable unconfigured control receipts verified.",
+      "status": "pending",
+      "verification_level": null
     },
     "fresh_task_discovery": {
       "reason": "Fresh-task discovery is not verified for the installed release.",
@@ -54,11 +57,18 @@
     }
   },
   "contract_source": "research-skills-openai/workflow-registry.yaml",
+  "counts_as_preview_acceptance": false,
   "deterministic_replay_notice": "These fixtures drive deterministic contract replays with synthetic evidence. They do not represent a live model, Search, Deep Research, Codex task, or ChatGPT task run, and they provide no live-runtime evidence.",
+  "discovery_contract": {
+    "explicit_callable_entries": 7,
+    "implicit_prompt_entries": 6,
+    "installed_skill_count": 49,
+    "release_stage": "A"
+  },
   "evidence_class": "synthetic_contract_evidence_only",
   "execution_kind": "deterministic_replay",
   "execution_scope": "registry-derived entry-gate and lifecycle contract replay using synthetic artifacts, synthetic reviewer receipts, and negative mutation guards",
-  "fixture_sha256": "sha256:8edca94d51a9636206ea0df8a962a95e58b1703ff11cd45b3fa00b159756fe02",
+  "fixture_sha256": "sha256:6565d8d762be0e98d5aa34f3bde51318d1ffaadfb2312b4ad9ef663ac23264ec",
   "live_model_execution": false,
   "negative_guard_results": [
     {
@@ -382,6 +392,26 @@
       "workflow": "perspective"
     },
     {
+      "case_id": "research-polisher-standard",
+      "entry_mode": "standard",
+      "error_code": "missing_entry_gate_receipt",
+      "guard_scope": "entry_gate_receipt_or_artifact_lineage",
+      "mutation": "gate_bypass",
+      "mutation_id": "research-polisher-standard-gate-bypass",
+      "status": "rejected_as_expected",
+      "workflow": "research_polisher"
+    },
+    {
+      "case_id": "research-polisher-standard",
+      "entry_mode": "standard",
+      "error_code": "stale_gate_input",
+      "guard_scope": "entry_gate_receipt_or_artifact_lineage",
+      "mutation": "stale_input",
+      "mutation_id": "research-polisher-standard-stale-input",
+      "status": "rejected_as_expected",
+      "workflow": "research_polisher"
+    },
+    {
       "case_id": "idea-standard",
       "entry_mode": "standard",
       "error_code": "missing_evaluator_receipt",
@@ -642,6 +672,26 @@
       "workflow": "perspective"
     },
     {
+      "case_id": "research-polisher-standard",
+      "entry_mode": "standard",
+      "error_code": "missing_evaluator_receipt",
+      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
+      "mutation": "missing_evaluator_receipt",
+      "mutation_id": "research-polisher-standard-missing-evaluator-receipt",
+      "status": "rejected_as_expected",
+      "workflow": "research_polisher"
+    },
+    {
+      "case_id": "research-polisher-standard",
+      "entry_mode": "standard",
+      "error_code": "stale_evaluator_receipt",
+      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
+      "mutation": "stale_evaluator_receipt",
+      "mutation_id": "research-polisher-standard-stale-evaluator-receipt",
+      "status": "rejected_as_expected",
+      "workflow": "research_polisher"
+    },
+    {
       "case_id": "idea-standard",
       "entry_mode": "standard",
       "error_code": "missing_panel_receipt",
@@ -880,13 +930,43 @@
       "mutation_id": "perspective-full-stale-panel-receipt",
       "status": "rejected_as_expected",
       "workflow": "perspective"
+    },
+    {
+      "case_id": "research-polisher-standard",
+      "entry_mode": "standard",
+      "error_code": "missing_strategy_reviewer_receipt",
+      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
+      "mutation": "missing_strategy_reviewer_receipt",
+      "mutation_id": "research-polisher-standard-missing-strategy-reviewer-receipt",
+      "status": "rejected_as_expected",
+      "workflow": "research_polisher"
+    },
+    {
+      "case_id": "research-polisher-standard",
+      "entry_mode": "standard",
+      "error_code": "stale_strategy_reviewer_receipt",
+      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
+      "mutation": "stale_strategy_reviewer_receipt",
+      "mutation_id": "research-polisher-standard-stale-strategy-reviewer-receipt",
+      "status": "rejected_as_expected",
+      "workflow": "research_polisher"
+    },
+    {
+      "case_id": "research-polisher-standard",
+      "entry_mode": "standard",
+      "error_code": "strategy_review_group_contract",
+      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
+      "mutation": "duplicate_strategy_reviewer_instance",
+      "mutation_id": "research-polisher-standard-duplicate-strategy-reviewer-instance",
+      "status": "rejected_as_expected",
+      "workflow": "research_polisher"
     }
   ],
   "pending_gates": [
-    "authenticated_platform_capture_adapter",
-    "four_current_version_live_happy_paths",
-    "four_current_version_valid_control_paths",
-    "authenticated_external_evidence_adapter",
+    "accepted_platform_capture_adapter",
+    "five_current_version_live_happy_paths",
+    "five_current_version_valid_control_paths",
+    "accepted_external_evidence_adapter",
     "release_source_commit",
     "repository_preview_ci",
     "canonical_plugin_validator_ci",
@@ -898,9 +978,9 @@
     "main_branch_required_check_protection"
   ],
   "phase_status": "in_progress_live_and_release_evidence_pending",
-  "phase_status_derivation": "complete only when every runtime and release-ledger completion gate is verified",
+  "phase_status_derivation": "complete_preview_attested or complete_provider_verified only when every runtime and release-ledger gate is verified at one evidence level",
   "phase_status_detail": "runtime_and_release_evidence_pending",
-  "plugin_version": "0.6.0-preview.1",
+  "plugin_version": "0.7.0-preview.1",
   "positive_mode_results": [
     {
       "artifacts_validated": 13,
@@ -926,6 +1006,8 @@
       "panel_dissent_preservation_contract_checked": true,
       "panel_skill": "idea-adversarial-review-panel",
       "path_profile": "full_delivery",
+      "primary_artifact_creator_instance_id": "idea-standard-writer-001",
+      "primary_artifact_creator_skill": "multi-path-idea-generator",
       "primary_versions": [
         "v001",
         "v001",
@@ -933,6 +1015,7 @@
       ],
       "promotion_performed": true,
       "reviewer_receipts_are_synthetic": true,
+      "strategy_reviewer_skill": null,
       "synthetic_control_receipts": [],
       "synthetic_evaluator_receipt_ids": [
         "idea-standard-evaluator-001-review",
@@ -954,6 +1037,8 @@
         "novelty-gap": "idea-standard-panel-001",
         "pi-strategy": "idea-standard-panel-003"
       },
+      "synthetic_strategy_reviewer_receipt_ids": [],
+      "synthetic_strategy_role_instances": {},
       "transition_receipts": [
         {
           "current_primary_version": "v001",
@@ -1056,6 +1141,8 @@
       "panel_dissent_preservation_contract_checked": true,
       "panel_skill": "idea-adversarial-review-panel",
       "path_profile": "full_delivery",
+      "primary_artifact_creator_instance_id": "idea-resume-candidates-writer-001",
+      "primary_artifact_creator_skill": "multi-path-idea-generator",
       "primary_versions": [
         "v001",
         "v001",
@@ -1063,6 +1150,7 @@
       ],
       "promotion_performed": true,
       "reviewer_receipts_are_synthetic": true,
+      "strategy_reviewer_skill": null,
       "synthetic_control_receipts": [],
       "synthetic_evaluator_receipt_ids": [
         "idea-resume-candidates-evaluator-001-review",
@@ -1084,6 +1172,8 @@
         "novelty-gap": "idea-resume-candidates-panel-001",
         "pi-strategy": "idea-resume-candidates-panel-003"
       },
+      "synthetic_strategy_reviewer_receipt_ids": [],
+      "synthetic_strategy_role_instances": {},
       "transition_receipts": [
         {
           "current_primary_version": "v001",
@@ -1185,11 +1275,14 @@
       "panel_dissent_preservation_contract_checked": true,
       "panel_skill": "idea-adversarial-review-panel",
       "path_profile": "evaluated_package",
+      "primary_artifact_creator_instance_id": "idea-portfolio-only-writer-001",
+      "primary_artifact_creator_skill": "multi-path-idea-generator",
       "primary_versions": [
         "v001"
       ],
       "promotion_performed": true,
       "reviewer_receipts_are_synthetic": true,
+      "strategy_reviewer_skill": null,
       "synthetic_control_receipts": [],
       "synthetic_evaluator_receipt_ids": [
         "idea-portfolio-only-evaluator-001-review"
@@ -1210,6 +1303,8 @@
         "novelty-gap": "idea-portfolio-only-panel-001",
         "pi-strategy": "idea-portfolio-only-panel-003"
       },
+      "synthetic_strategy_reviewer_receipt_ids": [],
+      "synthetic_strategy_role_instances": {},
       "transition_receipts": [
         {
           "current_primary_version": "v001",
@@ -1288,6 +1383,8 @@
       "panel_dissent_preservation_contract_checked": true,
       "panel_skill": "proposal-review-panel",
       "path_profile": "full_delivery",
+      "primary_artifact_creator_instance_id": "proposal-standard-writer-001",
+      "primary_artifact_creator_skill": "proposal-drafter",
       "primary_versions": [
         "v001",
         "v001",
@@ -1295,6 +1392,7 @@
       ],
       "promotion_performed": true,
       "reviewer_receipts_are_synthetic": true,
+      "strategy_reviewer_skill": null,
       "synthetic_control_receipts": [],
       "synthetic_evaluator_receipt_ids": [
         "proposal-standard-evaluator-001-review",
@@ -1320,6 +1418,8 @@
         "skeptical": "proposal-standard-panel-004",
         "submission-guard": "proposal-standard-panel-005"
       },
+      "synthetic_strategy_reviewer_receipt_ids": [],
+      "synthetic_strategy_role_instances": {},
       "transition_receipts": [
         {
           "current_primary_version": "v001",
@@ -1422,12 +1522,15 @@
       "panel_dissent_preservation_contract_checked": true,
       "panel_skill": "proposal-review-panel",
       "path_profile": "full_delivery",
+      "primary_artifact_creator_instance_id": "proposal-existing-draft-writer-001",
+      "primary_artifact_creator_skill": "proposal-drafter",
       "primary_versions": [
         "v001",
         "v002"
       ],
       "promotion_performed": true,
       "reviewer_receipts_are_synthetic": true,
+      "strategy_reviewer_skill": null,
       "synthetic_control_receipts": [],
       "synthetic_evaluator_receipt_ids": [
         "proposal-existing-draft-evaluator-001-review",
@@ -1453,6 +1556,8 @@
         "skeptical": "proposal-existing-draft-panel-004",
         "submission-guard": "proposal-existing-draft-panel-005"
       },
+      "synthetic_strategy_reviewer_receipt_ids": [],
+      "synthetic_strategy_role_instances": {},
       "transition_receipts": [
         {
           "current_primary_version": "v001",
@@ -1555,12 +1660,15 @@
       "panel_dissent_preservation_contract_checked": true,
       "panel_skill": "proposal-review-panel",
       "path_profile": "full_delivery",
+      "primary_artifact_creator_instance_id": "proposal-draft-and-external-review-writer-001",
+      "primary_artifact_creator_skill": "proposal-drafter",
       "primary_versions": [
         "v001",
         "v002"
       ],
       "promotion_performed": true,
       "reviewer_receipts_are_synthetic": true,
+      "strategy_reviewer_skill": null,
       "synthetic_control_receipts": [],
       "synthetic_evaluator_receipt_ids": [
         "proposal-draft-and-external-review-evaluator-001-review",
@@ -1586,6 +1694,8 @@
         "skeptical": "proposal-draft-and-external-review-panel-004",
         "submission-guard": "proposal-draft-and-external-review-panel-005"
       },
+      "synthetic_strategy_reviewer_receipt_ids": [],
+      "synthetic_strategy_role_instances": {},
       "transition_receipts": [
         {
           "current_primary_version": "v001",
@@ -1687,11 +1797,14 @@
       "panel_dissent_preservation_contract_checked": true,
       "panel_skill": "proposal-review-panel",
       "path_profile": "evaluated_package",
+      "primary_artifact_creator_instance_id": "proposal-package-only-writer-001",
+      "primary_artifact_creator_skill": "proposal-drafter",
       "primary_versions": [
         "v001"
       ],
       "promotion_performed": true,
       "reviewer_receipts_are_synthetic": true,
+      "strategy_reviewer_skill": null,
       "synthetic_control_receipts": [],
       "synthetic_evaluator_receipt_ids": [
         "proposal-package-only-evaluator-001-review"
@@ -1716,6 +1829,8 @@
         "skeptical": "proposal-package-only-panel-004",
         "submission-guard": "proposal-package-only-panel-005"
       },
+      "synthetic_strategy_reviewer_receipt_ids": [],
+      "synthetic_strategy_role_instances": {},
       "transition_receipts": [
         {
           "current_primary_version": "v001",
@@ -1796,6 +1911,8 @@
       "panel_dissent_preservation_contract_checked": true,
       "panel_skill": "article-review-panel",
       "path_profile": "full_delivery",
+      "primary_artifact_creator_instance_id": "article-standard-writer-001",
+      "primary_artifact_creator_skill": "article-drafter",
       "primary_versions": [
         "v001",
         "v001",
@@ -1803,6 +1920,7 @@
       ],
       "promotion_performed": true,
       "reviewer_receipts_are_synthetic": true,
+      "strategy_reviewer_skill": null,
       "synthetic_control_receipts": [],
       "synthetic_evaluator_receipt_ids": [
         "article-standard-evaluator-001-review",
@@ -1824,6 +1942,8 @@
         "methodology-statistics": "article-standard-panel-001",
         "submission-guard": "article-standard-panel-003"
       },
+      "synthetic_strategy_reviewer_receipt_ids": [],
+      "synthetic_strategy_role_instances": {},
       "transition_receipts": [
         {
           "current_primary_version": "v001",
@@ -1927,6 +2047,8 @@
       "panel_dissent_preservation_contract_checked": true,
       "panel_skill": "article-review-panel",
       "path_profile": "full_delivery",
+      "primary_artifact_creator_instance_id": "article-fast-track-draft-writer-001",
+      "primary_artifact_creator_skill": "article-drafter",
       "primary_versions": [
         "v001",
         "v001",
@@ -1934,6 +2056,7 @@
       ],
       "promotion_performed": true,
       "reviewer_receipts_are_synthetic": true,
+      "strategy_reviewer_skill": null,
       "synthetic_control_receipts": [],
       "synthetic_evaluator_receipt_ids": [
         "article-fast-track-draft-evaluator-001-review",
@@ -1955,6 +2078,8 @@
         "methodology-statistics": "article-fast-track-draft-panel-001",
         "submission-guard": "article-fast-track-draft-panel-003"
       },
+      "synthetic_strategy_reviewer_receipt_ids": [],
+      "synthetic_strategy_role_instances": {},
       "transition_receipts": [
         {
           "current_primary_version": "v001",
@@ -2057,6 +2182,8 @@
       "panel_dissent_preservation_contract_checked": true,
       "panel_skill": "article-review-panel",
       "path_profile": "full_delivery",
+      "primary_artifact_creator_instance_id": "article-fast-track-draft-and-evaluation-writer-001",
+      "primary_artifact_creator_skill": "article-drafter",
       "primary_versions": [
         "v001",
         "v001",
@@ -2064,6 +2191,7 @@
       ],
       "promotion_performed": true,
       "reviewer_receipts_are_synthetic": true,
+      "strategy_reviewer_skill": null,
       "synthetic_control_receipts": [],
       "synthetic_evaluator_receipt_ids": [
         "article-fast-track-draft-and-evaluation-evaluator-001-review",
@@ -2085,6 +2213,8 @@
         "methodology-statistics": "article-fast-track-draft-and-evaluation-panel-001",
         "submission-guard": "article-fast-track-draft-and-evaluation-panel-003"
       },
+      "synthetic_strategy_reviewer_receipt_ids": [],
+      "synthetic_strategy_role_instances": {},
       "transition_receipts": [
         {
           "current_primary_version": "v001",
@@ -2184,12 +2314,15 @@
       "panel_dissent_preservation_contract_checked": false,
       "panel_skill": "article-review-panel",
       "path_profile": "scoped_non_ready_delivery",
+      "primary_artifact_creator_instance_id": "article-blueprint-only-writer-001",
+      "primary_artifact_creator_skill": "article-drafter",
       "primary_versions": [
         "v001",
         "v001"
       ],
       "promotion_performed": false,
       "reviewer_receipts_are_synthetic": true,
+      "strategy_reviewer_skill": null,
       "synthetic_control_receipts": [
         {
           "continuation_artifact_ref": "article-blueprint-only-continuation-brief@v001",
@@ -2206,6 +2339,8 @@
       "synthetic_package_receipt_ids": [],
       "synthetic_panel_receipt_ids": [],
       "synthetic_panel_role_instances": {},
+      "synthetic_strategy_reviewer_receipt_ids": [],
+      "synthetic_strategy_role_instances": {},
       "transition_receipts": [
         {
           "current_primary_version": "v001",
@@ -2256,12 +2391,15 @@
       "panel_dissent_preservation_contract_checked": false,
       "panel_skill": "article-review-panel",
       "path_profile": "scoped_non_ready_delivery",
+      "primary_artifact_creator_instance_id": "article-section-specific-writer-001",
+      "primary_artifact_creator_skill": "article-drafter",
       "primary_versions": [
         "v001",
         "v001"
       ],
       "promotion_performed": false,
       "reviewer_receipts_are_synthetic": true,
+      "strategy_reviewer_skill": null,
       "synthetic_control_receipts": [
         {
           "continuation_artifact_ref": "article-section-specific-continuation-brief@v001",
@@ -2278,6 +2416,8 @@
       "synthetic_package_receipt_ids": [],
       "synthetic_panel_receipt_ids": [],
       "synthetic_panel_role_instances": {},
+      "synthetic_strategy_reviewer_receipt_ids": [],
+      "synthetic_strategy_role_instances": {},
       "transition_receipts": [
         {
           "current_primary_version": "v001",
@@ -2331,11 +2471,14 @@
       "panel_dissent_preservation_contract_checked": true,
       "panel_skill": "article-review-panel",
       "path_profile": "evaluated_package",
+      "primary_artifact_creator_instance_id": "article-submission-only-writer-001",
+      "primary_artifact_creator_skill": "article-drafter",
       "primary_versions": [
         "v001"
       ],
       "promotion_performed": true,
       "reviewer_receipts_are_synthetic": true,
+      "strategy_reviewer_skill": null,
       "synthetic_control_receipts": [],
       "synthetic_evaluator_receipt_ids": [
         "article-submission-only-evaluator-001-review"
@@ -2356,6 +2499,8 @@
         "methodology-statistics": "article-submission-only-panel-001",
         "submission-guard": "article-submission-only-panel-003"
       },
+      "synthetic_strategy_reviewer_receipt_ids": [],
+      "synthetic_strategy_role_instances": {},
       "transition_receipts": [
         {
           "current_primary_version": "v001",
@@ -2431,12 +2576,15 @@
       "panel_dissent_preservation_contract_checked": false,
       "panel_skill": "perspective-review-panel",
       "path_profile": "scoped_non_ready_delivery",
+      "primary_artifact_creator_instance_id": "perspective-lite-writer-001",
+      "primary_artifact_creator_skill": "perspective-drafter",
       "primary_versions": [
         "v001",
         "v001"
       ],
       "promotion_performed": false,
       "reviewer_receipts_are_synthetic": true,
+      "strategy_reviewer_skill": null,
       "synthetic_control_receipts": [
         {
           "continuation_artifact_ref": "perspective-lite-continuation-brief@v001",
@@ -2453,6 +2601,8 @@
       "synthetic_package_receipt_ids": [],
       "synthetic_panel_receipt_ids": [],
       "synthetic_panel_role_instances": {},
+      "synthetic_strategy_reviewer_receipt_ids": [],
+      "synthetic_strategy_role_instances": {},
       "transition_receipts": [
         {
           "current_primary_version": "v001",
@@ -2508,6 +2658,8 @@
       "panel_dissent_preservation_contract_checked": false,
       "panel_skill": "perspective-review-panel",
       "path_profile": "evaluated_scoped_non_ready_delivery",
+      "primary_artifact_creator_instance_id": "perspective-standard-writer-001",
+      "primary_artifact_creator_skill": "perspective-drafter",
       "primary_versions": [
         "v001",
         "v001",
@@ -2515,6 +2667,7 @@
       ],
       "promotion_performed": false,
       "reviewer_receipts_are_synthetic": true,
+      "strategy_reviewer_skill": null,
       "synthetic_control_receipts": [
         {
           "continuation_artifact_ref": "perspective-standard-continuation-brief@v001",
@@ -2534,6 +2687,8 @@
       "synthetic_package_receipt_ids": [],
       "synthetic_panel_receipt_ids": [],
       "synthetic_panel_role_instances": {},
+      "synthetic_strategy_reviewer_receipt_ids": [],
+      "synthetic_strategy_role_instances": {},
       "transition_receipts": [
         {
           "current_primary_version": "v001",
@@ -2629,6 +2784,8 @@
       "panel_dissent_preservation_contract_checked": true,
       "panel_skill": "perspective-review-panel",
       "path_profile": "full_delivery",
+      "primary_artifact_creator_instance_id": "perspective-full-writer-001",
+      "primary_artifact_creator_skill": "perspective-drafter",
       "primary_versions": [
         "v001",
         "v001",
@@ -2636,6 +2793,7 @@
       ],
       "promotion_performed": true,
       "reviewer_receipts_are_synthetic": true,
+      "strategy_reviewer_skill": null,
       "synthetic_control_receipts": [],
       "synthetic_evaluator_receipt_ids": [
         "perspective-full-evaluator-001-review",
@@ -2657,6 +2815,8 @@
         "evidence": "perspective-full-panel-002",
         "narrative": "perspective-full-panel-003"
       },
+      "synthetic_strategy_reviewer_receipt_ids": [],
+      "synthetic_strategy_role_instances": {},
       "transition_receipts": [
         {
           "current_primary_version": "v001",
@@ -2734,39 +2894,301 @@
       "workflow": "perspective",
       "writer_instance_id": "perspective-full-writer-001",
       "writer_skill": "perspective-drafter"
+    },
+    {
+      "artifacts_validated": 16,
+      "automatic_external_submission": false,
+      "case_id": "research-polisher-standard",
+      "entry_gate_contract_source": "workflow-registry.yaml",
+      "entry_gate_receipt_count": 3,
+      "entry_gates_verified": [
+        "dossier_frozen",
+        "strategy_matrix_complete",
+        "candidate_portfolio_versioned"
+      ],
+      "entry_mode": "standard",
+      "evaluator_instance_ids": [
+        "research-polisher-standard-evaluator-001",
+        "research-polisher-standard-evaluator-002"
+      ],
+      "evaluator_skill": "research-polisher-methodology-publishability-reviewer",
+      "execution_kind": "deterministic_replay",
+      "final_state": "human_strategy_selection_required",
+      "live_model_execution": false,
+      "mode_scope_completed": true,
+      "panel_dissent_preservation_contract_checked": false,
+      "panel_skill": null,
+      "path_profile": "research_polisher_delivery",
+      "primary_artifact_creator_instance_id": "research-polisher-standard-assembler-001",
+      "primary_artifact_creator_skill": "research-polisher-plan-assembler",
+      "primary_versions": [
+        "v001",
+        "v001",
+        "v002"
+      ],
+      "promotion_performed": true,
+      "reviewer_receipts_are_synthetic": true,
+      "strategy_reviewer_skill": "research-polisher-strategy-reviewer",
+      "synthetic_control_receipts": [],
+      "synthetic_evaluator_receipt_ids": [
+        "research-polisher-standard-evaluator-001-review",
+        "research-polisher-standard-evaluator-002-review"
+      ],
+      "synthetic_generation_receipt_ids": [
+        "research-polisher-standard-versioned-artifact-created"
+      ],
+      "synthetic_package_receipt_ids": [
+        "research-polisher-standard-package-verification"
+      ],
+      "synthetic_panel_receipt_ids": [],
+      "synthetic_panel_role_instances": {},
+      "synthetic_strategy_reviewer_receipt_ids": [
+        "research-polisher-standard-strategy-001-review",
+        "research-polisher-standard-strategy-002-review",
+        "research-polisher-standard-strategy-003-review"
+      ],
+      "synthetic_strategy_role_instances": {
+        "dissemination_editorial": "research-polisher-standard-strategy-003",
+        "practical_value": "research-polisher-standard-strategy-002",
+        "scientific_significance": "research-polisher-standard-strategy-001"
+      },
+      "transition_receipts": [
+        {
+          "current_primary_version": "v001",
+          "from": "initialized",
+          "qualifying_review_id": null,
+          "sequence": 1,
+          "to": "preprocessing",
+          "trigger": "entry_gate_passed"
+        },
+        {
+          "current_primary_version": "v001",
+          "from": "preprocessing",
+          "qualifying_review_id": null,
+          "sequence": 2,
+          "to": "artifact_frozen",
+          "trigger": "versioned_artifact_created"
+        },
+        {
+          "current_primary_version": "v001",
+          "from": "artifact_frozen",
+          "qualifying_review_id": null,
+          "sequence": 3,
+          "to": "pending_review",
+          "trigger": "independent_review_dispatched"
+        },
+        {
+          "current_primary_version": "v001",
+          "from": "pending_review",
+          "qualifying_review_id": "research-polisher-standard-evaluator-001-review",
+          "sequence": 4,
+          "to": "revision_required",
+          "trigger": "fixable_revision_requested"
+        },
+        {
+          "current_primary_version": "v002",
+          "from": "revision_required",
+          "qualifying_review_id": null,
+          "sequence": 5,
+          "to": "artifact_frozen",
+          "trigger": "new_version_created"
+        },
+        {
+          "current_primary_version": "v002",
+          "from": "artifact_frozen",
+          "qualifying_review_id": null,
+          "sequence": 6,
+          "to": "pending_review",
+          "trigger": "independent_review_dispatched"
+        },
+        {
+          "current_primary_version": "v002",
+          "from": "pending_review",
+          "qualifying_review_id": "research-polisher-standard-evaluator-002-review",
+          "sequence": 7,
+          "to": "packaging_pending",
+          "trigger": "latest_strategy_portfolio_accepted"
+        },
+        {
+          "current_primary_version": "v002",
+          "from": "packaging_pending",
+          "qualifying_review_id": null,
+          "sequence": 8,
+          "to": "human_strategy_selection_required",
+          "trigger": "selection_dossier_verified"
+        }
+      ],
+      "workflow": "research_polisher",
+      "writer_instance_id": null,
+      "writer_skill": null
     }
   ],
-  "registry_independent_reviewer_count": 18,
+  "provider_verified": false,
+  "registry_independent_reviewer_count": 20,
   "registry_schema_version": 5,
-  "registry_sha256": "sha256:44e2c098eb6f3ab020189dec025a833be15e887691bd4b33a1c04c6b36205c8f",
-  "registry_skill_count": 45,
-  "registry_workflow_edge_count": 58,
-  "release_ledger_sha256": "sha256:e43a611cac2e4b4e1ea653e9cf002accd6fb1ce21363c11fac23318acf96c2e8",
+  "registry_sha256": "sha256:43e621b09d663f3dad8fc13e7fd88fea860da8a14f26db4c9c75401214f4052a",
+  "registry_skill_count": 49,
+  "registry_workflow_edge_count": 67,
+  "release_ledger_sha256": "sha256:d21ff57347f48912118d15421840653987985d0e5c12e744572c2d659459209d",
   "repository_contract_digest_policy": "sha256_crlf_normalized_to_lf",
+  "research_polisher_routing_boundary_results": [
+    {
+      "case_id": "polisher-route-completed-study-impact",
+      "observed_route": "research-polisher-orchestrator",
+      "request_class": "completed_research_impact_strategy",
+      "status": "routed_as_expected"
+    },
+    {
+      "case_id": "polisher-reject-language-polish",
+      "observed_route": "article-orchestrator",
+      "request_class": "language_polish",
+      "status": "routed_as_expected"
+    },
+    {
+      "case_id": "polisher-reject-ordinary-drafting",
+      "observed_route": "article-orchestrator",
+      "request_class": "ordinary_drafting",
+      "status": "routed_as_expected"
+    },
+    {
+      "case_id": "polisher-reject-new-idea-generation",
+      "observed_route": "research-idea-orchestrator",
+      "request_class": "new_idea_generation",
+      "status": "routed_as_expected"
+    },
+    {
+      "case_id": "polisher-reject-general-literature-search",
+      "observed_route": "research-opportunity-mapper",
+      "request_class": "general_literature_search",
+      "status": "routed_as_expected"
+    },
+    {
+      "case_id": "polisher-reject-bounded-paper-question",
+      "observed_route": "academic-deep-search",
+      "request_class": "bounded_academic_question",
+      "status": "routed_as_expected"
+    },
+    {
+      "case_id": "polisher-reject-new-proposal",
+      "observed_route": "proposal-orchestrator",
+      "request_class": "new_proposal",
+      "status": "routed_as_expected"
+    }
+  ],
+  "research_polisher_routing_boundary_sha256": "sha256:6d99386e83fda2192864cc6cd2c749afdb8e9eb982bdb6642c161e7b62eb978f",
+  "research_polisher_routing_negative_guards": [
+    {
+      "case_id": "polisher-reject-language-polish",
+      "mutation": "force_research_polisher_takeover",
+      "status": "rejected_as_expected"
+    },
+    {
+      "case_id": "polisher-reject-ordinary-drafting",
+      "mutation": "force_research_polisher_takeover",
+      "status": "rejected_as_expected"
+    },
+    {
+      "case_id": "polisher-reject-new-idea-generation",
+      "mutation": "force_research_polisher_takeover",
+      "status": "rejected_as_expected"
+    },
+    {
+      "case_id": "polisher-reject-general-literature-search",
+      "mutation": "force_research_polisher_takeover",
+      "status": "rejected_as_expected"
+    },
+    {
+      "case_id": "polisher-reject-bounded-paper-question",
+      "mutation": "force_research_polisher_takeover",
+      "status": "rejected_as_expected"
+    },
+    {
+      "case_id": "polisher-reject-new-proposal",
+      "mutation": "force_research_polisher_takeover",
+      "status": "rejected_as_expected"
+    }
+  ],
   "runtime_evidence_file_digest_policy": "sha256_raw_file_bytes",
-  "runtime_receipt_collection_sha256": "sha256:e10046540ec1188e081a3bc770ab2e75c56093a66d593da72ff636ca3b4977de",
-  "runtime_receipt_schema_sha256": "sha256:e35443323e20c33601a8e6d4a0d9658563303e38ee80f70bd0a1e9570a50f978",
+  "runtime_receipt_collection_sha256": "sha256:7d3185144039d540567658551f9479e40337c53e6a648cfae9f19f17c09a610e",
+  "runtime_receipt_schema_sha256": "sha256:72a019103a68ace2b221a59785d4dba44f3f55bef88aae1df363f8415fa4f937",
   "runtime_receipts": {
     "collection_path": "tests/openai_phase7/current-version-runtime-receipts.yaml",
     "completion_reachability_self_test": {
+      "capability_negative_guards": [
+        {
+          "error_code": "synthetic_gate_capability_invalid",
+          "mutation": "bare_boolean_gate_override",
+          "status": "rejected_as_expected"
+        },
+        {
+          "error_code": "live_release_callback_missing",
+          "mutation": "source_controlled_adapter_claim_without_live_callback",
+          "status": "rejected_as_expected"
+        },
+        {
+          "error_code": "live_runtime_session_missing",
+          "mutation": "source_controlled_runtime_adapter_without_live_session",
+          "status": "rejected_as_expected"
+        },
+        {
+          "error_code": "synthetic_attestation_capability_invalid",
+          "mutation": "forged_attestation_capability",
+          "status": "rejected_as_expected"
+        }
+      ],
       "counts_as_runtime_evidence": false,
-      "derived_phase_status": "complete",
+      "discovery_count_mutations": [
+        {
+          "mutation": "wrong_installed_skill_count",
+          "status": "rejected_as_expected"
+        },
+        {
+          "mutation": "wrong_explicit_callable_entries",
+          "status": "rejected_as_expected"
+        },
+        {
+          "mutation": "wrong_implicit_prompt_entries",
+          "status": "rejected_as_expected"
+        }
+      ],
       "evidence_kind": "synthetic_gate_logic_self_test_only",
       "status": "passed",
-      "verified_gate_count": 13
+      "verification_levels": {
+        "preview_attested": {
+          "attestation_scope": "phase7_synthetic_reachability_self_test_only",
+          "counts_as_runtime_evidence": false,
+          "derived_phase_status": "complete_preview_attested",
+          "provider_verified": false,
+          "validated_evidence_id": "phase7-preview_attested-self-test",
+          "verified_gate_count": 13
+        },
+        "provider_verified": {
+          "attestation_scope": "phase7_synthetic_reachability_self_test_only",
+          "counts_as_runtime_evidence": false,
+          "derived_phase_status": "complete_provider_verified",
+          "provider_verified": true,
+          "validated_evidence_id": "phase7-provider_verified-self-test",
+          "verified_gate_count": 13
+        }
+      }
     },
-    "expected_receipt_count": 8,
-    "expected_workflow_case_matrix": "4 workflows x {happy, control}",
+    "expected_receipt_count": 10,
+    "expected_workflow_case_matrix": "5 workflows x {happy, control}",
     "live_evidence_claimed": false,
-    "pending_receipt_count": 8,
+    "pending_receipt_count": 10,
     "platform_trust": {
+      "accepted_verification_level": null,
       "adapter_id": null,
       "adapter_status": "unavailable",
       "completion_gate_verified": false,
       "provider_authenticated": false,
       "reason": "No provider-authenticated Codex/ChatGPT task-export verifier is available; repository-authored files and hashes cannot establish platform origin.",
       "repository_files_alone_count_as_platform_authenticity": false,
-      "supported_authenticated_adapter_ids": []
+      "supported_authenticated_adapter_ids": [],
+      "supported_preview_attestation_adapter_ids": [
+        "github_release_asset_preview_v1"
+      ],
+      "verification_level": null
     },
     "results": [
       {
@@ -2806,7 +3228,7 @@
       },
       {
         "case_kind": "control",
-        "reason": "Awaiting a durable current-version reviewer-unavailable control export.",
+        "reason": "Awaiting a durable current-version source-fatal control export.",
         "receipt_id": "phase7-article-control",
         "status": "pending_live_evidence",
         "workflow": "article"
@@ -2824,13 +3246,144 @@
         "receipt_id": "phase7-perspective-control",
         "status": "pending_live_evidence",
         "workflow": "perspective"
+      },
+      {
+        "case_kind": "happy",
+        "reason": "Awaiting a durable current-version fresh-task strategy-selection export.",
+        "receipt_id": "phase7-research-polisher-happy",
+        "status": "pending_live_evidence",
+        "workflow": "research_polisher"
+      },
+      {
+        "case_kind": "control",
+        "reason": "Awaiting a durable current-version no-defensible-option control export.",
+        "receipt_id": "phase7-research-polisher-control",
+        "status": "pending_live_evidence",
+        "workflow": "research_polisher"
       }
     ],
+    "reviewer_unavailable_fault_injection": {
+      "counts_as_live_control": false,
+      "derived_state": "independent_review_pending",
+      "fault": "reviewer_unavailable",
+      "route": "resume_in_fresh_delegated_task",
+      "status": "passed"
+    },
     "schema_path": "tests/openai_phase7/runtime-receipts.schema.yaml",
     "validator_negative_guards": [
       {
+        "error_code": "runtime_evidence_authenticated_attestation_missing",
+        "mutation": "integrity_only_result_promoted_without_attestation",
+        "status": "rejected_as_expected"
+      },
+      {
+        "error_code": "runtime_external_attestation_capability_not_serializable",
+        "mutation": "serialize_external_runtime_attestation_capability",
+        "status": "rejected_as_expected"
+      },
+      {
+        "error_code": "runtime_external_attestation_schema_invalid",
+        "mutation": "external_attestation_wrong_schema",
+        "status": "rejected_as_expected"
+      },
+      {
+        "error_code": "runtime_external_attestation_source_identity_mismatch",
+        "mutation": "external_attestation_wrong_source_identity",
+        "status": "rejected_as_expected"
+      },
+      {
+        "error_code": "runtime_external_attestation_integrity_binding_mismatch",
+        "mutation": "external_attestation_wrong_evidence_id",
+        "status": "rejected_as_expected"
+      },
+      {
+        "error_code": "runtime_external_attestation_integrity_binding_mismatch",
+        "mutation": "external_attestation_wrong_raw_digest",
+        "status": "rejected_as_expected"
+      },
+      {
+        "error_code": "runtime_external_attestation_integrity_binding_mismatch",
+        "mutation": "external_attestation_wrong_envelope_digest",
+        "status": "rejected_as_expected"
+      },
+      {
+        "error_code": "runtime_external_attestation_integrity_binding_mismatch",
+        "mutation": "external_attestation_wrong_verifier_report_digest",
+        "status": "rejected_as_expected"
+      },
+      {
+        "error_code": "runtime_external_attestation_integrity_binding_mismatch",
+        "mutation": "external_attestation_wrong_index_digest",
+        "status": "rejected_as_expected"
+      },
+      {
+        "error_code": "runtime_external_attestation_live_requery_invalid",
+        "mutation": "external_attestation_wrong_adapter",
+        "status": "rejected_as_expected"
+      },
+      {
+        "error_code": "runtime_external_attestation_live_requery_invalid",
+        "mutation": "external_attestation_without_live_requery",
+        "status": "rejected_as_expected"
+      },
+      {
+        "error_code": "runtime_external_attestation_gate_invalid",
+        "mutation": "external_attestation_gate_not_eligible",
+        "status": "rejected_as_expected"
+      },
+      {
+        "error_code": "runtime_external_attestation_preview_provider_confusion",
+        "mutation": "preview_attestation_claims_provider_authentication",
+        "status": "rejected_as_expected"
+      },
+      {
+        "error_code": "runtime_external_attestation_request_binding_mismatch",
+        "mutation": "external_attestation_request_evidence_id_mismatch",
+        "status": "rejected_as_expected"
+      },
+      {
+        "error_code": "runtime_external_attestation_adapter_not_allowlisted",
+        "mutation": "provider_attestation_without_provider_adapter",
+        "status": "rejected_as_expected"
+      },
+      {
+        "error_code": "runtime_evidence_attestation_type_invalid",
+        "mutation": "bare_boolean_runtime_attestation",
+        "status": "rejected_as_expected"
+      },
+      {
+        "error_code": "runtime_evidence_attestation_type_invalid",
+        "mutation": "serialized_runtime_attestation_object",
+        "status": "rejected_as_expected"
+      },
+      {
+        "error_code": "runtime_evidence_attestation_type_invalid",
+        "mutation": "forged_runtime_attestation_capability",
+        "status": "rejected_as_expected"
+      },
+      {
+        "error_code": "runtime_evidence_attestation_type_invalid",
+        "mutation": "collection_accepts_bare_boolean_attestation",
+        "status": "rejected_as_expected"
+      },
+      {
+        "error_code": "runtime_evidence_authenticated_attestation_missing",
+        "mutation": "collection_accepts_integrity_only_result",
+        "status": "rejected_as_expected"
+      },
+      {
+        "error_code": "non_substantive_evidence_only",
+        "mutation": "single_screenshot_without_raw_export",
+        "status": "rejected_as_expected"
+      },
+      {
         "error_code": "runtime_expected_state_contract_mismatch",
         "mutation": "idea_control_mutable_expected_final_state",
+        "status": "rejected_as_expected"
+      },
+      {
+        "error_code": "runtime_control_input_condition_mismatch",
+        "mutation": "idea_control_mutable_input_condition",
         "status": "rejected_as_expected"
       },
       {
@@ -2849,6 +3402,11 @@
         "status": "rejected_as_expected"
       },
       {
+        "error_code": "runtime_control_input_condition_mismatch",
+        "mutation": "proposal_control_mutable_input_condition",
+        "status": "rejected_as_expected"
+      },
+      {
         "error_code": "runtime_control_gate_mismatch",
         "mutation": "proposal_control_mutable_gate",
         "status": "rejected_as_expected"
@@ -2861,6 +3419,11 @@
       {
         "error_code": "runtime_expected_state_contract_mismatch",
         "mutation": "article_control_mutable_expected_final_state",
+        "status": "rejected_as_expected"
+      },
+      {
+        "error_code": "runtime_control_input_condition_mismatch",
+        "mutation": "article_control_mutable_input_condition",
         "status": "rejected_as_expected"
       },
       {
@@ -2879,6 +3442,11 @@
         "status": "rejected_as_expected"
       },
       {
+        "error_code": "runtime_control_input_condition_mismatch",
+        "mutation": "perspective_control_mutable_input_condition",
+        "status": "rejected_as_expected"
+      },
+      {
         "error_code": "runtime_control_gate_mismatch",
         "mutation": "perspective_control_mutable_gate",
         "status": "rejected_as_expected"
@@ -2886,6 +3454,26 @@
       {
         "error_code": "runtime_control_route_mismatch",
         "mutation": "perspective_control_mutable_route",
+        "status": "rejected_as_expected"
+      },
+      {
+        "error_code": "runtime_expected_state_contract_mismatch",
+        "mutation": "research_polisher_control_mutable_expected_final_state",
+        "status": "rejected_as_expected"
+      },
+      {
+        "error_code": "runtime_control_input_condition_mismatch",
+        "mutation": "research_polisher_control_mutable_input_condition",
+        "status": "rejected_as_expected"
+      },
+      {
+        "error_code": "runtime_control_gate_mismatch",
+        "mutation": "research_polisher_control_mutable_gate",
+        "status": "rejected_as_expected"
+      },
+      {
+        "error_code": "runtime_control_route_mismatch",
+        "mutation": "research_polisher_control_mutable_route",
         "status": "rejected_as_expected"
       },
       {
@@ -3019,36 +3607,46 @@
   "schema_version": 3,
   "state_advance_order": "validate_qualifying_receipt_then_validate_registry_prerequisites_then_commit_derived_state_then_execute_transition",
   "summary": {
-    "additional_stale_or_lineage_guards_rejected": 16,
+    "additional_stale_or_lineage_guards_rejected": 17,
     "automatic_external_submission": false,
     "completion_gates_pending": 13,
     "completion_gates_verified": 0,
-    "declared_entry_modes": 16,
-    "declared_workflows": 4,
-    "entry_gate_negative_guards_rejected": 32,
+    "declared_entry_modes": 17,
+    "declared_workflows": 5,
+    "entry_gate_negative_guards_rejected": 34,
+    "explicit_callable_entries": 7,
     "false_ready_count": 0,
     "fixture_declared_entry_gate_lists": 0,
     "human_signoff_required_modes": 12,
+    "human_strategy_selection_required_modes": 1,
+    "implicit_prompt_entries": 6,
+    "installed_skill_count": 49,
     "live_model_runs_claimed": 0,
-    "missing_evaluator_receipts_rejected": 13,
+    "missing_evaluator_receipts_rejected": 14,
     "missing_panel_receipts_rejected": 12,
     "mode_scoped_stopped_modes": 4,
-    "mode_specific_gate_bypasses_rejected": 16,
-    "negative_guards_rejected": 82,
-    "positive_modes_passed": 16,
-    "qualifying_reviewer_receipt_negatives_rejected": 50,
-    "registry_entry_gate_contracts_verified": 52,
-    "registry_entry_mode_contracts_verified": 16,
-    "runtime_receipts_expected": 8,
-    "runtime_receipts_pending": 8,
+    "mode_specific_gate_bypasses_rejected": 17,
+    "negative_guards_rejected": 89,
+    "positive_modes_passed": 17,
+    "qualifying_reviewer_receipt_negatives_rejected": 55,
+    "registry_entry_gate_contracts_verified": 55,
+    "registry_entry_mode_contracts_verified": 17,
+    "research_polisher_routing_boundaries_verified": 7,
+    "research_polisher_takeover_mutations_rejected": 6,
+    "reviewer_unavailable_fault_injections_verified": 1,
+    "runtime_receipts_expected": 10,
+    "runtime_receipts_pending": 10,
     "runtime_receipts_verified": 0,
-    "runtime_validator_negative_guards_rejected": 37,
-    "stale_evaluator_receipts_rejected": 13,
+    "runtime_validator_negative_guards_rejected": 66,
+    "stale_evaluator_receipts_rejected": 14,
     "stale_panel_receipts_rejected": 12,
+    "strategy_reviewer_group_mutations_rejected": 3,
     "synthetic_control_receipts_validated": 4,
-    "synthetic_evaluator_receipts_validated": 23,
-    "synthetic_generation_receipts_validated": 16,
-    "synthetic_package_receipts_validated": 12,
-    "synthetic_panel_receipts_validated": 44
-  }
+    "synthetic_evaluator_receipts_validated": 25,
+    "synthetic_generation_receipts_validated": 17,
+    "synthetic_package_receipts_validated": 13,
+    "synthetic_panel_receipts_validated": 44,
+    "synthetic_strategy_reviewer_receipts_validated": 3
+  },
+  "verification_level": null
 }

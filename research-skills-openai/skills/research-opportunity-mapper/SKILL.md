@@ -1,6 +1,6 @@
 ---
 name: research-opportunity-mapper
-description: "Build source-grounded evidence and opportunity maps. Use for broad retrieval, claim verification, novelty positioning, evidence limits, and research gaps."
+description: "Build source-grounded evidence and opportunity maps for broad retrieval, claim checks, novelty, evidence limits, and research gaps."
 ---
 # research-opportunity-mapper
 

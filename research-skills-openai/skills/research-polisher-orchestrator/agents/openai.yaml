@@ -1,0 +1,6 @@
+interface:
+  display_name: "Research Polisher"
+  short_description: "Orchestrate research impact strategies and independent review"
+  default_prompt: "Use $research-polisher-orchestrator for this task and follow its workflow and output contract."
+policy:
+  allow_implicit_invocation: false

@@ -13,15 +13,24 @@ import copy
 import hashlib
 import json
 import re
+import secrets
 import subprocess
+import sys
 import tempfile
 from collections import Counter, defaultdict
+from contextlib import contextmanager
+from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from functools import lru_cache
 from pathlib import Path, PurePosixPath
-from typing import Any, Callable
+from typing import Any, Callable, Iterator, Mapping, Sequence
 
 import yaml
+
+from openai_preview_evidence import (
+    EVIDENCE_ENVELOPE_SCHEMA,
+    RELEASE_ASSET_INDEX_SCHEMA,
+)
 
 
 REPO = Path(__file__).resolve().parents[1]
@@ -35,8 +44,15 @@ RETRIEVAL_RECEIPTS_PATH = FIXTURE_ROOT / "retrieval-receipts.yaml"
 PROVIDER_VERIFIER_REGISTRY_PATH = FIXTURE_ROOT / "provider-verifier-registry.yaml"
 REPORT_PATH = PLUGIN / "reports" / "phase8-corpus-results.json"
 
-WORKFLOWS = {"idea", "proposal", "article", "perspective"}
+WORKFLOWS = {"idea", "proposal", "article", "perspective", "research_polisher"}
 OUTCOME_CLASSES = {"happy", "fixable", "fatal_or_pending", "revision_no_gain"}
+RESEARCH_POLISHER_DOMAINS = {
+    "clinical_or_observational",
+    "basic_experimental",
+    "computational_or_engineering",
+    "qualitative_or_mixed_methods",
+}
+HUMAN_HANDOFF_STATES = {"human_signoff_required", "human_strategy_selection_required"}
 LINEAGE_FIELDS = {
     "complete",
     "artifact_id",
@@ -52,12 +68,284 @@ GIT_COMMIT_RE = re.compile(r"^[0-9a-f]{40}$")
 EVIDENCE_FRESHNESS_DAYS = 90
 FUTURE_CLOCK_SKEW = timedelta(minutes=5)
 SYNTHETIC_PROVIDER_ADAPTER_ID = "synthetic_ephemeral_validator_override"
+PREVIEW_GITHUB_ADAPTER_ID = "github_release_asset_preview_v1"
+PROVIDER_VERIFIED_TRUST_LEVEL = "provider_verified"
+PREVIEW_ATTESTED_TRUST_LEVEL = "preview_attested"
 SOURCE_IDENTITY_FIELDS = (
     "source_commit",
     "manifest_digest",
     "registry_digest",
     "skill_tree_digest",
 )
+
+
+@dataclass(frozen=True)
+class _SyntheticCapability:
+    root: Path
+    nonce: str
+
+
+_ACTIVE_SYNTHETIC_CAPABILITIES: dict[str, Path] = {}
+
+
+def _expected_external_validator_issuer() -> object:
+    import validate_openai_phase8_external_evidence as external_validator
+
+    return external_validator._PHASE8_EXTERNAL_VALIDATOR_ISSUER_CAPABILITY
+
+
+@dataclass(frozen=True, init=False)
+class ValidatedPhase8LiveSlot:
+    """Non-serializable bridge record issued after a successful live re-query."""
+
+    slot_id: str
+    slot_kind: str
+    execution_id: str
+    subject_digest: str
+    live_result_digest: str
+    evidence_id: str
+    verifier_workflow_run_id: int
+    verified_at: str
+    _issuer_identity: object
+
+    def __init__(self, *_args: Any, **_kwargs: Any) -> None:
+        raise TypeError("ValidatedPhase8LiveSlot instances are issuer-only")
+
+    def __reduce_ex__(self, _protocol: int) -> Any:
+        raise TypeError("validated live slots cannot be serialized")
+
+    def __copy__(self) -> Any:
+        raise TypeError("validated live slots cannot be copied")
+
+    def __deepcopy__(self, _memo: Any) -> Any:
+        raise TypeError("validated live slots cannot be copied")
+
+
+@dataclass(frozen=True)
+class _ExternalPreviewCapability:
+    root: Path
+    reviewer_receipts_digest: str
+    retrieval_receipts_digest: str
+    source_identity: tuple[tuple[str, str], ...]
+    records: tuple[ValidatedPhase8LiveSlot, ...]
+    nonce: str
+    _issuer_identity: object
+
+    def __reduce_ex__(self, _protocol: int) -> Any:
+        raise TypeError("external Preview capabilities cannot be serialized")
+
+    def __copy__(self) -> Any:
+        raise TypeError("external Preview capabilities cannot be copied")
+
+    def __deepcopy__(self, _memo: Any) -> Any:
+        raise TypeError("external Preview capabilities cannot be copied")
+
+
+_ACTIVE_EXTERNAL_PREVIEW_CAPABILITIES: dict[str, _ExternalPreviewCapability] = {}
+
+
+def _canonical_external_value(value: Any) -> Any:
+    if isinstance(value, Mapping):
+        return {
+            str(key): _canonical_external_value(item)
+            for key, item in sorted(value.items(), key=lambda pair: str(pair[0]))
+        }
+    if isinstance(value, (list, tuple)):
+        return [_canonical_external_value(item) for item in value]
+    if isinstance(value, datetime):
+        return value.isoformat()
+    if isinstance(value, (str, int, float, bool)) or value is None:
+        return value
+    raise CorpusViolation(
+        "phase8_external_live_record",
+        f"unsupported value type: {type(value).__name__}",
+    )
+
+
+def external_preview_document_digest(value: Mapping[str, Any]) -> str:
+    payload = json.dumps(
+        _canonical_external_value(value),
+        ensure_ascii=False,
+        sort_keys=True,
+        separators=(",", ":"),
+    ).encode("utf-8")
+    return "sha256:" + hashlib.sha256(payload).hexdigest()
+
+
+def make_validated_phase8_live_slot(
+    *,
+    slot_id: str,
+    slot_kind: str,
+    execution_id: str,
+    subject: Mapping[str, Any],
+    live_result: Mapping[str, Any],
+    evidence_id: str,
+    verifier_workflow_run_id: int,
+    verified_at: str,
+    issuer_capability: object | None = None,
+) -> ValidatedPhase8LiveSlot:
+    """Create an in-memory record; callers must first validate the live result."""
+    require(
+        issuer_capability is _expected_external_validator_issuer()
+        and slot_kind in {"reviewer", "retrieval"}
+        and all(isinstance(item, str) and item for item in (slot_id, execution_id, evidence_id, verified_at))
+        and isinstance(verifier_workflow_run_id, int)
+        and verifier_workflow_run_id > 0,
+        "phase8_external_live_record",
+        str(slot_id),
+    )
+    record = object.__new__(ValidatedPhase8LiveSlot)
+    values = {
+        "slot_id": slot_id,
+        "slot_kind": slot_kind,
+        "execution_id": execution_id,
+        "subject_digest": external_preview_document_digest(subject),
+        "live_result_digest": external_preview_document_digest(live_result),
+        "evidence_id": evidence_id,
+        "verifier_workflow_run_id": verifier_workflow_run_id,
+        "verified_at": verified_at,
+        "_issuer_identity": issuer_capability,
+    }
+    for field, value in values.items():
+        object.__setattr__(record, field, value)
+    return record
+
+
+@contextmanager
+def phase8_external_preview_session(
+    *,
+    workspace_root: Path,
+    reviewer_receipts_path: Path,
+    retrieval_receipts_path: Path,
+    source_identity: Mapping[str, str],
+    records: Sequence[ValidatedPhase8LiveSlot],
+    issuer_capability: object | None = None,
+) -> Iterator[_ExternalPreviewCapability]:
+    """Issue a process-local capability for one already-live-verified workspace."""
+    root = workspace_root.resolve(strict=True)
+    reviewer_path = reviewer_receipts_path.resolve(strict=True)
+    retrieval_path = retrieval_receipts_path.resolve(strict=True)
+    require(
+        reviewer_path.is_relative_to(root) and retrieval_path.is_relative_to(root),
+        "phase8_external_live_capability",
+        "receipt collections must be inside the attested workspace",
+    )
+    frozen_records = tuple(records)
+    require(
+        issuer_capability is _expected_external_validator_issuer()
+        and len(frozen_records) == 12
+        and all(type(item) is ValidatedPhase8LiveSlot for item in frozen_records)
+        and all(
+            item._issuer_identity is issuer_capability for item in frozen_records
+        )
+        and len({item.slot_id for item in frozen_records}) == 12
+        and len({item.execution_id for item in frozen_records}) == 12
+        and sum(item.slot_kind == "reviewer" for item in frozen_records) == 6
+        and sum(item.slot_kind == "retrieval" for item in frozen_records) == 6,
+        "phase8_external_live_capability",
+        "exactly six independent reviewer and six retrieval records are required",
+    )
+    nonce = secrets.token_hex(32)
+    capability = _ExternalPreviewCapability(
+        root=root,
+        reviewer_receipts_digest=file_digest(reviewer_path),
+        retrieval_receipts_digest=file_digest(retrieval_path),
+        source_identity=tuple(sorted((str(key), str(value)) for key, value in source_identity.items())),
+        records=frozen_records,
+        nonce=nonce,
+        _issuer_identity=issuer_capability,
+    )
+    _ACTIVE_EXTERNAL_PREVIEW_CAPABILITIES[nonce] = capability
+    try:
+        yield capability
+    finally:
+        _ACTIVE_EXTERNAL_PREVIEW_CAPABILITIES.pop(nonce, None)
+
+
+def _external_preview_records(
+    capability: _ExternalPreviewCapability | None,
+    *,
+    root: Path,
+    data_path: Path,
+    slot_kind: str,
+) -> dict[str, ValidatedPhase8LiveSlot]:
+    if capability is None:
+        return {}
+    resolved_root = root.resolve()
+    resolved_data = data_path.resolve(strict=True)
+    require(
+        type(capability) is _ExternalPreviewCapability
+        and capability._issuer_identity is _expected_external_validator_issuer()
+        and _ACTIVE_EXTERNAL_PREVIEW_CAPABILITIES.get(capability.nonce)
+        is capability,
+        "phase8_external_live_capability",
+        "inactive or serialized capability",
+    )
+    expected_digest = (
+        capability.reviewer_receipts_digest
+        if slot_kind == "reviewer"
+        else capability.retrieval_receipts_digest
+    )
+    require(
+        capability.root == resolved_root
+        and resolved_data.is_relative_to(resolved_root)
+        and file_digest(resolved_data) == expected_digest,
+        "phase8_external_live_capability",
+        "inactive, serialized, cross-workspace, or collection-mismatched capability",
+    )
+    return {
+        item.slot_id: item
+        for item in capability.records
+        if item.slot_kind == slot_kind
+    }
+
+
+def _require_external_slot_match(
+    record: ValidatedPhase8LiveSlot,
+    *,
+    slot_id: Any,
+    execution_id: Any,
+    subject: Mapping[str, Any],
+) -> None:
+    require(
+        record.slot_id == slot_id
+        and record.execution_id == execution_id
+        and record.subject_digest == external_preview_document_digest(subject),
+        "phase8_external_live_record",
+        str(slot_id),
+    )
+
+
+@contextmanager
+def synthetic_temp_root(prefix: str) -> Iterator[tuple[Path, _SyntheticCapability]]:
+    """Create the only roots that may exercise synthetic trust paths."""
+    with tempfile.TemporaryDirectory(prefix=prefix) as temp:
+        root = Path(temp).resolve()
+        nonce = secrets.token_hex(32)
+        capability = _SyntheticCapability(root=root, nonce=nonce)
+        _ACTIVE_SYNTHETIC_CAPABILITIES[nonce] = root
+        try:
+            yield root, capability
+        finally:
+            _ACTIVE_SYNTHETIC_CAPABILITIES.pop(nonce, None)
+
+
+def require_synthetic_capability(
+    root: Path, capability: _SyntheticCapability | None, *, code: str
+) -> None:
+    resolved_root = root.resolve()
+    try:
+        inside_repository = resolved_root.is_relative_to(REPO.resolve())
+    except ValueError:
+        inside_repository = False
+    require(
+        isinstance(capability, _SyntheticCapability)
+        and capability.root == resolved_root
+        and _ACTIVE_SYNTHETIC_CAPABILITIES.get(capability.nonce) == resolved_root
+        and not inside_repository,
+        code,
+        "synthetic validation requires an active internal TemporaryDirectory capability",
+    )
 SOURCE_INPUT_REVIEW_LEAK_PATTERNS = {
     "generic_review_instruction": re.compile(
         r"^\s*#{1,6}\s+(?:requested\s+)?(?:review|assessment|evaluation)\s*$"
@@ -168,7 +456,8 @@ REVIEW_VISIBLE_OUTCOME_ORACLE_TOKENS = {
 SKILL_RESOURCE_PATH_MARKER = "research-skills-openai/skills/"
 
 # A real adapter must be implemented in code so a repository-authored YAML
-# label cannot make itself trusted. The Preview currently has no such adapter.
+# label cannot make itself trusted. The Preview currently has no authenticated
+# provider adapter; its GitHub adapter can only produce Preview attestation.
 BUILTIN_PROVIDER_VERIFIERS: dict[
     str, Callable[[Path, dict[str, Any], dict[str, Any]], bool]
 ] = {}
@@ -392,7 +681,7 @@ def validate_source_identity(
     subject: dict[str, Any],
     *,
     label: str,
-    synthetic_override: bool,
+    synthetic_override: _SyntheticCapability | None,
 ) -> dict[str, str]:
     expected = current_contract_identity()
     for field in SOURCE_IDENTITY_FIELDS:
@@ -401,7 +690,13 @@ def validate_source_identity(
             "phase8_source_identity",
             f"{label}: {field} does not bind the current plugin tree",
         )
-    if not synthetic_override:
+    if synthetic_override is not None:
+        require_synthetic_capability(
+            synthetic_override.root,
+            synthetic_override,
+            code="phase8_source_identity",
+        )
+    else:
         committed = committed_contract_identity(str(subject.get("source_commit", "")))
         require(
             committed == expected,
@@ -415,7 +710,7 @@ def validate_source_identity(
 def provider_verifier_registry() -> dict[str, Any]:
     registry = load_yaml(PROVIDER_VERIFIER_REGISTRY_PATH)
     require(
-        registry.get("schema_version") == 1,
+        registry.get("schema_version") == 2,
         "provider_verifier_registry",
         "schema_version",
     )
@@ -423,6 +718,13 @@ def provider_verifier_registry() -> dict[str, Any]:
     require(
         policy.get("repository_authored_files_are_not_trust_anchors") is True
         and policy.get("real_verification_requires_builtin_adapter") is True
+        and policy.get("provider_verified_requires_authenticated_provider_adapter")
+        is True
+        and policy.get("provider_verified_requires_independent_adapter") is True
+        and policy.get("provider_verified_adapter_availability") == "future_only"
+        and policy.get("preview_attested_requires_external_github_witness") is True
+        and policy.get("preview_attested_requires_executable_verifier") is True
+        and policy.get("preview_attested_counts_as_provider_verified") is False
         and policy.get("synthetic_override_counts_as_runtime_evidence") is False,
         "provider_verifier_registry",
         "trust policy",
@@ -430,7 +732,8 @@ def provider_verifier_registry() -> dict[str, Any]:
     synthetic = registry.get("synthetic_self_test", {})
     require(
         synthetic.get("adapter_id") == SYNTHETIC_PROVIDER_ADAPTER_ID
-        and synthetic.get("ephemeral_temp_root_required") is True,
+        and synthetic.get("ephemeral_temp_root_required") is True
+        and synthetic.get("preview_contract_counts_as_runtime_evidence") is False,
         "provider_verifier_registry",
         "synthetic override policy",
     )
@@ -442,6 +745,73 @@ def provider_verifier_registry() -> dict[str, Any]:
         "provider_verifier_registry",
         "adapter IDs",
     )
+    allowed_types = {"provider_authenticated", "preview_attestation"}
+    require(
+        all(item.get("adapter_type") in allowed_types for item in adapters),
+        "provider_verifier_registry",
+        "adapter types",
+    )
+    for adapter in adapters:
+        if adapter.get("adapter_type") == "provider_authenticated":
+            require(
+                adapter.get("independent_execution") is True
+                and adapter.get("authenticated_provider_api") is True,
+                "provider_verifier_registry",
+                f"provider adapter independence: {adapter.get('adapter_id')}",
+            )
+            continue
+        if adapter.get("adapter_type") != "preview_attestation":
+            continue
+        require(
+            adapter.get("trust_level") == PREVIEW_ATTESTED_TRUST_LEVEL
+            and adapter.get("execution") == "python"
+            and adapter.get("verification_request_schema") == 2
+            and adapter.get("witness_type")
+            == "github_release_asset_api_object"
+            and adapter.get("workflow_witness_role")
+            == "source_commit_main_ci"
+            and adapter.get("workflow_path")
+            == ".github/workflows/openai-plugin-preview.yml"
+            and adapter.get("workflow_event") == "push"
+            and adapter.get("api_host") == "api.github.com"
+            and set(adapter.get("asset_redirect_hosts", []))
+            == {
+                "objects.githubusercontent.com",
+                "release-assets.githubusercontent.com",
+            }
+            and adapter.get("real_verification_requires_github_requery") is True
+            and adapter.get("synthetic_self_test_supported") is True,
+            "provider_verifier_registry",
+            f"preview adapter contract: {adapter.get('adapter_id')}",
+        )
+        workflow_path = resolved_file(
+            REPO,
+            adapter.get("workflow_path", ""),
+            code="provider_verifier_registry",
+            label=f"witness workflow: {adapter.get('adapter_id')}",
+        )
+        workflow_text = workflow_path.read_text(encoding="utf-8-sig")
+        require(
+            re.search(r"(?m)^  push:\s*$", workflow_text) is not None
+            and "branches: [main]" in workflow_text,
+            "provider_verifier_registry",
+            "witness workflow must have a completed main-push run before packaging",
+        )
+        verifier_path = resolved_file(
+            REPO,
+            adapter.get("verifier_path", ""),
+            code="provider_verifier_registry",
+            label=f"preview verifier: {adapter.get('adapter_id')}",
+        )
+        require(
+            verifier_path.is_file()
+            and SHA256_RE.fullmatch(str(adapter.get("verifier_digest", "")))
+            is not None
+            and normalized_file_digest(verifier_path)
+            == adapter.get("verifier_digest"),
+            "provider_verifier_registry",
+            f"preview verifier binding: {adapter.get('adapter_id')}",
+        )
     return registry
 
 
@@ -450,9 +820,251 @@ def real_provider_adapter_ids() -> set[str]:
     configured = {
         str(item["adapter_id"])
         for item in registry.get("adapters", [])
-        if isinstance(item, dict) and item.get("enabled") is True
+        if isinstance(item, dict)
+        and item.get("enabled") is True
+        and item.get("adapter_type") == "provider_authenticated"
     }
     return configured.intersection(BUILTIN_PROVIDER_VERIFIERS)
+
+
+def preview_adapter_specs() -> dict[str, dict[str, Any]]:
+    return {
+        str(item["adapter_id"]): item
+        for item in provider_verifier_registry().get("adapters", [])
+        if isinstance(item, dict)
+        and item.get("enabled") is True
+        and item.get("adapter_type") == "preview_attestation"
+    }
+
+
+def preview_adapter_ids() -> set[str]:
+    return set(preview_adapter_specs())
+
+
+def capture_timestamp_digest(value: Any) -> str:
+    text = str(value or "")
+    return "sha256:" + hashlib.sha256(text.encode("utf-8")).hexdigest()
+
+
+def shared_source_identity(
+    identity: dict[str, Any], plugin_version: str
+) -> dict[str, str]:
+    return {
+        "plugin_version": plugin_version,
+        "source_commit": str(identity["source_commit"]),
+        "manifest_sha256": str(identity["manifest_digest"]),
+        "registry_sha256": str(identity["registry_digest"]),
+        "skill_tree_sha256": str(identity["skill_tree_digest"]),
+    }
+
+
+def validate_preview_attestation(
+    subject: dict[str, Any],
+    platform_export: dict[str, Any],
+    export_path: Path,
+    *,
+    root: Path,
+    synthetic_override: _SyntheticCapability | None,
+) -> None:
+    code = "preview_attestation"
+    adapter_id = str(subject.get("provider_verifier_adapter", ""))
+    spec = preview_adapter_specs().get(adapter_id)
+    require(spec is not None, code, "preview adapter is not registered and enabled")
+    attestation = subject.get("preview_attestation")
+    require(isinstance(attestation, dict), code, "preview attestation envelope")
+    required = {
+        "adapter_id",
+        "envelope_path",
+        "envelope_digest",
+        "release_asset_index_path",
+        "release_asset_index_digest",
+        "raw_export_path",
+        "raw_export_digest",
+        "raw_export_reference",
+        "capture_timestamp_digest",
+        "verifier_path",
+        "verifier_digest",
+        "provider_registry_path",
+        "provider_registry_digest",
+        "workflow_path",
+        "workflow_id",
+        "workflow_event",
+        "workflow_run_id",
+        "run_head_sha",
+        "release_asset_ids",
+        "release_asset_digests",
+        "synthetic_test_only",
+    }
+    require(required <= set(attestation), code, "preview attestation fields")
+    require(
+        attestation.get("adapter_id") == adapter_id,
+        code,
+        "Preview attestation adapter binding",
+    )
+    require(
+        attestation.get("raw_export_path")
+        == export_path.resolve().relative_to(root.resolve()).as_posix()
+        and attestation.get("raw_export_digest") == file_digest(export_path)
+        and str(attestation.get("raw_export_reference", "")).startswith(
+            "https://github.com/"
+        ),
+        code,
+        "raw export path, digest, or external reference",
+    )
+    require(
+        platform_export.get("capture_format")
+        in {"codex_json_export", "chatgpt_task_export_json"},
+        code,
+        "raw export must be machine-readable JSON rather than a screenshot",
+    )
+    captured_at = subject.get("captured_at")
+    require(
+        platform_export.get("captured_at") == captured_at
+        and attestation.get("capture_timestamp_digest")
+        == capture_timestamp_digest(captured_at),
+        code,
+        "capture timestamp binding",
+    )
+    envelope_path = bound_file(
+        attestation.get("envelope_path"),
+        attestation.get("envelope_digest"),
+        root=root,
+        code=code,
+        label="Preview evidence envelope",
+    )
+    index_path = bound_file(
+        attestation.get("release_asset_index_path"),
+        attestation.get("release_asset_index_digest"),
+        root=root,
+        code=code,
+        label="external GitHub Release asset index",
+    )
+    require(
+        envelope_path.suffix.lower() == ".json"
+        and index_path.suffix.lower() == ".json",
+        code,
+        "envelope and GitHub witness index must be JSON, not handwritten YAML",
+    )
+    try:
+        index = json.loads(index_path.read_text(encoding="utf-8-sig"))
+    except json.JSONDecodeError as exc:
+        raise CorpusViolation(code, "Release asset index is invalid JSON") from exc
+    witness = index.get("github_witness", {}) if isinstance(index, dict) else {}
+    assets = index.get("assets", []) if isinstance(index, dict) else []
+    require(
+        isinstance(witness, dict)
+        and isinstance(assets, list)
+        and bool(assets)
+        and attestation.get("workflow_path") == spec.get("workflow_path")
+        and attestation.get("workflow_path") == witness.get("workflow_path")
+        and attestation.get("workflow_event") == spec.get("workflow_event")
+        and attestation.get("workflow_event") == witness.get("workflow_event")
+        and attestation.get("workflow_id") == witness.get("workflow_id")
+        and attestation.get("workflow_run_id") == witness.get("workflow_run_id")
+        and attestation.get("run_head_sha") == witness.get("run_head_sha")
+        and attestation.get("run_head_sha") == subject.get("source_commit")
+        and attestation.get("release_asset_ids")
+        == [item.get("asset_id") for item in assets if isinstance(item, dict)]
+        and attestation.get("release_asset_digests")
+        == {
+            str(item.get("asset_id")): item.get("sha256")
+            for item in assets
+            if isinstance(item, dict)
+        },
+        code,
+        "workflow run or Release asset binding",
+    )
+    verifier_path = resolved_file(
+        REPO,
+        spec.get("verifier_path", ""),
+        code=code,
+        label="Preview verifier",
+    )
+    registry_relative = PROVIDER_VERIFIER_REGISTRY_PATH.relative_to(REPO).as_posix()
+    require(
+        attestation.get("verifier_path") == spec.get("verifier_path")
+        and attestation.get("verifier_digest") == spec.get("verifier_digest")
+        and normalized_file_digest(verifier_path) == spec.get("verifier_digest")
+        and attestation.get("provider_registry_path") == registry_relative
+        and attestation.get("provider_registry_digest")
+        == normalized_file_digest(PROVIDER_VERIFIER_REGISTRY_PATH),
+        code,
+        "executable verifier and provider-registry binding",
+    )
+    if synthetic_override is not None:
+        require_synthetic_capability(root, synthetic_override, code=code)
+        require(
+            attestation.get("synthetic_test_only") is True,
+            code,
+            "synthetic Preview self-test must be explicitly marked",
+        )
+    else:
+        require(
+            attestation.get("synthetic_test_only") is False,
+            code,
+            "synthetic Preview evidence cannot be promoted",
+        )
+
+    request = {
+        "schema_version": spec["verification_request_schema"],
+        "evidence_root": str(root.resolve()),
+        **{field: attestation[field] for field in required},
+        "captured_at": str(captured_at),
+        "expected_source_identity": shared_source_identity(
+            subject, str(subject.get("plugin_version", ""))
+        ),
+    }
+    with tempfile.TemporaryDirectory(prefix="phase8-preview-verifier-request-") as temp:
+        request_path = Path(temp) / "request.json"
+        request_path.write_text(
+            json.dumps(request, ensure_ascii=False, sort_keys=True),
+            encoding="utf-8",
+            newline="\n",
+        )
+        command = [sys.executable, str(verifier_path), "--request", str(request_path)]
+        if synthetic_override is not None:
+            command.append("--synthetic-self-test")
+        process = subprocess.run(
+            command,
+            cwd=REPO,
+            check=False,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            timeout=45,
+        )
+    require(
+        process.returncode == 0,
+        code,
+        process.stdout.decode("utf-8", errors="replace").strip()
+        or process.stderr.decode("utf-8", errors="replace").strip()
+        or "Preview verifier rejected the evidence",
+    )
+    try:
+        verifier_result = json.loads(
+            process.stdout.decode("utf-8", errors="strict").strip()
+        )
+    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise CorpusViolation(code, "Preview verifier returned invalid JSON") from exc
+    if synthetic_override is not None:
+        require(
+            verifier_result.get("verdict") == "synthetic_contract_valid"
+            and verifier_result.get("integrity_valid") is True
+            and verifier_result.get("gate_eligible") is False
+            and verifier_result.get("counts_as_preview_attested") is False
+            and verifier_result.get("counts_as_provider_verified") is False,
+            code,
+            "synthetic verifier result attempted gate promotion",
+        )
+    else:
+        require(
+            verifier_result.get("verdict") == PREVIEW_ATTESTED_TRUST_LEVEL
+            and verifier_result.get("integrity_valid") is True
+            and verifier_result.get("gate_eligible") is True
+            and verifier_result.get("counts_as_preview_attested") is True
+            and verifier_result.get("counts_as_provider_verified") is False,
+            code,
+            "external Preview verifier did not produce the required gate result",
+        )
 
 
 def validate_provider_trust_anchor(
@@ -461,24 +1073,45 @@ def validate_provider_trust_anchor(
     export_path: Path,
     *,
     root: Path,
-    synthetic_override: bool,
+    synthetic_override: _SyntheticCapability | None,
 ) -> None:
     provider_verifier_registry()
     adapter_id = subject.get("provider_verifier_adapter")
+    trust_level = subject.get(
+        "evidence_trust_level", PROVIDER_VERIFIED_TRUST_LEVEL
+    )
     require(
         platform_export.get("provider_verifier_adapter") == adapter_id,
         "provider_trust_anchor",
         "platform export adapter mismatch",
     )
-    if synthetic_override:
-        try:
-            inside_repository = root.resolve().is_relative_to(REPO.resolve())
-        except ValueError:
-            inside_repository = False
+    if trust_level == PREVIEW_ATTESTED_TRUST_LEVEL:
+        require(
+            adapter_id in preview_adapter_ids(),
+            "provider_trust_anchor_unavailable",
+            "no executable Preview verifier adapter is configured",
+        )
+        validate_preview_attestation(
+            subject,
+            platform_export,
+            export_path,
+            root=root,
+            synthetic_override=synthetic_override,
+        )
+        return
+    require(
+        trust_level == PROVIDER_VERIFIED_TRUST_LEVEL,
+        "provider_trust_level",
+        f"unknown trust level: {trust_level}",
+    )
+    if synthetic_override is not None:
+        require_synthetic_capability(
+            root, synthetic_override, code="provider_trust_anchor"
+        )
         require(
             adapter_id == SYNTHETIC_PROVIDER_ADAPTER_ID
             and platform_export.get("synthetic_test_only") is True
-            and not inside_repository,
+            and synthetic_override.root == root.resolve(),
             "provider_trust_anchor",
             "synthetic override is limited to an ephemeral validator temp root",
         )
@@ -497,6 +1130,24 @@ def validate_provider_trust_anchor(
     )
 
 
+def resolved_file(root: Path, path_value: Any, *, code: str, label: str) -> Path:
+    normalized = str(path_value or "").replace("\\", "/")
+    relative = PurePosixPath(normalized)
+    require(
+        bool(normalized) and not relative.is_absolute() and ".." not in relative.parts,
+        code,
+        f"{label}: unsafe or missing path",
+    )
+    resolved_root = root.resolve()
+    path = (resolved_root / normalized).resolve()
+    try:
+        path.relative_to(resolved_root)
+    except ValueError:
+        raise CorpusViolation(code, f"{label}: path escapes evidence root")
+    require(path.is_file(), code, f"{label}: missing {normalized}")
+    return path
+
+
 def bound_file(
     path_value: Any,
     digest_value: Any,
@@ -505,15 +1156,7 @@ def bound_file(
     code: str,
     label: str,
 ) -> Path:
-    normalized = str(path_value or "").replace("\\", "/")
-    relative = PurePosixPath(normalized)
-    require(
-        bool(normalized) and not relative.is_absolute() and ".." not in relative.parts,
-        code,
-        f"{label}: unsafe or missing path",
-    )
-    path = root / normalized
-    require(path.is_file(), code, f"{label}: missing {normalized}")
+    path = resolved_file(root, path_value, code=code, label=label)
     require(
         SHA256_RE.fullmatch(str(digest_value or "")) is not None,
         code,
@@ -545,7 +1188,8 @@ def bound_mapping(
 
 def write_temp_mapping(root: Path, relative: str, value: dict[str, Any]) -> tuple[str, str]:
     """Create deterministic ephemeral evidence used only by validator self-tests."""
-    path = root / relative
+    path = (root.resolve() / relative).resolve()
+    path.relative_to(root.resolve())
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(
         yaml.safe_dump(value, sort_keys=False, allow_unicode=True),
@@ -556,10 +1200,306 @@ def write_temp_mapping(root: Path, relative: str, value: dict[str, Any]) -> tupl
 
 
 def write_temp_text(root: Path, relative: str, value: str) -> tuple[str, str]:
-    path = root / relative
+    path = (root.resolve() / relative).resolve()
+    path.relative_to(root.resolve())
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(value, encoding="utf-8", newline="\n")
     return relative, file_digest(path)
+
+
+def write_temp_json(
+    root: Path, relative: str, value: dict[str, Any]
+) -> tuple[str, str]:
+    path = (root.resolve() / relative).resolve()
+    path.relative_to(root.resolve())
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(
+        json.dumps(value, ensure_ascii=False, sort_keys=True, indent=2) + "\n",
+        encoding="utf-8",
+        newline="\n",
+    )
+    return relative, file_digest(path)
+
+
+def attach_synthetic_preview_attestation(
+    root: Path,
+    subject: dict[str, Any],
+    *,
+    export_path_field: str,
+    export_digest_field: str,
+) -> None:
+    """Convert an ephemeral strict fixture into a Preview-attested fixture."""
+    old_relative = str(subject[export_path_field]).replace("\\", "/")
+    old_path = (root.resolve() / old_relative).resolve()
+    old_path.relative_to(root.resolve())
+    export = yaml.safe_load(old_path.read_text(encoding="utf-8-sig"))
+    require(isinstance(export, dict), "preview_self_test", "raw export mapping")
+    export.update(
+        {
+            "provider_verifier_adapter": PREVIEW_GITHUB_ADAPTER_ID,
+            "capture_format": "codex_json_export",
+            "synthetic_test_only": True,
+        }
+    )
+    raw_relative = str(PurePosixPath(old_relative).with_suffix(".json"))
+    raw_relative, raw_digest = write_temp_json(root, raw_relative, export)
+    subject[export_path_field] = raw_relative
+    subject[export_digest_field] = raw_digest
+    subject["provider_verifier_adapter"] = PREVIEW_GITHUB_ADAPTER_ID
+    subject["evidence_trust_level"] = PREVIEW_ATTESTED_TRUST_LEVEL
+
+    raw_reference = (
+        "https://github.com/example/phase8-preview/releases/download/"
+        f"synthetic-self-test/{PurePosixPath(raw_relative).name}"
+    )
+    source_identity = shared_source_identity(
+        subject, str(subject.get("plugin_version", ""))
+    )
+    raw_asset_id = 1000001
+    envelope_asset_id = 1000002
+    verifier_report_asset_id = 1000003
+    release_id = 7000001
+    workflow_run_id = 9000001
+    workflow_id = 8000001
+    release_tag = f"phase8-preview-{subject.get('plugin_version')}"
+    workflow_path = ".github/workflows/openai-plugin-preview.yml"
+    workflow_event = "push"
+    spec = preview_adapter_specs()[PREVIEW_GITHUB_ADAPTER_ID]
+    capture_script = REPO / "scripts" / "capture_openai_codex_app_server.py"
+    envelope_relative, envelope_digest = write_temp_json(
+        root,
+        f"envelopes/{PurePosixPath(raw_relative).stem}-preview-envelope.json",
+        {
+            "schema_version": EVIDENCE_ENVELOPE_SCHEMA,
+            "evidence_id": f"phase8-{subject.get('task_id')}-preview",
+            "verification_level": PREVIEW_ATTESTED_TRUST_LEVEL,
+            "provider_verified": False,
+            "counts_as_preview_acceptance": True,
+            "source_identity": source_identity,
+            "adapter": {
+                "adapter_id": "codex_app_server_preview_capture_v1",
+                "adapter_code_sha256": file_digest(capture_script),
+            },
+            "capture": {
+                "surface": "codex_app_server",
+                "task_or_thread_id": str(subject.get("task_id")),
+                "captured_at": str(subject["captured_at"]),
+                "raw_export_asset_id": raw_asset_id,
+                "raw_export_sha256": raw_digest,
+            },
+            "github_witness": {
+                "repository": "example/phase8-preview",
+                "release_id": release_id,
+                "release_tag": release_tag,
+                "workflow_run_id": workflow_run_id,
+                "actor": "phase8-preview-bot",
+                "source_commit": source_identity["source_commit"],
+                "raw_export_asset_id": raw_asset_id,
+            },
+            "expected_verifier": {
+                "verifier_id": "phase8_preview_semantic_verifier_v1",
+                "verifier_code_sha256": spec["verifier_digest"],
+                "independent": True,
+            },
+        },
+    )
+    report_relative, report_digest = write_temp_json(
+        root,
+        f"witnesses/{PurePosixPath(raw_relative).stem}-verifier-report.json",
+        {
+            "schema_version": "openai-preview-verifier-report/v1",
+            "verifier_id": "phase8_preview_semantic_verifier_v1",
+            "verifier_code_sha256": spec["verifier_digest"],
+            "source_identity": source_identity,
+            "envelope_asset_id": envelope_asset_id,
+            "envelope_sha256": envelope_digest,
+            "raw_export_asset_id": raw_asset_id,
+            "raw_export_sha256": raw_digest,
+            "verdict": "accepted",
+            "independent": True,
+            "verified_at": str(subject["captured_at"]),
+        },
+    )
+    assets = [
+        {
+            "asset_id": raw_asset_id,
+            "name": PurePosixPath(raw_relative).name,
+            "evidence_kind": "raw_export",
+            "sha256": raw_digest,
+            "size": resolved_file(
+                root, raw_relative, code="preview_self_test", label="raw export"
+            ).stat().st_size,
+            "fixture_path": raw_relative,
+            "browser_download_url": raw_reference,
+        },
+        {
+            "asset_id": envelope_asset_id,
+            "name": PurePosixPath(envelope_relative).name,
+            "evidence_kind": "evidence_envelope",
+            "sha256": envelope_digest,
+            "size": resolved_file(
+                root,
+                envelope_relative,
+                code="preview_self_test",
+                label="evidence envelope",
+            ).stat().st_size,
+            "fixture_path": envelope_relative,
+            "browser_download_url": (
+                "https://github.com/example/phase8-preview/releases/download/"
+                f"synthetic-self-test/{PurePosixPath(envelope_relative).name}"
+            ),
+        },
+        {
+            "asset_id": verifier_report_asset_id,
+            "name": PurePosixPath(report_relative).name,
+            "evidence_kind": "verifier_report",
+            "sha256": report_digest,
+            "size": resolved_file(
+                root,
+                report_relative,
+                code="preview_self_test",
+                label="verifier report",
+            ).stat().st_size,
+            "fixture_path": report_relative,
+            "browser_download_url": (
+                "https://github.com/example/phase8-preview/releases/download/"
+                f"synthetic-self-test/{PurePosixPath(report_relative).name}"
+            ),
+        },
+    ]
+    index_relative, index_digest = write_temp_json(
+        root,
+        f"witnesses/{PurePosixPath(raw_relative).stem}-release-asset-index.json",
+        {
+            "schema_version": RELEASE_ASSET_INDEX_SCHEMA,
+            "source_identity": source_identity,
+            "github_release": {
+                "repository": "example/phase8-preview",
+                "release_id": release_id,
+                "release_tag": release_tag,
+            },
+            "github_witness": {
+                "workflow_run_id": workflow_run_id,
+                "workflow_id": workflow_id,
+                "workflow_path": workflow_path,
+                "workflow_event": workflow_event,
+                "run_head_sha": source_identity["source_commit"],
+                "actor": "phase8-preview-bot",
+                "source_commit": source_identity["source_commit"],
+                "witnessed_at": str(subject["captured_at"]),
+            },
+            "assets": assets,
+        },
+    )
+    subject["preview_attestation"] = {
+        "adapter_id": PREVIEW_GITHUB_ADAPTER_ID,
+        "envelope_path": envelope_relative,
+        "envelope_digest": envelope_digest,
+        "release_asset_index_path": index_relative,
+        "release_asset_index_digest": index_digest,
+        "raw_export_path": raw_relative,
+        "raw_export_digest": raw_digest,
+        "raw_export_reference": raw_reference,
+        "capture_timestamp_digest": capture_timestamp_digest(
+            subject["captured_at"]
+        ),
+        "verifier_path": spec["verifier_path"],
+        "verifier_digest": spec["verifier_digest"],
+        "provider_registry_path": PROVIDER_VERIFIER_REGISTRY_PATH.relative_to(
+            REPO
+        ).as_posix(),
+        "provider_registry_digest": normalized_file_digest(
+            PROVIDER_VERIFIER_REGISTRY_PATH
+        ),
+        "workflow_path": workflow_path,
+        "workflow_id": workflow_id,
+        "workflow_event": workflow_event,
+        "workflow_run_id": workflow_run_id,
+        "run_head_sha": source_identity["source_commit"],
+        "release_asset_ids": [item["asset_id"] for item in assets],
+        "release_asset_digests": {
+            str(item["asset_id"]): item["sha256"] for item in assets
+        },
+        "synthetic_test_only": True,
+    }
+
+
+def rebind_synthetic_preview_bundle(root: Path, subject: dict[str, Any]) -> None:
+    """Recompute synthetic index/envelope bindings after a deliberate mutation."""
+    attestation = subject["preview_attestation"]
+    raw_relative = str(attestation["raw_export_path"])
+    raw_path = (root.resolve() / raw_relative).resolve()
+    raw_path.relative_to(root.resolve())
+    raw_digest = file_digest(raw_path)
+    attestation["raw_export_digest"] = raw_digest
+    subject_path_field = (
+        "platform_task_or_delegation_export_path"
+        if "platform_task_or_delegation_export_path" in subject
+        else "platform_receipt_or_export_path"
+    )
+    subject_digest_field = (
+        "platform_task_or_delegation_export_digest"
+        if subject_path_field == "platform_task_or_delegation_export_path"
+        else "platform_receipt_or_export_digest"
+    )
+    subject[subject_path_field] = raw_relative
+    subject[subject_digest_field] = raw_digest
+
+    envelope_path = (root.resolve() / str(attestation["envelope_path"])).resolve()
+    envelope_path.relative_to(root.resolve())
+    envelope = json.loads(envelope_path.read_text(encoding="utf-8"))
+    envelope["capture"]["raw_export_sha256"] = raw_digest
+    _, envelope_digest = write_temp_json(
+        root, str(attestation["envelope_path"]), envelope
+    )
+    attestation["envelope_digest"] = envelope_digest
+
+    index_path = (root.resolve() / str(attestation["release_asset_index_path"])).resolve()
+    index_path.relative_to(root.resolve())
+    index = json.loads(index_path.read_text(encoding="utf-8"))
+    assets_by_id = {item["asset_id"]: item for item in index["assets"]}
+    raw_asset = assets_by_id[envelope["capture"]["raw_export_asset_id"]]
+    raw_asset.update(
+        {
+            "name": PurePosixPath(raw_relative).name,
+            "sha256": raw_digest,
+            "size": raw_path.stat().st_size,
+            "fixture_path": raw_relative,
+            "browser_download_url": attestation["raw_export_reference"],
+        }
+    )
+    envelope_asset = next(
+        item for item in index["assets"] if item["evidence_kind"] == "evidence_envelope"
+    )
+    envelope_asset.update(
+        {
+            "sha256": envelope_digest,
+            "size": envelope_path.stat().st_size,
+        }
+    )
+    report_asset = next(
+        item for item in index["assets"] if item["evidence_kind"] == "verifier_report"
+    )
+    report_path = (root.resolve() / str(report_asset["fixture_path"])).resolve()
+    report_path.relative_to(root.resolve())
+    report = json.loads(report_path.read_text(encoding="utf-8"))
+    report["raw_export_sha256"] = raw_digest
+    report["envelope_sha256"] = envelope_digest
+    _, report_digest = write_temp_json(root, str(report_asset["fixture_path"]), report)
+    report_asset.update(
+        {
+            "sha256": report_digest,
+            "size": report_path.stat().st_size,
+        }
+    )
+    _, index_digest = write_temp_json(
+        root, str(attestation["release_asset_index_path"]), index
+    )
+    attestation["release_asset_index_digest"] = index_digest
+    attestation["release_asset_ids"] = [item["asset_id"] for item in index["assets"]]
+    attestation["release_asset_digests"] = {
+        str(item["asset_id"]): item["sha256"] for item in index["assets"]
+    }
 
 
 def validate_corpus(current_version: str) -> tuple[dict[str, Any], dict[str, dict[str, Any]]]:
@@ -574,13 +1514,15 @@ def validate_corpus(current_version: str) -> tuple[dict[str, Any], dict[str, dic
     require(policy.get("permitted_source_kinds") == ["synthetic"], "anonymity", "source kinds")
 
     cases = corpus.get("cases", [])
-    require(isinstance(cases, list) and len(cases) >= 16, "corpus_size", str(len(cases)))
+    minimum_cases = len(WORKFLOWS) * len(OUTCOME_CLASSES)
+    require(isinstance(cases, list) and len(cases) >= minimum_cases, "corpus_size", str(len(cases)))
     ids = [case.get("case_id") for case in cases]
     require(all(isinstance(case_id, str) and case_id for case_id in ids), "case_id", "missing")
     require(len(ids) == len(set(ids)), "case_id", "duplicate")
     by_id = {case["case_id"]: case for case in cases}
 
     coverage: Counter[tuple[str, str]] = Counter()
+    research_polisher_domain_coverage: Counter[str] = Counter()
     fatal_total = 0
     fatal_detected = 0
     fatal_or_blocking_total = 0
@@ -604,6 +1546,14 @@ def validate_corpus(current_version: str) -> tuple[dict[str, Any], dict[str, dic
         require(case.get("risk_tier") in {"low", "medium", "high"}, "risk_tier", case_id)
         require(isinstance(case.get("scenario"), str) and case["scenario"].strip(), "scenario", case_id)
         coverage[(workflow, outcome)] += 1
+        if workflow == "research_polisher":
+            research_domain = case.get("research_domain")
+            require(
+                research_domain in RESEARCH_POLISHER_DOMAINS,
+                "research_polisher_domain",
+                f"{case_id}: {research_domain}",
+            )
+            research_polisher_domain_coverage[str(research_domain)] += 1
 
         anonymity = case.get("anonymity", {})
         require(anonymity.get("source_kind") == "synthetic", "anonymity", case_id)
@@ -632,14 +1582,87 @@ def validate_corpus(current_version: str) -> tuple[dict[str, Any], dict[str, dic
         require(not forbidden_outputs.intersection(observed_outputs), "forbidden_output", case_id)
 
         ready_claimed = observation.get("ready_claimed") is True
-        false_ready_case = ready_claimed and expected["final_state"] != "human_signoff_required"
+        false_ready_case = ready_claimed and expected["final_state"] not in HUMAN_HANDOFF_STATES
         false_ready_case = false_ready_case or (
-            observation.get("final_state") == "human_signoff_required"
-            and expected["final_state"] != "human_signoff_required"
+            observation.get("final_state") in HUMAN_HANDOFF_STATES
+            and expected["final_state"] not in HUMAN_HANDOFF_STATES
         )
         false_ready += int(false_ready_case)
-        if expected["final_state"] == "human_signoff_required":
+        if expected["final_state"] in HUMAN_HANDOFF_STATES:
             require(ready_claimed, "missing_ready_claim", case_id)
+
+        if workflow == "research_polisher":
+            contract = observation.get("polisher_contract", {})
+            perspectives = contract.get("strategist_instances", {})
+            expected_perspectives = {
+                "scientific_significance",
+                "practical_value",
+                "dissemination_editorial",
+            }
+            require(set(perspectives) == expected_perspectives, "polisher_perspectives", case_id)
+            strategist_ids = list(perspectives.values())
+            require(
+                len(strategist_ids) == 3
+                and all(isinstance(value, str) and value for value in strategist_ids)
+                and len(set(strategist_ids)) == 3,
+                "polisher_strategist_instances",
+                case_id,
+            )
+            matrix = contract.get("matrix", {})
+            require(set(matrix) == expected_perspectives, "polisher_matrix", case_id)
+            expected_tiers = {"reposition_only", "small_extension", "moderate_extension"}
+            require(
+                all(
+                    isinstance(matrix.get(perspective), dict)
+                    and set(matrix[perspective]) == expected_tiers
+                    and set(matrix[perspective].values()) <= {"option", "no_defensible_option"}
+                    for perspective in expected_perspectives
+                ),
+                "polisher_matrix",
+                case_id,
+            )
+            final_reviewer_id = contract.get("final_reviewer_instance_id")
+            require(
+                isinstance(final_reviewer_id, str)
+                and final_reviewer_id
+                and final_reviewer_id not in set(strategist_ids),
+                "polisher_final_reviewer_identity",
+                case_id,
+            )
+            require(contract.get("peer_outputs_visible") is False, "polisher_peer_blindness", case_id)
+            require(
+                contract.get("raw_strategy_reports_visible_to_final") is False
+                and contract.get("prior_scores_visible_to_final") is False,
+                "polisher_final_blindness",
+                case_id,
+            )
+            assembler = contract.get("assembler", {})
+            require(
+                assembler.get("source_edits_performed") is False
+                and assembler.get("scoring_performed") is False
+                and assembler.get("ranking_performed") is False
+                and assembler.get("automatic_selection_performed") is False
+                and assembler.get("hybrid_options_created") is False
+                and assembler.get("dissent_preserved") is True
+                and assembler.get("lineage_complete") is True
+                and assembler.get("anonymous_portfolio") is True,
+                "polisher_assembler_boundary",
+                case_id,
+            )
+            require(
+                contract.get("portfolio_version") == contract.get("evaluated_portfolio_version"),
+                "polisher_stale_portfolio",
+                case_id,
+            )
+            require(
+                contract.get("target_requirements_status")
+                in {"verified", "target_requirements_unverified", "not_applicable"},
+                "polisher_target_requirements",
+                case_id,
+            )
+            if expected["final_state"] == "human_strategy_selection_required":
+                require(contract.get("retained_option_count", 0) >= 1, "polisher_retained_option", case_id)
+                require(contract.get("source_level_fatal_finding") is False, "polisher_fatal_ready", case_id)
 
         critical = expected["critical_findings"]
         require(isinstance(critical, list), "critical_findings", case_id)
@@ -712,17 +1735,18 @@ def validate_corpus(current_version: str) -> tuple[dict[str, Any], dict[str, dic
         dissent_expected += len(expected_dissent)
         dissent_preserved += len(expected_dissent.intersection(observed_dissent))
 
-        case_summaries.append(
-            {
-                "case_id": case_id,
-                "workflow": workflow,
-                "outcome_class": outcome,
-                "risk_tier": case["risk_tier"],
-                "expected_state": expected["final_state"],
-                "critical_findings": len(critical),
-                "fixture_contract": "passed",
-            }
-        )
+        case_summary = {
+            "case_id": case_id,
+            "workflow": workflow,
+            "outcome_class": outcome,
+            "risk_tier": case["risk_tier"],
+            "expected_state": expected["final_state"],
+            "critical_findings": len(critical),
+            "fixture_contract": "passed",
+        }
+        if workflow == "research_polisher":
+            case_summary["research_domain"] = case["research_domain"]
+        case_summaries.append(case_summary)
 
     require(
         set(coverage) == {(workflow, outcome) for workflow in WORKFLOWS for outcome in OUTCOME_CLASSES},
@@ -730,6 +1754,15 @@ def validate_corpus(current_version: str) -> tuple[dict[str, Any], dict[str, dic
         str(sorted(coverage)),
     )
     require(all(count >= 1 for count in coverage.values()), "corpus_coverage", str(coverage))
+    require(
+        set(research_polisher_domain_coverage) == RESEARCH_POLISHER_DOMAINS
+        and all(
+            research_polisher_domain_coverage[domain] >= 1
+            for domain in RESEARCH_POLISHER_DOMAINS
+        ),
+        "research_polisher_domain_coverage",
+        str(dict(sorted(research_polisher_domain_coverage.items()))),
+    )
     fatal_recall = percent(fatal_detected, fatal_total)
     fatal_or_blocking_recall = percent(fatal_or_blocking_detected, fatal_or_blocking_total)
     major_recall = percent(major_detected, major_total)
@@ -754,6 +1787,10 @@ def validate_corpus(current_version: str) -> tuple[dict[str, Any], dict[str, dic
         "coverage": {
             workflow: {outcome: coverage[(workflow, outcome)] for outcome in sorted(OUTCOME_CLASSES)}
             for workflow in sorted(WORKFLOWS)
+        },
+        "research_polisher_domain_coverage": {
+            domain: research_polisher_domain_coverage[domain]
+            for domain in sorted(RESEARCH_POLISHER_DOMAINS)
         },
         "metrics": {
             "false_ready_count": false_ready,
@@ -1204,11 +2241,16 @@ def validate_source_only_blind_bundle(
             f"{label}: reviewer resource entry",
         )
         resource_path = str(resource.get("path", "")).replace("\\", "/")
+        resource_file = resolved_file(
+            root,
+            resource_path,
+            code=code,
+            label=f"{label}: reviewer resource",
+        )
         require(
             resource_path.startswith(expected_prefix)
             and resource_path not in seen_resources
-            and (root / resource_path).is_file()
-            and resource.get("sha256") == file_digest(root / resource_path),
+            and resource.get("sha256") == file_digest(resource_file),
             code,
             f"{label}: unbound or out-of-scope reviewer resource {resource_path}",
         )
@@ -1222,7 +2264,7 @@ def validate_durable_live_repeat_bindings(
     current_version: str,
     *,
     root: Path = REPO,
-    synthetic_override: bool = False,
+    synthetic_override: _SyntheticCapability | None = None,
 ) -> None:
     code = "live_repeat_durable_binding"
     validate_reviewer_visible_identifier(
@@ -1487,13 +2529,11 @@ def validate_durable_live_repeat_bindings(
             )
             for declared_path in declared_reads:
                 normalized = str(declared_path).replace("\\", "/")
-                relative = PurePosixPath(normalized)
-                require(
-                    not relative.is_absolute()
-                    and ".." not in relative.parts
-                    and (root / normalized).is_file(),
-                    code,
-                    f"{run_id}: unsafe or missing declared read {normalized}",
+                resolved_file(
+                    root,
+                    normalized,
+                    code=code,
+                    label=f"{run_id}: declared read",
                 )
             allowed_write_prefixes = prompt.get("allowed_write_prefixes")
             require(
@@ -1566,8 +2606,14 @@ def validate_durable_live_repeat_bindings(
                 f"{run_id}: read digest closure mismatch",
             )
             for read_path in files_read:
+                read_file = resolved_file(
+                    root,
+                    read_path,
+                    code=code,
+                    label=f"{run_id}: read file",
+                )
                 require(
-                    file_digests.get(read_path) == file_digest(root / read_path),
+                    file_digests.get(read_path) == file_digest(read_file),
                     code,
                     f"{run_id}: unbound read {read_path}",
                 )
@@ -1579,10 +2625,14 @@ def validate_durable_live_repeat_bindings(
                 f"{run_id}: write digest closure mismatch",
             )
             for written_path in files_written:
+                written_file = resolved_file(
+                    root,
+                    written_path,
+                    code=code,
+                    label=f"{run_id}: review output",
+                )
                 require(
-                    (root / written_path).is_file()
-                    and write_digests.get(written_path)
-                    == file_digest(root / written_path),
+                    write_digests.get(written_path) == file_digest(written_file),
                     code,
                     f"{run_id}: unbound review output {written_path}",
                 )
@@ -1785,7 +2835,8 @@ The source artifact contains a bounded synthetic claim and its analysis values.
     )
     return {
         "evidence_class": "durable_platform_fresh_subagent_receipts",
-        "verification_level": "durable_platform_provenance",
+        "evidence_trust_level": PROVIDER_VERIFIED_TRUST_LEVEL,
+        "verification_level": "provider_authenticated_provenance",
         "verified_live_gate_eligible": True,
         "durable_verification_missing": [],
         "provider_verifier_adapter": SYNTHETIC_PROVIDER_ADAPTER_ID,
@@ -1848,8 +2899,7 @@ def validate_live_repeat_durable_negative_guards(
         ),
     }
     results: list[dict[str, str]] = []
-    with tempfile.TemporaryDirectory(prefix="phase8-live-durable-") as temp:
-        root = Path(temp)
+    with synthetic_temp_root("phase8-live-durable-") as (root, capability):
         baseline = build_live_repeat_durable_self_test(root, current_version)
         try:
             validate_durable_live_repeat_bindings(
@@ -1870,7 +2920,7 @@ def validate_live_repeat_durable_negative_guards(
             baseline,
             current_version,
             root=root,
-            synthetic_override=True,
+            synthetic_override=capability,
         )
         for probe_id, mutate in mutations.items():
             candidate = copy.deepcopy(baseline)
@@ -1880,7 +2930,7 @@ def validate_live_repeat_durable_negative_guards(
                     candidate,
                     current_version,
                     root=root,
-                    synthetic_override=True,
+                    synthetic_override=capability,
                 )
             except CorpusViolation as exc:
                 require(
@@ -1903,8 +2953,7 @@ def validate_live_repeat_durable_negative_guards(
 def validate_live_blind_bundle_negative_guard(
     current_version: str,
 ) -> dict[str, str]:
-    with tempfile.TemporaryDirectory(prefix="phase8-live-blind-bundle-") as temp:
-        root = Path(temp)
+    with synthetic_temp_root("phase8-live-blind-bundle-") as (root, capability):
         candidate = build_live_repeat_durable_self_test(root, current_version)
         run = candidate["cases"][0]["runs"][0]
         original = bound_mapping(
@@ -1926,7 +2975,7 @@ def validate_live_blind_bundle_negative_guard(
                 candidate,
                 current_version,
                 root=root,
-                synthetic_override=True,
+                synthetic_override=capability,
             )
         except CorpusViolation as exc:
             require(
@@ -2186,8 +3235,12 @@ def validate_live_fresh_repeats(
     current_version: str,
     cases: dict[str, dict[str, Any]],
     selected_case_ids: list[str],
+    *,
+    data_path: Path = LIVE_REPEAT_PATH,
+    root: Path = REPO,
+    external_preview_capability: _ExternalPreviewCapability | None = None,
 ) -> dict[str, Any]:
-    data = load_yaml(LIVE_REPEAT_PATH)
+    data = load_yaml(data_path)
     require(data.get("schema_version") == 1, "live_repeat_schema", "schema_version")
     evidence_class = data.get("evidence_class")
     require(
@@ -2195,26 +3248,65 @@ def validate_live_fresh_repeats(
         in {
             "current_task_self_attested_fresh_subagent_snapshot",
             "durable_platform_fresh_subagent_receipts",
+            "provider_verified_platform_fresh_subagent_receipts",
+            "preview_attested_platform_fresh_subagent_receipts",
         },
         "live_repeat_evidence_class",
         str(evidence_class),
     )
-    require(data.get("plugin_version") == current_version, "live_repeat_plugin_version", "manifest")
+    receipt_version = data.get("plugin_version")
+    require(isinstance(receipt_version, str) and receipt_version, "live_repeat_plugin_version", "manifest")
+    historical_release_mismatch = receipt_version != current_version
     require(bool(data.get("task_id")), "live_repeat_task_id", "missing")
     validate_reviewer_visible_identifier(
         data.get("task_id"),
         label="live repeat task ID",
     )
-    durable_evidence = evidence_class == "durable_platform_fresh_subagent_receipts"
-    if durable_evidence:
+    provider_declared_evidence = (
+        evidence_class
+        in {
+            "durable_platform_fresh_subagent_receipts",
+            "provider_verified_platform_fresh_subagent_receipts",
+        }
+        and not historical_release_mismatch
+    )
+    preview_declared_evidence = (
+        evidence_class == "preview_attested_platform_fresh_subagent_receipts"
+        and not historical_release_mismatch
+    )
+    external_records = _external_preview_records(
+        external_preview_capability,
+        root=root,
+        data_path=data_path,
+        slot_kind="reviewer",
+    )
+    preview_attested_evidence = preview_declared_evidence and len(external_records) == 6
+    # A source-controlled provider/Preview label is only a structural claim.
+    # Promotion requires a process-local result from an executable live verifier.
+    provider_verified_evidence = False
+    durable_evidence = provider_declared_evidence or preview_declared_evidence
+    if provider_declared_evidence:
         require(
-            data.get("verification_level") == "durable_platform_provenance"
-            and data.get("verified_live_gate_eligible") is True
+            data.get("evidence_trust_level") == PROVIDER_VERIFIED_TRUST_LEVEL
+            and data.get("verification_level")
+            == "provider_authenticated_provenance"
+            and data.get("provider_verified_gate_eligible") is True
             and data.get("durable_verification_missing") == [],
             "live_repeat_verification_level",
-            "durable receipt contract",
+            "provider-verified receipt contract",
         )
-        validate_durable_live_repeat_bindings(data, current_version)
+        validate_durable_live_repeat_bindings(data, current_version, root=root)
+    elif preview_declared_evidence:
+        require(
+            data.get("evidence_trust_level") == PREVIEW_ATTESTED_TRUST_LEVEL
+            and data.get("verification_level") == "preview_github_witness"
+            and data.get("preview_gate_eligible") is True
+            and data.get("provider_verified_gate_eligible") is False
+            and data.get("durable_verification_missing") == [],
+            "live_repeat_verification_level",
+            "Preview-attested receipt contract",
+        )
+        validate_durable_live_repeat_bindings(data, current_version, root=root)
     else:
         require(
             data.get("verification_level") == "self_attested_current_task_snapshot"
@@ -2302,13 +3394,13 @@ def validate_live_fresh_repeats(
         )
         historical_oracle_exposed_run_count += len(historical_runs)
         input_rel = str(receipt.get("input_path", "")).replace("\\", "/")
-        input_path = REPO / input_rel
+        input_path = root / input_rel
         require(input_path.is_file(), "live_repeat_input_missing", input_rel)
         require(receipt.get("input_digest") == file_digest(input_path), "live_repeat_input_digest", case_id)
         validate_source_only_input_artifact(
             input_rel,
             str(receipt.get("input_digest")),
-            root=REPO,
+            root=root,
             label=str(case_id),
         )
         reviewer_skill = receipt.get("reviewer_skill")
@@ -2332,6 +3424,19 @@ def validate_live_fresh_repeats(
             )
             run_ids.add(str(run_id))
             case_run_ids.append(str(run_id))
+            if external_records:
+                record = external_records.get(str(run_id))
+                require(
+                    record is not None,
+                    "phase8_external_live_record",
+                    f"missing reviewer record: {run_id}",
+                )
+                _require_external_slot_match(
+                    record,
+                    slot_id=run_id,
+                    execution_id=run.get("delegated_thread_id"),
+                    subject=run,
+                )
             raw = run.get("review_contract")
             require(isinstance(raw, dict), "live_repeat_review_contract", str(run_id))
             instance_id = raw.get("reviewer_instance_id")
@@ -2397,16 +3502,46 @@ def validate_live_fresh_repeats(
             }
         )
 
+    if external_records:
+        require(
+            set(external_records) == run_ids,
+            "phase8_external_live_record",
+            "reviewer record coverage differs from the frozen collection",
+        )
+
     return {
         "evidence_class": data["evidence_class"],
+        "plugin_version": receipt_version,
+        "current_plugin_version": current_version,
+        "historical_release_mismatch": historical_release_mismatch,
         "runtime_claim": data["runtime_claim"],
         "captured_at": data["captured_at"].isoformat() if isinstance(data["captured_at"], datetime) else data["captured_at"],
         "task_id": data["task_id"],
         "case_count": len(repeated_cases),
-        "observed_review_snapshot_count": run_count,
+        "observed_review_snapshot_count": (
+            run_count
+            if not historical_release_mismatch and not durable_evidence
+            else 0
+        ),
+        "historical_release_mismatch_snapshot_count": run_count if historical_release_mismatch else 0,
         "historical_oracle_exposed_snapshot_count": historical_oracle_exposed_run_count,
         "historical_oracle_exposed_snapshots_count_as_evidence": False,
-        "verified_live_review_count": run_count if durable_evidence else 0,
+        "verified_live_review_count": (
+            run_count if provider_verified_evidence else 0
+        ),
+        "provider_verified_live_review_count": (
+            run_count if provider_verified_evidence else 0
+        ),
+        "preview_attested_review_count": (
+            run_count if preview_attested_evidence else 0
+        ),
+        "declared_preview_review_count": (
+            run_count if preview_declared_evidence else 0
+        ),
+        "external_live_capability_present": bool(external_records),
+        "provider_verified_slots_pending": (
+            run_count - (run_count if provider_verified_evidence else 0)
+        ),
         "unique_reviewer_instance_count": len(reviewer_ids),
         "snapshot_contract_state_agreement_percent": 100.0,
         "snapshot_critical_label_recall_percent": percent(critical_labels_detected, critical_labels_required),
@@ -2437,6 +3572,7 @@ def validate_live_fresh_repeats(
             "declared source-artifact kinds"
         ),
         "provider_verifier_adapter_count": len(real_provider_adapter_ids()),
+        "preview_verifier_adapter_count": len(preview_adapter_ids()),
         "synthetic_provider_override_self_test": {
             "status": "passed",
             "counts_as_runtime_evidence": False,
@@ -2444,8 +3580,29 @@ def validate_live_fresh_repeats(
         },
         "source_identity_binding_required": list(SOURCE_IDENTITY_FIELDS),
         "freshness_days": EVIDENCE_FRESHNESS_DAYS,
-        "verified_live_gate_status": "completed" if durable_evidence else "pending_durable_execution_evidence",
-        "status": "completed" if durable_evidence else "observed_unverified",
+        "preview_gate_status": (
+            "completed"
+            if preview_attested_evidence or provider_verified_evidence
+            else "pending_preview_attested_execution_evidence"
+        ),
+        "verified_live_gate_status": (
+            "completed"
+            if provider_verified_evidence
+            else "pending_provider_verified_execution_evidence"
+        ),
+        "status": (
+            "provider_verified"
+            if provider_verified_evidence
+            else "preview_attested"
+            if preview_attested_evidence
+            else "historical_release_mismatch"
+            if historical_release_mismatch
+            else "preview_declared_live_requery_pending"
+            if preview_declared_evidence
+            else "provider_declared_live_requery_pending"
+            if provider_declared_evidence
+            else "observed_unverified"
+        ),
     }
 
 
@@ -2508,28 +3665,85 @@ def validate_time_and_identity_self_tests() -> dict[str, Any]:
     )
     mutated_identity = current_contract_identity().copy()
     mutated_identity["manifest_digest"] = "sha256:" + "0" * 64
+    with synthetic_temp_root("phase8-identity-") as (_root, capability):
+        try:
+            validate_source_identity(
+                mutated_identity,
+                label="synthetic identity mutation",
+                synthetic_override=capability,
+            )
+        except CorpusViolation as exc:
+            require(
+                exc.code == "phase8_source_identity",
+                "phase8_identity_guard_self_test",
+                exc.code,
+            )
+        else:
+            raise CorpusViolation(
+                "phase8_identity_guard_self_test",
+                "altered plugin identity was accepted",
+            )
+    capability_rejections = 0
+    with tempfile.TemporaryDirectory(prefix="phase8-forged-capability-") as temp:
+        forged_root = Path(temp).resolve()
+        for candidate in (
+            True,
+            _SyntheticCapability(root=forged_root, nonce="forged"),
+        ):
+            try:
+                require_synthetic_capability(
+                    forged_root,
+                    candidate,  # type: ignore[arg-type]
+                    code="synthetic_capability_guard",
+                )
+            except CorpusViolation as exc:
+                require(
+                    exc.code == "synthetic_capability_guard",
+                    "synthetic_capability_guard_self_test",
+                    exc.code,
+                )
+                capability_rejections += 1
+            else:
+                raise CorpusViolation(
+                    "synthetic_capability_guard_self_test",
+                    "forged or naked synthetic override was accepted",
+                )
+    with synthetic_temp_root("phase8-expired-capability-") as (
+        expired_root,
+        expired_capability,
+    ):
+        require_synthetic_capability(
+            expired_root,
+            expired_capability,
+            code="synthetic_capability_guard",
+        )
     try:
-        validate_source_identity(
-            mutated_identity,
-            label="synthetic identity mutation",
-            synthetic_override=True,
+        require_synthetic_capability(
+            expired_root,
+            expired_capability,
+            code="synthetic_capability_guard",
         )
     except CorpusViolation as exc:
         require(
-            exc.code == "phase8_source_identity",
-            "phase8_identity_guard_self_test",
+            exc.code == "synthetic_capability_guard",
+            "synthetic_capability_guard_self_test",
             exc.code,
         )
+        capability_rejections += 1
     else:
         raise CorpusViolation(
-            "phase8_identity_guard_self_test",
-            "altered plugin identity was accepted",
+            "synthetic_capability_guard_self_test",
+            "expired synthetic capability was accepted",
         )
     return {
         "future_timestamp_rejected": True,
         "older_than_90_days_classified_stale": True,
         "source_identity_mutation_rejected": True,
         "counts_as_runtime_evidence": False,
+        "synthetic_capability_rejections": capability_rejections,
+        "naked_boolean_override_rejected": True,
+        "arbitrary_external_root_rejected": True,
+        "expired_capability_rejected": True,
     }
 
 
@@ -2555,7 +3769,8 @@ def validate_populated_retrieval_receipt(
     require(receipt.get("expected_completion_status") == contract["expected_status"], "retrieval_expected_status", receipt_id)
     for field in ("captured_at", "plugin_version", "task_id"):
         require(bool(receipt.get(field)), "retrieval_live_field", f"{receipt_id}: {field}")
-    require(receipt["plugin_version"] == current_version, "retrieval_plugin_version", receipt_id)
+    receipt_version = receipt["plugin_version"]
+    historical_release_mismatch = receipt_version != current_version
     if (
         validate_timestamp_window(
             receipt["captured_at"], receipt_id, max_age_days=freshness_days
@@ -2573,11 +3788,15 @@ def validate_populated_retrieval_receipt(
         normalized = str(artifact_path).replace("\\", "/")
         path = PurePosixPath(normalized)
         require(not path.is_absolute() and ".." not in path.parts, "retrieval_artifact_path", receipt_id)
-        resolved = root / normalized
-        require(resolved.is_file(), "retrieval_artifact_path", f"{receipt_id}: {normalized}")
+        resolved = resolved_file(
+            root,
+            normalized,
+            code="retrieval_artifact_path",
+            label=receipt_id,
+        )
         require(file_digest(resolved) == expected_digest, "retrieval_artifact_digest", f"{receipt_id}: {normalized}")
         artifact = load_yaml(resolved)
-        require(artifact.get("plugin_version") == current_version, "retrieval_artifact_version", receipt_id)
+        require(artifact.get("plugin_version") == receipt_version, "retrieval_artifact_version", receipt_id)
         require(artifact.get("task_id") == receipt.get("task_id"), "retrieval_artifact_task", receipt_id)
         require(
             parse_timestamp(artifact.get("captured_at"), receipt_id)
@@ -2665,7 +3884,7 @@ def validate_populated_retrieval_receipt(
             "search_artifact_route_binding",
             receipt_id,
         )
-    return "completed"
+    return "historical_release_mismatch" if historical_release_mismatch else "completed"
 
 
 def validate_deep_research_event_order(
@@ -2722,17 +3941,27 @@ def validate_verified_retrieval_provenance(
     evidence_class: str,
     *,
     root: Path = REPO,
-    synthetic_override: bool = False,
+    synthetic_override: _SyntheticCapability | None = None,
 ) -> None:
     policy = schema.get("verification_policy", {})
+    trust_level = receipt.get("evidence_trust_level")
+    trust_contracts = policy.get("trust_levels", {})
+    trust_contract = trust_contracts.get(trust_level, {})
     require(
-        evidence_class == policy.get("verified_evidence_class"),
+        trust_level
+        in {PROVIDER_VERIFIED_TRUST_LEVEL, PREVIEW_ATTESTED_TRUST_LEVEL}
+        and isinstance(trust_contract, dict)
+        and evidence_class == trust_contract.get("evidence_class"),
         "retrieval_verified_evidence_class",
         str(receipt.get("receipt_id")),
     )
     require(
         policy.get("repository_files_alone_are_not_provider_provenance") is True
         and policy.get("provider_verifier_adapter_required") is True
+        and policy.get("preview_attested_is_not_provider_verified") is True
+        and policy.get("preview_attested_requires_external_github_witness")
+        is True
+        and policy.get("preview_attested_requires_executable_verifier") is True
         and policy.get("source_identity_required") == list(SOURCE_IDENTITY_FIELDS),
         "retrieval_durable_schema",
         "provider/source trust policy",
@@ -2766,6 +3995,17 @@ def validate_verified_retrieval_provenance(
         "retrieval_durable_provenance",
         f"{receipt.get('receipt_id')}: missing {identity_or_provider_missing}",
     )
+    if trust_level == PREVIEW_ATTESTED_TRUST_LEVEL:
+        preview_fields = policy.get("preview_attestation_required", [])
+        attestation = receipt.get("preview_attestation", {})
+        require(
+            isinstance(preview_fields, list)
+            and bool(preview_fields)
+            and isinstance(attestation, dict)
+            and not [field for field in preview_fields if not attestation.get(field)],
+            "retrieval_preview_attestation",
+            f"{receipt.get('receipt_id')}: incomplete Preview attestation",
+        )
     digest_fields = [field for field in required_fields if field.endswith("_digest")]
     invalid_digests = [
         field
@@ -2957,9 +4197,12 @@ def validate_verified_retrieval_provenance(
     )
 
     platform_export = bound["platform_receipt_or_export_path"]
-    platform_export_path = root / str(
-        receipt.get("platform_receipt_or_export_path", "")
-    ).replace("\\", "/")
+    platform_export_path = resolved_file(
+        root,
+        receipt.get("platform_receipt_or_export_path", ""),
+        code="retrieval_durable_binding",
+        label=f"{receipt_id}: platform export",
+    )
     expected_bound_digests = {
         path_field: receipt[digest_field]
         for path_field, digest_field, _ in path_digest_pairs
@@ -3248,8 +4491,9 @@ def build_durable_retrieval_self_test(
         ),
         "question_class": "current" if kind == "search" else "broad_synthesis",
         "expected_completion_status": contract["expected_status"],
-        "evidence_status": "verified_live_evidence",
-        "verification_level": "durable_platform_provenance",
+        "evidence_status": "provider_verified_live_evidence",
+        "evidence_trust_level": PROVIDER_VERIFIED_TRUST_LEVEL,
+        "verification_level": "provider_authenticated_provenance",
         "query": query,
         "query_or_request_digest": query_digest,
         "captured_at": captured_at,
@@ -3591,7 +4835,11 @@ def validate_retrieval_durable_negative_guards(
     schema: dict[str, Any], current_version: str
 ) -> list[dict[str, str]]:
     policy = schema.get("verification_policy", {})
-    durable_class = policy.get("verified_evidence_class")
+    durable_class = (
+        policy.get("trust_levels", {})
+        .get(PROVIDER_VERIFIED_TRUST_LEVEL, {})
+        .get("evidence_class")
+    )
     common_fields = policy.get("verified_live_common_required", [])
     kind_fields = policy.get("verified_live_kind_required", {})
     require(isinstance(durable_class, str) and bool(durable_class), "retrieval_durable_schema", "evidence class")
@@ -3611,7 +4859,7 @@ def validate_retrieval_durable_negative_guards(
                 schema,
                 str(durable_class),
                 root=root,
-                synthetic_override=True,
+                synthetic_override=capability,
             )
         except CorpusViolation as exc:
             require(
@@ -3633,11 +4881,11 @@ def validate_retrieval_durable_negative_guards(
         "receipt_id": "label-only-promotion",
         "kind": "search",
         "query": "label-only promotion must fail",
-        "evidence_status": "verified_live_evidence",
-        "verification_level": "durable_platform_provenance",
+        "evidence_status": "provider_verified_live_evidence",
+        "evidence_trust_level": PROVIDER_VERIFIED_TRUST_LEVEL,
+        "verification_level": "provider_authenticated_provenance",
     }
-    with tempfile.TemporaryDirectory(prefix="phase8-retrieval-durable-") as temp:
-        root = Path(temp)
+    with synthetic_temp_root("phase8-retrieval-durable-") as (root, capability):
         expect_rejection(
             "label-only-promotion",
             label_only,
@@ -3661,7 +4909,7 @@ def validate_retrieval_durable_negative_guards(
                 schema,
                 str(durable_class),
                 root=root,
-                synthetic_override=True,
+                synthetic_override=capability,
             )
             try:
                 validate_verified_retrieval_provenance(
@@ -3681,10 +4929,15 @@ def validate_retrieval_durable_negative_guards(
             for field in [*common_fields, *specific_fields]:
                 candidate = copy.deepcopy(complete)
                 candidate.pop(field, None)
+                expected_missing_codes = {"retrieval_durable_provenance"}
+                if field == "evidence_trust_level":
+                    expected_missing_codes.add(
+                        "retrieval_verified_evidence_class"
+                    )
                 expect_rejection(
                     f"{kind}-missing-{field}",
                     candidate,
-                    {"retrieval_durable_provenance"},
+                    expected_missing_codes,
                     root=root,
                 )
 
@@ -3769,8 +5022,7 @@ def validate_deep_research_semantic_negative_guards(
             {"mutation": mutation, "status": "rejected", "error_code": exc.code}
         )
 
-    with tempfile.TemporaryDirectory(prefix="phase8-deep-semantic-") as temp:
-        root = Path(temp)
+    with synthetic_temp_root("phase8-deep-semantic-") as (root, capability):
         baseline = build_durable_retrieval_self_test(
             root, "deep_research_completed", schema, current_version
         )
@@ -3828,9 +5080,13 @@ def validate_deep_research_semantic_negative_guards(
             validate_verified_retrieval_provenance(
                 unbound_evidence,
                 schema,
-                str(schema["verification_policy"]["verified_evidence_class"]),
+                str(
+                    schema["verification_policy"]["trust_levels"][
+                        PROVIDER_VERIFIED_TRUST_LEVEL
+                    ]["evidence_class"]
+                ),
                 root=root,
-                synthetic_override=True,
+                synthetic_override=capability,
             )
         except CorpusViolation as exc:
             record_rejection(
@@ -3844,8 +5100,22 @@ def validate_deep_research_semantic_negative_guards(
                 "deep_evidence_artifact_digest_unbound",
             )
 
-        mapper_return = load_yaml(root / baseline["mapper_return_artifact"])
-        resume = load_yaml(root / baseline["resume_receipt_path"])
+        mapper_return = load_yaml(
+            resolved_file(
+                root,
+                baseline["mapper_return_artifact"],
+                code="retrieval_durable_binding",
+                label="mapper return",
+            )
+        )
+        resume = load_yaml(
+            resolved_file(
+                root,
+                baseline["resume_receipt_path"],
+                code="retrieval_durable_binding",
+                label="resume receipt",
+            )
+        )
         mismatched_mapper = copy.deepcopy(mapper_return)
         mismatched_mapper["evidence_artifact_ids"] = ["different-evidence"]
         try:
@@ -3874,9 +5144,13 @@ def validate_deep_research_semantic_negative_guards(
             validate_verified_retrieval_provenance(
                 failed_provider,
                 schema,
-                str(schema["verification_policy"]["verified_evidence_class"]),
+                str(
+                    schema["verification_policy"]["trust_levels"][
+                        PROVIDER_VERIFIED_TRUST_LEVEL
+                    ]["evidence_class"]
+                ),
                 root=root,
-                synthetic_override=True,
+                synthetic_override=capability,
             )
         except CorpusViolation as exc:
             record_rejection(
@@ -3890,10 +5164,29 @@ def validate_deep_research_semantic_negative_guards(
                 "provider_run_completed_status_not_completed",
             )
 
-        handoff = load_yaml(root / baseline["handoff_artifact"])
-        user_start = load_yaml(root / baseline["user_start_event_path"])
+        handoff = load_yaml(
+            resolved_file(
+                root,
+                baseline["handoff_artifact"],
+                code="retrieval_durable_binding",
+                label="handoff artifact",
+            )
+        )
+        user_start = load_yaml(
+            resolved_file(
+                root,
+                baseline["user_start_event_path"],
+                code="retrieval_durable_binding",
+                label="user start event",
+            )
+        )
         provider_completed = load_yaml(
-            root / baseline["provider_run_completed_path"]
+            resolved_file(
+                root,
+                baseline["provider_run_completed_path"],
+                code="retrieval_durable_binding",
+                label="provider completion receipt",
+            )
         )
         nonmonotonic_provider = copy.deepcopy(provider_completed)
         nonmonotonic_provider["event_at"] = mapper_return["event_at"]
@@ -3921,9 +5214,242 @@ def validate_deep_research_semantic_negative_guards(
     return results
 
 
-def validate_retrieval_receipts(current_version: str) -> dict[str, Any]:
+def validate_preview_gate_self_tests(
+    schema: dict[str, Any], current_version: str
+) -> dict[str, Any]:
+    """Prove the Preview contract is reachable without filling any live slot."""
+    preview_class = (
+        schema["verification_policy"]["trust_levels"][
+            PREVIEW_ATTESTED_TRUST_LEVEL
+        ]["evidence_class"]
+    )
+    component_contracts: list[str] = []
+    with synthetic_temp_root("phase8-preview-contract-") as (root, capability):
+        live = build_live_repeat_durable_self_test(root, current_version)
+        attach_synthetic_preview_attestation(
+            root,
+            live,
+            export_path_field="platform_task_or_delegation_export_path",
+            export_digest_field="platform_task_or_delegation_export_digest",
+        )
+        validate_durable_live_repeat_bindings(
+            live, current_version, root=root, synthetic_override=capability
+        )
+        component_contracts.append("fresh_reviewer")
+        try:
+            validate_durable_live_repeat_bindings(
+                live, current_version, root=root, synthetic_override=None
+            )
+        except CorpusViolation as exc:
+            require(
+                exc.code == "preview_attestation",
+                "preview_synthetic_promotion_guard",
+                exc.code,
+            )
+        else:
+            raise CorpusViolation(
+                "preview_synthetic_promotion_guard",
+                "synthetic Preview evidence was promoted",
+            )
+
+        for kind in (
+            "search",
+            "deep_research_completed",
+            "deep_research_inactive_control",
+        ):
+            receipt = build_durable_retrieval_self_test(
+                root, kind, schema, current_version
+            )
+            receipt.update(
+                {
+                    "evidence_status": "preview_attested_evidence",
+                    "verification_level": "preview_github_witness",
+                }
+            )
+            attach_synthetic_preview_attestation(
+                root,
+                receipt,
+                export_path_field="platform_receipt_or_export_path",
+                export_digest_field="platform_receipt_or_export_digest",
+            )
+            validate_populated_retrieval_receipt(
+                receipt,
+                schema["completion_contracts"][kind],
+                current_version,
+                int(schema["freshness_days"]),
+                root=root,
+            )
+            validate_verified_retrieval_provenance(
+                receipt,
+                schema,
+                str(preview_class),
+                root=root,
+                synthetic_override=capability,
+            )
+            component_contracts.append(kind)
+
+    def expect_mutation_rejected(
+        mutation: str, mutate: Callable[[Path, dict[str, Any]], None]
+    ) -> dict[str, str]:
+        with synthetic_temp_root(f"phase8-preview-{mutation}-") as (
+            root,
+            capability,
+        ):
+            candidate = build_live_repeat_durable_self_test(root, current_version)
+            attach_synthetic_preview_attestation(
+                root,
+                candidate,
+                export_path_field="platform_task_or_delegation_export_path",
+                export_digest_field="platform_task_or_delegation_export_digest",
+            )
+            mutate(root, candidate)
+            try:
+                validate_durable_live_repeat_bindings(
+                    candidate,
+                    current_version,
+                    root=root,
+                    synthetic_override=capability,
+                )
+            except CorpusViolation as exc:
+                require(
+                    exc.code in {"preview_attestation", "live_repeat_durable_binding"},
+                    "preview_mutation_wrong_error",
+                    f"{mutation}: {exc.code}",
+                )
+                return {
+                    "mutation": mutation,
+                    "status": "rejected",
+                    "error_code": exc.code,
+                }
+            raise CorpusViolation("preview_mutation_accepted", mutation)
+
+    def tamper_raw(root: Path, subject: dict[str, Any]) -> None:
+        path = resolved_file(
+            root,
+            subject["preview_attestation"]["raw_export_path"],
+            code="preview_attestation",
+            label="raw export mutation",
+        )
+        path.write_bytes(path.read_bytes() + b"\n{\"tampered\":true}\n")
+
+    def remove_witness(_root: Path, subject: dict[str, Any]) -> None:
+        subject["preview_attestation"].pop("release_asset_index_path")
+
+    def mismatch_witness_digest(_root: Path, subject: dict[str, Any]) -> None:
+        subject["preview_attestation"]["release_asset_index_digest"] = (
+            "sha256:" + "0" * 64
+        )
+
+    def screenshot_only(root: Path, subject: dict[str, Any]) -> None:
+        attestation = subject["preview_attestation"]
+        index_path = resolved_file(
+            root,
+            attestation["release_asset_index_path"],
+            code="preview_attestation",
+            label="Release asset index mutation",
+        )
+        index = json.loads(index_path.read_text(encoding="utf-8"))
+        index["assets"][0]["evidence_kind"] = "screenshot"
+        write_temp_json(root, attestation["release_asset_index_path"], index)
+        rebind_synthetic_preview_bundle(root, subject)
+
+    def handwritten_yaml(root: Path, subject: dict[str, Any]) -> None:
+        attestation = subject["preview_attestation"]
+        raw_path = resolved_file(
+            root,
+            attestation["raw_export_path"],
+            code="preview_attestation",
+            label="raw export mutation",
+        )
+        raw = json.loads(raw_path.read_text())
+        yaml_relative = str(
+            PurePosixPath(attestation["raw_export_path"]).with_suffix(".yaml")
+        )
+        write_temp_mapping(root, yaml_relative, raw)
+        attestation["raw_export_path"] = yaml_relative
+        attestation["raw_export_reference"] = (
+            "https://github.com/example/phase8-preview/releases/download/"
+            f"synthetic-self-test/{PurePosixPath(yaml_relative).name}"
+        )
+        rebind_synthetic_preview_bundle(root, subject)
+
+    def replace_attestation(field: str, value: Any) -> Callable[[Path, dict[str, Any]], None]:
+        def mutate(_root: Path, subject: dict[str, Any]) -> None:
+            subject["preview_attestation"][field] = value
+
+        return mutate
+
+    mutations = [
+        expect_mutation_rejected("raw_export_tampered", tamper_raw),
+        expect_mutation_rejected("github_witness_missing", remove_witness),
+        expect_mutation_rejected(
+            "github_witness_digest_mismatch", mismatch_witness_digest
+        ),
+        expect_mutation_rejected("single_screenshot_only", screenshot_only),
+        expect_mutation_rejected("handwritten_yaml_only", handwritten_yaml),
+        expect_mutation_rejected(
+            "verifier_digest_mismatch",
+            replace_attestation("verifier_digest", "sha256:" + "1" * 64),
+        ),
+        expect_mutation_rejected(
+            "registry_digest_mismatch",
+            replace_attestation("provider_registry_digest", "sha256:" + "2" * 64),
+        ),
+        expect_mutation_rejected(
+            "workflow_path_mismatch",
+            replace_attestation("workflow_path", ".github/workflows/other.yml"),
+        ),
+        expect_mutation_rejected(
+            "workflow_id_mismatch", replace_attestation("workflow_id", 8000002)
+        ),
+        expect_mutation_rejected(
+            "workflow_event_mismatch",
+            replace_attestation("workflow_event", "workflow_dispatch"),
+        ),
+        expect_mutation_rejected(
+            "workflow_run_mismatch",
+            replace_attestation("workflow_run_id", 9000002),
+        ),
+        expect_mutation_rejected(
+            "run_head_sha_mismatch",
+            replace_attestation("run_head_sha", "3" * 40),
+        ),
+        expect_mutation_rejected(
+            "release_asset_ids_mismatch",
+            replace_attestation("release_asset_ids", [1000001]),
+        ),
+        expect_mutation_rejected(
+            "release_asset_digests_mismatch",
+            replace_attestation(
+                "release_asset_digests", {"1000001": "sha256:" + "4" * 64}
+            ),
+        ),
+    ]
+    return {
+        "status": "reachable_synthetic_only",
+        "verification_level": PREVIEW_ATTESTED_TRUST_LEVEL,
+        "provider_verified": False,
+        "counts_as_runtime_evidence": False,
+        "counts_as_real_slot_completion": False,
+        "component_contracts": component_contracts,
+        "negative_guard_count": len(mutations),
+        "negative_guards": mutations,
+        "shared_contract_module": "scripts/openai_preview_evidence.py",
+        "executable_verifier": (
+            "tests/openai_phase8/verify_preview_evidence.py"
+        ),
+    }
+
+
+def validate_retrieval_receipts(
+    current_version: str,
+    *,
+    data_path: Path = RETRIEVAL_RECEIPTS_PATH,
+    root: Path = REPO,
+    external_preview_capability: _ExternalPreviewCapability | None = None,
+) -> dict[str, Any]:
     schema = load_yaml(RETRIEVAL_SCHEMA_PATH)
-    data = load_yaml(RETRIEVAL_RECEIPTS_PATH)
+    data = load_yaml(data_path)
     require(schema.get("schema_version") == data.get("schema_version") == 1, "retrieval_schema", "schema version")
     require(
         schema.get("freshness_days") == EVIDENCE_FRESHNESS_DAYS,
@@ -3936,12 +5462,34 @@ def validate_retrieval_receipts(current_version: str) -> dict[str, Any]:
         "retrieval_schema",
         "provider verifier registry binding",
     )
+    verification_policy = schema.get("verification_policy", {})
+    require(
+        verification_policy.get(
+            "preview_attested_requires_committed_verifier_and_registry"
+        )
+        is True
+        and verification_policy.get(
+            "preview_attested_requires_workflow_run_identity"
+        )
+        is True
+        and verification_policy.get(
+            "preview_attested_requires_release_asset_identity"
+        )
+        is True
+        and verification_policy.get(
+            "synthetic_override_requires_internal_capability"
+        )
+        is True,
+        "retrieval_schema",
+        "Preview gate and synthetic capability policy",
+    )
     require(
         data.get("evidence_class")
         in {
             "live_receipt_placeholders",
             "self_attested_current_task_snapshots_and_pending_placeholders",
-            "durable_platform_retrieval_receipts",
+            "provider_verified_platform_retrieval_receipts",
+            "preview_attested_platform_retrieval_receipts",
         },
         "retrieval_evidence_class",
         str(data.get("evidence_class")),
@@ -3956,7 +5504,10 @@ def validate_retrieval_receipts(current_version: str) -> dict[str, Any]:
         "evidence_artifact_path_digest_bindings",
         "deep_research_authoritative_source_traceability",
     }
-    if data.get("evidence_class") == "durable_platform_retrieval_receipts":
+    if data.get("evidence_class") in {
+        "provider_verified_platform_retrieval_receipts",
+        "preview_attested_platform_retrieval_receipts",
+    }:
         require(
             data.get("durable_verification_missing") == [],
             "retrieval_durable_provenance",
@@ -3972,6 +5523,12 @@ def validate_retrieval_receipts(current_version: str) -> dict[str, Any]:
     require(len(receipts) == 6, "retrieval_receipt_count", str(len(receipts)))
     ids = [receipt.get("receipt_id") for receipt in receipts]
     require(len(ids) == len(set(ids)) and all(ids), "retrieval_receipt_id", "duplicate or missing")
+    external_records = _external_preview_records(
+        external_preview_capability,
+        root=root,
+        data_path=data_path,
+        slot_kind="retrieval",
+    )
     contracts = schema.get("completion_contracts", {})
     counts = Counter(receipt.get("kind") for receipt in receipts)
     require(set(counts) == set(contracts), "retrieval_kind", str(counts))
@@ -3989,10 +5546,14 @@ def validate_retrieval_receipts(current_version: str) -> dict[str, Any]:
     pending = 0
     completed = 0
     completed_by_kind: Counter[str] = Counter()
+    preview_attested = 0
+    preview_attested_by_kind: Counter[str] = Counter()
     observed = 0
     observed_by_kind: Counter[str] = Counter()
+    historical_release_mismatch = 0
+    historical_release_mismatch_by_kind: Counter[str] = Counter()
     stale = 0
-    verified_current_receipts: list[dict[str, Any]] = []
+    declared_attested_current_receipts: list[dict[str, Any]] = []
     results = []
     for receipt in receipts:
         receipt_id = receipt["receipt_id"]
@@ -4015,14 +5576,25 @@ def validate_retrieval_receipts(current_version: str) -> dict[str, Any]:
         else:
             require(
                 verification_level
-                in {"self_attested_current_task_snapshot", "durable_platform_provenance"},
+                in {
+                    "self_attested_current_task_snapshot",
+                    "preview_github_witness",
+                    "provider_authenticated_provenance",
+                },
                 "retrieval_verification_level",
                 receipt_id,
             )
             result_status = validate_populated_retrieval_receipt(
-                receipt, contract, current_version, int(schema["freshness_days"])
+                receipt,
+                contract,
+                current_version,
+                int(schema["freshness_days"]),
+                root=root,
             )
-            if result_status == "stale":
+            if result_status == "historical_release_mismatch":
+                historical_release_mismatch += 1
+                historical_release_mismatch_by_kind[receipt["kind"]] += 1
+            elif result_status == "stale":
                 stale += 1
             elif status == "observed_unverified":
                 require(
@@ -4034,24 +5606,62 @@ def validate_retrieval_receipts(current_version: str) -> dict[str, Any]:
                 observed_by_kind[receipt["kind"]] += 1
                 result_status = "observed_unverified"
             else:
+                trust_level = receipt.get("evidence_trust_level")
+                trust_contract = (
+                    schema.get("verification_policy", {})
+                    .get("trust_levels", {})
+                    .get(trust_level, {})
+                )
                 require(
-                    status == "verified_live_evidence"
-                    and verification_level == "durable_platform_provenance",
+                    trust_level
+                    in {
+                        PREVIEW_ATTESTED_TRUST_LEVEL,
+                        PROVIDER_VERIFIED_TRUST_LEVEL,
+                    }
+                    and status == trust_contract.get("evidence_status")
+                    and verification_level
+                    == trust_contract.get("verification_level"),
                     "retrieval_verified_provenance",
                     receipt_id,
                 )
                 validate_verified_retrieval_provenance(
-                    receipt, schema, str(data.get("evidence_class"))
+                    receipt,
+                    schema,
+                    str(data.get("evidence_class")),
+                    root=root,
                 )
-                completed += 1
-                completed_by_kind[receipt["kind"]] += 1
-                verified_current_receipts.append(receipt)
+                declared_attested_current_receipts.append(receipt)
+                if trust_level == PREVIEW_ATTESTED_TRUST_LEVEL and external_records:
+                    record = external_records.get(str(receipt_id))
+                    require(
+                        record is not None,
+                        "phase8_external_live_record",
+                        f"missing retrieval record: {receipt_id}",
+                    )
+                    _require_external_slot_match(
+                        record,
+                        slot_id=receipt_id,
+                        execution_id=receipt.get("task_id"),
+                        subject=receipt,
+                    )
+                    preview_attested += 1
+                    preview_attested_by_kind[receipt["kind"]] += 1
+                    result_status = "preview_attested"
+                else:
+                    # Serialized status/trust fields cannot complete a gate.
+                    pending += 1
+                    result_status = (
+                        "pending_external_live_requery"
+                        if trust_level == PREVIEW_ATTESTED_TRUST_LEVEL
+                        else "pending_provider_live_requery"
+                    )
         results.append(
             {
                 "receipt_id": receipt_id,
                 "kind": receipt["kind"],
                 "expected_completion_status": receipt["expected_completion_status"],
                 "evidence_status": result_status,
+                "evidence_trust_level": receipt.get("evidence_trust_level"),
                 "captured_at": (
                     receipt["captured_at"].isoformat()
                     if isinstance(receipt.get("captured_at"), datetime)
@@ -4065,9 +5675,16 @@ def validate_retrieval_receipts(current_version: str) -> dict[str, Any]:
             }
         )
 
+    if external_records:
+        require(
+            set(external_records) == {str(item) for item in ids},
+            "phase8_external_live_record",
+            "retrieval record coverage differs from the frozen collection",
+        )
+
     export_ids = [
         receipt.get("platform_receipt_or_export_id")
-        for receipt in verified_current_receipts
+        for receipt in declared_attested_current_receipts
     ]
     require(
         len(export_ids) == len(set(export_ids)),
@@ -4076,7 +5693,7 @@ def validate_retrieval_receipts(current_version: str) -> dict[str, Any]:
     )
     indexed_paths = [
         str(path).replace("\\", "/")
-        for receipt in verified_current_receipts
+        for receipt in declared_attested_current_receipts
         for path in receipt.get("artifact_paths", [])
     ]
     require(
@@ -4086,7 +5703,7 @@ def validate_retrieval_receipts(current_version: str) -> dict[str, Any]:
     )
     resumed_edges = [
         receipt.get("resumed_pending_edge")
-        for receipt in verified_current_receipts
+        for receipt in declared_attested_current_receipts
         if receipt.get("kind") == "deep_research_completed"
     ]
     require(
@@ -4096,7 +5713,7 @@ def validate_retrieval_receipts(current_version: str) -> dict[str, Any]:
     )
     verified_deep_research = [
         receipt
-        for receipt in verified_current_receipts
+        for receipt in declared_attested_current_receipts
         if receipt.get("kind") == "deep_research_completed"
     ]
     for field in (
@@ -4133,7 +5750,16 @@ def validate_retrieval_receipts(current_version: str) -> dict[str, Any]:
     )
 
     # Pending placeholders are valid planning artifacts but never a retrieval pass.
-    gate_status = "completed" if completed == len(receipts) and not stale else "pending_live_evidence"
+    gate_status = (
+        "completed"
+        if completed == len(receipts) and not stale
+        else "pending_provider_verified_evidence"
+    )
+    preview_gate_status = (
+        "completed"
+        if completed + preview_attested == len(receipts) and not stale
+        else "pending_preview_attested_evidence"
+    )
     require(schema.get("pending_policy", {}).get("pending_is_not_pass") is True, "retrieval_pending_policy", "schema")
     require(
         schema.get("verification_policy", {}).get("observed_unverified_is_not_pass") is True,
@@ -4146,6 +5772,9 @@ def validate_retrieval_receipts(current_version: str) -> dict[str, Any]:
     deep_semantic_negative_guards = (
         validate_deep_research_semantic_negative_guards(schema, current_version)
     )
+    preview_gate_self_test = validate_preview_gate_self_tests(
+        schema, current_version
+    )
     return {
         "required_receipt_count": len(receipts),
         "required_distribution": {kind: contracts[kind]["count"] for kind in sorted(contracts)},
@@ -4153,9 +5782,23 @@ def validate_retrieval_receipts(current_version: str) -> dict[str, Any]:
         "completed_current_receipts_by_kind": {
             kind: completed_by_kind[kind] for kind in sorted(contracts)
         },
+        "preview_attested_current_receipts": preview_attested,
+        "preview_attested_current_receipts_by_kind": {
+            kind: preview_attested_by_kind[kind] for kind in sorted(contracts)
+        },
+        "declared_attested_current_receipts": len(
+            declared_attested_current_receipts
+        ),
+        "external_live_capability_present": bool(external_records),
+        "provider_verified_slots_pending": len(receipts) - completed,
         "observed_unverified_receipts": observed,
         "observed_unverified_receipts_by_kind": {
             kind: observed_by_kind[kind] for kind in sorted(contracts)
+        },
+        "historical_release_mismatch_receipts": historical_release_mismatch,
+        "historical_release_mismatch_receipts_by_kind": {
+            kind: historical_release_mismatch_by_kind[kind]
+            for kind in sorted(contracts)
         },
         "pending_receipts": pending,
         "stale_receipts": stale,
@@ -4166,6 +5809,7 @@ def validate_retrieval_receipts(current_version: str) -> dict[str, Any]:
         ),
         "deep_research_semantic_negative_guards": deep_semantic_negative_guards,
         "provider_verifier_adapter_count": len(real_provider_adapter_ids()),
+        "preview_verifier_adapter_count": len(preview_adapter_ids()),
         "durable_verification_missing": sorted(durable_missing),
         "repository_authored_files_count_as_verified": False,
         "synthetic_provider_override_self_test": {
@@ -4173,6 +5817,7 @@ def validate_retrieval_receipts(current_version: str) -> dict[str, Any]:
             "counts_as_runtime_evidence": False,
             "ephemeral_temp_root_required": True,
         },
+        "preview_gate_self_test": preview_gate_self_test,
         "source_identity_binding_required": list(SOURCE_IDENTITY_FIELDS),
         "deep_research_unique_cycle_fields": [
             "task_id",
@@ -4189,17 +5834,85 @@ def validate_retrieval_receipts(current_version: str) -> dict[str, Any]:
         ),
         "freshness_days": schema["freshness_days"],
         "receipt_results": results,
+        "preview_gate_status": preview_gate_status,
         "status": gate_status,
     }
 
 
-def run_all() -> dict[str, Any]:
+def phase8_acceptance_state(
+    *, provider_complete: bool, preview_complete: bool
+) -> str:
+    require(
+        not provider_complete or preview_complete,
+        "phase8_acceptance_state",
+        "provider verification must also satisfy the Preview acceptance contract",
+    )
+    if provider_complete:
+        return "complete_provider_verified"
+    if preview_complete:
+        return "complete_preview_attested"
+    return "in_progress"
+
+
+def validate_phase8_acceptance_state_machine() -> dict[str, Any]:
+    states = {
+        "none": phase8_acceptance_state(
+            provider_complete=False, preview_complete=False
+        ),
+        "preview": phase8_acceptance_state(
+            provider_complete=False, preview_complete=True
+        ),
+        "provider": phase8_acceptance_state(
+            provider_complete=True, preview_complete=True
+        ),
+    }
+    require(
+        states
+        == {
+            "none": "in_progress",
+            "preview": "complete_preview_attested",
+            "provider": "complete_provider_verified",
+        },
+        "phase8_acceptance_state",
+        "three-state contract",
+    )
+    try:
+        phase8_acceptance_state(provider_complete=True, preview_complete=False)
+    except CorpusViolation as exc:
+        require(
+            exc.code == "phase8_acceptance_state",
+            "phase8_acceptance_state_self_test",
+            exc.code,
+        )
+    else:
+        raise CorpusViolation(
+            "phase8_acceptance_state_self_test",
+            "provider completion without Preview acceptance was allowed",
+        )
+    return {"states": states, "inconsistent_promotion_rejected": True}
+
+
+def run_all(
+    *,
+    live_repeat_path: Path = LIVE_REPEAT_PATH,
+    retrieval_receipts_path: Path = RETRIEVAL_RECEIPTS_PATH,
+    evidence_root: Path = REPO,
+    external_preview_capability: _ExternalPreviewCapability | None = None,
+) -> dict[str, Any]:
     current_version = load_current_version()
     validator_self_tests = validate_time_and_identity_self_tests()
+    validator_self_tests["phase8_acceptance_state_machine"] = (
+        validate_phase8_acceptance_state_machine()
+    )
     corpus_summary, cases = validate_corpus(current_version)
     repeat_summary = validate_fresh_repeats(cases)
     live_repeat_summary = validate_live_fresh_repeats(
-        current_version, cases, repeat_summary["selected_case_ids"]
+        current_version,
+        cases,
+        repeat_summary["selected_case_ids"],
+        data_path=live_repeat_path,
+        root=evidence_root,
+        external_preview_capability=external_preview_capability,
     )
     repeat_summary["observed_current_task_repeat_snapshots"] = live_repeat_summary[
         "observed_review_snapshot_count"
@@ -4210,27 +5923,56 @@ def run_all() -> dict[str, Any]:
     repeat_summary["live_repeat_gate_status"] = live_repeat_summary[
         "verified_live_gate_status"
     ]
-    retrieval_summary = validate_retrieval_receipts(current_version)
-    phase_complete = (
+    retrieval_summary = validate_retrieval_receipts(
+        current_version,
+        data_path=retrieval_receipts_path,
+        root=evidence_root,
+        external_preview_capability=external_preview_capability,
+    )
+    provider_acceptance_complete = (
         bool(real_provider_adapter_ids())
         and live_repeat_summary["verified_live_gate_status"] == "completed"
         and retrieval_summary["status"] == "completed"
     )
+    preview_acceptance_complete = (
+        live_repeat_summary["preview_gate_status"] == "completed"
+        and retrieval_summary["preview_gate_status"] == "completed"
+    )
+    phase_status = phase8_acceptance_state(
+        provider_complete=provider_acceptance_complete,
+        preview_complete=preview_acceptance_complete,
+    )
     repeat_summary["status"] = (
         "synthetic_repeat_and_provider_verified_live_gate_completed"
         if live_repeat_summary["verified_live_gate_status"] == "completed"
-        else "synthetic_repeat_passed_live_gate_pending_provider_verified_evidence"
+        else "synthetic_repeat_and_preview_attested_live_gate_completed"
+        if live_repeat_summary["preview_gate_status"] == "completed"
+        else "synthetic_repeat_passed_live_gate_pending_preview_and_provider_evidence"
     )
     evidence_scope = (
         "synthetic_corpus_plus_provider_verified_current_release_runtime_and_native_research_evidence"
-        if phase_complete
-        else "synthetic_corpus_plus_self_attested_snapshots_and_pending_provider_verified_runtime_evidence"
+        if provider_acceptance_complete
+        else "synthetic_corpus_plus_preview_attested_current_release_runtime_and_native_research_evidence"
+        if preview_acceptance_complete
+        else "synthetic_corpus_plus_self_attested_snapshots_and_pending_preview_and_provider_runtime_evidence"
     )
     return {
         "schema_version": 1,
         "plugin_version": current_version,
         "evidence_scope": evidence_scope,
-        "phase_status": "complete" if phase_complete else "in_progress_live_runtime_evidence_pending",
+        "phase_status": phase_status,
+        "acceptance_status": {
+            "preview_attested": (
+                "complete"
+                if preview_acceptance_complete
+                else "pending_real_preview_attested_slots"
+            ),
+            "provider_verified": (
+                "complete"
+                if provider_acceptance_complete
+                else "pending_strict_provider_evidence"
+            ),
+        },
         "corpus": corpus_summary,
         "fresh_repeat": repeat_summary,
         "live_fresh_repeat": live_repeat_summary,
@@ -4238,8 +5980,35 @@ def run_all() -> dict[str, Any]:
         "provider_trust": {
             "real_adapter_count": len(real_provider_adapter_ids()),
             "real_adapter_ids": sorted(real_provider_adapter_ids()),
+            "preview_adapter_count": len(preview_adapter_ids()),
+            "preview_adapter_ids": sorted(preview_adapter_ids()),
+            "preview_adapter_contracts": {
+                adapter_id: {
+                    "verifier_path": spec["verifier_path"],
+                    "verifier_digest": spec["verifier_digest"],
+                    "verification_request_schema": spec[
+                        "verification_request_schema"
+                    ],
+                    "workflow_witness_role": spec["workflow_witness_role"],
+                    "workflow_path": spec["workflow_path"],
+                    "workflow_event": spec["workflow_event"],
+                    "api_host": spec["api_host"],
+                    "asset_redirect_hosts": spec["asset_redirect_hosts"],
+                }
+                for adapter_id, spec in sorted(preview_adapter_specs().items())
+            },
+            "trust_levels": {
+                "provider_verified": "strict real-evidence completion gate",
+                "preview_attested": (
+                    "external GitHub-witnessed Preview acceptance; never "
+                    "reported as provider verified"
+                ),
+            },
             "repository_authored_files_are_trust_anchors": False,
             "synthetic_override_counts_as_runtime_evidence": False,
+            "preview_synthetic_self_test": retrieval_summary[
+                "preview_gate_self_test"
+            ],
         },
         "validator_self_tests": validator_self_tests,
         "claims": {
@@ -4247,20 +6016,94 @@ def run_all() -> dict[str, Any]:
             "live_fresh_evaluator_repeats_counted_as_pass": live_repeat_summary[
                 "verified_live_review_count"
             ],
+            "preview_attested_reviewer_receipts": live_repeat_summary[
+                "preview_attested_review_count"
+            ],
+            "provider_verified_reviewer_slots_pending": live_repeat_summary[
+                "provider_verified_slots_pending"
+            ],
             "self_attested_reviewer_snapshots_observed": live_repeat_summary[
                 "observed_review_snapshot_count"
             ],
             "live_search_receipts_counted_as_pass": retrieval_summary[
                 "completed_current_receipts_by_kind"
             ]["search"],
+            "preview_attested_retrieval_receipts": retrieval_summary[
+                "preview_attested_current_receipts"
+            ],
+            "provider_verified_retrieval_slots_pending": retrieval_summary[
+                "provider_verified_slots_pending"
+            ],
             "self_attested_search_snapshots_observed": retrieval_summary[
                 "observed_unverified_receipts_by_kind"
             ]["search"],
             "deep_research_cycles_claimed_without_receipts": 0,
             "repository_authored_files_counted_as_verified": False,
-            "phase8_complete": phase_complete,
+            "synthetic_preview_contract_counts_as_real_evidence": False,
+            "preview_gate_complete": preview_acceptance_complete,
+            "provider_gate_complete": provider_acceptance_complete,
+            "preview_phase8_acceptance_complete": preview_acceptance_complete,
+            "preview_attested_phase8_complete": (
+                preview_acceptance_complete and not provider_acceptance_complete
+            ),
+            "provider_verified_phase8_complete": provider_acceptance_complete,
+            "accepted_verification_level": (
+                PROVIDER_VERIFIED_TRUST_LEVEL
+                if provider_acceptance_complete
+                else PREVIEW_ATTESTED_TRUST_LEVEL
+                if preview_acceptance_complete
+                else None
+            ),
+            "phase8_complete": phase_status != "in_progress",
         },
     }
+
+
+def require_complete_preview_attested(result: Mapping[str, Any]) -> dict[str, Any]:
+    """Fail closed unless a live in-memory session completed all Phase 8 slots."""
+    live = result.get("live_fresh_repeat", {})
+    retrieval = result.get("retrieval", {})
+    claims = result.get("claims", {})
+    acceptance = result.get("acceptance_status", {})
+    metrics = result.get("corpus", {}).get("metrics", {})
+    expected_distribution = {
+        "deep_research_completed": 2,
+        "deep_research_inactive_control": 1,
+        "search": 3,
+    }
+    valid = (
+        result.get("phase_status") == "complete_preview_attested"
+        and acceptance.get("preview_attested") == "complete"
+        and acceptance.get("provider_verified") == "pending_strict_provider_evidence"
+        and live.get("external_live_capability_present") is True
+        and live.get("preview_attested_review_count") == 6
+        and live.get("provider_verified_live_review_count") == 0
+        and live.get("unique_reviewer_instance_count") == 6
+        and live.get("preview_gate_status") == "completed"
+        and live.get("status") == "preview_attested"
+        and retrieval.get("external_live_capability_present") is True
+        and retrieval.get("preview_attested_current_receipts") == 6
+        and retrieval.get("preview_attested_current_receipts_by_kind")
+        == expected_distribution
+        and retrieval.get("completed_current_receipts") == 0
+        and retrieval.get("pending_receipts") == 0
+        and retrieval.get("stale_receipts") == 0
+        and retrieval.get("observed_unverified_receipts") == 0
+        and retrieval.get("historical_release_mismatch_receipts") == 0
+        and retrieval.get("preview_gate_status") == "completed"
+        and metrics.get("false_ready_count") == 0
+        and claims.get("preview_gate_complete") is True
+        and claims.get("provider_gate_complete") is False
+        and claims.get("accepted_verification_level")
+        == PREVIEW_ATTESTED_TRUST_LEVEL
+        and claims.get("phase8_complete") is True
+    )
+    require(
+        valid,
+        "phase8_complete_preview_attested_required",
+        "all 6 reviewer and 3/2/1 retrieval slots require current live evidence",
+    )
+    return dict(result)
 
 
 def main() -> int:
@@ -4283,7 +6126,18 @@ def main() -> int:
     live_repeat = result["live_fresh_repeat"]
     retrieval = result["retrieval"]
     print("Phase 8 corpus contracts passed")
-    print(f"synthetic cases: {result['corpus']['case_count']}/16 minimum")
+    print(
+        f"synthetic cases: {result['corpus']['case_count']}/"
+        f"{len(WORKFLOWS) * len(OUTCOME_CLASSES)} minimum"
+    )
+    domain_coverage = result["corpus"]["research_polisher_domain_coverage"]
+    print(
+        "research-polisher domains: "
+        + ", ".join(
+            f"{domain}={domain_coverage[domain]}"
+            for domain in sorted(RESEARCH_POLISHER_DOMAINS)
+        )
+    )
     print(
         "quality metrics: "
         f"false-ready={metrics['false_ready_count']}; "
@@ -4307,12 +6161,14 @@ def main() -> int:
         "live fresh-repeat gate: "
         f"{live_repeat['observed_review_snapshot_count']} observed snapshots / "
         f"{live_repeat['unique_reviewer_instance_count']} unique instances; "
-        f"verified={live_repeat['verified_live_review_count']}; "
+        f"provider-verified={live_repeat['verified_live_review_count']}; "
+        f"preview-attested={live_repeat['preview_attested_review_count']}; "
         f"status={live_repeat['verified_live_gate_status']}"
     )
     print(
         "live retrieval gate: "
-        f"{retrieval['completed_current_receipts']}/{retrieval['required_receipt_count']} verified receipts; "
+        f"{retrieval['completed_current_receipts']}/{retrieval['required_receipt_count']} provider-verified; "
+        f"{retrieval['preview_attested_current_receipts']} preview-attested; "
         f"{retrieval['observed_unverified_receipts']} observed-unverified; "
         f"{retrieval['pending_receipts']} pending; status={retrieval['status']}"
     )

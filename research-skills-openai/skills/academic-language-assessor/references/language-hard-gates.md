@@ -81,7 +81,7 @@ OR
 
 **Failure consequence**: `overall_language_readiness ≤ major_language_revision`
 
-**Rationale**: Terminology inconsistency creates genuine ambiguity about whether the author is referring to the same concept or a different one. In biomedical and technical writing, this can affect reproducibility and regulatory compliance.
+**Rationale**: Terminology inconsistency creates genuine ambiguity about whether the author is referring to the same concept or a different one. In biomedical and technical writing, this can affect reproducibility and technical interpretation.
 
 ---
 

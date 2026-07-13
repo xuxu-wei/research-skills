@@ -1,6 +1,6 @@
 ---
 name: proposal-orchestrator
-description: "Orchestrate an idea, funding call, data opportunity, or draft through proposal evaluation, revision, optional SAP, panel, and human-review packaging."
+description: "Orchestrate an idea, call, data opportunity, or draft through proposal review, revision, optional SAP, panel, and human handoff."
 ---
 # proposal-orchestrator
 

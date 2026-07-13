@@ -5,14 +5,14 @@ execution_scope: evaluation_revision_delivery_with_entry_receipts
 workflow: article
 workflow_id: wf-phase4-article-001
 entry_mode: standard
-plugin_version: 0.6.0-preview.1
+plugin_version: 0.7.0-preview.1
 registry_schema_version: 5
 initial_artifacts:
   - artifact_id: article-intake-v1
     version_id: i001
     workflow_id: wf-phase4-article-001
     round_id: entry-001
-    plugin_version: 0.6.0-preview.1
+    plugin_version: 0.7.0-preview.1
     source_skill: external-input
     created_by_instance_id: fixture-user-article-001
     based_on: []
@@ -27,7 +27,7 @@ initial_artifacts:
     version_id: c001
     workflow_id: wf-phase4-article-001
     round_id: entry-001
-    plugin_version: 0.6.0-preview.1
+    plugin_version: 0.7.0-preview.1
     source_skill: external-input
     created_by_instance_id: fixture-user-article-001
     based_on: []
@@ -42,7 +42,7 @@ initial_artifacts:
     version_id: m001
     workflow_id: wf-phase4-article-001
     round_id: entry-001
-    plugin_version: 0.6.0-preview.1
+    plugin_version: 0.7.0-preview.1
     source_skill: external-input
     created_by_instance_id: fixture-user-article-001
     based_on: []
@@ -97,7 +97,7 @@ events:
         version_id: rd001
         workflow_id: wf-phase4-article-001
         round_id: entry-001
-        plugin_version: 0.6.0-preview.1
+        plugin_version: 0.7.0-preview.1
         source_skill: article-readiness-triage
         created_by_instance_id: article-readiness-001
         based_on: [article-intake-v1@i001]
@@ -124,7 +124,7 @@ events:
         version_id: b001
         workflow_id: wf-phase4-article-001
         round_id: preprocess-001
-        plugin_version: 0.6.0-preview.1
+        plugin_version: 0.7.0-preview.1
         source_skill: article-architect
         created_by_instance_id: article-architect-001
         based_on: [article-context-v1@c001, article-method-facts-v1@m001]
@@ -139,7 +139,7 @@ events:
         version_id: cm001
         workflow_id: wf-phase4-article-001
         round_id: preprocess-001
-        plugin_version: 0.6.0-preview.1
+        plugin_version: 0.7.0-preview.1
         source_skill: article-architect
         created_by_instance_id: article-architect-001
         based_on: [article-context-v1@c001, article-method-facts-v1@m001]
@@ -154,7 +154,7 @@ events:
         version_id: el001
         workflow_id: wf-phase4-article-001
         round_id: preprocess-001
-        plugin_version: 0.6.0-preview.1
+        plugin_version: 0.7.0-preview.1
         source_skill: article-architect
         created_by_instance_id: article-architect-001
         based_on: [article-context-v1@c001, article-method-facts-v1@m001]
@@ -169,7 +169,7 @@ events:
         version_id: ja001
         workflow_id: wf-phase4-article-001
         round_id: preprocess-001
-        plugin_version: 0.6.0-preview.1
+        plugin_version: 0.7.0-preview.1
         source_skill: article-architect
         created_by_instance_id: article-architect-001
         based_on: [article-context-v1@c001]
@@ -214,7 +214,7 @@ events:
         version_id: ar001
         workflow_id: wf-phase4-article-001
         round_id: preprocess-001
-        plugin_version: 0.6.0-preview.1
+        plugin_version: 0.7.0-preview.1
         source_skill: article-methods-statistics-auditor
         created_by_instance_id: article-methods-auditor-001
         based_on: [article-context-v1@c001, article-method-facts-v1@m001]
@@ -241,7 +241,7 @@ events:
         version_id: v001
         workflow_id: wf-phase4-article-001
         round_id: round-001
-        plugin_version: 0.6.0-preview.1
+        plugin_version: 0.7.0-preview.1
         source_skill: article-drafter
         created_by_instance_id: article-writer-001
         based_on: [article-context-v1@c001, article-blueprint-v1@b001, article-claim-matrix-v1@cm001, article-evidence-ledger-v1@el001, article-methods-report-v1@ar001]
@@ -286,7 +286,7 @@ events:
         version_id: cr001
         workflow_id: wf-phase4-article-001
         round_id: round-001
-        plugin_version: 0.6.0-preview.1
+        plugin_version: 0.7.0-preview.1
         source_skill: article-claim-auditor
         created_by_instance_id: article-claim-auditor-001
         based_on: [article-context-v1@c001, article-blueprint-v1@b001, article-claim-matrix-v1@cm001, article-evidence-ledger-v1@el001, manuscript-v1@v001]
@@ -342,7 +342,7 @@ events:
         version_id: r001
         workflow_id: wf-phase4-article-001
         round_id: round-001
-        plugin_version: 0.6.0-preview.1
+        plugin_version: 0.7.0-preview.1
         source_skill: article-evaluator
         created_by_instance_id: article-evaluator-001
         based_on: [article-context-v1@c001, article-blueprint-v1@b001, manuscript-v1@v001]
@@ -369,7 +369,7 @@ events:
         version_id: rp002
         workflow_id: wf-phase4-article-001
         round_id: round-002
-        plugin_version: 0.6.0-preview.1
+        plugin_version: 0.7.0-preview.1
         source_skill: article-refinement-controller
         created_by_instance_id: article-controller-001
         based_on: [manuscript-v1@v001, article-eval-v1@r001]
@@ -397,7 +397,7 @@ events:
         version_id: v002
         workflow_id: wf-phase4-article-001
         round_id: round-002
-        plugin_version: 0.6.0-preview.1
+        plugin_version: 0.7.0-preview.1
         source_skill: article-drafter
         created_by_instance_id: article-writer-002
         based_on: [manuscript-v1@v001, article-revision-plan-v2@rp002]
@@ -412,7 +412,7 @@ events:
         version_id: rr002
         workflow_id: wf-phase4-article-001
         round_id: round-002
-        plugin_version: 0.6.0-preview.1
+        plugin_version: 0.7.0-preview.1
         source_skill: article-drafter
         created_by_instance_id: article-writer-002
         based_on: [manuscript-v1@v001, article-revision-plan-v2@rp002, manuscript-v2@v002]
@@ -427,7 +427,7 @@ events:
         version_id: rd002
         workflow_id: wf-phase4-article-001
         round_id: round-002
-        plugin_version: 0.6.0-preview.1
+        plugin_version: 0.7.0-preview.1
         source_skill: article-drafter
         created_by_instance_id: article-writer-002
         based_on: [manuscript-v1@v001, article-revision-plan-v2@rp002, manuscript-v2@v002]
@@ -472,7 +472,7 @@ events:
         version_id: cr002
         workflow_id: wf-phase4-article-001
         round_id: round-002
-        plugin_version: 0.6.0-preview.1
+        plugin_version: 0.7.0-preview.1
         source_skill: article-claim-auditor
         created_by_instance_id: article-claim-auditor-002
         based_on: [article-context-v1@c001, article-blueprint-v1@b001, article-claim-matrix-v1@cm001, article-evidence-ledger-v1@el001, manuscript-v2@v002]
@@ -516,7 +516,7 @@ events:
         version_id: r002
         workflow_id: wf-phase4-article-001
         round_id: round-002
-        plugin_version: 0.6.0-preview.1
+        plugin_version: 0.7.0-preview.1
         source_skill: article-evaluator
         created_by_instance_id: article-evaluator-002
         based_on: [article-context-v1@c001, article-blueprint-v1@b001, manuscript-v2@v002]
@@ -561,7 +561,7 @@ events:
         version_id: p001
         workflow_id: wf-phase4-article-001
         round_id: panel-001
-        plugin_version: 0.6.0-preview.1
+        plugin_version: 0.7.0-preview.1
         source_skill: article-review-panel
         created_by_instance_id: article-panel-methods-001
         based_on: [manuscript-v2@v002]
@@ -615,7 +615,7 @@ events:
         version_id: p002
         workflow_id: wf-phase4-article-001
         round_id: panel-001
-        plugin_version: 0.6.0-preview.1
+        plugin_version: 0.7.0-preview.1
         source_skill: article-review-panel
         created_by_instance_id: article-panel-claims-001
         based_on: [manuscript-v2@v002]
@@ -660,7 +660,7 @@ events:
         version_id: p003
         workflow_id: wf-phase4-article-001
         round_id: panel-001
-        plugin_version: 0.6.0-preview.1
+        plugin_version: 0.7.0-preview.1
         source_skill: article-review-panel
         created_by_instance_id: article-panel-submission-guard-001
         based_on: [article-journal-adapter-v1@ja001, manuscript-v2@v002]
@@ -693,7 +693,7 @@ events:
         version_id: fm001
         workflow_id: wf-phase4-article-001
         round_id: package-001
-        plugin_version: 0.6.0-preview.1
+        plugin_version: 0.7.0-preview.1
         source_skill: article-frontmatter-drafter
         created_by_instance_id: article-frontmatter-writer-001
         based_on: [article-blueprint-v1@b001, article-journal-adapter-v1@ja001, manuscript-v2@v002]
@@ -721,7 +721,7 @@ events:
         version_id: cl001
         workflow_id: wf-phase4-article-001
         round_id: package-001
-        plugin_version: 0.6.0-preview.1
+        plugin_version: 0.7.0-preview.1
         source_skill: article-cover-letter
         created_by_instance_id: article-cover-letter-writer-001
         based_on: [article-journal-adapter-v1@ja001, manuscript-v2@v002, article-frontmatter-v1@fm001]
@@ -736,7 +736,7 @@ events:
         version_id: cq001
         workflow_id: wf-phase4-article-001
         round_id: package-001
-        plugin_version: 0.6.0-preview.1
+        plugin_version: 0.7.0-preview.1
         source_skill: article-cover-letter
         created_by_instance_id: article-cover-letter-writer-001
         based_on: [article-cover-letter-v1@cl001]
@@ -803,7 +803,7 @@ events:
         version_id: vr001
         workflow_id: wf-phase4-article-001
         round_id: package-001
-        plugin_version: 0.6.0-preview.1
+        plugin_version: 0.7.0-preview.1
         source_skill: article-submission-compositor
         created_by_instance_id: article-compositor-001
         based_on: [manuscript-v2@v002, article-blueprint-v1@b001, article-claim-matrix-v1@cm001, article-evidence-ledger-v1@el001, article-eval-v2@r002, article-methods-report-v1@ar001, article-claim-report-v2@cr002, article-panel-methods-report@p001, article-panel-claims-report@p002, article-panel-submission-guard-report@p003, article-journal-adapter-v1@ja001, article-frontmatter-v1@fm001, article-cover-letter-v1@cl001, article-cover-letter-check-v1@cq001, article-revision-plan-v2@rp002, article-response-v2@rr002, article-delta-v2@rd002]
@@ -817,7 +817,7 @@ events:
         version_id: pkg001
         workflow_id: wf-phase4-article-001
         round_id: package-001
-        plugin_version: 0.6.0-preview.1
+        plugin_version: 0.7.0-preview.1
         source_skill: article-submission-compositor
         created_by_instance_id: article-compositor-001
         based_on: [manuscript-v2@v002]

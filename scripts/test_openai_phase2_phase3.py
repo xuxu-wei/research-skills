@@ -15,12 +15,13 @@ SKILLS = PLUGIN / "skills"
 REGISTRY = PLUGIN / "workflow-registry.yaml"
 REPORTS = PLUGIN / "reports"
 
-WORKFLOWS = {"idea", "proposal", "article", "perspective"}
+WORKFLOWS = {"idea", "proposal", "article", "perspective", "research_polisher"}
 EXPECTED_ENTRY_MODES = {
     "idea": {"standard", "resume_candidates", "portfolio_only"},
     "proposal": {"standard", "existing_draft", "draft_and_external_review", "package_only"},
     "article": {"standard", "fast_track_draft", "fast_track_draft_and_evaluation", "blueprint_only", "section_specific", "submission_only"},
     "perspective": {"lite", "standard", "full"},
+    "research_polisher": {"standard"},
 }
 CANONICAL_STATES = {
     "pending_review",
@@ -28,12 +29,21 @@ CANONICAL_STATES = {
     "blocked",
     "stopped",
     "human_signoff_required",
+    "human_strategy_selection_required",
 }
 FINAL_SKILLS = {
     "idea": "idea-portfolio-assembler",
     "proposal": "proposal-package-assembler",
     "article": "article-submission-compositor",
     "perspective": "perspective-final-compositor",
+    "research_polisher": "research-polisher-plan-assembler",
+}
+ORCHESTRATORS = {
+    "idea": "research-idea-orchestrator",
+    "proposal": "proposal-orchestrator",
+    "article": "article-orchestrator",
+    "perspective": "perspective-orchestrator",
+    "research_polisher": "research-polisher-orchestrator",
 }
 IDEA_NON_BYPASS_GATES = {
     "latest_version_independently_evaluated",
@@ -126,7 +136,7 @@ def phase2_tests(registry: dict) -> None:
     require("Do not broaden this skill into Deep Research" in narrow, "academic deep search still owns broad synthesis")
 
     for workflow in WORKFLOWS:
-        orchestrator = read(SKILLS / f"{workflow if workflow != 'idea' else 'research-idea'}-orchestrator" / "SKILL.md")
+        orchestrator = read(SKILLS / ORCHESTRATORS[workflow] / "SKILL.md")
         for forbidden in ("built-in Search", "Deep Research", "evidence_search.py", "local retrieval script"):
             require(forbidden not in orchestrator, f"{workflow} orchestrator owns retrieval policy residue: {forbidden}")
 
@@ -174,25 +184,32 @@ def phase2_tests(registry: dict) -> None:
     require(handoff["handoff_status"] == "deep_research_handoff_required", "inactive Deep Research did not pause")
 
 
-def resolve_ready_state(*, changed: bool, current_version: str, evaluated_version: str | None, fatal: bool, reviewer_available: bool) -> str:
+def resolve_ready_state(*, changed: bool, current_version: str, evaluated_version: str | None, fatal: bool, reviewer_available: bool, final_state: str = "human_signoff_required") -> str:
     if not reviewer_available:
         return "independent_review_pending"
     if fatal:
         return "blocked"
     if changed and evaluated_version != current_version:
         return "pending_review"
-    return "human_signoff_required"
+    return final_state
 
 
 def phase3_tests(registry: dict) -> None:
     policy = registry.get("workflow_state_policy", {})
     machines = registry.get("workflow_state_machines", {})
-    require(set(machines) == WORKFLOWS, "registry must define exactly four workflow state machines")
+    require(set(machines) == WORKFLOWS, "registry workflow state-machine set is incomplete")
     policy_states = set(policy.get("active_states", [])) | set(policy.get("pause_states", [])) | set(policy.get("terminal_states", []))
     require(CANONICAL_STATES <= policy_states, f"canonical workflow states missing: {sorted(CANONICAL_STATES - policy_states)}")
     require(policy.get("review_unavailable_state") == "independent_review_pending", "reviewer unavailability state is wrong")
     require(policy.get("fatal_finding_state") == "blocked", "fatal finding state is wrong")
     require(policy.get("final_handoff_state") == "human_signoff_required", "human sign-off state is wrong")
+    require(
+        registry.get("scenario_eval_contract", {})
+        .get("workflow_final_states", {})
+        .get("research_polisher")
+        == "human_strategy_selection_required",
+        "Research Polisher final handoff state is wrong",
+    )
 
     version_gate = policy.get("version_gate", {})
     for field in ("changed_artifact_requires_new_version", "evaluator_instance_must_be_fresh", "evaluated_version_must_equal_current_version"):
@@ -214,26 +231,59 @@ def phase3_tests(registry: dict) -> None:
         ("*", "independent_review_pending", "required_reviewer_unavailable"),
         ("*", "blocked", "fatal_or_blocking_finding"),
         ("packaging_pending", "human_signoff_required", "package_verified"),
+        ("packaging_pending", "human_strategy_selection_required", "selection_dossier_verified"),
     ):
         require(required in transitions, f"lifecycle transition missing: {required}")
 
     for workflow, machine in machines.items():
         require(set(machine.get("entry_modes", [])) == EXPECTED_ENTRY_MODES[workflow], f"{workflow} entry modes are incomplete")
         require(set(machine.get("entry_gates", {})) == EXPECTED_ENTRY_MODES[workflow], f"{workflow} entry gates do not cover every mode")
-        require("latest_version_independently_evaluated" in machine.get("before_panel", []), f"{workflow} panel bypasses current-version evaluation")
+        if machine.get("post_evaluation_panel_required", True):
+            require("latest_version_independently_evaluated" in machine.get("before_panel", []), f"{workflow} panel bypasses current-version evaluation")
+        else:
+            require(
+                machine.get("workflow_profile") == "reviewer_matrix_assemble_evaluate"
+                and machine.get("strategy_reviewer_roles")
+                == ["scientific_significance", "practical_value", "dissemination_editorial"]
+                and machine.get("effort_tiers")
+                == ["reposition_only", "small_extension", "moderate_extension"],
+                f"{workflow} reviewer-matrix profile is incomplete",
+            )
         require("latest_version_independently_evaluated" in machine.get("before_packaging", []), f"{workflow} package bypasses current-version evaluation")
         require("dissent_and_fatal_findings_indexed" in machine.get("before_packaging", []), f"{workflow} package drops dissent/fatal findings")
         require(machine.get("final_package_skill") == FINAL_SKILLS[workflow], f"{workflow} final package skill mismatch")
 
         orchestrator = read(SKILLS / machine["orchestrator"] / "SKILL.md")
-        for state in CANONICAL_STATES:
+        required_states = CANONICAL_STATES - {
+            "human_strategy_selection_required"
+            if workflow != "research_polisher"
+            else "human_signoff_required"
+        }
+        for state in required_states:
             require(state in orchestrator, f"{workflow} orchestrator lacks canonical state {state}")
-        require("one writer" in orchestrator and "concurrent writes" in orchestrator, f"{workflow} orchestrator lacks single-writer contract")
-        require("new version" in orchestrator and "evaluator" in orchestrator, f"{workflow} orchestrator lacks new-version/fresh-evaluator gate")
+        require(
+            "one writer" in orchestrator
+            and re.search(r"concurrent(?: source)? writes", orchestrator),
+            f"{workflow} orchestrator lacks single-writer contract",
+        )
+        require(
+            re.search(
+                r"new (?:\w+ )?version|version the result|creates? a (?:\w+ )?version",
+                orchestrator,
+                re.I,
+            )
+            and "evaluator" in orchestrator,
+            f"{workflow} orchestrator lacks new-version/fresh-evaluator gate",
+        )
 
         final_skill = read(SKILLS / machine["final_package_skill"] / "SKILL.md")
-        for state in ("blocked", "independent_review_pending", "human_signoff_required"):
-            require(state in final_skill, f"{workflow} final package skill lacks state {state}")
+        final_state = machine.get("final_state", "human_signoff_required")
+        if workflow == "research_polisher":
+            for state in ("independent_review_pending", final_state):
+                require(state in final_skill, f"{workflow} final package skill lacks state {state}")
+        else:
+            for state in ("blocked", "independent_review_pending", final_state):
+                require(state in final_skill, f"{workflow} final package skill lacks state {state}")
         require("fatal" in final_skill.lower() and "dissent" in final_skill.lower(), f"{workflow} final package does not preserve fatal findings/dissent")
 
     article_submission = machines["article"]["entry_gates"]["submission_only"]
@@ -248,6 +298,18 @@ def phase3_tests(registry: dict) -> None:
     require(resolve_ready_state(changed=False, current_version="v2", evaluated_version="v2", fatal=True, reviewer_available=True) == "blocked", "fatal finding did not block")
     require(resolve_ready_state(changed=False, current_version="v2", evaluated_version="v2", fatal=False, reviewer_available=False) == "independent_review_pending", "reviewer unavailability did not pause")
     require(resolve_ready_state(changed=True, current_version="v2", evaluated_version="v2", fatal=False, reviewer_available=True) == "human_signoff_required", "valid current-version evaluation did not reach human sign-off")
+    require(
+        resolve_ready_state(
+            changed=True,
+            current_version="v2",
+            evaluated_version="v2",
+            fatal=False,
+            reviewer_available=True,
+            final_state="human_strategy_selection_required",
+        )
+        == "human_strategy_selection_required",
+        "valid Research Polisher evaluation did not reach human selection",
+    )
 
     idea_orchestrator = read(SKILLS / "research-idea-orchestrator" / "SKILL.md")
     validate_idea_mode_contract(registry, idea_orchestrator)
@@ -260,10 +322,10 @@ def main() -> int:
     phase2_tests(registry)
     phase3_tests(registry)
     print("Phase 2/3 contract tests passed")
-    print("workflows: 4")
+    print(f"workflows: {len(WORKFLOWS)}")
     print("targeted Search smoke: self-attested snapshot validated (non-gating)")
     print("Deep Research inactive smoke: deep_research_handoff_required")
-    print("state-machine transition cases: 4/4")
+    print("state-machine transition cases: 5/5")
     print("idea registry/SKILL mutation guards: 2/2")
     return 0
 

@@ -82,4 +82,9 @@ allowed_event_types:
 terminal_states:
   - blocked
   - stopped
+  - clarification_stop
+  - specialist_review_pending
+  - no_defensible_option
+  - independent_review_pending
   - human_signoff_required
+  - human_strategy_selection_required

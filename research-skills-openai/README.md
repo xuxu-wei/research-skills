@@ -1,21 +1,28 @@
 # Research Skills (Preview)
 
 `research-skills-openai` is a personal, experimental ChatGPT/Codex research
-workflow plugin. It contains 45 skills for research ideas, proposals, articles,
-perspectives, evidence retrieval, and independent review. It is not presented
-as production-stable.
+workflow plugin. It contains 49 skills for research ideas, proposals, articles,
+perspectives, research-impact positioning, evidence retrieval, and independent
+review. It is not presented as production-stable.
 
 Roadmap Phase 0 through Phase 6 are complete. Phase 7 and Phase 8 are in
 progress. CI enforces the static, deterministic, fixture, registry, package,
-and Preview-release contracts. A historical Codex App cycle verified GitHub
+and Preview-release contracts. The repository now includes an App Server
+capture helper, an integrity-only Release-asset validator, and a separate live
+GitHub witness verifier; no current runtime slot is complete until real
+external evidence passes that chain. A historical Codex App cycle verified GitHub
 Preview upgrade, reinstall, and fresh-task discovery; that receipt is evidence,
 not a continuous or current-version guarantee. ChatGPT web installation,
 sharing permission, and discovery remain unverified.
 
-The next Roadmap priority is maintenance and runtime proof, not additional
-public skills. Current-version live workflow runs, release/rollback evidence,
-and two complete Deep Research return cycles must still pass before bounded
-feature expansion. See [ROADMAP.md](ROADMAP.md).
+The immediate Roadmap priority remains the Phase 7 and Phase 8 maintenance and
+runtime proof gates. Current-version live workflow runs, release/rollback
+evidence, and two complete Deep Research return cycles are still pending. The
+owner-approved Research Polisher expansion is the next Phase 9 feature, but its
+source presence is not evidence that those live gates or its current-version
+marketplace discovery have passed. See [ROADMAP.md](ROADMAP.md) for sequencing
+and [PHASE7-8-RUNBOOK.md](PHASE7-8-RUNBOOK.md) for the A/B release and external
+evidence execution checklist.
 
 ## Install from GitHub Preview
 
@@ -66,14 +73,14 @@ python scripts/codex_plugin_converter.py --mode codex --install --fail-on-invali
 
 The helper preserves the base version, including any prerelease identifier, and
 synchronizes the manifest and workflow registry, for example
-`0.6.0-preview.1` to `0.6.0-preview.1+codex.local-YYYYMMDD-HHMMSS`. Never commit
+`0.7.0-preview.1` to `0.7.0-preview.1+codex.local-YYYYMMDD-HHMMSS`. Never commit
 or push a `+codex.local-*` version to the rolling Preview channel.
 
 ## Verified surfaces and context loading
 
-The maintained package contains 45 skill contracts, but this Codex task's
-initial plugin catalog injected descriptions for only the six entries whose
-`agents/openai.yaml` sets `allow_implicit_invocation: true`:
+The maintained `0.7.0-preview.1` source contains 49 skill contracts and declares
+seven discoverable public entries. Six currently set
+`allow_implicit_invocation: true`:
 
 - `academic-deep-search`
 - `article-orchestrator`
@@ -82,15 +89,16 @@ initial plugin catalog injected descriptions for only the six entries whose
 - `research-idea-orchestrator`
 - `research-opportunity-mapper`
 
-The other 39 roles set that policy to `false`, were absent from the initial
-plugin catalog, and remain available for explicit or orchestrated delegation.
-This is a Codex catalog observation and a conservative character measurement,
-not model-token accounting or proof that every listed skill body was loaded.
-The observed catalog belonged to the task's already-installed
-`0.5.0-preview.1` cache; source-candidate `0.6.0-preview.1` policy and isolated
-routing are verified locally, while its marketplace install/fresh-task
-discovery remain Phase 7 gates. ChatGPT web installation, discovery, sharing,
-and runtime behavior remain unverified.
+`research-polisher-orchestrator` is the seventh public entry and has a complete
+quickstart, but remains explicit-only while the Phase 7-8 external-evidence
+gates are open. The other 42 private roles also set the policy to `false` and
+remain available for explicit or orchestrated delegation. The only completed catalog observation belongs to
+an already-installed historical `0.5.0-preview.1` cache, where six implicit
+entries and zero non-implicit roles were observed. It does not verify the
+`0.7.0-preview.1` catalog. Current-version marketplace install, fresh-task
+discovery, workflow execution, and rollback remain Phase 7 gates; the Phase 8
+live retrieval and independent-review gates also remain pending. ChatGPT web
+installation, discovery, sharing, and runtime behavior remain unverified.
 
 ## Public entry quickstarts
 
@@ -152,6 +160,17 @@ Use $research-idea-orchestrator in [standard | resume_candidates | portfolio_onl
 - Stop states: `blocked`, `stopped`, `independent_review_pending`, or `context_handoff_required`.
 - Resume: paste the continuation brief and provide the missing context, evidence, frozen candidate set, or reviewer capacity.
 
+### `$research-polisher-orchestrator`
+
+```text
+Use $research-polisher-orchestrator in standard mode for this completed or substantially completed research work. Research question, design, methods, existing data and results: [summary and artifact paths]. Current claims, story, audience, and outlet: [summary or unknown]. Available resources, time, data access, and maximum added-work tier: [constraints]. Produce reposition-only, small-extension, and moderate-extension strategies through mutually blind reviewers, independent methodology and publishability review, and a Pareto selection dossier; do not perform language copyediting or invent a new study.
+```
+
+- Minimum input: a completed or substantially completed study with frozen source paths or a sufficiently detailed design, methods, data, results, and resource summary.
+- Expected output: a versioned 3-by-3 impact-strategy portfolio, preserved dissent, fresh independent methodology/publishability evaluation, and a human-selection dossier.
+- Stop states: `revision_required`, `specialist_review_pending`, `no_defensible_option`, `independent_review_pending`, `deep_research_handoff_required`, `clarification_stop`, `blocked`, or `stopped`; a qualifying package stops at human strategy selection.
+- Resume: paste the self-contained continuation brief with the missing frozen artifacts, evidence return, resource constraints, or reviewer availability.
+
 ### `$research-opportunity-mapper`
 
 ```text
@@ -174,6 +193,18 @@ python scripts/test_openai_phase2_phase3.py
 python scripts/test_openai_phase4_scenarios.py --check-report
 python scripts/test_openai_phase7_modes.py --check-report
 python scripts/test_openai_phase8_corpus.py --check-report
+python scripts/test_openai_preview_evidence.py
+python scripts/test_build_openai_preview_accepted_summary.py
+python scripts/test_build_openai_preview_verifier_summary.py
+python scripts/test_download_openai_release_ledger_assets.py
+python scripts/test_validate_openai_preview_evidence_bundle.py
+python scripts/test_openai_app_server_capture.py
+python scripts/test_validate_openai_phase7_runtime_evidence.py
+python scripts/test_validate_openai_phase8_external_evidence.py
+python scripts/test_validate_openai_release_evidence.py
+python scripts/test_openai_phase8_preview_verifier.py
+python scripts/test_openai_preview_workflows.py
+python scripts/test_validate_openai_preview_accepted_phase78.py
 python scripts/codex_plugin_converter.py --mode codex --fail-on-invalid
 python scripts/generate_openai_release_ledger.py --check
 python scripts/test_openai_release_ledger.py
@@ -184,18 +215,56 @@ python C:\Users\10149\.codex\skills\.system\plugin-creator\scripts\validate_plug
 GitHub Actions runs the portable audit, context proxy, fixture, package, release,
 and SemVer-bump checks on pull requests and pushes to `main`.
 
+The two commands ending in `test_openai_release_ledger.py` and
+`validate_openai_preview_release.py` perform structural validation when no
+external bundle root is supplied; that path never claims to have repeated a
+live re-query. Accepted evidence is gated separately by
+`.github/workflows/openai-preview-accepted-evidence.yml`, which runs the fixed
+production callback and then the complete release validator inside the
+protected `openai-preview-governance` Environment.
+
 The verified historical GitHub reinstall and fresh-process discovery trace is
 in `reports/phase5-upgrade-smoke.md`. The current candidate's commit, CI,
 marketplace upgrade/reinstall, fresh-task discovery, and rollback status are
-tracked without inference in `reports/release-ledger.json`. A `verified`
-external record is accepted only when it binds a repository-relative evidence
-file by raw SHA-256, the file's observed payload exactly matches the ledger
-record, the release commit's committed plugin and validation-contract trees
-match the recorded identity, and an implemented authenticated external-evidence
-adapter verifies provider origin. The evidence envelope is defined in
-`../tests/openai_phase7/release-evidence.schema.yaml`; no such adapter is
-currently implemented, so unobserved or repository-authored records stay
-`pending`.
+tracked without inference in `reports/release-ledger.json`. Raw runtime evidence
+does not enter `main`: it is bound to an immutable prerelease tag and stored as
+GitHub Release assets with asset IDs and SHA-256 digests. The local bundle CLI
+checks only structure, source identity, and byte integrity; it never makes a
+receipt gate-eligible. A separate executable adapter must re-query the GitHub
+Release, Actions run, committed verifier, and indexed assets before the ledger
+can record `preview_attested`. Repository-authored status text, screenshots,
+handwritten YAML, or an internally consistent local envelope cannot close a
+gate.
+
+External promotion uses two distinct immutable Releases at the same frozen
+source commit. The evidence Release contains R/E/V/I before the first live
+verifier run. After that run produces its bound summary, the candidate Release
+contains the derived ledger plus the accepted Phase 7 runtime, Phase 8 reviewer,
+and Phase 8 retrieval collections. The protected workflow keeps candidate
+files outside the evidence bundle root and never exposes its governance
+credential to a caller-selected checkout.
+
+The accepted-state bridge binds the candidate ledger bytes independently to
+the candidate Release inventory and production runner result. It verifies the
+current eight release/distribution chains, ten Phase 7 chains, and twelve Phase
+8 chains as 30 globally unique evidence IDs with 120 unique R/E/V/I content
+digests, while validating accepted history separately. Both Release tags are
+resolved through exact `refs/tags/...` lookups with annotated-tag peeling. The
+accepted summary is uploaded only after the trusted checkout and both isolated
+validation workspaces pass their final immutability/allowlist proof. The
+artifact counts only when its run attempt is subsequently observed as
+successful in the protected Environment; the JSON file alone is not an
+acceptance credential.
+
+Evidence levels are intentionally distinct. `capture_only` is a redacted raw
+export and never counts. `preview_attested` is the acceptance level for this
+personal Experimental/Preview plugin: it requires an immutable external GitHub
+witness and independent executable verification, but it is not an OpenAI
+provider attestation. `provider_verified` is stricter and remains unavailable
+until a registered authenticated provider adapter exists. The evidence
+contracts are defined in `../tests/openai_phase7/release-evidence.schema.yaml`
+and `../scripts/openai_preview_evidence.py`; all current real records remain
+pending.
 
 Install, reinstall, discovery, and rollback evidence must also include the
 provider-exported cache inventory. The validator recomputes a cache content
@@ -206,16 +275,18 @@ current cache and a distinct cache matching the previous release. A cache path
 or `cache_mixing_absent` label alone cannot close these gates.
 
 Phase 8 evidence is split deliberately: the anonymous synthetic corpus passes;
-three Search runs and one inactive Deep Research pause are recorded only as
-self-attested current-task snapshots and do not satisfy verified live gates.
+three Search runs and one inactive Deep Research pause are historical
+`0.6.0-preview.1` snapshots and do not satisfy current-release live gates.
 Six earlier review snapshots are retained as explicitly excluded historical
 records because their reviewer-visible identifiers disclosed outcome labels;
 six fresh replacements using opaque A01-A03 source, case, run, bundle, prompt,
-and real instance identifiers now count as current self-attested observations,
-but remain 0 verified live receipts. Repository-authored files and recomputed
-digests are integrity records, not provider provenance, and can never promote a
-receipt by themselves. Promotion requires an executable provider-verifier
-adapter plus source-commit/tree identity and current timestamps. Verified
+and real instance identifiers remain historical release-mismatch evidence, not
+current observations. Repository-authored files and recomputed
+digests are integrity records, not external provenance, and can never promote a
+receipt by themselves. Preview promotion requires the registered executable
+GitHub live-requery verifier plus source-commit/tree identity and current
+timestamps; provider promotion additionally requires an authenticated provider
+adapter. Accepted
 review dispatch must use a source-only sanitized blind bundle whose content
 and lineage contain no prior reviewer/evaluator outputs, scores, or decisions.
 Validation also reads the bound source file bytes. It requires exactly one
@@ -232,9 +303,10 @@ identity-verified, and traced to material claims; mapper return and workflow
 resume must bind the same real evidence-artifact paths and SHA-256 digests. A
 provider-run-completed receipt must bind provider run ID, status, time, and raw
 output, with strict `handoff < user start < provider complete < mapper return <
-resume` ordering. No real provider adapter is currently installed; synthetic
-validator overrides run only in ephemeral temp directories and never count as
-runtime evidence. Two complete Deep Research cycles remain pending. See
+resume` ordering. No authenticated provider adapter is currently installed.
+The Preview adapter contract and synthetic reachability checks never count as
+runtime evidence; real GitHub-witnessed captures are still required. Two
+complete Deep Research cycles remain pending. See
 `reports/phase8-corpus-results.json`.
 
 The workflow stops at a package prepared for human review and signature. It

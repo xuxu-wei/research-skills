@@ -1,16 +1,15 @@
 # Phase 6 Codex Catalog and Context Measurement
 
-Date: 2026-07-12
-Surface: Codex desktop task
+Date: 2026-07-13
+Surface: source policy and historical Codex desktop observations
 ChatGPT web: not tested; no inference is made about its discovery or loading
 Status: Complete
 
 ## Result
 
-The maintained source package still contains 45 skill contracts. Registry and
-`agents/openai.yaml` policy expose exactly six as implicit public entries and
-keep the other 39 explicit-or-orchestrated. In this Codex task, the
-system-supplied initial plugin catalog contained only these six entries:
+The maintained `0.7.0-preview.1` source contains 49 skill contracts. Registry
+policy declares seven public entries; six are implicit-active, while Research
+Polisher is explicit-only until the Phase 7-8 external gate passes:
 
 - `academic-deep-search`
 - `article-orchestrator`
@@ -18,41 +17,34 @@ system-supplied initial plugin catalog contained only these six entries:
 - `proposal-orchestrator`
 - `research-idea-orchestrator`
 - `research-opportunity-mapper`
+- `research-polisher-orchestrator`
 
-No other `research-skills-openai` role appeared in the initial skill catalog.
-This proves the catalog boundary observed in this task; it does not expose
-private platform token accounting. Skill bodies remain conditional content
-read after selection, so this report does not claim that all six bodies were
-loaded at startup.
-
-The catalog entries in this already-running task pointed to the installed
-`0.5.0-preview.1` user cache. The source candidate under test is
-`0.6.0-preview.1`; its registry and all 45 `agents/openai.yaml` policies match
-the same six/39 boundary, and its six routing smokes read the source candidate
-directly. This observation therefore measures Codex catalog filtering, not a
-current-candidate install/discovery receipt. Current-version marketplace and
-fresh-task discovery remain Phase 7 gates.
+The only completed Codex catalog observation remains the historical installed
+`0.5.0-preview.1` cache, which exposed the six public entries that existed then
+and zero private roles. The retained routing snapshot is bound to
+`0.6.0-preview.1` and six entries. Neither observation proves that the new
+`0.7.0-preview.1` seventh entry has been installed or discovered. Current
+marketplace install, fresh-task discovery, and routing receipts remain Phase 7
+gates.
 
 ## Character proxies
 
-The proxy counts Unicode characters as read from UTF-8 source. It deliberately
-uses all 45 descriptions for the conservative bound even though the observed
-Codex catalog exposed only six. For an orchestrator, it adds the complete
-`SKILL.md` file, including frontmatter, to that all-description total. This is
-more conservative than counting the body alone.
+The proxy counts Unicode characters from UTF-8 source. It uses all 49
+descriptions even though runtime discovery is pending. Each orchestrator proxy
+adds its complete `SKILL.md`, including frontmatter, to the description total.
 
 | Measurement | Result | Limit |
 | --- | ---: | ---: |
-| Observed public-entry descriptions | 944 | Informational |
-| All 45 descriptions | 5,882 | 6,400 |
-| Article orchestrator proxy | 13,873 | 14,000 |
-| Perspective orchestrator proxy | 13,683 | 14,000 |
-| Proposal orchestrator proxy | 13,083 | 14,000 |
-| Research-idea orchestrator proxy | 13,879 | 14,000 |
+| Observed public-entry descriptions | 956 | Informational |
+| All 49 descriptions | 6,086 | 6,200 |
+| Article orchestrator proxy | 13,146 | 13,400 |
+| Perspective orchestrator proxy | 12,785 | 13,400 |
+| Proposal orchestrator proxy | 13,266 | 13,400 |
+| Research-idea orchestrator proxy | 13,088 | 13,400 |
+| Research-polisher orchestrator proxy | 12,295 | 13,400 |
 
-The previous Roadmap proxy was 7,710 description characters and 15,704 for the
-largest description-plus-orchestrator total. The compact descriptions preserve
-the same skill names, roles, implicit-entry set, and skill bodies.
+The stricter Phase 9 limits pass with 114 description characters and 134
+maximum-orchestrator-proxy characters of conservative headroom.
 
 ## Reproducible checks
 
@@ -63,36 +55,26 @@ python scripts/test_openai_phase6_context.py
 python scripts/audit_openai_research_plugin.py
 ```
 
-The Phase 6 test derives the skill inventory and public entries from
-`workflow-registry.yaml`; it does not hard-code the current plugin version or
-the 45-skill count. It verifies registry/source agreement, every
-`allow_implicit_invocation` value, both context limits, and one isolated
-copy-paste quickstart per public entry. Each quickstart explicitly invokes only
-its own public skill. Every routing snapshot now binds both its instantiated
-prompt and the current README quickstart template plus the selected source
-`SKILL.md` by SHA-256, so source or documentation drift invalidates the receipt.
+The test derives inventory, entry policy, and orchestrators from
+`workflow-registry.yaml`. It validates registry/source agreement, all 49 UI
+policies and 25-64-character short descriptions, both context limits, and one
+copy-paste quickstart per current public entry.
 
-## Fresh-subagent routing smoke
+## Routing snapshot boundary
 
-Six synthetic quickstart prompts were dispatched sequentially to six fresh
-subagent instances. Every run selected the requested public entry, judged the
-minimum filled input sufficient for routing, read exactly that entry's
-`SKILL.md`, read no unrelated public-entry skill, and performed no source edit.
-The run contracts and canonical instance IDs are recorded in
-`tests/openai_phase6/quickstart-routing-receipts.yaml` and validated by
-`scripts/test_openai_phase6_context.py`. These are current-task structured
-observations, not a portable platform execution export; current-version
-installed discovery remains a Phase 7 gate.
+`tests/openai_phase6/quickstart-routing-receipts.yaml` preserves six isolated
+`0.6.0-preview.1` routing observations and their original SHA-256 bindings. They
+are historical evidence and are not rewritten to match current source files or
+the seventh entry. The current static quickstart set is 7/7; current-version
+fresh-subagent routing evidence is 0/7 pending a real rerun.
 
 ## Interpretation and limits
 
-- Source package: 45 skills.
-- Initial Codex plugin catalog observed in this task: six public-entry
-  descriptions.
-- Non-implicit roles observed in the initial catalog: zero; they remain
-  available through explicit or orchestrated invocation.
+- Source package: 49 skills; policy declares seven public entries, six currently implicit-active.
+- Runtime catalog observation for `0.7.0-preview.1`: pending.
+- Non-implicit source skills: 43 (one gated public entry plus 42 private roles); no claim is made that they load initially.
 - This is character-based headroom, not model-token accounting.
-- A future Codex build or plugin policy change requires a fresh-task catalog
-  observation; the static policy test alone cannot prove runtime exposure.
-- ChatGPT web installation, sharing, discovery, and runtime remain explicitly
-  unverified until Phase 11 evidence exists.
+- Source presence, hashes, or a repository-authored routing snapshot cannot
+  substitute for marketplace installation and fresh-task discovery.
+- ChatGPT web installation, sharing, discovery, and runtime remain unverified
+  until Phase 12 evidence exists.

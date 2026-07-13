@@ -36,18 +36,39 @@ resource_groups:
       - reports/**
     origin: generated_or_curated_by_repository_validation_workflows
     origin_status: resolved
+  - name: openai_native_research_polisher_skills
+    scopes:
+      - skills/research-polisher-orchestrator/**
+      - skills/research-polisher-strategy-reviewer/**
+      - skills/research-polisher-plan-assembler/**
+      - skills/research-polisher-methodology-publishability-reviewer/**
+    origin: maintained_in_this_repository_for_openai_runtime
+    origin_status: resolved
 skill_resource_derivation:
   registry_fields:
     name: skills[].name
     package: skills[].package
   plugin_scope_template: skills/{name}/**
   hermes_source_template: ../research-skills/{package}/{name}/
+  openai_native_package: research-polisher
+  openai_native_skills:
+    - research-polisher-methodology-publishability-reviewer
+    - research-polisher-orchestrator
+    - research-polisher-plan-assembler
+    - research-polisher-strategy-reviewer
   openai_overlay_scope_template: skills/{name}/agents/**
-  content_origin: adapted_from_corresponding_hermes_source
+  content_origin: resolved_by_skill_origin_profile
+  origin_profiles:
+    hermes_adapted:
+      content_origin: adapted_from_corresponding_hermes_source
+      source_template: ../research-skills/{package}/{name}/
+    openai_native:
+      content_origin: maintained_in_this_repository_for_openai_runtime
+      source_template: skills/{name}/**
   overlay_origin: maintained_in_this_repository_for_openai_runtime
-  origin_status: resolved_when_source_and_plugin_directories_exist
+  origin_status: resolved_when_declared_origin_and_plugin_directories_exist
   license_resolution: repository_root_mit
   per_resource_declared_authors: unknown_not_declared
-  unknown_handling: Any missing registry field, source directory, plugin directory, or license mapping is unresolved and fails provenance validation.
+  unknown_handling: Any missing registry field, declared origin, required source directory, plugin directory, or license mapping is unresolved and fails provenance validation.
 declared_third_party_exceptions: []
 unresolved_resources: []

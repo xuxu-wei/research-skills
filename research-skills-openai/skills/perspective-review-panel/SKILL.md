@@ -1,6 +1,6 @@
 ---
 name: perspective-review-panel
-description: "Independently review a frozen Perspective from one assigned counter-position, evidence, narrative, method, clinician, or outlet-fit role."
+description: "Independently review a frozen Perspective from one assigned counter-position, evidence, narrative, method, or outlet role."
 ---
 # perspective-review-panel
 

@@ -1,6 +1,6 @@
 ---
 name: article-context-builder
-description: "Normalize study materials into an article context brief. Use before readiness review, architecture, or drafting to expose missing inputs."
+description: "Normalize study materials into an article context brief before readiness review, architecture, or drafting; expose missing inputs."
 ---
 # article-context-builder
 

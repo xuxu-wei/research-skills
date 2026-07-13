@@ -1,6 +1,6 @@
 ---
 name: proposal-package-assembler
-description: "Assemble evaluated proposal, review, revision, panel, issue, and optional SAP artifacts into a human-review package without rewriting."
+description: "Assemble evaluated proposal, review, revision, panel, issue, and optional SAP artifacts without rewriting."
 ---
 # proposal-package-assembler
 

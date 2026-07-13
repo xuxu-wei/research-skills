@@ -1,5 +1,25 @@
 schema_version: 5
-plugin_version: "0.6.0-preview.1"
+plugin_version: "0.7.0-preview.1"
+public_entry_policy:
+  declared_entries:
+    - academic-deep-search
+    - article-orchestrator
+    - perspective-orchestrator
+    - proposal-orchestrator
+    - research-idea-orchestrator
+    - research-opportunity-mapper
+    - research-polisher-orchestrator
+  implicit_active_entries:
+    - academic-deep-search
+    - article-orchestrator
+    - perspective-orchestrator
+    - proposal-orchestrator
+    - research-idea-orchestrator
+    - research-opportunity-mapper
+  gated_entries:
+    research-polisher-orchestrator:
+      status: explicit_only_pending_phase_7_8_external_evidence
+      activation_gate: phase_7_and_phase_8_external_acceptance_complete
 review_execution:
   isolation_mode: fresh_subagent
   inline_fallback: false
@@ -342,6 +362,38 @@ skills:
     requires_independent_subagent: false
     allowed_input_artifacts: "research_question_source_scope_and_existing_evidence"
     output_artifact_type: "source_grounded_retrieval_artifact"
+  - name: "research-polisher-methodology-publishability-reviewer"
+    package: "research-polisher"
+    role: "reviewer"
+    related_skills: ["medical-journal-review", "methodology-statistics-preflight", "research-polisher-orchestrator", "research-polisher-plan-assembler"]
+    invocation_policy: "explicit_or_orchestrated"
+    requires_independent_subagent: true
+    allowed_input_artifacts: "frozen_research_polisher_dossier_necessary_evidence_anonymous_candidate_portfolio_optional_verified_target_adapter_and_sanitized_specialist_findings_bundle"
+    output_artifact_type: "research_polisher_evaluation_report"
+  - name: "research-polisher-orchestrator"
+    package: "research-polisher"
+    role: "orchestrator"
+    related_skills: ["academic-deep-search", "article-architect", "article-context-builder", "medical-journal-review", "methodology-statistics-preflight", "research-opportunity-mapper", "research-polisher-methodology-publishability-reviewer", "research-polisher-plan-assembler", "research-polisher-strategy-reviewer"]
+    invocation_policy: "explicit_or_orchestrated"
+    requires_independent_subagent: false
+    allowed_input_artifacts: "completed_or_near_complete_research_assets_and_constraints"
+    output_artifact_type: "research_polisher_workflow_state_and_human_selection_handoff"
+  - name: "research-polisher-plan-assembler"
+    package: "research-polisher"
+    role: "assembler"
+    related_skills: ["research-polisher-methodology-publishability-reviewer", "research-polisher-orchestrator", "research-polisher-strategy-reviewer"]
+    invocation_policy: "explicit_or_orchestrated"
+    requires_independent_subagent: false
+    allowed_input_artifacts: "sealed_strategy_reports_anonymous_portfolio_evaluation_sealed_provenance_requested_specialist_reports_and_current_lineage_by_mode"
+    output_artifact_type: "research_polisher_candidate_portfolio_revision_brief_specialist_findings_bundle_or_selection_dossier"
+  - name: "research-polisher-strategy-reviewer"
+    package: "research-polisher"
+    role: "reviewer"
+    related_skills: ["research-opportunity-mapper", "research-polisher-orchestrator"]
+    invocation_policy: "explicit_or_orchestrated"
+    requires_independent_subagent: true
+    allowed_input_artifacts: "frozen_research_polisher_dossier_evidence_optional_verified_target_adapter_one_lens_and_optional_anonymous_must_fix_brief"
+    output_artifact_type: "research_polisher_strategy_report"
   - name: "sap-evaluator"
     package: "research-proposal"
     role: "reviewer"
@@ -831,6 +883,78 @@ workflow_edges:
     input_contract: "frozen_final_artifacts_reviews_and_dissent"
     output_contract: "verified_human_review_package"
     failure_route: "independent_review_pending"
+  - workflow: "research_polisher"
+    source: "research-polisher-orchestrator"
+    destination: "article-context-builder"
+    dispatch_mode: "orchestrated"
+    trigger: "dossier_normalization_required"
+    input_contract: "frozen_research_assets_scope_and_constraints"
+    output_contract: "article_context_brief_for_research_polisher"
+    failure_route: "clarification_required"
+  - workflow: "research_polisher"
+    source: "research-polisher-orchestrator"
+    destination: "research-opportunity-mapper"
+    dispatch_mode: "orchestrated"
+    trigger: "broad_positioning_evidence_required"
+    input_contract: "frozen_dossier_questions_sources_and_scope"
+    output_contract: "evidence_and_opportunity_maps"
+    failure_route: "evidence_mapping_pending"
+  - workflow: "research_polisher"
+    source: "research-polisher-orchestrator"
+    destination: "academic-deep-search"
+    dispatch_mode: "orchestrated"
+    trigger: "bounded_two_to_five_paper_question_required"
+    input_contract: "one_bounded_question_scope_and_source_constraints"
+    output_contract: "focused_academic_synthesis"
+    failure_route: "evidence_mapping_pending"
+  - workflow: "research_polisher"
+    source: "research-polisher-orchestrator"
+    destination: "research-polisher-strategy-reviewer"
+    dispatch_mode: "delegated"
+    trigger: "dossier_frozen_or_anonymous_revision_brief_ready"
+    input_contract: "frozen_dossier_evidence_one_lens_and_three_tiers"
+    output_contract: "sealed_research_polisher_strategy_report"
+    failure_route: "independent_review_pending"
+  - workflow: "research_polisher"
+    source: "research-polisher-orchestrator"
+    destination: "research-polisher-plan-assembler"
+    dispatch_mode: "orchestrated"
+    trigger: "strategy_reports_evaluation_or_specialist_reports_ready"
+    input_contract: "sealed_strategy_reports_evaluation_or_current_requested_specialist_reports_with_lineage"
+    output_contract: "candidate_portfolio_revision_brief_sanitized_specialist_findings_or_selection_dossier"
+    failure_route: "assembly_blocked"
+  - workflow: "research_polisher"
+    source: "research-polisher-orchestrator"
+    destination: "research-polisher-methodology-publishability-reviewer"
+    dispatch_mode: "delegated"
+    trigger: "candidate_portfolio_version_frozen_or_revised"
+    input_contract: "frozen_anonymous_candidate_portfolio_dossier_and_necessary_evidence"
+    output_contract: "research_polisher_evaluation_report"
+    failure_route: "independent_review_pending"
+  - workflow: "research_polisher"
+    source: "research-polisher-orchestrator"
+    destination: "methodology-statistics-preflight"
+    dispatch_mode: "delegated"
+    trigger: "specialist_method_preflight_requested"
+    input_contract: "frozen_selected_option_and_method_facts"
+    output_contract: "preflight_report"
+    failure_route: "independent_review_pending"
+  - workflow: "research_polisher"
+    source: "research-polisher-orchestrator"
+    destination: "medical-journal-review"
+    dispatch_mode: "delegated"
+    trigger: "biomedical_specialist_review_requested"
+    input_contract: "frozen_selected_option_research_facts_and_review_scope"
+    output_contract: "medical_journal_review_report"
+    failure_route: "independent_review_pending"
+  - workflow: "research_polisher"
+    source: "research-polisher-orchestrator"
+    destination: "article-architect"
+    dispatch_mode: "handoff"
+    trigger: "human_selected_reposition_only_option"
+    input_contract: "selected_evaluator_qualified_repositioning_constraints"
+    output_contract: "article_blueprint_state"
+    failure_route: "handoff_blocked"
 workflow_state_policy:
   state_field: workflow_state
   active_states:
@@ -842,17 +966,25 @@ workflow_state_policy:
   - packaging_pending
   pause_states:
   - pending_review
+  - specialist_review_pending
   - independent_review_pending
+  - clarification_stop
+  - deep_research_handoff_required
   terminal_states:
   - stopped
   - blocked
+  - no_defensible_option
   - human_signoff_required
+  - human_strategy_selection_required
+  - additional_work_required
   review_unavailable_state: independent_review_pending
   fatal_finding_state: blocked
   final_handoff_state: human_signoff_required
   wildcard_transition_scope: nonterminal_states_only
   resume_policy:
     independent_review_pending: pending_review
+    clarification_stop: preprocessing
+    deep_research_handoff_required: preprocessing
   version_gate:
     changed_artifact_requires_new_version: true
     evaluator_instance_must_be_fresh: true
@@ -862,10 +994,12 @@ workflow_state_policy:
     - panel_pending
     - packaging_pending
     - human_signoff_required
+    - human_strategy_selection_required
   finding_gate:
     fatal_or_blocking_finding_prevents_accept: true
     fatal_or_blocking_finding_prevents_promoted: true
     fatal_or_blocking_finding_prevents_human_signoff: true
+    fatal_or_blocking_finding_prevents_human_strategy_selection: true
     panel_dissent_must_remain_visible: true
   concurrency_policy:
     phase_level_delegation_allowed: true
@@ -916,15 +1050,52 @@ workflow_state_policy:
     - prior_panel_complete
     - fresh_evaluation_current
     - no_unresolved_fatal_finding
+  - from: pending_review
+    to: packaging_pending
+    trigger: latest_strategy_portfolio_accepted
+    requires:
+    - fresh_evaluation_current
+    - no_unresolved_fatal_finding
+  - from: pending_review
+    to: specialist_review_pending
+    trigger: specialist_review_requested
+    requires:
+    - bounded_specialist_question
+    - evaluator_round_available
+  - from: specialist_review_pending
+    to: pending_review
+    trigger: sanitized_specialist_findings_ready
+    requires:
+    - specialist_reports_current
+    - sanitized_findings_bundle_current
+    - fresh_evaluator_instance
   - from: packaging_pending
     to: human_signoff_required
     trigger: package_verified
+  - from: packaging_pending
+    to: human_strategy_selection_required
+    trigger: selection_dossier_verified
+  - from: human_strategy_selection_required
+    to: additional_work_required
+    trigger: human_selected_extension_option
+    requires:
+    - current_selection_dossier
+    - selected_option_is_small_or_moderate_extension
   - from: '*'
     to: independent_review_pending
     trigger: required_reviewer_unavailable
   - from: '*'
+    to: clarification_stop
+    trigger: required_source_facts_missing_or_inconsistent
+  - from: '*'
+    to: deep_research_handoff_required
+    trigger: inactive_deep_research_required
+  - from: '*'
     to: blocked
     trigger: fatal_or_blocking_finding
+  - from: '*'
+    to: no_defensible_option
+    trigger: no_defensible_strategy_remains
   - from: '*'
     to: stopped
     trigger: unfixable_no_gain_or_user_stop
@@ -1301,6 +1472,68 @@ workflow_state_machines:
     - lite
     - standard
     final_package_skill: perspective-final-compositor
+  research_polisher:
+    workflow_profile: reviewer_matrix_assemble_evaluate
+    orchestrator: research-polisher-orchestrator
+    strategy_reviewer_skill: research-polisher-strategy-reviewer
+    strategy_reviewer_roles:
+    - scientific_significance
+    - practical_value
+    - dissemination_editorial
+    effort_tiers:
+    - reposition_only
+    - small_extension
+    - moderate_extension
+    primary_assembler_skill: research-polisher-plan-assembler
+    evaluator_skill: research-polisher-methodology-publishability-reviewer
+    primary_writer_skills: []
+    primary_artifact_creator_skills:
+    - research-polisher-plan-assembler
+    primary_artifact_type: research_polisher_candidate_portfolio
+    entry_modes:
+    - standard
+    entry_gates:
+      standard:
+      - dossier_frozen
+      - strategy_matrix_complete
+      - candidate_portfolio_versioned
+    scenario_entry_gate_contracts:
+      standard:
+        dossier_frozen:
+          artifact_roles:
+          - research_polisher_dossier
+        strategy_matrix_complete:
+          artifact_roles:
+          - strategy_report_manifest
+        candidate_portfolio_versioned:
+          artifact_roles:
+          - research_polisher_candidate_portfolio
+    before_strategy_assembly:
+    - three_strategy_roles_complete
+    - nine_matrix_cells_accounted
+    - dissent_and_conflicts_indexed
+    before_evaluation:
+    - candidate_portfolio_versioned
+    - reviewer_identity_mapping_sealed
+    before_panel: []
+    before_packaging:
+    - latest_version_independently_evaluated
+    - dissent_and_fatal_findings_indexed
+    post_evaluation_panel_required: false
+    maximum_evaluator_rounds: 2
+    conditional_specialist_review_skills:
+    - methodology-statistics-preflight
+    - medical-journal-review
+    specialist_review_return_contract:
+      state: specialist_review_pending
+      sanitizer_skill: research-polisher-plan-assembler
+      sanitized_artifact_type: research_polisher_specialist_findings_bundle
+      raw_specialist_reports_visible_to_final_reviewer: false
+      requires_fresh_final_reviewer: true
+      counts_as_evaluator_round: true
+    non_ready_modes: []
+    final_package_skill: research-polisher-plan-assembler
+    final_state: human_strategy_selection_required
 scenario_eval_contract:
   fixture_schema_version: 2
   required_workflows:
@@ -1308,6 +1541,7 @@ scenario_eval_contract:
   - proposal
   - article
   - perspective
+  - research_polisher
   required_lineage_fields:
   - artifact_id
   - version_id
@@ -1375,6 +1609,7 @@ scenario_eval_contract:
     runtime_evaluator_forbidden_source_actor_roles:
     - evaluator
     - panel
+    - strategy_reviewer
     - verifier_compositor
   runtime_actor_role_contract:
     allowed_roles:
@@ -1386,6 +1621,7 @@ scenario_eval_contract:
     - retrieval
     - controller
     - assembler
+    - strategy_reviewer
     - verifier_compositor
     registry_roles_by_actor_role:
       orchestrator:
@@ -1405,6 +1641,8 @@ scenario_eval_contract:
       - controller
       assembler:
       - assembler
+      strategy_reviewer:
+      - reviewer
       verifier_compositor:
       - reviewer
     happy_required_roles:
@@ -1412,6 +1650,17 @@ scenario_eval_contract:
     - writer
     - evaluator
     - panel
+    happy_required_roles_by_workflow_profile:
+      default:
+      - orchestrator
+      - writer
+      - evaluator
+      - panel
+      reviewer_matrix_assemble_evaluate:
+      - orchestrator
+      - strategy_reviewer
+      - assembler
+      - evaluator
     finalizer_roles:
     - assembler
     - verifier_compositor
@@ -1698,6 +1947,36 @@ scenario_eval_contract:
       - blocked
       - stopped
       - independent_review_pending
+    research-polisher-strategy-reviewer:
+      allowed:
+      - matrix_complete
+      - matrix_complete_with_no_defensible_option
+      - clarification_required
+      - independent_review_pending
+      pass:
+      - matrix_complete
+      - matrix_complete_with_no_defensible_option
+      revise:
+      - clarification_required
+      stop:
+      - independent_review_pending
+    research-polisher-methodology-publishability-reviewer:
+      allowed:
+      - ready_for_human_selection
+      - revision_required
+      - specialist_review_required
+      - no_defensible_option
+      - not_assessable
+      - independent_review_pending
+      pass:
+      - ready_for_human_selection
+      revise:
+      - revision_required
+      - specialist_review_required
+      stop:
+      - no_defensible_option
+      - not_assessable
+      - independent_review_pending
   panel_contracts:
     idea:
       default_tier: default_three
@@ -1825,6 +2104,32 @@ scenario_eval_contract:
       - support_with_minor_revision
       substantive_revision_decisions:
       - support_after_major_revision
+    research_polisher:
+      default_tier: not_applicable
+      modes:
+      - not_applicable
+      tiers:
+        not_applicable: []
+      mandatory_roles: []
+      mode_forbidden_input_roles:
+        not_applicable: []
+  review_group_contracts:
+    research_polisher:
+      skill: research-polisher-strategy-reviewer
+      roles:
+      - scientific_significance
+      - practical_value
+      - dissemination_editorial
+      effort_tiers:
+      - reposition_only
+      - small_extension
+      - moderate_extension
+      required_instance_count: 3
+      required_matrix_cell_count: 9
+      instances_must_be_distinct: true
+      peer_outputs_visible: false
+      raw_reports_visible_to_final_evaluator: false
+      manifest_artifact_role: strategy_report_manifest
   package_input_contracts:
     idea:
       allowed_roles:
@@ -2008,6 +2313,46 @@ scenario_eval_contract:
       - artifact_role: artifact_index
         sealed_review_lineage: true
         count: 1
+    research_polisher:
+      allowed_roles:
+      - research_polisher_dossier
+      - evidence_map
+      - research_polisher_sealed_provenance
+      - research_polisher_candidate_portfolio
+      - research_polisher_evaluation_report
+      - research_polisher_specialist_findings_bundle
+      - research_polisher_review_finding_index
+      - research_polisher_revision_brief
+      - research_polisher_revision_delta
+      required_inputs:
+      - artifact_role: research_polisher_dossier
+        count: 1
+      - artifact_role: evidence_map
+        count: 1
+      - artifact_role: research_polisher_sealed_provenance
+        source_skill: research-polisher-plan-assembler
+        count: 1
+      - artifact_role: research_polisher_candidate_portfolio
+        current_primary: true
+        count: 1
+      - artifact_role: research_polisher_evaluation_report
+        source_skill: research-polisher-methodology-publishability-reviewer
+        current_primary_lineage: true
+        count: 1
+      - artifact_role: research_polisher_specialist_findings_bundle
+        source_skill: research-polisher-plan-assembler
+        minimum_count: 0
+        include_all_created: true
+      - artifact_role: research_polisher_review_finding_index
+        count: 1
+      - artifact_role: research_polisher_revision_brief
+        source_skill: research-polisher-plan-assembler
+        minimum_count: 0
+        include_all_created: true
+      - artifact_role: research_polisher_revision_delta
+        source_skill: research-polisher-plan-assembler
+        minimum_count: 0
+        include_all_created: true
   revision_artifact_contract:
     controller_output_role: revision_plan
     drafter_required_output_roles:
@@ -2021,6 +2366,12 @@ scenario_eval_contract:
     - verification_report
     - final_handoff_package
   final_state: human_signoff_required
+  workflow_final_states:
+    idea: human_signoff_required
+    proposal: human_signoff_required
+    article: human_signoff_required
+    perspective: human_signoff_required
+    research_polisher: human_strategy_selection_required
   automatic_external_submission: false
 context_profile_policy:
   measurement_unit: characters

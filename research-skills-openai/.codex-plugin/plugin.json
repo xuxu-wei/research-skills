@@ -1,6 +1,6 @@
 {
   "name": "research-skills-openai",
-  "version": "0.6.0-preview.1",
+  "version": "0.7.0-preview.1",
   "description": "Experimental personal preview of evidence-grounded research workflows for ChatGPT and Codex.",
   "author": {
     "name": "Xuxu Wei",
@@ -22,7 +22,7 @@
   "interface": {
     "displayName": "Research Skills (Preview)",
     "shortDescription": "Experimental research workflow skills for ChatGPT and Codex",
-    "longDescription": "A personal-development preview containing evidence mapping, research idea, proposal, article, perspective, independent review, revision, and human-signoff packaging workflows. Interfaces and behavior may change during the 0.x series.",
+    "longDescription": "A personal-development preview containing evidence mapping, research idea, proposal, article, perspective, research-impact positioning, independent review, revision, and human-signoff packaging workflows. Interfaces and behavior may change during the 0.x series.",
     "developerName": "Xuxu Wei",
     "category": "Research",
     "capabilities": [
@@ -33,8 +33,8 @@
     "websiteURL": "https://github.com/xuxu-wei/research-skills",
     "defaultPrompt": [
       "Turn a research direction into an evidence-grounded idea portfolio.",
-      "Evaluate and refine a research proposal with independent reviewers.",
-      "Build a reviewed manuscript package from my study artifacts."
+      "Evaluate a proposal or build a reviewed manuscript package.",
+      "Reposition a completed study and compare bounded impact-enhancement strategies."
     ]
   }
 }

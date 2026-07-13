@@ -4,12 +4,13 @@ execution_scope: >-
   registry-derived entry-gate and lifecycle contract replay using synthetic
   artifacts, synthetic reviewer receipts, and negative mutation guards
 live_model_execution: false
-expected_mode_count: 16
+expected_mode_count: 17
 expected_workflows:
   - idea
   - proposal
   - article
   - perspective
+  - research_polisher
 notice: >-
   These fixtures drive deterministic contract replays with synthetic evidence.
   They do not represent a live model, Search, Deep Research, Codex task, or
@@ -58,6 +59,18 @@ path_profiles:
       - {from: artifact_frozen, to: pending_review, trigger: independent_review_dispatched}
       - {from: pending_review, to: panel_pending, trigger: latest_version_accepted}
       - {from: panel_pending, to: stopped, trigger: unfixable_no_gain_or_user_stop}
+  research_polisher_delivery:
+    expected_final_state: human_strategy_selection_required
+    mode_scope_completed: true
+    transitions:
+      - {from: initialized, to: preprocessing, trigger: entry_gate_passed}
+      - {from: preprocessing, to: artifact_frozen, trigger: versioned_artifact_created}
+      - {from: artifact_frozen, to: pending_review, trigger: independent_review_dispatched}
+      - {from: pending_review, to: revision_required, trigger: fixable_revision_requested}
+      - {from: revision_required, to: artifact_frozen, trigger: new_version_created}
+      - {from: artifact_frozen, to: pending_review, trigger: independent_review_dispatched}
+      - {from: pending_review, to: packaging_pending, trigger: latest_strategy_portfolio_accepted}
+      - {from: packaging_pending, to: human_strategy_selection_required, trigger: selection_dossier_verified}
 
 cases:
   - case_id: idea-standard
@@ -155,3 +168,9 @@ cases:
     entry_mode: full
     path_profile: full_delivery
     secondary_mutation: invalid_lineage
+
+  - case_id: research-polisher-standard
+    workflow: research_polisher
+    entry_mode: standard
+    path_profile: research_polisher_delivery
+    secondary_mutation: stale_input

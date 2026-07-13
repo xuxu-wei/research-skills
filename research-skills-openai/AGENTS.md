@@ -21,7 +21,7 @@ These instructions apply to the `research-skills-openai/` plugin subtree.
 
 ## Discovery and context budget
 
-- Keep public implicit entry points limited to the four orchestrators, `research-opportunity-mapper`, and `academic-deep-search` unless a deliberate product decision changes the set.
+- Keep the seven declared public entries limited to the five orchestrators (including `research-polisher-orchestrator`), `research-opportunity-mapper`, and `academic-deep-search` unless another deliberate product decision changes the set. Keep Research Polisher explicit-only until the Phase 7-8 external-evidence gate is recorded complete; the other six may be implicit.
 - For new or substantially rewritten skills, target no more than 180 lines and 8,000 characters and do not exceed 250 lines or 12,000 characters. Existing oversized skills are Roadmap debt: do not increase them, and reduce them when touched.
 - Keep a skill plus its default mandatory references below 16,000 characters where practical.
 - New or substantially rewritten references longer than 100 lines require a table of contents; split references longer than 300 lines. Existing exceptions are Roadmap debt and must not grow.
@@ -76,6 +76,18 @@ input normalization
 - A fatal or unresolved blocking finding prevents promotion or ready status.
 - Final states stop at a package prepared for human review and signature. Do not submit to journals, funders, repositories, or other external platforms.
 
+## Preview evidence boundary
+
+- Treat App Server exports as `capture_only`; redact credentials and account data before retaining them.
+- Treat `scripts/openai_preview_evidence.py` and its offline CLI as integrity validators only. Their output cannot advance a runtime or release gate.
+- Keep raw current-release evidence in immutable GitHub prerelease assets, not in `main`. Bind it by source commit, manifest/registry/skill-tree identity, asset ID, size, and digest.
+- Require a separate executable verifier to re-query the GitHub Release, Actions run, committed verifier, and assets before recording `preview_attested`.
+- Keep the ordinary release-ledger and Preview validators structural-only when no external bundle root is supplied; their success is not a live acceptance result.
+- Gate accepted evidence through `.github/workflows/openai-preview-accepted-evidence.yml` with distinct immutable evidence/candidate Releases, an isolated trusted default-branch workspace, and the production live callback.
+- Store `OPENAI_PREVIEW_GOVERNANCE_TOKEN` only in the protected `openai-preview-governance` Environment. Do not expose it to caller-selected source code or use it for ordinary Release downloads.
+- Never derive `provider_verified` from a filename, status string, boolean, screenshot, handwritten note, or locally authored provider receipt. That level requires a registered authenticated provider adapter.
+- Keep synthetic reachability evidence visibly non-counting and confined to an internal temporary test capability.
+
 ## Required validation
 
 ```powershell
@@ -89,6 +101,18 @@ python scripts/test_openai_phase2_phase3.py
 python scripts/test_openai_phase4_scenarios.py --check-report
 python scripts/test_openai_phase7_modes.py --check-report
 python scripts/test_openai_phase8_corpus.py --check-report
+python scripts/test_openai_preview_evidence.py
+python scripts/test_build_openai_preview_accepted_summary.py
+python scripts/test_build_openai_preview_verifier_summary.py
+python scripts/test_download_openai_release_ledger_assets.py
+python scripts/test_validate_openai_preview_evidence_bundle.py
+python scripts/test_openai_app_server_capture.py
+python scripts/test_validate_openai_phase7_runtime_evidence.py
+python scripts/test_validate_openai_phase8_external_evidence.py
+python scripts/test_validate_openai_release_evidence.py
+python scripts/test_openai_phase8_preview_verifier.py
+python scripts/test_openai_preview_workflows.py
+python scripts/test_validate_openai_preview_accepted_phase78.py
 python scripts/codex_plugin_converter.py --mode codex --fail-on-invalid
 python scripts/generate_openai_release_ledger.py --check
 python scripts/test_openai_release_ledger.py

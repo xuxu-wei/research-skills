@@ -1,8 +1,9 @@
-schema_version: 1
+schema_version: 2
 evidence_kind: current_version_durable_runtime_receipts
 platform_trust:
   adapter_status: unavailable
   adapter_id: null
+  verification_level: null
   provider_authenticated: false
   reason: >-
     No provider-authenticated Codex/ChatGPT task-export verifier is available;
@@ -37,7 +38,7 @@ receipts:
       fatal_finding_ids: []
       unresolved_fatal_finding_ids: []
       fatal_findings_visible: null
-    control_evidence: {gate: null, finding: null, route: null, continuation_artifact_ref: null}
+    control_evidence: {input_condition: null, gate: null, finding: null, route: null, continuation_artifact_ref: null}
     final_state: null
     automatic_external_submission: null
     reason: Awaiting a durable current-version fresh-task export.
@@ -69,6 +70,7 @@ receipts:
       unresolved_fatal_finding_ids: []
       fatal_findings_visible: null
     control_evidence:
+      input_condition: independent_review_no_incremental_gain
       gate: unfixable_no_gain_or_user_stop
       finding: null
       route: human_review_or_explicit_resume
@@ -103,7 +105,7 @@ receipts:
       fatal_finding_ids: []
       unresolved_fatal_finding_ids: []
       fatal_findings_visible: null
-    control_evidence: {gate: null, finding: null, route: null, continuation_artifact_ref: null}
+    control_evidence: {input_condition: null, gate: null, finding: null, route: null, continuation_artifact_ref: null}
     final_state: null
     automatic_external_submission: null
     reason: Awaiting a durable current-version fresh-task export.
@@ -135,6 +137,7 @@ receipts:
       unresolved_fatal_finding_ids: []
       fatal_findings_visible: null
     control_evidence:
+      input_condition: fatal_data_availability_constraint
       gate: fatal_or_blocking_finding
       finding: null
       route: blocked_for_human_resolution
@@ -169,7 +172,7 @@ receipts:
       fatal_finding_ids: []
       unresolved_fatal_finding_ids: []
       fatal_findings_visible: null
-    control_evidence: {gate: null, finding: null, route: null, continuation_artifact_ref: null}
+    control_evidence: {input_condition: null, gate: null, finding: null, route: null, continuation_artifact_ref: null}
     final_state: null
     automatic_external_submission: null
     reason: Awaiting a durable current-version fresh-task export.
@@ -177,7 +180,7 @@ receipts:
   - receipt_id: phase7-article-control
     workflow: article
     case_kind: control
-    expected_final_state: independent_review_pending
+    expected_final_state: blocked
     status: pending_live_evidence
     binding:
       plugin_version: null
@@ -201,13 +204,14 @@ receipts:
       unresolved_fatal_finding_ids: []
       fatal_findings_visible: null
     control_evidence:
-      gate: required_reviewer_unavailable
+      input_condition: source_level_fatal_finding
+      gate: fatal_or_blocking_finding
       finding: null
-      route: resume_in_fresh_delegated_task
+      route: blocked_for_human_resolution
       continuation_artifact_ref: null
     final_state: null
     automatic_external_submission: null
-    reason: Awaiting a durable current-version reviewer-unavailable control export.
+    reason: Awaiting a durable current-version source-fatal control export.
 
   - receipt_id: phase7-perspective-happy
     workflow: perspective
@@ -235,7 +239,7 @@ receipts:
       fatal_finding_ids: []
       unresolved_fatal_finding_ids: []
       fatal_findings_visible: null
-    control_evidence: {gate: null, finding: null, route: null, continuation_artifact_ref: null}
+    control_evidence: {input_condition: null, gate: null, finding: null, route: null, continuation_artifact_ref: null}
     final_state: null
     automatic_external_submission: null
     reason: Awaiting a durable current-version fresh-task export.
@@ -267,6 +271,7 @@ receipts:
       unresolved_fatal_finding_ids: []
       fatal_findings_visible: null
     control_evidence:
+      input_condition: independent_review_no_incremental_gain
       gate: unfixable_no_gain_or_user_stop
       finding: null
       route: human_review_or_explicit_resume
@@ -274,3 +279,70 @@ receipts:
     final_state: null
     automatic_external_submission: null
     reason: Awaiting a durable current-version valid-stop control export.
+
+  - receipt_id: phase7-research-polisher-happy
+    workflow: research_polisher
+    case_kind: happy
+    expected_final_state: human_strategy_selection_required
+    status: pending_live_evidence
+    binding:
+      plugin_version: null
+      registry_sha256: null
+      source_commit: null
+      task_export: {platform: null, task_id: null, path: null, sha256: null}
+      actor_manifest: {path: null, sha256: null}
+      artifact_index: {path: null, sha256: null}
+    file_access:
+      reads: []
+      writes: []
+      source_artifact_hashes_unchanged: null
+    lineage:
+      complete: null
+      current_artifact_ref: null
+      evaluated_artifact_ref: null
+    review_state:
+      dissent_ids: []
+      preserved_dissent_ids: []
+      fatal_finding_ids: []
+      unresolved_fatal_finding_ids: []
+      fatal_findings_visible: null
+    control_evidence: {input_condition: null, gate: null, finding: null, route: null, continuation_artifact_ref: null}
+    final_state: null
+    automatic_external_submission: null
+    reason: Awaiting a durable current-version fresh-task strategy-selection export.
+
+  - receipt_id: phase7-research-polisher-control
+    workflow: research_polisher
+    case_kind: control
+    expected_final_state: no_defensible_option
+    status: pending_live_evidence
+    binding:
+      plugin_version: null
+      registry_sha256: null
+      source_commit: null
+      task_export: {platform: null, task_id: null, path: null, sha256: null}
+      actor_manifest: {path: null, sha256: null}
+      artifact_index: {path: null, sha256: null}
+    file_access:
+      reads: []
+      writes: []
+      source_artifact_hashes_unchanged: null
+    lineage:
+      complete: null
+      current_artifact_ref: null
+      evaluated_artifact_ref: null
+    review_state:
+      dissent_ids: []
+      preserved_dissent_ids: []
+      fatal_finding_ids: []
+      unresolved_fatal_finding_ids: []
+      fatal_findings_visible: null
+    control_evidence:
+      input_condition: all_options_no_defensible_option
+      gate: no_defensible_strategy_remains
+      finding: null
+      route: stop_with_no_defensible_option_dossier
+      continuation_artifact_ref: null
+    final_state: null
+    automatic_external_submission: null
+    reason: Awaiting a durable current-version no-defensible-option control export.

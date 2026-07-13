@@ -11,7 +11,7 @@ Mark `evidence_opportunity_mapping: required` when:
 - the user asks to generate or refine ideas;
 - novelty, guideline alignment, or evidence grounding matters;
 - literature materials are provided;
-- the task is clinical, biomedical, regulatory, or rapidly changing;
+- the task is clinical, biomedical, or rapidly changing;
 - the context includes a broad direction rather than a mature idea.
 
 Mark `optional` when the user only needs context normalization.

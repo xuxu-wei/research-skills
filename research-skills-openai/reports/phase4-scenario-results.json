@@ -32,12 +32,12 @@
       "captured_skills_tree_sha256": "2409b09f94a51228ce4e58472a744c5ede0e0be9275def825fac81e2f0f2a45e",
       "captured_workflow_registry_sha256": null,
       "contract_assessment": "outcome_consistent_valid_gate_stop",
-      "current_manifest_sha256": "2010071db21776a63498c9813d9ea401574bd44dda157eb55ec25d6ca25a0809",
-      "current_plugin_version": "0.6.0-preview.1",
+      "current_manifest_sha256": "93788fff78bd32c2f94d2da7463920464f642c6f8951aebdb733878e629a57a7",
+      "current_plugin_version": "0.7.0-preview.1",
       "current_receipt_schema_sha256": null,
       "current_registry_schema_version": 5,
-      "current_skills_tree_sha256": "6e024f278845c3397518994335ba76f7d7fe07917fcb1fccbb0270153a6ff515",
-      "current_workflow_registry_sha256": "44e2c098eb6f3ab020189dec025a833be15e887691bd4b33a1c04c6b36205c8f",
+      "current_skills_tree_sha256": "2a709b1d9d1f9484112fffb0b0c50b749316c32a29718711b1ca47692c091416",
+      "current_workflow_registry_sha256": "43e621b09d663f3dad8fc13e7fd88fea860da8a14f26db4c9c75401214f4052a",
       "evaluator_instances": [
         "/root/evaluator_r1",
         "/root/evaluator_r2_retry"
@@ -76,12 +76,12 @@
       "captured_skills_tree_sha256": "2409b09f94a51228ce4e58472a744c5ede0e0be9275def825fac81e2f0f2a45e",
       "captured_workflow_registry_sha256": null,
       "contract_assessment": "incomplete_panel_qualification",
-      "current_manifest_sha256": "2010071db21776a63498c9813d9ea401574bd44dda157eb55ec25d6ca25a0809",
-      "current_plugin_version": "0.6.0-preview.1",
+      "current_manifest_sha256": "93788fff78bd32c2f94d2da7463920464f642c6f8951aebdb733878e629a57a7",
+      "current_plugin_version": "0.7.0-preview.1",
       "current_receipt_schema_sha256": null,
       "current_registry_schema_version": 5,
-      "current_skills_tree_sha256": "6e024f278845c3397518994335ba76f7d7fe07917fcb1fccbb0270153a6ff515",
-      "current_workflow_registry_sha256": "44e2c098eb6f3ab020189dec025a833be15e887691bd4b33a1c04c6b36205c8f",
+      "current_skills_tree_sha256": "2a709b1d9d1f9484112fffb0b0c50b749316c32a29718711b1ca47692c091416",
+      "current_workflow_registry_sha256": "43e621b09d663f3dad8fc13e7fd88fea860da8a14f26db4c9c75401214f4052a",
       "evaluator_instances": [
         "/root/proposal_eval_v1",
         "/root/proposal_eval_v2",
@@ -121,12 +121,12 @@
       "captured_skills_tree_sha256": "2409b09f94a51228ce4e58472a744c5ede0e0be9275def825fac81e2f0f2a45e",
       "captured_workflow_registry_sha256": null,
       "contract_assessment": "outcome_consistent_valid_gate_stop",
-      "current_manifest_sha256": "2010071db21776a63498c9813d9ea401574bd44dda157eb55ec25d6ca25a0809",
-      "current_plugin_version": "0.6.0-preview.1",
+      "current_manifest_sha256": "93788fff78bd32c2f94d2da7463920464f642c6f8951aebdb733878e629a57a7",
+      "current_plugin_version": "0.7.0-preview.1",
       "current_receipt_schema_sha256": null,
       "current_registry_schema_version": 5,
-      "current_skills_tree_sha256": "6e024f278845c3397518994335ba76f7d7fe07917fcb1fccbb0270153a6ff515",
-      "current_workflow_registry_sha256": "44e2c098eb6f3ab020189dec025a833be15e887691bd4b33a1c04c6b36205c8f",
+      "current_skills_tree_sha256": "2a709b1d9d1f9484112fffb0b0c50b749316c32a29718711b1ca47692c091416",
+      "current_workflow_registry_sha256": "43e621b09d663f3dad8fc13e7fd88fea860da8a14f26db4c9c75401214f4052a",
       "evaluator_instances": [
         "article-evaluator-telehf90-v001-7f3c",
         "eval-v002-fresh-telehf90-20260712"
@@ -161,12 +161,12 @@
       "captured_skills_tree_sha256": "2409b09f94a51228ce4e58472a744c5ede0e0be9275def825fac81e2f0f2a45e",
       "captured_workflow_registry_sha256": null,
       "contract_assessment": "generic_outlet_caps_below_human_signoff",
-      "current_manifest_sha256": "2010071db21776a63498c9813d9ea401574bd44dda157eb55ec25d6ca25a0809",
-      "current_plugin_version": "0.6.0-preview.1",
+      "current_manifest_sha256": "93788fff78bd32c2f94d2da7463920464f642c6f8951aebdb733878e629a57a7",
+      "current_plugin_version": "0.7.0-preview.1",
       "current_receipt_schema_sha256": null,
       "current_registry_schema_version": 5,
-      "current_skills_tree_sha256": "6e024f278845c3397518994335ba76f7d7fe07917fcb1fccbb0270153a6ff515",
-      "current_workflow_registry_sha256": "44e2c098eb6f3ab020189dec025a833be15e887691bd4b33a1c04c6b36205c8f",
+      "current_skills_tree_sha256": "2a709b1d9d1f9484112fffb0b0c50b749316c32a29718711b1ca47692c091416",
+      "current_workflow_registry_sha256": "43e621b09d663f3dad8fc13e7fd88fea860da8a14f26db4c9c75401214f4052a",
       "evaluator_instances": [
         "/root/evaluator_v001",
         "/root/evaluator_v002",
@@ -455,9 +455,179 @@
       "case_id": "revision-plan-preserves-all-triggering-reviews",
       "error_code": "revision_plan_trigger_missing",
       "status": "rejected_as_expected"
+    },
+    {
+      "case_id": "polisher-requires-complete-three-by-three-matrix",
+      "error_code": "polisher_strategy_matrix_incomplete",
+      "status": "rejected_as_expected"
+    },
+    {
+      "case_id": "polisher-strategist-instances-are-unique",
+      "error_code": "duplicate_reviewer_instance",
+      "status": "rejected_as_expected"
+    },
+    {
+      "case_id": "polisher-strategists-remain-mutually-blind",
+      "error_code": "peer_output_visible",
+      "status": "rejected_as_expected"
+    },
+    {
+      "case_id": "polisher-reposition-only-cannot-add-analysis",
+      "error_code": "polisher_reposition_adds_work",
+      "status": "rejected_as_expected"
+    },
+    {
+      "case_id": "polisher-small-extension-needs-high-feasibility",
+      "error_code": "polisher_extension_feasibility",
+      "status": "rejected_as_expected"
+    },
+    {
+      "case_id": "polisher-small-extension-cannot-change-core-design",
+      "error_code": "polisher_extension_scope",
+      "status": "rejected_as_expected"
+    },
+    {
+      "case_id": "polisher-moderate-extension-cannot-be-new-study",
+      "error_code": "polisher_extension_scope",
+      "status": "rejected_as_expected"
+    },
+    {
+      "case_id": "polisher-assembler-cannot-score-or-rank",
+      "error_code": "polisher_assembler_judgment",
+      "status": "rejected_as_expected"
+    },
+    {
+      "case_id": "polisher-assembler-cannot-invent-options",
+      "error_code": "polisher_assembler_invented_option",
+      "status": "rejected_as_expected"
+    },
+    {
+      "case_id": "polisher-assembler-must-preserve-dissent",
+      "error_code": "dissent_not_preserved",
+      "status": "rejected_as_expected"
+    },
+    {
+      "case_id": "polisher-final-reviewer-cannot-read-strategy-reports",
+      "error_code": "forbidden_review_input",
+      "status": "rejected_as_expected"
+    },
+    {
+      "case_id": "polisher-final-reviewer-instance-is-fresh",
+      "error_code": "duplicate_reviewer_instance",
+      "status": "rejected_as_expected"
+    },
+    {
+      "case_id": "polisher-target-fit-requires-verified-requirements",
+      "error_code": "target_requirements_unverified",
+      "status": "rejected_as_expected"
+    },
+    {
+      "case_id": "polisher-fatal-finding-blocks-selection",
+      "error_code": "event_after_terminal",
+      "status": "rejected_as_expected"
+    },
+    {
+      "case_id": "polisher-anonymous-portfolio-hides-reviewer-lens",
+      "error_code": "polisher_portfolio_identity_leak",
+      "status": "rejected_as_expected"
+    },
+    {
+      "case_id": "polisher-anonymous-portfolio-hides-raw-lineage",
+      "error_code": "polisher_portfolio_lineage_leak",
+      "status": "rejected_as_expected"
+    },
+    {
+      "case_id": "polisher-dossier-requires-methods-and-source-bindings",
+      "error_code": "polisher_dossier_field_missing",
+      "status": "rejected_as_expected"
+    },
+    {
+      "case_id": "polisher-strategy-option-requires-evidence-dependencies",
+      "error_code": "polisher_option_field_missing",
+      "status": "rejected_as_expected"
+    },
+    {
+      "case_id": "polisher-final-review-must-adjudicate-every-option",
+      "error_code": "polisher_option_adjudication_incomplete",
+      "status": "rejected_as_expected"
+    },
+    {
+      "case_id": "polisher-final-review-must-provide-complete-pareto-axes",
+      "error_code": "polisher_pareto_axes_incomplete",
+      "status": "rejected_as_expected"
+    },
+    {
+      "case_id": "polisher-selection-must-preserve-nondominated-set",
+      "error_code": "polisher_selection_adjudication",
+      "status": "rejected_as_expected"
+    },
+    {
+      "case_id": "polisher-revision-brief-must-remain-anonymous",
+      "error_code": "polisher_revision_brief_identity_leak",
+      "status": "rejected_as_expected"
+    },
+    {
+      "case_id": "polisher-fresh-reevaluator-cannot-read-prior-evaluation",
+      "error_code": "forbidden_review_input",
+      "status": "rejected_as_expected"
+    },
+    {
+      "case_id": "polisher-final-reviewer-cannot-edit-source",
+      "error_code": "source_edit_claim",
+      "status": "rejected_as_expected"
     }
   ],
-  "plugin_version": "0.6.0-preview.1",
+  "plugin_version": "0.7.0-preview.1",
+  "polisher_decision_route_results": [
+    {
+      "decision": "matrix_complete",
+      "skill": "research-polisher-strategy-reviewer",
+      "state": "continue",
+      "status": "verified"
+    },
+    {
+      "decision": "matrix_complete_with_no_defensible_option",
+      "skill": "research-polisher-strategy-reviewer",
+      "state": "continue",
+      "status": "verified"
+    },
+    {
+      "decision": "clarification_required",
+      "skill": "research-polisher-strategy-reviewer",
+      "state": "clarification_stop",
+      "status": "verified"
+    },
+    {
+      "decision": "independent_review_pending",
+      "skill": "research-polisher-strategy-reviewer",
+      "state": "independent_review_pending",
+      "status": "verified"
+    },
+    {
+      "decision": "specialist_review_required",
+      "skill": "research-polisher-methodology-publishability-reviewer",
+      "state": "specialist_review_pending",
+      "status": "verified"
+    },
+    {
+      "decision": "no_defensible_option",
+      "skill": "research-polisher-methodology-publishability-reviewer",
+      "state": "no_defensible_option",
+      "status": "verified"
+    },
+    {
+      "decision": "not_assessable",
+      "skill": "research-polisher-methodology-publishability-reviewer",
+      "state": "clarification_stop",
+      "status": "verified"
+    },
+    {
+      "decision": "independent_review_pending",
+      "skill": "research-polisher-methodology-publishability-reviewer",
+      "state": "independent_review_pending",
+      "status": "verified"
+    }
+  ],
   "registry_schema_version": 5,
   "retrieval_receipts": {
     "deep_research": "deep_research_handoff_required",
@@ -481,26 +651,26 @@
             "latest_qualifying_evaluation": null,
             "next_route": "idea-evaluator",
             "pending_edge": "research-idea-orchestrator -> idea-evaluator",
-            "plugin_version": "0.6.0-preview.1",
+            "plugin_version": "0.7.0-preview.1",
             "round_id": "round-001",
             "runtime_status": "context_handoff_required",
             "suspended_workflow_state": "artifact_frozen",
             "unresolved_finding_ids": [],
             "workflow_id": "wf-phase4-idea-001"
           },
-          "initial_load": 13879,
+          "initial_load": 13088,
           "interpretation": "conservative_initial-load_proxy_not_model_token_accounting",
           "measurement_unit": "characters",
           "minimum_working_reserve": 4000,
-          "remaining": 2121
+          "remaining": 2912
         },
         "standard_32k": {
           "behavior": "continue_current_phase",
-          "initial_load": 13879,
+          "initial_load": 13088,
           "interpretation": "conservative_initial-load_proxy_not_model_token_accounting",
           "measurement_unit": "characters",
           "minimum_working_reserve": 16000,
-          "remaining": 18121
+          "remaining": 18912
         }
       },
       "dissent_ids": [
@@ -980,26 +1150,26 @@
             "latest_qualifying_evaluation": null,
             "next_route": "proposal-evaluator",
             "pending_edge": "proposal-orchestrator -> proposal-evaluator",
-            "plugin_version": "0.6.0-preview.1",
+            "plugin_version": "0.7.0-preview.1",
             "round_id": "round-001",
             "runtime_status": "context_handoff_required",
             "suspended_workflow_state": "artifact_frozen",
             "unresolved_finding_ids": [],
             "workflow_id": "wf-phase4-proposal-001"
           },
-          "initial_load": 13083,
+          "initial_load": 13266,
           "interpretation": "conservative_initial-load_proxy_not_model_token_accounting",
           "measurement_unit": "characters",
           "minimum_working_reserve": 4000,
-          "remaining": 2917
+          "remaining": 2734
         },
         "standard_32k": {
           "behavior": "continue_current_phase",
-          "initial_load": 13083,
+          "initial_load": 13266,
           "interpretation": "conservative_initial-load_proxy_not_model_token_accounting",
           "measurement_unit": "characters",
           "minimum_working_reserve": 16000,
-          "remaining": 18917
+          "remaining": 18734
         }
       },
       "dissent_ids": [
@@ -1605,26 +1775,26 @@
             "latest_qualifying_evaluation": null,
             "next_route": "article-evaluator",
             "pending_edge": "article-orchestrator -> article-evaluator",
-            "plugin_version": "0.6.0-preview.1",
+            "plugin_version": "0.7.0-preview.1",
             "round_id": "round-001",
             "runtime_status": "context_handoff_required",
             "suspended_workflow_state": "artifact_frozen",
             "unresolved_finding_ids": [],
             "workflow_id": "wf-phase4-article-001"
           },
-          "initial_load": 13873,
+          "initial_load": 13146,
           "interpretation": "conservative_initial-load_proxy_not_model_token_accounting",
           "measurement_unit": "characters",
           "minimum_working_reserve": 4000,
-          "remaining": 2127
+          "remaining": 2854
         },
         "standard_32k": {
           "behavior": "continue_current_phase",
-          "initial_load": 13873,
+          "initial_load": 13146,
           "interpretation": "conservative_initial-load_proxy_not_model_token_accounting",
           "measurement_unit": "characters",
           "minimum_working_reserve": 16000,
-          "remaining": 18127
+          "remaining": 18854
         }
       },
       "dissent_ids": [
@@ -2368,26 +2538,26 @@
             "latest_qualifying_evaluation": null,
             "next_route": "perspective-evaluator",
             "pending_edge": "perspective-orchestrator -> perspective-evaluator",
-            "plugin_version": "0.6.0-preview.1",
+            "plugin_version": "0.7.0-preview.1",
             "round_id": "round-001",
             "runtime_status": "context_handoff_required",
             "suspended_workflow_state": "artifact_frozen",
             "unresolved_finding_ids": [],
             "workflow_id": "wf-phase4-perspective-001"
           },
-          "initial_load": 13683,
+          "initial_load": 12785,
           "interpretation": "conservative_initial-load_proxy_not_model_token_accounting",
           "measurement_unit": "characters",
           "minimum_working_reserve": 4000,
-          "remaining": 2317
+          "remaining": 3215
         },
         "standard_32k": {
           "behavior": "continue_current_phase",
-          "initial_load": 13683,
+          "initial_load": 12785,
           "interpretation": "conservative_initial-load_proxy_not_model_token_accounting",
           "measurement_unit": "characters",
           "minimum_working_reserve": 16000,
-          "remaining": 18317
+          "remaining": 19215
         }
       },
       "dissent_ids": [
@@ -3140,12 +3310,564 @@
         }
       ],
       "workflow": "perspective"
+    },
+    {
+      "context_profiles": {
+        "degraded_16k": {
+          "behavior": "context_handoff_required",
+          "continuation_package": {
+            "current_artifact_digest": "sha256:c977f74e2b70b53518b9a85bcb2a7d4944b9a11ca1072a8ad46fcc25c3c86381",
+            "current_artifact_id": "polisher-portfolio-v1",
+            "current_artifact_path": "04_portfolios/research_polisher_candidate_portfolio-v001.yaml",
+            "current_artifact_version": "v001",
+            "current_stage": "independent_evaluation",
+            "dissent_ids": [],
+            "entry_mode": "standard",
+            "gate_receipts": [],
+            "isolation_requirements": "fresh_subagent; frozen read-only input; no prior scores",
+            "latest_qualifying_evaluation": null,
+            "next_route": "research-polisher-methodology-publishability-reviewer",
+            "pending_edge": "research-polisher-orchestrator -> research-polisher-methodology-publishability-reviewer",
+            "plugin_version": "0.7.0-preview.1",
+            "round_id": "round-001",
+            "runtime_status": "context_handoff_required",
+            "suspended_workflow_state": "artifact_frozen",
+            "unresolved_finding_ids": [],
+            "workflow_id": "wf-phase4-research-polisher-001"
+          },
+          "initial_load": 12295,
+          "interpretation": "conservative_initial-load_proxy_not_model_token_accounting",
+          "measurement_unit": "characters",
+          "minimum_working_reserve": 4000,
+          "remaining": 3705
+        },
+        "standard_32k": {
+          "behavior": "continue_current_phase",
+          "initial_load": 12295,
+          "interpretation": "conservative_initial-load_proxy_not_model_token_accounting",
+          "measurement_unit": "characters",
+          "minimum_working_reserve": 16000,
+          "remaining": 19705
+        }
+      },
+      "dissent_ids": [
+        "polisher-dissent-001"
+      ],
+      "entry_gate_receipts": {
+        "candidate_portfolio_versioned": {
+          "artifact_id": "polisher-portfolio-v1"
+        },
+        "dossier_frozen": {
+          "artifact_id": "polisher-dossier-v1"
+        },
+        "strategy_matrix_complete": {
+          "artifact_id": "polisher-strategy-manifest-v1"
+        }
+      },
+      "evaluator_instances": [
+        "polisher-method-reviewer-001",
+        "polisher-method-reviewer-002"
+      ],
+      "events": [
+        {
+          "edge": "research-polisher-orchestrator -> research-polisher-strategy-reviewer",
+          "event_id": "polisher-strategy-scientific-v1",
+          "observation": {
+            "actual_write_paths": [
+              "03_strategy/research_polisher_strategy_report-scientific_significance-v001.yaml"
+            ],
+            "files_read": [
+              "01_context/research_polisher_dossier-v001.yaml",
+              "02_evidence/research_polisher_evidence_map-v001.md"
+            ],
+            "input_hashes_after": {
+              "01_context/research_polisher_dossier-v001.yaml": "sha256:ab179481930d5f222b9f2506605191bacdc134c7c542cf7ba5da65308756bc1d",
+              "02_evidence/research_polisher_evidence_map-v001.md": "sha256:b810e2a4c52c475e86cf91925f38809ce7ebf733ed2b9bc51a577f9c1d947e19"
+            },
+            "input_hashes_before": {
+              "01_context/research_polisher_dossier-v001.yaml": "sha256:ab179481930d5f222b9f2506605191bacdc134c7c542cf7ba5da65308756bc1d",
+              "02_evidence/research_polisher_evidence_map-v001.md": "sha256:b810e2a4c52c475e86cf91925f38809ce7ebf733ed2b9bc51a577f9c1d947e19"
+            },
+            "lifecycle_transitions": []
+          },
+          "sequence": 1,
+          "state_after": "initialized",
+          "state_before": "initialized",
+          "type": "review"
+        },
+        {
+          "edge": "research-polisher-orchestrator -> research-polisher-strategy-reviewer",
+          "event_id": "polisher-strategy-practical-v1",
+          "observation": {
+            "actual_write_paths": [
+              "03_strategy/research_polisher_strategy_report-practical_value-v001.yaml"
+            ],
+            "files_read": [
+              "01_context/research_polisher_dossier-v001.yaml",
+              "02_evidence/research_polisher_evidence_map-v001.md"
+            ],
+            "input_hashes_after": {
+              "01_context/research_polisher_dossier-v001.yaml": "sha256:ab179481930d5f222b9f2506605191bacdc134c7c542cf7ba5da65308756bc1d",
+              "02_evidence/research_polisher_evidence_map-v001.md": "sha256:b810e2a4c52c475e86cf91925f38809ce7ebf733ed2b9bc51a577f9c1d947e19"
+            },
+            "input_hashes_before": {
+              "01_context/research_polisher_dossier-v001.yaml": "sha256:ab179481930d5f222b9f2506605191bacdc134c7c542cf7ba5da65308756bc1d",
+              "02_evidence/research_polisher_evidence_map-v001.md": "sha256:b810e2a4c52c475e86cf91925f38809ce7ebf733ed2b9bc51a577f9c1d947e19"
+            },
+            "lifecycle_transitions": []
+          },
+          "sequence": 2,
+          "state_after": "initialized",
+          "state_before": "initialized",
+          "type": "review"
+        },
+        {
+          "edge": "research-polisher-orchestrator -> research-polisher-strategy-reviewer",
+          "event_id": "polisher-strategy-dissemination-v1",
+          "observation": {
+            "actual_write_paths": [
+              "03_strategy/research_polisher_strategy_report-dissemination_editorial-v001.yaml"
+            ],
+            "files_read": [
+              "01_context/research_polisher_dossier-v001.yaml",
+              "02_evidence/research_polisher_evidence_map-v001.md"
+            ],
+            "input_hashes_after": {
+              "01_context/research_polisher_dossier-v001.yaml": "sha256:ab179481930d5f222b9f2506605191bacdc134c7c542cf7ba5da65308756bc1d",
+              "02_evidence/research_polisher_evidence_map-v001.md": "sha256:b810e2a4c52c475e86cf91925f38809ce7ebf733ed2b9bc51a577f9c1d947e19"
+            },
+            "input_hashes_before": {
+              "01_context/research_polisher_dossier-v001.yaml": "sha256:ab179481930d5f222b9f2506605191bacdc134c7c542cf7ba5da65308756bc1d",
+              "02_evidence/research_polisher_evidence_map-v001.md": "sha256:b810e2a4c52c475e86cf91925f38809ce7ebf733ed2b9bc51a577f9c1d947e19"
+            },
+            "lifecycle_transitions": []
+          },
+          "sequence": 3,
+          "state_after": "initialized",
+          "state_before": "initialized",
+          "type": "review"
+        },
+        {
+          "edge": "research-polisher-orchestrator -> research-polisher-plan-assembler",
+          "event_id": "polisher-assemble-v1",
+          "observation": {
+            "actual_write_paths": [
+              "04_portfolios/research_polisher_candidate_portfolio-v001.yaml",
+              "04_portfolios/research_polisher_sealed_provenance-v001.yaml"
+            ],
+            "files_read": [],
+            "input_hashes_after": {
+              "01_context/research_polisher_dossier-v001.yaml": "sha256:ab179481930d5f222b9f2506605191bacdc134c7c542cf7ba5da65308756bc1d",
+              "02_evidence/research_polisher_evidence_map-v001.md": "sha256:b810e2a4c52c475e86cf91925f38809ce7ebf733ed2b9bc51a577f9c1d947e19",
+              "03_strategy/research_polisher_strategy_report-dissemination_editorial-v001.yaml": "sha256:0a1253b8759a876741539460d758533ecb7ec7ad9556b25aa606f3200512dbf8",
+              "03_strategy/research_polisher_strategy_report-practical_value-v001.yaml": "sha256:f458ba00cb66a789518bc13f13c6c4935f7891d78d54e2d5250e4e1e2986ee3d",
+              "03_strategy/research_polisher_strategy_report-scientific_significance-v001.yaml": "sha256:570972b1c7e73d4e78ac7a42ad444b064a90ff3321b80ac84aefc3df38ec3db4"
+            },
+            "input_hashes_before": {
+              "01_context/research_polisher_dossier-v001.yaml": "sha256:ab179481930d5f222b9f2506605191bacdc134c7c542cf7ba5da65308756bc1d",
+              "02_evidence/research_polisher_evidence_map-v001.md": "sha256:b810e2a4c52c475e86cf91925f38809ce7ebf733ed2b9bc51a577f9c1d947e19",
+              "03_strategy/research_polisher_strategy_report-dissemination_editorial-v001.yaml": "sha256:0a1253b8759a876741539460d758533ecb7ec7ad9556b25aa606f3200512dbf8",
+              "03_strategy/research_polisher_strategy_report-practical_value-v001.yaml": "sha256:f458ba00cb66a789518bc13f13c6c4935f7891d78d54e2d5250e4e1e2986ee3d",
+              "03_strategy/research_polisher_strategy_report-scientific_significance-v001.yaml": "sha256:570972b1c7e73d4e78ac7a42ad444b064a90ff3321b80ac84aefc3df38ec3db4"
+            },
+            "lifecycle_transitions": []
+          },
+          "sequence": 4,
+          "state_after": "initialized",
+          "state_before": "initialized",
+          "type": "produce"
+        },
+        {
+          "edge": "orchestrator_internal_gate",
+          "event_id": "polisher-entry-gate",
+          "observation": {
+            "actual_write_paths": [],
+            "files_read": [],
+            "input_hashes_after": {},
+            "input_hashes_before": {},
+            "lifecycle_transitions": [
+              {
+                "event_id": "polisher-entry-gate",
+                "from": "initialized",
+                "to": "preprocessing",
+                "trigger": "entry_gate_passed"
+              },
+              {
+                "event_id": "polisher-entry-gate",
+                "from": "preprocessing",
+                "to": "artifact_frozen",
+                "trigger": "versioned_artifact_created"
+              }
+            ],
+            "verified_entry_gates": {
+              "candidate_portfolio_versioned": {
+                "artifacts": [
+                  {
+                    "artifact_id": "polisher-portfolio-v1",
+                    "content_digest": "sha256:c977f74e2b70b53518b9a85bcb2a7d4944b9a11ca1072a8ad46fcc25c3c86381",
+                    "version_id": "v001"
+                  }
+                ]
+              },
+              "dossier_frozen": {
+                "artifacts": [
+                  {
+                    "artifact_id": "polisher-dossier-v1",
+                    "content_digest": "sha256:ab179481930d5f222b9f2506605191bacdc134c7c542cf7ba5da65308756bc1d",
+                    "version_id": "d001"
+                  }
+                ]
+              },
+              "strategy_matrix_complete": {
+                "artifacts": [
+                  {
+                    "artifact_id": "polisher-strategy-manifest-v1",
+                    "content_digest": "sha256:a18a9546d668b04dc891f21f10e3803f8ec2587b73d335eede77e8ad05193ebb",
+                    "version_id": "sm001"
+                  }
+                ]
+              }
+            }
+          },
+          "sequence": 5,
+          "state_after": "artifact_frozen",
+          "state_before": "initialized",
+          "type": "entry_gate"
+        },
+        {
+          "edge": "research-polisher-orchestrator -> research-polisher-methodology-publishability-reviewer",
+          "event_id": "polisher-evaluate-v1",
+          "observation": {
+            "actual_write_paths": [
+              "05_evaluations/research_polisher_evaluation_report-v001.yaml"
+            ],
+            "files_read": [
+              "01_context/research_polisher_dossier-v001.yaml",
+              "02_evidence/research_polisher_evidence_map-v001.md",
+              "04_portfolios/research_polisher_candidate_portfolio-v001.yaml"
+            ],
+            "input_hashes_after": {
+              "01_context/research_polisher_dossier-v001.yaml": "sha256:ab179481930d5f222b9f2506605191bacdc134c7c542cf7ba5da65308756bc1d",
+              "02_evidence/research_polisher_evidence_map-v001.md": "sha256:b810e2a4c52c475e86cf91925f38809ce7ebf733ed2b9bc51a577f9c1d947e19",
+              "04_portfolios/research_polisher_candidate_portfolio-v001.yaml": "sha256:c977f74e2b70b53518b9a85bcb2a7d4944b9a11ca1072a8ad46fcc25c3c86381"
+            },
+            "input_hashes_before": {
+              "01_context/research_polisher_dossier-v001.yaml": "sha256:ab179481930d5f222b9f2506605191bacdc134c7c542cf7ba5da65308756bc1d",
+              "02_evidence/research_polisher_evidence_map-v001.md": "sha256:b810e2a4c52c475e86cf91925f38809ce7ebf733ed2b9bc51a577f9c1d947e19",
+              "04_portfolios/research_polisher_candidate_portfolio-v001.yaml": "sha256:c977f74e2b70b53518b9a85bcb2a7d4944b9a11ca1072a8ad46fcc25c3c86381"
+            },
+            "lifecycle_transitions": [
+              {
+                "event_id": "polisher-evaluate-v1",
+                "from": "artifact_frozen",
+                "to": "pending_review",
+                "trigger": "independent_review_dispatched"
+              },
+              {
+                "event_id": "polisher-evaluate-v1",
+                "from": "pending_review",
+                "to": "revision_required",
+                "trigger": "fixable_revision_requested"
+              }
+            ]
+          },
+          "sequence": 6,
+          "state_after": "revision_required",
+          "state_before": "artifact_frozen",
+          "type": "review"
+        },
+        {
+          "edge": "research-polisher-orchestrator -> research-polisher-plan-assembler",
+          "event_id": "polisher-plan-v2",
+          "observation": {
+            "actual_write_paths": [
+              "06_revisions/round-002/research_polisher_revision_brief-v002.yaml"
+            ],
+            "files_read": [],
+            "input_hashes_after": {
+              "04_portfolios/research_polisher_candidate_portfolio-v001.yaml": "sha256:c977f74e2b70b53518b9a85bcb2a7d4944b9a11ca1072a8ad46fcc25c3c86381",
+              "04_portfolios/research_polisher_sealed_provenance-v001.yaml": "sha256:a18a9546d668b04dc891f21f10e3803f8ec2587b73d335eede77e8ad05193ebb",
+              "05_evaluations/research_polisher_evaluation_report-v001.yaml": "sha256:38c0a34504bf01dc502ee468a15272d64b61e8d28fe41f328fd8bc66e4ce8360"
+            },
+            "input_hashes_before": {
+              "04_portfolios/research_polisher_candidate_portfolio-v001.yaml": "sha256:c977f74e2b70b53518b9a85bcb2a7d4944b9a11ca1072a8ad46fcc25c3c86381",
+              "04_portfolios/research_polisher_sealed_provenance-v001.yaml": "sha256:a18a9546d668b04dc891f21f10e3803f8ec2587b73d335eede77e8ad05193ebb",
+              "05_evaluations/research_polisher_evaluation_report-v001.yaml": "sha256:38c0a34504bf01dc502ee468a15272d64b61e8d28fe41f328fd8bc66e4ce8360"
+            },
+            "lifecycle_transitions": []
+          },
+          "sequence": 7,
+          "state_after": "revision_required",
+          "state_before": "revision_required",
+          "type": "produce"
+        },
+        {
+          "edge": "research-polisher-orchestrator -> research-polisher-strategy-reviewer",
+          "event_id": "polisher-revise-strategy-scientific-v2",
+          "observation": {
+            "actual_write_paths": [
+              "03_strategy/research_polisher_strategy_report-scientific_significance-v002.yaml"
+            ],
+            "files_read": [
+              "01_context/research_polisher_dossier-v001.yaml",
+              "02_evidence/research_polisher_evidence_map-v001.md",
+              "06_revisions/round-002/research_polisher_revision_brief-v002.yaml"
+            ],
+            "input_hashes_after": {
+              "01_context/research_polisher_dossier-v001.yaml": "sha256:ab179481930d5f222b9f2506605191bacdc134c7c542cf7ba5da65308756bc1d",
+              "02_evidence/research_polisher_evidence_map-v001.md": "sha256:b810e2a4c52c475e86cf91925f38809ce7ebf733ed2b9bc51a577f9c1d947e19",
+              "06_revisions/round-002/research_polisher_revision_brief-v002.yaml": "sha256:c5b985edf70f4b4a74125f4b4cd0276962fcf9ef268f3141d6a6009821f33412"
+            },
+            "input_hashes_before": {
+              "01_context/research_polisher_dossier-v001.yaml": "sha256:ab179481930d5f222b9f2506605191bacdc134c7c542cf7ba5da65308756bc1d",
+              "02_evidence/research_polisher_evidence_map-v001.md": "sha256:b810e2a4c52c475e86cf91925f38809ce7ebf733ed2b9bc51a577f9c1d947e19",
+              "06_revisions/round-002/research_polisher_revision_brief-v002.yaml": "sha256:c5b985edf70f4b4a74125f4b4cd0276962fcf9ef268f3141d6a6009821f33412"
+            },
+            "lifecycle_transitions": []
+          },
+          "sequence": 8,
+          "state_after": "revision_required",
+          "state_before": "revision_required",
+          "type": "review"
+        },
+        {
+          "edge": "research-polisher-orchestrator -> research-polisher-plan-assembler",
+          "event_id": "polisher-assemble-v2",
+          "observation": {
+            "actual_write_paths": [
+              "04_portfolios/research_polisher_candidate_portfolio-v002.yaml",
+              "04_portfolios/research_polisher_sealed_provenance-v002.yaml",
+              "06_revisions/round-002/research_polisher_revision_delta-v002.yaml"
+            ],
+            "files_read": [],
+            "input_hashes_after": {
+              "01_context/research_polisher_dossier-v001.yaml": "sha256:ab179481930d5f222b9f2506605191bacdc134c7c542cf7ba5da65308756bc1d",
+              "02_evidence/research_polisher_evidence_map-v001.md": "sha256:b810e2a4c52c475e86cf91925f38809ce7ebf733ed2b9bc51a577f9c1d947e19",
+              "03_strategy/research_polisher_strategy_report-dissemination_editorial-v001.yaml": "sha256:0a1253b8759a876741539460d758533ecb7ec7ad9556b25aa606f3200512dbf8",
+              "03_strategy/research_polisher_strategy_report-practical_value-v001.yaml": "sha256:f458ba00cb66a789518bc13f13c6c4935f7891d78d54e2d5250e4e1e2986ee3d",
+              "03_strategy/research_polisher_strategy_report-scientific_significance-v002.yaml": "sha256:60f6bd9004a37a87f2d712eccadb4e48c9ed916c129c516623fcf27b1403af6d",
+              "04_portfolios/research_polisher_candidate_portfolio-v001.yaml": "sha256:c977f74e2b70b53518b9a85bcb2a7d4944b9a11ca1072a8ad46fcc25c3c86381",
+              "04_portfolios/research_polisher_sealed_provenance-v001.yaml": "sha256:a18a9546d668b04dc891f21f10e3803f8ec2587b73d335eede77e8ad05193ebb",
+              "06_revisions/round-002/research_polisher_revision_brief-v002.yaml": "sha256:c5b985edf70f4b4a74125f4b4cd0276962fcf9ef268f3141d6a6009821f33412"
+            },
+            "input_hashes_before": {
+              "01_context/research_polisher_dossier-v001.yaml": "sha256:ab179481930d5f222b9f2506605191bacdc134c7c542cf7ba5da65308756bc1d",
+              "02_evidence/research_polisher_evidence_map-v001.md": "sha256:b810e2a4c52c475e86cf91925f38809ce7ebf733ed2b9bc51a577f9c1d947e19",
+              "03_strategy/research_polisher_strategy_report-dissemination_editorial-v001.yaml": "sha256:0a1253b8759a876741539460d758533ecb7ec7ad9556b25aa606f3200512dbf8",
+              "03_strategy/research_polisher_strategy_report-practical_value-v001.yaml": "sha256:f458ba00cb66a789518bc13f13c6c4935f7891d78d54e2d5250e4e1e2986ee3d",
+              "03_strategy/research_polisher_strategy_report-scientific_significance-v002.yaml": "sha256:60f6bd9004a37a87f2d712eccadb4e48c9ed916c129c516623fcf27b1403af6d",
+              "04_portfolios/research_polisher_candidate_portfolio-v001.yaml": "sha256:c977f74e2b70b53518b9a85bcb2a7d4944b9a11ca1072a8ad46fcc25c3c86381",
+              "04_portfolios/research_polisher_sealed_provenance-v001.yaml": "sha256:a18a9546d668b04dc891f21f10e3803f8ec2587b73d335eede77e8ad05193ebb",
+              "06_revisions/round-002/research_polisher_revision_brief-v002.yaml": "sha256:c5b985edf70f4b4a74125f4b4cd0276962fcf9ef268f3141d6a6009821f33412"
+            },
+            "lifecycle_transitions": [
+              {
+                "event_id": "polisher-assemble-v2",
+                "from": "revision_required",
+                "to": "artifact_frozen",
+                "trigger": "new_version_created"
+              }
+            ]
+          },
+          "sequence": 9,
+          "state_after": "artifact_frozen",
+          "state_before": "revision_required",
+          "type": "produce"
+        },
+        {
+          "edge": "research-polisher-orchestrator -> research-polisher-methodology-publishability-reviewer",
+          "event_id": "polisher-evaluate-v2",
+          "observation": {
+            "actual_write_paths": [
+              "05_evaluations/research_polisher_evaluation_report-v002.yaml"
+            ],
+            "files_read": [
+              "01_context/research_polisher_dossier-v001.yaml",
+              "02_evidence/research_polisher_evidence_map-v001.md",
+              "04_portfolios/research_polisher_candidate_portfolio-v002.yaml"
+            ],
+            "input_hashes_after": {
+              "01_context/research_polisher_dossier-v001.yaml": "sha256:ab179481930d5f222b9f2506605191bacdc134c7c542cf7ba5da65308756bc1d",
+              "02_evidence/research_polisher_evidence_map-v001.md": "sha256:b810e2a4c52c475e86cf91925f38809ce7ebf733ed2b9bc51a577f9c1d947e19",
+              "04_portfolios/research_polisher_candidate_portfolio-v002.yaml": "sha256:3a14cffe61a113547a915422c0268980ec330e08546aa585aba95566643cfdbe"
+            },
+            "input_hashes_before": {
+              "01_context/research_polisher_dossier-v001.yaml": "sha256:ab179481930d5f222b9f2506605191bacdc134c7c542cf7ba5da65308756bc1d",
+              "02_evidence/research_polisher_evidence_map-v001.md": "sha256:b810e2a4c52c475e86cf91925f38809ce7ebf733ed2b9bc51a577f9c1d947e19",
+              "04_portfolios/research_polisher_candidate_portfolio-v002.yaml": "sha256:3a14cffe61a113547a915422c0268980ec330e08546aa585aba95566643cfdbe"
+            },
+            "lifecycle_transitions": [
+              {
+                "event_id": "polisher-evaluate-v2",
+                "from": "artifact_frozen",
+                "to": "pending_review",
+                "trigger": "independent_review_dispatched"
+              },
+              {
+                "event_id": "polisher-evaluate-v2",
+                "from": "pending_review",
+                "to": "packaging_pending",
+                "trigger": "latest_strategy_portfolio_accepted"
+              }
+            ]
+          },
+          "sequence": 10,
+          "state_after": "packaging_pending",
+          "state_before": "artifact_frozen",
+          "type": "review"
+        },
+        {
+          "edge": "research-polisher-orchestrator -> research-polisher-plan-assembler",
+          "event_id": "polisher-index-findings",
+          "observation": {
+            "actual_write_paths": [
+              "07_delivery/research_polisher_review_finding_index-v001.yaml"
+            ],
+            "files_read": [],
+            "input_hashes_after": {
+              "04_portfolios/research_polisher_candidate_portfolio-v002.yaml": "sha256:3a14cffe61a113547a915422c0268980ec330e08546aa585aba95566643cfdbe",
+              "04_portfolios/research_polisher_sealed_provenance-v002.yaml": "sha256:60365bae65568a3e7e649f70ef410ffd1c7818e9f634f4ed943362e1db84cb76",
+              "05_evaluations/research_polisher_evaluation_report-v002.yaml": "sha256:bacf006389a5a9201baa4a1a39912cc644b664cf6272002f743682e6ed9099f7"
+            },
+            "input_hashes_before": {
+              "04_portfolios/research_polisher_candidate_portfolio-v002.yaml": "sha256:3a14cffe61a113547a915422c0268980ec330e08546aa585aba95566643cfdbe",
+              "04_portfolios/research_polisher_sealed_provenance-v002.yaml": "sha256:60365bae65568a3e7e649f70ef410ffd1c7818e9f634f4ed943362e1db84cb76",
+              "05_evaluations/research_polisher_evaluation_report-v002.yaml": "sha256:bacf006389a5a9201baa4a1a39912cc644b664cf6272002f743682e6ed9099f7"
+            },
+            "lifecycle_transitions": []
+          },
+          "sequence": 11,
+          "state_after": "packaging_pending",
+          "state_before": "packaging_pending",
+          "type": "produce"
+        },
+        {
+          "edge": "research-polisher-orchestrator -> research-polisher-plan-assembler",
+          "event_id": "polisher-package",
+          "observation": {
+            "actual_write_paths": [
+              "07_delivery/research_polisher_selection_dossier-v001.yaml"
+            ],
+            "files_read": [],
+            "input_hashes_after": {
+              "01_context/research_polisher_dossier-v001.yaml": "sha256:ab179481930d5f222b9f2506605191bacdc134c7c542cf7ba5da65308756bc1d",
+              "02_evidence/research_polisher_evidence_map-v001.md": "sha256:b810e2a4c52c475e86cf91925f38809ce7ebf733ed2b9bc51a577f9c1d947e19",
+              "04_portfolios/research_polisher_candidate_portfolio-v002.yaml": "sha256:3a14cffe61a113547a915422c0268980ec330e08546aa585aba95566643cfdbe",
+              "04_portfolios/research_polisher_sealed_provenance-v002.yaml": "sha256:60365bae65568a3e7e649f70ef410ffd1c7818e9f634f4ed943362e1db84cb76",
+              "05_evaluations/research_polisher_evaluation_report-v002.yaml": "sha256:bacf006389a5a9201baa4a1a39912cc644b664cf6272002f743682e6ed9099f7",
+              "06_revisions/round-002/research_polisher_revision_brief-v002.yaml": "sha256:c5b985edf70f4b4a74125f4b4cd0276962fcf9ef268f3141d6a6009821f33412",
+              "06_revisions/round-002/research_polisher_revision_delta-v002.yaml": "sha256:0afe9925ae4ab6bbcc4236615f92b36a195ce263f66c3ad8b2e60f71cc3d17f5",
+              "07_delivery/research_polisher_review_finding_index-v001.yaml": "sha256:eac114ad0409a06860313aff45c97ee228c06d047c3810b31694ff96f1410eb8"
+            },
+            "input_hashes_before": {
+              "01_context/research_polisher_dossier-v001.yaml": "sha256:ab179481930d5f222b9f2506605191bacdc134c7c542cf7ba5da65308756bc1d",
+              "02_evidence/research_polisher_evidence_map-v001.md": "sha256:b810e2a4c52c475e86cf91925f38809ce7ebf733ed2b9bc51a577f9c1d947e19",
+              "04_portfolios/research_polisher_candidate_portfolio-v002.yaml": "sha256:3a14cffe61a113547a915422c0268980ec330e08546aa585aba95566643cfdbe",
+              "04_portfolios/research_polisher_sealed_provenance-v002.yaml": "sha256:60365bae65568a3e7e649f70ef410ffd1c7818e9f634f4ed943362e1db84cb76",
+              "05_evaluations/research_polisher_evaluation_report-v002.yaml": "sha256:bacf006389a5a9201baa4a1a39912cc644b664cf6272002f743682e6ed9099f7",
+              "06_revisions/round-002/research_polisher_revision_brief-v002.yaml": "sha256:c5b985edf70f4b4a74125f4b4cd0276962fcf9ef268f3141d6a6009821f33412",
+              "06_revisions/round-002/research_polisher_revision_delta-v002.yaml": "sha256:0afe9925ae4ab6bbcc4236615f92b36a195ce263f66c3ad8b2e60f71cc3d17f5",
+              "07_delivery/research_polisher_review_finding_index-v001.yaml": "sha256:eac114ad0409a06860313aff45c97ee228c06d047c3810b31694ff96f1410eb8"
+            },
+            "lifecycle_transitions": [
+              {
+                "event_id": "polisher-package",
+                "from": "packaging_pending",
+                "to": "human_strategy_selection_required",
+                "trigger": "selection_dossier_verified"
+              }
+            ]
+          },
+          "sequence": 12,
+          "state_after": "human_strategy_selection_required",
+          "state_before": "packaging_pending",
+          "type": "package"
+        }
+      ],
+      "execution_kind": "deterministic_replay",
+      "execution_scope": "evaluation_revision_delivery_with_entry_receipts",
+      "final_state": "human_strategy_selection_required",
+      "fixture_id": "research-polisher-independent-loop",
+      "initial_artifacts": {
+        "actual_write_paths": [
+          "01_context/research_polisher_dossier-v001.yaml",
+          "02_evidence/research_polisher_evidence_map-v001.md"
+        ],
+        "artifact_ids": [
+          "polisher-dossier-v1",
+          "polisher-evidence-v1"
+        ]
+      },
+      "panel_role_instances": {},
+      "primary_versions": [
+        "v001",
+        "v002"
+      ],
+      "registry_edges_exercised": [
+        "research_polisher -> research-polisher-orchestrator -> research-polisher-methodology-publishability-reviewer",
+        "research_polisher -> research-polisher-orchestrator -> research-polisher-plan-assembler",
+        "research_polisher -> research-polisher-orchestrator -> research-polisher-strategy-reviewer"
+      ],
+      "registry_lifecycle_transitions": [
+        {
+          "event_id": "polisher-entry-gate",
+          "from": "initialized",
+          "to": "preprocessing",
+          "trigger": "entry_gate_passed"
+        },
+        {
+          "event_id": "polisher-entry-gate",
+          "from": "preprocessing",
+          "to": "artifact_frozen",
+          "trigger": "versioned_artifact_created"
+        },
+        {
+          "event_id": "polisher-evaluate-v1",
+          "from": "artifact_frozen",
+          "to": "pending_review",
+          "trigger": "independent_review_dispatched"
+        },
+        {
+          "event_id": "polisher-evaluate-v1",
+          "from": "pending_review",
+          "to": "revision_required",
+          "trigger": "fixable_revision_requested"
+        },
+        {
+          "event_id": "polisher-assemble-v2",
+          "from": "revision_required",
+          "to": "artifact_frozen",
+          "trigger": "new_version_created"
+        },
+        {
+          "event_id": "polisher-evaluate-v2",
+          "from": "artifact_frozen",
+          "to": "pending_review",
+          "trigger": "independent_review_dispatched"
+        },
+        {
+          "event_id": "polisher-evaluate-v2",
+          "from": "pending_review",
+          "to": "packaging_pending",
+          "trigger": "latest_strategy_portfolio_accepted"
+        },
+        {
+          "event_id": "polisher-package",
+          "from": "packaging_pending",
+          "to": "human_strategy_selection_required",
+          "trigger": "selection_dossier_verified"
+        }
+      ],
+      "workflow": "research_polisher"
     }
   ],
   "schema_version": 1,
   "summary": {
     "automatic_external_submission": false,
-    "final_state": "human_signoff_required",
+    "final_states": {
+      "human_signoff_required": 4,
+      "human_strategy_selection_required": 1
+    },
     "finding_routes_verified": 5,
     "live_current_identity_compatible_receipts": 0,
     "live_identity_negative_guards_rejected": 12,
@@ -3166,7 +3888,9 @@
     "live_workflows_reached_human_signoff_gate": 0,
     "live_workflows_receipts_audited": 4,
     "live_workflows_stopped_at_valid_gate": 2,
-    "negative_guards_rejected": 39,
-    "workflows_passed": 4
+    "negative_guards_rejected": 63,
+    "polisher_decision_routes_verified": 8,
+    "research_polisher_component_guards_rejected": 24,
+    "workflows_passed": 5
   }
 }

@@ -14,19 +14,33 @@ import argparse
 import copy
 import hashlib
 import json
+import pickle
 import re
 import shutil
 import subprocess
 import tempfile
 from collections import Counter
+from dataclasses import dataclass
+from datetime import datetime, timezone
 from pathlib import Path, PurePosixPath
-from typing import Any
+from types import MappingProxyType
+from typing import Any, Mapping
 
 import yaml
 
+from openai_preview_evidence import (
+    PREVIEW_ATTESTED,
+    PROVIDER_VERIFIED,
+    EvidenceValidationError,
+    EvidenceValidationResult,
+    canonical_json_bytes,
+    sha256_bytes as evidence_sha256_bytes,
+    validate_evidence_bundle,
+)
 from test_openai_release_ledger import (
-    authenticated_external_evidence_adapter_available,
     build_cache_artifact,
+    configured_external_evidence_level,
+    release_source_identity,
     validate_bound_external_evidence,
     validate_cache_artifact,
     validate_verified_source_commit_tree,
@@ -37,6 +51,9 @@ REPO = Path(__file__).resolve().parents[1]
 PLUGIN = REPO / "research-skills-openai"
 REGISTRY_PATH = PLUGIN / "workflow-registry.yaml"
 FIXTURE_PATH = REPO / "tests" / "openai_phase7" / "mode-cases.yaml"
+POLISHER_ROUTING_BOUNDARY_PATH = (
+    REPO / "tests" / "openai_phase7" / "research-polisher-routing-boundaries.yaml"
+)
 RUNTIME_SCHEMA_PATH = REPO / "tests" / "openai_phase7" / "runtime-receipts.schema.yaml"
 RUNTIME_RECEIPTS_PATH = (
     REPO / "tests" / "openai_phase7" / "current-version-runtime-receipts.yaml"
@@ -44,9 +61,603 @@ RUNTIME_RECEIPTS_PATH = (
 RELEASE_LEDGER_PATH = PLUGIN / "reports" / "release-ledger.json"
 REPORT_PATH = PLUGIN / "reports" / "phase7-mode-results.json"
 # Repository-authored exports and hashes prove integrity, not platform origin.
-# Add an adapter here only when its verifier authenticates provider-originated
-# Codex/ChatGPT evidence rather than trusting fields from the receipt itself.
+# Add an adapter here only when its verifier independently re-queries the
+# declared external witness rather than trusting fields from the receipt itself.
 SUPPORTED_AUTHENTICATED_PLATFORM_ADAPTERS: frozenset[str] = frozenset()
+PREVIEW_RUNTIME_ATTESTATION_ADAPTER_ID = "github_release_asset_preview_v1"
+SUPPORTED_PREVIEW_ATTESTATION_ADAPTERS: frozenset[str] = frozenset(
+    {PREVIEW_RUNTIME_ATTESTATION_ADAPTER_ID}
+)
+ACCEPTANCE_LEVELS = frozenset({PREVIEW_ATTESTED, PROVIDER_VERIFIED})
+
+
+class _ExternalRuntimeAttestationCapability:
+    """Private in-process capability that cannot be serialized or copied."""
+
+    def __reduce__(self) -> Any:
+        raise TypeError("external runtime attestation capabilities are not serializable")
+
+    def __deepcopy__(self, _memo: dict[int, Any]) -> Any:
+        raise TypeError("external runtime attestation capabilities are not copyable")
+
+
+_EXTERNAL_RUNTIME_ATTESTATION_CAPABILITY = _ExternalRuntimeAttestationCapability()
+
+
+@dataclass(frozen=True)
+class ExternalRuntimeAttestation:
+    """Gate-eligible runtime attestation issued only after a live re-query."""
+
+    integrity_result: EvidenceValidationResult
+    verification_level: str
+    provider_verified: bool
+    counts_as_preview_acceptance: bool
+    counts_as_runtime_evidence: bool
+    adapter_id: str
+    attestation_scope: str
+    live_result_digest: str
+    verifier_workflow_run_id: int
+    verified_at: str
+    _capability: _ExternalRuntimeAttestationCapability
+
+    @property
+    def evidence_id(self) -> str:
+        return self.integrity_result.evidence_id
+
+
+@dataclass(frozen=True)
+class ExternalRuntimeValidationSession:
+    """Opaque handoff from live validation to Phase 7 report generation.
+
+    The session keeps the actual in-process attestations alongside the
+    semantic validator results.  A serialized receipt, result dictionary, or
+    boolean can therefore never stand in for the live validation run.
+    """
+
+    runtime_receipts_sha256: str
+    expected_source_commit: str
+    verification_level: str
+    provider_verified: bool
+    adapter_id: str
+    receipt_ids: tuple[str, ...]
+    attestations: Mapping[str, ExternalRuntimeAttestation]
+    runtime_results: tuple[Mapping[str, Any], ...]
+    _capability: _ExternalRuntimeAttestationCapability
+
+    def __reduce__(self) -> Any:
+        raise TypeError("external runtime validation sessions are not serializable")
+
+    def __deepcopy__(self, _memo: dict[int, Any]) -> Any:
+        raise TypeError("external runtime validation sessions are not copyable")
+
+
+def _integrity_result_contract(
+    integrity_result: EvidenceValidationResult,
+) -> dict[str, Any]:
+    return {
+        "evidence_id": integrity_result.evidence_id,
+        "integrity_valid": integrity_result.integrity_valid,
+        "gate_eligible": integrity_result.gate_eligible,
+        "claimed_verification_level": integrity_result.verification_level,
+        "claimed_provider_verified": integrity_result.claimed_provider_verified,
+        "claimed_counts_as_preview_acceptance": (
+            integrity_result.claimed_counts_as_preview_acceptance
+        ),
+        "source_identity_bound": integrity_result.source_identity_bound,
+        "raw_export_asset_id": integrity_result.raw_export_asset_id,
+        "raw_export_sha256": integrity_result.raw_export_sha256,
+        "envelope_asset_id": integrity_result.evidence_envelope_asset_id,
+        "envelope_sha256": integrity_result.evidence_envelope_sha256,
+        "verifier_report_asset_id": integrity_result.verifier_report_asset_id,
+        "verifier_report_sha256": integrity_result.verifier_report_sha256,
+        "release_asset_index_sha256": (
+            integrity_result.release_asset_index_sha256
+        ),
+    }
+
+
+def issue_external_runtime_attestation(
+    integrity_result: EvidenceValidationResult,
+    *,
+    receipt_id: str,
+    live_verifier: Any,
+    live_verifier_request: Mapping[str, Any],
+    expected_adapter_id: str,
+) -> ExternalRuntimeAttestation:
+    """Call an allowlisted live verifier and issue an in-process attestation.
+
+    The returned value, rather than the verifier's serializable document, is
+    the only external-evidence type that can promote a Phase 7 runtime receipt.
+    """
+
+    require(
+        isinstance(receipt_id, str) and bool(receipt_id.strip()),
+        "runtime_external_attestation_receipt_id_invalid",
+        str(receipt_id),
+    )
+    require(
+        isinstance(integrity_result, EvidenceValidationResult)
+        and integrity_result.integrity_valid
+        and not integrity_result.gate_eligible
+        and not integrity_result.provider_verified
+        and not integrity_result.counts_as_preview_acceptance,
+        "runtime_external_attestation_integrity_boundary_invalid",
+        "shared evidence validation must remain integrity-only",
+    )
+    expected_verification_level = integrity_result.verification_level
+    expected_source_identity = dict(integrity_result.source_identity)
+    require(
+        expected_verification_level in ACCEPTANCE_LEVELS
+        and integrity_result.verification_level == expected_verification_level
+        and integrity_result.claimed_provider_verified
+        is (expected_verification_level == PROVIDER_VERIFIED)
+        and integrity_result.claimed_counts_as_preview_acceptance is True,
+        "runtime_external_attestation_claim_mismatch",
+        expected_verification_level,
+    )
+    require(
+        integrity_result.source_identity_bound,
+        "runtime_external_attestation_source_identity_mismatch",
+        integrity_result.evidence_id,
+    )
+    supported_adapters = (
+        SUPPORTED_AUTHENTICATED_PLATFORM_ADAPTERS
+        if expected_verification_level == PROVIDER_VERIFIED
+        else SUPPORTED_PREVIEW_ATTESTATION_ADAPTERS
+    )
+    require(
+        expected_adapter_id in supported_adapters,
+        "runtime_external_attestation_adapter_not_allowlisted",
+        expected_adapter_id,
+    )
+    require(
+        callable(live_verifier)
+        and getattr(live_verifier, "adapter_id", None) == expected_adapter_id,
+        "runtime_external_attestation_verifier_invalid",
+        expected_adapter_id,
+    )
+    require(
+        isinstance(live_verifier_request, Mapping),
+        "runtime_external_attestation_request_invalid",
+        receipt_id,
+    )
+    try:
+        request_document = copy.deepcopy(dict(live_verifier_request))
+    except Exception as exc:
+        raise ModeViolation(
+            "runtime_external_attestation_request_invalid",
+            f"{receipt_id}: {type(exc).__name__}: {exc}",
+        ) from exc
+    request_bindings = {
+        "receipt_id": receipt_id,
+        "evidence_id": integrity_result.evidence_id,
+        "adapter_id": expected_adapter_id,
+        "expected_adapter_id": expected_adapter_id,
+        "verification_level": expected_verification_level,
+        "expected_verification_level": expected_verification_level,
+        "source_identity": expected_source_identity,
+        "expected_source_identity": expected_source_identity,
+    }
+    for field, expected_value in request_bindings.items():
+        if field in request_document:
+            require(
+                request_document[field] == expected_value,
+                "runtime_external_attestation_request_binding_mismatch",
+                f"{receipt_id}: {field}",
+            )
+    expected_integrity = _integrity_result_contract(integrity_result)
+    try:
+        result_document = live_verifier(request_document)
+    except Exception as exc:
+        raise ModeViolation(
+            "runtime_external_attestation_live_requery_failed",
+            f"{type(exc).__name__}: {exc}",
+        ) from exc
+    require(
+        isinstance(result_document, dict),
+        "runtime_external_attestation_result_invalid",
+        "live verifier must return an object",
+    )
+    require(
+        result_document.get("schema_version") == 3,
+        "runtime_external_attestation_schema_invalid",
+        "live verifier result schema_version must be 3",
+    )
+    require(
+        result_document.get("verification_level") == expected_verification_level
+        and result_document.get("provider_verified")
+        is (expected_verification_level == PROVIDER_VERIFIED),
+        "runtime_external_attestation_level_invalid",
+        expected_verification_level,
+    )
+    optional_level_flags = {
+        "counts_as_preview_attested": True,
+        "counts_as_preview_acceptance": True,
+        "counts_as_provider_verified": (
+            expected_verification_level == PROVIDER_VERIFIED
+        ),
+    }
+    for field, expected_value in optional_level_flags.items():
+        if field in result_document:
+            require(
+                result_document[field] is expected_value,
+                "runtime_external_attestation_level_invalid",
+                f"{expected_verification_level}: {field}",
+            )
+    require(
+        result_document.get("source_identity") == dict(expected_source_identity),
+        "runtime_external_attestation_source_identity_mismatch",
+        integrity_result.evidence_id,
+    )
+    live_integrity = result_document.get("integrity_result")
+    require(
+        isinstance(live_integrity, dict),
+        "runtime_external_attestation_integrity_result_missing",
+        integrity_result.evidence_id,
+    )
+    for field in (
+        "evidence_id",
+        "integrity_valid",
+        "gate_eligible",
+        "claimed_verification_level",
+        "claimed_provider_verified",
+        "claimed_counts_as_preview_acceptance",
+        "source_identity_bound",
+        "raw_export_asset_id",
+        "raw_export_sha256",
+        "envelope_asset_id",
+        "envelope_sha256",
+        "verifier_report_asset_id",
+        "verifier_report_sha256",
+        "release_asset_index_sha256",
+    ):
+        require(
+            live_integrity.get(field) == expected_integrity[field],
+            "runtime_external_attestation_integrity_binding_mismatch",
+            f"{integrity_result.evidence_id}: {field}",
+        )
+    live_verifier = result_document.get("live_verifier")
+    require(
+        isinstance(live_verifier, dict)
+        and live_verifier.get("adapter_id") == expected_adapter_id
+        and live_verifier.get("live_requery_performed") is True
+        and live_verifier.get("requery_source") == "github_api"
+        and live_verifier.get("independent") is True
+        and isinstance(live_verifier.get("verifier_workflow_run_id"), int)
+        and not isinstance(live_verifier.get("verifier_workflow_run_id"), bool)
+        and live_verifier.get("verifier_workflow_run_id") > 0
+        and isinstance(live_verifier.get("verified_at"), str)
+        and bool(live_verifier.get("verified_at")),
+        "runtime_external_attestation_live_requery_invalid",
+        integrity_result.evidence_id,
+    )
+    gate = result_document.get("gate_eligibility")
+    require(
+        isinstance(gate, dict)
+        and gate.get("eligible") is True
+        and gate.get("level") == expected_verification_level
+        and gate.get("determined_by") == "registered_live_verifier",
+        "runtime_external_attestation_gate_invalid",
+        integrity_result.evidence_id,
+    )
+    if expected_verification_level == PREVIEW_ATTESTED:
+        require(
+            gate.get("provider_authenticated") is False
+            and gate.get("provider_adapter_id") is None,
+            "runtime_external_attestation_preview_provider_confusion",
+            integrity_result.evidence_id,
+        )
+    else:
+        provider_adapter_id = gate.get("provider_adapter_id")
+        require(
+            gate.get("provider_authenticated") is True
+            and provider_adapter_id
+            in SUPPORTED_AUTHENTICATED_PLATFORM_ADAPTERS,
+            "runtime_external_attestation_provider_boundary_invalid",
+            integrity_result.evidence_id,
+        )
+    return ExternalRuntimeAttestation(
+        integrity_result=integrity_result,
+        verification_level=expected_verification_level,
+        provider_verified=expected_verification_level == PROVIDER_VERIFIED,
+        counts_as_preview_acceptance=True,
+        counts_as_runtime_evidence=True,
+        adapter_id=expected_adapter_id,
+        attestation_scope="phase7_external_runtime_live_requery",
+        live_result_digest=evidence_sha256_bytes(
+            canonical_json_bytes(result_document)
+        ),
+        verifier_workflow_run_id=live_verifier["verifier_workflow_run_id"],
+        verified_at=live_verifier["verified_at"],
+        _capability=_EXTERNAL_RUNTIME_ATTESTATION_CAPABILITY,
+    )
+
+
+def _is_valid_external_runtime_attestation(value: Any) -> bool:
+    return (
+        isinstance(value, ExternalRuntimeAttestation)
+        and value._capability is _EXTERNAL_RUNTIME_ATTESTATION_CAPABILITY
+        and value.attestation_scope == "phase7_external_runtime_live_requery"
+        and value.adapter_id
+        in (
+            SUPPORTED_AUTHENTICATED_PLATFORM_ADAPTERS
+            if value.verification_level == PROVIDER_VERIFIED
+            else SUPPORTED_PREVIEW_ATTESTATION_ADAPTERS
+        )
+        and value.counts_as_preview_acceptance is True
+        and value.counts_as_runtime_evidence is True
+        and bool(re.fullmatch(r"sha256:[0-9a-f]{64}", value.live_result_digest))
+        and isinstance(value.verifier_workflow_run_id, int)
+        and not isinstance(value.verifier_workflow_run_id, bool)
+        and value.verifier_workflow_run_id > 0
+        and isinstance(value.verified_at, str)
+        and bool(value.verified_at)
+        and value.provider_verified
+        is (value.verification_level == PROVIDER_VERIFIED)
+        and value.integrity_result.integrity_valid
+        and not value.integrity_result.gate_eligible
+        and not value.integrity_result.provider_verified
+        and not value.integrity_result.counts_as_preview_acceptance
+    )
+
+
+def issue_external_runtime_validation_session(
+    *,
+    collection: Mapping[str, Any],
+    runtime_receipts_sha256: str,
+    expected_source_commit: str,
+    expected_adapter_id: str,
+    validated_evidence_results: Mapping[str, Any],
+    validated_runtime_results: list[dict[str, Any]],
+) -> ExternalRuntimeValidationSession:
+    """Seal one fully validated 10-slot run for same-process reporting."""
+
+    receipts = collection.get("receipts")
+    require(
+        isinstance(receipts, list) and len(receipts) == 10,
+        "runtime_external_session_receipt_count",
+        str(len(receipts) if isinstance(receipts, list) else type(receipts).__name__),
+    )
+    require(
+        valid_commit_sha(expected_source_commit),
+        "runtime_external_session_source_commit_invalid",
+        str(expected_source_commit),
+    )
+    require(
+        isinstance(runtime_receipts_sha256, str)
+        and re.fullmatch(r"sha256:[0-9a-f]{64}", runtime_receipts_sha256)
+        is not None,
+        "runtime_external_session_collection_digest_invalid",
+        str(runtime_receipts_sha256),
+    )
+    receipt_ids = [receipt.get("receipt_id") for receipt in receipts]
+    require(
+        all(isinstance(item, str) and bool(item) for item in receipt_ids)
+        and len(set(receipt_ids)) == 10,
+        "runtime_external_session_receipt_ids_invalid",
+        str(receipt_ids),
+    )
+    receipt_pairs = [
+        (receipt.get("workflow"), receipt.get("case_kind")) for receipt in receipts
+    ]
+    require(
+        Counter(kind for _, kind in receipt_pairs) == Counter({"happy": 5, "control": 5}),
+        "runtime_external_session_case_matrix_invalid",
+        str(receipt_pairs),
+    )
+    require(
+        set(validated_evidence_results) == set(receipt_ids),
+        "runtime_external_session_attestation_coverage",
+        str(sorted(validated_evidence_results)),
+    )
+    attestations: dict[str, ExternalRuntimeAttestation] = {}
+    for receipt_id in receipt_ids:
+        attestation = validated_evidence_results[receipt_id]
+        require(
+            _is_valid_external_runtime_attestation(attestation),
+            "runtime_external_session_attestation_invalid",
+            str(receipt_id),
+        )
+        require(
+            attestation.verification_level == PREVIEW_ATTESTED
+            and attestation.provider_verified is False
+            and attestation.adapter_id == expected_adapter_id
+            and attestation.integrity_result.source_identity.get("source_commit")
+            == expected_source_commit,
+            "runtime_external_session_attestation_binding_mismatch",
+            str(receipt_id),
+        )
+        attestations[str(receipt_id)] = attestation
+
+    require(
+        isinstance(validated_runtime_results, list)
+        and len(validated_runtime_results) == 10,
+        "runtime_external_session_result_count",
+        str(len(validated_runtime_results)),
+    )
+    result_by_id: dict[str, Mapping[str, Any]] = {}
+    expected_by_id = {str(receipt["receipt_id"]): receipt for receipt in receipts}
+    for result in validated_runtime_results:
+        require(
+            isinstance(result, Mapping),
+            "runtime_external_session_result_invalid",
+            type(result).__name__,
+        )
+        receipt_id = result.get("receipt_id")
+        require(
+            isinstance(receipt_id, str)
+            and receipt_id in expected_by_id
+            and receipt_id not in result_by_id,
+            "runtime_external_session_result_coverage",
+            str(receipt_id),
+        )
+        receipt = expected_by_id[receipt_id]
+        require(
+            result.get("status") == "verified"
+            and result.get("verification_level") == PREVIEW_ATTESTED
+            and result.get("evidence_accounting_status")
+            == "externally_attested_runtime_evidence"
+            and result.get("external_evidence_id")
+            == attestations[receipt_id].evidence_id
+            and result.get("external_live_result_digest")
+            == attestations[receipt_id].live_result_digest
+            and result.get("external_verifier_workflow_run_id")
+            == attestations[receipt_id].verifier_workflow_run_id
+            and result.get("external_verified_at")
+            == attestations[receipt_id].verified_at
+            and result.get("source_commit") == expected_source_commit
+            and result.get("workflow") == receipt.get("workflow")
+            and result.get("case_kind") == receipt.get("case_kind"),
+            "runtime_external_session_result_binding_mismatch",
+            receipt_id,
+        )
+        result_by_id[receipt_id] = MappingProxyType(copy.deepcopy(dict(result)))
+    require(
+        set(result_by_id) == set(receipt_ids),
+        "runtime_external_session_result_coverage",
+        str(sorted(result_by_id)),
+    )
+    return ExternalRuntimeValidationSession(
+        runtime_receipts_sha256=runtime_receipts_sha256,
+        expected_source_commit=expected_source_commit,
+        verification_level=PREVIEW_ATTESTED,
+        provider_verified=False,
+        adapter_id=expected_adapter_id,
+        receipt_ids=tuple(sorted(str(item) for item in receipt_ids)),
+        attestations=MappingProxyType(attestations),
+        runtime_results=tuple(result_by_id[item] for item in sorted(result_by_id)),
+        _capability=_EXTERNAL_RUNTIME_ATTESTATION_CAPABILITY,
+    )
+
+
+def _is_valid_external_runtime_validation_session(value: Any) -> bool:
+    return (
+        isinstance(value, ExternalRuntimeValidationSession)
+        and value._capability is _EXTERNAL_RUNTIME_ATTESTATION_CAPABILITY
+        and value.verification_level == PREVIEW_ATTESTED
+        and value.provider_verified is False
+        and value.adapter_id in SUPPORTED_PREVIEW_ATTESTATION_ADAPTERS
+        and len(value.receipt_ids) == 10
+        and len(value.attestations) == 10
+        and len(value.runtime_results) == 10
+        and set(value.receipt_ids) == set(value.attestations)
+        and all(
+            _is_valid_external_runtime_attestation(item)
+            for item in value.attestations.values()
+        )
+    )
+
+
+def consume_external_runtime_validation_session(
+    session: ExternalRuntimeValidationSession,
+    *,
+    collection: Mapping[str, Any],
+    runtime_receipts_path: Path,
+    expected_source_commit: str | None,
+) -> list[dict[str, Any]]:
+    """Consume an opaque session only for its exact frozen collection/commit."""
+
+    require(
+        _is_valid_external_runtime_validation_session(session),
+        "runtime_external_session_invalid",
+        type(session).__name__,
+    )
+    require(
+        runtime_receipts_path.is_file()
+        and sha256_file(runtime_receipts_path) == session.runtime_receipts_sha256,
+        "runtime_external_session_collection_changed",
+        str(runtime_receipts_path),
+    )
+    receipts = collection.get("receipts")
+    receipt_ids = (
+        [str(receipt.get("receipt_id")) for receipt in receipts]
+        if isinstance(receipts, list)
+        else []
+    )
+    require(
+        tuple(sorted(receipt_ids)) == session.receipt_ids,
+        "runtime_external_session_collection_mismatch",
+        str(receipt_ids),
+    )
+    require(
+        expected_source_commit == session.expected_source_commit,
+        "runtime_external_session_release_commit_mismatch",
+        f"session={session.expected_source_commit} ledger={expected_source_commit}",
+    )
+    return [copy.deepcopy(dict(item)) for item in session.runtime_results]
+
+
+class _SyntheticAttestationCapability:
+    """Unserializable capability for this module's reachability self-test only."""
+
+
+_SYNTHETIC_ATTESTATION_CAPABILITY = _SyntheticAttestationCapability()
+
+
+@dataclass(frozen=True)
+class _TestOnlyAuthenticatedAttestation:
+    """Authenticated-outcome simulation that cannot count as runtime evidence."""
+
+    integrity_result: EvidenceValidationResult
+    verification_level: str
+    provider_verified: bool
+    counts_as_preview_acceptance: bool
+    counts_as_runtime_evidence: bool
+    attestation_scope: str
+    _capability: _SyntheticAttestationCapability
+
+    @property
+    def evidence_id(self) -> str:
+        return self.integrity_result.evidence_id
+
+
+def _issue_test_only_authenticated_attestation(
+    integrity_result: EvidenceValidationResult,
+    *,
+    verification_level: str,
+    capability: _SyntheticAttestationCapability,
+) -> _TestOnlyAuthenticatedAttestation:
+    require(
+        capability is _SYNTHETIC_ATTESTATION_CAPABILITY,
+        "synthetic_attestation_capability_invalid",
+        "test-only attestation requires the private in-process capability",
+    )
+    require(
+        integrity_result.integrity_valid
+        and not integrity_result.gate_eligible
+        and not integrity_result.provider_verified
+        and not integrity_result.counts_as_preview_acceptance,
+        "synthetic_attestation_integrity_boundary_invalid",
+        "shared validation must remain integrity-only",
+    )
+    require(
+        integrity_result.verification_level == verification_level
+        and integrity_result.claimed_provider_verified
+        is (verification_level == PROVIDER_VERIFIED),
+        "synthetic_attestation_claim_mismatch",
+        verification_level,
+    )
+    return _TestOnlyAuthenticatedAttestation(
+        integrity_result=integrity_result,
+        verification_level=verification_level,
+        provider_verified=verification_level == PROVIDER_VERIFIED,
+        counts_as_preview_acceptance=True,
+        counts_as_runtime_evidence=False,
+        attestation_scope="phase7_synthetic_reachability_self_test_only",
+        _capability=capability,
+    )
+
+
+def _is_valid_test_only_attestation(
+    value: Any,
+) -> bool:
+    return (
+        isinstance(value, _TestOnlyAuthenticatedAttestation)
+        and value._capability is _SYNTHETIC_ATTESTATION_CAPABILITY
+        and value.attestation_scope
+        == "phase7_synthetic_reachability_self_test_only"
+        and value.counts_as_runtime_evidence is False
+    )
 
 
 class ModeViolation(AssertionError):
@@ -64,6 +675,95 @@ def require(condition: bool, code: str, message: str) -> None:
 
 def load_yaml(path: Path) -> dict[str, Any]:
     return yaml.safe_load(path.read_text(encoding="utf-8-sig"))
+
+
+def validate_polisher_routing_boundaries(
+    fixture: dict[str, Any], registry: dict[str, Any]
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    require(fixture.get("schema_version") == 1, "polisher_routing_schema", "schema")
+    require(
+        fixture.get("evidence_class") == "synthetic_routing_boundary_contract"
+        and fixture.get("runtime_claim") == "none",
+        "polisher_routing_scope",
+        "fixture cannot claim live routing",
+    )
+    entry = fixture.get("entry_skill")
+    registered = {item.get("name") for item in registry.get("skills", [])}
+    require(entry == "research-polisher-orchestrator", "polisher_routing_entry", str(entry))
+    entry_gate = registry.get("public_entry_policy", {}).get("gated_entries", {}).get(
+        entry, {}
+    )
+    require(
+        entry_gate.get("status") == "explicit_only_pending_phase_7_8_external_evidence",
+        "polisher_routing_gate",
+        "current routing boundary must remain explicit-only",
+    )
+    cases = fixture.get("cases", [])
+    require(isinstance(cases, list) and cases, "polisher_routing_cases", "missing")
+    ids = [case.get("case_id") for case in cases]
+    require(len(ids) == len(set(ids)), "polisher_routing_cases", "duplicate IDs")
+    required_exclusions = {
+        "language_polish",
+        "ordinary_drafting",
+        "new_idea_generation",
+        "general_literature_search",
+    }
+    observed_exclusions: set[str] = set()
+    positive_results: list[dict[str, Any]] = []
+    negative_results: list[dict[str, Any]] = []
+
+    def validate_case(case: dict[str, Any]) -> None:
+        case_id = str(case.get("case_id"))
+        prompt = case.get("prompt")
+        route = case.get("observed_route")
+        expected_route = case.get("expected_route")
+        require(isinstance(prompt, str) and prompt.strip(), "polisher_routing_prompt", case_id)
+        require(expected_route in registered, "polisher_routing_expected_route", case_id)
+        if case.get("expected_selected") is True:
+            require(f"${entry}" in prompt, "polisher_routing_explicit_invocation", case_id)
+            require(route == entry, "polisher_routing_missed", case_id)
+        else:
+            require(route != entry, "polisher_routing_boundary_takeover", case_id)
+        require(route == expected_route, "polisher_routing_disagreement", case_id)
+
+    for case in cases:
+        validate_case(case)
+        if case.get("expected_selected") is False:
+            observed_exclusions.add(str(case.get("request_class")))
+        positive_results.append(
+            {
+                "case_id": case["case_id"],
+                "request_class": case["request_class"],
+                "status": "routed_as_expected",
+                "observed_route": case["observed_route"],
+            }
+        )
+        if case.get("expected_selected") is False:
+            mutated = copy.deepcopy(case)
+            mutated["observed_route"] = entry
+            try:
+                validate_case(mutated)
+            except ModeViolation as exc:
+                require(
+                    exc.code == "polisher_routing_boundary_takeover",
+                    "polisher_routing_negative_guard",
+                    f"{case['case_id']}: {exc.code}",
+                )
+                negative_results.append(
+                    {
+                        "case_id": case["case_id"],
+                        "mutation": "force_research_polisher_takeover",
+                        "status": "rejected_as_expected",
+                    }
+                )
+            else:
+                raise ModeViolation("polisher_routing_negative_guard", case["case_id"])
+    require(
+        required_exclusions <= observed_exclusions,
+        "polisher_routing_exclusion_coverage",
+        str(sorted(required_exclusions - observed_exclusions)),
+    )
+    return positive_results, negative_results
 
 
 def sha256_bytes(value: bytes) -> str:
@@ -488,9 +1188,18 @@ def validate_entry_gates(
         require(receipt["frozen"] is True, "gate_receipt_mismatch", f"{case['case_id']}: {gate}")
 
 
+def workflow_profile(case: dict[str, Any], registry: dict[str, Any]) -> str:
+    return registry["workflow_state_machines"][case["workflow"]].get(
+        "workflow_profile", "default"
+    )
+
+
 def writer_skills_for(case: dict[str, Any], registry: dict[str, Any]) -> set[str]:
     machine = registry["workflow_state_machines"][case["workflow"]]
     candidates = set(machine.get("primary_writer_skills", []))
+    if workflow_profile(case, registry) == "reviewer_matrix_assemble_evaluate":
+        require(not candidates, "writer_skill_unexpected", case["case_id"])
+        return candidates
     require(bool(candidates), "writer_skill_missing", case["case_id"])
     skills = {skill["name"]: skill for skill in registry["skills"]}
     require(
@@ -504,16 +1213,21 @@ def writer_skills_for(case: dict[str, Any], registry: dict[str, Any]) -> set[str
     return candidates
 
 
-def writer_skill_for(case: dict[str, Any], registry: dict[str, Any]) -> str:
-    return sorted(writer_skills_for(case, registry))[0]
+def writer_skill_for(case: dict[str, Any], registry: dict[str, Any]) -> str | None:
+    candidates = writer_skills_for(case, registry)
+    return sorted(candidates)[0] if candidates else None
 
 
-def panel_skill_for(case: dict[str, Any], registry: dict[str, Any]) -> str:
+def panel_skill_for(case: dict[str, Any], registry: dict[str, Any]) -> str | None:
+    machine = registry["workflow_state_machines"][case["workflow"]]
     candidates = [
         edge["destination"]
         for edge in registry["workflow_edges"]
         if edge["workflow"] == case["workflow"] and "panel" in edge["destination"]
     ]
+    if machine.get("post_evaluation_panel_required") is False:
+        require(not candidates, "panel_skill_unexpected", case["case_id"])
+        return None
     require(len(set(candidates)) == 1, "panel_skill_missing", case["case_id"])
     return candidates[0]
 
@@ -526,7 +1240,13 @@ def default_panel_roles(workflow: str, registry: dict[str, Any]) -> tuple[str, l
     panel_contract = registry["scenario_eval_contract"]["panel_contracts"][workflow]
     tier = panel_contract["default_tier"]
     roles = list(panel_contract["tiers"][tier])
-    require(bool(roles) and len(roles) == len(set(roles)), "panel_role_contract", workflow)
+    machine = registry["workflow_state_machines"][workflow]
+    panel_required = machine.get("post_evaluation_panel_required", True)
+    require(
+        len(roles) == len(set(roles)) and (bool(roles) == panel_required),
+        "panel_role_contract",
+        workflow,
+    )
     return tier, roles
 
 
@@ -660,6 +1380,14 @@ def validate_synthetic_package(
 ) -> None:
     machine = registry["workflow_state_machines"][case["workflow"]]
     contract = registry["scenario_eval_contract"]["package_input_contracts"][case["workflow"]]
+    expected_final_state = registry["scenario_eval_contract"][
+        "workflow_final_states"
+    ][case["workflow"]]
+    expected_package_role = (
+        "research_polisher_selection_dossier"
+        if expected_final_state == "human_strategy_selection_required"
+        else "final_handoff_package"
+    )
     current_ref = ref_for(current_artifact)
     artifacts = list(runtime["artifacts"].values())
     for rule in contract["required_inputs"]:
@@ -678,7 +1406,7 @@ def validate_synthetic_package(
             require(len(matches) == len(panel_roles), "package_panel_input_incomplete", case["case_id"])
     require(
         package_artifact["source_skill"] == machine["final_package_skill"]
-        and package_artifact["artifact_role"] == "final_handoff_package"
+        and package_artifact["artifact_role"] == expected_package_role
         and package_artifact["created_by_instance_id"] == package_receipt["package_instance_id"],
         "package_creator_invalid",
         case["case_id"],
@@ -687,7 +1415,7 @@ def validate_synthetic_package(
         package_receipt["package_artifact_ref"] == ref_for(package_artifact)
         and package_receipt["input_artifact_refs"] == package_artifact["based_on"]
         and package_receipt["source_edits_performed"] is False
-        and package_receipt["final_state"] == "human_signoff_required",
+        and package_receipt["final_state"] == expected_final_state,
         "package_receipt_invalid",
         case["case_id"],
     )
@@ -720,18 +1448,48 @@ def replay_case(
 ) -> dict[str, Any]:
     validate_entry_gates(case, runtime, registry)
     profile = fixture["path_profiles"][case["path_profile"]]
+    machine = registry["workflow_state_machines"][case["workflow"]]
+    profile_kind = workflow_profile(case, registry)
+    is_reviewer_matrix = profile_kind == "reviewer_matrix_assemble_evaluate"
     state = "initialized"
     current_artifact = runtime["artifacts"][runtime["primary_artifact_id"]]
     latest_evaluated_version: str | None = None
     evaluator_instances: list[str] = []
-    writer_instance = f"{case['case_id']}-writer-001"
+    writer_instance = None if is_reviewer_matrix else f"{case['case_id']}-writer-001"
     writer_skill = writer_skill_for(case, registry)
     panel_skill = panel_skill_for(case, registry)
     panel_tier, required_panel_roles = default_panel_roles(case["workflow"], registry)
     skills = {skill["name"]: skill for skill in registry["skills"]}
-    evaluator_skill = registry["workflow_state_machines"][case["workflow"]]["evaluator_skill"]
+    evaluator_skill = machine["evaluator_skill"]
     require(skills[evaluator_skill]["requires_independent_subagent"] is True, "review_not_independent", evaluator_skill)
-    require(skills[panel_skill]["requires_independent_subagent"] is True, "review_not_independent", panel_skill)
+    if panel_skill is not None:
+        require(skills[panel_skill]["requires_independent_subagent"] is True, "review_not_independent", panel_skill)
+    strategy_contract = (
+        registry["scenario_eval_contract"]["review_group_contracts"][case["workflow"]]
+        if is_reviewer_matrix
+        else None
+    )
+    strategy_skill = strategy_contract["skill"] if strategy_contract else None
+    if strategy_skill is not None:
+        require(
+            skills[strategy_skill]["requires_independent_subagent"] is True,
+            "review_not_independent",
+            strategy_skill,
+        )
+    artifact_creator_skill = (
+        machine["primary_assembler_skill"] if is_reviewer_matrix else writer_skill
+    )
+    artifact_creator_instance = (
+        f"{case['case_id']}-assembler-001" if is_reviewer_matrix else writer_instance
+    )
+    require(
+        isinstance(artifact_creator_skill, str)
+        and bool(artifact_creator_skill)
+        and isinstance(artifact_creator_instance, str)
+        and bool(artifact_creator_instance),
+        "primary_artifact_creator_missing",
+        case["case_id"],
+    )
     panel_complete = False
     fatal_findings: list[str] = []
     pending_evaluator_instance: str | None = None
@@ -743,6 +1501,8 @@ def replay_case(
     package_receipts: list[dict[str, Any]] = []
     control_receipts: list[dict[str, Any]] = []
     panel_role_instances: dict[str, str] = {}
+    strategy_role_instances: dict[str, str] = {}
+    strategy_receipts: list[dict[str, Any]] = []
     for sequence, transition in enumerate(profile["transitions"], start=1):
         require(transition["from"] == state, "fixture_lifecycle_mismatch", case["case_id"])
         registry_transition = lifecycle_match(state, transition, registry)
@@ -753,14 +1513,116 @@ def replay_case(
 
         if trigger == "versioned_artifact_created":
             prior = current_artifact
-            existing_only_modes = {
-                "portfolio_only",
-                "package_only",
-                "submission_only",
-                "existing_draft",
-                "draft_and_external_review",
-            }
-            if case["entry_mode"] not in existing_only_modes:
+            if is_reviewer_matrix:
+                require(strategy_contract is not None, "review_group_contract", case["case_id"])
+                dossier = next(
+                    (
+                        artifact
+                        for artifact in runtime["artifacts"].values()
+                        if artifact["artifact_role"] == "research_polisher_dossier"
+                    ),
+                    None,
+                )
+                require(dossier is not None, "strategy_dossier_missing", case["case_id"])
+                strategy_report_artifacts: list[dict[str, Any]] = []
+                expected_roles = list(strategy_contract["roles"])
+                expected_tiers = list(strategy_contract["effort_tiers"])
+                for role_index, strategy_role in enumerate(expected_roles, start=1):
+                    strategy_instance = f"{case['case_id']}-strategy-{role_index:03d}"
+                    if (
+                        transition_receipt_mutation == "duplicate_strategy_reviewer_instance"
+                        and role_index == 2
+                    ):
+                        strategy_instance = f"{case['case_id']}-strategy-001"
+                        mutation_applied = True
+                    strategy_role_instances[strategy_role] = strategy_instance
+                    strategy_receipt = build_review_receipt(
+                        case=case,
+                        registry=registry,
+                        reviewer_skill=strategy_skill,
+                        reviewer_instance_id=strategy_instance,
+                        reviewer_role="independent_strategy_reviewer",
+                        review_scope=f"research_polisher_lens:{strategy_role}",
+                        input_artifacts=[dossier],
+                        decision_category="pass",
+                        receipt_suffix=f"strategy-{role_index:03d}",
+                    )
+                    strategy_receipt.update(
+                        {
+                            "strategy_role": strategy_role,
+                            "effort_tiers": expected_tiers,
+                            "matrix_cells": [
+                                f"{strategy_role}:{tier}" for tier in expected_tiers
+                            ],
+                            "peer_outputs_visible": False,
+                        }
+                    )
+                    if (
+                        transition_receipt_mutation == "missing_strategy_reviewer_receipt"
+                        and role_index == 1
+                    ):
+                        strategy_receipt = None
+                        mutation_applied = True
+                    elif (
+                        transition_receipt_mutation == "stale_strategy_reviewer_receipt"
+                        and role_index == 1
+                    ):
+                        strategy_receipt["input_digests"] = ["sha256:" + "0" * 64]
+                        mutation_applied = True
+                    validate_review_receipt(
+                        receipt=strategy_receipt,
+                        case=case,
+                        registry=registry,
+                        expected_skill=strategy_skill,
+                        expected_artifacts=[dossier],
+                        expected_category="pass",
+                        missing_code="missing_strategy_reviewer_receipt",
+                        stale_code="stale_strategy_reviewer_receipt",
+                        writer_instance_id=artifact_creator_instance,
+                    )
+                    require(
+                        strategy_receipt["peer_outputs_visible"] is False
+                        and strategy_receipt["strategy_role"] == strategy_role
+                        and strategy_receipt["effort_tiers"] == expected_tiers
+                        and len(strategy_receipt["matrix_cells"]) == len(expected_tiers),
+                        "strategy_review_group_contract",
+                        case["case_id"],
+                    )
+                    strategy_report = build_artifact(
+                        case=case,
+                        registry=registry,
+                        artifact_id=f"{case['case_id']}-strategy-report-{role_index:03d}",
+                        version_id="v001",
+                        artifact_role="research_polisher_strategy_report",
+                        source_skill=strategy_skill,
+                        created_by_instance_id=strategy_instance,
+                        based_on=[ref_for(dossier)],
+                        change_type=f"independent_strategy_review:{strategy_role}",
+                    )
+                    runtime["artifacts"][strategy_report["artifact_id"]] = strategy_report
+                    strategy_report_artifacts.append(strategy_report)
+                    strategy_receipts.append(strategy_receipt)
+                require(
+                    set(strategy_role_instances) == set(expected_roles)
+                    and len(set(strategy_role_instances.values()))
+                    == strategy_contract["required_instance_count"]
+                    and sum(len(item["matrix_cells"]) for item in strategy_receipts)
+                    == strategy_contract["required_matrix_cell_count"],
+                    "strategy_review_group_contract",
+                    case["case_id"],
+                )
+                manifest = build_artifact(
+                    case=case,
+                    registry=registry,
+                    artifact_id=f"{case['case_id']}-strategy-report-manifest",
+                    version_id="v001",
+                    artifact_role=strategy_contract["manifest_artifact_role"],
+                    source_skill=artifact_creator_skill,
+                    created_by_instance_id=artifact_creator_instance,
+                    based_on=[ref_for(artifact) for artifact in strategy_report_artifacts],
+                    change_type="sealed_anonymous_strategy_report_manifest",
+                )
+                runtime["artifacts"][manifest["artifact_id"]] = manifest
                 generated_id = f"{case['case_id']}-generated-primary"
                 generated = build_artifact(
                     case=case,
@@ -768,14 +1630,38 @@ def replay_case(
                     artifact_id=generated_id,
                     version_id="v001",
                     artifact_role=prior["artifact_role"],
-                    source_skill=writer_skill,
-                    created_by_instance_id=writer_instance,
-                    based_on=[ref_for(prior)],
-                    change_type="initial_generation",
+                    source_skill=artifact_creator_skill,
+                    created_by_instance_id=artifact_creator_instance,
+                    based_on=[ref_for(manifest), ref_for(prior)],
+                    change_type="anonymous_strategy_portfolio_assembly",
                 )
                 validate_artifact(generated, case, registry)
                 runtime["artifacts"][generated_id] = generated
                 current_artifact = generated
+            else:
+                existing_only_modes = {
+                    "portfolio_only",
+                    "package_only",
+                    "submission_only",
+                    "existing_draft",
+                    "draft_and_external_review",
+                }
+                if case["entry_mode"] not in existing_only_modes:
+                    generated_id = f"{case['case_id']}-generated-primary"
+                    generated = build_artifact(
+                        case=case,
+                        registry=registry,
+                        artifact_id=generated_id,
+                        version_id="v001",
+                        artifact_role=prior["artifact_role"],
+                        source_skill=artifact_creator_skill,
+                        created_by_instance_id=artifact_creator_instance,
+                        based_on=[ref_for(prior)],
+                        change_type="initial_generation",
+                    )
+                    validate_artifact(generated, case, registry)
+                    runtime["artifacts"][generated_id] = generated
+                    current_artifact = generated
             validate_artifact(current_artifact, case, registry)
             generation_receipt = {
                 "receipt_id": f"{case['case_id']}-versioned-artifact-created",
@@ -801,8 +1687,8 @@ def replay_case(
                 artifact_id=revised_id,
                 version_id="v002",
                 artifact_role=parent["artifact_role"],
-                source_skill=writer_skill,
-                created_by_instance_id=writer_instance,
+                source_skill=artifact_creator_skill,
+                created_by_instance_id=artifact_creator_instance,
                 based_on=[f"{parent['artifact_id']}@{parent['version_id']}"],
                 change_type="targeted_revision",
             )
@@ -817,7 +1703,12 @@ def replay_case(
             next_latest_evaluated_version = None
         elif trigger == "independent_review_dispatched":
             evaluator_instance = f"{case['case_id']}-evaluator-{len(evaluator_instances) + 1:03d}"
-            require(evaluator_instance != writer_instance, "reviewer_writer_overlap", case["case_id"])
+            require(evaluator_instance != artifact_creator_instance, "reviewer_writer_overlap", case["case_id"])
+            require(
+                evaluator_instance not in set(strategy_role_instances.values()),
+                "reviewer_instance_reused",
+                case["case_id"],
+            )
             require(evaluator_instance not in evaluator_instances, "reviewer_instance_reused", case["case_id"])
             evaluator_instances.append(evaluator_instance)
             pending_evaluator_instance = evaluator_instance
@@ -847,7 +1738,7 @@ def replay_case(
                 expected_category="revise",
                 missing_code="missing_evaluator_receipt",
                 stale_code="stale_evaluator_receipt",
-                writer_instance_id=writer_instance,
+                writer_instance_id=artifact_creator_instance,
             )
             review_artifact = build_artifact(
                 case=case,
@@ -861,7 +1752,7 @@ def replay_case(
                 change_type="independent_evaluation",
             )
             runtime["artifacts"][review_artifact["artifact_id"]] = review_artifact
-        elif trigger == "latest_version_accepted":
+        elif trigger in {"latest_version_accepted", "latest_strategy_portfolio_accepted"}:
             require(
                 pending_evaluator_instance is not None,
                 "missing_evaluator_receipt",
@@ -893,7 +1784,7 @@ def replay_case(
                 expected_category="pass",
                 missing_code="missing_evaluator_receipt",
                 stale_code="stale_evaluator_receipt",
-                writer_instance_id=writer_instance,
+                writer_instance_id=artifact_creator_instance,
             )
             review_artifact = build_artifact(
                 case=case,
@@ -909,10 +1800,15 @@ def replay_case(
             runtime["artifacts"][review_artifact["artifact_id"]] = review_artifact
             next_latest_evaluated_version = current_artifact["version_id"]
         elif trigger == "panel_gate_passed":
+            require(
+                panel_skill is not None and bool(required_panel_roles),
+                "panel_skill_missing",
+                case["case_id"],
+            )
             current_panel_receipts: list[dict[str, Any]] = []
             for role_index, panel_role in enumerate(required_panel_roles, start=1):
                 panel_instance = f"{case['case_id']}-panel-{role_index:03d}"
-                require(panel_instance != writer_instance, "reviewer_writer_overlap", case["case_id"])
+                require(panel_instance != artifact_creator_instance, "reviewer_writer_overlap", case["case_id"])
                 require(panel_instance not in evaluator_instances, "reviewer_instance_reused", case["case_id"])
                 panel_role_instances[panel_role] = panel_instance
                 panel_receipt = build_review_receipt(
@@ -949,7 +1845,7 @@ def replay_case(
                     expected_category="pass",
                     missing_code="missing_panel_receipt",
                     stale_code="stale_panel_receipt",
-                    writer_instance_id=writer_instance,
+                    writer_instance_id=artifact_creator_instance,
                 )
                 require(
                     panel_receipt["peer_outputs_visible"] is False
@@ -982,7 +1878,7 @@ def replay_case(
                 "panel_role_receipt_ids": [item["review_id"] for item in current_panel_receipts],
             }
             next_panel_complete = True
-        elif trigger == "package_verified":
+        elif trigger in {"package_verified", "selection_dossier_verified"}:
             package_inputs = ensure_synthetic_package_inputs(
                 case=case,
                 runtime=runtime,
@@ -996,11 +1892,19 @@ def replay_case(
                 registry=registry,
                 artifact_id=f"{case['case_id']}-final-handoff-package",
                 version_id="v001",
-                artifact_role="final_handoff_package",
-                source_skill=registry["workflow_state_machines"][case["workflow"]]["final_package_skill"],
+                artifact_role=(
+                    "research_polisher_selection_dossier"
+                    if trigger == "selection_dossier_verified"
+                    else "final_handoff_package"
+                ),
+                source_skill=machine["final_package_skill"],
                 created_by_instance_id=package_instance,
                 based_on=[ref_for(artifact) for artifact in package_inputs],
-                change_type="verified_human_review_packaging",
+                change_type=(
+                    "verified_human_strategy_selection_packaging"
+                    if trigger == "selection_dossier_verified"
+                    else "verified_human_review_packaging"
+                ),
             )
             runtime["artifacts"][package_artifact["artifact_id"]] = package_artifact
             package_receipt = {
@@ -1009,7 +1913,9 @@ def replay_case(
                 "package_artifact_ref": ref_for(package_artifact),
                 "input_artifact_refs": list(package_artifact["based_on"]),
                 "source_edits_performed": False,
-                "final_state": "human_signoff_required",
+                "final_state": registry["scenario_eval_contract"][
+                    "workflow_final_states"
+                ][case["workflow"]],
             }
             validate_synthetic_package(
                 case=case,
@@ -1062,7 +1968,11 @@ def replay_case(
         latest_evaluated_version = next_latest_evaluated_version
         panel_complete = next_panel_complete
         if qualifying_receipt is not None:
-            if trigger in {"fixable_revision_requested", "latest_version_accepted"}:
+            if trigger in {
+                "fixable_revision_requested",
+                "latest_version_accepted",
+                "latest_strategy_portfolio_accepted",
+            }:
                 evaluator_receipts.append(qualifying_receipt)
                 pending_evaluator_instance = None
             elif trigger == "panel_gate_passed":
@@ -1092,7 +2002,6 @@ def replay_case(
     )
 
     require(state == profile["expected_final_state"], "unexpected_final_state", case["case_id"])
-    machine = registry["workflow_state_machines"][case["workflow"]]
     is_non_ready = case["entry_mode"] in machine.get("non_ready_modes", [])
     require(
         (state == "stopped") == is_non_ready,
@@ -1100,15 +2009,27 @@ def replay_case(
         f"{case['case_id']}: {state}",
     )
     require(
-        state != "human_signoff_required" or latest_evaluated_version == current_artifact["version_id"],
+        state
+        != registry["scenario_eval_contract"]["workflow_final_states"][case["workflow"]]
+        or latest_evaluated_version == current_artifact["version_id"],
         "stale_evaluation",
         case["case_id"],
     )
     require(not fatal_findings, "hidden_fatal_finding", case["case_id"])
-    if state == "human_signoff_required":
+    if state == registry["scenario_eval_contract"]["workflow_final_states"][case["workflow"]]:
         require(bool(evaluator_receipts), "missing_evaluator_receipt", case["case_id"])
-        require(bool(panel_receipts), "missing_panel_receipt", case["case_id"])
-        require(panel_complete is True, "missing_panel_receipt", case["case_id"])
+        if machine.get("post_evaluation_panel_required", True):
+            require(bool(panel_receipts), "missing_panel_receipt", case["case_id"])
+            require(panel_complete is True, "missing_panel_receipt", case["case_id"])
+        else:
+            require(not panel_receipts, "panel_skill_unexpected", case["case_id"])
+            require(
+                strategy_contract is not None
+                and len(strategy_receipts)
+                == strategy_contract["required_instance_count"],
+                "strategy_review_group_contract",
+                case["case_id"],
+            )
     return {
         "case_id": case["case_id"],
         "workflow": case["workflow"],
@@ -1127,6 +2048,8 @@ def replay_case(
         ],
         "writer_skill": writer_skill,
         "writer_instance_id": writer_instance,
+        "primary_artifact_creator_skill": artifact_creator_skill,
+        "primary_artifact_creator_instance_id": artifact_creator_instance,
         "evaluator_skill": evaluator_skill,
         "evaluator_instance_ids": evaluator_instances,
         "synthetic_evaluator_receipt_ids": [
@@ -1137,6 +2060,11 @@ def replay_case(
             receipt["review_id"] for receipt in panel_receipts
         ],
         "synthetic_panel_role_instances": panel_role_instances,
+        "strategy_reviewer_skill": strategy_skill,
+        "synthetic_strategy_reviewer_receipt_ids": [
+            receipt["review_id"] for receipt in strategy_receipts
+        ],
+        "synthetic_strategy_role_instances": strategy_role_instances,
         "synthetic_generation_receipt_ids": [
             receipt["receipt_id"] for receipt in generation_receipts
         ],
@@ -1149,7 +2077,8 @@ def replay_case(
         "transition_receipts": transition_receipts,
         "final_state": state,
         "mode_scope_completed": profile["mode_scope_completed"],
-        "promotion_performed": state == "human_signoff_required",
+        "promotion_performed": state
+        == registry["scenario_eval_contract"]["workflow_final_states"][case["workflow"]],
         "automatic_external_submission": False,
     }
 
@@ -1210,6 +2139,9 @@ def expect_transition_receipt_rejection(
         "stale_evaluator_receipt": "stale_evaluator_receipt",
         "missing_panel_receipt": "missing_panel_receipt",
         "stale_panel_receipt": "stale_panel_receipt",
+        "missing_strategy_reviewer_receipt": "missing_strategy_reviewer_receipt",
+        "stale_strategy_reviewer_receipt": "stale_strategy_reviewer_receipt",
+        "duplicate_strategy_reviewer_instance": "strategy_review_group_contract",
     }
     expected_code = expected_codes[mutation]
     mutation_id = f"{case['case_id']}-{mutation.replace('_', '-')}"
@@ -1403,7 +2335,13 @@ def runtime_case_contract(
     contracts = schema.get("x-phase7-contract", {}).get(
         "workflow_case_contracts"
     )
-    required_workflows = {"idea", "proposal", "article", "perspective"}
+    required_workflows = {
+        "idea",
+        "proposal",
+        "article",
+        "perspective",
+        "research_polisher",
+    }
     require(
         isinstance(contracts, dict) and set(contracts) == required_workflows,
         "runtime_schema_case_contract_invalid",
@@ -1419,6 +2357,7 @@ def runtime_case_contract(
     contract = workflow_contract.get(case_kind)
     required_fields = {
         "expected_final_state",
+        "input_condition",
         "gate",
         "route",
         "continuation_artifact_role",
@@ -1429,11 +2368,21 @@ def runtime_case_contract(
         f"{workflow}/{case_kind}: fields",
     )
     if case_kind == "happy":
+        expected_ready_state = (
+            "human_strategy_selection_required"
+            if workflow == "research_polisher"
+            else "human_signoff_required"
+        )
         require(
-            contract["expected_final_state"] == "human_signoff_required"
+            contract["expected_final_state"] == expected_ready_state
             and all(
                 contract[field] is None
-                for field in ("gate", "route", "continuation_artifact_role")
+                for field in (
+                    "input_condition",
+                    "gate",
+                    "route",
+                    "continuation_artifact_role",
+                )
             ),
             "runtime_schema_case_contract_invalid",
             f"{workflow}/{case_kind}: values",
@@ -1441,15 +2390,67 @@ def runtime_case_contract(
     else:
         require(
             contract["expected_final_state"]
-            in {"stopped", "blocked", "independent_review_pending"}
+            in {
+                "stopped",
+                "blocked",
+                "independent_review_pending",
+                "no_defensible_option",
+            }
             and all(
                 isinstance(contract[field], str) and bool(contract[field])
-                for field in ("gate", "route", "continuation_artifact_role")
+                for field in (
+                    "input_condition",
+                    "gate",
+                    "route",
+                    "continuation_artifact_role",
+                )
             ),
             "runtime_schema_case_contract_invalid",
             f"{workflow}/{case_kind}: values",
         )
     return contract
+
+
+def validate_reviewer_unavailable_fault_injection(
+    schema: dict[str, Any], registry: dict[str, Any]
+) -> dict[str, Any]:
+    """Keep reviewer-unavailable coverage separate from live control receipts."""
+
+    contract = schema.get("x-phase7-contract", {}).get(
+        "fault_injection_contracts", {}
+    ).get("reviewer_unavailable")
+    expected = {
+        "input_condition": "injected_reviewer_delegation_unavailable",
+        "gate": "required_reviewer_unavailable",
+        "expected_final_state": "independent_review_pending",
+        "route": "resume_in_fresh_delegated_task",
+        "counts_as_live_control": False,
+    }
+    require(
+        contract == expected,
+        "reviewer_unavailable_fault_contract",
+        str(contract),
+    )
+    transitions = registry.get("workflow_state_policy", {}).get(
+        "lifecycle_transitions", []
+    )
+    require(
+        any(
+            transition.get("from") == "*"
+            and transition.get("to") == contract["expected_final_state"]
+            and transition.get("trigger") == contract["gate"]
+            for transition in transitions
+        ),
+        "reviewer_unavailable_fault_route",
+        str(contract),
+    )
+    return {
+        "status": "passed",
+        "fault": "reviewer_unavailable",
+        "derived_state": contract["expected_final_state"],
+        "route": contract["route"],
+        "counts_as_live_control": False,
+    }
 
 
 def validate_runtime_receipt_declaration(
@@ -1471,12 +2472,19 @@ def validate_runtime_receipt_declaration(
     )
     if receipt.get("case_kind") == "happy":
         require(
-            control_evidence.get("gate") is None
+            control_evidence.get("input_condition") is None
+            and control_evidence.get("gate") is None
             and control_evidence.get("route") is None,
             "runtime_happy_control_evidence_present",
             str(receipt.get("receipt_id")),
         )
     else:
+        require(
+            control_evidence.get("input_condition")
+            == contract["input_condition"],
+            "runtime_control_input_condition_mismatch",
+            str(receipt.get("receipt_id")),
+        )
         require(
             control_evidence.get("gate") == contract["gate"],
             "runtime_control_gate_mismatch",
@@ -1505,6 +2513,7 @@ def runtime_actor_role_contract(
     mapping = contract.get("registry_roles_by_actor_role")
     finalizer_roles = contract.get("finalizer_roles")
     happy_required_roles = contract.get("happy_required_roles")
+    happy_roles_by_profile = contract.get("happy_required_roles_by_workflow_profile")
     require(
         isinstance(allowed_roles, list)
         and bool(allowed_roles)
@@ -1522,6 +2531,12 @@ def runtime_actor_role_contract(
         and isinstance(happy_required_roles, list)
         and set(happy_required_roles)
         == {"orchestrator", "writer", "evaluator", "panel"}
+        and isinstance(happy_roles_by_profile, dict)
+        and set(happy_roles_by_profile)
+        == {"default", "reviewer_matrix_assemble_evaluate"}
+        and happy_roles_by_profile["default"] == happy_required_roles
+        and set(happy_roles_by_profile["reviewer_matrix_assemble_evaluate"])
+        == {"orchestrator", "strategy_reviewer", "assembler", "evaluator"}
         and contract.get("unknown_roles_rejected") is True
         and contract.get("registry_role_mapping_enforced") is True
         and contract.get("orchestrator_skill_must_match_workflow") is True,
@@ -1549,10 +2564,20 @@ def runtime_actor_role_contract(
                 "workflow_orchestrator_actor_required",
                 "workflow_orchestrator_skill_matches_registry",
                 "finalizer_role_matches_registry_final_package_skill",
+                "artifact_creator_reviewer_finalizer_ids_pairwise_disjoint",
+                "strategy_reviewer_roles_exactly_match_registry_review_group",
             )
         ),
         "runtime_actor_role_contract_invalid",
         "schema actor-role flags",
+    )
+    require(
+        schema_actor_contract.get("panel_actor_required_fields")
+        == ["panel_tier", "panel_role"]
+        and schema_actor_contract.get("strategy_reviewer_actor_required_fields")
+        == ["strategy_role"],
+        "runtime_actor_role_contract_invalid",
+        "schema role-specific fields",
     )
     schema_access = schema.get("x-phase7-contract", {}).get(
         "reviewer_access_contract", {}
@@ -1570,7 +2595,7 @@ def runtime_actor_role_contract(
                 "runtime_evaluator_forbidden_source_actor_roles", []
             )
         )
-        == {"evaluator", "panel", "verifier_compositor"}
+        == {"evaluator", "panel", "strategy_reviewer", "verifier_compositor"}
         and registry_blindness.get("evaluator_prior_scores_visible") is False
         and registry_blindness.get("evaluator_may_read_prior_reviewer_outputs")
         is False,
@@ -1587,6 +2612,12 @@ def validate_runtime_receipt(
     schema: dict[str, Any],
     expected_source_commit: str | None,
     root: Path,
+    evidence_result: (
+        ExternalRuntimeAttestation
+        | EvidenceValidationResult
+        | _TestOnlyAuthenticatedAttestation
+        | None
+    ) = None,
 ) -> dict[str, Any]:
     required = schema["$defs"]["runtime_receipt"]["required"]
     missing = sorted(set(required) - set(receipt))
@@ -1607,7 +2638,6 @@ def validate_runtime_receipt(
         "runtime_binding_missing",
         f"{receipt['receipt_id']}: {missing_bindings}",
     )
-
     binding = receipt["binding"]
     current_registry_digest = sha256_repository_file(REGISTRY_PATH)
     require(
@@ -1639,6 +2669,71 @@ def validate_runtime_receipt(
         "runtime_task_id_missing",
         receipt["receipt_id"],
     )
+    verification_level: str | None = None
+    evidence_accounting_status = "contract_self_test_only"
+    external_evidence_id: str | None = None
+    external_live_result_digest: str | None = None
+    external_verifier_workflow_run_id: int | None = None
+    external_verified_at: str | None = None
+    if evidence_result is not None:
+        if _is_valid_external_runtime_attestation(evidence_result):
+            attestation = evidence_result
+            integrity_result = attestation.integrity_result
+            promoted_counts_as_preview = attestation.counts_as_preview_acceptance
+            promoted_provider_verified = attestation.provider_verified
+            verification_level = attestation.verification_level
+            evidence_accounting_status = "externally_attested_runtime_evidence"
+            external_evidence_id = attestation.evidence_id
+            external_live_result_digest = attestation.live_result_digest
+            external_verifier_workflow_run_id = (
+                attestation.verifier_workflow_run_id
+            )
+            external_verified_at = attestation.verified_at
+        elif _is_valid_test_only_attestation(evidence_result):
+            attestation = evidence_result
+            integrity_result = attestation.integrity_result
+            promoted_counts_as_preview = attestation.counts_as_preview_acceptance
+            promoted_provider_verified = attestation.provider_verified
+            verification_level = attestation.verification_level
+            evidence_accounting_status = (
+                "synthetic_authenticated_reachability_only"
+            )
+        elif isinstance(evidence_result, EvidenceValidationResult):
+            raise ModeViolation(
+                "runtime_evidence_authenticated_attestation_missing",
+                "an integrity-only core result cannot promote a runtime receipt",
+            )
+        else:
+            raise ModeViolation(
+                "runtime_evidence_attestation_type_invalid",
+                receipt["receipt_id"],
+            )
+        require(
+            promoted_counts_as_preview is True,
+            "runtime_evidence_not_preview_acceptable",
+            receipt["receipt_id"],
+        )
+        require(
+            verification_level in ACCEPTANCE_LEVELS
+            and promoted_provider_verified
+            is (verification_level == PROVIDER_VERIFIED),
+            "runtime_evidence_verification_level_invalid",
+            receipt["receipt_id"],
+        )
+        result_identity = integrity_result.source_identity
+        require(
+            result_identity.get("plugin_version") == binding["plugin_version"]
+            and result_identity.get("source_commit") == binding["source_commit"]
+            and result_identity.get("registry_sha256")
+            == binding["registry_sha256"],
+            "runtime_evidence_source_identity_mismatch",
+            receipt["receipt_id"],
+        )
+        require(
+            integrity_result.raw_export_sha256 == task_export["sha256"],
+            "runtime_evidence_raw_export_mismatch",
+            receipt["receipt_id"],
+        )
     task_export_path = resolve_durable_file(
         task_export, root=root, label=f"{receipt['receipt_id']}.task_export"
     )
@@ -1726,6 +2821,7 @@ def validate_runtime_receipt(
     }
     skill_contracts = {skill["name"]: skill for skill in registry["skills"]}
     machine = registry["workflow_state_machines"][receipt["workflow"]]
+    runtime_profile = machine.get("workflow_profile", "default")
     expected_evaluator_skill = machine["evaluator_skill"]
     expected_writer_skills = set(machine["primary_writer_skills"])
     expected_panel_skill = panel_skill_for(
@@ -1734,6 +2830,17 @@ def validate_runtime_receipt(
     )
     expected_panel_tier, expected_panel_roles = default_panel_roles(
         receipt["workflow"], registry
+    )
+    strategy_group_contract = (
+        registry["scenario_eval_contract"].get("review_group_contracts", {}).get(
+            receipt["workflow"]
+        )
+    )
+    expected_strategy_skill = (
+        strategy_group_contract["skill"] if strategy_group_contract else None
+    )
+    expected_strategy_roles = (
+        list(strategy_group_contract["roles"]) if strategy_group_contract else []
     )
     expected_final_skill = machine["final_package_skill"]
     expected_final_role = (
@@ -1747,6 +2854,7 @@ def validate_runtime_receipt(
         f"{receipt['workflow']}: finalizer role",
     )
     panel_role_instances: dict[str, str] = {}
+    strategy_role_instances: dict[str, str] = {}
     for actor in actors:
         require(isinstance(actor, dict), "runtime_actor_manifest_schema", receipt["receipt_id"])
         require(
@@ -1792,6 +2900,7 @@ def validate_runtime_receipt(
                 actor["instance_id"],
             )
         elif actor["role"] == "panel":
+            require(expected_panel_skill is not None, "runtime_panel_skill_mismatch", actor["instance_id"])
             require(
                 actor["skill"] == expected_panel_skill
                 and skill_contract["requires_independent_subagent"] is True
@@ -1808,6 +2917,19 @@ def validate_runtime_receipt(
                 actor["instance_id"],
             )
             panel_role_instances[actor["panel_role"]] = actor["instance_id"]
+        elif actor["role"] == "strategy_reviewer":
+            require(
+                expected_strategy_skill is not None
+                and actor["skill"] == expected_strategy_skill
+                and skill_contract["requires_independent_subagent"] is True
+                and isinstance(actor.get("round_id"), str)
+                and actor["round_id"]
+                and actor.get("strategy_role") in expected_strategy_roles
+                and actor["strategy_role"] not in strategy_role_instances,
+                "runtime_strategy_reviewer_role_mismatch",
+                actor["instance_id"],
+            )
+            strategy_role_instances[actor["strategy_role"]] = actor["instance_id"]
         elif actor["role"] == "orchestrator":
             require(
                 actor["skill"] == machine["orchestrator"],
@@ -1838,11 +2960,19 @@ def validate_runtime_receipt(
         receipt["receipt_id"],
     )
     if receipt["case_kind"] == "happy":
+        required_happy_roles = actor_role_contract[
+            "happy_required_roles_by_workflow_profile"
+        ].get(runtime_profile)
+        require(
+            isinstance(required_happy_roles, list) and bool(required_happy_roles),
+            "runtime_actor_role_contract_invalid",
+            f"{receipt['workflow']}: happy roles",
+        )
         require(
             all(
                 actors_by_role[role]
                 for role in (
-                    *actor_role_contract["happy_required_roles"],
+                    *required_happy_roles,
                     expected_final_role,
                 )
             ),
@@ -1854,16 +2984,36 @@ def validate_runtime_receipt(
             "runtime_fresh_evaluator_round_missing",
             receipt["receipt_id"],
         )
+        if machine.get("post_evaluation_panel_required", True):
+            require(
+                set(panel_role_instances) == set(expected_panel_roles)
+                and len(set(panel_role_instances.values())) == len(expected_panel_roles),
+                "runtime_panel_role_mismatch",
+                receipt["receipt_id"],
+            )
+            require(
+                task_export_document.get("panel_tier") == expected_panel_tier
+                and task_export_document.get("panel_role_instances") == panel_role_instances,
+                "runtime_task_export_actor_contract_mismatch",
+                receipt["receipt_id"],
+            )
+        else:
+            require(
+                not panel_role_instances
+                and set(strategy_role_instances) == set(expected_strategy_roles)
+                and len(set(strategy_role_instances.values()))
+                == strategy_group_contract["required_instance_count"],
+                "runtime_strategy_reviewer_role_mismatch",
+                receipt["receipt_id"],
+            )
+            require(
+                task_export_document.get("strategy_role_instances")
+                == strategy_role_instances,
+                "runtime_task_export_actor_contract_mismatch",
+                receipt["receipt_id"],
+            )
         require(
-            set(panel_role_instances) == set(expected_panel_roles)
-            and len(set(panel_role_instances.values())) == len(expected_panel_roles),
-            "runtime_panel_role_mismatch",
-            receipt["receipt_id"],
-        )
-        require(
-            task_export_document.get("panel_tier") == expected_panel_tier
-            and task_export_document.get("panel_role_instances") == panel_role_instances
-            and task_export_document.get("final_package_actor_instance_id")
+            task_export_document.get("final_package_actor_instance_id")
             in actors_by_role[expected_final_role],
             "runtime_task_export_actor_contract_mismatch",
             receipt["receipt_id"],
@@ -1880,6 +3030,8 @@ def validate_runtime_receipt(
     final_package_artifacts: list[dict[str, Any]] = []
     review_output_roles = {
         "evaluation_report",
+        "research_polisher_evaluation_report",
+        "research_polisher_strategy_report",
         "review_report",
         "audit_report",
         "panel_report",
@@ -1892,7 +3044,18 @@ def validate_runtime_receipt(
         .get("verifier_compositor_outputs", {})
         .get(expected_final_skill, [])
     )
-    assembler_outputs = {"final_handoff_package", "review_finding_index"}
+    assembler_outputs = {
+        "final_handoff_package",
+        "review_finding_index",
+        "strategy_report_manifest",
+        "research_polisher_candidate_portfolio",
+        "research_polisher_selection_dossier",
+        "revision_delta",
+    }
+    final_package_roles = {
+        "final_handoff_package",
+        "research_polisher_selection_dossier",
+    }
     artifact_required = {
         "artifact_id",
         "version_id",
@@ -1940,7 +3103,7 @@ def validate_runtime_receipt(
                 "runtime_artifact_creator_skill_mismatch",
                 artifact_ref,
             )
-            if creator["role"] in {"evaluator", "panel"}:
+            if creator["role"] in {"evaluator", "panel", "strategy_reviewer"}:
                 require(
                     artifact["artifact_role"] in review_output_roles,
                     "runtime_reviewer_wrote_source_artifact",
@@ -1960,7 +3123,7 @@ def validate_runtime_receipt(
                     artifact_ref,
                 )
         require(artifact["status"] == "frozen", "runtime_artifact_not_frozen", artifact_ref)
-        if artifact["artifact_role"] == "final_handoff_package":
+        if artifact["artifact_role"] in final_package_roles:
             final_package_count += 1
             final_package_artifacts.append(artifact)
             creator = actor_by_id.get(artifact["created_by_instance_id"])
@@ -2116,6 +3279,7 @@ def validate_runtime_receipt(
     reviewer_like_ids = (
         actors_by_role["evaluator"]
         | actors_by_role["panel"]
+        | actors_by_role["strategy_reviewer"]
         | actors_by_role["verifier_compositor"]
     )
     for reviewer_id in reviewer_like_ids:
@@ -2145,6 +3309,17 @@ def validate_runtime_receipt(
                     if path in artifacts_by_path
                 ),
                 "runtime_panel_peer_output_visible",
+                reviewer_id,
+            )
+        if reviewer_id in actors_by_role["strategy_reviewer"]:
+            require(
+                all(
+                    artifacts_by_path[path]["artifact_role"]
+                    not in review_output_roles
+                    for path in read_paths_by_actor[reviewer_id]
+                    if path in artifacts_by_path
+                ),
+                "runtime_strategy_reviewer_peer_output_visible",
                 reviewer_id,
             )
     for evaluator_id in actors_by_role["evaluator"]:
@@ -2206,6 +3381,13 @@ def validate_runtime_receipt(
                 "runtime_panel_role_mismatch",
                 artifact["path"],
             )
+        elif creator["role"] == "strategy_reviewer":
+            require(
+                report.get("strategy_role") == creator.get("strategy_role")
+                and report.get("peer_outputs_visible") is False,
+                "runtime_strategy_reviewer_role_mismatch",
+                artifact["path"],
+            )
         input_refs = report.get("input_artifact_refs")
         require(
             isinstance(input_refs, list)
@@ -2229,7 +3411,11 @@ def validate_runtime_receipt(
             evaluator_inputs.update(input_refs)
         elif creator["role"] == "panel":
             panel_inputs.update(input_refs)
-    for reviewer_id in actors_by_role["evaluator"] | actors_by_role["panel"]:
+    for reviewer_id in (
+        actors_by_role["evaluator"]
+        | actors_by_role["panel"]
+        | actors_by_role["strategy_reviewer"]
+    ):
         require(
             review_outputs_by_actor[reviewer_id] > 0,
             "runtime_reviewer_output_missing",
@@ -2237,11 +3423,16 @@ def validate_runtime_receipt(
         )
     if receipt["case_kind"] == "happy":
         require(
-            lineage["current_artifact_ref"] in evaluator_inputs
-            and lineage["current_artifact_ref"] in panel_inputs,
+            lineage["current_artifact_ref"] in evaluator_inputs,
             "runtime_current_version_review_missing",
             receipt["receipt_id"],
         )
+        if machine.get("post_evaluation_panel_required", True):
+            require(
+                lineage["current_artifact_ref"] in panel_inputs,
+                "runtime_current_version_review_missing",
+                receipt["receipt_id"],
+            )
         require(
             any(ref != lineage["current_artifact_ref"] for ref in evaluator_inputs),
             "runtime_fresh_evaluator_round_missing",
@@ -2289,14 +3480,24 @@ def validate_runtime_receipt(
     )
     control_evidence = receipt.get("control_evidence")
     require(isinstance(control_evidence, dict), "runtime_control_contract", receipt["receipt_id"])
-    control_fields = ("gate", "finding", "route", "continuation_artifact_ref")
+    control_fields = (
+        "input_condition",
+        "gate",
+        "finding",
+        "route",
+        "continuation_artifact_ref",
+    )
     if receipt["case_kind"] == "happy":
         require(
             all(control_evidence.get(field) is None for field in control_fields),
             "runtime_happy_control_evidence_present",
             receipt["receipt_id"],
         )
-        require(receipt["final_state"] == "human_signoff_required", "runtime_happy_not_ready", receipt["receipt_id"])
+        require(
+            receipt["final_state"] == case_contract["expected_final_state"],
+            "runtime_happy_not_ready",
+            receipt["receipt_id"],
+        )
         require(not unresolved_fatal, "runtime_false_ready", receipt["receipt_id"])
         require(
             lineage["evaluated_artifact_ref"] == lineage["current_artifact_ref"],
@@ -2413,6 +3614,12 @@ def validate_runtime_receipt(
         "workflow": receipt["workflow"],
         "case_kind": receipt["case_kind"],
         "status": "verified",
+        "verification_level": verification_level,
+        "evidence_accounting_status": evidence_accounting_status,
+        "external_evidence_id": external_evidence_id,
+        "external_live_result_digest": external_live_result_digest,
+        "external_verifier_workflow_run_id": external_verifier_workflow_run_id,
+        "external_verified_at": external_verified_at,
         "platform": task_export["platform"],
         "task_id": task_export["task_id"],
         "task_export_path": task_export["path"],
@@ -2428,17 +3635,75 @@ def validate_runtime_receipt(
     }
 
 
-def authenticated_platform_adapter_available(collection: dict[str, Any]) -> bool:
+def authenticated_platform_adapter_available(
+    collection: dict[str, Any],
+    *,
+    supported_adapter_ids: frozenset[str] = SUPPORTED_AUTHENTICATED_PLATFORM_ADAPTERS,
+) -> bool:
     platform_trust = collection.get("platform_trust", {})
     if not isinstance(platform_trust, dict):
         return False
     adapter_id = platform_trust.get("adapter_id")
     return (
         platform_trust.get("adapter_status") == "configured"
+        and platform_trust.get("verification_level") == PROVIDER_VERIFIED
         and platform_trust.get("provider_authenticated") is True
         and isinstance(adapter_id, str)
-        and adapter_id in SUPPORTED_AUTHENTICATED_PLATFORM_ADAPTERS
+        and adapter_id in supported_adapter_ids
     )
+
+
+def preview_attestation_adapter_available(
+    collection: dict[str, Any],
+    *,
+    supported_adapter_ids: frozenset[str] = SUPPORTED_PREVIEW_ATTESTATION_ADAPTERS,
+) -> bool:
+    platform_trust = collection.get("platform_trust", {})
+    if not isinstance(platform_trust, dict):
+        return False
+    adapter_id = platform_trust.get("adapter_id")
+    return (
+        platform_trust.get("adapter_status") == "configured"
+        and platform_trust.get("verification_level") == PREVIEW_ATTESTED
+        and platform_trust.get("provider_authenticated") is False
+        and isinstance(adapter_id, str)
+        and adapter_id in supported_adapter_ids
+    )
+
+
+def configured_runtime_verification_level(
+    collection: dict[str, Any],
+    *,
+    supported_preview_adapter_ids: frozenset[str] = SUPPORTED_PREVIEW_ATTESTATION_ADAPTERS,
+    supported_provider_adapter_ids: frozenset[str] = SUPPORTED_AUTHENTICATED_PLATFORM_ADAPTERS,
+) -> str | None:
+    if authenticated_platform_adapter_available(
+        collection, supported_adapter_ids=supported_provider_adapter_ids
+    ):
+        return PROVIDER_VERIFIED
+    if preview_attestation_adapter_available(
+        collection, supported_adapter_ids=supported_preview_adapter_ids
+    ):
+        return PREVIEW_ATTESTED
+    return None
+
+
+def accepted_runtime_verification_level(
+    collection: dict[str, Any],
+    external_runtime_session: ExternalRuntimeValidationSession | None,
+) -> str | None:
+    """Return a report-eligible level only from the opaque live session."""
+
+    configured = configured_runtime_verification_level(collection)
+    if external_runtime_session is None:
+        return None
+    require(
+        _is_valid_external_runtime_validation_session(external_runtime_session)
+        and configured == external_runtime_session.verification_level,
+        "runtime_external_session_verification_level_mismatch",
+        f"configured={configured} session={getattr(external_runtime_session, 'verification_level', None)}",
+    )
+    return external_runtime_session.verification_level
 
 
 def validate_runtime_collection(
@@ -2448,11 +3713,14 @@ def validate_runtime_collection(
     registry: dict[str, Any],
     expected_source_commit: str | None,
     root: Path,
+    supported_preview_adapter_ids: frozenset[str] = SUPPORTED_PREVIEW_ATTESTATION_ADAPTERS,
+    supported_provider_adapter_ids: frozenset[str] = SUPPORTED_AUTHENTICATED_PLATFORM_ADAPTERS,
+    validated_evidence_results: dict[str, Any] | None = None,
 ) -> list[dict[str, Any]]:
     collection_contract = schema["x-phase7-contract"].get("collection_contract", {})
     required_collection_flags = {
         "receipt_ids_unique",
-        "all_eight_runs_are_fresh_tasks",
+        "all_ten_runs_are_fresh_tasks",
         "platform_task_ids_unique",
         "task_export_paths_unique",
         "task_export_digests_unique",
@@ -2460,6 +3728,8 @@ def validate_runtime_collection(
         "task_export_binds_actor_manifest",
         "task_export_binds_artifact_index",
         "verified_receipts_share_one_release_identity",
+        "verified_receipts_share_one_verification_level",
+        "preview_attested_is_not_provider_verified",
     }
     require(
         all(collection_contract.get(field) is True for field in required_collection_flags),
@@ -2468,7 +3738,7 @@ def validate_runtime_collection(
     )
     missing_top = sorted(set(schema["required"]) - set(collection))
     require(not missing_top, "runtime_collection_schema", str(missing_top))
-    require(collection["schema_version"] == 1, "runtime_collection_schema", "schema_version")
+    require(collection["schema_version"] == 2, "runtime_collection_schema", "schema_version")
     require(
         collection["evidence_kind"] == "current_version_durable_runtime_receipts",
         "runtime_collection_schema",
@@ -2483,6 +3753,7 @@ def validate_runtime_collection(
     required_trust_fields = {
         "adapter_status",
         "adapter_id",
+        "verification_level",
         "provider_authenticated",
         "reason",
     }
@@ -2492,8 +3763,10 @@ def validate_runtime_collection(
         "runtime_platform_trust_schema",
         str(sorted(required_trust_fields - set(platform_trust))),
     )
-    authenticated_platform_adapter = authenticated_platform_adapter_available(
-        collection
+    configured_verification_level = configured_runtime_verification_level(
+        collection,
+        supported_preview_adapter_ids=supported_preview_adapter_ids,
+        supported_provider_adapter_ids=supported_provider_adapter_ids,
     )
     require(
         isinstance(platform_trust.get("reason"), str)
@@ -2502,7 +3775,7 @@ def validate_runtime_collection(
         "reason",
     )
     receipts = collection["receipts"]
-    require(isinstance(receipts, list) and len(receipts) == 8, "runtime_receipt_count", str(len(receipts)))
+    require(isinstance(receipts, list) and len(receipts) == 10, "runtime_receipt_count", str(len(receipts)))
     required_pairs = [tuple(pair) for pair in schema["x-phase7-contract"]["required_workflow_case_pairs"]]
     actual_pairs = [(receipt.get("workflow"), receipt.get("case_kind")) for receipt in receipts]
     require(
@@ -2530,9 +3803,34 @@ def validate_runtime_collection(
             receipt["receipt_id"],
         )
         if receipt["status"] == "verified":
+            evidence_result = (validated_evidence_results or {}).get(
+                receipt["receipt_id"]
+            )
             require(
-                authenticated_platform_adapter,
+                configured_verification_level is not None,
                 "runtime_platform_trust_unavailable",
+                receipt["receipt_id"],
+            )
+            require(
+                evidence_result is not None,
+                "runtime_evidence_validation_missing",
+                receipt["receipt_id"],
+            )
+            if isinstance(evidence_result, EvidenceValidationResult):
+                raise ModeViolation(
+                    "runtime_evidence_authenticated_attestation_missing",
+                    receipt["receipt_id"],
+                )
+            require(
+                _is_valid_external_runtime_attestation(evidence_result)
+                or _is_valid_test_only_attestation(evidence_result),
+                "runtime_evidence_attestation_type_invalid",
+                receipt["receipt_id"],
+            )
+            require(
+                evidence_result.verification_level
+                == configured_verification_level,
+                "runtime_verification_level_mismatch",
                 receipt["receipt_id"],
             )
             results.append(
@@ -2542,9 +3840,16 @@ def validate_runtime_collection(
                     schema=schema,
                     expected_source_commit=expected_source_commit,
                     root=root,
+                    evidence_result=evidence_result,
                 )
             )
         else:
+            require(
+                receipt.get("verification_level") is None
+                and receipt.get("attestation") is None,
+                "runtime_pending_receipt_claims_evidence",
+                receipt["receipt_id"],
+            )
             results.append(
                 {
                     "receipt_id": receipt["receipt_id"],
@@ -2555,6 +3860,16 @@ def validate_runtime_collection(
                 }
             )
     verified = [item for item in results if item["status"] == "verified"]
+    verified_levels = {item["verification_level"] for item in verified}
+    require(
+        len(verified_levels) <= 1
+        and (
+            not verified_levels
+            or verified_levels == {configured_verification_level}
+        ),
+        "runtime_mixed_verification_levels",
+        str(sorted(verified_levels)),
+    )
     for field in ("task_id", "task_export_path", "task_export_sha256"):
         values = [item[field] for item in verified]
         require(
@@ -2576,6 +3891,170 @@ def write_json_file(path: Path, value: dict[str, Any]) -> None:
         json.dumps(value, indent=2, ensure_ascii=False, sort_keys=True) + "\n",
         encoding="utf-8",
         newline="\n",
+    )
+
+
+def _build_test_only_attested_evidence(
+    *,
+    raw_payload: bytes,
+    registry: dict[str, Any],
+    source_commit: str,
+    verification_level: str,
+    raw_evidence_kind: str = "task_export",
+) -> _TestOnlyAuthenticatedAttestation:
+    """Build R->E->V->I, then simulate a scoped outer attestation."""
+
+    require(
+        verification_level in ACCEPTANCE_LEVELS,
+        "synthetic_evidence_level",
+        verification_level,
+    )
+    source_identity = {
+        "plugin_version": registry["plugin_version"],
+        "source_commit": source_commit,
+        "manifest_sha256": "sha256:" + "1" * 64,
+        "registry_sha256": sha256_repository_file(REGISTRY_PATH),
+        "skill_tree_sha256": "sha256:" + "2" * 64,
+    }
+    payloads: dict[int, bytes] = {101: raw_payload}
+    asset_records: list[dict[str, Any]] = [
+        {
+            "asset_id": 101,
+            "name": "synthetic-task-export.json",
+            "sha256": evidence_sha256_bytes(raw_payload),
+            "size": len(raw_payload),
+            "evidence_kind": raw_evidence_kind,
+        }
+    ]
+    provider_payload: bytes | None = None
+    if verification_level == PROVIDER_VERIFIED:
+        provider_payload = b'{"provider":"synthetic-self-test"}\n'
+        payloads[102] = provider_payload
+        asset_records.append(
+            {
+                "asset_id": 102,
+                "name": "synthetic-provider-receipt.json",
+                "sha256": evidence_sha256_bytes(provider_payload),
+                "size": len(provider_payload),
+                "evidence_kind": "provider_receipt",
+            }
+        )
+    capture = {
+        "surface": "codex",
+        "task_or_thread_id": "phase7-synthetic-self-test",
+        "captured_at": "2026-07-13T00:00:00Z",
+        "raw_export_asset_id": 101,
+        "raw_export_sha256": evidence_sha256_bytes(raw_payload),
+    }
+    if verification_level == PROVIDER_VERIFIED:
+        capture["provider_receipt_asset_id"] = 102
+    envelope = {
+        "schema_version": "openai-preview-evidence-envelope/v1",
+        "evidence_id": f"phase7-{verification_level}-self-test",
+        "verification_level": verification_level,
+        "provider_verified": verification_level == PROVIDER_VERIFIED,
+        "counts_as_preview_acceptance": True,
+        "source_identity": source_identity,
+        "adapter": {
+            "adapter_id": "phase7-synthetic-capture",
+            "adapter_code_sha256": "sha256:" + "3" * 64,
+        },
+        "capture": capture,
+        "github_witness": {
+            "repository": "xuxu-wei/research-skills",
+            "release_id": 7001,
+            "release_tag": "phase7-synthetic-self-test",
+            "workflow_run_id": 7002,
+            "actor": "phase7-self-test",
+            "raw_export_asset_id": 101,
+            "source_commit": source_commit,
+        },
+        "expected_verifier": {
+            "verifier_id": "phase7-independent-self-test",
+            "verifier_code_sha256": "sha256:" + "4" * 64,
+            "independent": True,
+        },
+    }
+    envelope_bytes = canonical_json_bytes(envelope)
+    payloads[103] = envelope_bytes
+    asset_records.append(
+        {
+            "asset_id": 103,
+            "name": "synthetic-evidence-envelope.json",
+            "sha256": evidence_sha256_bytes(envelope_bytes),
+            "size": len(envelope_bytes),
+            "evidence_kind": "evidence_envelope",
+        }
+    )
+    verifier_report = {
+        "schema_version": "openai-preview-verifier-report/v1",
+        "verifier_id": "phase7-independent-self-test",
+        "verifier_code_sha256": "sha256:" + "4" * 64,
+        "independent": True,
+        "verified_at": "2026-07-13T00:02:00Z",
+        "verdict": "accepted",
+        "source_identity": source_identity,
+        "envelope_asset_id": 103,
+        "envelope_sha256": evidence_sha256_bytes(envelope_bytes),
+        "raw_export_asset_id": 101,
+        "raw_export_sha256": evidence_sha256_bytes(raw_payload),
+    }
+    if verification_level == PROVIDER_VERIFIED:
+        require(
+            provider_payload is not None,
+            "synthetic_provider_payload_missing",
+            verification_level,
+        )
+        verifier_report.update(
+            {
+                "provider_receipt_asset_id": 102,
+                "provider_receipt_sha256": evidence_sha256_bytes(
+                    provider_payload
+                ),
+                "provider_attestation_checked": True,
+            }
+        )
+    verifier_report_bytes = canonical_json_bytes(verifier_report)
+    payloads[104] = verifier_report_bytes
+    asset_records.append(
+        {
+            "asset_id": 104,
+            "name": "synthetic-verifier-report.json",
+            "sha256": evidence_sha256_bytes(verifier_report_bytes),
+            "size": len(verifier_report_bytes),
+            "evidence_kind": "verifier_report",
+        }
+    )
+    index = {
+        "schema_version": "openai-preview-release-asset-index/v1",
+        "source_identity": source_identity,
+        "github_release": {
+            "repository": "xuxu-wei/research-skills",
+            "release_id": 7001,
+            "release_tag": "phase7-synthetic-self-test",
+        },
+        "github_witness": {
+            "workflow_run_id": 7002,
+            "actor": "phase7-self-test",
+            "source_commit": source_commit,
+            "witnessed_at": "2026-07-13T00:01:00Z",
+        },
+        "assets": asset_records,
+    }
+    index_bytes = canonical_json_bytes(index)
+    integrity_result = validate_evidence_bundle(
+        envelope,
+        index,
+        lambda record: payloads[int(record["asset_id"])],
+        envelope_bytes=envelope_bytes,
+        expected_source_identity=source_identity,
+        index_bytes=index_bytes,
+        now=datetime(2026, 7, 13, 1, 0, 0, tzinfo=timezone.utc),
+    )
+    return _issue_test_only_authenticated_attestation(
+        integrity_result,
+        verification_level=verification_level,
+        capability=_SYNTHETIC_ATTESTATION_CAPABILITY,
     )
 
 
@@ -3143,6 +4622,7 @@ def build_runtime_validator_fixture(
     write_json_file(task_path, task_export)
     receipt["binding"]["task_export"]["sha256"] = sha256_file(task_path)
     receipt["control_evidence"] = {
+        "input_condition": None,
         "gate": None,
         "finding": None,
         "route": None,
@@ -3159,6 +4639,7 @@ def build_runtime_control_validator_fixture(
     receipt["expected_final_state"] = "stopped"
     receipt["final_state"] = "stopped"
     receipt["control_evidence"] = {
+        "input_condition": "independent_review_no_incremental_gain",
         "gate": "unfixable_no_gain_or_user_stop",
         "finding": "no_further_gain_under_current_scope",
         "route": "human_review_or_explicit_resume",
@@ -3169,6 +4650,7 @@ def build_runtime_control_validator_fixture(
         continuation_path,
         {
             "schema_version": 1,
+            "input_condition": receipt["control_evidence"]["input_condition"],
             "gate": receipt["control_evidence"]["gate"],
             "finding": receipt["control_evidence"]["finding"],
             "route": receipt["control_evidence"]["route"],
@@ -3318,7 +4800,11 @@ def run_runtime_validator_self_tests(
             refresh_linked_bindings(mutated)
 
         def expect_collection_rejection(
-            mutated: dict[str, Any], mutation: str, expected_code: str
+            mutated: dict[str, Any],
+            mutation: str,
+            expected_code: str,
+            *,
+            validated_evidence_results: dict[str, Any] | None = None,
         ) -> None:
             try:
                 validate_runtime_collection(
@@ -3327,6 +4813,7 @@ def run_runtime_validator_self_tests(
                     registry=registry,
                     expected_source_commit=fake_commit,
                     root=root,
+                    validated_evidence_results=validated_evidence_results,
                 )
             except ModeViolation as exc:
                 require(
@@ -3352,13 +4839,449 @@ def run_runtime_validator_self_tests(
             expected_source_commit=fake_commit,
             root=root,
         )
+        raw_payload = (
+            root / Path(*PurePosixPath(valid["binding"]["task_export"]["path"]).parts)
+        ).read_bytes()
+        integrity_results: dict[str, EvidenceValidationResult] = {}
+        for verification_level in (PREVIEW_ATTESTED, PROVIDER_VERIFIED):
+            evidence_result = _build_test_only_attested_evidence(
+                raw_payload=raw_payload,
+                registry=registry,
+                source_commit=fake_commit,
+                verification_level=verification_level,
+            )
+            integrity_results[verification_level] = evidence_result.integrity_result
+            accounted = validate_runtime_receipt(
+                valid,
+                registry=registry,
+                schema=schema,
+                expected_source_commit=fake_commit,
+                root=root,
+                evidence_result=evidence_result,
+            )
+            require(
+                accounted["verification_level"] == verification_level
+                and accounted["evidence_accounting_status"]
+                == "synthetic_authenticated_reachability_only",
+                "runtime_evidence_accounting_mapping",
+                verification_level,
+            )
+            require(
+                evidence_result.counts_as_runtime_evidence is False,
+                "synthetic_attestation_runtime_evidence_leak",
+                verification_level,
+            )
+            if verification_level == PREVIEW_ATTESTED:
+                try:
+                    validate_runtime_receipt(
+                        valid,
+                        registry=registry,
+                        schema=schema,
+                        expected_source_commit=fake_commit,
+                        root=root,
+                        evidence_result=evidence_result.integrity_result,
+                    )
+                except ModeViolation as exc:
+                    require(
+                        exc.code
+                        == "runtime_evidence_authenticated_attestation_missing",
+                        "runtime_negative_wrong_error",
+                        f"integrity_only_promotion: {exc.code}",
+                    )
+                    results.append(
+                        {
+                            "mutation": "integrity_only_result_promoted_without_attestation",
+                            "status": "rejected_as_expected",
+                            "error_code": exc.code,
+                        }
+                    )
+                else:
+                    raise ModeViolation(
+                        "runtime_negative_accepted",
+                        "integrity_only_result_promoted_without_attestation",
+                    )
 
-        for workflow in ("idea", "proposal", "article", "perspective"):
+        class SyntheticRuntimeLiveVerifier:
+            adapter_id = PREVIEW_RUNTIME_ATTESTATION_ADAPTER_ID
+
+            def __init__(self, mutator: Any = None) -> None:
+                self.mutator = mutator
+                self.call_count = 0
+
+            def __call__(self, request: dict[str, Any]) -> dict[str, Any]:
+                self.call_count += 1
+                integrity = integrity_results[PREVIEW_ATTESTED]
+                document = {
+                    "schema_version": 3,
+                    "verification_level": PREVIEW_ATTESTED,
+                    "provider_verified": False,
+                    "source_identity": dict(integrity.source_identity),
+                    "integrity_result": _integrity_result_contract(integrity),
+                    "live_verifier": {
+                        "adapter_id": self.adapter_id,
+                        "live_requery_performed": True,
+                        "requery_source": "github_api",
+                        "independent": True,
+                        "verifier_workflow_run_id": 7003,
+                        "verified_at": "2026-07-13T00:03:00Z",
+                    },
+                    "gate_eligibility": {
+                        "eligible": True,
+                        "level": PREVIEW_ATTESTED,
+                        "determined_by": "registered_live_verifier",
+                        "provider_adapter_id": None,
+                        "provider_authenticated": False,
+                    },
+                }
+                if callable(self.mutator):
+                    self.mutator(document)
+                return document
+
+        preview_integrity = integrity_results[PREVIEW_ATTESTED]
+        live_request = {
+            "receipt_id": valid["receipt_id"],
+            "evidence_id": preview_integrity.evidence_id,
+            "adapter_id": PREVIEW_RUNTIME_ATTESTATION_ADAPTER_ID,
+            "expected_verification_level": PREVIEW_ATTESTED,
+            "expected_source_identity": dict(preview_integrity.source_identity),
+        }
+        live_verifier = SyntheticRuntimeLiveVerifier()
+        external_attestation = issue_external_runtime_attestation(
+            preview_integrity,
+            receipt_id=valid["receipt_id"],
+            live_verifier=live_verifier,
+            live_verifier_request=live_request,
+            expected_adapter_id=PREVIEW_RUNTIME_ATTESTATION_ADAPTER_ID,
+        )
+        require(
+            live_verifier.call_count == 1
+            and external_attestation.counts_as_runtime_evidence is True,
+            "runtime_external_attestation_factory_not_exercised",
+            valid["receipt_id"],
+        )
+        externally_accounted = validate_runtime_receipt(
+            valid,
+            registry=registry,
+            schema=schema,
+            expected_source_commit=fake_commit,
+            root=root,
+            evidence_result=external_attestation,
+        )
+        require(
+            externally_accounted["verification_level"] == PREVIEW_ATTESTED
+            and externally_accounted["evidence_accounting_status"]
+            == "externally_attested_runtime_evidence",
+            "runtime_external_attestation_accounting_mapping",
+            valid["receipt_id"],
+        )
+        try:
+            pickle.dumps(external_attestation)
+        except TypeError:
+            results.append(
+                {
+                    "mutation": "serialize_external_runtime_attestation_capability",
+                    "status": "rejected_as_expected",
+                    "error_code": (
+                        "runtime_external_attestation_capability_not_serializable"
+                    ),
+                }
+            )
+        else:
+            raise ModeViolation(
+                "runtime_negative_accepted",
+                "serialize_external_runtime_attestation_capability",
+            )
+
+        configured_collection = copy.deepcopy(collection)
+        configured_collection["platform_trust"] = {
+            "adapter_status": "configured",
+            "adapter_id": PREVIEW_RUNTIME_ATTESTATION_ADAPTER_ID,
+            "verification_level": PREVIEW_ATTESTED,
+            "provider_authenticated": False,
+            "reason": "Synthetic contract exercise of the registered Preview adapter.",
+        }
+        configured_collection["receipts"][0] = copy.deepcopy(valid)
+        configured_results = validate_runtime_collection(
+            configured_collection,
+            schema=schema,
+            registry=registry,
+            expected_source_commit=fake_commit,
+            root=root,
+            validated_evidence_results={valid["receipt_id"]: external_attestation},
+        )
+        require(
+            sum(item["status"] == "verified" for item in configured_results) == 1,
+            "runtime_external_attestation_collection_unreachable",
+            valid["receipt_id"],
+        )
+
+        def expect_external_factory_rejection(
+            mutation: str,
+            expected_code: str,
+            mutator: Any,
+        ) -> None:
+            try:
+                issue_external_runtime_attestation(
+                    preview_integrity,
+                    receipt_id=valid["receipt_id"],
+                    live_verifier=SyntheticRuntimeLiveVerifier(mutator),
+                    live_verifier_request=live_request,
+                    expected_adapter_id=PREVIEW_RUNTIME_ATTESTATION_ADAPTER_ID,
+                )
+            except ModeViolation as exc:
+                require(
+                    exc.code == expected_code,
+                    "runtime_negative_wrong_error",
+                    f"{mutation}: expected {expected_code}, got {exc.code}",
+                )
+                results.append(
+                    {
+                        "mutation": mutation,
+                        "status": "rejected_as_expected",
+                        "error_code": exc.code,
+                    }
+                )
+            else:
+                raise ModeViolation("runtime_negative_accepted", mutation)
+
+        external_result_mutations = (
+            (
+                "external_attestation_wrong_schema",
+                "runtime_external_attestation_schema_invalid",
+                lambda value: value.update(schema_version=2),
+            ),
+            (
+                "external_attestation_wrong_source_identity",
+                "runtime_external_attestation_source_identity_mismatch",
+                lambda value: value["source_identity"].update(source_commit="b" * 40),
+            ),
+            (
+                "external_attestation_wrong_evidence_id",
+                "runtime_external_attestation_integrity_binding_mismatch",
+                lambda value: value["integrity_result"].update(evidence_id="forged"),
+            ),
+            (
+                "external_attestation_wrong_raw_digest",
+                "runtime_external_attestation_integrity_binding_mismatch",
+                lambda value: value["integrity_result"].update(
+                    raw_export_sha256="sha256:" + "0" * 64
+                ),
+            ),
+            (
+                "external_attestation_wrong_envelope_digest",
+                "runtime_external_attestation_integrity_binding_mismatch",
+                lambda value: value["integrity_result"].update(
+                    envelope_sha256="sha256:" + "0" * 64
+                ),
+            ),
+            (
+                "external_attestation_wrong_verifier_report_digest",
+                "runtime_external_attestation_integrity_binding_mismatch",
+                lambda value: value["integrity_result"].update(
+                    verifier_report_sha256="sha256:" + "0" * 64
+                ),
+            ),
+            (
+                "external_attestation_wrong_index_digest",
+                "runtime_external_attestation_integrity_binding_mismatch",
+                lambda value: value["integrity_result"].update(
+                    release_asset_index_sha256="sha256:" + "0" * 64
+                ),
+            ),
+            (
+                "external_attestation_wrong_adapter",
+                "runtime_external_attestation_live_requery_invalid",
+                lambda value: value["live_verifier"].update(adapter_id="forged"),
+            ),
+            (
+                "external_attestation_without_live_requery",
+                "runtime_external_attestation_live_requery_invalid",
+                lambda value: value["live_verifier"].update(
+                    live_requery_performed=False
+                ),
+            ),
+            (
+                "external_attestation_gate_not_eligible",
+                "runtime_external_attestation_gate_invalid",
+                lambda value: value["gate_eligibility"].update(eligible=False),
+            ),
+            (
+                "preview_attestation_claims_provider_authentication",
+                "runtime_external_attestation_preview_provider_confusion",
+                lambda value: value["gate_eligibility"].update(
+                    provider_authenticated=True,
+                    provider_adapter_id="forged-provider",
+                ),
+            ),
+        )
+        for mutation, expected_code, mutator in external_result_mutations:
+            expect_external_factory_rejection(mutation, expected_code, mutator)
+
+        mismatched_request = copy.deepcopy(live_request)
+        mismatched_request["evidence_id"] = "wrong-evidence"
+        try:
+            issue_external_runtime_attestation(
+                preview_integrity,
+                receipt_id=valid["receipt_id"],
+                live_verifier=SyntheticRuntimeLiveVerifier(),
+                live_verifier_request=mismatched_request,
+                expected_adapter_id=PREVIEW_RUNTIME_ATTESTATION_ADAPTER_ID,
+            )
+        except ModeViolation as exc:
+            require(
+                exc.code == "runtime_external_attestation_request_binding_mismatch",
+                "runtime_negative_wrong_error",
+                f"external_request_binding: {exc.code}",
+            )
+            results.append(
+                {
+                    "mutation": "external_attestation_request_evidence_id_mismatch",
+                    "status": "rejected_as_expected",
+                    "error_code": exc.code,
+                }
+            )
+        else:
+            raise ModeViolation(
+                "runtime_negative_accepted",
+                "external_attestation_request_evidence_id_mismatch",
+            )
+
+        try:
+            issue_external_runtime_attestation(
+                integrity_results[PROVIDER_VERIFIED],
+                receipt_id=valid["receipt_id"],
+                live_verifier=SyntheticRuntimeLiveVerifier(),
+                live_verifier_request={},
+                expected_adapter_id=PREVIEW_RUNTIME_ATTESTATION_ADAPTER_ID,
+            )
+        except ModeViolation as exc:
+            require(
+                exc.code == "runtime_external_attestation_adapter_not_allowlisted",
+                "runtime_negative_wrong_error",
+                f"provider_allowlist: {exc.code}",
+            )
+            results.append(
+                {
+                    "mutation": "provider_attestation_without_provider_adapter",
+                    "status": "rejected_as_expected",
+                    "error_code": exc.code,
+                }
+            )
+        else:
+            raise ModeViolation(
+                "runtime_negative_accepted",
+                "provider_attestation_without_provider_adapter",
+            )
+
+        def expect_evidence_type_rejection(
+            evidence_value: Any, mutation: str, expected_code: str
+        ) -> None:
+            try:
+                validate_runtime_receipt(
+                    valid,
+                    registry=registry,
+                    schema=schema,
+                    expected_source_commit=fake_commit,
+                    root=root,
+                    evidence_result=evidence_value,
+                )
+            except ModeViolation as exc:
+                require(
+                    exc.code == expected_code,
+                    "runtime_negative_wrong_error",
+                    f"{mutation}: expected {expected_code}, got {exc.code}",
+                )
+                results.append(
+                    {
+                        "mutation": mutation,
+                        "status": "rejected_as_expected",
+                        "error_code": exc.code,
+                    }
+                )
+            else:
+                raise ModeViolation("runtime_negative_accepted", mutation)
+
+        forged_attestation = ExternalRuntimeAttestation(
+            integrity_result=preview_integrity,
+            verification_level=PREVIEW_ATTESTED,
+            provider_verified=False,
+            counts_as_preview_acceptance=True,
+            counts_as_runtime_evidence=True,
+            adapter_id=PREVIEW_RUNTIME_ATTESTATION_ADAPTER_ID,
+            attestation_scope="phase7_external_runtime_live_requery",
+            live_result_digest="sha256:" + "0" * 64,
+            verifier_workflow_run_id=1,
+            verified_at="2026-07-13T00:00:00Z",
+            _capability=_ExternalRuntimeAttestationCapability(),
+        )
+        for evidence_value, mutation in (
+            (True, "bare_boolean_runtime_attestation"),
+            ({"gate_eligible": True}, "serialized_runtime_attestation_object"),
+            (forged_attestation, "forged_runtime_attestation_capability"),
+        ):
+            expect_evidence_type_rejection(
+                evidence_value,
+                mutation,
+                "runtime_evidence_attestation_type_invalid",
+            )
+
+        expect_collection_rejection(
+            configured_collection,
+            "collection_accepts_bare_boolean_attestation",
+            "runtime_evidence_attestation_type_invalid",
+            validated_evidence_results={valid["receipt_id"]: True},
+        )
+        expect_collection_rejection(
+            configured_collection,
+            "collection_accepts_integrity_only_result",
+            "runtime_evidence_authenticated_attestation_missing",
+            validated_evidence_results={valid["receipt_id"]: preview_integrity},
+        )
+
+        try:
+            _build_test_only_attested_evidence(
+                raw_payload=raw_payload,
+                registry=registry,
+                source_commit=fake_commit,
+                verification_level=PREVIEW_ATTESTED,
+                raw_evidence_kind="screenshot",
+            )
+        except EvidenceValidationError as exc:
+            require(
+                exc.code == "non_substantive_evidence_only",
+                "runtime_negative_wrong_error",
+                f"screenshot_only: {exc.code}",
+            )
+            results.append(
+                {
+                    "mutation": "single_screenshot_without_raw_export",
+                    "status": "rejected_as_expected",
+                    "error_code": exc.code,
+                }
+            )
+        else:
+            raise ModeViolation(
+                "runtime_negative_accepted",
+                "single_screenshot_without_raw_export",
+            )
+
+        for workflow in (
+            "idea",
+            "proposal",
+            "article",
+            "perspective",
+            "research_polisher",
+        ):
             for field, invalid_value, expected_code in (
                 (
                     "expected_final_state",
                     "human_signoff_required",
                     "runtime_expected_state_contract_mismatch",
+                ),
+                (
+                    "input_condition",
+                    "mutable_receipt_selected_input",
+                    "runtime_control_input_condition_mismatch",
                 ),
                 (
                     "gate",
@@ -3857,15 +5780,26 @@ def release_gate_statuses(
     ledger: dict[str, Any],
     registry: dict[str, Any],
     *,
-    synthetic_gate_reachability_override: bool = False,
+    test_only_reachability_capability: _SyntheticAttestationCapability | None = None,
+    live_evidence_verifier: Any = None,
 ) -> dict[str, dict[str, str]]:
+    if test_only_reachability_capability is not None:
+        require(
+            test_only_reachability_capability
+            is _SYNTHETIC_ATTESTATION_CAPABILITY,
+            "synthetic_gate_capability_invalid",
+            "release-gate reachability override requires the private capability",
+        )
+    synthetic_gate_reachability = (
+        test_only_reachability_capability is _SYNTHETIC_ATTESTATION_CAPABILITY
+    )
     release = ledger.get("release", {}) if isinstance(ledger, dict) else {}
     version = registry["plugin_version"]
     source = release.get("source_commit", {})
     source_sha = source.get("sha") if isinstance(source, dict) else None
     source_tree_errors: list[str] = []
     validate_verified_source_commit_tree(release, source_tree_errors)
-    source_tree_verified = synthetic_gate_reachability_override or not source_tree_errors
+    source_tree_verified = synthetic_gate_reachability or not source_tree_errors
     source_verified = (
         isinstance(source, dict)
         and source.get("status") == "verified"
@@ -3891,14 +5825,44 @@ def release_gate_statuses(
     receipts = release.get("receipts", {})
     governance = release.get("governance", {})
     branch = governance.get("main_branch_protection", {}) if isinstance(governance, dict) else {}
-    external_adapter_available = (
-        synthetic_gate_reachability_override
-        or authenticated_external_evidence_adapter_available(release)
+    configured_external_level = configured_external_evidence_level(release)
+    # A status in the source-controlled ledger is only a claim.  Outside the
+    # private reachability self-test, no external gate may advance unless the
+    # caller supplies the one-use live callback that re-queries every locator.
+    external_adapter_available = synthetic_gate_reachability or (
+        configured_external_level is not None
+        and not isinstance(live_evidence_verifier, bool)
+        and callable(live_evidence_verifier)
     )
+    external_adapter_id = release.get("external_evidence_trust", {}).get(
+        "adapter_id"
+    )
+    expected_external_identity = release_source_identity(release)
+
+    def external_status_accepted(record: Any) -> bool:
+        if not isinstance(record, dict):
+            return False
+        if synthetic_gate_reachability:
+            return record.get("status") == "verified"
+        return (
+            external_adapter_available
+            and configured_external_level in ACCEPTANCE_LEVELS
+            and record.get("status") == configured_external_level
+        )
+
+    # Several higher-level gates depend on the same install receipt (for
+    # example, discovery and rollback both depend on the selected install).
+    # The production Release callback is intentionally one-use per immutable
+    # locator, so cache the result of that one live re-query instead of
+    # invoking the callback again while deriving dependent gates.
+    evidence_verification_cache: dict[str, bool] = {}
 
     def evidence_verified(record: Any, evidence_type: str) -> bool:
-        if synthetic_gate_reachability_override:
+        if synthetic_gate_reachability:
             return True
+        cached = evidence_verification_cache.get(evidence_type)
+        if cached is not None:
+            return cached
         evidence_errors: list[str] = []
         validate_bound_external_evidence(
             record,
@@ -3907,10 +5871,15 @@ def release_gate_statuses(
             evidence_errors,
             authenticated_external_adapter=external_adapter_available,
             synthetic_external_trust_override=(
-                synthetic_gate_reachability_override
+                synthetic_gate_reachability
             ),
+            expected_source_identity=expected_external_identity,
+            expected_adapter_id=external_adapter_id,
+            live_evidence_verifier=live_evidence_verifier,
         )
-        return not evidence_errors
+        verified = not evidence_errors
+        evidence_verification_cache[evidence_type] = verified
+        return verified
 
     def cache_artifact_verified(
         artifact: Any, expected_release: dict[str, Any]
@@ -3926,7 +5895,7 @@ def release_gate_statuses(
 
     repository_ci_verified = (
         source_verified
-        and repository_ci.get("status") == "verified"
+        and external_status_accepted(repository_ci)
         and repository_ci.get("run_id") is not None
         and isinstance(repository_ci.get("run_url"), str)
         and bool(repository_ci["run_url"])
@@ -3936,7 +5905,7 @@ def release_gate_statuses(
     )
     canonical_ci_verified = (
         source_verified
-        and canonical_ci.get("status") == "verified"
+        and external_status_accepted(canonical_ci)
         and canonical_ci.get("run_id") is not None
         and canonical_ci.get("commit_sha") == source_sha
         and canonical_ci.get("conclusion") == "success"
@@ -3944,7 +5913,7 @@ def release_gate_statuses(
     )
     marketplace_verified = (
         source_verified
-        and resolved.get("status") == "verified"
+        and external_status_accepted(resolved)
         and resolved.get("sha") == source_sha
         and evidence_verified(resolved, "marketplace_resolved_commit")
     )
@@ -3954,7 +5923,7 @@ def release_gate_statuses(
         cache_artifact = record.get("cache_artifact", {})
         return (
             source_verified
-            and record.get("status") == "verified"
+            and external_status_accepted(record)
             and record.get("installed_version") == version
             and record.get("source_commit") == source_sha
             and isinstance(record.get("cache_path"), str)
@@ -3966,11 +5935,12 @@ def release_gate_statuses(
         )
 
     discovery = receipts.get("fresh_task_discovery", {}) if isinstance(receipts, dict) else {}
-    expected_visible_entries = {
-        skill["name"]
-        for skill in registry["skills"]
-        if skill["invocation_policy"] == "implicit"
-    }
+    expected_explicit_entries = set(
+        registry.get("public_entry_policy", {}).get("declared_entries", [])
+    )
+    expected_implicit_entries = set(
+        registry.get("public_entry_policy", {}).get("implicit_active_entries", [])
+    )
     installed_via = discovery.get("installed_via")
     discovery_install = (
         receipts.get(installed_via, {})
@@ -3980,14 +5950,22 @@ def release_gate_statuses(
     )
     discovery_verified = (
         source_verified
-        and discovery.get("status") == "verified"
+        and external_status_accepted(discovery)
         and discovery.get("plugin_version") == version
         and discovery.get("source_commit") == source_sha
         and isinstance(discovery.get("task_id"), str)
         and bool(discovery["task_id"])
-        and discovery.get("skill_count") == len(registry["skills"])
-        and isinstance(discovery.get("visible_entry_skills"), list)
-        and set(discovery["visible_entry_skills"]) == expected_visible_entries
+        and discovery.get("installed_skill_count") == len(registry["skills"])
+        and discovery.get("explicit_callable_entries")
+        == len(expected_explicit_entries)
+        and discovery.get("implicit_prompt_entries")
+        == len(expected_implicit_entries)
+        and isinstance(discovery.get("explicit_callable_entry_skills"), list)
+        and set(discovery["explicit_callable_entry_skills"])
+        == expected_explicit_entries
+        and isinstance(discovery.get("implicit_prompt_entry_skills"), list)
+        and set(discovery["implicit_prompt_entry_skills"])
+        == expected_implicit_entries
         and isinstance(discovery_install, dict)
         and install_receipt_verified(str(installed_via))
         and discovery.get("cache_artifact")
@@ -4002,7 +5980,7 @@ def release_gate_statuses(
         previous_tree_errors: list[str] = []
         validate_verified_source_commit_tree(item, previous_tree_errors, "previous release")
         previous_tree_verified = (
-            synthetic_gate_reachability_override or not previous_tree_errors
+            synthetic_gate_reachability or not previous_tree_errors
         )
         if (
             item.get("version") == rollback.get("to_version")
@@ -4022,7 +6000,7 @@ def release_gate_statuses(
     candidate_cache = rollback.get("candidate_cache_artifact", {})
     restored_cache = rollback.get("restored_cache_artifact", {})
     rollback_verified = (
-        rollback.get("status") == "verified"
+        external_status_accepted(rollback)
         and rollback.get("from_version") == version
         and len(rollback_matches) == 1
         and isinstance(rollback.get("restored_cache_path"), str)
@@ -4044,16 +6022,16 @@ def release_gate_statuses(
         and evidence_verified(rollback, "rollback")
     )
     branch_verified = (
-        branch.get("status") == "verified"
+        external_status_accepted(branch)
         and branch.get("branch") == "main"
         and branch.get("required_check") == "OpenAI Plugin Preview / validate"
         and branch.get("verified_at") is not None
         and evidence_verified(branch, "main_branch_protection")
     )
     return {
-        "authenticated_external_evidence_adapter": gate(
+        "accepted_external_evidence_adapter": gate(
             external_adapter_available,
-            "No authenticated GitHub/Codex external-evidence adapter is available; repository envelopes alone cannot prove provider origin.",
+            "No accepted live-requery Preview or authenticated provider adapter is configured.",
         ),
         "release_source_commit": gate(source_verified, "Immutable current-version source commit is not verified."),
         "repository_preview_ci": gate(repository_ci_verified, "Successful repository Preview CI is not bound to the release commit."),
@@ -4071,32 +6049,41 @@ def completion_gate_statuses(
     runtime_results: list[dict[str, Any]],
     release_gates: dict[str, dict[str, str]],
     *,
-    authenticated_platform_adapter: bool,
+    accepted_verification_level: str | None,
+    accepted_platform_adapter: bool,
 ) -> dict[str, dict[str, str]]:
     verified_happy = sum(
-        item["status"] == "verified" and item["case_kind"] == "happy"
+        item["status"] == "verified"
+        and item.get("verification_level") == accepted_verification_level
+        and item["case_kind"] == "happy"
         for item in runtime_results
     )
     verified_control = sum(
-        item["status"] == "verified" and item["case_kind"] == "control"
+        item["status"] == "verified"
+        and item.get("verification_level") == accepted_verification_level
+        and item["case_kind"] == "control"
         for item in runtime_results
     )
+    level_label = accepted_verification_level or "unconfigured"
     runtime_gates = {
-        "authenticated_platform_capture_adapter": {
-            "status": "verified" if authenticated_platform_adapter else "pending",
+        "accepted_platform_capture_adapter": {
+            "status": "verified" if accepted_platform_adapter else "pending",
             "reason": (
-                "A provider-authenticated Codex/ChatGPT capture adapter is configured."
-                if authenticated_platform_adapter
-                else "No provider-authenticated Codex/ChatGPT capture adapter is available; repository files alone cannot prove platform origin."
+                f"A {level_label} Codex/ChatGPT evidence adapter is configured."
+                if accepted_platform_adapter
+                else "No accepted Preview or provider-verified evidence adapter is configured."
             ),
+            "verification_level": accepted_verification_level,
         },
-        "four_current_version_live_happy_paths": {
-            "status": "verified" if verified_happy == 4 else "pending",
-            "reason": f"{verified_happy}/4 durable current-version happy receipts verified.",
+        "five_current_version_live_happy_paths": {
+            "status": "verified" if verified_happy == 5 else "pending",
+            "reason": f"{verified_happy}/5 durable {level_label} happy receipts verified.",
+            "verification_level": accepted_verification_level,
         },
-        "four_current_version_valid_control_paths": {
-            "status": "verified" if verified_control == 4 else "pending",
-            "reason": f"{verified_control}/4 durable current-version control receipts verified.",
+        "five_current_version_valid_control_paths": {
+            "status": "verified" if verified_control == 5 else "pending",
+            "reason": f"{verified_control}/5 durable {level_label} control receipts verified.",
+            "verification_level": accepted_verification_level,
         },
     }
     return {**runtime_gates, **release_gates}
@@ -4108,11 +6095,12 @@ def run_completion_reachability_self_test(
     current_commit = "a" * 40
     previous_commit = "b" * 40
     previous_version = "0.5.0-preview.2"
-    visible_entries = [
-        skill["name"]
-        for skill in registry["skills"]
-        if skill["invocation_policy"] == "implicit"
-    ]
+    explicit_entries = list(
+        registry.get("public_entry_policy", {}).get("declared_entries", [])
+    )
+    implicit_entries = list(
+        registry.get("public_entry_policy", {}).get("implicit_active_entries", [])
+    )
     ledger = {
         "release": {
             "version": registry["plugin_version"],
@@ -4176,8 +6164,11 @@ def run_completion_reachability_self_test(
                     "plugin_version": registry["plugin_version"],
                     "source_commit": current_commit,
                     "task_id": "reachability-self-test",
-                    "skill_count": len(registry["skills"]),
-                    "visible_entry_skills": visible_entries,
+                    "installed_skill_count": len(registry["skills"]),
+                    "explicit_callable_entries": len(explicit_entries),
+                    "implicit_prompt_entries": len(implicit_entries),
+                    "explicit_callable_entry_skills": explicit_entries,
+                    "implicit_prompt_entry_skills": implicit_entries,
                     "installed_via": "explicit_reinstall",
                     "cache_artifact": None,
                 },
@@ -4239,38 +6230,211 @@ def run_completion_reachability_self_test(
         reinstall_cache
     )
     current_receipts["rollback"]["restored_cache_artifact"] = restored_cache
-    runtime_results = [
-        {
-            "receipt_id": f"reachability-{workflow}-{case_kind}",
-            "workflow": workflow,
-            "case_kind": case_kind,
-            "status": "verified",
-        }
-        for workflow, case_kind in schema["x-phase7-contract"][
-            "required_workflow_case_pairs"
-        ]
-    ]
-    gates = completion_gate_statuses(
-        runtime_results,
+    capability_negative_guards: list[dict[str, str]] = []
+    try:
         release_gate_statuses(
             ledger,
             registry,
-            synthetic_gate_reachability_override=True,
-        ),
-        authenticated_platform_adapter=True,
+            test_only_reachability_capability=True,  # type: ignore[arg-type]
+        )
+    except ModeViolation as exc:
+        require(
+            exc.code == "synthetic_gate_capability_invalid",
+            "phase7_reachability_capability_wrong_error",
+            exc.code,
+        )
+        capability_negative_guards.append(
+            {
+                "mutation": "bare_boolean_gate_override",
+                "status": "rejected_as_expected",
+                "error_code": exc.code,
+            }
+        )
+    else:
+        raise ModeViolation(
+            "phase7_reachability_capability_bypassed",
+            "bare Boolean reached synthetic release gates",
+        )
+    claimed_adapter_ledger = {
+        "release": {
+            "version": registry["plugin_version"],
+            "external_evidence_trust": {
+                "adapter_status": "configured",
+                "adapter_id": PREVIEW_RUNTIME_ATTESTATION_ADAPTER_ID,
+                "verification_level": PREVIEW_ATTESTED,
+                "provider_authenticated": False,
+            },
+        }
+    }
+    claimed_adapter_gates = release_gate_statuses(
+        claimed_adapter_ledger, registry
     )
-    pending = [name for name, value in gates.items() if value["status"] != "verified"]
-    require(not pending, "phase7_completion_unreachable", str(pending))
+    require(
+        all(item["status"] == "pending" for item in claimed_adapter_gates.values()),
+        "phase7_source_claim_advanced_release_gate",
+        str(claimed_adapter_gates),
+    )
+    capability_negative_guards.append(
+        {
+            "mutation": "source_controlled_adapter_claim_without_live_callback",
+            "status": "rejected_as_expected",
+            "error_code": "live_release_callback_missing",
+        }
+    )
+    claimed_runtime_collection = {
+        "platform_trust": {
+            "adapter_status": "configured",
+            "adapter_id": PREVIEW_RUNTIME_ATTESTATION_ADAPTER_ID,
+            "verification_level": PREVIEW_ATTESTED,
+            "provider_authenticated": False,
+        }
+    }
+    claimed_runtime_level = accepted_runtime_verification_level(
+        claimed_runtime_collection, None
+    )
+    claimed_runtime_gates = completion_gate_statuses(
+        [],
+        {},
+        accepted_verification_level=claimed_runtime_level,
+        accepted_platform_adapter=claimed_runtime_level is not None,
+    )
+    require(
+        claimed_runtime_level is None
+        and claimed_runtime_gates["accepted_platform_capture_adapter"]["status"]
+        == "pending",
+        "phase7_source_claim_advanced_runtime_gate",
+        str(claimed_runtime_gates),
+    )
+    capability_negative_guards.append(
+        {
+            "mutation": "source_controlled_runtime_adapter_without_live_session",
+            "status": "rejected_as_expected",
+            "error_code": "live_runtime_session_missing",
+        }
+    )
+    release_gates = release_gate_statuses(
+        ledger,
+        registry,
+        test_only_reachability_capability=_SYNTHETIC_ATTESTATION_CAPABILITY,
+    )
+    level_results: dict[str, Any] = {}
+    for verification_level in (PREVIEW_ATTESTED, PROVIDER_VERIFIED):
+        validated_evidence = _build_test_only_attested_evidence(
+            raw_payload=(
+                f'{{"verification_level":"{verification_level}"}}\n'.encode(
+                    "utf-8"
+                )
+            ),
+            registry=registry,
+            source_commit=current_commit,
+            verification_level=verification_level,
+        )
+        if verification_level == PREVIEW_ATTESTED:
+            try:
+                _issue_test_only_authenticated_attestation(
+                    validated_evidence.integrity_result,
+                    verification_level=verification_level,
+                    capability=_SyntheticAttestationCapability(),
+                )
+            except ModeViolation as exc:
+                require(
+                    exc.code == "synthetic_attestation_capability_invalid",
+                    "phase7_reachability_capability_wrong_error",
+                    exc.code,
+                )
+                capability_negative_guards.append(
+                    {
+                        "mutation": "forged_attestation_capability",
+                        "status": "rejected_as_expected",
+                        "error_code": exc.code,
+                    }
+                )
+            else:
+                raise ModeViolation(
+                    "phase7_reachability_capability_bypassed",
+                    "forged capability issued an attestation",
+                )
+        runtime_results = [
+            {
+                "receipt_id": f"reachability-{workflow}-{case_kind}",
+                "workflow": workflow,
+                "case_kind": case_kind,
+                "status": "verified",
+                "verification_level": validated_evidence.verification_level,
+            }
+            for workflow, case_kind in schema["x-phase7-contract"][
+                "required_workflow_case_pairs"
+            ]
+        ]
+        gates = completion_gate_statuses(
+            runtime_results,
+            release_gates,
+            accepted_verification_level=verification_level,
+            accepted_platform_adapter=True,
+        )
+        pending = [
+            name for name, value in gates.items() if value["status"] != "verified"
+        ]
+        require(
+            not pending,
+            "phase7_completion_unreachable",
+            f"{verification_level}: {pending}",
+        )
+        level_results[verification_level] = {
+            "verified_gate_count": len(gates),
+            "validated_evidence_id": validated_evidence.evidence_id,
+            "provider_verified": validated_evidence.provider_verified,
+            "attestation_scope": validated_evidence.attestation_scope,
+            "counts_as_runtime_evidence": (
+                validated_evidence.counts_as_runtime_evidence
+            ),
+            "derived_phase_status": (
+                "complete_preview_attested"
+                if verification_level == PREVIEW_ATTESTED
+                else "complete_provider_verified"
+            ),
+        }
+
+    discovery_count_mutations: list[dict[str, Any]] = []
+    for field in (
+        "installed_skill_count",
+        "explicit_callable_entries",
+        "implicit_prompt_entries",
+    ):
+        mutated = copy.deepcopy(ledger)
+        mutated_discovery = mutated["release"]["receipts"]["fresh_task_discovery"]
+        mutated_discovery[field] += 1
+        mutated_gates = release_gate_statuses(
+            mutated,
+            registry,
+            test_only_reachability_capability=_SYNTHETIC_ATTESTATION_CAPABILITY,
+        )
+        require(
+            mutated_gates["fresh_task_discovery"]["status"] == "pending",
+            "phase7_discovery_wrong_count_accepted",
+            field,
+        )
+        discovery_count_mutations.append(
+            {
+                "mutation": f"wrong_{field}",
+                "status": "rejected_as_expected",
+            }
+        )
     return {
         "status": "passed",
         "evidence_kind": "synthetic_gate_logic_self_test_only",
         "counts_as_runtime_evidence": False,
-        "verified_gate_count": len(gates),
-        "derived_phase_status": "complete",
+        "capability_negative_guards": capability_negative_guards,
+        "verification_levels": level_results,
+        "discovery_count_mutations": discovery_count_mutations,
     }
 
 
-def run_all() -> dict[str, Any]:
+def run_all(
+    *,
+    external_runtime_session: ExternalRuntimeValidationSession | None = None,
+    live_release_evidence_verifier: Any = None,
+) -> dict[str, Any]:
     require(
         sha256_repository_bytes(b"phase7\ncontract\n")
         == sha256_repository_bytes(b"phase7\r\ncontract\r\n"),
@@ -4279,14 +6443,21 @@ def run_all() -> dict[str, Any]:
     )
     registry = load_yaml(REGISTRY_PATH)
     fixture = load_yaml(FIXTURE_PATH)
+    polisher_routing_fixture = load_yaml(POLISHER_ROUTING_BOUNDARY_PATH)
     runtime_schema = load_yaml(RUNTIME_SCHEMA_PATH)
     runtime_collection = load_yaml(RUNTIME_RECEIPTS_PATH)
+    reviewer_unavailable_fault_injection = (
+        validate_reviewer_unavailable_fault_injection(runtime_schema, registry)
+    )
     release_ledger = (
         json.loads(RELEASE_LEDGER_PATH.read_text(encoding="utf-8"))
         if RELEASE_LEDGER_PATH.is_file()
         else {}
     )
     declared_pairs = validate_fixture(fixture, registry)
+    polisher_routing_results, polisher_routing_negative_results = (
+        validate_polisher_routing_boundaries(polisher_routing_fixture, registry)
+    )
     positive_results = [
         replay_case(case, build_runtime(case, registry), fixture, registry)
         for case in fixture["cases"]
@@ -4304,7 +6475,8 @@ def run_all() -> dict[str, Any]:
         case
         for case in fixture["cases"]
         if any(
-            transition["trigger"] == "latest_version_accepted"
+            transition["trigger"]
+            in {"latest_version_accepted", "latest_strategy_portfolio_accepted"}
             for transition in fixture["path_profiles"][case["path_profile"]]["transitions"]
         )
     ]
@@ -4316,6 +6488,11 @@ def run_all() -> dict[str, Any]:
             for transition in fixture["path_profiles"][case["path_profile"]]["transitions"]
         )
     ]
+    strategy_group_cases = [
+        case
+        for case in fixture["cases"]
+        if workflow_profile(case, registry) == "reviewer_matrix_assemble_evaluate"
+    ]
     transition_receipt_negative_results = [
         expect_transition_receipt_rejection(case, fixture, registry, mutation)
         for case in evaluator_cases
@@ -4324,6 +6501,14 @@ def run_all() -> dict[str, Any]:
         expect_transition_receipt_rejection(case, fixture, registry, mutation)
         for case in panel_cases
         for mutation in ("missing_panel_receipt", "stale_panel_receipt")
+    ] + [
+        expect_transition_receipt_rejection(case, fixture, registry, mutation)
+        for case in strategy_group_cases
+        for mutation in (
+            "missing_strategy_reviewer_receipt",
+            "stale_strategy_reviewer_receipt",
+            "duplicate_strategy_reviewer_instance",
+        )
     ]
     negative_results = entry_gate_negative_results + transition_receipt_negative_results
 
@@ -4333,6 +6518,18 @@ def run_all() -> dict[str, Any]:
     require(gate_bypass_count == len(declared_pairs), "gate_bypass_coverage", str(gate_bypass_count))
     final_states = Counter(item["final_state"] for item in positive_results)
     skill_count = len(registry["skills"])
+    explicit_callable_entries = len(
+        registry.get("public_entry_policy", {}).get("declared_entries", [])
+    )
+    implicit_prompt_entries = len(
+        registry.get("public_entry_policy", {}).get("implicit_active_entries", [])
+    )
+    require(
+        (skill_count, explicit_callable_entries, implicit_prompt_entries)
+        == (49, 7, 6),
+        "phase7_a_discovery_baseline",
+        str((skill_count, explicit_callable_entries, implicit_prompt_entries)),
+    )
     reviewer_count = sum(
         skill["requires_independent_subagent"] for skill in registry["skills"]
     )
@@ -4344,13 +6541,21 @@ def run_all() -> dict[str, Any]:
         and valid_commit_sha(ledger_source.get("sha"))
         else None
     )
-    runtime_results = validate_runtime_collection(
-        runtime_collection,
-        schema=runtime_schema,
-        registry=registry,
-        expected_source_commit=expected_source_commit,
-        root=REPO,
-    )
+    if external_runtime_session is None:
+        runtime_results = validate_runtime_collection(
+            runtime_collection,
+            schema=runtime_schema,
+            registry=registry,
+            expected_source_commit=expected_source_commit,
+            root=REPO,
+        )
+    else:
+        runtime_results = consume_external_runtime_validation_session(
+            external_runtime_session,
+            collection=runtime_collection,
+            runtime_receipts_path=RUNTIME_RECEIPTS_PATH,
+            expected_source_commit=expected_source_commit,
+        )
     runtime_negative_results = run_runtime_validator_self_tests(
         schema=runtime_schema,
         collection=runtime_collection,
@@ -4359,29 +6564,66 @@ def run_all() -> dict[str, Any]:
     completion_reachability = run_completion_reachability_self_test(
         registry, runtime_schema
     )
-    release_gates = release_gate_statuses(release_ledger, registry)
-    platform_adapter_available = authenticated_platform_adapter_available(
-        runtime_collection
+    require(
+        live_release_evidence_verifier is None
+        or external_runtime_session is not None,
+        "release_live_verifier_without_runtime_session",
+        "protected release verification requires the same-process runtime session",
     )
+    if live_release_evidence_verifier is not None:
+        from validate_openai_release_evidence import ReleaseEvidenceLiveCallback
+
+        prepare_ledger = getattr(live_release_evidence_verifier, "prepare_ledger", None)
+        assert_complete = getattr(
+            live_release_evidence_verifier, "assert_complete", None
+        )
+        require(
+            isinstance(
+                live_release_evidence_verifier, ReleaseEvidenceLiveCallback
+            )
+            and callable(prepare_ledger)
+            and callable(assert_complete),
+            "release_live_verifier_invalid",
+            type(live_release_evidence_verifier).__name__,
+        )
+        prepare_ledger(release_ledger)
+    release_gates = release_gate_statuses(
+        release_ledger,
+        registry,
+        live_evidence_verifier=live_release_evidence_verifier,
+    )
+    if live_release_evidence_verifier is not None:
+        live_release_evidence_verifier.assert_complete()
+    runtime_verification_level = accepted_runtime_verification_level(
+        runtime_collection, external_runtime_session
+    )
+    platform_adapter_available = runtime_verification_level is not None
     completion_gates = completion_gate_statuses(
         runtime_results,
         release_gates,
-        authenticated_platform_adapter=platform_adapter_available,
+        accepted_verification_level=runtime_verification_level,
+        accepted_platform_adapter=platform_adapter_available,
     )
     pending_gates = [
         gate_id
         for gate_id, gate_result in completion_gates.items()
         if gate_result["status"] != "verified"
     ]
-    phase_status = (
-        "complete"
-        if not pending_gates
-        else "in_progress_live_and_release_evidence_pending"
-    )
+    if pending_gates:
+        phase_status = "in_progress_live_and_release_evidence_pending"
+    elif runtime_verification_level == PREVIEW_ATTESTED:
+        phase_status = "complete_preview_attested"
+    elif runtime_verification_level == PROVIDER_VERIFIED:
+        phase_status = "complete_provider_verified"
+    else:
+        raise ModeViolation(
+            "phase7_completion_without_verification_level",
+            "all gates verified without an accepted evidence level",
+        )
     runtime_gate_ids = {
-        "authenticated_platform_capture_adapter",
-        "four_current_version_live_happy_paths",
-        "four_current_version_valid_control_paths",
+        "accepted_platform_capture_adapter",
+        "five_current_version_live_happy_paths",
+        "five_current_version_valid_control_paths",
     }
     runtime_pending = any(gate_id in runtime_gate_ids for gate_id in pending_gates)
     release_pending = any(
@@ -4398,19 +6640,34 @@ def run_all() -> dict[str, Any]:
     return {
         "schema_version": 3,
         "phase_status": phase_status,
+        "verification_level": runtime_verification_level,
+        "provider_verified": runtime_verification_level == PROVIDER_VERIFIED,
+        "counts_as_preview_acceptance": (
+            not pending_gates
+            and runtime_verification_level in ACCEPTANCE_LEVELS
+        ),
         "phase_status_detail": phase_status_detail,
         "phase_status_derivation": (
-            "complete only when every runtime and release-ledger completion gate is verified"
+            "complete_preview_attested or complete_provider_verified only when every runtime and release-ledger gate is verified at one evidence level"
         ),
         "pending_gates": pending_gates,
         "completion_gates": completion_gates,
         "plugin_version": registry["plugin_version"],
         "registry_schema_version": registry["schema_version"],
         "registry_skill_count": skill_count,
+        "discovery_contract": {
+            "installed_skill_count": skill_count,
+            "explicit_callable_entries": explicit_callable_entries,
+            "implicit_prompt_entries": implicit_prompt_entries,
+            "release_stage": "A",
+        },
         "registry_workflow_edge_count": len(registry["workflow_edges"]),
         "registry_independent_reviewer_count": reviewer_count,
         "registry_sha256": sha256_repository_file(REGISTRY_PATH),
         "fixture_sha256": sha256_repository_file(FIXTURE_PATH),
+        "research_polisher_routing_boundary_sha256": sha256_repository_file(
+            POLISHER_ROUTING_BOUNDARY_PATH
+        ),
         "runtime_receipt_schema_sha256": sha256_repository_file(RUNTIME_SCHEMA_PATH),
         "runtime_receipt_collection_sha256": sha256_repository_file(RUNTIME_RECEIPTS_PATH),
         "release_ledger_sha256": (
@@ -4420,29 +6677,43 @@ def run_all() -> dict[str, Any]:
         ),
         "repository_contract_digest_policy": "sha256_crlf_normalized_to_lf",
         "runtime_evidence_file_digest_policy": "sha256_raw_file_bytes",
-        "execution_kind": "deterministic_replay",
-        "evidence_class": "synthetic_contract_evidence_only",
+        "execution_kind": (
+            "deterministic_replay_with_external_runtime_evidence"
+            if external_runtime_session is not None
+            else "deterministic_replay"
+        ),
+        "evidence_class": (
+            "synthetic_contract_and_external_runtime_evidence"
+            if external_runtime_session is not None
+            else "synthetic_contract_evidence_only"
+        ),
         "execution_scope": fixture["execution_scope"],
         "contract_source": "research-skills-openai/workflow-registry.yaml",
         "state_advance_order": (
             "validate_qualifying_receipt_then_validate_registry_prerequisites_"
             "then_commit_derived_state_then_execute_transition"
         ),
-        "live_model_execution": False,
+        "live_model_execution": external_runtime_session is not None,
         "deterministic_replay_notice": fixture["notice"],
         "positive_mode_results": positive_results,
         "negative_guard_results": negative_results,
+        "research_polisher_routing_boundary_results": polisher_routing_results,
+        "research_polisher_routing_negative_guards": polisher_routing_negative_results,
         "runtime_receipts": {
             "schema_path": "tests/openai_phase7/runtime-receipts.schema.yaml",
             "collection_path": "tests/openai_phase7/current-version-runtime-receipts.yaml",
-            "expected_receipt_count": 8,
-            "expected_workflow_case_matrix": "4 workflows x {happy, control}",
+            "expected_receipt_count": 10,
+            "expected_workflow_case_matrix": "5 workflows x {happy, control}",
             "platform_trust": {
                 **runtime_collection["platform_trust"],
+                "supported_preview_attestation_adapter_ids": sorted(
+                    SUPPORTED_PREVIEW_ATTESTATION_ADAPTERS
+                ),
                 "supported_authenticated_adapter_ids": sorted(
                     SUPPORTED_AUTHENTICATED_PLATFORM_ADAPTERS
                 ),
                 "completion_gate_verified": platform_adapter_available,
+                "accepted_verification_level": runtime_verification_level,
                 "repository_files_alone_count_as_platform_authenticity": False,
             },
             "verified_receipt_count": sum(
@@ -4453,6 +6724,9 @@ def run_all() -> dict[str, Any]:
             ),
             "results": runtime_results,
             "validator_negative_guards": runtime_negative_results,
+            "reviewer_unavailable_fault_injection": (
+                reviewer_unavailable_fault_injection
+            ),
             "completion_reachability_self_test": completion_reachability,
             "live_evidence_claimed": any(
                 item["status"] == "verified" for item in runtime_results
@@ -4460,6 +6734,9 @@ def run_all() -> dict[str, Any]:
         },
         "summary": {
             "declared_workflows": len(fixture["expected_workflows"]),
+            "installed_skill_count": skill_count,
+            "explicit_callable_entries": explicit_callable_entries,
+            "implicit_prompt_entries": implicit_prompt_entries,
             "declared_entry_modes": len(declared_pairs),
             "registry_entry_mode_contracts_verified": len(declared_pairs),
             "registry_entry_gate_contracts_verified": sum(
@@ -4492,18 +6769,36 @@ def run_all() -> dict[str, Any]:
                 item["mutation"] == "stale_panel_receipt"
                 for item in transition_receipt_negative_results
             ),
+            "strategy_reviewer_group_mutations_rejected": sum(
+                item["mutation"]
+                in {
+                    "missing_strategy_reviewer_receipt",
+                    "stale_strategy_reviewer_receipt",
+                    "duplicate_strategy_reviewer_instance",
+                }
+                for item in transition_receipt_negative_results
+            ),
             "qualifying_reviewer_receipt_negatives_rejected": len(
                 transition_receipt_negative_results
             ),
             "negative_guards_rejected": len(negative_results),
+            "research_polisher_routing_boundaries_verified": len(
+                polisher_routing_results
+            ),
+            "research_polisher_takeover_mutations_rejected": len(
+                polisher_routing_negative_results
+            ),
             "human_signoff_required_modes": final_states["human_signoff_required"],
+            "human_strategy_selection_required_modes": final_states[
+                "human_strategy_selection_required"
+            ],
             "mode_scoped_stopped_modes": final_states["stopped"],
             "false_ready_count": 0,
             "automatic_external_submission": False,
             "live_model_runs_claimed": sum(
                 item["status"] == "verified" for item in runtime_results
             ),
-            "runtime_receipts_expected": 8,
+            "runtime_receipts_expected": 10,
             "runtime_receipts_verified": sum(
                 item["status"] == "verified" for item in runtime_results
             ),
@@ -4513,6 +6808,7 @@ def run_all() -> dict[str, Any]:
             "runtime_validator_negative_guards_rejected": len(
                 runtime_negative_results
             ),
+            "reviewer_unavailable_fault_injections_verified": 1,
             "completion_gates_verified": sum(
                 item["status"] == "verified" for item in completion_gates.values()
             ),
@@ -4523,6 +6819,10 @@ def run_all() -> dict[str, Any]:
             ),
             "synthetic_panel_receipts_validated": sum(
                 len(item["synthetic_panel_receipt_ids"])
+                for item in positive_results
+            ),
+            "synthetic_strategy_reviewer_receipts_validated": sum(
+                len(item["synthetic_strategy_reviewer_receipt_ids"])
                 for item in positive_results
             ),
             "synthetic_generation_receipts_validated": sum(
@@ -4539,6 +6839,138 @@ def run_all() -> dict[str, Any]:
             ),
         },
     }
+
+
+def assert_phase7_complete_preview(report: Mapping[str, Any]) -> None:
+    """Fail closed unless a report proves the complete 10-slot Preview gate."""
+
+    require(
+        report.get("schema_version") == 3
+        and report.get("phase_status") == "complete_preview_attested"
+        and report.get("verification_level") == PREVIEW_ATTESTED
+        and report.get("provider_verified") is False
+        and report.get("counts_as_preview_acceptance") is True
+        and report.get("pending_gates") == []
+        and report.get("live_model_execution") is True,
+        "phase7_complete_preview_required",
+        str(report.get("phase_status")),
+    )
+    completion_gates = report.get("completion_gates")
+    require(
+        isinstance(completion_gates, Mapping)
+        and len(completion_gates) == 13
+        and all(
+            isinstance(value, Mapping) and value.get("status") == "verified"
+            for value in completion_gates.values()
+        ),
+        "phase7_complete_preview_gate_matrix_invalid",
+        str(len(completion_gates) if isinstance(completion_gates, Mapping) else None),
+    )
+    runtime = report.get("runtime_receipts")
+    results = runtime.get("results") if isinstance(runtime, Mapping) else None
+    expected_pairs = {
+        (workflow, case_kind)
+        for workflow in (
+            "idea",
+            "proposal",
+            "article",
+            "perspective",
+            "research_polisher",
+        )
+        for case_kind in ("happy", "control")
+    }
+    require(
+        isinstance(results, list)
+        and len(results) == 10
+        and all(isinstance(item, Mapping) for item in results)
+        and {
+            (item.get("workflow"), item.get("case_kind")) for item in results
+        }
+        == expected_pairs
+        and len({item.get("receipt_id") for item in results}) == 10
+        and len(
+            {(item.get("platform"), item.get("task_id")) for item in results}
+        )
+        == 10
+        and len({item.get("task_export_path") for item in results}) == 10
+        and len({item.get("task_export_sha256") for item in results}) == 10
+        and all(
+            item.get("status") == "verified"
+            and item.get("verification_level") == PREVIEW_ATTESTED
+            and item.get("evidence_accounting_status")
+            == "externally_attested_runtime_evidence"
+            for item in results
+        )
+        and runtime.get("verified_receipt_count") == 10
+        and runtime.get("pending_receipt_count") == 0,
+        "phase7_complete_preview_runtime_matrix_invalid",
+        str(len(results) if isinstance(results, list) else None),
+    )
+    summary = report.get("summary")
+    require(
+        isinstance(summary, Mapping)
+        and summary.get("runtime_receipts_verified") == 10
+        and summary.get("runtime_receipts_pending") == 0
+        and summary.get("live_model_runs_claimed") == 10
+        and summary.get("completion_gates_verified") == 13
+        and summary.get("completion_gates_pending") == 0
+        and summary.get("false_ready_count") == 0,
+        "phase7_complete_preview_summary_invalid",
+        str(summary),
+    )
+
+
+def build_attested_phase7_report(
+    *,
+    external_runtime_session: ExternalRuntimeValidationSession,
+    live_release_evidence_verifier: Any,
+) -> dict[str, Any]:
+    """Build the accepted report while both live capabilities remain in memory."""
+
+    report = run_all(
+        external_runtime_session=external_runtime_session,
+        live_release_evidence_verifier=live_release_evidence_verifier,
+    )
+    assert_phase7_complete_preview(report)
+    return report
+
+
+def write_phase7_report(
+    report: Mapping[str, Any], *, output_path: Path = REPORT_PATH
+) -> None:
+    """Atomically write a report only after strict Preview validation."""
+
+    assert_phase7_complete_preview(report)
+    require(
+        output_path.parent.is_dir()
+        and not output_path.parent.is_symlink()
+        and not output_path.is_symlink(),
+        "phase7_report_output_invalid",
+        str(output_path),
+    )
+    temporary: Path | None = None
+    try:
+        with tempfile.NamedTemporaryFile(
+            mode="w",
+            encoding="utf-8",
+            newline="\n",
+            prefix=f".{output_path.name}.",
+            suffix=".tmp",
+            dir=output_path.parent,
+            delete=False,
+        ) as handle:
+            temporary = Path(handle.name)
+            handle.write(
+                json.dumps(
+                    dict(report), indent=2, ensure_ascii=False, sort_keys=True
+                )
+                + "\n"
+            )
+        temporary.replace(output_path)
+        temporary = None
+    finally:
+        if temporary is not None:
+            temporary.unlink(missing_ok=True)
 
 
 def main() -> int:
@@ -4566,10 +6998,21 @@ def main() -> int:
         f"entry modes: {summary['positive_modes_passed']}/{summary['declared_entry_modes']}"
     )
     print(
+        "A-release discovery: "
+        f"{summary['installed_skill_count']} installed skills / "
+        f"{summary['explicit_callable_entries']} explicit entries / "
+        f"{summary['implicit_prompt_entries']} implicit entries"
+    )
+    print(
         "negative guards: "
         f"{summary['mode_specific_gate_bypasses_rejected']} mode-specific gate bypasses + "
         f"{summary['additional_stale_or_lineage_guards_rejected']} entry stale/lineage mutations + "
-        f"{summary['qualifying_reviewer_receipt_negatives_rejected']} evaluator/panel receipt mutations rejected"
+        f"{summary['qualifying_reviewer_receipt_negatives_rejected']} evaluator/panel/strategy-reviewer receipt mutations rejected"
+    )
+    print(
+        "Research Polisher routing boundaries: "
+        f"{summary['research_polisher_routing_boundaries_verified']} cases; "
+        f"{summary['research_polisher_takeover_mutations_rejected']} false-takeover mutations rejected"
     )
     print(
         "evidence scope: synthetic deterministic contract replay only; no live model, "
@@ -4578,6 +7021,7 @@ def main() -> int:
     print(
         "synthetic closed-loop receipts: "
         f"{summary['synthetic_generation_receipts_validated']} generation/version + "
+        f"{summary['synthetic_strategy_reviewer_receipts_validated']} role-isolated strategy-reviewer + "
         f"{summary['synthetic_panel_receipts_validated']} role-isolated panel + "
         f"{summary['synthetic_package_receipts_validated']} package + "
         f"{summary['synthetic_control_receipts_validated']} control"

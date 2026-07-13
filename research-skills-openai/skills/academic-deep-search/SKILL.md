@@ -1,6 +1,6 @@
 ---
 name: academic-deep-search
-description: "Answer a specific academic question by closely reading 2-5 papers. Use for a bounded method, marker, finding, or figure; route broader synthesis to research-opportunity-mapper."
+description: "Answer one bounded academic question from 2-5 closely read papers; route broader or multi-stage synthesis to research-opportunity-mapper."
 ---
 # Academic Deep Search
 

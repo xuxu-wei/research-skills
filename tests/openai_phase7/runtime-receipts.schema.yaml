@@ -9,7 +9,7 @@ required:
   - receipts
 properties:
   schema_version:
-    const: 1
+    const: 2
   evidence_kind:
     const: current_version_durable_runtime_receipts
   platform_trust:
@@ -17,18 +17,21 @@ properties:
     required:
       - adapter_status
       - adapter_id
+      - verification_level
       - provider_authenticated
       - reason
     properties:
       adapter_status: {enum: [unavailable, configured]}
       adapter_id: {type: [string, 'null']}
+      verification_level:
+        enum: [preview_attested, provider_verified, null]
       provider_authenticated: {type: boolean}
       reason: {type: string, minLength: 1}
     additionalProperties: false
   receipts:
     type: array
-    minItems: 8
-    maxItems: 8
+    minItems: 10
+    maxItems: 10
     items:
       $ref: '#/$defs/runtime_receipt'
 additionalProperties: false
@@ -63,14 +66,16 @@ $defs:
       - reason
     properties:
       receipt_id: {type: string, minLength: 1}
-      workflow: {enum: [idea, proposal, article, perspective]}
+      workflow: {enum: [idea, proposal, article, perspective, research_polisher]}
       case_kind: {enum: [happy, control]}
       expected_final_state:
         enum:
           - human_signoff_required
+          - human_strategy_selection_required
           - stopped
           - blocked
           - independent_review_pending
+          - no_defensible_option
       status: {enum: [pending_live_evidence, verified]}
       binding:
         type: object
@@ -141,8 +146,9 @@ $defs:
           fatal_findings_visible: {type: [boolean, 'null']}
       control_evidence:
         type: object
-        required: [gate, finding, route, continuation_artifact_ref]
+        required: [input_condition, gate, finding, route, continuation_artifact_ref]
         properties:
+          input_condition: {type: [string, 'null']}
           gate: {type: [string, 'null']}
           finding: {type: [string, 'null']}
           route: {type: [string, 'null']}
@@ -151,9 +157,11 @@ $defs:
       final_state:
         enum:
           - human_signoff_required
+          - human_strategy_selection_required
           - stopped
           - blocked
           - independent_review_pending
+          - no_defensible_option
           - null
       automatic_external_submission: {type: [boolean, 'null']}
       reason: {type: string, minLength: 1}
@@ -169,6 +177,8 @@ x-phase7-contract:
     - [article, control]
     - [perspective, happy]
     - [perspective, control]
+    - [research_polisher, happy]
+    - [research_polisher, control]
   verified_receipt_required_bindings:
     - binding.plugin_version
     - binding.registry_sha256
@@ -190,52 +200,81 @@ x-phase7-contract:
     - retrieval
     - controller
     - assembler
+    - strategy_reviewer
     - verifier_compositor
   workflow_case_contracts:
     idea:
       happy:
         expected_final_state: human_signoff_required
+        input_condition: null
         gate: null
         route: null
         continuation_artifact_role: null
       control:
         expected_final_state: stopped
+        input_condition: independent_review_no_incremental_gain
         gate: unfixable_no_gain_or_user_stop
         route: human_review_or_explicit_resume
         continuation_artifact_role: continuation_brief
     proposal:
       happy:
         expected_final_state: human_signoff_required
+        input_condition: null
         gate: null
         route: null
         continuation_artifact_role: null
       control:
         expected_final_state: blocked
+        input_condition: fatal_data_availability_constraint
         gate: fatal_or_blocking_finding
         route: blocked_for_human_resolution
         continuation_artifact_role: continuation_brief
     article:
       happy:
         expected_final_state: human_signoff_required
+        input_condition: null
         gate: null
         route: null
         continuation_artifact_role: null
       control:
-        expected_final_state: independent_review_pending
-        gate: required_reviewer_unavailable
-        route: resume_in_fresh_delegated_task
+        expected_final_state: blocked
+        input_condition: source_level_fatal_finding
+        gate: fatal_or_blocking_finding
+        route: blocked_for_human_resolution
         continuation_artifact_role: continuation_brief
     perspective:
       happy:
         expected_final_state: human_signoff_required
+        input_condition: null
         gate: null
         route: null
         continuation_artifact_role: null
       control:
         expected_final_state: stopped
+        input_condition: independent_review_no_incremental_gain
         gate: unfixable_no_gain_or_user_stop
         route: human_review_or_explicit_resume
         continuation_artifact_role: continuation_brief
+    research_polisher:
+      happy:
+        expected_final_state: human_strategy_selection_required
+        input_condition: null
+        gate: null
+        route: null
+        continuation_artifact_role: null
+      control:
+        expected_final_state: no_defensible_option
+        input_condition: all_options_no_defensible_option
+        gate: no_defensible_strategy_remains
+        route: stop_with_no_defensible_option_dossier
+        continuation_artifact_role: continuation_brief
+  fault_injection_contracts:
+    reviewer_unavailable:
+      input_condition: injected_reviewer_delegation_unavailable
+      gate: required_reviewer_unavailable
+      expected_final_state: independent_review_pending
+      route: resume_in_fresh_delegated_task
+      counts_as_live_control: false
   actor_manifest_contract:
     schema_version: 1
     required_actor_fields:
@@ -245,9 +284,11 @@ x-phase7-contract:
       - allowed_read_roots
       - allowed_write_roots
     panel_actor_required_fields: [panel_tier, panel_role]
+    strategy_reviewer_actor_required_fields: [strategy_role]
     instance_ids_unique: true
-    writer_evaluator_panel_finalizer_ids_pairwise_disjoint: true
+    artifact_creator_reviewer_finalizer_ids_pairwise_disjoint: true
     panel_roles_exactly_match_registry_default_tier: true
+    strategy_reviewer_roles_exactly_match_registry_review_group: true
     final_package_actor_matches_registry_skill_and_role: true
     unknown_actor_roles_rejected: true
     actor_role_must_match_registry_skill_role: true
@@ -260,10 +301,11 @@ x-phase7-contract:
     evaluator_forbidden_source_actor_roles:
       - evaluator
       - panel
+      - strategy_reviewer
       - verifier_compositor
   collection_contract:
     receipt_ids_unique: true
-    all_eight_runs_are_fresh_tasks: true
+    all_ten_runs_are_fresh_tasks: true
     platform_task_ids_unique: true
     task_export_paths_unique: true
     task_export_digests_unique: true
@@ -271,6 +313,8 @@ x-phase7-contract:
     task_export_binds_actor_manifest: true
     task_export_binds_artifact_index: true
     verified_receipts_share_one_release_identity: true
+    verified_receipts_share_one_verification_level: true
+    preview_attested_is_not_provider_verified: true
   artifact_index_contract:
     schema_version: 1
     required_artifact_fields:
@@ -306,6 +350,7 @@ x-phase7-contract:
     - orchestrator_skill_matches_current_workflow
     - fresh_evaluator_cannot_read_any_prior_reviewer_output_or_score
     - panel_roles_cannot_read_peer_outputs
+    - strategy_reviewers_cannot_read_peer_outputs
     - dissent_ids_are_preserved
     - unresolved_fatal_ids_are_visible_and_indexed
     - blocked_control_has_unresolved_fatal_finding
@@ -313,8 +358,9 @@ x-phase7-contract:
   durable_path_policy: canonical_posix_repository_relative_existing_file
   digest_policy: sha256_of_actual_file_bytes
   completion_policy: >-
-    All eight receipts must be durable and verified against the current plugin
-    version, registry digest, immutable release commit, and release ledger. A
-    repository file and digest prove integrity but not platform origin; no
-    receipt can become verified until a provider-authenticated capture adapter
-    is implemented in the validator.
+    All ten receipts must be durable and verified against the current plugin
+    version, registry digest, immutable release commit, and release ledger.
+    Preview acceptance requires raw exports, an external GitHub witness, and
+    independent verification and is reported only as preview_attested. The
+    stricter provider_verified path additionally requires a supported
+    provider-authenticated capture adapter.

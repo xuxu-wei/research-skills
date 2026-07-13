@@ -1,0 +1,6 @@
+interface:
+  display_name: "Research Polisher Plan Assembler"
+  short_description: "Assemble anonymous Research Polisher strategy portfolios"
+  default_prompt: "Use $research-polisher-plan-assembler for this task and follow its workflow and output contract."
+policy:
+  allow_implicit_invocation: false

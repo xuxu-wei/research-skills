@@ -1,0 +1,6 @@
+interface:
+  display_name: "Research Polisher Methodology Publishability Reviewer"
+  short_description: "Independently review strategy rigor and publishability"
+  default_prompt: "Use $research-polisher-methodology-publishability-reviewer for this task and follow its workflow and output contract."
+policy:
+  allow_implicit_invocation: false

@@ -1,14 +1,14 @@
 {
   "ok": true,
-  "expected_skill_count": 45,
-  "plugin_version": "0.6.0-preview.1",
+  "expected_skill_count": 49,
+  "plugin_version": "0.7.0-preview.1",
   "registry_schema_version": 5,
   "plugin": {
     "plugin": "research-skills-openai",
-    "plugin_version": "0.6.0-preview.1",
+    "plugin_version": "0.7.0-preview.1",
     "ok": true,
     "errors": [],
-    "skill_count": 45,
+    "skill_count": 49,
     "skills": {
       "academic-deep-search": "academic-deep-search",
       "academic-language-assessor": "academic-language-assessor",
@@ -52,6 +52,10 @@
       "research-context-builder": "research-context-builder",
       "research-idea-orchestrator": "research-idea-orchestrator",
       "research-opportunity-mapper": "research-opportunity-mapper",
+      "research-polisher-methodology-publishability-reviewer": "research-polisher-methodology-publishability-reviewer",
+      "research-polisher-orchestrator": "research-polisher-orchestrator",
+      "research-polisher-plan-assembler": "research-polisher-plan-assembler",
+      "research-polisher-strategy-reviewer": "research-polisher-strategy-reviewer",
       "sap-evaluator": "sap-evaluator",
       "sap-refinement-controller": "sap-refinement-controller",
       "sap-writer": "sap-writer"
