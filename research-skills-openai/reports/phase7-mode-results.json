@@ -3029,7 +3029,7 @@
   "registry_sha256": "sha256:43e621b09d663f3dad8fc13e7fd88fea860da8a14f26db4c9c75401214f4052a",
   "registry_skill_count": 49,
   "registry_workflow_edge_count": 67,
-  "release_ledger_sha256": "sha256:69bb79d50067be73f76c5096adc0c3ff3a10acbb21795f111f161fd739861c71",
+  "release_ledger_sha256": "sha256:7ad23db5d3df78184dbd47272f02ad791ca5674e6b9511c15b45decce06fd170",
   "repository_contract_digest_policy": "sha256_crlf_normalized_to_lf",
   "research_polisher_routing_boundary_results": [
     {

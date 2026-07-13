@@ -1255,7 +1255,7 @@ def main(
                 "pinned OpenAI Codex validator source commit",
             ),
             (
-                "4e84c911479e4d158d723ed8ccc881d3499e580fbf5650e60d379a1a25ac3186",
+                "ebda00d55d7518b127f675f062fb5c6e7a1ffdc0a99df1a55ac594400d7d3228",
                 "canonical validator source digest",
             ),
             ("sha256sum --check --strict", "canonical validator digest check"),
