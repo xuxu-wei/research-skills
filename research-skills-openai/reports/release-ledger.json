@@ -33,7 +33,7 @@
     "validation_contract_tree": {
       "algorithm": "sha256_sorted_repository_relative_path_nul_crlf_normalized_bytes_nul",
       "file_count": 80,
-      "sha256": "b3d765bca1a8faa913455f740bbabbfdd61477b7e964e4be9d88f2cb5d4cde21",
+      "sha256": "91b96ad934bc155115140b11ea9468191d11b97fcdd74d7e8d9bb4c890ec86ae",
       "mutable_runtime_evidence_excluded": [
         "tests/openai_phase7/current-version-runtime-receipts.yaml",
         "tests/openai_phase8/live-repeat-receipts.yaml",

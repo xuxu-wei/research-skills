@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import shlex
 import subprocess
 import sys
 import tempfile
@@ -21,6 +22,18 @@ FAKE = REPO / "tests" / "openai_phase7" / "fake_app_server.py"
 def require(condition: bool, message: str) -> None:
     if not condition:
         raise AssertionError(message)
+
+
+def write_fake_codex_wrapper(path: Path, platform: str) -> None:
+    if platform == "win32":
+        path.write_text(f'@"{sys.executable}" "{FAKE}"\r\n', encoding="utf-8")
+        return
+    path.write_text(
+        "#!/bin/sh\n"
+        f"exec {shlex.quote(sys.executable)} {shlex.quote(str(FAKE))} \"$@\"\n",
+        encoding="utf-8",
+    )
+    path.chmod(0o755)
 
 
 def main() -> int:
@@ -63,11 +76,15 @@ def main() -> int:
             raise AssertionError("capture unexpectedly accepted Python as Codex")
 
         wrapper = Path(temporary) / ("fake-codex.cmd" if sys.platform == "win32" else "fake-codex")
-        if sys.platform == "win32":
-            wrapper.write_text(f'@"{sys.executable}" "{FAKE}"\r\n', encoding="utf-8")
-        else:
-            wrapper.write_text(f'#!{sys.executable}\nexec "{sys.executable}" "{FAKE}"\n', encoding="utf-8")
-            wrapper.chmod(0o755)
+        write_fake_codex_wrapper(wrapper, sys.platform)
+        posix_contract = Path(temporary) / "fake-codex-posix-contract"
+        write_fake_codex_wrapper(posix_contract, "linux")
+        posix_text = posix_contract.read_text(encoding="utf-8")
+        require(
+            posix_text.startswith("#!/bin/sh\nexec ")
+            and not posix_text.startswith(f"#!{sys.executable}"),
+            "POSIX wrapper must be a shell script, not Python source",
+        )
         config_path = Path(temporary) / "config.toml"
         escaped_wrapper = str(wrapper).replace("\\", "\\\\")
         config_path.write_text(
