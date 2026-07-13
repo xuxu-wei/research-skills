@@ -464,6 +464,24 @@ the non-overwriting artifact upload is the last step. Consumers must still
 re-query the exact run attempt and protected-Environment deployment and accept
 the artifact only when the run conclusion is successful.
 
+The successful producer run automatically triggers
+`.github/workflows/openai-preview-accepted-summary-consumer.yml`; do not dispatch
+the consumer manually. It runs trusted default-branch code without the
+governance secret, requires that the default branch has not advanced past the
+producer source commit, and independently binds the latest exact attempt,
+protected job, Environment policy and approval history, deployment status,
+artifact API identity, ZIP digest, and producer schema. The producer summary is
+`producer_internal` and sets `counts_as_phase78_closure: false`; only the
+consumer result may set that field to true. If `main` advances before the
+consumer starts, re-dispatch the producer at the new commit instead of relaxing
+the binding.
+
+The producer summary and consumer result are 90-day Actions artifacts. Complete
+the acceptance decision and archive any required evidence before expiry. For a
+longer verification horizon, either refresh the attestation before expiry or
+adopt a separately reviewed immutable attestation carrier; the current two
+Release procedure does not make these transient reports permanent.
+
 The ordinary Preview CI performs fail-closed structural validation and never
 claims that it repeated the external re-query. An accepted ledger is releasable
 only when the protected accepted-state workflow and the complete repository
@@ -551,9 +569,10 @@ synthetic or historical evidence should be presented as live acceptance.
 - [x] Pass the main-push Preview CI and verify branch protection through GitHub
       for source `ffbfda66b341d3accb07e9be61040f7012edeb37` and run
       `29278571101`.
-- [ ] Run an independent accepted-summary consumer that re-queries the exact
-      run attempt, successful protected-Environment deployment, and summary
-      artifact before accepting the final workflow result.
+- [x] Implement the independent accepted-summary consumer and its exact-attempt,
+      protected-deployment, artifact, and schema binding.
+- [ ] Exercise that consumer against the first real protected accepted-state
+      run and retain its source-attempt-bound result before accepting closure.
 - [ ] Publish the immutable A evidence Release, run the first verifier, publish
       the separate immutable candidate Release, verify both tag-to-commit
       bindings, enumerate evidence assets with pagination, and retain immutable

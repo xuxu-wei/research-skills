@@ -1280,6 +1280,7 @@ def main(
             "test_openai_phase7_modes.py --check-report",
             "test_openai_phase8_corpus.py --check-report",
             "test_openai_preview_evidence.py",
+            "test_build_openai_preview_accepted_summary.py",
             "test_build_openai_preview_verifier_summary.py",
             "test_download_openai_release_ledger_assets.py",
             "test_validate_openai_preview_evidence_bundle.py",
@@ -1287,6 +1288,7 @@ def main(
             "test_validate_openai_phase7_runtime_evidence.py",
             "test_validate_openai_phase8_external_evidence.py",
             "test_validate_openai_release_evidence.py",
+            "test_verify_openai_preview_accepted_summary.py",
             "test_openai_phase8_preview_verifier.py",
             "test_openai_preview_workflows.py",
             "codex_plugin_converter.py --mode codex --fail-on-invalid",
@@ -1432,6 +1434,66 @@ def main(
             if marker not in accepted_workflow:
                 errors.append(
                     f"protected accepted-state workflow missing {label}: {marker}"
+                )
+
+    consumer_workflow_path = (
+        REPO
+        / ".github"
+        / "workflows"
+        / "openai-preview-accepted-summary-consumer.yml"
+    )
+    if not consumer_workflow_path.is_file():
+        errors.append("independent accepted-summary consumer workflow is missing")
+    else:
+        consumer_workflow = consumer_workflow_path.read_text(encoding="utf-8")
+        consumer_action_refs = re.findall(
+            r"^[ \t]*(?:-[ \t]+)?uses:[ \t]+([^@\s]+)@([^\s#]+)",
+            consumer_workflow,
+            re.MULTILINE,
+        )
+        if not consumer_action_refs:
+            errors.append("accepted-summary consumer contains no pinned actions")
+        elif any(
+            not re.fullmatch(r"[0-9a-f]{40}", ref)
+            for _, ref in consumer_action_refs
+        ):
+            errors.append("accepted-summary consumer action dependencies are not pinned")
+        for marker, label in (
+            ("workflow_run:", "independent workflow-run trigger"),
+            (
+                "workflows: [OpenAI Preview Accepted Evidence]",
+                "exact source workflow name",
+            ),
+            ("types: [completed]", "completed-run trigger"),
+            ("permissions: {}", "deny-by-default permissions"),
+            ("actions: read", "read-only Actions API permission"),
+            ("contents: read", "read-only trusted checkout permission"),
+            ("deployments: read", "read-only deployment permission"),
+            ("ref: ${{ github.sha }}", "trusted default-branch checkout"),
+            ("persist-credentials: false", "credential-minimized checkout"),
+            (
+                "verify_openai_preview_accepted_summary.py",
+                "independent accepted-summary verifier",
+            ),
+            ("--consumer-run-attempt", "consumer attempt lineage"),
+            (
+                "openai-preview-accepted-consumer-${{ github.event.workflow_run.id }}-${{ github.event.workflow_run.run_attempt }}",
+                "source-attempt-bound consumer result",
+            ),
+            ("overwrite: false", "non-overwriting consumer result"),
+        ):
+            if marker not in consumer_workflow:
+                errors.append(
+                    f"accepted-summary consumer missing {label}: {marker}"
+                )
+        for forbidden, label in (
+            ("workflow_dispatch:", "manual trigger"),
+            ("OPENAI_PREVIEW_GOVERNANCE_TOKEN", "governance secret"),
+            ("environment:", "protected producer Environment"),
+        ):
+            if forbidden in consumer_workflow:
+                errors.append(
+                    f"accepted-summary consumer must not contain {label}: {forbidden}"
                 )
 
     readme = (PLUGIN / "README.md").read_text(encoding="utf-8")

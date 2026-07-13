@@ -652,7 +652,10 @@ def main() -> int:
     assert len(snapshot["phase8"]["retrieval_items"]) == 6
     with tempfile.TemporaryDirectory() as temporary:
         summary = build_summary(**fixture(Path(temporary)))
-    assert summary["schema_version"] == "openai-preview-accepted-run-summary/v1"
+    assert summary["schema_version"] == "openai-preview-accepted-run-summary/v2"
+    assert summary["acceptance_scope"] == "producer_internal"
+    assert summary["external_consumer_required"] is True
+    assert summary["counts_as_phase78_closure"] is False
     assert summary["run_attempt"] == 2
     assert len(summary["release_evidence"]["items"]) == 8
     assert len(summary["release_evidence"]["history_items"]) == 2

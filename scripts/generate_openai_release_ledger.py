@@ -39,6 +39,7 @@ VALIDATION_CONTRACT_FILES = (
     ".gitignore",
     ".github/workflows/openai-plugin-preview.yml",
     ".github/workflows/openai-preview-accepted-evidence.yml",
+    ".github/workflows/openai-preview-accepted-summary-consumer.yml",
     ".github/workflows/openai-preview-evidence.yml",
     "codex-plugin-validation.json",
 )

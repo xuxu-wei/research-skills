@@ -35,6 +35,7 @@ jobs:
             scripts/validate_openai_phase7_runtime_evidence.py \
             scripts/validate_openai_phase8_external_evidence.py \
             scripts/validate_openai_release_evidence.py \
+            scripts/verify_openai_preview_accepted_summary.py \
             scripts/capture_openai_codex_app_server.py
           python scripts/test_openai_preview_evidence.py
           python scripts/test_build_openai_preview_accepted_summary.py
@@ -45,6 +46,7 @@ jobs:
           python scripts/test_validate_openai_phase7_runtime_evidence.py
           python scripts/test_validate_openai_phase8_external_evidence.py
           python scripts/test_validate_openai_release_evidence.py
+          python scripts/test_verify_openai_preview_accepted_summary.py
           python scripts/test_openai_preview_workflows.py
           python scripts/test_validate_openai_preview_accepted_phase78.py
           python scripts/test_openai_phase8_preview_verifier.py

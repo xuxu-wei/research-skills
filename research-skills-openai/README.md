@@ -202,6 +202,7 @@ python scripts/test_openai_app_server_capture.py
 python scripts/test_validate_openai_phase7_runtime_evidence.py
 python scripts/test_validate_openai_phase8_external_evidence.py
 python scripts/test_validate_openai_release_evidence.py
+python scripts/test_verify_openai_preview_accepted_summary.py
 python scripts/test_openai_phase8_preview_verifier.py
 python scripts/test_openai_preview_workflows.py
 python scripts/test_validate_openai_preview_accepted_phase78.py
@@ -221,7 +222,14 @@ external bundle root is supplied; that path never claims to have repeated a
 live re-query. Accepted evidence is gated separately by
 `.github/workflows/openai-preview-accepted-evidence.yml`, which runs the fixed
 production callback and then the complete release validator inside the
-protected `openai-preview-governance` Environment.
+protected `openai-preview-governance` Environment. Its producer summary uses
+`acceptance_scope: producer_internal` and explicitly cannot close Phase 7-8.
+After that workflow completes,
+`.github/workflows/openai-preview-accepted-summary-consumer.yml` runs from
+trusted default-branch code with no governance secret. It re-queries the exact
+attempt, successful protected job and deployment, current Environment policy
+and approval history, run-bound artifact, ZIP digest, and summary lineage. Only
+its accepted result may set `counts_as_phase78_closure: true`.
 
 The verified historical GitHub reinstall and fresh-process discovery trace is
 in `reports/phase5-upgrade-smoke.md`. The current candidate's commit, CI,
@@ -252,9 +260,13 @@ digests, while validating accepted history separately. Both Release tags are
 resolved through exact `refs/tags/...` lookups with annotated-tag peeling. The
 accepted summary is uploaded only after the trusted checkout and both isolated
 validation workspaces pass their final immutability/allowlist proof. The
-artifact counts only when its run attempt is subsequently observed as
-successful in the protected Environment; the JSON file alone is not an
-acceptance credential.
+artifact counts only when the independent consumer observes that exact attempt
+as successful, binds the Environment deployment status to the protected job's
+canonical URL, and revalidates the artifact; the producer JSON alone is not an
+acceptance credential. Both producer and consumer reports use 90-day Actions
+artifacts. Treat this as a time-limited attestation: refresh/re-attest before
+expiry or add a separately reviewed immutable attestation Release before
+claiming long-term reproducibility.
 
 Evidence levels are intentionally distinct. `capture_only` is a redacted raw
 export and never counts. `preview_attested` is the acceptance level for this

@@ -474,15 +474,20 @@ Verification to date:
   resolution handles lightweight and annotated tags without branch/tag
   ambiguity. All three validation workspaces receive a final immutability or
   allowlist proof before the non-overwriting summary is uploaded as the final
-  step. The accepted-summary suite contains 41 guards; workflow invariants
-  contain 27 mutation guards, and a real first-pass-summary-to-ZIP-to-callback
-  round trip passes locally. The current first-pass
+  step. The producer accepted-summary suite contains 41 guards; the independent
+  consumer suite contains 89 guards; workflow invariants contain 46 mutation
+  guards, and a real first-pass-summary-to-ZIP-to-callback round trip passes
+  locally. Producer schema v2 marks its result `producer_internal`, requires an
+  external consumer, and cannot itself close Phase 7-8. The current first-pass
   workflow intentionally receives no governance secret. The protected GitHub
   Environment, its `main` deployment policy, the required branch check, and
-  Immutable Releases are configured. The environment credential and
-  deployment-aware accepted-summary consumer are not yet present or exercised,
-  and no real current-release bundle has completed either pass; all live gates
-  remain pending. No authenticated provider adapter exists.
+  Immutable Releases are configured. The deployment-aware accepted-summary
+  consumer is implemented but has not yet observed a real accepted run. The
+  environment credential is not yet present, and no real current-release bundle
+  has completed either pass; all live gates remain pending. No authenticated
+  provider adapter exists. Producer and consumer Actions artifacts expire after
+  90 days, so the current two-Release design is a time-limited attestation unless
+  it is refreshed before expiry or extended with a durable attestation carrier.
 - Synthetic gate-logic self-tests prove both `complete_preview_attested` and
   `complete_provider_verified` are structurally reachable; they are explicitly
   excluded from runtime evidence counts.
@@ -496,7 +501,8 @@ Verification to date:
   `main`; Immutable Releases are enabled. These settings remain non-gating
   until the production verifier re-queries them from immutable evidence.
 - Still required: add and approve the protected environment credential and
-  implement/exercise the deployment-aware final consumer; run five live happy
+  exercise the deployment-aware final consumer against a real accepted run;
+  run five live happy
   paths and five live controls; publish and verify the two immutable Releases;
   capture current marketplace upgrade,
   reinstall, fresh discovery, immutable rollback, and branch protection. Each

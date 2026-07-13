@@ -17,6 +17,12 @@ EVIDENCE_PATH = REPO / ".github" / "workflows" / "openai-preview-evidence.yml"
 ACCEPTED_PATH = (
     REPO / ".github" / "workflows" / "openai-preview-accepted-evidence.yml"
 )
+CONSUMER_PATH = (
+    REPO
+    / ".github"
+    / "workflows"
+    / "openai-preview-accepted-summary-consumer.yml"
+)
 PINNED_ACTION_RE = re.compile(r"^[^@\s]+@[0-9a-f]{40}$")
 
 
@@ -122,6 +128,7 @@ def validate_main(document: dict[str, Any], text: str) -> None:
         "scripts/validate_openai_phase7_runtime_evidence.py": "Phase 7 runtime evidence runner",
         "scripts/validate_openai_phase8_external_evidence.py": "Phase 8 external evidence runner",
         "scripts/validate_openai_release_evidence.py": "release evidence live runner",
+        "scripts/verify_openai_preview_accepted_summary.py": "accepted-summary consumer compilation",
         "scripts/validate_openai_preview_accepted_phase78.py": "accepted Phase 7/8 bridge compilation",
         "scripts/materialize_openai_preview_evidence_subset.py": "stage-specific evidence materializer compilation",
         "scripts/capture_openai_codex_app_server.py": "capture helper compilation",
@@ -134,6 +141,7 @@ def validate_main(document: dict[str, Any], text: str) -> None:
         "python scripts/test_validate_openai_phase7_runtime_evidence.py": "Phase 7 runtime runner tests",
         "python scripts/test_validate_openai_phase8_external_evidence.py": "Phase 8 external runner tests",
         "python scripts/test_validate_openai_release_evidence.py": "release evidence runner tests",
+        "python scripts/test_verify_openai_preview_accepted_summary.py": "accepted-summary consumer tests",
         "python scripts/test_openai_preview_workflows.py": "workflow invariants",
         "python scripts/test_validate_openai_preview_accepted_phase78.py": "accepted evidence-subset tests",
         "python scripts/test_openai_phase8_preview_verifier.py": "Phase 8 transport boundary tests",
@@ -707,6 +715,252 @@ def validate_accepted(document: dict[str, Any], text: str) -> None:
     )
 
 
+def validate_consumer(document: dict[str, Any], text: str) -> None:
+    require(
+        document.get("permissions") == {},
+        "consumer_permissions",
+        "accepted-summary consumer top-level permissions must be empty",
+    )
+    validate_action_pins(document)
+    triggers = document.get("on", {})
+    workflow_run = triggers.get("workflow_run", {}) if isinstance(triggers, dict) else {}
+    require(
+        isinstance(triggers, dict)
+        and set(triggers) == {"workflow_run"}
+        and isinstance(workflow_run, dict)
+        and workflow_run.get("workflows") == ["OpenAI Preview Accepted Evidence"]
+        and workflow_run.get("types") == ["completed"],
+        "consumer_triggers",
+        "consumer must run only after completion of the accepted-evidence workflow",
+    )
+
+    raw_jobs = document.get("jobs", {})
+    require(
+        isinstance(raw_jobs, dict)
+        and set(raw_jobs) == {"validate-source-run", "verify-accepted-summary"},
+        "consumer_jobs",
+        "one unprivileged source guard and one independent consumer job are required",
+    )
+    preflight = raw_jobs["validate-source-run"]
+    consumer = raw_jobs["verify-accepted-summary"]
+    require(
+        preflight.get("permissions") == {}
+        and "environment" not in preflight
+        and preflight.get("runs-on") == "ubuntu-latest"
+        and int(preflight.get("timeout-minutes", "0")) > 0,
+        "consumer_permissions",
+        "source-run guard must be bounded, unprivileged, and environment-free",
+    )
+    require(
+        consumer.get("permissions")
+        == {"actions": "read", "contents": "read", "deployments": "read"}
+        and "environment" not in consumer
+        and consumer.get("runs-on") == "ubuntu-latest"
+        and int(consumer.get("timeout-minutes", "0")) > 0,
+        "consumer_permissions",
+        "consumer permissions must be exactly Actions/Contents/Deployments read",
+    )
+    require(
+        consumer.get("needs") == "validate-source-run"
+        and consumer.get("if")
+        == "${{ needs.validate-source-run.result == 'success' }}",
+        "consumer_dependency",
+        "consumer must depend on the successful unprivileged source-run guard",
+    )
+
+    preflight_steps = preflight.get("steps", [])
+    consumer_steps = consumer.get("steps", [])
+    require(
+        isinstance(preflight_steps, list)
+        and len(preflight_steps) == 1
+        and all(isinstance(item, dict) for item in preflight_steps)
+        and isinstance(consumer_steps, list)
+        and len(consumer_steps) == 4
+        and all(isinstance(item, dict) for item in consumer_steps),
+        "workflow_steps",
+        "accepted-summary consumer steps",
+    )
+    preflight_commands = "\n".join(
+        str(item.get("run", "")) for item in preflight_steps
+    )
+    consumer_commands = "\n".join(
+        str(item.get("run", "")) for item in consumer_steps
+    )
+    for marker, label in {
+        '"$CONSUMER_REF" == "refs/heads/$DEFAULT_BRANCH"': "trusted default-branch consumer guard",
+        '"$SOURCE_REPOSITORY" == "$REPOSITORY"': "same-repository source guard",
+        '"$SOURCE_WORKFLOW" == "OpenAI Preview Accepted Evidence"': "source workflow-name guard",
+        '"$SOURCE_PATH" == ".github/workflows/openai-preview-accepted-evidence.yml"': "source workflow-path guard",
+        '"$SOURCE_EVENT" == "workflow_dispatch"': "source event guard",
+        '"$SOURCE_BRANCH" == "$DEFAULT_BRANCH"': "source default-branch guard",
+        '"$CONSUMER_COMMIT" == "$SOURCE_COMMIT"': "source/consumer commit equality guard",
+        '"$SOURCE_STATUS" == "completed" && "$SOURCE_CONCLUSION" == "success"': "successful completion guard",
+        '"$SOURCE_RUN_ID" =~ ^[1-9][0-9]*$': "positive source run-ID guard",
+        '"$SOURCE_RUN_ATTEMPT" =~ ^[1-9][0-9]*$': "positive run-attempt guard",
+    }.items():
+        require(marker in preflight_commands, "consumer_preflight", label)
+    preflight_env = preflight_steps[0].get("env", {})
+    require(
+        preflight_env.get("CONSUMER_COMMIT") == "${{ github.sha }}"
+        and preflight_env.get("CONSUMER_REF") == "${{ github.ref }}"
+        and preflight_env.get("SOURCE_COMMIT")
+        == "${{ github.event.workflow_run.head_sha }}"
+        and preflight_env.get("SOURCE_RUN_ID")
+        == "${{ github.event.workflow_run.id }}"
+        and preflight_env.get("SOURCE_RUN_ATTEMPT")
+        == "${{ github.event.workflow_run.run_attempt }}",
+        "consumer_preflight",
+        "preflight must bind the trusted consumer and exact source run attempt",
+    )
+
+    require(
+        not any("uses" in item for item in preflight_steps),
+        "consumer_preflight",
+        "unprivileged preflight must not check out or run an action",
+    )
+    checkout = next(
+        (
+            item
+            for item in consumer_steps
+            if str(item.get("uses", "")).startswith("actions/checkout@")
+        ),
+        None,
+    )
+    require(isinstance(checkout, dict), "consumer_checkout", "trusted checkout action")
+    checkout_with = checkout.get("with", {})
+    require(
+        checkout_with.get("ref") == "${{ github.sha }}"
+        and checkout_with.get("fetch-depth") == "1"
+        and checkout_with.get("persist-credentials") == "false",
+        "consumer_checkout",
+        "consumer must check out its trusted default-branch SHA, never the source SHA",
+    )
+
+    verify_step = next(
+        (
+            item
+            for item in consumer_steps
+            if item.get("name")
+            == "Independently verify the protected run and accepted summary"
+        ),
+        None,
+    )
+    require(isinstance(verify_step, dict), "consumer_contract", "verification step")
+    require(
+        verify_step.get("env") == {"GH_TOKEN": "${{ github.token }}"},
+        "consumer_token_scope",
+        "explicit github.token injection must be limited to the verification step",
+    )
+    actual_token_steps = {
+        str(item.get("name", ""))
+        for item in consumer_steps
+        if "${{ github.token }}" in str(item)
+    }
+    require(
+        actual_token_steps
+        == {"Independently verify the protected run and accepted summary"},
+        "consumer_token_scope",
+        "explicit github.token injection must not enter setup or artifact upload",
+    )
+    require(
+        str(document).count("${{ github.token }}") == 1,
+        "consumer_token_scope",
+        "the verifier env must be the only explicit github.token interpolation",
+    )
+    for marker, label in {
+        "scripts/verify_openai_preview_accepted_summary.py": "independent verifier",
+        '--repository "$GITHUB_REPOSITORY"': "repository binding",
+        '--run-id "$SOURCE_RUN_ID"': "source run binding",
+        '--run-attempt "$SOURCE_RUN_ATTEMPT"': "exact attempt binding",
+        '--source-commit "$SOURCE_COMMIT"': "source SHA binding",
+        '--consumer-commit "$GITHUB_SHA"': "trusted consumer SHA binding",
+        '--consumer-run-id "$GITHUB_RUN_ID"': "consumer run lineage",
+        '--consumer-run-attempt "$GITHUB_RUN_ATTEMPT"': "consumer attempt lineage",
+        '--output "$CONSUMER_RESULT"': "fixed result output",
+    }.items():
+        require(marker in consumer_commands, "consumer_contract", label)
+    require(
+        "continue-on-error" not in text
+        and "|| true" not in consumer_commands
+        and "set +e" not in consumer_commands,
+        "consumer_fail_closed",
+        "accepted-summary consumer must fail closed",
+    )
+    serialized_document = str(document)
+    require(
+        "secrets." not in text
+        and "secrets." not in serialized_document
+        and "OPENAI_PREVIEW_GOVERNANCE_TOKEN" not in text
+        and "OPENAI_PREVIEW_GOVERNANCE_TOKEN" not in serialized_document
+        and "pull_request_target" not in text
+        and "repository_dispatch" not in text
+        and "workflow_call" not in text,
+        "consumer_privilege",
+        "consumer must not use caller inputs, privileged triggers, or governance secrets",
+    )
+    require(
+        all("environment" not in job for job in raw_jobs.values()),
+        "consumer_environment",
+        "consumer must re-query deployments without entering a protected Environment",
+    )
+
+    ordered_names = [
+        "Check out the trusted consumer from the default branch",
+        "Set up Python",
+        "Independently verify the protected run and accepted summary",
+        "Publish the non-overwriting consumer result",
+    ]
+    offsets = [
+        next(
+            (
+                offset
+                for offset, item in enumerate(consumer_steps)
+                if item.get("name") == name
+            ),
+            -1,
+        )
+        for name in ordered_names
+    ]
+    require(
+        [item.get("name") for item in consumer_steps] == ordered_names
+        and offsets == sorted(offsets)
+        and all(offset >= 0 for offset in offsets)
+        and offsets[-1] == len(consumer_steps) - 1,
+        "consumer_order",
+        "trusted checkout and verification must precede the final result upload",
+    )
+    require(
+        text.count(
+            "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02"
+        )
+        == 1,
+        "consumer_result",
+        "exactly one pinned consumer-result upload is required",
+    )
+    upload = consumer_steps[offsets[-1]]
+    upload_with = upload.get("with", {})
+    require(
+        consumer_steps[0].get("uses")
+        == "actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5"
+        and consumer_steps[1].get("uses")
+        == "actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065"
+        and "uses" not in consumer_steps[2]
+        and isinstance(consumer_steps[2].get("run"), str)
+        and upload.get("uses")
+        == "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02"
+        and upload_with.get("name")
+        == "openai-preview-accepted-consumer-${{ github.event.workflow_run.id }}-${{ github.event.workflow_run.run_attempt }}"
+        and upload_with.get("path")
+        == "${{ runner.temp }}/openai-preview-accepted-consumer-result.json"
+        and upload_with.get("if-no-files-found") == "error"
+        and upload_with.get("retention-days") == "90"
+        and upload_with.get("overwrite") == "false"
+        and upload_with.get("include-hidden-files") == "false",
+        "consumer_result",
+        "consumer result must be run-attempt-bound, bounded, non-overwriting, and fail closed",
+    )
+
+
 def expect_rejected(
     code: str, document: dict[str, Any], text: str, validator
 ) -> None:
@@ -725,6 +979,8 @@ def validate_mutation_guards(
     evidence_text: str,
     accepted: dict[str, Any],
     accepted_text: str,
+    consumer: dict[str, Any],
+    consumer_text: str,
 ) -> int:
     wrong_check_name = copy.deepcopy(main)
     wrong_check_name["jobs"]["validate"]["name"] = "validate"
@@ -1062,16 +1318,225 @@ def validate_mutation_guards(
         accepted_text,
         validate_accepted,
     )
-    return 27
+
+    consumer_manual = copy.deepcopy(consumer)
+    consumer_manual["on"]["workflow_dispatch"] = {}
+    expect_rejected(
+        "consumer_triggers", consumer_manual, consumer_text, validate_consumer
+    )
+
+    consumer_wrong_source = copy.deepcopy(consumer)
+    consumer_wrong_source["on"]["workflow_run"]["workflows"] = [
+        "OpenAI Plugin Preview"
+    ]
+    expect_rejected(
+        "consumer_triggers", consumer_wrong_source, consumer_text, validate_consumer
+    )
+
+    consumer_writable = copy.deepcopy(consumer)
+    consumer_writable["jobs"]["verify-accepted-summary"]["permissions"][
+        "contents"
+    ] = "write"
+    expect_rejected(
+        "consumer_permissions", consumer_writable, consumer_text, validate_consumer
+    )
+
+    consumer_without_deployments = copy.deepcopy(consumer)
+    consumer_without_deployments["jobs"]["verify-accepted-summary"][
+        "permissions"
+    ].pop("deployments")
+    expect_rejected(
+        "consumer_permissions",
+        consumer_without_deployments,
+        consumer_text,
+        validate_consumer,
+    )
+
+    consumer_protected = copy.deepcopy(consumer)
+    consumer_protected["jobs"]["verify-accepted-summary"]["environment"] = {
+        "name": "openai-preview-governance"
+    }
+    expect_rejected(
+        "consumer_permissions", consumer_protected, consumer_text, validate_consumer
+    )
+
+    consumer_without_guard = copy.deepcopy(consumer)
+    consumer_without_guard["jobs"]["verify-accepted-summary"].pop("needs")
+    expect_rejected(
+        "consumer_dependency",
+        consumer_without_guard,
+        consumer_text,
+        validate_consumer,
+    )
+
+    consumer_source_checkout = copy.deepcopy(consumer)
+    next(
+        item
+        for item in consumer_source_checkout["jobs"]["verify-accepted-summary"][
+            "steps"
+        ]
+        if str(item.get("uses", "")).startswith("actions/checkout@")
+    )["with"]["ref"] = "${{ github.event.workflow_run.head_sha }}"
+    expect_rejected(
+        "consumer_checkout",
+        consumer_source_checkout,
+        consumer_text,
+        validate_consumer,
+    )
+
+    consumer_preflight_checkout = copy.deepcopy(consumer)
+    consumer_preflight_checkout["jobs"]["validate-source-run"]["steps"].append(
+        {
+            "uses": "actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5",
+            "with": {"persist-credentials": "false"},
+        }
+    )
+    expect_rejected(
+        "workflow_steps",
+        consumer_preflight_checkout,
+        consumer_text,
+        validate_consumer,
+    )
+
+    consumer_missing_path_guard = copy.deepcopy(consumer)
+    guard = consumer_missing_path_guard["jobs"]["validate-source-run"]["steps"][0]
+    guard["run"] = str(guard["run"]).replace(
+        '"$SOURCE_PATH" == ".github/workflows/openai-preview-accepted-evidence.yml"',
+        '"$SOURCE_PATH" != ""',
+        1,
+    )
+    expect_rejected(
+        "consumer_preflight",
+        consumer_missing_path_guard,
+        consumer_text,
+        validate_consumer,
+    )
+
+    consumer_without_commit_equality = copy.deepcopy(consumer)
+    guard = consumer_without_commit_equality["jobs"]["validate-source-run"]["steps"][0]
+    guard["run"] = str(guard["run"]).replace(
+        '"$CONSUMER_COMMIT" == "$SOURCE_COMMIT"', '"$CONSUMER_COMMIT" != ""', 1
+    )
+    expect_rejected(
+        "consumer_preflight",
+        consumer_without_commit_equality,
+        consumer_text,
+        validate_consumer,
+    )
+
+    consumer_secret = copy.deepcopy(consumer)
+    consumer_secret["env"] = {
+        "TOKEN": "${{ secrets.OPENAI_PREVIEW_GOVERNANCE_TOKEN }}"
+    }
+    expect_rejected(
+        "consumer_privilege", consumer_secret, consumer_text, validate_consumer
+    )
+
+    consumer_wrong_attempt = copy.deepcopy(consumer)
+    verify = next(
+        item
+        for item in consumer_wrong_attempt["jobs"]["verify-accepted-summary"]["steps"]
+        if item.get("name")
+        == "Independently verify the protected run and accepted summary"
+    )
+    verify["run"] = str(verify["run"]).replace(
+        '--run-attempt "$SOURCE_RUN_ATTEMPT"', '--run-attempt "1"', 1
+    )
+    expect_rejected(
+        "consumer_contract", consumer_wrong_attempt, consumer_text, validate_consumer
+    )
+
+    consumer_token_leak = copy.deepcopy(consumer)
+    checkout = next(
+        item
+        for item in consumer_token_leak["jobs"]["verify-accepted-summary"]["steps"]
+        if str(item.get("uses", "")).startswith("actions/checkout@")
+    )
+    checkout["env"] = {"GH_TOKEN": "${{ github.token }}"}
+    expect_rejected(
+        "consumer_token_scope", consumer_token_leak, consumer_text, validate_consumer
+    )
+
+    consumer_job_token_leak = copy.deepcopy(consumer)
+    consumer_job_token_leak["jobs"]["verify-accepted-summary"].setdefault(
+        "env", {}
+    )["LEAK"] = "${{ github.token }}"
+    expect_rejected(
+        "consumer_token_scope",
+        consumer_job_token_leak,
+        consumer_text,
+        validate_consumer,
+    )
+
+    consumer_extra_step = copy.deepcopy(consumer)
+    consumer_extra_step["jobs"]["verify-accepted-summary"]["steps"].insert(
+        3, {"name": "Unreviewed extra command", "run": "echo extra"}
+    )
+    expect_rejected(
+        "workflow_steps", consumer_extra_step, consumer_text, validate_consumer
+    )
+
+    consumer_overwrite = copy.deepcopy(consumer)
+    next(
+        item
+        for item in consumer_overwrite["jobs"]["verify-accepted-summary"]["steps"]
+        if item.get("name") == "Publish the non-overwriting consumer result"
+    )["with"]["overwrite"] = "true"
+    expect_rejected(
+        "consumer_result", consumer_overwrite, consumer_text, validate_consumer
+    )
+
+    consumer_unbound_artifact = copy.deepcopy(consumer)
+    next(
+        item
+        for item in consumer_unbound_artifact["jobs"]["verify-accepted-summary"][
+            "steps"
+        ]
+        if item.get("name") == "Publish the non-overwriting consumer result"
+    )["with"]["name"] = "openai-preview-accepted-consumer"
+    expect_rejected(
+        "consumer_result",
+        consumer_unbound_artifact,
+        consumer_text,
+        validate_consumer,
+    )
+
+    consumer_upload_first = copy.deepcopy(consumer)
+    consumer_job_steps = consumer_upload_first["jobs"]["verify-accepted-summary"][
+        "steps"
+    ]
+    consumer_job_steps[0], consumer_job_steps[-1] = (
+        consumer_job_steps[-1],
+        consumer_job_steps[0],
+    )
+    expect_rejected(
+        "consumer_order", consumer_upload_first, consumer_text, validate_consumer
+    )
+
+    consumer_mutable_action = copy.deepcopy(consumer)
+    next(
+        item
+        for item in consumer_mutable_action["jobs"]["verify-accepted-summary"]["steps"]
+        if "uses" in item
+    )["uses"] = "actions/checkout@v4"
+    expect_rejected(
+        "workflow_action_pin",
+        consumer_mutable_action,
+        consumer_text,
+        validate_consumer,
+    )
+    return 46
 
 
 def main() -> int:
     main_document, main_text = load(MAIN_PATH)
     evidence_document, evidence_text = load(EVIDENCE_PATH)
     accepted_document, accepted_text = load(ACCEPTED_PATH)
+    consumer_document, consumer_text = load(CONSUMER_PATH)
     validate_main(main_document, main_text)
     validate_evidence(evidence_document, evidence_text)
     validate_accepted(accepted_document, accepted_text)
+    validate_consumer(consumer_document, consumer_text)
     mutation_count = validate_mutation_guards(
         main_document,
         main_text,
@@ -1079,12 +1544,15 @@ def main() -> int:
         evidence_text,
         accepted_document,
         accepted_text,
+        consumer_document,
+        consumer_text,
     )
     print("OpenAI Preview workflow invariants passed")
     print(
         "coverage: pinned actions, least-privilege read permissions, immutable tag/commit, "
         "prerelease assets, offline verifier, fail-closed empty assets, protected accepted-state "
-        "production callbacks, immutable trusted checkout, no hosted capture; "
+        "production callbacks, immutable trusted checkout, independent workflow-run consumer, "
+        "no hosted capture; "
         f"mutation guards={mutation_count}"
     )
     return 0

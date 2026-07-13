@@ -11,7 +11,7 @@ from pathlib import Path
 from typing import Any, Mapping, Sequence
 
 
-SCHEMA = "openai-preview-accepted-run-summary/v1"
+SCHEMA = "openai-preview-accepted-run-summary/v2"
 WORKFLOW_PATH = ".github/workflows/openai-preview-accepted-evidence.yml"
 COMMIT_RE = re.compile(r"[0-9a-f]{40}")
 SHA256_RE = re.compile(r"[0-9a-f]{64}")
@@ -1139,6 +1139,9 @@ def build_summary(
     phase78["phase8"]["live_slot_results"] = phase8_live_slots
     return {
         "schema_version": SCHEMA,
+        "acceptance_scope": "producer_internal",
+        "external_consumer_required": True,
+        "counts_as_phase78_closure": False,
         "workflow_path": WORKFLOW_PATH,
         "workflow_event": "workflow_dispatch",
         "repository": repository,

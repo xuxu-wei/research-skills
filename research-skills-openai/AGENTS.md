@@ -110,6 +110,7 @@ python scripts/test_openai_app_server_capture.py
 python scripts/test_validate_openai_phase7_runtime_evidence.py
 python scripts/test_validate_openai_phase8_external_evidence.py
 python scripts/test_validate_openai_release_evidence.py
+python scripts/test_verify_openai_preview_accepted_summary.py
 python scripts/test_openai_phase8_preview_verifier.py
 python scripts/test_openai_preview_workflows.py
 python scripts/test_validate_openai_preview_accepted_phase78.py
