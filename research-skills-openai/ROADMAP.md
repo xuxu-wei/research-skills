@@ -304,7 +304,7 @@ Verification:
 
 ## Phase 7 — Entry-mode, runtime, and release hardening
 
-Status: In Progress (2026-07-12)
+Status: In Progress (updated 2026-07-14)
 
 - Priority: P0
 - Type: maintenance and runtime proof
@@ -353,6 +353,13 @@ Deliverables:
   Release containing R/E/V/I before the first verifier run, followed by a
   candidate Release containing the derived ledger and three accepted receipt
   collections. Candidate files must remain outside the evidence bundle root.
+- Freeze A first as an exact commit with successful CI and repository
+  protection. Treat WP2-WP5 outputs as `capture_only`; publish the evidence
+  Release only after its complete asset inventory is ready. Do not publish an
+  empty immutable Release and attempt to append evidence later.
+- Add an independent accepted-summary consumer that re-queries the exact run
+  attempt, successful protected-Environment deployment, and run-bound summary
+  artifact. The workflow's own success flag is not its final trust anchor.
 - Bundle the applicable license with the installable plugin and maintain a
   zero-unknown provenance/license inventory for migrated or third-party content.
 
@@ -431,7 +438,7 @@ Verification to date:
   marketplace source, and validation-contract tree must match the
   ledger identity. Mutable runtime evidence is separately digest-bound and
   excluded from that source-tree identity to avoid a capture/commit cycle.
-  Fifty-six mutation
+  Sixty-four mutation
   self-tests reject commit mismatches, malformed identities, missing or altered
   evidence, missing provider trust, rollback/history/ancestry mismatches, and a
   nonexistent source commit. Install, reinstall, discovery, and rollback
@@ -468,22 +475,30 @@ Verification to date:
   ambiguity. All three validation workspaces receive a final immutability or
   allowlist proof before the non-overwriting summary is uploaded as the final
   step. The accepted-summary suite contains 41 guards; workflow invariants
-  contain 26 mutation guards, and a real first-pass-summary-to-ZIP-to-callback
+  contain 27 mutation guards, and a real first-pass-summary-to-ZIP-to-callback
   round trip passes locally. The current first-pass
   workflow intentionally receives no governance secret. The protected GitHub
-  Environment and credential are not yet configured or exercised, and no real
-  current-release bundle has completed either pass; all live gates remain
-  pending. No authenticated provider adapter exists.
+  Environment, its `main` deployment policy, the required branch check, and
+  Immutable Releases are configured. The environment credential and
+  deployment-aware accepted-summary consumer are not yet present or exercised,
+  and no real current-release bundle has completed either pass; all live gates
+  remain pending. No authenticated provider adapter exists.
 - Synthetic gate-logic self-tests prove both `complete_preview_attested` and
   `complete_provider_verified` are structurally reachable; they are explicitly
   excluded from runtime evidence counts.
 - Repository contract/report identities use CRLF-to-LF-normalized SHA-256 so
   Windows and Ubuntu checkouts produce the same Phase 7 report. Runtime task,
   actor, artifact, and file-access bindings retain raw-byte SHA-256.
-- Still required: configure and approve the protected environment/credential;
-  run five live happy paths and five live controls; freeze the release commit
-  and successful CI binding; verify the canonical-validator CI entry; publish
-  and verify the two immutable Releases; capture current marketplace upgrade,
+- GitHub source `ffbfda66b341d3accb07e9be61040f7012edeb37`
+  passed Preview CI run `29278571101`; `main` requires the exact
+  `OpenAI Plugin Preview / validate` check from GitHub Actions App `15368`, and
+  force-push/deletion are disabled. The governance Environment allows only
+  `main`; Immutable Releases are enabled. These settings remain non-gating
+  until the production verifier re-queries them from immutable evidence.
+- Still required: add and approve the protected environment credential and
+  implement/exercise the deployment-aware final consumer; run five live happy
+  paths and five live controls; publish and verify the two immutable Releases;
+  capture current marketplace upgrade,
   reinstall, fresh discovery, immutable rollback, and branch protection. Each
   Preview verification needs a real App Server capture, immutable Release
   assets, and live GitHub re-query; changing a status string or authoring a

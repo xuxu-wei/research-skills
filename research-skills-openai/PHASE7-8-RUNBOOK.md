@@ -13,14 +13,15 @@ release on prose alone.
 ## Execution work packages and exit criteria
 
 Run the work packages in order. WP2 through WP5 may be scheduled in parallel
-only after WP1 freezes one shared A source identity; their accepted evidence
-must still bind that exact identity. WP6 is performed for every external
+only after WP1 freezes one shared A source identity. They produce
+`capture_only` material; no slot becomes accepted before WP6 publishes and
+re-queries the immutable evidence Release. WP6 is performed for every external
 record, not as a one-time batch assertion.
 
 | Work package | Execution | Exit criterion |
 | --- | --- | --- |
 | WP0 — local preflight | Regenerate the registry, reports, and ledger; run every repository, workflow, context, corpus, evidence, and canonical-plugin validator; complete the structural/protected accepted-state ingestion paths | 49 skills, 7 explicit entries, 6 implicit entries, 20 independent reviewers, 17/17 mode replays, 20/20 corpus cases, zero audit errors/warnings, zero report drift, and accepted reports/ledger replay through production live callbacks without bypassing the full release validator |
-| WP1 — freeze A | Commit and push one candidate; wait for Preview CI; publish a non-draft immutable prerelease; verify `main` protection and retain previous N | Version, 40-hex source commit, tag, prerelease, CI run, canonical validator, marketplace resolution, and branch protection all resolve to one source identity |
+| WP1 — freeze A | Commit and push one candidate; wait for Preview CI; verify `main` protection and Immutable Releases; record previous N; do not publish an empty evidence Release | Version, 40-hex source commit, CI run, canonical validator, marketplace resolution, and branch protection resolve to one source identity; no live slot is accepted yet |
 | WP2 — Phase 7 runtime | Run five workflow happy paths and five input-driven controls in ten fresh tasks; capture actors, file access, lineage, dissent, findings, packages, and source hashes | Exactly 5/5 happy and 5/5 control receipts pass semantic validation; no identity overlap, source edit, hidden dissent/fatal finding, false-ready result, or automatic external submission |
 | WP3 — Phase 7 distribution | Upgrade through the marketplace, explicitly reinstall, discover in a fresh task, then roll back to immutable previous N | Upgrade, reinstall, and discovery share one N+1 cache identity at 49/7/6; rollback uses a distinct previous cache/commit with no mixing; all eight release-ledger evidence classes pass live re-query |
 | WP4 — Phase 8 reviewers | Dispatch two fresh source-only blind reviews for each of A01, A02, and A03 | 6/6 runs use distinct delegated instances; outcome-oracle exposure and source edits are zero; contract-level state agrees per pair or visible disagreement blocks completion |
@@ -28,6 +29,14 @@ record, not as a one-time batch assertion.
 | WP6 — external attestation | Publish every WP1–WP5 R -> E -> V -> I mini-bundle in one immutable evidence Release, run the first verifier, then publish the derived ledger/collections in a distinct immutable candidate Release and run the protected verifier | Every accepted record has unique immutable asset IDs/digests, a successful historical verifier workflow witness, a fresh GitHub API re-query, `preview_attested=true`, and `provider_verified=false`; both Release tags resolve to the same frozen source |
 | WP7 — derive A closure | Re-ingest the external collections, regenerate reports/ledger, rerun the complete validation suite, and independently audit the candidate | Phase 7 and Phase 8 are both derived as `complete_preview_attested`; no pending A gate, manual status edit, stale evidence, false-ready path, or uncommitted source delta remains |
 | WP8 — policy-only B | Enable Research Polisher implicit invocation, bump the Preview version, regenerate metadata, then rerun CI/install/discovery/routing | Installable diff is restricted to the allowlist; marketplace upgrade/reinstall succeeds; fresh discovery is 49/7/7; all seven public-entry positive and negative routing checks pass |
+
+The two-Release order is deliberate. WP1 freezes the content-addressed commit,
+not an empty published Release. WP2 through WP5 capture against that commit and
+remain non-gating. In WP6, create the draft evidence Release only after every
+required asset is ready, upload and verify the complete inventory, then publish
+it once as immutable. The first verifier derives the ledger and collections;
+publish those in the separate immutable candidate Release. Never publish an
+evidence Release early and attempt to append assets later.
 
 The local implementation and validators can prepare WP0 and verify downloaded
 evidence. WP1, live task execution in WP2/WP4/WP5, marketplace operations, and
@@ -518,6 +527,14 @@ At the time this runbook was added, generated reports still state:
   verifier; and
 - no authenticated provider adapter is registered.
 
+GitHub source `ffbfda66b341d3accb07e9be61040f7012edeb37`
+passed Preview CI run `29278571101`. `main` now requires the exact
+`OpenAI Plugin Preview / validate` check from GitHub Actions App `15368`;
+force-push and deletion are disabled. The protected governance Environment is
+restricted to `main`, and Immutable Releases are enabled. The governance
+credential, immutable evidence/candidate Releases, and live receipts are still
+absent, so these observed repository settings do not close a ledger gate.
+
 Accordingly, neither phase is complete, Release B is not yet eligible, and no
 synthetic or historical evidence should be presented as live acceptance.
 
@@ -526,10 +543,17 @@ synthetic or historical evidence should be presented as live acceptance.
 - [ ] Freeze and push A; record its exact source identity.
 - [x] Implement the protected accepted-state workflow, production callback,
       immutable tag/Release re-query, and paginated asset validation.
-- [ ] Configure the protected environment and its single-repository read-only
-      governance credential, then exercise both structural and accepted-state
-      paths without exposing the credential to caller-selected code.
-- [ ] Pass the main-push Preview CI and verify branch protection through GitHub.
+- [x] Configure the protected environment, its `main` deployment policy,
+      branch protection, and Immutable Releases.
+- [ ] Add the single-repository read-only governance credential, then exercise
+      both structural and accepted-state paths without exposing it to
+      caller-selected code.
+- [x] Pass the main-push Preview CI and verify branch protection through GitHub
+      for source `ffbfda66b341d3accb07e9be61040f7012edeb37` and run
+      `29278571101`.
+- [ ] Run an independent accepted-summary consumer that re-queries the exact
+      run attempt, successful protected-Environment deployment, and summary
+      artifact before accepting the final workflow result.
 - [ ] Publish the immutable A evidence Release, run the first verifier, publish
       the separate immutable candidate Release, verify both tag-to-commit
       bindings, enumerate evidence assets with pagination, and retain immutable
