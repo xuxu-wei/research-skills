@@ -12,6 +12,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import subprocess
 from pathlib import Path
 from typing import Any
 
@@ -35,6 +36,7 @@ VALIDATION_TEST_ROOTS = (
 )
 VALIDATION_CONTRACT_FILES = (
     ".gitattributes",
+    ".gitignore",
     ".github/workflows/openai-plugin-preview.yml",
     ".github/workflows/openai-preview-accepted-evidence.yml",
     ".github/workflows/openai-preview-evidence.yml",
@@ -50,14 +52,207 @@ MUTABLE_RUNTIME_EVIDENCE_PREFIXES = (
     "tests/openai_phase8/retrieval-artifacts/",
     "tests/openai_phase8/runtime-evidence/",
 )
+VALIDATION_RUNTIME_CACHE_DIRS = {"__pycache__"}
+VALIDATION_RUNTIME_CACHE_SUFFIXES = {".pyc", ".pyd", ".pyo"}
+
+
+def is_validation_runtime_cache(path: Path, repository: Path = REPO) -> bool:
+    relative = path.relative_to(repository)
+    return (
+        any(part in VALIDATION_RUNTIME_CACHE_DIRS for part in relative.parts)
+        or path.suffix.lower() in VALIDATION_RUNTIME_CACHE_SUFFIXES
+    )
+
+
+def _git_file_listing(repository: Path, *arguments: str) -> list[bytes]:
+    process = subprocess.run(
+        ["git", "ls-files", *arguments],
+        cwd=repository,
+        capture_output=True,
+        check=False,
+    )
+    if process.returncode != 0:
+        detail = process.stderr.decode("utf-8", errors="replace").strip()
+        raise RuntimeError(f"cannot enumerate release-ledger sources: {detail}")
+    return [item for item in process.stdout.split(b"\0") if item]
+
+
+def _has_symlink_component(path: Path, repository: Path) -> bool:
+    current = repository
+    for part in path.relative_to(repository).parts:
+        current /= part
+        if current.is_symlink():
+            return True
+    return False
+
+
+def _decode_tracked_record(record: bytes) -> tuple[bytes, bytes, str]:
+    metadata, separator, raw_path = record.partition(b"\t")
+    fields = metadata.split()
+    if not separator or len(fields) != 3:
+        raise RuntimeError("malformed tracked release-ledger source record")
+    mode, _, stage = fields
+    return mode, stage, raw_path.decode("utf-8")
+
+
+def _require_regular_tracked_record(mode: bytes, stage: bytes, relative: str) -> None:
+    if mode not in {b"100644", b"100755"}:
+        raise RuntimeError(
+            f"tracked non-regular release-ledger source is forbidden: {relative}"
+        )
+    if stage != b"0":
+        raise RuntimeError(f"unmerged release-ledger source is forbidden: {relative}")
+
+
+def _validate_worktree_file(
+    path: Path,
+    declared_root: Path,
+    repository: Path,
+    relative: str,
+) -> Path:
+    if _has_symlink_component(path, repository):
+        raise RuntimeError(f"symlink release-ledger source is forbidden: {relative}")
+    try:
+        resolved = path.resolve(strict=True)
+        resolved.relative_to(declared_root)
+    except (FileNotFoundError, ValueError) as exc:
+        raise RuntimeError(
+            f"release-ledger source escapes its declared root: {relative}"
+        ) from exc
+    if not path.is_file():
+        raise RuntimeError(f"non-file release-ledger source is forbidden: {relative}")
+    return path
+
+
+def tracked_repository_file(
+    path: Path,
+    repository: Path = REPO,
+    declared_root: Path | None = None,
+) -> Path:
+    """Return one tracked regular file without following repository symlinks."""
+
+    repository = repository.resolve(strict=True)
+    path = path.absolute()
+    declared_root = (declared_root or repository).absolute()
+    try:
+        relative = path.relative_to(repository).as_posix()
+        root_relative = declared_root.relative_to(repository)
+    except ValueError as exc:
+        raise RuntimeError(f"release-ledger file escapes repository: {path}") from exc
+    if _has_symlink_component(declared_root, repository):
+        raise RuntimeError(f"symlink release-ledger root is forbidden: {root_relative.as_posix()}")
+    try:
+        resolved_root = declared_root.resolve(strict=True)
+        resolved_root.relative_to(repository)
+    except (FileNotFoundError, ValueError) as exc:
+        raise RuntimeError(
+            f"release-ledger root escapes repository: {declared_root}"
+        ) from exc
+    records = _git_file_listing(
+        repository,
+        "--cached",
+        "--stage",
+        "-z",
+        "--",
+        relative,
+    )
+    if len(records) != 1:
+        raise RuntimeError(f"release-ledger source is not uniquely tracked: {relative}")
+    mode, stage, tracked_relative = _decode_tracked_record(records[0])
+    if tracked_relative != relative:
+        raise RuntimeError(f"Git returned an out-of-scope source: {tracked_relative}")
+    _require_regular_tracked_record(mode, stage, relative)
+    if is_validation_runtime_cache(path, repository):
+        raise RuntimeError(
+            f"tracked runtime cache is forbidden in release identity: {relative}"
+        )
+    return _validate_worktree_file(
+        path,
+        resolved_root,
+        repository,
+        relative,
+    )
+
+
+def repository_candidate_files(
+    root: Path,
+    repository: Path = REPO,
+) -> list[Path]:
+    """Return tracked and non-ignored new files under a repository root."""
+
+    root = root.absolute()
+    repository = repository.resolve(strict=True)
+    try:
+        root_relative = root.relative_to(repository).as_posix()
+    except ValueError as exc:
+        raise RuntimeError(f"release-ledger root escapes repository: {root}") from exc
+    if _has_symlink_component(root, repository):
+        raise RuntimeError(f"symlink release-ledger root is forbidden: {root_relative}")
+    try:
+        resolved_root = root.resolve(strict=True)
+        resolved_root.relative_to(repository)
+    except (FileNotFoundError, ValueError) as exc:
+        raise RuntimeError(f"release-ledger root escapes repository: {root}") from exc
+    if not root.is_dir():
+        raise RuntimeError(f"release-ledger root is not a directory: {root_relative}")
+    tracked_records = _git_file_listing(
+        repository,
+        "--cached",
+        "--stage",
+        "-z",
+        "--",
+        root_relative,
+    )
+    untracked_records = _git_file_listing(
+        repository,
+        "--others",
+        "--exclude-per-directory=.gitignore",
+        "-z",
+        "--",
+        root_relative,
+    )
+    prefix = f"{root_relative}/"
+    candidates: dict[str, tuple[Path, bool]] = {}
+    for record in tracked_records:
+        mode, stage, relative = _decode_tracked_record(record)
+        _require_regular_tracked_record(mode, stage, relative)
+        if relative != root_relative and not relative.startswith(prefix):
+            raise RuntimeError(f"Git returned an out-of-scope source: {relative}")
+        path = repository / Path(relative)
+        if is_validation_runtime_cache(path, repository):
+            raise RuntimeError(
+                f"tracked runtime cache is forbidden in release identity: {relative}"
+            )
+        candidates[relative] = (path, True)
+    for record in untracked_records:
+        relative = record.decode("utf-8")
+        if relative != root_relative and not relative.startswith(prefix):
+            raise RuntimeError(f"Git returned an out-of-scope source: {relative}")
+        path = repository / Path(relative)
+        if not is_validation_runtime_cache(path, repository):
+            candidates.setdefault(relative, (path, False))
+
+    paths: list[Path] = []
+    for relative, (path, tracked) in sorted(candidates.items()):
+        if not path.exists():
+            if tracked:
+                continue
+            raise RuntimeError(f"untracked release-ledger source disappeared: {relative}")
+        paths.append(
+            _validate_worktree_file(
+                path,
+                resolved_root,
+                repository,
+                relative,
+            )
+        )
+    return paths
 
 
 def normalized_skill_tree_digest(root: Path) -> tuple[int, str]:
+    root = root.absolute()
     digest = hashlib.sha256()
-    files = sorted(
-        (path for path in root.rglob("*") if path.is_file()),
-        key=lambda path: path.relative_to(root).as_posix(),
-    )
+    files = repository_candidate_files(root)
     for path in files:
         digest.update(path.relative_to(root).as_posix().encode("utf-8"))
         digest.update(b"\0")
@@ -67,18 +262,23 @@ def normalized_skill_tree_digest(root: Path) -> tuple[int, str]:
 
 
 def normalized_file_digest(path: Path) -> str:
+    path = tracked_repository_file(path)
     return hashlib.sha256(path.read_bytes().replace(b"\r\n", b"\n")).hexdigest()
 
 
 def validation_contract_paths() -> list[Path]:
+    scripts_root = REPO / "scripts"
     paths = [
         path
-        for path in (REPO / "scripts").glob("*.py")
-        if path.is_file()
+        for path in repository_candidate_files(scripts_root)
+        if path.parent == scripts_root and path.suffix == ".py"
     ]
     for root in VALIDATION_TEST_ROOTS:
-        paths.extend(path for path in (REPO / root).rglob("*") if path.is_file())
-    paths.extend(REPO / path for path in VALIDATION_CONTRACT_FILES)
+        paths.extend(repository_candidate_files(REPO / root))
+    paths.extend(
+        tracked_repository_file(REPO / path)
+        for path in VALIDATION_CONTRACT_FILES
+    )
     return sorted(
         (
             path

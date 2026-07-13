@@ -35,11 +35,15 @@ from generate_openai_release_ledger import (
     REPO,
     SKILL_TREE_ALGORITHM,
     VALIDATION_CONTRACT_FILES,
+    VALIDATION_RUNTIME_CACHE_DIRS,
+    VALIDATION_RUNTIME_CACHE_SUFFIXES,
     VALIDATION_TEST_ROOTS,
     VALIDATION_TREE_ALGORITHM,
     normalized_skill_tree_digest,
     normalized_file_digest,
     normalized_validation_contract_digest,
+    repository_candidate_files,
+    tracked_repository_file,
 )
 
 
@@ -863,18 +867,48 @@ def git_blob(commit_sha: str, path: str) -> bytes | None:
     return stdout if returncode == 0 else None
 
 
-def committed_skill_tree_digest(commit_sha: str) -> tuple[int, str] | None:
-    prefix = "research-skills-openai/skills/"
+def is_runtime_cache_path(path: str) -> bool:
+    relative = PurePosixPath(path)
+    return (
+        any(part in VALIDATION_RUNTIME_CACHE_DIRS for part in relative.parts)
+        or relative.suffix.lower() in VALIDATION_RUNTIME_CACHE_SUFFIXES
+    )
+
+
+def committed_regular_paths(
+    commit_sha: str,
+    *roots: str,
+) -> list[str] | None:
     returncode, output, _ = git_bytes(
-        "ls-tree", "-r", "--name-only", "-z", commit_sha, "--", prefix
+        "ls-tree", "-r", "-z", commit_sha, "--", *roots
     )
     if returncode != 0:
         return None
-    paths = sorted(
-        item.decode("utf-8")
-        for item in output.split(b"\0")
-        if item
-    )
+    paths: list[str] = []
+    for record in output.split(b"\0"):
+        if not record:
+            continue
+        metadata, separator, raw_path = record.partition(b"\t")
+        fields = metadata.split()
+        if not separator or len(fields) != 3:
+            return None
+        mode, object_type, _ = fields
+        path = raw_path.decode("utf-8")
+        if (
+            mode not in {b"100644", b"100755"}
+            or object_type != b"blob"
+            or is_runtime_cache_path(path)
+        ):
+            return None
+        paths.append(path)
+    return sorted(paths)
+
+
+def committed_skill_tree_digest(commit_sha: str) -> tuple[int, str] | None:
+    prefix = "research-skills-openai/skills/"
+    paths = committed_regular_paths(commit_sha, prefix)
+    if paths is None:
+        return None
     digest = hashlib.sha256()
     for full_path in paths:
         blob = git_blob(commit_sha, full_path)
@@ -896,6 +930,7 @@ def is_validation_contract_path(path: str) -> bool:
     )
     return (
         selected
+        and not is_runtime_cache_path(path)
         and path not in MUTABLE_RUNTIME_EVIDENCE_FILES
         and not any(path.startswith(prefix) for prefix in MUTABLE_RUNTIME_EVIDENCE_PREFIXES)
     )
@@ -903,16 +938,12 @@ def is_validation_contract_path(path: str) -> bool:
 
 def committed_validation_contract_digest(commit_sha: str) -> tuple[int, str] | None:
     roots = ["scripts", *VALIDATION_TEST_ROOTS, *VALIDATION_CONTRACT_FILES]
-    returncode, output, _ = git_bytes(
-        "ls-tree", "-r", "--name-only", "-z", commit_sha, "--", *roots
-    )
-    if returncode != 0:
+    committed_paths = committed_regular_paths(commit_sha, *roots)
+    if committed_paths is None:
         return None
     paths = sorted(
         path
-        for item in output.split(b"\0")
-        if item
-        for path in [item.decode("utf-8")]
+        for path in committed_paths
         if is_validation_contract_path(path)
     )
     digest = hashlib.sha256()
@@ -2916,6 +2947,261 @@ def run_mutation_self_tests() -> tuple[int, list[str]]:
         count += 1
 
         validation_count, validation_digest = normalized_validation_contract_digest()
+        cache_dir = REPO / VALIDATION_TEST_ROOTS[2] / "__pycache__"
+        cache_dir_existed = cache_dir.exists()
+        cache_dir.mkdir(parents=True, exist_ok=True)
+        with tempfile.NamedTemporaryFile(
+            prefix="release-ledger-portability-",
+            suffix=".pyc",
+            dir=cache_dir,
+            delete=False,
+        ) as cache_handle:
+            cache_handle.write(b"platform-specific-python-bytecode")
+            cache_path = Path(cache_handle.name)
+        try:
+            cache_count, cache_digest = normalized_validation_contract_digest()
+            if (cache_count, cache_digest) != (validation_count, validation_digest):
+                failures.append(
+                    "Python runtime cache changed the validation-contract digest"
+                )
+        finally:
+            cache_path.unlink(missing_ok=True)
+            if not cache_dir_existed:
+                try:
+                    cache_dir.rmdir()
+                except OSError:
+                    pass
+        count += 1
+
+        skill_count, skill_digest = normalized_skill_tree_digest(PLUGIN / "skills")
+        skill_cache_dir = PLUGIN / "skills" / "academic-deep-search" / "__pycache__"
+        skill_cache_dir_existed = skill_cache_dir.exists()
+        skill_cache_dir.mkdir(parents=True, exist_ok=True)
+        with tempfile.NamedTemporaryFile(
+            prefix="release-ledger-skill-portability-",
+            suffix=".pyd",
+            dir=skill_cache_dir,
+            delete=False,
+        ) as skill_cache_handle:
+            skill_cache_handle.write(b"platform-specific-extension-cache")
+            skill_cache_path = Path(skill_cache_handle.name)
+        try:
+            cached_skill_count, cached_skill_digest = normalized_skill_tree_digest(
+                PLUGIN / "skills"
+            )
+            if (cached_skill_count, cached_skill_digest) != (
+                skill_count,
+                skill_digest,
+            ):
+                failures.append("ignored runtime cache changed the skill-tree digest")
+        finally:
+            skill_cache_path.unlink(missing_ok=True)
+            if not skill_cache_dir_existed:
+                try:
+                    skill_cache_dir.rmdir()
+                except OSError:
+                    pass
+        count += 1
+
+        validation_source_root = REPO / VALIDATION_TEST_ROOTS[2]
+        with tempfile.NamedTemporaryFile(
+            prefix="release-ledger-new-contract-",
+            suffix=".md",
+            dir=validation_source_root,
+            delete=False,
+        ) as source_handle:
+            source_handle.write(b"new non-ignored validation contract")
+            source_path = Path(source_handle.name)
+        try:
+            source_count, source_digest = normalized_validation_contract_digest()
+            if source_count != validation_count + 1 or source_digest == validation_digest:
+                failures.append(
+                    "non-ignored new source did not change the validation-contract digest"
+                )
+        finally:
+            source_path.unlink(missing_ok=True)
+        count += 1
+
+        skill_source_root = PLUGIN / "skills" / "academic-deep-search"
+        with tempfile.NamedTemporaryFile(
+            prefix="release-ledger-new-skill-resource-",
+            suffix=".md",
+            dir=skill_source_root,
+            delete=False,
+        ) as skill_source_handle:
+            skill_source_handle.write(b"new non-ignored skill resource")
+            skill_source_path = Path(skill_source_handle.name)
+        try:
+            source_skill_count, source_skill_digest = normalized_skill_tree_digest(
+                PLUGIN / "skills"
+            )
+            if (
+                source_skill_count != skill_count + 1
+                or source_skill_digest == skill_digest
+            ):
+                failures.append(
+                    "non-ignored new resource did not change the skill-tree digest"
+                )
+        finally:
+            skill_source_path.unlink(missing_ok=True)
+        count += 1
+
+        tracked_cache_repo = evidence_dir / "tracked-cache-repository"
+        subprocess.run(
+            ["git", "init", "--quiet", str(tracked_cache_repo)],
+            cwd=REPO,
+            check=True,
+            capture_output=True,
+        )
+        tracked_cache_root = tracked_cache_repo / "skills"
+        tracked_cache_path = (
+            tracked_cache_root / "example" / "__pycache__" / "tracked.pyc"
+        )
+        tracked_cache_path.parent.mkdir(parents=True, exist_ok=True)
+        tracked_cache_path.write_bytes(b"tracked-runtime-cache")
+        subprocess.run(
+            [
+                "git",
+                "-C",
+                str(tracked_cache_repo),
+                "add",
+                "--force",
+                "--",
+                tracked_cache_path.relative_to(tracked_cache_repo).as_posix(),
+            ],
+            check=True,
+            capture_output=True,
+        )
+        try:
+            repository_candidate_files(
+                tracked_cache_root,
+                repository=tracked_cache_repo,
+            )
+        except RuntimeError as exc:
+            if "tracked runtime cache is forbidden" not in str(exc):
+                failures.append(
+                    f"tracked runtime cache failed for the wrong reason: {exc}"
+                )
+        else:
+            failures.append("tracked runtime cache was omitted instead of rejected")
+        count += 1
+
+        symlink_repo = evidence_dir / "symlink-repository"
+        subprocess.run(
+            ["git", "init", "--quiet", str(symlink_repo)],
+            cwd=REPO,
+            check=True,
+            capture_output=True,
+        )
+        symlink_root = symlink_repo / "skills"
+        symlink_root.mkdir(parents=True, exist_ok=True)
+        target_blob = subprocess.run(
+            ["git", "-C", str(symlink_repo), "hash-object", "-w", "--stdin"],
+            input=b"../../outside",
+            check=True,
+            capture_output=True,
+        ).stdout.decode("ascii").strip()
+        subprocess.run(
+            [
+                "git",
+                "-C",
+                str(symlink_repo),
+                "update-index",
+                "--add",
+                "--cacheinfo",
+                f"120000,{target_blob},skills/escape-link",
+            ],
+            check=True,
+            capture_output=True,
+        )
+        try:
+            repository_candidate_files(
+                symlink_root,
+                repository=symlink_repo,
+            )
+        except RuntimeError as exc:
+            if "tracked non-regular release-ledger source is forbidden" not in str(exc):
+                failures.append(f"tracked symlink failed for the wrong reason: {exc}")
+        else:
+            failures.append("tracked symlink source was not rejected")
+        count += 1
+
+        explicit_contract_path = symlink_repo / "contract.yml"
+        explicit_contract_path.write_text("regular-worktree-file\n", encoding="utf-8")
+        subprocess.run(
+            [
+                "git",
+                "-C",
+                str(symlink_repo),
+                "update-index",
+                "--add",
+                "--cacheinfo",
+                f"120000,{target_blob},contract.yml",
+            ],
+            check=True,
+            capture_output=True,
+        )
+        try:
+            tracked_repository_file(
+                explicit_contract_path,
+                repository=symlink_repo,
+            )
+        except RuntimeError as exc:
+            if "tracked non-regular release-ledger source is forbidden" not in str(exc):
+                failures.append(
+                    f"explicit tracked symlink failed for the wrong reason: {exc}"
+                )
+        else:
+            failures.append("explicit tracked symlink contract was not rejected")
+        count += 1
+
+        symlink_root_repo = evidence_dir / "symlink-root-repository"
+        subprocess.run(
+            ["git", "init", "--quiet", str(symlink_root_repo)],
+            cwd=REPO,
+            check=True,
+            capture_output=True,
+        )
+        symlink_root_path = symlink_root_repo / "skills"
+        symlink_root_path.mkdir(parents=True, exist_ok=True)
+        root_target_blob = subprocess.run(
+            [
+                "git",
+                "-C",
+                str(symlink_root_repo),
+                "hash-object",
+                "-w",
+                "--stdin",
+            ],
+            input=b"outside-skills",
+            check=True,
+            capture_output=True,
+        ).stdout.decode("ascii").strip()
+        subprocess.run(
+            [
+                "git",
+                "-C",
+                str(symlink_root_repo),
+                "update-index",
+                "--add",
+                "--cacheinfo",
+                f"120000,{root_target_blob},skills",
+            ],
+            check=True,
+            capture_output=True,
+        )
+        try:
+            repository_candidate_files(
+                symlink_root_path,
+                repository=symlink_root_repo,
+            )
+        except RuntimeError as exc:
+            if "tracked non-regular release-ledger source is forbidden" not in str(exc):
+                failures.append(f"symlink root failed for the wrong reason: {exc}")
+        else:
+            failures.append("tracked symlink root was not rejected")
+        count += 1
+
         validation_fixture = {
             "validation_contract_tree": {
                 "algorithm": VALIDATION_TREE_ALGORITHM,
