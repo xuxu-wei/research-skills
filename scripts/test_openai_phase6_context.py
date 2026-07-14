@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate Phase 6 discovery policy, context proxies, and public quickstarts."""
+"""Validate Phase 6 discovery policy, context proxies, and entry quickstarts."""
 
 from __future__ import annotations
 
@@ -25,8 +25,18 @@ README = PLUGIN / "README.md"
 ROUTING_RECEIPTS = REPO / "tests" / "openai_phase6" / "quickstart-routing-receipts.yaml"
 REPORT = PLUGIN / "reports" / "phase6-context-measurement.md"
 
-PUBLIC_ENTRY_LIMIT = 7
-IMPLICIT_ACTIVE_LIMIT = 6
+EXPECTED_PUBLIC_ENTRIES = {
+    "academic-deep-search",
+    "article-orchestrator",
+    "perspective-orchestrator",
+    "proposal-orchestrator",
+    "research-idea-orchestrator",
+    "research-opportunity-mapper",
+    "research-polisher-orchestrator",
+}
+EXPECTED_IMPLICIT_ENTRIES = EXPECTED_PUBLIC_ENTRIES - {
+    "research-polisher-orchestrator"
+}
 DESCRIPTION_PROXY_LIMIT = 6_200
 ORCHESTRATOR_PROXY_LIMIT = 13_400
 QUICKSTART_FIELDS = ("Minimum input:", "Expected output:", "Stop states:", "Resume:")
@@ -108,13 +118,15 @@ def main() -> int:
     }
     public_entry_policy = registry.get("public_entry_policy", {})
     public_names = set(public_entry_policy.get("declared_entries", []))
-    if len(public_names) != PUBLIC_ENTRY_LIMIT:
+    if public_names != EXPECTED_PUBLIC_ENTRIES:
         errors.append(
-            f"declared public entry boundary changed: {len(public_names)}/{PUBLIC_ENTRY_LIMIT}"
+            "declared public entry boundary changed: "
+            f"expected={sorted(EXPECTED_PUBLIC_ENTRIES)}, actual={sorted(public_names)}"
         )
-    if len(implicit_names) != IMPLICIT_ACTIVE_LIMIT:
+    if implicit_names != EXPECTED_IMPLICIT_ENTRIES:
         errors.append(
-            f"active implicit entry boundary changed: {len(implicit_names)}/{IMPLICIT_ACTIVE_LIMIT}"
+            "active implicit entry boundary changed: "
+            f"expected={sorted(EXPECTED_IMPLICIT_ENTRIES)}, actual={sorted(implicit_names)}"
         )
     if set(public_entry_policy.get("implicit_active_entries", [])) != implicit_names:
         errors.append("public entry policy and per-skill implicit policies disagree")
@@ -181,8 +193,8 @@ def main() -> int:
             )
 
     readme = read(README)
-    if "## Public entry quickstarts" not in readme:
-        errors.append("README lacks the public entry quickstarts section")
+    if "## Entry-skill quickstarts" not in readme:
+        errors.append("README lacks the entry-skill quickstarts section")
     state_machines = registry.get("workflow_state_machines", {})
     modes_by_orchestrator = {
         machine.get("orchestrator"): set(machine.get("entry_modes", []))
@@ -312,7 +324,7 @@ def main() -> int:
             "Status: Complete",
             "ChatGPT web: not tested",
             f"`{registry.get('plugin_version')}`",
-            f"| Observed public-entry descriptions | {public_description_chars:,} | Informational |",
+            f"| Declared-entry descriptions | {public_description_chars:,} | Informational |",
             f"| All {len(registered_names)} descriptions | {description_chars:,} | {DESCRIPTION_PROXY_LIMIT:,} |",
             "routing snapshot",
             "SHA-256",
@@ -333,8 +345,12 @@ def main() -> int:
             )
     print("OpenAI Phase 6 context validation")
     print(f"source skills (derived from registry): {len(registered_names)}")
-    print(f"declared public entries: {len(public_names)}/{PUBLIC_ENTRY_LIMIT}")
-    print(f"implicit-active public entries: {len(implicit_names)}/{IMPLICIT_ACTIVE_LIMIT}")
+    print(f"declared entries: {len(public_names)}/{len(EXPECTED_PUBLIC_ENTRIES)}")
+    print(
+        "implicit-active entries: "
+        f"{len(implicit_names)}/{len(EXPECTED_IMPLICIT_ENTRIES)} "
+        "(personal-owner; Research Polisher explicit-only)"
+    )
     print(f"non-implicit roles: {len(registered_names) - len(implicit_names)}")
     print(
         "short-description range: "
@@ -345,7 +361,7 @@ def main() -> int:
         "short-description boundary guards: "
         f"{short_description_boundary_guards}/{len(short_description_boundary_cases)}"
     )
-    print(f"public-entry description characters: {public_description_chars}")
+    print(f"declared-entry description characters: {public_description_chars}")
     print(f"all-skill description proxy: {description_chars}/{DESCRIPTION_PROXY_LIMIT}")
     for name, proxy in sorted(orchestrator_proxies.items()):
         print(f"{name} conservative description+full-SKILL proxy: {proxy}/{ORCHESTRATOR_PROXY_LIMIT}")

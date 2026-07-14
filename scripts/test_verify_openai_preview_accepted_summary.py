@@ -96,6 +96,13 @@ def base_summary() -> dict[str, Any]:
         return build_summary(**values)
 
 
+def stage_b_summary() -> dict[str, Any]:
+    with tempfile.TemporaryDirectory() as temporary:
+        values = producer_fixture.fixture(Path(temporary))
+        producer_fixture.promote_fixture_to_stage_b(values)
+        return build_summary(**values)
+
+
 def run_document() -> dict[str, Any]:
     repository = {"id": REPOSITORY_ID, "full_name": REPOSITORY}
     return {
@@ -638,6 +645,14 @@ def main() -> int:
     assert result["target_run"]["run_attempt"] == RUN_ATTEMPT
     assert result["deployment"]["status_id"] == STATUS_SUCCESS_ID
     assert result["artifact"]["artifact_id"] == ARTIFACT_ID
+    assert result["accepted_summary_binding"]["release_stage"] == "A"
+    assert result["accepted_summary_binding"]["stage_a_verified_record_count"] == 0
+    assert (
+        result["accepted_summary_binding"][
+            "stage_a_closure_consumer_result_sha256"
+        ]
+        is None
+    )
     assert result["decision"] == {
         "verification_level": "preview_attested",
         "provider_verified": False,
@@ -781,6 +796,69 @@ def main() -> int:
     assert len(expected_codes) == len(mutations)
     for expected_code, mutation in zip(expected_codes, mutations, strict=True):
         rejected(mutation, base, expected_code)
+    rejected(
+        mutate_summary(
+            lambda summary: summary["release_evidence"].update(
+                release_stage="B",
+                stage_a_predecessor_scope="previous_releases[0]",
+                stage_a_verified_record_count=8,
+            )
+        ),
+        base,
+        "summary_evidence_invalid",
+    )
+
+    stage_b_base = fixture()
+    stage_b_base["summary"] = stage_b_summary()
+    refresh_archive(stage_b_base)
+    stage_b_result = run(copy.deepcopy(stage_b_base))
+    assert stage_b_result["accepted_summary_binding"]["release_stage"] == "B"
+    assert (
+        stage_b_result["accepted_summary_binding"]["stage_a_verified_record_count"]
+        == 9
+    )
+    assert (
+        stage_b_result["accepted_summary_binding"][
+            "stage_a_closure_consumer_result_sha256"
+        ]
+        == stage_b_base["summary"]["release_evidence"]["stage_a_closure"][
+            "consumer_result_sha256"
+        ]
+    )
+    rejected(
+        mutate_summary(
+            lambda summary: summary["release_evidence"].__setitem__(
+                "stage_a_predecessor_scope", "previous_releases[1]"
+            )
+        ),
+        stage_b_base,
+        "summary_evidence_invalid",
+    )
+    rejected(
+        mutate_summary(
+            lambda summary: summary["release_evidence"]["history_items"].pop()
+        ),
+        stage_b_base,
+        "summary_evidence_invalid",
+    )
+    rejected(
+        mutate_summary(
+            lambda summary: summary["release_evidence"]["stage_a_closure"].__setitem__(
+                "phase7_verified_runtime_count", 9
+            )
+        ),
+        stage_b_base,
+        "summary_evidence_invalid",
+    )
+    rejected(
+        mutate_summary(
+            lambda summary: summary["release_evidence"]["stage_a_closure"].__setitem__(
+                "consumer_result_sha256", "not-a-digest"
+            )
+        ),
+        stage_b_base,
+        "digest_invalid",
+    )
     rejected(duplicate_job_across_pages, base, "pagination_invalid")
     rejected(drift_job_total_across_pages, base, "pagination_invalid")
     rejected(duplicate_deployment_across_pages, base, "pagination_invalid")
@@ -916,7 +994,7 @@ def main() -> int:
 
     print(
         "OpenAI Preview accepted-summary consumer contracts passed: "
-        f"{len(mutations) + 14} guards"
+        f"{len(mutations) + 17} guards"
     )
     return 0
 

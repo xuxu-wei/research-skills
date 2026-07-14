@@ -29,3 +29,8 @@ Thumbs.db
 # Generated skill packages
 skills-flatten/
 skills-openai-plugin/
+
+# Owner-only Phase 7-8 research inputs and compressed backup
+/tests/article/
+/tests/idea-to-proposal/
+/tests/test-examples.rar

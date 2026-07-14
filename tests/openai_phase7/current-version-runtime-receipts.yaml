@@ -14,6 +14,7 @@ platform_trust:
 receipts:
   - receipt_id: phase7-idea-happy
     workflow: idea
+    entry_mode: standard
     case_kind: happy
     expected_final_state: human_signoff_required
     status: pending_live_evidence
@@ -21,7 +22,7 @@ receipts:
       plugin_version: null
       registry_sha256: null
       source_commit: null
-      task_export: {platform: null, task_id: null, path: null, sha256: null}
+      task_export: {platform: null, task_id: null, entry_mode: standard, path: null, sha256: null}
       actor_manifest: {path: null, sha256: null}
       artifact_index: {path: null, sha256: null}
     file_access:
@@ -45,6 +46,7 @@ receipts:
 
   - receipt_id: phase7-idea-control
     workflow: idea
+    entry_mode: standard
     case_kind: control
     expected_final_state: stopped
     status: pending_live_evidence
@@ -52,7 +54,7 @@ receipts:
       plugin_version: null
       registry_sha256: null
       source_commit: null
-      task_export: {platform: null, task_id: null, path: null, sha256: null}
+      task_export: {platform: null, task_id: null, entry_mode: standard, path: null, sha256: null}
       actor_manifest: {path: null, sha256: null}
       artifact_index: {path: null, sha256: null}
     file_access:
@@ -81,6 +83,7 @@ receipts:
 
   - receipt_id: phase7-proposal-happy
     workflow: proposal
+    entry_mode: standard
     case_kind: happy
     expected_final_state: human_signoff_required
     status: pending_live_evidence
@@ -88,7 +91,7 @@ receipts:
       plugin_version: null
       registry_sha256: null
       source_commit: null
-      task_export: {platform: null, task_id: null, path: null, sha256: null}
+      task_export: {platform: null, task_id: null, entry_mode: standard, path: null, sha256: null}
       actor_manifest: {path: null, sha256: null}
       artifact_index: {path: null, sha256: null}
     file_access:
@@ -112,6 +115,7 @@ receipts:
 
   - receipt_id: phase7-proposal-control
     workflow: proposal
+    entry_mode: existing_draft
     case_kind: control
     expected_final_state: blocked
     status: pending_live_evidence
@@ -119,7 +123,7 @@ receipts:
       plugin_version: null
       registry_sha256: null
       source_commit: null
-      task_export: {platform: null, task_id: null, path: null, sha256: null}
+      task_export: {platform: null, task_id: null, entry_mode: existing_draft, path: null, sha256: null}
       actor_manifest: {path: null, sha256: null}
       artifact_index: {path: null, sha256: null}
     file_access:
@@ -148,6 +152,7 @@ receipts:
 
   - receipt_id: phase7-article-happy
     workflow: article
+    entry_mode: standard
     case_kind: happy
     expected_final_state: human_signoff_required
     status: pending_live_evidence
@@ -155,7 +160,7 @@ receipts:
       plugin_version: null
       registry_sha256: null
       source_commit: null
-      task_export: {platform: null, task_id: null, path: null, sha256: null}
+      task_export: {platform: null, task_id: null, entry_mode: standard, path: null, sha256: null}
       actor_manifest: {path: null, sha256: null}
       artifact_index: {path: null, sha256: null}
     file_access:
@@ -179,6 +184,7 @@ receipts:
 
   - receipt_id: phase7-article-control
     workflow: article
+    entry_mode: fast_track_draft
     case_kind: control
     expected_final_state: blocked
     status: pending_live_evidence
@@ -186,7 +192,7 @@ receipts:
       plugin_version: null
       registry_sha256: null
       source_commit: null
-      task_export: {platform: null, task_id: null, path: null, sha256: null}
+      task_export: {platform: null, task_id: null, entry_mode: fast_track_draft, path: null, sha256: null}
       actor_manifest: {path: null, sha256: null}
       artifact_index: {path: null, sha256: null}
     file_access:
@@ -215,6 +221,7 @@ receipts:
 
   - receipt_id: phase7-perspective-happy
     workflow: perspective
+    entry_mode: full
     case_kind: happy
     expected_final_state: human_signoff_required
     status: pending_live_evidence
@@ -222,7 +229,7 @@ receipts:
       plugin_version: null
       registry_sha256: null
       source_commit: null
-      task_export: {platform: null, task_id: null, path: null, sha256: null}
+      task_export: {platform: null, task_id: null, entry_mode: full, path: null, sha256: null}
       actor_manifest: {path: null, sha256: null}
       artifact_index: {path: null, sha256: null}
     file_access:
@@ -246,6 +253,7 @@ receipts:
 
   - receipt_id: phase7-perspective-control
     workflow: perspective
+    entry_mode: standard
     case_kind: control
     expected_final_state: stopped
     status: pending_live_evidence
@@ -253,7 +261,7 @@ receipts:
       plugin_version: null
       registry_sha256: null
       source_commit: null
-      task_export: {platform: null, task_id: null, path: null, sha256: null}
+      task_export: {platform: null, task_id: null, entry_mode: standard, path: null, sha256: null}
       actor_manifest: {path: null, sha256: null}
       artifact_index: {path: null, sha256: null}
     file_access:
@@ -282,6 +290,7 @@ receipts:
 
   - receipt_id: phase7-research-polisher-happy
     workflow: research_polisher
+    entry_mode: standard
     case_kind: happy
     expected_final_state: human_strategy_selection_required
     status: pending_live_evidence
@@ -289,7 +298,7 @@ receipts:
       plugin_version: null
       registry_sha256: null
       source_commit: null
-      task_export: {platform: null, task_id: null, path: null, sha256: null}
+      task_export: {platform: null, task_id: null, entry_mode: standard, path: null, sha256: null}
       actor_manifest: {path: null, sha256: null}
       artifact_index: {path: null, sha256: null}
     file_access:
@@ -313,6 +322,7 @@ receipts:
 
   - receipt_id: phase7-research-polisher-control
     workflow: research_polisher
+    entry_mode: standard
     case_kind: control
     expected_final_state: no_defensible_option
     status: pending_live_evidence
@@ -320,7 +330,7 @@ receipts:
       plugin_version: null
       registry_sha256: null
       source_commit: null
-      task_export: {platform: null, task_id: null, path: null, sha256: null}
+      task_export: {platform: null, task_id: null, entry_mode: standard, path: null, sha256: null}
       actor_manifest: {path: null, sha256: null}
       artifact_index: {path: null, sha256: null}
     file_access:

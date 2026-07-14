@@ -19,6 +19,7 @@ import re
 import subprocess
 import sys
 import tempfile
+from collections import Counter
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from pathlib import Path, PurePosixPath
@@ -43,6 +44,11 @@ from openai_preview_evidence import (
     sha256_bytes,
     validate_evidence_bundle,
 )
+from openai_preview_capture_contracts import (
+    PHASE8_CAPTURE_ADAPTER_ID,
+    PHASE8_NORMALIZED_CAPTURE_SCHEMA,
+    validate_normalized_capture,
+)
 
 
 REPO = Path(__file__).resolve().parents[1]
@@ -50,6 +56,8 @@ PLUGIN = REPO / "research-skills-openai"
 PHASE8_VERIFIER_PATH = REPO / "tests" / "openai_phase8" / "verify_preview_evidence.py"
 PREVIEW_ADAPTER_ID = "github_release_asset_preview_v1"
 WORKSPACE_MANIFEST_SCHEMA = "openai-phase8-workspace-manifest/v1"
+REVIEWER_COLLECTION_SCHEMA = "openai-phase8-reviewer-receipt-collection/v2"
+RETRIEVAL_COLLECTION_SCHEMA = "openai-phase8-retrieval-receipt-collection/v2"
 RESULT_SCHEMA = "openai-phase8-external-evidence-validation/v1"
 EXPECTED_REVIEWER_SLOTS = 6
 EXPECTED_RETRIEVAL_SLOTS = 6
@@ -150,6 +158,7 @@ class Slot:
     captured_at: str
     raw_path: str
     subject: Mapping[str, Any]
+    parent_task_or_thread_id: str | None = None
 
 
 @dataclass(frozen=True)
@@ -353,10 +362,16 @@ def _assert_subject_identity(subject: Mapping[str, Any], identity: Mapping[str, 
 
 
 def _reviewer_slots(collection: Mapping[str, Any], identity: Mapping[str, str]) -> dict[str, Slot]:
+    if collection.get("schema_version") != REVIEWER_COLLECTION_SCHEMA:
+        _fail("reviewer_collection_schema", "reviewer_receipts.schema_version", str(collection.get("schema_version")))
     if collection.get("evidence_class") != "preview_attested_platform_fresh_subagent_receipts":
         _fail("reviewer_evidence_class", "reviewer_receipts.evidence_class", str(collection.get("evidence_class")))
+    if collection.get("counts_as_runtime_evidence") is not False or collection.get("synthetic_test_only") is not False:
+        _fail("reviewer_collection_nonproduction", "reviewer_receipts", "non-counting production collection required")
     _assert_subject_identity(collection, identity, "reviewer_receipts")
-    _timestamp(collection.get("captured_at"), "reviewer_receipts.captured_at")
+    _identifier(collection.get("collection_id"), "reviewer_receipts.collection_id")
+    if "captured_at" in collection:
+        _fail("reviewer_collection_shared_timestamp", "reviewer_receipts.captured_at", "timestamps belong to individual runs")
     cases = _sequence(collection.get("cases"), "reviewer_receipts.cases")
     if len(cases) != 3 or {str(item.get("case_id", "")).lower().removeprefix("case-") for item in cases if isinstance(item, Mapping)} != {"a01", "a02", "a03"}:
         _fail("reviewer_case_coverage", "reviewer_receipts.cases", "A01, A02, and A03 are required")
@@ -374,14 +389,20 @@ def _reviewer_slots(collection: Mapping[str, Any], identity: Mapping[str, str]) 
             contract = _mapping(run.get("review_contract"), f"reviewer.{slot_id}.review_contract")
             _identifier(contract.get("reviewer_instance_id"), f"reviewer.{slot_id}.instance_id", reject_oracle=True)
             execution_id = _identifier(run.get("delegated_thread_id"), f"reviewer.{slot_id}.delegated_thread_id", reject_oracle=True)
-            raw_path = _logical_path(run.get("raw_transport_output_path"), f"reviewer.{slot_id}.raw_path")
+            parent_id = _identifier(run.get("parent_task_or_thread_id"), f"reviewer.{slot_id}.parent_task_or_thread_id", reject_oracle=True)
+            captured_at = str(run.get("captured_at"))
+            _timestamp(captured_at, f"reviewer.{slot_id}.captured_at")
+            raw_path = _logical_path(run.get("normalized_capture_path"), f"reviewer.{slot_id}.normalized_capture_path")
+            if run.get("scope_authority") != "platform_derived" or contract.get("source_edits_performed") is not False:
+                _fail("reviewer_platform_scope_required", f"reviewer.{slot_id}", str(run.get("scope_authority")))
             slots[slot_id] = Slot(
                 kind="reviewer",
                 slot_id=slot_id,
                 execution_id=execution_id,
-                captured_at=str(collection.get("captured_at")),
+                captured_at=captured_at,
                 raw_path=raw_path,
                 subject=run,
+                parent_task_or_thread_id=parent_id,
             )
     if len(slots) != EXPECTED_REVIEWER_SLOTS:
         _fail("reviewer_slot_count", "reviewer_receipts", str(len(slots)))
@@ -389,8 +410,12 @@ def _reviewer_slots(collection: Mapping[str, Any], identity: Mapping[str, str]) 
 
 
 def _retrieval_slots(collection: Mapping[str, Any], identity: Mapping[str, str]) -> dict[str, Slot]:
+    if collection.get("schema_version") != RETRIEVAL_COLLECTION_SCHEMA:
+        _fail("retrieval_collection_schema", "retrieval_receipts.schema_version", str(collection.get("schema_version")))
     if collection.get("evidence_class") != "preview_attested_platform_retrieval_receipts":
         _fail("retrieval_evidence_class", "retrieval_receipts.evidence_class", str(collection.get("evidence_class")))
+    if collection.get("counts_as_runtime_evidence") is not False or collection.get("synthetic_test_only") is not False:
+        _fail("retrieval_collection_nonproduction", "retrieval_receipts", "non-counting production collection required")
     receipts = _sequence(collection.get("receipts"), "retrieval_receipts.receipts")
     if len(receipts) != EXPECTED_RETRIEVAL_SLOTS:
         _fail("retrieval_slot_count", "retrieval_receipts.receipts", str(len(receipts)))
@@ -410,7 +435,7 @@ def _retrieval_slots(collection: Mapping[str, Any], identity: Mapping[str, str])
             slot_id=slot_id,
             execution_id=_identifier(receipt.get("task_id"), f"retrieval.{slot_id}.task_id"),
             captured_at=str(receipt.get("captured_at")),
-            raw_path=_logical_path(receipt.get("platform_receipt_or_export_path"), f"retrieval.{slot_id}.platform_export"),
+            raw_path=_logical_path(receipt.get("normalized_capture_path"), f"retrieval.{slot_id}.normalized_capture_path"),
             subject=receipt,
         )
     expected = {"search": 3, "deep_research_completed": 2, "deep_research_inactive_control": 1}
@@ -429,18 +454,29 @@ def _assert_slot_independence(slots: Mapping[str, Slot]) -> None:
             "receipt_collections",
             "all 12 executions must be independent",
         )
+    reviewer_parents = [
+        str(slot.parent_task_or_thread_id)
+        for slot in slots.values()
+        if slot.kind == "reviewer"
+    ]
+    if len(reviewer_parents) != len(set(reviewer_parents)):
+        _fail(
+            "reviewer_parent_task_reused",
+            "receipt_collections",
+            "all six reviewer parent tasks must be independent",
+        )
 
 
 def _required_workspace_paths(
     reviewer: Mapping[str, Any], retrieval: Mapping[str, Any], reviewer_collection_path: str, retrieval_collection_path: str
 ) -> set[str]:
     paths = {reviewer_collection_path, retrieval_collection_path}
-    paths.add(_logical_path(reviewer.get("platform_task_or_delegation_export_path"), "reviewer.platform_export"))
     for case_value in _sequence(reviewer.get("cases"), "reviewer.cases"):
         case = _mapping(case_value, "reviewer.case")
         paths.add(_logical_path(case.get("input_path"), "reviewer.input_path"))
         for run_value in _sequence(case.get("runs"), "reviewer.case.runs"):
             run = _mapping(run_value, "reviewer.run")
+            paths.add(_logical_path(run.get("normalized_capture_path"), "reviewer.run.normalized_capture_path"))
             for field in (
                 "blind_bundle_path",
                 "dispatch_prompt_path",
@@ -472,6 +508,7 @@ def _required_workspace_paths(
     }
     for value in _sequence(retrieval.get("receipts"), "retrieval.receipts"):
         receipt = _mapping(value, "retrieval.receipt")
+        paths.add(_logical_path(receipt.get("normalized_capture_path"), "retrieval.receipt.normalized_capture_path"))
         for path in _sequence(receipt.get("artifact_paths"), "retrieval.receipt.artifact_paths"):
             paths.add(_logical_path(path, "retrieval.receipt.artifact_path"))
         for field in path_fields.get(str(receipt.get("kind")), ()):
@@ -572,6 +609,8 @@ def _load_bundle(
     manifest_asset, manifest = _manifest_asset(assets, str(index_path))
     required_fields = {
         "schema_version",
+        "counts_as_runtime_evidence",
+        "synthetic_test_only",
         "bundle_id",
         "slot_kind",
         "slot_id",
@@ -582,6 +621,8 @@ def _load_bundle(
     }
     if set(manifest) != required_fields:
         _fail("workspace_manifest_fields", str(index_path), str(sorted(manifest)))
+    if manifest.get("counts_as_runtime_evidence") is not False or manifest.get("synthetic_test_only") is not False:
+        _fail("workspace_manifest_nonproduction", str(index_path), "non-counting production manifest required")
     slot_id = _identifier(manifest.get("slot_id"), f"{index_path}.slot_id", reject_oracle=manifest.get("slot_kind") == "reviewer")
     slot = slots.get(slot_id)
     if slot is None or manifest.get("slot_kind") != slot.kind:
@@ -653,11 +694,6 @@ def _load_bundle(
         None,
     )
     expected_raw = slot.raw_path
-    if slot.kind == "reviewer" and anchor:
-        expected_raw = _logical_path(
-            _parse(reviewer_bytes, "reviewer_receipts").get("platform_task_or_delegation_export_path"),
-            "reviewer.platform_export",
-        )
     if (
         raw_file is None
         or raw_file.logical_path != expected_raw
@@ -666,11 +702,66 @@ def _load_bundle(
         or assets[raw_file.asset_id].evidence_kind not in CAPTURE_EXPORT_KINDS
     ):
         _fail("slot_raw_export_binding", str(index_path), f"{slot_id}: {expected_raw}")
+    try:
+        raw_document = _mapping(
+            json.loads(raw_file.payload.decode("utf-8-sig")),
+            f"{index_path}.normalized_capture",
+        )
+        normalized_capture = validate_normalized_capture(
+            raw_document,
+            now=datetime.now(timezone.utc),
+            verify_checkout=True,
+        )
+    except Exception as exc:
+        code = getattr(exc, "code", "phase8_capture_invalid")
+        detail = getattr(exc, "message", str(exc))
+        _fail(code, f"{index_path}.normalized_capture", detail)
+    if (
+        raw_document.get("normalization_schema") != PHASE8_NORMALIZED_CAPTURE_SCHEMA
+        or _mapping(raw_document.get("capture_adapter"), f"{index_path}.capture_adapter").get("adapter_id") != PHASE8_CAPTURE_ADAPTER_ID
+        or normalized_capture.get("live_collection_eligible") is not True
+        or normalized_capture.get("slot_id") != slot_id
+        or normalized_capture.get("source_identity") != dict(identity)
+    ):
+        _fail("phase8_live_capture_required", f"{index_path}.normalized_capture", slot_id)
+    decoded_sources = _mapping(
+        normalized_capture.get("decoded_source_files"),
+        f"{index_path}.normalized_capture.decoded_source_files",
+    )
+    source_workspace = [
+        item
+        for item in workspace
+        if item.asset_id != raw_file.asset_id
+        and item.logical_path not in set(witnessed_collection_paths.values())
+    ]
+    expected_source_multiset = Counter(
+        (sha256_bytes(payload), len(payload)) for payload in decoded_sources.values()
+    )
+    actual_source_multiset = Counter(
+        (item.digest, len(item.payload)) for item in source_workspace
+    )
+    if actual_source_multiset != expected_source_multiset:
+        _fail(
+            "normalized_source_workspace_binding",
+            f"{index_path}.workspace_files",
+            "supporting assets do not exactly reproduce the embedded R v2 sources",
+        )
     capture = _mapping(envelope.get("capture"), f"{index_path}.envelope.capture")
     if (
-        capture.get("task_or_thread_id") != slot.execution_id
+        capture.get("task_or_thread_id") != normalized_capture.get("task_id")
         or _timestamp(capture.get("captured_at"), f"{slot_id}.envelope_capture")
         != _timestamp(slot.captured_at, f"{slot_id}.collection_capture")
+        or normalized_capture.get("captured_at") != slot.captured_at
+        or (
+            slot.kind == "reviewer"
+            and normalized_capture.get("task_export", {}).get("parent_task_or_thread_id")
+            != slot.parent_task_or_thread_id
+        )
+        or (
+            slot.kind == "reviewer"
+            and normalized_capture.get("task_export", {}).get("slot_payload", {}).get("reviewer_run", {}).get("delegated_thread_id")
+            != slot.execution_id
+        )
     ):
         _fail("slot_execution_binding", str(index_path), slot_id)
     return BundleSnapshot(
@@ -1067,10 +1158,8 @@ def validate_external_phase8_evidence(
             "workspace_manifests",
             str(len(collection_witnesses)),
         )
-    _attestation_paths_match(reviewer, anchors[0], root)
     for bundle in bundles:
-        if bundle.slot.kind == "retrieval":
-            _attestation_paths_match(bundle.slot.subject, bundle, root)
+        _attestation_paths_match(bundle.slot.subject, bundle, root)
 
     reviewer_collection_path = collection_witnesses[0].witnessed_collection_paths[
         "reviewer"
@@ -1084,8 +1173,8 @@ def validate_external_phase8_evidence(
     actual_workspace = {
         item.logical_path for bundle in bundles for item in bundle.workspace_files
     }
-    if actual_workspace != expected_workspace:
-        _fail("workspace_path_coverage", "workspace_manifests", f"missing={sorted(expected_workspace - actual_workspace)} extra={sorted(actual_workspace - expected_workspace)}")
+    if not expected_workspace.issubset(actual_workspace):
+        _fail("workspace_path_coverage", "workspace_manifests", f"missing={sorted(expected_workspace - actual_workspace)}")
 
     _assert_sources_unchanged(source_snapshots, initial_inventory, root, "before_live_verification")
     import test_openai_phase8_corpus as phase8

@@ -1,6 +1,6 @@
 {
   "name": "research-skills-openai",
-  "version": "0.7.0-preview.1",
+  "version": "0.7.0-preview.2",
   "description": "Experimental personal preview of evidence-grounded research workflows for ChatGPT and Codex.",
   "author": {
     "name": "Xuxu Wei",
@@ -20,9 +20,9 @@
   ],
   "skills": "./skills/",
   "interface": {
-    "displayName": "Research Skills (Preview)",
-    "shortDescription": "Experimental research workflow skills for ChatGPT and Codex",
-    "longDescription": "A personal-development preview containing evidence mapping, research idea, proposal, article, perspective, research-impact positioning, independent review, revision, and human-signoff packaging workflows. Interfaces and behavior may change during the 0.x series.",
+    "displayName": "Research Skills (Personal Preview)",
+    "shortDescription": "Personal research workflows for ChatGPT and Codex",
+    "longDescription": "An owner-operated personal preview for evidence mapping, research ideas, proposals, articles, perspectives, research-impact positioning, independent review, revision, and human-review packaging. It is experimental, carries no public-support or production-stability promise, and may change during the 0.x series.",
     "developerName": "Xuxu Wei",
     "category": "Research",
     "capabilities": [

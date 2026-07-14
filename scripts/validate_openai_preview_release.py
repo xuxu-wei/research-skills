@@ -20,7 +20,9 @@ from build_openai_preview_accepted_summary import (
 from test_openai_release_ledger import (
     authenticated_external_evidence_adapter_available,
     configured_external_evidence_level,
+    validate_phase_b_previous_a_evidence,
     validate_release_evidence,
+    validate_release_stage_entry_policy,
     validate_rollback_history_binding,
     validate_verified_source_commit_tree,
 )
@@ -207,19 +209,60 @@ def main(
         path.parent.name for path in (PLUGIN / "skills").glob("*/SKILL.md")
     }
     expected_skill_count = len(registry_skill_names)
-    implicit_entry_names = {
+    registry_implicit_entry_names = {
         str(entry.get("name"))
         for entry in registry.get("skills", [])
         if entry.get("invocation_policy") == "implicit"
     }
-    public_entry_names = set(
-        registry.get("public_entry_policy", {}).get("declared_entries", [])
+    public_policy = registry.get("public_entry_policy", {})
+    declared_entry_list = public_policy.get("declared_entries", [])
+    implicit_active_list = public_policy.get("implicit_active_entries", [])
+    public_entry_names = (
+        set(declared_entry_list) if isinstance(declared_entry_list, list) else set()
     )
-    if len(public_entry_names) != 7 or len(implicit_entry_names) != 6:
-        errors.append(
-            "release requires seven declared public entries with six implicit-active "
-            "until the Research Polisher Phase 7-8 gate passes"
+    policy_implicit_entry_names = (
+        set(implicit_active_list) if isinstance(implicit_active_list, list) else set()
+    )
+    source_implicit_entry_names: set[str] = set()
+    for entry_name in sorted(public_entry_names):
+        agent_path = PLUGIN / "skills" / entry_name / "agents" / "openai.yaml"
+        if not agent_path.is_file():
+            errors.append(f"public entry has no agents/openai.yaml: {entry_name}")
+            continue
+        try:
+            agent = yaml.safe_load(agent_path.read_text(encoding="utf-8-sig")) or {}
+        except yaml.YAMLError as exc:
+            errors.append(f"public entry agents/openai.yaml is invalid for {entry_name}: {exc}")
+            continue
+        policy = agent.get("policy", {}) if isinstance(agent, Mapping) else {}
+        allow_implicit = (
+            policy.get("allow_implicit_invocation")
+            if isinstance(policy, Mapping)
+            else None
         )
+        if not isinstance(allow_implicit, bool):
+            errors.append(
+                f"public entry policy.allow_implicit_invocation is not boolean: {entry_name}"
+            )
+        elif allow_implicit:
+            source_implicit_entry_names.add(entry_name)
+    if registry_implicit_entry_names != policy_implicit_entry_names:
+        errors.append("registry skill policies and public_entry_policy implicit set disagree")
+    if source_implicit_entry_names != policy_implicit_entry_names:
+        errors.append(
+            "agents/openai.yaml and registry implicit sets disagree: "
+            f"source_only={sorted(source_implicit_entry_names - policy_implicit_entry_names)} "
+            f"registry_only={sorted(policy_implicit_entry_names - source_implicit_entry_names)}"
+        )
+    stage_errors: list[str] = []
+    release_stage = validate_release_stage_entry_policy(
+        declared_entry_list if isinstance(declared_entry_list, list) else [],
+        sorted(source_implicit_entry_names),
+        stage_errors,
+        label="source public-entry policy",
+    )
+    errors.extend(stage_errors)
+    implicit_entry_names = source_implicit_entry_names
     if not registry_skill_names or discovered_skill_names != registry_skill_names:
         errors.append(
             "release skill discovery differs from registry: "
@@ -493,14 +536,14 @@ def main(
             phase7_summary.get("declared_entry_modes") != declared_modes
             or phase7_discovery
             != {
-                "installed_skill_count": 49,
-                "explicit_callable_entries": 7,
-                "implicit_prompt_entries": 6,
-                "release_stage": "A",
+                "installed_skill_count": expected_skill_count,
+                "explicit_callable_entries": len(public_entry_names),
+                "implicit_prompt_entries": len(implicit_entry_names),
+                "release_stage": release_stage,
             }
-            or phase7_summary.get("installed_skill_count") != 49
-            or phase7_summary.get("explicit_callable_entries") != 7
-            or phase7_summary.get("implicit_prompt_entries") != 6
+            or phase7_summary.get("installed_skill_count") != expected_skill_count
+            or phase7_summary.get("explicit_callable_entries") != len(public_entry_names)
+            or phase7_summary.get("implicit_prompt_entries") != len(implicit_entry_names)
             or phase7_summary.get("positive_modes_passed") != declared_modes
             or len(positive_results) != declared_modes
             or phase7_summary.get("registry_entry_mode_contracts_verified")
@@ -1149,6 +1192,15 @@ def main(
                 release,
                 previous_releases,
                 ledger_evidence_errors,
+            )
+            validate_phase_b_previous_a_evidence(
+                release,
+                previous_releases,
+                declared_entry_list if isinstance(declared_entry_list, list) else [],
+                sorted(implicit_entry_names),
+                ledger_evidence_errors,
+                stage=release_stage,
+                require_current_acceptance=args.require_phase78_complete_preview,
             )
         else:
             ledger_evidence_errors.append("previous_releases is not a list")

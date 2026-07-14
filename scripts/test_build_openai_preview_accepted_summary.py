@@ -16,6 +16,8 @@ from build_openai_preview_accepted_summary import (
     EXPECTED_PHASE8_RETRIEVAL_RECEIPTS,
     EXPECTED_PHASE8_REVIEWER_CASES,
     PHASE7_COMPLETION_GATE_IDS,
+    PHASE78_CLOSURE_CONSUMER_SCHEMA,
+    PHASE78_CLOSURE_EVIDENCE_TYPE,
     build_summary,
     strict_phase78_snapshot,
 )
@@ -24,6 +26,16 @@ from build_openai_preview_accepted_summary import (
 SOURCE = "a" * 40
 REPOSITORY = "owner/repository"
 EVIDENCE_TAG = "v0.7.0-preview.1-evidence"
+PUBLIC_ENTRIES = [
+    "academic-deep-search",
+    "article-orchestrator",
+    "perspective-orchestrator",
+    "proposal-orchestrator",
+    "research-idea-orchestrator",
+    "research-opportunity-mapper",
+    "research-polisher-orchestrator",
+]
+STAGE_A_IMPLICIT_ENTRIES = PUBLIC_ENTRIES[:-1]
 CANDIDATE_TAG = "v0.7.0-preview.1-candidate"
 CANDIDATE_NAMES = (
     "accepted-ledger.json",
@@ -241,6 +253,12 @@ def fixture(root: Path) -> dict[str, Any]:
             )
         },
     }
+    release["receipts"]["fresh_task_discovery"].update(
+        explicit_callable_entries=len(PUBLIC_ENTRIES),
+        explicit_callable_entry_skills=list(PUBLIC_ENTRIES),
+        implicit_prompt_entries=len(STAGE_A_IMPLICIT_ENTRIES),
+        implicit_prompt_entry_skills=list(STAGE_A_IMPLICIT_ENTRIES),
+    )
     previous = copy.deepcopy(release)
     previous["source_commit"] = {"sha": "b" * 40}
 
@@ -559,6 +577,181 @@ def fixture(root: Path) -> dict[str, Any]:
     return paths
 
 
+def _record_at(container: dict[str, Any], evidence_type: str) -> dict[str, Any]:
+    value: Any = container
+    for part in EXTERNAL_RECORD_PATHS[evidence_type]:
+        value = value[part]
+    assert isinstance(value, dict)
+    return value
+
+
+def _refresh_candidate_ledger_binding(values: dict[str, Any]) -> None:
+    payload = values["candidate_ledger_path"].read_bytes()
+    digest = hashlib.sha256(payload).hexdigest()
+    pages = json.loads(values["candidate_assets_json"].read_text(encoding="utf-8"))
+    ledger_assets = [
+        item
+        for page in pages
+        for item in page
+        if item.get("name") == CANDIDATE_NAMES[0]
+    ]
+    assert len(ledger_assets) == 1
+    ledger_assets[0]["size"] = len(payload)
+    ledger_assets[0]["digest"] = "sha256:" + digest
+    dump(values["candidate_assets_json"], pages)
+    runner = json.loads(values["release_runner_result_path"].read_text(encoding="utf-8"))
+    runner["ledger_sha256"] = "sha256:" + digest
+    dump(values["release_runner_result_path"], runner)
+
+
+def promote_fixture_to_stage_b(values: dict[str, Any]) -> None:
+    ledger = json.loads(values["candidate_ledger_path"].read_text(encoding="utf-8"))
+    release = ledger["release"]
+    discovery = release["receipts"]["fresh_task_discovery"]
+    discovery["implicit_prompt_entries"] = len(PUBLIC_ENTRIES)
+    discovery["implicit_prompt_entry_skills"] = list(PUBLIC_ENTRIES)
+    previous = ledger["previous_releases"][0]
+    previous["version"] = "0.6.0-preview.1"
+    previous["source_commit"] = {"sha": "b" * 40}
+    role_fields = (
+        "envelope_asset",
+        "release_asset_index_asset",
+        "raw_export_asset",
+        "verifier_report_asset",
+    )
+    history_results: list[dict[str, Any]] = []
+    for type_offset, evidence_type in enumerate(sorted(EXTERNAL_RECORD_PATHS)):
+        locator: dict[str, Any] = {
+            "repository": REPOSITORY,
+            "release_id": 20,
+            "release_tag": "v0.6.0-preview.1-evidence",
+        }
+        verified_asset_ids: list[int] = []
+        for role_offset, role in enumerate(role_fields):
+            asset_id = 6000 + type_offset * 10 + role_offset
+            verified_asset_ids.append(asset_id)
+            locator[role] = {
+                "asset_id": asset_id,
+                "name": f"stage-a-{evidence_type}-{role}.json",
+                "sha256": hashlib.sha256(
+                    f"stage-a:{evidence_type}:{role}".encode()
+                ).hexdigest(),
+            }
+        record = _record_at(previous, evidence_type)
+        record.clear()
+        record.update(status="preview_attested", evidence_locator=locator)
+        locator_digest = "sha256:" + hashlib.sha256(
+            json.dumps(locator, sort_keys=True, separators=(",", ":")).encode()
+        ).hexdigest()
+        history_results.append(
+            {
+                "evidence_type": evidence_type,
+                "evidence_id": f"stage-a-history-{evidence_type}",
+                "release_scope": "previous_releases[0]",
+                "verification_level": "preview_attested",
+                "provider_verified": False,
+                "source_commit": "b" * 40,
+                "locator_sha256": locator_digest,
+                "validated_result_sha256": "sha256:"
+                + hashlib.sha256(f"stage-a-result:{evidence_type}".encode()).hexdigest(),
+                "verified_asset_ids": verified_asset_ids,
+                "verifier_workflow_run_id": 9700 + type_offset,
+                "verified_at": "2026-07-14T00:00:00Z",
+            }
+        )
+    closure_locator: dict[str, Any] = {
+        "repository": REPOSITORY,
+        "release_id": 20,
+        "release_tag": "v0.6.0-preview.1-evidence",
+    }
+    closure_asset_ids: list[int] = []
+    for role_offset, role in enumerate(role_fields):
+        asset_id = 6900 + role_offset
+        closure_asset_ids.append(asset_id)
+        closure_locator[role] = {
+            "asset_id": asset_id,
+            "name": f"stage-a-{PHASE78_CLOSURE_EVIDENCE_TYPE}-{role}.json",
+            "sha256": hashlib.sha256(
+                f"stage-a:{PHASE78_CLOSURE_EVIDENCE_TYPE}:{role}".encode()
+            ).hexdigest(),
+        }
+    previous[PHASE78_CLOSURE_EVIDENCE_TYPE] = {
+        "status": "preview_attested",
+        "source_commit": "b" * 40,
+        "release_stage": "A",
+        "producer_summary_schema": "openai-preview-accepted-run-summary/v3",
+        "producer_run_id": 9801,
+        "producer_run_attempt": 2,
+        "producer_summary_sha256": hashlib.sha256(
+            b"stage-a-accepted-summary"
+        ).hexdigest(),
+        "consumer_result_schema": PHASE78_CLOSURE_CONSUMER_SCHEMA,
+        "consumer_run_id": 9802,
+        "consumer_run_attempt": 1,
+        "consumer_result_sha256": hashlib.sha256(
+            b"stage-a-independent-consumer-result"
+        ).hexdigest(),
+        "phase7_verified_runtime_count": 10,
+        "phase8_verified_reviewer_count": 6,
+        "phase8_verified_retrieval_count": 6,
+        "phase8_verified_slot_count": 12,
+        "verification_level": "preview_attested",
+        "provider_verified": False,
+        "counts_as_phase78_closure": True,
+        "accepted": True,
+        "evidence_locator": closure_locator,
+    }
+    history_results.append(
+        {
+            "evidence_type": PHASE78_CLOSURE_EVIDENCE_TYPE,
+            "evidence_id": "stage-a-history-accepted-phase78-closure",
+            "release_scope": "previous_releases[0]",
+            "verification_level": "preview_attested",
+            "provider_verified": False,
+            "source_commit": "b" * 40,
+            "locator_sha256": "sha256:"
+            + hashlib.sha256(
+                json.dumps(
+                    closure_locator, sort_keys=True, separators=(",", ":")
+                ).encode()
+            ).hexdigest(),
+            "validated_result_sha256": "sha256:"
+            + hashlib.sha256(b"stage-a-result:accepted-phase78-closure").hexdigest(),
+            "verified_asset_ids": closure_asset_ids,
+            "verifier_workflow_run_id": 9803,
+            "verified_at": "2026-07-14T00:00:00Z",
+        }
+    )
+    previous_discovery = previous["receipts"]["fresh_task_discovery"]
+    previous_discovery.update(
+        explicit_callable_entries=len(PUBLIC_ENTRIES),
+        explicit_callable_entry_skills=list(PUBLIC_ENTRIES),
+        implicit_prompt_entries=len(STAGE_A_IMPLICIT_ENTRIES),
+        implicit_prompt_entry_skills=list(STAGE_A_IMPLICIT_ENTRIES),
+    )
+    release["receipts"]["rollback"].update(
+        from_version=release["version"],
+        to_version=previous["version"],
+        target_commit="b" * 40,
+    )
+    dump(values["candidate_ledger_path"], ledger)
+    runner = json.loads(values["release_runner_result_path"].read_text(encoding="utf-8"))
+    runner["history_results"] = history_results
+    runner["historical_verified_record_count"] = len(history_results)
+    dump(values["release_runner_result_path"], runner)
+    _refresh_candidate_ledger_binding(values)
+
+
+def mutate_stage_b_ledger(
+    values: dict[str, Any], callback: Callable[[dict[str, Any]], None]
+) -> None:
+    promote_fixture_to_stage_b(values)
+    ledger = json.loads(values["candidate_ledger_path"].read_text(encoding="utf-8"))
+    callback(ledger)
+    dump(values["candidate_ledger_path"], ledger)
+    _refresh_candidate_ledger_binding(values)
+
+
 def rejected(mutator: Callable[[dict[str, Any]], None]) -> None:
     with tempfile.TemporaryDirectory() as temporary:
         values = fixture(Path(temporary))
@@ -652,16 +845,38 @@ def main() -> int:
     assert len(snapshot["phase8"]["retrieval_items"]) == 6
     with tempfile.TemporaryDirectory() as temporary:
         summary = build_summary(**fixture(Path(temporary)))
-    assert summary["schema_version"] == "openai-preview-accepted-run-summary/v2"
+    assert summary["schema_version"] == "openai-preview-accepted-run-summary/v3"
     assert summary["acceptance_scope"] == "producer_internal"
     assert summary["external_consumer_required"] is True
     assert summary["counts_as_phase78_closure"] is False
     assert summary["run_attempt"] == 2
     assert len(summary["release_evidence"]["items"]) == 8
     assert len(summary["release_evidence"]["history_items"]) == 2
+    assert summary["release_evidence"]["release_stage"] == "A"
+    assert summary["release_evidence"]["stage_a_predecessor_scope"] is None
+    assert summary["release_evidence"]["stage_a_verified_record_count"] == 0
+    assert summary["release_evidence"]["stage_a_closure"] is None
     assert summary["release_evidence"]["unique_current_chain_count"] == 30
     assert summary["release_evidence"]["unique_current_chain_digest_count"] == 120
     assert summary["final_status"]["accepted"] is True
+
+    with tempfile.TemporaryDirectory() as temporary:
+        stage_b_values = fixture(Path(temporary))
+        promote_fixture_to_stage_b(stage_b_values)
+        stage_b_summary = build_summary(**stage_b_values)
+    assert stage_b_summary["release_evidence"]["release_stage"] == "B"
+    assert (
+        stage_b_summary["release_evidence"]["stage_a_predecessor_scope"]
+        == "previous_releases[0]"
+    )
+    assert stage_b_summary["release_evidence"]["stage_a_verified_record_count"] == 9
+    assert len(stage_b_summary["release_evidence"]["history_items"]) == 9
+    assert (
+        stage_b_summary["release_evidence"]["stage_a_closure"][
+            "phase8_verified_slot_count"
+        ]
+        == 12
+    )
 
     mutations: list[Callable[[dict[str, Any]], None]] = [
         lambda values: values.__setitem__("candidate_final_commit", "b" * 40),
@@ -695,6 +910,42 @@ def main() -> int:
         lambda values: mutate_json(values["evidence_assets_json"], lambda pages: pages[0][0].__setitem__("digest", "sha256:" + "f" * 64)),
         lambda values: mutate_json(values["release_runner_result_path"], lambda item: item["live_results"][0]["verified_asset_ids"].__setitem__(0, 999999)),
         lambda values: mutate_json(values["release_runner_result_path"], lambda item: item["live_results"][0].__setitem__("release_scope", "previous_releases[0]")),
+        lambda values: mutate_stage_b_ledger(
+            values,
+            lambda ledger: ledger["previous_releases"].clear(),
+        ),
+        lambda values: mutate_stage_b_ledger(
+            values,
+            lambda ledger: ledger["previous_releases"][0]["receipts"]
+            ["fresh_task_discovery"].update(
+                implicit_prompt_entries=len(PUBLIC_ENTRIES),
+                implicit_prompt_entry_skills=list(PUBLIC_ENTRIES),
+            ),
+        ),
+        lambda values: mutate_stage_b_ledger(
+            values,
+            lambda ledger: ledger["release"]["receipts"]["rollback"].update(
+                target_commit="c" * 40
+            ),
+        ),
+        lambda values: mutate_stage_b_ledger(
+            values,
+            lambda ledger: ledger["previous_releases"][0].pop(
+                PHASE78_CLOSURE_EVIDENCE_TYPE
+            ),
+        ),
+        lambda values: mutate_stage_b_ledger(
+            values,
+            lambda ledger: ledger["previous_releases"][0][
+                PHASE78_CLOSURE_EVIDENCE_TYPE
+            ].__setitem__("phase8_verified_slot_count", 11),
+        ),
+        lambda values: mutate_stage_b_ledger(
+            values,
+            lambda ledger: ledger["previous_releases"][0][
+                PHASE78_CLOSURE_EVIDENCE_TYPE
+            ].__setitem__("consumer_result_sha256", "not-a-digest"),
+        ),
         duplicate_evidence_id_across_files,
         lambda values: mutate_json(values["phase78_bridge_result_path"], lambda item: item["phase7"]["live_slot_results"][1].__setitem__("evidence_id", item["phase7"]["live_slot_results"][0]["evidence_id"])),
         lambda values: mutate_json(values["phase78_bridge_result_path"], lambda item: item["phase8"]["live_slot_results"][0].__setitem__("evidence_id", item["phase7"]["live_slot_results"][0]["evidence_id"])),

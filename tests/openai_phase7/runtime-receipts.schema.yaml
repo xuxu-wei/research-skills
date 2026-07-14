@@ -53,6 +53,7 @@ $defs:
     required:
       - receipt_id
       - workflow
+      - entry_mode
       - case_kind
       - expected_final_state
       - status
@@ -67,6 +68,8 @@ $defs:
     properties:
       receipt_id: {type: string, minLength: 1}
       workflow: {enum: [idea, proposal, article, perspective, research_polisher]}
+      entry_mode:
+        enum: [standard, resume_candidates, portfolio_only, existing_draft, draft_and_external_review, package_only, fast_track_draft, fast_track_draft_and_evaluation, blueprint_only, section_specific, submission_only, lite, full]
       case_kind: {enum: [happy, control]}
       expected_final_state:
         enum:
@@ -98,10 +101,11 @@ $defs:
               - {type: string, pattern: '^[0-9a-f]{40}$'}
           task_export:
             type: object
-            required: [platform, task_id, path, sha256]
+            required: [platform, task_id, entry_mode, path, sha256]
             properties:
               platform: {enum: [codex, chatgpt, null]}
               task_id: {type: [string, 'null']}
+              entry_mode: {type: [string, 'null']}
               path: {type: [string, 'null']}
               sha256:
                 anyOf:
@@ -185,6 +189,7 @@ x-phase7-contract:
     - binding.source_commit
     - binding.task_export.platform
     - binding.task_export.task_id
+    - binding.task_export.entry_mode
     - binding.task_export.path
     - binding.task_export.sha256
     - binding.actor_manifest.path
@@ -201,6 +206,8 @@ x-phase7-contract:
     - controller
     - assembler
     - strategy_reviewer
+    - supporting_reviewer
+    - supporting_writer
     - verifier_compositor
   workflow_case_contracts:
     idea:
@@ -210,12 +217,25 @@ x-phase7-contract:
         gate: null
         route: null
         continuation_artifact_role: null
+        required_review_skills: []
+        required_strategy_matrix: false
+        control_finding_decisions_by_skill: {}
+        control_finding_allowed_severities: []
+        control_finding_blocking: null
+        control_finding_resolved: null
       control:
         expected_final_state: stopped
         input_condition: independent_review_no_incremental_gain
         gate: unfixable_no_gain_or_user_stop
         route: human_review_or_explicit_resume
         continuation_artifact_role: continuation_brief
+        required_review_skills: [idea-evaluator]
+        required_strategy_matrix: false
+        control_finding_decisions_by_skill:
+          idea-evaluator: [keep_as_backup]
+        control_finding_allowed_severities: [major, fatal]
+        control_finding_blocking: true
+        control_finding_resolved: false
     proposal:
       happy:
         expected_final_state: human_signoff_required
@@ -223,12 +243,26 @@ x-phase7-contract:
         gate: null
         route: null
         continuation_artifact_role: null
+        required_review_skills: []
+        required_strategy_matrix: false
+        control_finding_decisions_by_skill: {}
+        control_finding_allowed_severities: []
+        control_finding_blocking: null
+        control_finding_resolved: null
       control:
         expected_final_state: blocked
         input_condition: fatal_data_availability_constraint
         gate: fatal_or_blocking_finding
         route: blocked_for_human_resolution
         continuation_artifact_role: continuation_brief
+        required_review_skills: [proposal-readiness-triage, proposal-evaluator]
+        required_strategy_matrix: false
+        control_finding_decisions_by_skill:
+          proposal-readiness-triage: [not_proposalizable_yet]
+          proposal-evaluator: [reject]
+        control_finding_allowed_severities: [fatal]
+        control_finding_blocking: true
+        control_finding_resolved: false
     article:
       happy:
         expected_final_state: human_signoff_required
@@ -236,12 +270,28 @@ x-phase7-contract:
         gate: null
         route: null
         continuation_artifact_role: null
+        required_review_skills: [article-readiness-triage]
+        required_strategy_matrix: false
+        control_finding_decisions_by_skill: {}
+        control_finding_allowed_severities: []
+        control_finding_blocking: null
+        control_finding_resolved: null
       control:
         expected_final_state: blocked
         input_condition: source_level_fatal_finding
         gate: fatal_or_blocking_finding
         route: blocked_for_human_resolution
         continuation_artifact_role: continuation_brief
+        required_review_skills: [article-readiness-triage, article-methods-statistics-auditor, article-claim-auditor, article-evaluator]
+        required_strategy_matrix: false
+        control_finding_decisions_by_skill:
+          article-readiness-triage: [not_ready]
+          article-methods-statistics-auditor: [methodologically_blocked]
+          article-claim-auditor: [blocked]
+          article-evaluator: [reject]
+        control_finding_allowed_severities: [fatal]
+        control_finding_blocking: true
+        control_finding_resolved: false
     perspective:
       happy:
         expected_final_state: human_signoff_required
@@ -249,12 +299,25 @@ x-phase7-contract:
         gate: null
         route: null
         continuation_artifact_role: null
+        required_review_skills: []
+        required_strategy_matrix: false
+        control_finding_decisions_by_skill: {}
+        control_finding_allowed_severities: []
+        control_finding_blocking: null
+        control_finding_resolved: null
       control:
         expected_final_state: stopped
         input_condition: independent_review_no_incremental_gain
         gate: unfixable_no_gain_or_user_stop
         route: human_review_or_explicit_resume
         continuation_artifact_role: continuation_brief
+        required_review_skills: [perspective-evaluator]
+        required_strategy_matrix: false
+        control_finding_decisions_by_skill:
+          perspective-evaluator: [reject_not_salvageable]
+        control_finding_allowed_severities: [major, fatal]
+        control_finding_blocking: true
+        control_finding_resolved: false
     research_polisher:
       happy:
         expected_final_state: human_strategy_selection_required
@@ -262,12 +325,25 @@ x-phase7-contract:
         gate: null
         route: null
         continuation_artifact_role: null
+        required_review_skills: []
+        required_strategy_matrix: true
+        control_finding_decisions_by_skill: {}
+        control_finding_allowed_severities: []
+        control_finding_blocking: null
+        control_finding_resolved: null
       control:
         expected_final_state: no_defensible_option
         input_condition: all_options_no_defensible_option
         gate: no_defensible_strategy_remains
         route: stop_with_no_defensible_option_dossier
         continuation_artifact_role: continuation_brief
+        required_review_skills: [research-polisher-methodology-publishability-reviewer]
+        required_strategy_matrix: true
+        control_finding_decisions_by_skill:
+          research-polisher-methodology-publishability-reviewer: [no_defensible_option]
+        control_finding_allowed_severities: [major, fatal]
+        control_finding_blocking: true
+        control_finding_resolved: false
   fault_injection_contracts:
     reviewer_unavailable:
       input_condition: injected_reviewer_delegation_unavailable
@@ -285,6 +361,40 @@ x-phase7-contract:
       - allowed_write_roots
     panel_actor_required_fields: [panel_tier, panel_role]
     strategy_reviewer_actor_required_fields: [strategy_role]
+    independent_reviewer_actor_required_fields: [round_id, isolation_mode]
+    independent_reviewer_actor_roles:
+      - evaluator
+      - panel
+      - strategy_reviewer
+      - supporting_reviewer
+      - verifier_compositor
+    independent_reviewer_isolation_mode: fresh_subagent
+    edge_provenance_required_actor_roles:
+      - writer
+      - evaluator
+      - panel
+      - builder
+      - retrieval
+      - controller
+      - assembler
+      - strategy_reviewer
+      - supporting_reviewer
+      - supporting_writer
+      - verifier_compositor
+    edge_provenance_required_fields: [dispatch_source, dispatch_mode, dispatch_trigger]
+    root_actor_role: orchestrator
+    supporting_reviewer_actor_required_fields:
+      - round_id
+      - isolation_mode
+      - dispatch_source
+      - dispatch_mode
+      - dispatch_trigger
+    supporting_writer_actor_required_fields:
+      - dispatch_source
+      - dispatch_mode
+      - dispatch_trigger
+    supporting_reviewer_isolation_mode: fresh_subagent
+    supporting_actor_membership_derived_from_workflow_edges: true
     instance_ids_unique: true
     artifact_creator_reviewer_finalizer_ids_pairwise_disjoint: true
     panel_roles_exactly_match_registry_default_tier: true
@@ -302,7 +412,45 @@ x-phase7-contract:
       - evaluator
       - panel
       - strategy_reviewer
+      - supporting_reviewer
       - verifier_compositor
+    blind_reviewer_actor_roles:
+      - evaluator
+      - panel
+      - strategy_reviewer
+      - supporting_reviewer
+    forbidden_oracle_artifact_roles:
+      - answer_key
+      - expected_decision
+      - expected_findings
+      - expected_score
+      - result_oracle
+      - review_oracle
+    blind_reviewer_inputs_must_be_indexed_artifacts: true
+  runtime_review_report_contract:
+    required_fields: [decision, findings, unresolved_issues, dissent_ids, fatal_finding_ids, unresolved_fatal_finding_ids]
+    finding_required_fields: [id, severity, blocking, resolved, dissent]
+    allowed_severities: [fatal, major, minor, info]
+    finding_indexes_are_derived_bidirectionally: true
+    decision_vocabulary_is_registry_fail_closed: true
+    ready_qualifying_reviewer_decisions_must_pass: true
+    one_review_report_per_actor: true
+    pass_decision_requires_no_unresolved_blocking_findings: true
+    review_input_refs_must_equal_actual_read_artifact_refs: true
+  external_input_contract:
+    creator_sentinel: external-input
+    source_skill_sentinel: external-input
+    source_identity_field: external_source_id
+    source_identity_prefix: 'external:'
+    workflow_and_entry_mode_allowlist_required: true
+    generated_or_review_artifact_impersonation_rejected: true
+    current_primary_external_only_in_declared_modes: true
+  primary_lineage_contract:
+    entry_mode_bound_to_receipt_task_export_and_slot: true
+    current_primary_role_matches_workflow_machine: true
+    current_primary_creator_matches_mode_policy: true
+    primary_writer_output_must_enter_current_lineage: true
+    revision_artifacts_cannot_be_external: true
   collection_contract:
     receipt_ids_unique: true
     all_ten_runs_are_fresh_tasks: true
@@ -333,6 +481,8 @@ x-phase7-contract:
     artifact_paths_and_digests_verified: true
   file_access_contract:
     required_entry_fields: [actor_instance_id, path, sha256]
+    scope: governed_workflow_artifact_io
+    installed_skill_resource_identity_bound_separately: true
     access_must_fit_actor_manifest_scope: true
     source_artifact_hashes_unchanged: true
   semantic_checks:
@@ -347,11 +497,30 @@ x-phase7-contract:
     - verifier_compositor_writes_only_verification_and_package_outputs
     - writer_skill_belongs_to_current_workflow
     - actor_role_is_allowlisted_and_matches_registry_skill_role
+    - every_non_root_actor_binds_an_exact_current_workflow_dispatch_edge
+    - every_actor_output_role_is_allowlisted_by_source_skill
+    - external_inputs_use_real_source_identity_and_cannot_impersonate_plugin_skills
+    - current_primary_creator_and_lineage_match_workflow_and_entry_mode
     - orchestrator_skill_matches_current_workflow
     - fresh_evaluator_cannot_read_any_prior_reviewer_output_or_score
     - panel_roles_cannot_read_peer_outputs
     - strategy_reviewers_cannot_read_peer_outputs
+    - all_independent_reviewer_actor_and_report_isolation_modes_are_fresh_subagent
+    - each_reviewer_actor_emits_exactly_one_review_report
+    - every_review_report_input_ref_matches_the_actual_indexed_file_read_set
+    - supporting_reviewers_are_fresh_edge_bound_and_cannot_read_review_outputs
+    - supporting_writers_are_edge_bound_non_primary_drafters_with_role_scoped_outputs
     - dissent_ids_are_preserved
+    - verifier_compositor_verification_findings_are_aggregated_and_can_block_ready
+    - research_polisher_strategy_reports_have_exact_skill_role_output_and_three_tiers
+    - research_polisher_candidate_portfolio_binds_and_reads_three_strategy_reports
+    - review_finding_indexes_are_derived_from_finding_objects_and_decisions_are_fail_closed
+    - qualifying_ready_decisions_pass_and_have_no_unresolved_blocking_findings
+    - control_evidence_finding_binds_a_required_fresh_report_and_current_input
+    - all_control_cases_run_their_declared_independent_gates
+    - proposal_package_binds_latest_sap_and_fresh_exact_sap_evaluation
+    - article_standard_happy_includes_fresh_readiness_gate
+    - perspective_single_compositor_orders_internal_outputs_without_self_reading
     - unresolved_fatal_ids_are_visible_and_indexed
     - blocked_control_has_unresolved_fatal_finding
     - automatic_external_submission_is_false

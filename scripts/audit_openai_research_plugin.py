@@ -22,8 +22,24 @@ MANIFEST = PLUGIN / ".codex-plugin" / "plugin.json"
 MARKETPLACE = REPO / ".agents" / "plugins" / "marketplace.json"
 
 EXPECTED_REVIEWERS = 20
-EXPECTED_PUBLIC_ENTRIES = 7
-EXPECTED_IMPLICIT_ACTIVE = 6
+RESEARCH_POLISHER_ENTRY = "research-polisher-orchestrator"
+EXPECTED_PUBLIC_ENTRY_SKILLS = {
+    "academic-deep-search",
+    "article-orchestrator",
+    "perspective-orchestrator",
+    "proposal-orchestrator",
+    "research-idea-orchestrator",
+    "research-opportunity-mapper",
+    RESEARCH_POLISHER_ENTRY,
+}
+EXPECTED_PUBLIC_ENTRIES = len(EXPECTED_PUBLIC_ENTRY_SKILLS)
+EXPECTED_IMPLICIT_ACTIVE_ENTRIES = EXPECTED_PUBLIC_ENTRY_SKILLS - {
+    RESEARCH_POLISHER_ENTRY
+}
+EXPECTED_POLISHER_ROUTE = {
+    "status": "explicit_only_personal_routing_policy",
+    "change_authority": "owner_only",
+}
 SKILL_LINE_HARD_LIMIT = 250
 SKILL_CHAR_HARD_LIMIT = 12_000
 SKILL_LINE_TARGET = 180
@@ -204,6 +220,7 @@ def main() -> int:
     errors: list[str] = []
     warnings: list[str] = []
     manifest_version = ""
+    agent_implicit_policies: dict[str, bool] = {}
 
     if not MANIFEST.exists():
         errors.append("missing plugin manifest")
@@ -275,6 +292,18 @@ def main() -> int:
             short_error = short_description_error(interface.get("short_description"))
             if short_error:
                 errors.append(f"{relative(openai_yaml)}: {short_error}")
+            policy = openai_data.get("policy", {}) if isinstance(openai_data, dict) else {}
+            allow_implicit = (
+                policy.get("allow_implicit_invocation")
+                if isinstance(policy, dict)
+                else None
+            )
+            if not isinstance(allow_implicit, bool):
+                errors.append(
+                    f"{relative(openai_yaml)}: policy.allow_implicit_invocation must be boolean"
+                )
+            else:
+                agent_implicit_policies[name] = allow_implicit
         errors.extend(resource_ownership_errors(skill_md))
         if name not in FINAL_SUBMISSION_SKILLS and PRE_SUBMISSION_POLICY_RE.search(body):
             errors.append(f"{relative(skill_md)}: pre-submission ethics/privacy/regulatory gate residue")
@@ -358,35 +387,60 @@ def main() -> int:
         missing_fields = sorted(field for field in REVIEW_FIELDS if field not in text)
         if missing_fields:
             errors.append(f"{relative(path)}: reviewer report contract missing fields {missing_fields}")
-        openai_text = read(path.parent / "agents" / "openai.yaml")
-        if "allow_implicit_invocation: false" not in openai_text:
+        if agent_implicit_policies.get(name) is not False:
             errors.append(f"{relative(path)}: reviewer must disable implicit invocation")
 
     implicit = [entry for entry in entries if entry.get("invocation_policy") == "implicit"]
-    if len(implicit) != EXPECTED_IMPLICIT_ACTIVE:
-        errors.append(
-            f"expected {EXPECTED_IMPLICIT_ACTIVE} currently active implicit entry skills, "
-            f"found {len(implicit)}"
-        )
     public_entry_policy = registry_data.get("public_entry_policy", {}) if REGISTRY.exists() else {}
-    declared_entries = set(public_entry_policy.get("declared_entries", []))
-    implicit_active_entries = set(public_entry_policy.get("implicit_active_entries", []))
-    if len(declared_entries) != EXPECTED_PUBLIC_ENTRIES:
-        errors.append(
-            f"expected {EXPECTED_PUBLIC_ENTRIES} declared public entries, found {len(declared_entries)}"
-        )
-    if implicit_active_entries != {entry.get("name") for entry in implicit}:
-        errors.append("public entry policy and skill invocation policies disagree")
-    polisher_gate = public_entry_policy.get("gated_entries", {}).get(
-        "research-polisher-orchestrator", {}
+    declared_entry_list = public_entry_policy.get("declared_entries", [])
+    implicit_active_list = public_entry_policy.get("implicit_active_entries", [])
+    declared_entries = set(declared_entry_list) if isinstance(declared_entry_list, list) else set()
+    implicit_active_entries = (
+        set(implicit_active_list) if isinstance(implicit_active_list, list) else set()
     )
     if (
-        "research-polisher-orchestrator" not in declared_entries
-        or "research-polisher-orchestrator" in implicit_active_entries
-        or polisher_gate.get("status")
-        != "explicit_only_pending_phase_7_8_external_evidence"
+        not isinstance(declared_entry_list, list)
+        or len(declared_entry_list) != EXPECTED_PUBLIC_ENTRIES
+        or declared_entries != EXPECTED_PUBLIC_ENTRY_SKILLS
     ):
-        errors.append("Research Polisher public entry must remain explicit-only until Phase 7-8 external gates pass")
+        errors.append(
+            "declared public entries differ from the personal routing profile: "
+            f"expected={sorted(EXPECTED_PUBLIC_ENTRY_SKILLS)}, "
+            f"actual={sorted(declared_entries)}"
+        )
+    registry_implicit_entries = {entry.get("name") for entry in implicit}
+    source_implicit_entries = {
+        name for name, allowed in agent_implicit_policies.items() if allowed
+    }
+    non_public_implicit = source_implicit_entries - declared_entries
+    if non_public_implicit:
+        errors.append(
+            "non-public skills allow implicit invocation: "
+            f"{sorted(non_public_implicit)}"
+        )
+    if implicit_active_entries != registry_implicit_entries:
+        errors.append("public entry policy and skill invocation policies disagree")
+    if source_implicit_entries != implicit_active_entries:
+        errors.append(
+            "agents/openai.yaml and registry implicit policies disagree: "
+            f"source_only={sorted(source_implicit_entries - implicit_active_entries)} "
+            f"registry_only={sorted(implicit_active_entries - source_implicit_entries)}"
+        )
+    polisher_route = public_entry_policy.get("explicit_only_entries", {}).get(
+        RESEARCH_POLISHER_ENTRY, {}
+    )
+    polisher_policy = agent_implicit_policies.get(RESEARCH_POLISHER_ENTRY)
+    if source_implicit_entries != EXPECTED_IMPLICIT_ACTIVE_ENTRIES:
+        errors.append(
+            "personal routing requires exactly six implicit entries and keeps "
+            f"Research Polisher explicit-only: actual={sorted(source_implicit_entries)}"
+        )
+    if polisher_policy is not False:
+        errors.append("Research Polisher must disable implicit invocation")
+    if polisher_route != EXPECTED_POLISHER_ROUTE:
+        errors.append(
+            "Research Polisher registry route must be the explicit-only personal policy"
+        )
 
     edge_fields = {
         "workflow",
@@ -1021,6 +1075,7 @@ def main() -> int:
     print(f"registry entries: {len(entries)}")
     print(f"workflow edges: {len(edges)}")
     print(f"independent reviewers: {len(reviewers)}")
+    print("routing profile: personal-owner (7 declared / 6 implicit)")
     print(f"description characters: {description_chars}/{DESCRIPTION_BUDGET}")
     if orchestrators:
         max_initial = max(description_chars + len(read(names[name])) for name in orchestrators)

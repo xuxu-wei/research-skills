@@ -1,0 +1,127 @@
+schema_version: 1
+profile: personal-owner
+plugin_version: 0.7.0-preview.2
+evidence_level: owner_observed
+
+# This collection is intentionally pending. Repository-authored files can
+# describe owner observations but cannot manufacture them.
+distribution:
+  slot_id: personal-distribution-current
+  kind: distribution
+  workflow: null
+  expected_outcome: current_version_install_reinstall_and_fresh_task_discovery_49_7_6
+  actual_outcome: null
+  status: pending_owner_observation
+  binding: &pending_binding
+    task_id: null
+    plugin_version: null
+    source_identity: null
+    artifact_bindings: []
+    reviewer_instance_ids: []
+    source_urls: []
+    started_at: null
+    completed_at: null
+    owner_confirmed: false
+  notes: Installed GitHub cache is 0.7.0-preview.1; 0.7.0-preview.2 is not yet pushed.
+
+workflow_runs:
+  - slot_id: personal-idea-happy
+    kind: workflow_happy
+    workflow: idea
+    expected_outcome: human_signoff_required
+    actual_outcome: null
+    status: pending_owner_observation
+    binding: *pending_binding
+    notes: null
+  - slot_id: personal-proposal-happy
+    kind: workflow_happy
+    workflow: proposal
+    expected_outcome: human_signoff_required
+    actual_outcome: null
+    status: pending_owner_observation
+    binding: *pending_binding
+    notes: null
+  - slot_id: personal-article-happy
+    kind: workflow_happy
+    workflow: article
+    expected_outcome: human_signoff_required
+    actual_outcome: null
+    status: pending_owner_observation
+    binding: *pending_binding
+    notes: null
+  - slot_id: personal-perspective-happy
+    kind: workflow_happy
+    workflow: perspective
+    expected_outcome: human_signoff_required
+    actual_outcome: null
+    status: pending_owner_observation
+    binding: *pending_binding
+    notes: null
+  - slot_id: personal-research-polisher-happy
+    kind: workflow_happy
+    workflow: research_polisher
+    expected_outcome: human_strategy_selection_required
+    actual_outcome: null
+    status: pending_owner_observation
+    binding: *pending_binding
+    notes: null
+
+control_runs:
+  - slot_id: personal-reviewer-unavailable-control
+    kind: workflow_control
+    workflow: cross_workflow
+    expected_outcome: independent_review_pending
+    actual_outcome: null
+    status: pending_owner_observation
+    binding: *pending_binding
+    notes: null
+  - slot_id: personal-fatal-finding-control
+    kind: workflow_control
+    workflow: cross_workflow
+    expected_outcome: blocked_without_ready_state
+    actual_outcome: null
+    status: pending_owner_observation
+    binding: *pending_binding
+    notes: null
+
+retrieval_runs:
+  - slot_id: personal-search-current
+    kind: search
+    workflow: research
+    expected_outcome: source_grounded_current_answer
+    actual_outcome: null
+    status: pending_owner_observation
+    binding: *pending_binding
+    notes: null
+  - slot_id: personal-search-exact
+    kind: search
+    workflow: research
+    expected_outcome: source_grounded_exact_answer
+    actual_outcome: null
+    status: pending_owner_observation
+    binding: *pending_binding
+    notes: null
+  - slot_id: personal-search-narrow-academic
+    kind: search
+    workflow: research
+    expected_outcome: source_grounded_narrow_academic_answer
+    actual_outcome: null
+    status: pending_owner_observation
+    binding: *pending_binding
+    notes: null
+  - slot_id: personal-deep-research-inactive
+    kind: deep_research_inactive
+    workflow: research
+    expected_outcome: deep_research_handoff_required_with_continuation_package
+    actual_outcome: null
+    status: pending_owner_observation
+    binding: *pending_binding
+    notes: null
+  - slot_id: personal-deep-research-complete
+    kind: deep_research_complete
+    workflow: research
+    expected_outcome: handoff_completion_mapper_return_and_single_edge_resume
+    actual_outcome: null
+    status: pending_owner_observation
+    binding: *pending_binding
+    notes: null

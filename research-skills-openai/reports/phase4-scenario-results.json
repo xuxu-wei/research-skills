@@ -32,12 +32,12 @@
       "captured_skills_tree_sha256": "2409b09f94a51228ce4e58472a744c5ede0e0be9275def825fac81e2f0f2a45e",
       "captured_workflow_registry_sha256": null,
       "contract_assessment": "outcome_consistent_valid_gate_stop",
-      "current_manifest_sha256": "93788fff78bd32c2f94d2da7463920464f642c6f8951aebdb733878e629a57a7",
-      "current_plugin_version": "0.7.0-preview.1",
+      "current_manifest_sha256": "5a01636cdd1622927932592e66253016d11d878ca7496c41d6ab982a1cd6d839",
+      "current_plugin_version": "0.7.0-preview.2",
       "current_receipt_schema_sha256": null,
       "current_registry_schema_version": 5,
       "current_skills_tree_sha256": "2a709b1d9d1f9484112fffb0b0c50b749316c32a29718711b1ca47692c091416",
-      "current_workflow_registry_sha256": "43e621b09d663f3dad8fc13e7fd88fea860da8a14f26db4c9c75401214f4052a",
+      "current_workflow_registry_sha256": "fca5969feb43b726ea7b7c31b7ff00cab43b42393230090cfe3c87eed02b9d26",
       "evaluator_instances": [
         "/root/evaluator_r1",
         "/root/evaluator_r2_retry"
@@ -76,12 +76,12 @@
       "captured_skills_tree_sha256": "2409b09f94a51228ce4e58472a744c5ede0e0be9275def825fac81e2f0f2a45e",
       "captured_workflow_registry_sha256": null,
       "contract_assessment": "incomplete_panel_qualification",
-      "current_manifest_sha256": "93788fff78bd32c2f94d2da7463920464f642c6f8951aebdb733878e629a57a7",
-      "current_plugin_version": "0.7.0-preview.1",
+      "current_manifest_sha256": "5a01636cdd1622927932592e66253016d11d878ca7496c41d6ab982a1cd6d839",
+      "current_plugin_version": "0.7.0-preview.2",
       "current_receipt_schema_sha256": null,
       "current_registry_schema_version": 5,
       "current_skills_tree_sha256": "2a709b1d9d1f9484112fffb0b0c50b749316c32a29718711b1ca47692c091416",
-      "current_workflow_registry_sha256": "43e621b09d663f3dad8fc13e7fd88fea860da8a14f26db4c9c75401214f4052a",
+      "current_workflow_registry_sha256": "fca5969feb43b726ea7b7c31b7ff00cab43b42393230090cfe3c87eed02b9d26",
       "evaluator_instances": [
         "/root/proposal_eval_v1",
         "/root/proposal_eval_v2",
@@ -121,12 +121,12 @@
       "captured_skills_tree_sha256": "2409b09f94a51228ce4e58472a744c5ede0e0be9275def825fac81e2f0f2a45e",
       "captured_workflow_registry_sha256": null,
       "contract_assessment": "outcome_consistent_valid_gate_stop",
-      "current_manifest_sha256": "93788fff78bd32c2f94d2da7463920464f642c6f8951aebdb733878e629a57a7",
-      "current_plugin_version": "0.7.0-preview.1",
+      "current_manifest_sha256": "5a01636cdd1622927932592e66253016d11d878ca7496c41d6ab982a1cd6d839",
+      "current_plugin_version": "0.7.0-preview.2",
       "current_receipt_schema_sha256": null,
       "current_registry_schema_version": 5,
       "current_skills_tree_sha256": "2a709b1d9d1f9484112fffb0b0c50b749316c32a29718711b1ca47692c091416",
-      "current_workflow_registry_sha256": "43e621b09d663f3dad8fc13e7fd88fea860da8a14f26db4c9c75401214f4052a",
+      "current_workflow_registry_sha256": "fca5969feb43b726ea7b7c31b7ff00cab43b42393230090cfe3c87eed02b9d26",
       "evaluator_instances": [
         "article-evaluator-telehf90-v001-7f3c",
         "eval-v002-fresh-telehf90-20260712"
@@ -161,12 +161,12 @@
       "captured_skills_tree_sha256": "2409b09f94a51228ce4e58472a744c5ede0e0be9275def825fac81e2f0f2a45e",
       "captured_workflow_registry_sha256": null,
       "contract_assessment": "generic_outlet_caps_below_human_signoff",
-      "current_manifest_sha256": "93788fff78bd32c2f94d2da7463920464f642c6f8951aebdb733878e629a57a7",
-      "current_plugin_version": "0.7.0-preview.1",
+      "current_manifest_sha256": "5a01636cdd1622927932592e66253016d11d878ca7496c41d6ab982a1cd6d839",
+      "current_plugin_version": "0.7.0-preview.2",
       "current_receipt_schema_sha256": null,
       "current_registry_schema_version": 5,
       "current_skills_tree_sha256": "2a709b1d9d1f9484112fffb0b0c50b749316c32a29718711b1ca47692c091416",
-      "current_workflow_registry_sha256": "43e621b09d663f3dad8fc13e7fd88fea860da8a14f26db4c9c75401214f4052a",
+      "current_workflow_registry_sha256": "fca5969feb43b726ea7b7c31b7ff00cab43b42393230090cfe3c87eed02b9d26",
       "evaluator_instances": [
         "/root/evaluator_v001",
         "/root/evaluator_v002",
@@ -577,7 +577,7 @@
       "status": "rejected_as_expected"
     }
   ],
-  "plugin_version": "0.7.0-preview.1",
+  "plugin_version": "0.7.0-preview.2",
   "polisher_decision_route_results": [
     {
       "decision": "matrix_complete",
@@ -651,7 +651,7 @@
             "latest_qualifying_evaluation": null,
             "next_route": "idea-evaluator",
             "pending_edge": "research-idea-orchestrator -> idea-evaluator",
-            "plugin_version": "0.7.0-preview.1",
+            "plugin_version": "0.7.0-preview.2",
             "round_id": "round-001",
             "runtime_status": "context_handoff_required",
             "suspended_workflow_state": "artifact_frozen",
@@ -1150,7 +1150,7 @@
             "latest_qualifying_evaluation": null,
             "next_route": "proposal-evaluator",
             "pending_edge": "proposal-orchestrator -> proposal-evaluator",
-            "plugin_version": "0.7.0-preview.1",
+            "plugin_version": "0.7.0-preview.2",
             "round_id": "round-001",
             "runtime_status": "context_handoff_required",
             "suspended_workflow_state": "artifact_frozen",
@@ -1775,7 +1775,7 @@
             "latest_qualifying_evaluation": null,
             "next_route": "article-evaluator",
             "pending_edge": "article-orchestrator -> article-evaluator",
-            "plugin_version": "0.7.0-preview.1",
+            "plugin_version": "0.7.0-preview.2",
             "round_id": "round-001",
             "runtime_status": "context_handoff_required",
             "suspended_workflow_state": "artifact_frozen",
@@ -1846,14 +1846,11 @@
           "type": "review"
         },
         {
-          "edge": "article-orchestrator -> article-architect",
-          "event_id": "article-blueprint",
+          "edge": "article-orchestrator -> article-literature-grounder",
+          "event_id": "article-literature-grounding",
           "observation": {
             "actual_write_paths": [
-              "04_blueprint/article-blueprint-v001.md",
-              "04_blueprint/claim-evidence-matrix-v001.md",
-              "04_blueprint/evidence-ledger-v001.md",
-              "04_blueprint/journal-adapter-v001.md"
+              "04_blueprint/evidence-ledger-v001.md"
             ],
             "files_read": [],
             "input_hashes_after": {
@@ -1867,6 +1864,33 @@
             "lifecycle_transitions": []
           },
           "sequence": 2,
+          "state_after": "initialized",
+          "state_before": "initialized",
+          "type": "produce"
+        },
+        {
+          "edge": "article-orchestrator -> article-architect",
+          "event_id": "article-blueprint",
+          "observation": {
+            "actual_write_paths": [
+              "04_blueprint/article-blueprint-v001.md",
+              "04_blueprint/claim-evidence-matrix-v001.md",
+              "04_blueprint/journal-adapter-v001.md"
+            ],
+            "files_read": [],
+            "input_hashes_after": {
+              "01_context/article-context-v001.md": "sha256:e9942214aa4243b8972e1c3ec488f0d691f5b9b9268e28e3381f1a731b597cd2",
+              "02_methods/frozen-method-facts-v001.md": "sha256:dabe08d37dc6fe6db15678eae618851e191f963bac8e461dae7603ba62808230",
+              "04_blueprint/evidence-ledger-v001.md": "sha256:0c4b8b8f7079e35b05d231fbea226f195ffa5e3204e44d90950b6da6f9307743"
+            },
+            "input_hashes_before": {
+              "01_context/article-context-v001.md": "sha256:e9942214aa4243b8972e1c3ec488f0d691f5b9b9268e28e3381f1a731b597cd2",
+              "02_methods/frozen-method-facts-v001.md": "sha256:dabe08d37dc6fe6db15678eae618851e191f963bac8e461dae7603ba62808230",
+              "04_blueprint/evidence-ledger-v001.md": "sha256:0c4b8b8f7079e35b05d231fbea226f195ffa5e3204e44d90950b6da6f9307743"
+            },
+            "lifecycle_transitions": []
+          },
+          "sequence": 3,
           "state_after": "initialized",
           "state_before": "initialized",
           "type": "produce"
@@ -1892,7 +1916,7 @@
             },
             "lifecycle_transitions": []
           },
-          "sequence": 3,
+          "sequence": 4,
           "state_after": "initialized",
           "state_before": "initialized",
           "type": "review"
@@ -1921,7 +1945,7 @@
             },
             "lifecycle_transitions": []
           },
-          "sequence": 4,
+          "sequence": 5,
           "state_after": "initialized",
           "state_before": "initialized",
           "type": "produce"
@@ -1956,7 +1980,7 @@
             },
             "lifecycle_transitions": []
           },
-          "sequence": 5,
+          "sequence": 6,
           "state_after": "initialized",
           "state_before": "initialized",
           "type": "review"
@@ -2019,7 +2043,7 @@
               }
             }
           },
-          "sequence": 6,
+          "sequence": 7,
           "state_after": "artifact_frozen",
           "state_before": "initialized",
           "type": "entry_gate"
@@ -2061,7 +2085,7 @@
               }
             ]
           },
-          "sequence": 7,
+          "sequence": 8,
           "state_after": "revision_required",
           "state_before": "artifact_frozen",
           "type": "review"
@@ -2084,7 +2108,7 @@
             },
             "lifecycle_transitions": []
           },
-          "sequence": 8,
+          "sequence": 9,
           "state_after": "revision_required",
           "state_before": "revision_required",
           "type": "produce"
@@ -2116,7 +2140,7 @@
               }
             ]
           },
-          "sequence": 9,
+          "sequence": 10,
           "state_after": "artifact_frozen",
           "state_before": "revision_required",
           "type": "produce"
@@ -2151,7 +2175,7 @@
             },
             "lifecycle_transitions": []
           },
-          "sequence": 10,
+          "sequence": 11,
           "state_after": "artifact_frozen",
           "state_before": "artifact_frozen",
           "type": "review"
@@ -2193,7 +2217,7 @@
               }
             ]
           },
-          "sequence": 11,
+          "sequence": 12,
           "state_after": "panel_pending",
           "state_before": "artifact_frozen",
           "type": "review"
@@ -2216,7 +2240,7 @@
             },
             "lifecycle_transitions": []
           },
-          "sequence": 12,
+          "sequence": 13,
           "state_after": "panel_pending",
           "state_before": "panel_pending",
           "type": "review"
@@ -2239,7 +2263,7 @@
             },
             "lifecycle_transitions": []
           },
-          "sequence": 13,
+          "sequence": 14,
           "state_after": "panel_pending",
           "state_before": "panel_pending",
           "type": "review"
@@ -2265,7 +2289,7 @@
             },
             "lifecycle_transitions": []
           },
-          "sequence": 14,
+          "sequence": 15,
           "state_after": "panel_pending",
           "state_before": "panel_pending",
           "type": "review"
@@ -2287,7 +2311,7 @@
               }
             ]
           },
-          "sequence": 15,
+          "sequence": 16,
           "state_after": "packaging_pending",
           "state_before": "panel_pending",
           "type": "panel_gate"
@@ -2312,7 +2336,7 @@
             },
             "lifecycle_transitions": []
           },
-          "sequence": 16,
+          "sequence": 17,
           "state_after": "packaging_pending",
           "state_before": "packaging_pending",
           "type": "produce"
@@ -2338,7 +2362,7 @@
             },
             "lifecycle_transitions": []
           },
-          "sequence": 17,
+          "sequence": 18,
           "state_after": "packaging_pending",
           "state_before": "packaging_pending",
           "type": "produce"
@@ -2349,10 +2373,12 @@
           "observation": {
             "actual_write_paths": [
               "12_package/compositor-verification-report.md",
-              "12_package/manuscript-v002-copy.md"
+              "12_package/manuscript-v002-copy.md",
+              "12_package/review-finding-index.yaml"
             ],
             "files_read": [
               "06_drafts/manuscript-v002.md",
+              "03_readiness/article-readiness-v001.md",
               "04_blueprint/article-blueprint-v001.md",
               "04_blueprint/claim-evidence-matrix-v001.md",
               "04_blueprint/evidence-ledger-v001.md",
@@ -2371,6 +2397,7 @@
               "09_revisions/round-002/revision-delta-r002.md"
             ],
             "input_hashes_after": {
+              "03_readiness/article-readiness-v001.md": "sha256:74a405c42a57b645a9821ca8cbd8e9f9eee3742cdde65e9265b3c6ecb56f6d62",
               "04_blueprint/article-blueprint-v001.md": "sha256:13c55d2afb9ecb429cd29846b6105534bb65575333e42e6600755fa901993585",
               "04_blueprint/claim-evidence-matrix-v001.md": "sha256:8609cd9892355a98512f567d490628825d946842941ae33a6c14760e34bcb9a5",
               "04_blueprint/evidence-ledger-v001.md": "sha256:0c4b8b8f7079e35b05d231fbea226f195ffa5e3204e44d90950b6da6f9307743",
@@ -2390,6 +2417,7 @@
               "11_frontmatter/frontmatter-v001.md": "sha256:7b80bec6ece86a6a3f4a3cc7c0508caf9a61551756fb67f4712b179382ee878f"
             },
             "input_hashes_before": {
+              "03_readiness/article-readiness-v001.md": "sha256:74a405c42a57b645a9821ca8cbd8e9f9eee3742cdde65e9265b3c6ecb56f6d62",
               "04_blueprint/article-blueprint-v001.md": "sha256:13c55d2afb9ecb429cd29846b6105534bb65575333e42e6600755fa901993585",
               "04_blueprint/claim-evidence-matrix-v001.md": "sha256:8609cd9892355a98512f567d490628825d946842941ae33a6c14760e34bcb9a5",
               "04_blueprint/evidence-ledger-v001.md": "sha256:0c4b8b8f7079e35b05d231fbea226f195ffa5e3204e44d90950b6da6f9307743",
@@ -2417,7 +2445,7 @@
               }
             ]
           },
-          "sequence": 18,
+          "sequence": 19,
           "state_after": "human_signoff_required",
           "state_before": "packaging_pending",
           "type": "review"
@@ -2455,6 +2483,7 @@
         "article -> article-orchestrator -> article-drafter",
         "article -> article-orchestrator -> article-evaluator",
         "article -> article-orchestrator -> article-frontmatter-drafter",
+        "article -> article-orchestrator -> article-literature-grounder",
         "article -> article-orchestrator -> article-methods-statistics-auditor",
         "article -> article-orchestrator -> article-readiness-triage",
         "article -> article-orchestrator -> article-refinement-controller",
@@ -2538,7 +2567,7 @@
             "latest_qualifying_evaluation": null,
             "next_route": "perspective-evaluator",
             "pending_edge": "perspective-orchestrator -> perspective-evaluator",
-            "plugin_version": "0.7.0-preview.1",
+            "plugin_version": "0.7.0-preview.2",
             "round_id": "round-001",
             "runtime_status": "context_handoff_required",
             "suspended_workflow_state": "artifact_frozen",
@@ -3072,68 +3101,15 @@
           "type": "review"
         },
         {
-          "edge": "orchestrator_internal_gate",
-          "event_id": "perspective-final-handoff-summary",
-          "observation": {
-            "actual_write_paths": [
-              "07_panel/artifact-index-v003.md",
-              "07_panel/final-handoff-summary-v003.md"
-            ],
-            "files_read": [],
-            "input_hashes_after": {
-              "01_input/target-outlet-profile-v001.md": "sha256:7e3afe541e25aa8bec4cd2d063a88016062af0922750f69a8825717edae8dd6b",
-              "02_evidence/citation-risk-log-v001.md": "sha256:abf7e51586b762225b7945b8408247692d762596863834dd2d5bdff3d4fc1510",
-              "02_evidence/claim-evidence-matrix-v001.md": "sha256:8609cd9892355a98512f567d490628825d946842941ae33a6c14760e34bcb9a5",
-              "02_evidence/claim-ledger-v001.md": "sha256:94b9f1716e775f4c65ade28d99d56afde182ae795a6411f14730ba2051a7992f",
-              "02_evidence/contrary-evidence-log-v001.md": "sha256:7baf31f1f964bd66e3fd3d4b692291660a1ecd4956499fb7d28ff5e4aaaccd92",
-              "02_evidence/evidence-limitations-v001.md": "sha256:6af8d8301fb216f4601071ea796b1073cf7805c85ce977c2abaa0261c697d3f4",
-              "02_evidence/reference-list-v001.md": "sha256:78663cac58f52b2104d3b6561dcb6db9470fde2dd5e1245cba3af97996c755c7",
-              "04_drafts/perspective-v003.md": "sha256:d835b1af7b26107cf5a54ced87c2d9c3473b89cd8ad23224a27f5c2a9623341e",
-              "05_evaluations/evaluation-report-v003.md": "sha256:750dbb65067cace17df82d8b9a54fce5b86ba9d0c08e5e3fcd44aea51316989e",
-              "06_revisions/round-002/response-to-reviewers-r002.md": "sha256:f28625461005a64f362cb048e04eaf7fe0690c7269d92c579fb572f41d118646",
-              "06_revisions/round-002/revision-delta-r002.md": "sha256:6b3c06b0f6b880b0fc745ca3d0d988b28fcc788989bc19de445d105ced64d385",
-              "06_revisions/round-002/revision-plan-r002.md": "sha256:f394b25d0efe946954837fc3e6e2d37fb878f8a3aec674e51511cbb19a42d614",
-              "06_revisions/round-003/response-to-reviewers-r003.md": "sha256:6fab219a56874d023b4926ea6dde80704613f74ee7384f686850a4009361bec8",
-              "06_revisions/round-003/revision-delta-r003.md": "sha256:f3b829496e31b1449b44b6a5b7cf1f05f9df4f3610632a98450a2b74fceab6a7",
-              "06_revisions/round-003/revision-plan-r003.md": "sha256:5cac850a269397fe03d3dbfaf9b93271e050149e5db93916e84f76df078eb6dc",
-              "07_panel/counter-position-review-v002.md": "sha256:5618241875476798bd6c2b043f5d506547990889bc4fad62d754a749e4537c76",
-              "07_panel/evidence-review-v002.md": "sha256:3f575aa30f095e765dc194940b2a07c56ae2f21007cfb95e4d303852fc6ff13c",
-              "07_panel/narrative-review-v002.md": "sha256:1baa8a0f2aadc9bb3d32f541c4cecc612a8e2059ad79b909138327bf226d057b"
-            },
-            "input_hashes_before": {
-              "01_input/target-outlet-profile-v001.md": "sha256:7e3afe541e25aa8bec4cd2d063a88016062af0922750f69a8825717edae8dd6b",
-              "02_evidence/citation-risk-log-v001.md": "sha256:abf7e51586b762225b7945b8408247692d762596863834dd2d5bdff3d4fc1510",
-              "02_evidence/claim-evidence-matrix-v001.md": "sha256:8609cd9892355a98512f567d490628825d946842941ae33a6c14760e34bcb9a5",
-              "02_evidence/claim-ledger-v001.md": "sha256:94b9f1716e775f4c65ade28d99d56afde182ae795a6411f14730ba2051a7992f",
-              "02_evidence/contrary-evidence-log-v001.md": "sha256:7baf31f1f964bd66e3fd3d4b692291660a1ecd4956499fb7d28ff5e4aaaccd92",
-              "02_evidence/evidence-limitations-v001.md": "sha256:6af8d8301fb216f4601071ea796b1073cf7805c85ce977c2abaa0261c697d3f4",
-              "02_evidence/reference-list-v001.md": "sha256:78663cac58f52b2104d3b6561dcb6db9470fde2dd5e1245cba3af97996c755c7",
-              "04_drafts/perspective-v003.md": "sha256:d835b1af7b26107cf5a54ced87c2d9c3473b89cd8ad23224a27f5c2a9623341e",
-              "05_evaluations/evaluation-report-v003.md": "sha256:750dbb65067cace17df82d8b9a54fce5b86ba9d0c08e5e3fcd44aea51316989e",
-              "06_revisions/round-002/response-to-reviewers-r002.md": "sha256:f28625461005a64f362cb048e04eaf7fe0690c7269d92c579fb572f41d118646",
-              "06_revisions/round-002/revision-delta-r002.md": "sha256:6b3c06b0f6b880b0fc745ca3d0d988b28fcc788989bc19de445d105ced64d385",
-              "06_revisions/round-002/revision-plan-r002.md": "sha256:f394b25d0efe946954837fc3e6e2d37fb878f8a3aec674e51511cbb19a42d614",
-              "06_revisions/round-003/response-to-reviewers-r003.md": "sha256:6fab219a56874d023b4926ea6dde80704613f74ee7384f686850a4009361bec8",
-              "06_revisions/round-003/revision-delta-r003.md": "sha256:f3b829496e31b1449b44b6a5b7cf1f05f9df4f3610632a98450a2b74fceab6a7",
-              "06_revisions/round-003/revision-plan-r003.md": "sha256:5cac850a269397fe03d3dbfaf9b93271e050149e5db93916e84f76df078eb6dc",
-              "07_panel/counter-position-review-v002.md": "sha256:5618241875476798bd6c2b043f5d506547990889bc4fad62d754a749e4537c76",
-              "07_panel/evidence-review-v002.md": "sha256:3f575aa30f095e765dc194940b2a07c56ae2f21007cfb95e4d303852fc6ff13c",
-              "07_panel/narrative-review-v002.md": "sha256:1baa8a0f2aadc9bb3d32f541c4cecc612a8e2059ad79b909138327bf226d057b"
-            },
-            "lifecycle_transitions": []
-          },
-          "sequence": 14,
-          "state_after": "packaging_pending",
-          "state_before": "packaging_pending",
-          "type": "orchestrator_record"
-        },
-        {
           "edge": "perspective-orchestrator -> perspective-final-compositor",
           "event_id": "perspective-compositor",
           "observation": {
             "actual_write_paths": [
+              "08_final/artifact-index.md",
               "08_final/final-compositor-report.md",
-              "08_final/final-perspective.md"
+              "08_final/final-perspective.md",
+              "08_final/panel-summary.md",
+              "08_final/review-finding-index.yaml"
             ],
             "files_read": [
               "04_drafts/perspective-v003.md",
@@ -3144,8 +3120,10 @@
               "02_evidence/citation-risk-log-v001.md",
               "02_evidence/contrary-evidence-log-v001.md",
               "02_evidence/reference-list-v001.md",
-              "07_panel/final-handoff-summary-v003.md",
-              "07_panel/artifact-index-v003.md"
+              "05_evaluations/evaluation-report-v003.md",
+              "07_panel/counter-position-review-v002.md",
+              "07_panel/evidence-review-v002.md",
+              "07_panel/narrative-review-v002.md"
             ],
             "input_hashes_after": {
               "01_input/target-outlet-profile-v001.md": "sha256:7e3afe541e25aa8bec4cd2d063a88016062af0922750f69a8825717edae8dd6b",
@@ -3156,8 +3134,10 @@
               "02_evidence/evidence-limitations-v001.md": "sha256:6af8d8301fb216f4601071ea796b1073cf7805c85ce977c2abaa0261c697d3f4",
               "02_evidence/reference-list-v001.md": "sha256:78663cac58f52b2104d3b6561dcb6db9470fde2dd5e1245cba3af97996c755c7",
               "04_drafts/perspective-v003.md": "sha256:d835b1af7b26107cf5a54ced87c2d9c3473b89cd8ad23224a27f5c2a9623341e",
-              "07_panel/artifact-index-v003.md": "sha256:0036590c6e222ac78d83d8770738eae091894d71c141be396e05bc9bffb4fe1a",
-              "07_panel/final-handoff-summary-v003.md": "sha256:32157b9f5a192c51042d8e986c8631da8f9e9052ca9fcc6707397d9a73de4d92"
+              "05_evaluations/evaluation-report-v003.md": "sha256:750dbb65067cace17df82d8b9a54fce5b86ba9d0c08e5e3fcd44aea51316989e",
+              "07_panel/counter-position-review-v002.md": "sha256:5618241875476798bd6c2b043f5d506547990889bc4fad62d754a749e4537c76",
+              "07_panel/evidence-review-v002.md": "sha256:3f575aa30f095e765dc194940b2a07c56ae2f21007cfb95e4d303852fc6ff13c",
+              "07_panel/narrative-review-v002.md": "sha256:1baa8a0f2aadc9bb3d32f541c4cecc612a8e2059ad79b909138327bf226d057b"
             },
             "input_hashes_before": {
               "01_input/target-outlet-profile-v001.md": "sha256:7e3afe541e25aa8bec4cd2d063a88016062af0922750f69a8825717edae8dd6b",
@@ -3168,8 +3148,10 @@
               "02_evidence/evidence-limitations-v001.md": "sha256:6af8d8301fb216f4601071ea796b1073cf7805c85ce977c2abaa0261c697d3f4",
               "02_evidence/reference-list-v001.md": "sha256:78663cac58f52b2104d3b6561dcb6db9470fde2dd5e1245cba3af97996c755c7",
               "04_drafts/perspective-v003.md": "sha256:d835b1af7b26107cf5a54ced87c2d9c3473b89cd8ad23224a27f5c2a9623341e",
-              "07_panel/artifact-index-v003.md": "sha256:0036590c6e222ac78d83d8770738eae091894d71c141be396e05bc9bffb4fe1a",
-              "07_panel/final-handoff-summary-v003.md": "sha256:32157b9f5a192c51042d8e986c8631da8f9e9052ca9fcc6707397d9a73de4d92"
+              "05_evaluations/evaluation-report-v003.md": "sha256:750dbb65067cace17df82d8b9a54fce5b86ba9d0c08e5e3fcd44aea51316989e",
+              "07_panel/counter-position-review-v002.md": "sha256:5618241875476798bd6c2b043f5d506547990889bc4fad62d754a749e4537c76",
+              "07_panel/evidence-review-v002.md": "sha256:3f575aa30f095e765dc194940b2a07c56ae2f21007cfb95e4d303852fc6ff13c",
+              "07_panel/narrative-review-v002.md": "sha256:1baa8a0f2aadc9bb3d32f541c4cecc612a8e2059ad79b909138327bf226d057b"
             },
             "lifecycle_transitions": [
               {
@@ -3180,7 +3162,7 @@
               }
             ]
           },
-          "sequence": 15,
+          "sequence": 14,
           "state_after": "human_signoff_required",
           "state_before": "packaging_pending",
           "type": "review"
@@ -3328,7 +3310,7 @@
             "latest_qualifying_evaluation": null,
             "next_route": "research-polisher-methodology-publishability-reviewer",
             "pending_edge": "research-polisher-orchestrator -> research-polisher-methodology-publishability-reviewer",
-            "plugin_version": "0.7.0-preview.1",
+            "plugin_version": "0.7.0-preview.2",
             "round_id": "round-001",
             "runtime_status": "context_handoff_required",
             "suspended_workflow_state": "artifact_frozen",

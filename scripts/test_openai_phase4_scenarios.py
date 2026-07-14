@@ -380,8 +380,45 @@ class ScenarioEngine:
             require(not missing, "artifact_schema", f"initial artifact missing: {missing}")
             require(artifact["workflow_id"] == self.fixture["workflow_id"], "artifact_lineage", artifact["artifact_id"])
             require(artifact["plugin_version"] == self.registry["plugin_version"], "artifact_lineage", artifact["artifact_id"])
-            require(artifact["source_skill"] == "external-input", "artifact_lineage", artifact["artifact_id"])
-            require(artifact["created_by_instance_id"].startswith("fixture-user"), "artifact_lineage", artifact["artifact_id"])
+            source_skill = artifact["source_skill"]
+            if source_skill == "external-input":
+                require(
+                    artifact["created_by_instance_id"].startswith("fixture-user"),
+                    "artifact_lineage",
+                    artifact["artifact_id"],
+                )
+                require(
+                    artifact["change_type"] == "supplied",
+                    "artifact_lineage",
+                    artifact["artifact_id"],
+                )
+            else:
+                actor_outputs = self.contract["runtime_artifact_role_contract"][
+                    "actor_output_roles_by_skill"
+                ]
+                allowed_roles = {
+                    self.canonical_artifact_role(role)
+                    for role in actor_outputs.get(source_skill, [])
+                }
+                require(
+                    self.canonical_artifact_role(artifact["artifact_role"])
+                    in allowed_roles,
+                    "artifact_lineage",
+                    f"{artifact['artifact_id']}: {source_skill} cannot create "
+                    f"{artifact['artifact_role']}",
+                )
+                require(
+                    artifact["created_by_instance_id"].startswith(
+                        f"{source_skill}-"
+                    ),
+                    "artifact_lineage",
+                    artifact["artifact_id"],
+                )
+                require(
+                    artifact["change_type"] == "fixture_precomputed",
+                    "artifact_lineage",
+                    artifact["artifact_id"],
+                )
             require(artifact["based_on"] == [], "artifact_lineage", artifact["artifact_id"])
             require(artifact["frozen"] is True, "artifact_not_frozen", artifact["artifact_id"])
             require(artifact["content_digest"] == "computed", "artifact_digest", artifact["artifact_id"])
@@ -2056,6 +2093,10 @@ class ScenarioEngine:
                     "source_skill" not in requirement
                     or artifact["source_skill"] == requirement["source_skill"]
                 )
+                and (
+                    "source_skills" not in requirement
+                    or artifact["source_skill"] in set(requirement["source_skills"])
+                )
             ]
             if requirement.get("count_from_panel_roles"):
                 expected_count = len(self.fixture["panel"]["required_roles"])
@@ -2075,7 +2116,28 @@ class ScenarioEngine:
                 }
                 require({artifact["artifact_id"] for artifact in matches} == all_created, "package_input_contract", event["event_id"])
             if requirement.get("current_primary"):
-                require(matches[0]["artifact_id"] == self.current_primary["artifact_id"], "package_input_contract", event["event_id"])
+                require(
+                    matches[0]["artifact_id"] == self.current_primary["artifact_id"]
+                    and matches[0]["version_id"] == self.current_primary["version_id"],
+                    "package_input_contract",
+                    event["event_id"],
+                )
+            if requirement.get("latest_selected_artifact"):
+                all_candidates = [
+                    artifact
+                    for artifact in self.artifacts.values()
+                    if self.canonical_artifact_role(artifact["artifact_role"])
+                    == self.canonical_artifact_role(requirement["artifact_role"])
+                    and (
+                        "source_skill" not in requirement
+                        or artifact["source_skill"] == requirement["source_skill"]
+                    )
+                ]
+                require(
+                    bool(all_candidates) and matches[0] is all_candidates[-1],
+                    "package_input_contract",
+                    event["event_id"],
+                )
             if requirement.get("current_primary_lineage"):
                 require(current_ref in matches[0]["based_on"], "package_input_contract", event["event_id"])
             if requirement.get("selected_artifact_lineage_role"):
@@ -2090,6 +2152,32 @@ class ScenarioEngine:
                 require(len(selected) == 1, "package_input_contract", event["event_id"])
                 selected_ref = f"{selected[0]['artifact_id']}@{selected[0]['version_id']}"
                 require(selected_ref in matches[0]["based_on"], "package_input_contract", event["event_id"])
+                if requirement.get("exact_selected_artifact_lineage"):
+                    selected_role_refs = {
+                        f"{artifact['artifact_id']}@{artifact['version_id']}"
+                        for artifact in self.artifacts.values()
+                        if self.canonical_artifact_role(artifact["artifact_role"])
+                        == self.canonical_artifact_role(
+                            requirement["selected_artifact_lineage_role"]
+                        )
+                    }
+                    require(
+                        set(matches[0]["based_on"]).intersection(selected_role_refs)
+                        == {selected_ref},
+                        "package_input_contract",
+                        event["event_id"],
+                    )
+            if requirement.get("fresh_review_required"):
+                review_id = self.review_artifact_reports.get(matches[0]["artifact_id"])
+                review = self.review_reports.get(review_id or "")
+                require(
+                    review is not None
+                    and review.get("isolation_mode") == "fresh_subagent"
+                    and review.get("reviewer_instance_id")
+                    == matches[0]["created_by_instance_id"],
+                    "package_input_contract",
+                    event["event_id"],
+                )
             if requirement.get("all_panel_instances"):
                 require(
                     {artifact["created_by_instance_id"] for artifact in matches}
@@ -2097,29 +2185,6 @@ class ScenarioEngine:
                     "package_input_contract",
                     event["event_id"],
                 )
-                require(
-                    all(current_ref in artifact["based_on"] for artifact in matches),
-                    "package_input_contract",
-                    event["event_id"],
-                )
-        if self.workflow == "perspective":
-            sealed = [artifact for artifact in input_artifacts if artifact["artifact_role"] in {"panel_summary", "artifact_index"}]
-            sealed_parent_ids = {
-                parent.split("@", 1)[0]
-                for artifact in sealed
-                for parent in artifact["based_on"]
-            }
-            required_review_artifact_ids = {
-                artifact_id
-                for artifact_id, artifact in self.artifacts.items()
-                if artifact["source_skill"] == PANEL_SKILLS[self.workflow]
-                or (
-                    artifact["source_skill"] == self.machine["evaluator_skill"]
-                    and current_ref in artifact["based_on"]
-                )
-                or artifact["artifact_role"] in {"revision_plan", "response_to_reviewers", "revision_delta"}
-            }
-            require(required_review_artifact_ids <= sealed_parent_ids, "package_input_contract", event["event_id"])
 
     def validate_package_output_lineage(self, event: dict[str, Any], outputs: list[dict[str, Any]]) -> None:
         input_refs = {

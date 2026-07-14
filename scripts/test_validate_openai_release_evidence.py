@@ -245,6 +245,18 @@ def summary_archive(document: Mapping[str, Any], *, extra_member: bool = False) 
     return buffer.getvalue()
 
 
+def consumer_result_archive(
+    document: Mapping[str, Any], *, member_name: str | None = None
+) -> bytes:
+    buffer = io.BytesIO()
+    with zipfile.ZipFile(buffer, "w", compression=zipfile.ZIP_DEFLATED) as archive:
+        archive.writestr(
+            member_name or runner.CONSUMER_RESULT_JSON_NAME,
+            json_bytes(document),
+        )
+    return buffer.getvalue()
+
+
 class FakeLiveVerifier:
     adapter_id = runner.ADAPTER_ID
 
@@ -360,6 +372,7 @@ def add_bundle(
     release_id: int = 70000,
     release_tag: str = "research-skills-openai-live-fixture",
     verifier_run_id: int = 90000,
+    consumer_result: Mapping[str, Any] | None = None,
 ) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any]]:
     directory = root / f"{sequence:02d}-{evidence_type}"
     directory.mkdir(parents=True)
@@ -372,12 +385,15 @@ def add_bundle(
         "index": f"{evidence_type}-release-asset-index.json",
     }
     captured_at = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+    draft_verifier_run_id = 85000 + sequence
     raw_document: dict[str, Any] = {
         "schema_version": 3,
         "captured_at": captured_at,
         "evidence_type": raw_type or evidence_type,
         "observed": ledger_contract.evidence_payload(record),
     }
+    if consumer_result is not None:
+        raw_document["consumer_result"] = copy.deepcopy(dict(consumer_result))
     cache_inventory = ledger_contract.cache_inventory_for_evidence(
         record, evidence_type
     )
@@ -400,6 +416,9 @@ def add_bundle(
         {
             "schema_version": "openai-preview-verifier-report/v1",
             "evidence_type": evidence_type,
+            "execution": {
+                "workflow_run_id": draft_verifier_run_id,
+            },
         }
     )
     write_bytes(directory / names["raw"], raw_payload)
@@ -496,6 +515,7 @@ def add_bundle(
     meta = {
         "evidence_type": evidence_type,
         "locator": locator,
+        "draft_verifier_run_id": draft_verifier_run_id,
         "raw_name": names["raw"],
         "directory": directory,
     }
@@ -508,9 +528,12 @@ def add_bundle(
         "workflow_id": 50001,
         "path": WORKFLOW_PATH,
         "event": "workflow_dispatch",
+        "run_attempt": 1,
         "status": "completed",
         "conclusion": "success",
         "head_sha": source_identity["source_commit"],
+        "head_branch": "main",
+        "actor": {"login": "preview-verifier-bot"},
     }
     return meta, {run_url: run}, locator
 
@@ -522,6 +545,8 @@ def build_fixture(
     *,
     raw_type_overrides: Mapping[str, str] | None = None,
     accepted_previous: bool = False,
+    accepted_phase78_closure: bool = False,
+    phase78_closure_producer_schema: str = "openai-preview-accepted-run-summary/v3",
 ) -> dict[str, Any]:
     ledger = copy.deepcopy(dict(base_ledger))
     head = git_commit("HEAD")
@@ -630,6 +655,11 @@ def build_fixture(
         ],
     }
     binary_responses = {artifact_archive_url: summary_payload}
+    consumer_artifact_list_url: str | None = None
+    consumer_artifact_direct_url: str | None = None
+    consumer_artifact_archive_url: str | None = None
+    consumer_exact_attempt_url: str | None = None
+    closure_consumer_result: dict[str, Any] | None = None
 
     if accepted_previous:
         previous["external_evidence_trust"] = {
@@ -655,6 +685,101 @@ def build_fixture(
         )
         bundle_meta[str(previous_meta["directory"].resolve())] = previous_meta
         responses.update(previous_run)
+        previous_metas = [previous_meta]
+        if accepted_phase78_closure:
+            closure_record = ledger_contract.accepted_phase78_closure_fixture(
+                previous,
+                producer_schema=phase78_closure_producer_schema,
+            )
+            previous[runner.PHASE78_CLOSURE_EVIDENCE_TYPE] = closure_record
+            closure_consumer_result = ledger_contract.synthetic_phase78_consumer_result(
+                closure_record
+            )
+            closure_meta, closure_run, _ = add_bundle(
+                bundle_root,
+                closure_record,
+                runner.PHASE78_CLOSURE_EVIDENCE_TYPE,
+                previous_identity,
+                102,
+                release_id=71000,
+                release_tag="research-skills-openai-previous-live-fixture",
+                verifier_run_id=91000,
+                consumer_result=closure_consumer_result,
+            )
+            bundle_meta[str(closure_meta["directory"].resolve())] = closure_meta
+            responses.update(closure_run)
+            previous_metas.append(closure_meta)
+            consumer_run_id = closure_record["consumer_run_id"]
+            consumer_run_url = (
+                f"https://api.github.com/repos/{REPOSITORY}/actions/runs/"
+                f"{consumer_run_id}"
+            )
+            responses[consumer_run_url] = {
+                "id": consumer_run_id,
+                "workflow_id": 50002,
+                "run_attempt": closure_record["consumer_run_attempt"],
+                "url": consumer_run_url,
+                "html_url": (
+                    f"https://github.com/{REPOSITORY}/actions/runs/"
+                    f"{consumer_run_id}"
+                ),
+                "head_sha": previous_identity["source_commit"],
+                "head_branch": "main",
+                "event": "workflow_run",
+                "status": "completed",
+                "conclusion": "success",
+                "path": (
+                    ".github/workflows/"
+                    "openai-preview-accepted-summary-consumer.yml"
+                ),
+                "repository": {"full_name": REPOSITORY},
+            }
+            consumer_exact_attempt_url = (
+                consumer_run_url
+                + f"/attempts/{closure_record['consumer_run_attempt']}"
+            )
+            responses[consumer_exact_attempt_url] = copy.deepcopy(
+                responses[consumer_run_url]
+            )
+            consumer_artifact_id = 99200
+            consumer_artifact_name = (
+                f"{runner.CONSUMER_RESULT_ARTIFACT_PREFIX}"
+                f"{closure_record['consumer_run_id']}-"
+                f"{closure_record['consumer_run_attempt']}-"
+                f"{closure_record['producer_run_id']}-"
+                f"{closure_record['producer_run_attempt']}"
+            )
+            consumer_payload = consumer_result_archive(closure_consumer_result)
+            consumer_artifact_list_url = (
+                f"https://api.github.com/repos/{REPOSITORY}/actions/runs/"
+                f"{consumer_run_id}/artifacts"
+            )
+            consumer_artifact_direct_url = (
+                f"https://api.github.com/repos/{REPOSITORY}/actions/artifacts/"
+                f"{consumer_artifact_id}"
+            )
+            consumer_artifact_archive_url = consumer_artifact_direct_url + "/zip"
+            consumer_artifact = {
+                "id": consumer_artifact_id,
+                "name": consumer_artifact_name,
+                "size_in_bytes": len(consumer_payload),
+                "digest": "sha256:" + sha256(consumer_payload),
+                "expired": False,
+                "archive_download_url": consumer_artifact_archive_url,
+                "workflow_run": {
+                    "id": consumer_run_id,
+                    "head_sha": previous_identity["source_commit"],
+                    "head_branch": "main",
+                },
+            }
+            responses[consumer_artifact_list_url] = {
+                "total_count": 1,
+                "artifacts": [copy.deepcopy(consumer_artifact)],
+            }
+            responses[consumer_artifact_direct_url] = copy.deepcopy(
+                consumer_artifact
+            )
+            binary_responses[consumer_artifact_archive_url] = consumer_payload
         previous_summary = {
             "schema_version": runner.RUN_SUMMARY_SCHEMA,
             "run_id": 91000,
@@ -666,16 +791,16 @@ def build_fixture(
             "workflow_event": "workflow_dispatch",
             "bundles": [
                 {
-                    "evidence_type": "marketplace_resolved_commit",
+                    "evidence_type": meta["evidence_type"],
                     "verdict": runner.PREVIEW_ATTESTED,
                     "provider_verified": False,
                     "release_identity": {
                         "repository": REPOSITORY,
-                        "release_id": previous_meta["locator"]["release_id"],
-                        "release_tag": previous_meta["locator"]["release_tag"],
+                        "release_id": meta["locator"]["release_id"],
+                        "release_tag": meta["locator"]["release_tag"],
                     },
                     **{
-                        field: copy.deepcopy(previous_meta["locator"][field])
+                        field: copy.deepcopy(meta["locator"][field])
                         for field in (
                             "envelope_asset",
                             "release_asset_index_asset",
@@ -684,6 +809,7 @@ def build_fixture(
                         )
                     },
                 }
+                for meta in previous_metas
             ],
         }
         previous_summary_payload = summary_archive(previous_summary)
@@ -761,6 +887,11 @@ def build_fixture(
         "summary_document": summary_document,
         "summary_artifact_list_url": artifact_list_url,
         "summary_archive_url": artifact_archive_url,
+        "consumer_artifact_list_url": consumer_artifact_list_url,
+        "consumer_artifact_direct_url": consumer_artifact_direct_url,
+        "consumer_artifact_archive_url": consumer_artifact_archive_url,
+        "consumer_exact_attempt_url": consumer_exact_attempt_url,
+        "closure_consumer_result": closure_consumer_result,
         "source_identity": source_identity,
     }
 
@@ -788,6 +919,16 @@ def callback_for(
         phase8_module=phase8,
     )
     return callback, live, github
+
+
+def validate_fixture_errors(
+    fixture: Mapping[str, Any], phase8: Any
+) -> list[str]:
+    callback, _, _ = callback_for(fixture, phase8)
+    with patch.object(
+        ledger_contract, "validate_verified_source_commit_tree", lambda *_args: None
+    ):
+        return runner.validate_ledger_with_live_bundles(fixture["ledger"], callback)
 
 
 def build_first_pass_summary(
@@ -888,6 +1029,22 @@ def reseal_summary(
     listing = fixture["responses"][fixture["summary_artifact_list_url"]]
     listing["artifacts"][0]["size_in_bytes"] = len(payload)
     listing["artifacts"][0]["digest"] = "sha256:" + sha256(payload)
+
+
+def reseal_consumer_result(
+    fixture: dict[str, Any],
+    document: Mapping[str, Any],
+    *,
+    member_name: str | None = None,
+) -> None:
+    payload = consumer_result_archive(document, member_name=member_name)
+    archive_url = fixture["consumer_artifact_archive_url"]
+    listing = fixture["responses"][fixture["consumer_artifact_list_url"]]
+    direct = fixture["responses"][fixture["consumer_artifact_direct_url"]]
+    for artifact in (listing["artifacts"][0], direct):
+        artifact["size_in_bytes"] = len(payload)
+        artifact["digest"] = "sha256:" + sha256(payload)
+    fixture["binary_responses"][archive_url] = payload
 
 
 def callback_request(
@@ -1003,6 +1160,282 @@ def main() -> int:
             callback.audit_results,
             "audit_scope_mismatch",
             "historical result cannot overwrite the current audit binding",
+        )
+
+    with tempfile.TemporaryDirectory(prefix="release-runner-phase78-closure-") as temp:
+        fixture = build_fixture(
+            Path(temp),
+            base_ledger,
+            registry,
+            accepted_previous=True,
+            accepted_phase78_closure=True,
+            phase78_closure_producer_schema=(
+                "openai-preview-accepted-run-summary/v2"
+            ),
+        )
+        callback, live, github = callback_for(fixture, phase8)
+        with patch.object(
+            ledger_contract, "validate_verified_source_commit_tree", lambda *_args: None
+        ):
+            errors = runner.validate_ledger_with_live_bundles(
+                fixture["ledger"], callback
+            )
+        require(
+            not errors,
+            "accepted Phase 7-8 closure live validation: " + "; ".join(errors),
+        )
+        closure_results = [
+            item
+            for item in callback.history_audit_results()
+            if item["evidence_type"] == runner.PHASE78_CLOSURE_EVIDENCE_TYPE
+        ]
+        closure_record = fixture["previous"][
+            runner.PHASE78_CLOSURE_EVIDENCE_TYPE
+        ]
+        consumer_run_url = (
+            f"https://api.github.com/repos/{REPOSITORY}/actions/runs/"
+            f"{closure_record['consumer_run_id']}"
+        )
+        require(
+            len(live.calls) == 10
+            and live.calls.count(runner.PHASE78_CLOSURE_EVIDENCE_TYPE) == 1
+            and len(closure_results) == 1
+            and closure_results[0]["source_commit"]
+            == fixture["previous"]["source_commit"]["sha"]
+            and consumer_run_url in github.calls
+            and fixture["consumer_exact_attempt_url"] in github.calls,
+            "closure did not bind one immutable bundle and live consumer run",
+        )
+
+    with tempfile.TemporaryDirectory(
+        prefix="release-runner-phase78-closure-failed-consumer-"
+    ) as temp:
+        fixture = build_fixture(
+            Path(temp),
+            base_ledger,
+            registry,
+            accepted_previous=True,
+            accepted_phase78_closure=True,
+        )
+        closure_record = fixture["previous"][
+            runner.PHASE78_CLOSURE_EVIDENCE_TYPE
+        ]
+        consumer_run_url = (
+            f"https://api.github.com/repos/{REPOSITORY}/actions/runs/"
+            f"{closure_record['consumer_run_id']}"
+        )
+        fixture["responses"][consumer_run_url]["conclusion"] = "failure"
+        callback, _, _ = callback_for(fixture, phase8)
+        with patch.object(
+            ledger_contract, "validate_verified_source_commit_tree", lambda *_args: None
+        ):
+            errors = runner.validate_ledger_with_live_bundles(
+                fixture["ledger"], callback
+            )
+        require(
+            any("phase78_consumer_run_invalid" in error for error in errors),
+            "closure accepted a failed independent consumer run",
+        )
+
+    def missing_consumer_artifact(fixture: dict[str, Any]) -> None:
+        listing = fixture["responses"][fixture["consumer_artifact_list_url"]]
+        listing.update(total_count=0, artifacts=[])
+
+    def duplicate_consumer_artifact(fixture: dict[str, Any]) -> None:
+        listing = fixture["responses"][fixture["consumer_artifact_list_url"]]
+        duplicate = copy.deepcopy(listing["artifacts"][0])
+        duplicate["id"] += 1
+        duplicate["archive_download_url"] = (
+            f"https://api.github.com/repos/{REPOSITORY}/actions/artifacts/"
+            f"{duplicate['id']}/zip"
+        )
+        listing["artifacts"].append(duplicate)
+        listing["total_count"] = 2
+
+    def expired_consumer_artifact(fixture: dict[str, Any]) -> None:
+        listing = fixture["responses"][fixture["consumer_artifact_list_url"]]
+        direct = fixture["responses"][fixture["consumer_artifact_direct_url"]]
+        listing["artifacts"][0]["expired"] = True
+        direct["expired"] = True
+
+    def wrong_consumer_archive_digest(fixture: dict[str, Any]) -> None:
+        archive_url = fixture["consumer_artifact_archive_url"]
+        fixture["binary_responses"][archive_url] += b"tampered"
+
+    def wrong_consumer_api_digest(fixture: dict[str, Any]) -> None:
+        listing = fixture["responses"][fixture["consumer_artifact_list_url"]]
+        direct = fixture["responses"][fixture["consumer_artifact_direct_url"]]
+        for artifact in (listing["artifacts"][0], direct):
+            artifact["digest"] = "sha256:" + "0" * 64
+
+    def wrong_consumer_content(fixture: dict[str, Any]) -> None:
+        document = copy.deepcopy(fixture["closure_consumer_result"])
+        document["decision"]["accepted"] = False
+        reseal_consumer_result(fixture, document)
+
+    def wrong_consumer_member(fixture: dict[str, Any]) -> None:
+        reseal_consumer_result(
+            fixture,
+            fixture["closure_consumer_result"],
+            member_name="wrong-consumer-result.json",
+        )
+
+    def wrong_producer_attempt_artifact_name(fixture: dict[str, Any]) -> None:
+        listing = fixture["responses"][fixture["consumer_artifact_list_url"]]
+        direct = fixture["responses"][fixture["consumer_artifact_direct_url"]]
+        for artifact in (listing["artifacts"][0], direct):
+            artifact["name"] += "-wrong-attempt"
+
+    def wrong_consumer_attempt_artifact_name(fixture: dict[str, Any]) -> None:
+        listing = fixture["responses"][fixture["consumer_artifact_list_url"]]
+        direct = fixture["responses"][fixture["consumer_artifact_direct_url"]]
+        for artifact in (listing["artifacts"][0], direct):
+            parts = artifact["name"].split("-")
+            parts[-3] = str(int(parts[-3]) + 1)
+            artifact["name"] = "-".join(parts)
+
+    def wrong_direct_consumer_artifact(fixture: dict[str, Any]) -> None:
+        direct = fixture["responses"][fixture["consumer_artifact_direct_url"]]
+        direct["digest"] = "sha256:" + "0" * 64
+
+    def wrong_consumer_artifact_run(fixture: dict[str, Any]) -> None:
+        listing = fixture["responses"][fixture["consumer_artifact_list_url"]]
+        direct = fixture["responses"][fixture["consumer_artifact_direct_url"]]
+        for artifact in (listing["artifacts"][0], direct):
+            artifact["workflow_run"]["id"] += 1
+
+    def wrong_consumer_run_attempt(fixture: dict[str, Any]) -> None:
+        closure = fixture["previous"][runner.PHASE78_CLOSURE_EVIDENCE_TYPE]
+        run_url = (
+            f"https://api.github.com/repos/{REPOSITORY}/actions/runs/"
+            f"{closure['consumer_run_id']}"
+        )
+        fixture["responses"][run_url]["run_attempt"] += 1
+
+    def wrong_exact_consumer_attempt(fixture: dict[str, Any]) -> None:
+        exact_url = fixture["consumer_exact_attempt_url"]
+        fixture["responses"][exact_url]["conclusion"] = "failure"
+
+    consumer_mutations = (
+        (
+            "missing-artifact",
+            missing_consumer_artifact,
+            "phase78_consumer_artifact_invalid",
+        ),
+        (
+            "duplicate-artifact",
+            duplicate_consumer_artifact,
+            "phase78_consumer_artifact_invalid",
+        ),
+        (
+            "expired-artifact",
+            expired_consumer_artifact,
+            "phase78_consumer_artifact_invalid",
+        ),
+        (
+            "wrong-archive-digest",
+            wrong_consumer_archive_digest,
+            "phase78_consumer_artifact_digest_mismatch",
+        ),
+        (
+            "wrong-api-digest",
+            wrong_consumer_api_digest,
+            "phase78_consumer_artifact_digest_mismatch",
+        ),
+        (
+            "wrong-content",
+            wrong_consumer_content,
+            "phase78_consumer_artifact_content_mismatch",
+        ),
+        (
+            "wrong-member",
+            wrong_consumer_member,
+            "phase78_consumer_artifact_invalid",
+        ),
+        (
+            "wrong-producer-attempt-name",
+            wrong_producer_attempt_artifact_name,
+            "phase78_consumer_artifact_invalid",
+        ),
+        (
+            "wrong-consumer-attempt-name",
+            wrong_consumer_attempt_artifact_name,
+            "phase78_consumer_artifact_invalid",
+        ),
+        (
+            "wrong-direct-artifact",
+            wrong_direct_consumer_artifact,
+            "phase78_consumer_artifact_invalid",
+        ),
+        (
+            "wrong-artifact-workflow-run",
+            wrong_consumer_artifact_run,
+            "phase78_consumer_artifact_invalid",
+        ),
+        (
+            "wrong-consumer-run-attempt",
+            wrong_consumer_run_attempt,
+            "phase78_consumer_run_invalid",
+        ),
+        (
+            "wrong-exact-consumer-attempt",
+            wrong_exact_consumer_attempt,
+            "phase78_consumer_run_invalid",
+        ),
+    )
+    for name, mutate, expected_code in consumer_mutations:
+        with tempfile.TemporaryDirectory(
+            prefix=f"release-runner-phase78-consumer-{name}-"
+        ) as temp:
+            fixture = build_fixture(
+                Path(temp),
+                base_ledger,
+                registry,
+                accepted_previous=True,
+                accepted_phase78_closure=True,
+            )
+            mutate(fixture)
+            errors = validate_fixture_errors(fixture, phase8)
+            require(
+                any(expected_code in error for error in errors),
+                f"closure accepted consumer mutation {name}: {errors}",
+            )
+
+    with tempfile.TemporaryDirectory(
+        prefix="release-runner-phase78-nonindependent-run-"
+    ) as temp:
+        fixture = build_fixture(
+            Path(temp),
+            base_ledger,
+            registry,
+            accepted_previous=True,
+            accepted_phase78_closure=True,
+        )
+        callback, _, _ = callback_for(fixture, phase8)
+        closure = fixture["previous"][runner.PHASE78_CLOSURE_EVIDENCE_TYPE]
+        consumer_result = copy.deepcopy(fixture["closure_consumer_result"])
+        closure_observed = ledger_contract.evidence_payload(closure)
+        closure_observed["producer_run_id"] = closure_observed["consumer_run_id"]
+        consumer_result["target_run"]["run_id"] = closure_observed[
+            "consumer_run_id"
+        ]
+        closure_observed["consumer_result_sha256"] = hashlib.sha256(
+            ledger_contract.canonical_json_bytes(consumer_result)
+        ).hexdigest()
+        expect_code(
+            lambda: callback._verify_phase78_closure_raw_export(
+                {
+                    "evidence_type": runner.PHASE78_CLOSURE_EVIDENCE_TYPE,
+                    "observed": closure_observed,
+                    "consumer_result": consumer_result,
+                },
+                locator=closure["evidence_locator"],
+                expected_source_identity={
+                    "source_commit": fixture["previous"]["source_commit"]["sha"]
+                },
+            ),
+            "phase78_closure_contract_mismatch",
+            "closure accepted the same producer and consumer run ID",
         )
 
     with tempfile.TemporaryDirectory(prefix="release-runner-builder-e2e-") as temp:
@@ -1163,9 +1596,12 @@ def main() -> int:
         "workflow state": ("workflow", "state", "disabled_manually"),
         "workflow id": ("run", "workflow_id", 50002),
         "run event": ("run", "event", "push"),
+        "run attempt": ("run", "run_attempt", 0),
         "run status": ("run", "status", "in_progress"),
         "run conclusion": ("run", "conclusion", "failure"),
         "run head": ("run", "head_sha", "0" * 40),
+        "run branch": ("run", "head_branch", "feature"),
+        "run actor": ("run_actor", "login", ""),
         "run repository": ("run_repository", "full_name", "other/repository"),
         "run URL": ("run", "html_url", "https://github.com/other/run/1"),
     }
@@ -1190,6 +1626,9 @@ def main() -> int:
             elif target == "run_repository":
                 github.responses[run_url]["repository"][field] = value
                 expected_code = "verifier_run_witness_mismatch"
+            elif target == "run_actor":
+                github.responses[run_url]["actor"][field] = value
+                expected_code = "verifier_run_witness_mismatch"
             else:
                 github.responses[run_url][field] = value
                 expected_code = "verifier_run_witness_mismatch"
@@ -1200,6 +1639,31 @@ def main() -> int:
                 ),
                 expected_code,
                 f"historical {label}",
+            )
+
+    with tempfile.TemporaryDirectory(prefix="release-runner-run-lineage-") as temp:
+        fixture = build_fixture(Path(temp), base_ledger, registry)
+        callback, _, _ = callback_for(fixture, phase8)
+        callback.prepare_current_release(fixture["release"])
+        meta = next(iter(fixture["bundles"].values()))
+        locator = meta["locator"]
+        key = (meta["evidence_type"], runner._locator_key(locator))
+        bundle = callback._bindings[key]
+        for label, colliding_id in (
+            ("capture/current", locator["capture_workflow_run_id"]),
+            ("draft/current", meta["draft_verifier_run_id"]),
+        ):
+            bad_locator = copy.deepcopy(locator)
+            bad_locator["verifier_workflow_run_id"] = colliding_id
+            expect_code(
+                lambda bad_locator=bad_locator: callback._verify_historical_verifier_run(
+                    meta["evidence_type"],
+                    bad_locator,
+                    fixture["source_identity"],
+                    bundle,
+                ),
+                "verifier_runs_not_independent",
+                f"historical verifier rejects {label} run reuse",
             )
 
     with tempfile.TemporaryDirectory(prefix="release-runner-summary-replaced-") as temp:

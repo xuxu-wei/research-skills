@@ -19,7 +19,7 @@ adapters:
     trust_level: preview_attested
     enabled: true
     verifier_path: tests/openai_phase8/verify_preview_evidence.py
-    verifier_digest: sha256:2312a0ed303a3da407402f511f77262c80362931c541b5c1ddf404a95177cb97
+    verifier_digest: sha256:4e7712827979e16e7dde0c5f6f08481badba4d456c1b4a05b5378882d4586e76
     execution: python
     verification_request_schema: 2
     witness_type: github_release_asset_api_object

@@ -19,7 +19,7 @@ import re
 import shutil
 import subprocess
 import tempfile
-from collections import Counter
+from collections import Counter, defaultdict
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path, PurePosixPath
@@ -690,13 +690,20 @@ def validate_polisher_routing_boundaries(
     entry = fixture.get("entry_skill")
     registered = {item.get("name") for item in registry.get("skills", [])}
     require(entry == "research-polisher-orchestrator", "polisher_routing_entry", str(entry))
-    entry_gate = registry.get("public_entry_policy", {}).get("gated_entries", {}).get(
+    public_entry_policy = registry.get("public_entry_policy", {})
+    implicit_entries = set(public_entry_policy.get("implicit_active_entries", []))
+    explicit_only_route = public_entry_policy.get("explicit_only_entries", {}).get(
         entry, {}
     )
     require(
-        entry_gate.get("status") == "explicit_only_pending_phase_7_8_external_evidence",
+        entry not in implicit_entries
+        and explicit_only_route
+        == {
+            "status": "explicit_only_personal_routing_policy",
+            "change_authority": "owner_only",
+        },
         "polisher_routing_gate",
-        "current routing boundary must remain explicit-only",
+        "Research Polisher must remain explicit-only under the personal routing policy",
     )
     cases = fixture.get("cases", [])
     require(isinstance(cases, list) and cases, "polisher_routing_cases", "missing")
@@ -1264,6 +1271,10 @@ def package_rule_matches(
             "source_skill" not in rule
             or artifact["source_skill"] == rule["source_skill"]
         )
+        and (
+            "source_skills" not in rule
+            or artifact["source_skill"] in set(rule["source_skills"])
+        )
     ]
     if rule.get("current_primary"):
         matches = [artifact for artifact in matches if ref_for(artifact) == current_ref]
@@ -1322,7 +1333,14 @@ def ensure_synthetic_package_inputs(
             )
             source_skill = rule.get(
                 "source_skill",
-                registry["workflow_state_machines"][case["workflow"]]["orchestrator"],
+                next(
+                    (
+                        skill
+                        for skill in rule.get("source_skills", [])
+                        if skill != "external-input"
+                    ),
+                    registry["workflow_state_machines"][case["workflow"]]["orchestrator"],
+                ),
             )
             parent_refs = [current_ref]
             selected_role = rule.get("selected_artifact_lineage_role")
@@ -2361,6 +2379,12 @@ def runtime_case_contract(
         "gate",
         "route",
         "continuation_artifact_role",
+        "required_review_skills",
+        "required_strategy_matrix",
+        "control_finding_decisions_by_skill",
+        "control_finding_allowed_severities",
+        "control_finding_blocking",
+        "control_finding_resolved",
     }
     require(
         isinstance(contract, dict) and set(contract) == required_fields,
@@ -2383,7 +2407,13 @@ def runtime_case_contract(
                     "route",
                     "continuation_artifact_role",
                 )
-            ),
+            )
+            and isinstance(contract["required_review_skills"], list)
+            and isinstance(contract["required_strategy_matrix"], bool)
+            and contract["control_finding_decisions_by_skill"] == {}
+            and contract["control_finding_allowed_severities"] == []
+            and contract["control_finding_blocking"] is None
+            and contract["control_finding_resolved"] is None,
             "runtime_schema_case_contract_invalid",
             f"{workflow}/{case_kind}: values",
         )
@@ -2404,10 +2434,88 @@ def runtime_case_contract(
                     "route",
                     "continuation_artifact_role",
                 )
-            ),
+            )
+            and isinstance(contract["required_review_skills"], list)
+            and bool(contract["required_review_skills"])
+            and isinstance(contract["required_strategy_matrix"], bool)
+            and isinstance(contract["control_finding_decisions_by_skill"], dict)
+            and bool(contract["control_finding_decisions_by_skill"])
+            and isinstance(contract["control_finding_allowed_severities"], list)
+            and bool(contract["control_finding_allowed_severities"])
+            and contract["control_finding_blocking"] is True
+            and contract["control_finding_resolved"] is False,
             "runtime_schema_case_contract_invalid",
             f"{workflow}/{case_kind}: values",
         )
+    expected_required_reviews = {
+        ("idea", "happy"): [],
+        ("idea", "control"): ["idea-evaluator"],
+        ("proposal", "happy"): [],
+        ("proposal", "control"): [
+            "proposal-readiness-triage",
+            "proposal-evaluator",
+        ],
+        ("article", "happy"): ["article-readiness-triage"],
+        ("article", "control"): [
+            "article-readiness-triage",
+            "article-methods-statistics-auditor",
+            "article-claim-auditor",
+            "article-evaluator",
+        ],
+        ("perspective", "happy"): [],
+        ("perspective", "control"): ["perspective-evaluator"],
+        ("research_polisher", "happy"): [],
+        ("research_polisher", "control"): [
+            "research-polisher-methodology-publishability-reviewer"
+        ],
+    }
+    expected_control_decisions = {
+        "idea": {"idea-evaluator": ["keep_as_backup"]},
+        "proposal": {
+            "proposal-readiness-triage": ["not_proposalizable_yet"],
+            "proposal-evaluator": ["reject"],
+        },
+        "article": {
+            "article-readiness-triage": ["not_ready"],
+            "article-methods-statistics-auditor": ["methodologically_blocked"],
+            "article-claim-auditor": ["blocked"],
+            "article-evaluator": ["reject"],
+        },
+        "perspective": {
+            "perspective-evaluator": ["reject_not_salvageable"]
+        },
+        "research_polisher": {
+            "research-polisher-methodology-publishability-reviewer": [
+                "no_defensible_option"
+            ]
+        },
+    }
+    expected_control_severities = {
+        "idea": {"major", "fatal"},
+        "proposal": {"fatal"},
+        "article": {"fatal"},
+        "perspective": {"major", "fatal"},
+        "research_polisher": {"major", "fatal"},
+    }
+    require(
+        contract["required_review_skills"]
+        == expected_required_reviews[(workflow, case_kind)]
+        and contract["required_strategy_matrix"]
+        is (workflow == "research_polisher")
+        and (
+            case_kind == "happy"
+            or (
+                contract["control_finding_decisions_by_skill"]
+                == expected_control_decisions[workflow]
+                and set(contract["control_finding_allowed_severities"])
+                == expected_control_severities[workflow]
+                and set(contract["control_finding_decisions_by_skill"])
+                <= set(contract["required_review_skills"])
+            )
+        ),
+        "runtime_schema_case_contract_invalid",
+        f"{workflow}/{case_kind}: independent gates",
+    )
     return contract
 
 
@@ -2458,6 +2566,24 @@ def validate_runtime_receipt_declaration(
 ) -> dict[str, Any]:
     contract = runtime_case_contract(
         schema, receipt.get("workflow"), receipt.get("case_kind")
+    )
+    machine_modes = {
+        "idea": {"standard", "resume_candidates", "portfolio_only"},
+        "proposal": {"standard", "existing_draft", "draft_and_external_review", "package_only"},
+        "article": {"standard", "fast_track_draft", "fast_track_draft_and_evaluation", "blueprint_only", "section_specific", "submission_only"},
+        "perspective": {"lite", "standard", "full"},
+        "research_polisher": {"standard"},
+    }
+    require(
+        receipt.get("entry_mode") in machine_modes.get(receipt.get("workflow"), set()),
+        "runtime_entry_mode_invalid",
+        str(receipt.get("receipt_id")),
+    )
+    task_binding = receipt.get("binding", {}).get("task_export", {})
+    require(
+        task_binding.get("entry_mode") == receipt.get("entry_mode"),
+        "runtime_entry_mode_binding_mismatch",
+        str(receipt.get("receipt_id")),
     )
     require(
         receipt.get("expected_final_state") == contract["expected_final_state"],
@@ -2514,6 +2640,13 @@ def runtime_actor_role_contract(
     finalizer_roles = contract.get("finalizer_roles")
     happy_required_roles = contract.get("happy_required_roles")
     happy_roles_by_profile = contract.get("happy_required_roles_by_workflow_profile")
+    edge_derived_roles = contract.get("edge_derived_roles")
+    independent_reviewer_roles = contract.get("independent_reviewer_actor_roles")
+    independent_reviewer_isolation = contract.get(
+        "independent_reviewer_isolation_mode"
+    )
+    edge_provenance_roles = contract.get("edge_provenance_required_actor_roles")
+    edge_provenance_fields = contract.get("edge_provenance_required_fields")
     require(
         isinstance(allowed_roles, list)
         and bool(allowed_roles)
@@ -2537,6 +2670,34 @@ def runtime_actor_role_contract(
         and happy_roles_by_profile["default"] == happy_required_roles
         and set(happy_roles_by_profile["reviewer_matrix_assemble_evaluate"])
         == {"orchestrator", "strategy_reviewer", "assembler", "evaluator"}
+        and edge_derived_roles
+        == {
+            "supporting_reviewer": {
+                "registry_role": "reviewer",
+                "dispatch_mode": "delegated",
+                "requires_independent_subagent": True,
+                "isolation_mode": "fresh_subagent",
+                "exclude_designated_reviewer_slots": True,
+            },
+            "supporting_writer": {
+                "registry_role": "drafter",
+                "dispatch_mode": "orchestrated",
+                "exclude_primary_writer_skills": True,
+            },
+        }
+        and set(independent_reviewer_roles or [])
+        == {
+            "evaluator",
+            "panel",
+            "strategy_reviewer",
+            "supporting_reviewer",
+            "verifier_compositor",
+        }
+        and independent_reviewer_isolation == "fresh_subagent"
+        and set(edge_provenance_roles or []) == set(allowed_roles) - {"orchestrator"}
+        and edge_provenance_fields
+        == ["dispatch_source", "dispatch_mode", "dispatch_trigger"]
+        and contract.get("root_actor_role") == "orchestrator"
         and contract.get("unknown_roles_rejected") is True
         and contract.get("registry_role_mapping_enforced") is True
         and contract.get("orchestrator_skill_must_match_workflow") is True,
@@ -2566,6 +2727,7 @@ def runtime_actor_role_contract(
                 "finalizer_role_matches_registry_final_package_skill",
                 "artifact_creator_reviewer_finalizer_ids_pairwise_disjoint",
                 "strategy_reviewer_roles_exactly_match_registry_review_group",
+                "supporting_actor_membership_derived_from_workflow_edges",
             )
         ),
         "runtime_actor_role_contract_invalid",
@@ -2575,9 +2737,36 @@ def runtime_actor_role_contract(
         schema_actor_contract.get("panel_actor_required_fields")
         == ["panel_tier", "panel_role"]
         and schema_actor_contract.get("strategy_reviewer_actor_required_fields")
-        == ["strategy_role"],
+        == ["strategy_role"]
+        and schema_actor_contract.get("supporting_reviewer_actor_required_fields")
+        == [
+            "round_id",
+            "isolation_mode",
+            "dispatch_source",
+            "dispatch_mode",
+            "dispatch_trigger",
+        ]
+        and schema_actor_contract.get("supporting_writer_actor_required_fields")
+        == ["dispatch_source", "dispatch_mode", "dispatch_trigger"]
+        and schema_actor_contract.get("supporting_reviewer_isolation_mode")
+        == "fresh_subagent"
+        and schema_actor_contract.get("independent_reviewer_actor_required_fields")
+        == ["round_id", "isolation_mode"]
+        and set(schema_actor_contract.get("independent_reviewer_actor_roles", []))
+        == set(independent_reviewer_roles)
+        and schema_actor_contract.get("independent_reviewer_isolation_mode")
+        == independent_reviewer_isolation,
         "runtime_actor_role_contract_invalid",
         "schema role-specific fields",
+    )
+    require(
+        set(schema_actor_contract.get("edge_provenance_required_actor_roles", []))
+        == set(edge_provenance_roles)
+        and schema_actor_contract.get("edge_provenance_required_fields")
+        == edge_provenance_fields
+        and schema_actor_contract.get("root_actor_role") == "orchestrator",
+        "runtime_actor_role_contract_invalid",
+        "schema edge provenance",
     )
     schema_access = schema.get("x-phase7-contract", {}).get(
         "reviewer_access_contract", {}
@@ -2585,6 +2774,20 @@ def runtime_actor_role_contract(
     registry_blindness = registry.get("scenario_eval_contract", {}).get(
         "blindness_policy", {}
     )
+    expected_blind_roles = {
+        "evaluator",
+        "panel",
+        "strategy_reviewer",
+        "supporting_reviewer",
+    }
+    expected_oracle_roles = {
+        "answer_key",
+        "expected_decision",
+        "expected_findings",
+        "expected_score",
+        "result_oracle",
+        "review_oracle",
+    }
     require(
         schema_access.get("evaluator_prior_scores_visible") is False
         and schema_access.get("evaluator_may_read_prior_reviewer_outputs")
@@ -2595,14 +2798,1136 @@ def runtime_actor_role_contract(
                 "runtime_evaluator_forbidden_source_actor_roles", []
             )
         )
-        == {"evaluator", "panel", "strategy_reviewer", "verifier_compositor"}
+        == {
+            "evaluator",
+            "panel",
+            "strategy_reviewer",
+            "supporting_reviewer",
+            "verifier_compositor",
+        }
         and registry_blindness.get("evaluator_prior_scores_visible") is False
         and registry_blindness.get("evaluator_may_read_prior_reviewer_outputs")
-        is False,
+        is False
+        and set(schema_access.get("blind_reviewer_actor_roles", []))
+        == set(registry_blindness.get("runtime_blind_reviewer_actor_roles", []))
+        == expected_blind_roles
+        and set(schema_access.get("forbidden_oracle_artifact_roles", []))
+        == set(
+            registry_blindness.get("runtime_forbidden_oracle_artifact_roles", [])
+        )
+        == expected_oracle_roles
+        and schema_access.get("blind_reviewer_inputs_must_be_indexed_artifacts")
+        is True,
         "runtime_reviewer_access_contract_invalid",
         "schema/registry blindness mismatch",
     )
+    schema_report = schema.get("x-phase7-contract", {}).get(
+        "runtime_review_report_contract", {}
+    )
+    registry_report = registry.get("scenario_eval_contract", {}).get(
+        "runtime_artifact_role_contract", {}
+    ).get("runtime_review_report_contract", {})
+    require(
+        schema_report.get("required_fields") == registry_report.get("required_fields")
+        and schema_report.get("finding_required_fields")
+        == registry_report.get("finding_required_fields")
+        and set(schema_report.get("allowed_severities", []))
+        == set(registry_report.get("allowed_severities", []))
+        and schema_report.get("finding_indexes_are_derived_bidirectionally")
+        is True
+        and schema_report.get("decision_vocabulary_is_registry_fail_closed")
+        is True
+        and schema_report.get("ready_qualifying_reviewer_decisions_must_pass")
+        is True
+        and schema_report.get("one_review_report_per_actor")
+        is registry_report.get("one_review_report_per_actor")
+        is True
+        and schema_report.get(
+            "pass_decision_requires_no_unresolved_blocking_findings"
+        )
+        is registry_report.get(
+            "pass_decision_requires_no_unresolved_blocking_findings"
+        )
+        is True
+        and schema_report.get(
+            "review_input_refs_must_equal_actual_read_artifact_refs"
+        )
+        is registry_report.get(
+            "review_input_refs_must_equal_actual_read_artifact_refs"
+        )
+        is True,
+        "runtime_reviewer_access_contract_invalid",
+        "schema/registry report contract mismatch",
+    )
+    schema_external = schema.get("x-phase7-contract", {}).get(
+        "external_input_contract", {}
+    )
+    registry_external = registry.get("scenario_eval_contract", {}).get(
+        "runtime_artifact_role_contract", {}
+    ).get("external_input_contract", {})
+    require(
+        all(
+            schema_external.get(field) == registry_external.get(field)
+            for field in (
+                "creator_sentinel",
+                "source_skill_sentinel",
+                "source_identity_field",
+                "source_identity_prefix",
+            )
+        )
+        and all(
+            schema_external.get(field) is True
+            for field in (
+                "workflow_and_entry_mode_allowlist_required",
+                "generated_or_review_artifact_impersonation_rejected",
+                "current_primary_external_only_in_declared_modes",
+            )
+        )
+        and all(
+            value is True
+            for value in schema.get("x-phase7-contract", {})
+            .get("primary_lineage_contract", {})
+            .values()
+        ),
+        "runtime_actor_role_contract_invalid",
+        "schema external/primary lineage contract",
+    )
     return contract
+
+
+def edge_derived_actor_edges(
+    registry: dict[str, Any], workflow: str, actor_role: str
+) -> set[tuple[str, str, str, str]]:
+    """Return exact registered dispatch edges allowed for a supporting actor."""
+
+    role_contract = registry["scenario_eval_contract"]["runtime_actor_role_contract"]
+    edge_contract = role_contract.get("edge_derived_roles", {}).get(actor_role)
+    require(
+        actor_role in {"supporting_reviewer", "supporting_writer"}
+        and isinstance(edge_contract, dict),
+        "runtime_actor_role_contract_invalid",
+        f"edge-derived role: {actor_role}",
+    )
+    machine = registry["workflow_state_machines"].get(workflow)
+    require(
+        isinstance(machine, dict),
+        "runtime_actor_role_contract_invalid",
+        f"unknown workflow: {workflow}",
+    )
+    skill_contracts = {skill["name"]: skill for skill in registry["skills"]}
+    excluded_skills: set[str] = set()
+    if actor_role == "supporting_reviewer":
+        excluded_skills.update(
+            {
+                machine["evaluator_skill"],
+                machine["final_package_skill"],
+            }
+        )
+        panel_skill = panel_skill_for(
+            {"workflow": workflow, "case_id": f"{workflow}:supporting-reviewer"},
+            registry,
+        )
+        if panel_skill is not None:
+            excluded_skills.add(panel_skill)
+        review_group = (
+            registry["scenario_eval_contract"]
+            .get("review_group_contracts", {})
+            .get(workflow)
+        )
+        if review_group:
+            excluded_skills.add(review_group["skill"])
+    else:
+        excluded_skills.update(machine.get("primary_writer_skills", []))
+
+    allowed: set[tuple[str, str, str, str]] = set()
+    for edge in registry["workflow_edges"]:
+        if edge["workflow"] != workflow:
+            continue
+        destination = edge["destination"]
+        skill = skill_contracts.get(destination)
+        if (
+            skill is None
+            or skill["role"] != edge_contract["registry_role"]
+            or edge["dispatch_mode"] != edge_contract["dispatch_mode"]
+            or destination in excluded_skills
+        ):
+            continue
+        if actor_role == "supporting_reviewer" and (
+            skill["requires_independent_subagent"] is not True
+        ):
+            continue
+        allowed.add(
+            (
+                edge["source"],
+                destination,
+                edge["dispatch_mode"],
+                edge["trigger"],
+            )
+        )
+    return allowed
+
+
+def runtime_artifact_role_contract(registry: dict[str, Any]) -> dict[str, Any]:
+    """Validate role-specific report, assembler, and finding-index allowlists."""
+
+    scenario_contract = registry.get("scenario_eval_contract", {})
+    contract = scenario_contract.get("runtime_artifact_role_contract")
+    require(
+        isinstance(contract, dict)
+        and set(contract)
+        == {
+            "review_output_roles",
+            "assembler_outputs_by_skill",
+            "supporting_writer_outputs_by_skill",
+            "research_polisher_review_outputs_by_actor_role_and_skill",
+            "research_polisher_strategy_matrix_contract",
+            "verification_report_contributes_review_findings",
+            "runtime_review_report_contract",
+            "actor_output_roles_by_skill",
+            "verifier_compositor_internal_output_contracts",
+            "external_input_contract",
+            "entry_mode_bound_to_receipt_and_task_export",
+            "finding_index_role_by_workflow",
+        },
+        "runtime_artifact_role_contract_invalid",
+        "contract shape",
+    )
+    review_roles = contract["review_output_roles"]
+    require(
+        isinstance(review_roles, list)
+        and bool(review_roles)
+        and len(review_roles) == len(set(review_roles))
+        and {
+            "evaluation_report",
+            "research_polisher_evaluation_report",
+            "research_polisher_strategy_report",
+            "review_report",
+            "audit_report",
+            "panel_report",
+            "verification_report",
+            "readiness_report",
+            "preflight_report",
+            "language_assessment_report",
+            "medical_journal_review_report",
+        }
+        <= set(review_roles),
+        "runtime_artifact_role_contract_invalid",
+        "review output roles",
+    )
+    skill_contracts = {skill["name"]: skill for skill in registry["skills"]}
+    machines = registry["workflow_state_machines"]
+    expected_assembler_skills = {
+        machine["final_package_skill"]
+        for machine in machines.values()
+        if skill_contracts[machine["final_package_skill"]]["role"] == "assembler"
+    }
+    assembler_outputs = contract["assembler_outputs_by_skill"]
+    require(
+        isinstance(assembler_outputs, dict)
+        and set(assembler_outputs) == expected_assembler_skills
+        and all(
+            isinstance(roles, list)
+            and bool(roles)
+            and len(roles) == len(set(roles))
+            for roles in assembler_outputs.values()
+        ),
+        "runtime_artifact_role_contract_invalid",
+        "assembler output coverage",
+    )
+    require(
+        set(assembler_outputs["research-polisher-plan-assembler"])
+        == {
+            "research_polisher_sealed_provenance",
+            "research_polisher_candidate_portfolio",
+            "research_polisher_specialist_findings_bundle",
+            "research_polisher_review_finding_index",
+            "research_polisher_revision_brief",
+            "research_polisher_revision_delta",
+            "research_polisher_selection_dossier",
+        },
+        "runtime_artifact_role_contract_invalid",
+        "Research Polisher assembler outputs",
+    )
+    expected_supporting_writer_skills = {
+        edge[1]
+        for workflow in machines
+        for edge in edge_derived_actor_edges(registry, workflow, "supporting_writer")
+    }
+    supporting_writer_outputs = contract["supporting_writer_outputs_by_skill"]
+    require(
+        isinstance(supporting_writer_outputs, dict)
+        and set(supporting_writer_outputs) == expected_supporting_writer_skills
+        and supporting_writer_outputs
+        == {
+            "sap-writer": ["sap"],
+            "article-frontmatter-drafter": ["frontmatter"],
+        },
+        "runtime_artifact_role_contract_invalid",
+        "supporting writer outputs",
+    )
+    polisher_review_outputs = contract[
+        "research_polisher_review_outputs_by_actor_role_and_skill"
+    ]
+    require(
+        polisher_review_outputs
+        == {
+            "strategy_reviewer": {
+                "research-polisher-strategy-reviewer": [
+                    "research_polisher_strategy_report"
+                ]
+            },
+            "evaluator": {
+                "research-polisher-methodology-publishability-reviewer": [
+                    "research_polisher_evaluation_report"
+                ]
+            },
+            "supporting_reviewer": {
+                "methodology-statistics-preflight": ["preflight_report"],
+                "medical-journal-review": ["medical_journal_review_report"],
+            },
+        },
+        "runtime_artifact_role_contract_invalid",
+        "Research Polisher reviewer outputs",
+    )
+    review_group = scenario_contract["review_group_contracts"]["research_polisher"]
+    matrix_contract = contract["research_polisher_strategy_matrix_contract"]
+    expected_matrix_core = {
+            "strategy_skill": review_group["skill"],
+            "strategy_artifact_role": "research_polisher_strategy_report",
+            "portfolio_skill": "research-polisher-plan-assembler",
+            "portfolio_artifact_role": "research_polisher_candidate_portfolio",
+            "strategy_roles": review_group["roles"],
+            "effort_tiers": review_group["effort_tiers"],
+            "reports_per_portfolio": review_group["required_instance_count"],
+            "cells_per_report": len(review_group["effort_tiers"]),
+            "total_matrix_cells": review_group["required_matrix_cell_count"],
+            "portfolio_binds_all_strategy_reports": True,
+            "assembler_reads_all_strategy_reports": True,
+            "generic_review_reports_do_not_satisfy_strategy_lineage": True,
+        }
+    require(
+        all(matrix_contract.get(key) == value for key, value in expected_matrix_core.items())
+        and matrix_contract.get("required_option_fields")
+        and matrix_contract.get("new_work_flag_fields")
+        == ["new_analysis", "new_experiment", "new_data", "new_validation"]
+        and set(matrix_contract.get("allowed_feasibility_ratings", []))
+        == {"certain", "high", "low", "unknown"}
+        and set(matrix_contract.get("proposed_extension_feasibility_ratings", []))
+        == {"certain", "high"}
+        and matrix_contract.get("reposition_requires_no_added_work") is True
+        and matrix_contract.get("extensions_must_be_bounded") is True
+        and matrix_contract.get(
+            "low_or_unknown_extension_requires_no_defensible_option"
+        )
+        is True
+        and contract.get("verification_report_contributes_review_findings") is True,
+        "runtime_artifact_role_contract_invalid",
+        "Research Polisher matrix or verifier finding contract",
+    )
+    finding_roles = contract["finding_index_role_by_workflow"]
+    require(
+        isinstance(finding_roles, dict)
+        and set(finding_roles) == set(machines)
+        and finding_roles["research_polisher"]
+        == "research_polisher_review_finding_index"
+        and all(
+            finding_roles[workflow] == "review_finding_index"
+            for workflow in set(machines) - {"research_polisher"}
+        ),
+        "runtime_artifact_role_contract_invalid",
+        "finding-index roles",
+    )
+    review_report_contract = contract["runtime_review_report_contract"]
+    require(
+        review_report_contract.get("required_fields")
+        == [
+            "decision",
+            "findings",
+            "unresolved_issues",
+            "dissent_ids",
+            "fatal_finding_ids",
+            "unresolved_fatal_finding_ids",
+        ]
+        and review_report_contract.get("finding_required_fields")
+        == ["id", "severity", "blocking", "resolved", "dissent"]
+        and set(review_report_contract.get("allowed_severities", []))
+        == {"fatal", "major", "minor", "info"}
+        and review_report_contract.get(
+            "decision_vocabulary_from_review_decision_contracts"
+        )
+        is True
+        and set(review_report_contract.get("ready_actor_roles_require_pass_decision", []))
+        == {
+            "evaluator",
+            "panel",
+            "strategy_reviewer",
+            "supporting_reviewer",
+            "verifier_compositor",
+        }
+        and review_report_contract.get("one_review_report_per_actor") is True
+        and review_report_contract.get(
+            "pass_decision_requires_no_unresolved_blocking_findings"
+        )
+        is True
+        and review_report_contract.get(
+            "review_input_refs_must_equal_actual_read_artifact_refs"
+        )
+        is True,
+        "runtime_artifact_role_contract_invalid",
+        "review report contract",
+    )
+    output_roles = contract["actor_output_roles_by_skill"]
+    require(
+        isinstance(output_roles, dict)
+        and set(skill_contracts) <= set(output_roles)
+        and all(
+            isinstance(roles, list)
+            and bool(roles)
+            and len(roles) == len(set(roles))
+            for roles in output_roles.values()
+        ),
+        "runtime_artifact_role_contract_invalid",
+        "actor output roles",
+    )
+    internal_outputs = contract["verifier_compositor_internal_output_contracts"]
+    require(
+        internal_outputs
+        == {
+            "perspective-final-compositor": {
+                "ordered_output_roles": [
+                    "panel_summary",
+                    "artifact_index",
+                    "verification_report",
+                    "review_finding_index",
+                    "final_handoff_package",
+                ],
+                "final_output_role": "final_handoff_package",
+                "internal_dependency_roles": [
+                    "panel_summary",
+                    "artifact_index",
+                    "verification_report",
+                    "review_finding_index",
+                ],
+                "creation_sequence_field": "creation_sequence",
+                "internal_output_refs_field": "internal_output_refs",
+                "internal_dependencies_are_not_file_reads": True,
+                "single_instance_required": True,
+            }
+        },
+        "runtime_artifact_role_contract_invalid",
+        "verifier compositor internal outputs",
+    )
+    external = contract["external_input_contract"]
+    require(
+        external.get("creator_sentinel") == "external-input"
+        and external.get("source_skill_sentinel") == "external-input"
+        and external.get("source_identity_field") == "external_source_id"
+        and external.get("source_identity_prefix") == "external:"
+        and set(external.get("allowed_artifact_roles_by_workflow_and_mode", {}))
+        == set(machines)
+        and set(external.get("external_primary_allowed_modes", {}))
+        == set(machines)
+        and external.get(
+            "external_generated_or_review_artifact_impersonation_rejected"
+        )
+        is True
+        and contract.get("entry_mode_bound_to_receipt_and_task_export") is True,
+        "runtime_artifact_role_contract_invalid",
+        "external input contract",
+    )
+    package_contracts = scenario_contract["package_input_contracts"]
+    require(
+        all(
+            "source_skill" in rule or "source_skills" in rule
+            for package in package_contracts.values()
+            for rule in package["required_inputs"]
+        ),
+        "runtime_artifact_role_contract_invalid",
+        "package source-skill bindings",
+    )
+    proposal_sap_rules = [
+        rule
+        for rule in package_contracts["proposal"]["required_inputs"]
+        if rule.get("artifact_role") in {"sap", "evaluation_report"}
+        and rule.get("source_skill") in {"sap-writer", "sap-evaluator"}
+    ]
+    require(
+        len(proposal_sap_rules) == 2
+        and next(
+            rule for rule in proposal_sap_rules if rule["source_skill"] == "sap-writer"
+        ).get("latest_selected_artifact")
+        is True
+        and all(
+            next(
+                rule
+                for rule in proposal_sap_rules
+                if rule["source_skill"] == "sap-evaluator"
+            ).get(field)
+            is True
+            for field in ("exact_selected_artifact_lineage", "fresh_review_required")
+        ),
+        "runtime_artifact_role_contract_invalid",
+        "proposal SAP package contract",
+    )
+    return contract
+
+
+def artifact_is_review_finding_report(
+    *, creator_role: str, artifact_role: str, contract: dict[str, Any]
+) -> bool:
+    """Identify reports whose findings must be included in the review-state union."""
+
+    if creator_role in {
+        "evaluator",
+        "panel",
+        "strategy_reviewer",
+        "supporting_reviewer",
+    }:
+        return artifact_role in set(contract["review_output_roles"])
+    return (
+        creator_role == "verifier_compositor"
+        and artifact_role == "verification_report"
+        and contract["verification_report_contributes_review_findings"] is True
+    )
+
+
+def validate_actor_dispatch_edge_runtime(
+    actor: dict[str, Any], workflow: str, registry: dict[str, Any]
+) -> None:
+    """Bind every non-root runtime actor to one exact registered workflow edge."""
+
+    identity = (
+        actor.get("dispatch_source"),
+        actor.get("skill"),
+        actor.get("dispatch_mode"),
+        actor.get("dispatch_trigger"),
+    )
+    registered = {
+        (
+            edge["source"],
+            edge["destination"],
+            edge["dispatch_mode"],
+            edge["trigger"],
+        )
+        for edge in registry["workflow_edges"]
+        if edge["workflow"] == workflow
+    }
+    require(
+        identity in registered,
+        "runtime_actor_edge_provenance_mismatch",
+        f"{actor.get('instance_id')}: {identity}",
+    )
+
+
+def validate_actor_output_role_runtime(
+    *, actor: dict[str, Any], artifact: dict[str, Any], contract: dict[str, Any]
+) -> None:
+    allowed = contract["actor_output_roles_by_skill"].get(actor["skill"], [])
+    require(
+        artifact["artifact_role"] in set(allowed),
+        "runtime_actor_output_role_mismatch",
+        f"{actor['skill']}: {artifact['artifact_role']}",
+    )
+
+
+def validate_external_input_artifact_runtime(
+    *,
+    artifact: dict[str, Any],
+    workflow: str,
+    entry_mode: str,
+    contract: dict[str, Any],
+) -> None:
+    external_identity = artifact.get(contract["source_identity_field"])
+    allowed_roles = set(
+        contract["allowed_artifact_roles_by_workflow_and_mode"][workflow][
+            entry_mode
+        ]
+    )
+    require(
+        artifact.get("created_by_instance_id") == contract["creator_sentinel"]
+        and artifact.get("source_skill") == contract["source_skill_sentinel"]
+        and isinstance(external_identity, str)
+        and external_identity.startswith(contract["source_identity_prefix"])
+        and len(external_identity) > len(contract["source_identity_prefix"])
+        and artifact.get("artifact_role") in allowed_roles,
+        "runtime_external_input_impersonation",
+        str(artifact.get("artifact_id")),
+    )
+
+
+def validate_blind_reviewer_inputs_runtime(
+    *,
+    reviewer_id: str,
+    read_paths: set[str],
+    artifacts_by_path: dict[str, dict[str, Any]],
+    forbidden_oracle_roles: set[str],
+) -> None:
+    unindexed_inputs = read_paths - set(artifacts_by_path)
+    require(
+        not unindexed_inputs,
+        "runtime_blind_reviewer_input_not_indexed",
+        f"{reviewer_id}: {sorted(unindexed_inputs)}",
+    )
+    oracle_inputs = {
+        path
+        for path in read_paths
+        if artifacts_by_path[path]["artifact_role"] in forbidden_oracle_roles
+    }
+    require(
+        not oracle_inputs,
+        "runtime_reviewer_oracle_visible",
+        f"{reviewer_id}: {sorted(oracle_inputs)}",
+    )
+
+
+def validate_runtime_review_report_findings(
+    report: dict[str, Any], contract: dict[str, Any], label: str
+) -> tuple[set[str], set[str], set[str], set[str]]:
+    """Derive all review indexes from typed finding objects; never trust arrays."""
+
+    report_contract = contract["runtime_review_report_contract"]
+    required = set(report_contract["required_fields"])
+    require(
+        not (required - set(report)),
+        "runtime_review_output_schema",
+        f"{label}: missing {sorted(required - set(report))}",
+    )
+    findings = report.get("findings")
+    unresolved_issues = report.get("unresolved_issues")
+    require(
+        isinstance(report.get("decision"), str)
+        and bool(report["decision"])
+        and isinstance(findings, list)
+        and isinstance(unresolved_issues, list)
+        and all(
+            isinstance(report.get(key), list)
+            for key in (
+                "dissent_ids",
+                "fatal_finding_ids",
+                "unresolved_fatal_finding_ids",
+            )
+        )
+        and all(
+            all(isinstance(value, str) and value for value in report[key])
+            for key in (
+                "dissent_ids",
+                "fatal_finding_ids",
+                "unresolved_fatal_finding_ids",
+            )
+        )
+        and all(
+            len(report[key]) == len(set(report[key]))
+            for key in (
+                "dissent_ids",
+                "fatal_finding_ids",
+                "unresolved_fatal_finding_ids",
+            )
+        )
+        and len(unresolved_issues) == len(set(unresolved_issues))
+        and all(isinstance(value, str) and value for value in unresolved_issues),
+        "runtime_review_output_schema",
+        label,
+    )
+    finding_ids: set[str] = set()
+    derived_dissent: set[str] = set()
+    derived_fatal: set[str] = set()
+    derived_unresolved_fatal: set[str] = set()
+    derived_unresolved: set[str] = set()
+    finding_required = set(report_contract["finding_required_fields"])
+    allowed_severities = set(report_contract["allowed_severities"])
+    for finding in findings:
+        require(
+            isinstance(finding, dict) and not (finding_required - set(finding)),
+            "runtime_review_finding_schema",
+            label,
+        )
+        finding_id = finding.get("id")
+        require(
+            isinstance(finding_id, str)
+            and bool(finding_id)
+            and finding_id not in finding_ids
+            and finding.get("severity") in allowed_severities
+            and isinstance(finding.get("blocking"), bool)
+            and isinstance(finding.get("resolved"), bool)
+            and isinstance(finding.get("dissent"), bool),
+            "runtime_review_finding_schema",
+            label,
+        )
+        finding_ids.add(finding_id)
+        if finding["dissent"]:
+            derived_dissent.add(finding_id)
+        if finding["severity"] == "fatal":
+            derived_fatal.add(finding_id)
+            if not finding["resolved"]:
+                derived_unresolved_fatal.add(finding_id)
+        if finding["blocking"] and not finding["resolved"]:
+            derived_unresolved.add(finding_id)
+    require(
+        set(report["dissent_ids"]) == derived_dissent
+        and set(report["fatal_finding_ids"]) == derived_fatal
+        and set(report["unresolved_fatal_finding_ids"])
+        == derived_unresolved_fatal
+        and set(unresolved_issues) == derived_unresolved,
+        "runtime_review_finding_derivation_mismatch",
+        label,
+    )
+    return (
+        derived_dissent,
+        derived_fatal,
+        derived_unresolved_fatal,
+        derived_unresolved,
+    )
+
+
+def validate_runtime_review_decision(
+    report: dict[str, Any], creator: dict[str, Any], registry: dict[str, Any], label: str
+) -> bool:
+    contract = registry["scenario_eval_contract"]["review_decision_contracts"].get(
+        creator["skill"]
+    )
+    require(
+        isinstance(contract, dict)
+        and report.get("decision") in set(contract.get("allowed", [])),
+        "runtime_review_decision_unknown",
+        f"{label}: {creator['skill']}={report.get('decision')}",
+    )
+    return report["decision"] in set(contract["pass"])
+
+
+def version_number(version_id: str, label: str) -> int:
+    match = re.fullmatch(r"v(\d+)", version_id or "")
+    require(match is not None, "runtime_artifact_version_invalid", label)
+    return int(match.group(1))
+
+
+def validate_proposal_sap_package_runtime(
+    *,
+    package_parent_artifacts: list[dict[str, Any]],
+    artifacts: list[dict[str, Any]],
+    actor_by_id: dict[str, dict[str, Any]],
+) -> None:
+    """Bind a proposal package to the latest SAP and its exact fresh evaluation."""
+
+    all_saps = [
+        item
+        for item in artifacts
+        if item["artifact_role"] == "sap" and item["source_skill"] == "sap-writer"
+    ]
+    require(bool(all_saps), "runtime_sap_writer_artifact_missing", "proposal package")
+    latest_number = max(
+        version_number(item["version_id"], ref_for(item)) for item in all_saps
+    )
+    latest_saps = [
+        item
+        for item in all_saps
+        if version_number(item["version_id"], ref_for(item)) == latest_number
+    ]
+    require(
+        len(latest_saps) == 1,
+        "runtime_sap_latest_version_ambiguous",
+        "proposal package",
+    )
+    latest_ref = ref_for(latest_saps[0])
+    selected_saps = [item for item in package_parent_artifacts if item["artifact_role"] == "sap"]
+    require(
+        len(selected_saps) == 1 and ref_for(selected_saps[0]) == latest_ref,
+        "runtime_sap_package_stale_selection",
+        latest_ref,
+    )
+    sap_writer_actor = actor_by_id.get(latest_saps[0].get("created_by_instance_id"))
+    require(
+        sap_writer_actor is not None
+        and sap_writer_actor.get("role") == "supporting_writer"
+        and sap_writer_actor.get("skill") == "sap-writer",
+        "runtime_sap_writer_actor_mismatch",
+        latest_ref,
+    )
+    selected_reviews = [
+        item
+        for item in package_parent_artifacts
+        if item["artifact_role"] == "evaluation_report"
+        and item["source_skill"] == "sap-evaluator"
+    ]
+    require(
+        len(selected_reviews) == 1
+        and selected_reviews[0]["based_on"] == [latest_ref]
+        and selected_reviews[0]["change_type"]
+        in {"independent_evaluation", "fresh_independent_evaluation"},
+        "runtime_sap_evaluation_lineage_mismatch",
+        latest_ref,
+    )
+    sap_evaluator_actor = actor_by_id.get(
+        selected_reviews[0].get("created_by_instance_id")
+    )
+    require(
+        sap_evaluator_actor is not None
+        and sap_evaluator_actor.get("role") == "supporting_reviewer"
+        and sap_evaluator_actor.get("skill") == "sap-evaluator"
+        and sap_evaluator_actor.get("isolation_mode") == "fresh_subagent"
+        and sap_evaluator_actor.get("instance_id")
+        != sap_writer_actor.get("instance_id"),
+        "runtime_sap_evaluator_actor_mismatch",
+        latest_ref,
+    )
+
+
+def validate_control_independent_gates_runtime(
+    *,
+    workflow: str,
+    case_contract: dict[str, Any],
+    current_ref: str,
+    control_finding_id: str,
+    review_reports_by_skill: dict[str, list[dict[str, Any]]],
+    finding_provenance: dict[str, dict[str, Any]],
+    strategy_role_instances: dict[str, str],
+    strategy_cells_by_ref: dict[str, set[tuple[str, str]]],
+    registry: dict[str, Any],
+) -> None:
+    """Prevent a control receipt from bypassing the independent gate it cites."""
+
+    for skill in case_contract["required_review_skills"]:
+        require(
+            bool(review_reports_by_skill.get(skill)),
+            "runtime_control_required_independent_gate_missing",
+            f"{workflow}: {skill}",
+        )
+    if case_contract["required_strategy_matrix"]:
+        group = registry["scenario_eval_contract"]["review_group_contracts"].get(
+            workflow
+        )
+        require(
+            isinstance(group, dict)
+            and set(strategy_role_instances) == set(group["roles"])
+            and len(set(strategy_role_instances.values()))
+            == group["required_instance_count"]
+            and len(set().union(*strategy_cells_by_ref.values()))
+            == group["required_matrix_cell_count"],
+            "runtime_control_required_independent_gate_missing",
+            f"{workflow}: strategy matrix",
+        )
+    provenance = finding_provenance.get(control_finding_id)
+    decision_contracts = registry["scenario_eval_contract"][
+        "review_decision_contracts"
+    ]
+    decisions_by_skill = case_contract["control_finding_decisions_by_skill"]
+    for skill, decisions in decisions_by_skill.items():
+        skill_contract = decision_contracts.get(skill, {})
+        require(
+            bool(decisions)
+            and set(decisions) <= set(skill_contract.get("allowed", []))
+            and set(decisions) <= set(skill_contract.get("stop", [])),
+            "runtime_control_finding_contract_invalid",
+            f"{workflow}: {skill}",
+        )
+    provenance_skill = (
+        provenance["creator"]["skill"] if provenance is not None else None
+    )
+    provenance_decision = (
+        provenance.get("report", {}).get("decision")
+        if provenance is not None
+        else None
+    )
+    provenance_finding = (
+        provenance.get("finding", {}) if provenance is not None else {}
+    )
+    require(
+        provenance is not None
+        and provenance_skill in decisions_by_skill
+        and provenance_decision in set(decisions_by_skill[provenance_skill])
+        and current_ref in provenance["input_refs"]
+        and provenance.get("decision_pass") is False,
+        "runtime_control_finding_provenance_mismatch",
+        f"{workflow}: {control_finding_id}",
+    )
+    require(
+        provenance_finding.get("severity")
+        in set(case_contract["control_finding_allowed_severities"])
+        and provenance_finding.get("blocking")
+        is case_contract["control_finding_blocking"]
+        and provenance_finding.get("resolved")
+        is case_contract["control_finding_resolved"],
+        "runtime_control_finding_semantics_mismatch",
+        f"{workflow}: {control_finding_id}",
+    )
+
+
+def validate_ready_has_no_unresolved_fatal(
+    unresolved_fatal_ids: set[str], label: str
+) -> None:
+    require(not unresolved_fatal_ids, "runtime_false_ready", label)
+
+
+def validate_research_polisher_strategy_report_runtime(
+    report: dict[str, Any],
+    actor: dict[str, Any],
+    contract: dict[str, Any],
+    label: str,
+) -> set[tuple[str, str]]:
+    """Validate one blind strategy lens and its three required effort tiers."""
+
+    matrix = contract["research_polisher_strategy_matrix_contract"]
+    require(
+        actor.get("role") == "strategy_reviewer"
+        and actor.get("skill") == matrix["strategy_skill"]
+        and report.get("strategy_role") == actor.get("strategy_role")
+        and report.get("strategy_role") in matrix["strategy_roles"]
+        and report.get("peer_outputs_visible") is False,
+        "runtime_polisher_strategy_report_identity",
+        label,
+    )
+    options = report.get("strategy_options")
+    require(
+        isinstance(options, list)
+        and len(options) == matrix["cells_per_report"],
+        "runtime_polisher_strategy_matrix_incomplete",
+        label,
+    )
+    observed_tiers = [option.get("effort_tier") for option in options]
+    require(
+        observed_tiers == matrix["effort_tiers"]
+        and len(set(observed_tiers)) == matrix["cells_per_report"]
+        and all(
+            option.get("status") in {"proposed", "no_defensible_option"}
+            for option in options
+        ),
+        "runtime_polisher_strategy_matrix_incomplete",
+        label,
+    )
+    required_option_fields = set(matrix["required_option_fields"])
+    flag_fields = set(matrix["new_work_flag_fields"])
+    allowed_feasibility = set(matrix["allowed_feasibility_ratings"])
+    proposed_feasibility = set(
+        matrix["proposed_extension_feasibility_ratings"]
+    )
+    proposal_ids: set[str] = set()
+    for option in options:
+        require(
+            isinstance(option, dict)
+            and not (required_option_fields - set(option)),
+            "runtime_polisher_strategy_option_schema",
+            label,
+        )
+        proposal_id = option.get("proposal_id")
+        feasibility = option.get("feasibility")
+        flags = option.get("new_work_flags")
+        require(
+            isinstance(proposal_id, str)
+            and bool(proposal_id)
+            and proposal_id not in proposal_ids
+            and all(
+                isinstance(option.get(field), str) and bool(option[field])
+                for field in (
+                    "positioning_change",
+                    "value_gain_mechanism",
+                    "claim_delta",
+                    "target_audience",
+                )
+            )
+            and all(
+                isinstance(option.get(field), list)
+                for field in (
+                    "added_work_items",
+                    "resource_dependencies",
+                    "evidence_dependencies",
+                    "risks",
+                    "stop_conditions",
+                )
+            )
+            and bool(option["risks"])
+            and bool(option["stop_conditions"])
+            and isinstance(feasibility, dict)
+            and feasibility.get("rating") in allowed_feasibility
+            and isinstance(feasibility.get("basis"), str)
+            and bool(feasibility["basis"])
+            and isinstance(flags, dict)
+            and set(flags) == flag_fields
+            and all(isinstance(value, bool) for value in flags.values())
+            and isinstance(option.get("bounded_package"), bool)
+            and isinstance(option.get("independent_new_study"), bool)
+            and isinstance(option.get("core_design_rebuild"), bool),
+            "runtime_polisher_strategy_option_schema",
+            f"{label}: {proposal_id}",
+        )
+        proposal_ids.add(proposal_id)
+        tier = option["effort_tier"]
+        if tier == "reposition_only":
+            require(
+                option["added_work_items"] == []
+                and not any(flags.values())
+                and option["bounded_package"] is True
+                and option["independent_new_study"] is False
+                and option["core_design_rebuild"] is False,
+                "runtime_polisher_reposition_smuggles_new_work",
+                f"{label}: {proposal_id}",
+            )
+        else:
+            require(
+                option["independent_new_study"] is False
+                and option["core_design_rebuild"] is False,
+                "runtime_polisher_extension_scope_exceeded",
+                f"{label}: {proposal_id}",
+            )
+            if option["status"] == "proposed":
+                require(
+                    bool(option["added_work_items"])
+                    and option["bounded_package"] is True
+                    and feasibility["rating"] in proposed_feasibility,
+                    "runtime_polisher_extension_feasibility_invalid",
+                    f"{label}: {proposal_id}",
+                )
+            else:
+                require(
+                    feasibility["rating"] in {"low", "unknown"}
+                    or bool(option["added_work_items"]) is False,
+                    "runtime_polisher_no_defensible_option_invalid",
+                    f"{label}: {proposal_id}",
+                )
+    return {(report["strategy_role"], tier) for tier in observed_tiers}
+
+
+def validate_research_polisher_portfolio_lineage_runtime(
+    *,
+    artifacts: list[dict[str, Any]],
+    actor_by_id: dict[str, dict[str, Any]],
+    strategy_cells_by_ref: dict[str, set[tuple[str, str]]],
+    read_paths_by_actor: dict[str, set[str]],
+    contract: dict[str, Any],
+) -> None:
+    """Require each candidate portfolio to bind and read three real strategy reports."""
+
+    matrix = contract["research_polisher_strategy_matrix_contract"]
+    artifacts_by_ref = {ref_for(artifact): artifact for artifact in artifacts}
+    portfolios = [
+        artifact
+        for artifact in artifacts
+        if artifact["artifact_role"] == matrix["portfolio_artifact_role"]
+    ]
+    require(bool(portfolios), "runtime_polisher_candidate_portfolio_missing", "portfolio")
+    for portfolio in portfolios:
+        creator = actor_by_id.get(portfolio["created_by_instance_id"])
+        require(
+            creator is not None
+            and creator.get("role") == "assembler"
+            and creator.get("skill") == matrix["portfolio_skill"],
+            "runtime_polisher_candidate_portfolio_creator",
+            ref_for(portfolio),
+        )
+        strategy_parent_refs = [
+            parent_ref
+            for parent_ref in portfolio["based_on"]
+            if parent_ref in strategy_cells_by_ref
+        ]
+        require(
+            len(strategy_parent_refs) == matrix["reports_per_portfolio"]
+            and len(set(strategy_parent_refs)) == matrix["reports_per_portfolio"],
+            "runtime_polisher_candidate_portfolio_strategy_lineage",
+            ref_for(portfolio),
+        )
+        parent_artifacts = [artifacts_by_ref[parent] for parent in strategy_parent_refs]
+        require(
+            all(
+                artifact["artifact_role"] == matrix["strategy_artifact_role"]
+                and artifact["source_skill"] == matrix["strategy_skill"]
+                and actor_by_id[artifact["created_by_instance_id"]]["role"]
+                == "strategy_reviewer"
+                for artifact in parent_artifacts
+            ),
+            "runtime_polisher_candidate_portfolio_strategy_lineage",
+            ref_for(portfolio),
+        )
+        observed_cells = set().union(
+            *(strategy_cells_by_ref[parent] for parent in strategy_parent_refs)
+        )
+        expected_cells = {
+            (role, tier)
+            for role in matrix["strategy_roles"]
+            for tier in matrix["effort_tiers"]
+        }
+        require(
+            observed_cells == expected_cells
+            and len(observed_cells) == matrix["total_matrix_cells"],
+            "runtime_polisher_candidate_portfolio_matrix_incomplete",
+            ref_for(portfolio),
+        )
+        require(
+            {artifact["path"] for artifact in parent_artifacts}
+            <= read_paths_by_actor[portfolio["created_by_instance_id"]],
+            "runtime_polisher_assembler_strategy_report_not_read",
+            ref_for(portfolio),
+        )
+
+
+def validate_verifier_compositor_internal_outputs_runtime(
+    *,
+    artifacts: list[dict[str, Any]],
+    actor_by_id: dict[str, dict[str, Any]],
+    read_paths_by_actor: dict[str, set[str]],
+    contract: dict[str, Any],
+) -> None:
+    """Bind same-instance compositor outputs by ordering, never by self-read."""
+
+    internal_contracts = contract["verifier_compositor_internal_output_contracts"]
+    for skill, output_contract in internal_contracts.items():
+        actor_ids = {
+            actor_id
+            for actor_id, actor in actor_by_id.items()
+            if actor.get("skill") == skill
+            and actor.get("role") == "verifier_compositor"
+        }
+        if not actor_ids:
+            continue
+        require(
+            not output_contract.get("single_instance_required")
+            or len(actor_ids) == 1,
+            "runtime_compositor_instance_count_mismatch",
+            skill,
+        )
+        sequence_field = output_contract["creation_sequence_field"]
+        refs_field = output_contract["internal_output_refs_field"]
+        expected_roles = output_contract["ordered_output_roles"]
+        for actor_id in actor_ids:
+            actor_outputs = [
+                artifact
+                for artifact in artifacts
+                if artifact["created_by_instance_id"] == actor_id
+                and artifact["artifact_role"] in set(expected_roles)
+            ]
+            by_role: dict[str, list[dict[str, Any]]] = defaultdict(list)
+            for artifact in actor_outputs:
+                by_role[artifact["artifact_role"]].append(artifact)
+            require(
+                set(by_role) == set(expected_roles)
+                and all(len(items) == 1 for items in by_role.values()),
+                "runtime_compositor_internal_output_missing",
+                actor_id,
+            )
+            ordered = [by_role[role][0] for role in expected_roles]
+            sequences = [artifact.get(sequence_field) for artifact in ordered]
+            require(
+                all(isinstance(value, int) and value > 0 for value in sequences)
+                and sequences == sorted(sequences)
+                and len(sequences) == len(set(sequences)),
+                "runtime_compositor_creation_order_mismatch",
+                actor_id,
+            )
+            final_artifact = by_role[output_contract["final_output_role"]][0]
+            dependency_artifacts = [
+                by_role[role][0]
+                for role in output_contract["internal_dependency_roles"]
+            ]
+            dependency_refs = {ref_for(artifact) for artifact in dependency_artifacts}
+            dependency_paths = {artifact["path"] for artifact in dependency_artifacts}
+            require(
+                set(final_artifact.get(refs_field, [])) == dependency_refs
+                and not (dependency_refs & set(final_artifact["based_on"])),
+                "runtime_compositor_internal_dependency_mismatch",
+                actor_id,
+            )
+            require(
+                not (dependency_paths & read_paths_by_actor[actor_id]),
+                "runtime_compositor_reads_internal_output",
+                actor_id,
+            )
 
 
 def validate_runtime_receipt(
@@ -2628,7 +3953,12 @@ def validate_runtime_receipt(
         "verified_receipt_required_bindings"
     ]
     populated_bindings = [nested_value(receipt, path) for path in required_bindings]
-    if not any(value not in {None, ""} for value in populated_bindings):
+    substantive_bindings = [
+        value
+        for path, value in zip(required_bindings, populated_bindings)
+        if path != "binding.task_export.entry_mode"
+    ]
+    if not any(value not in {None, ""} for value in substantive_bindings):
         raise ModeViolation("runtime_verified_label_only", receipt["receipt_id"])
     missing_bindings = [
         path for path, value in zip(required_bindings, populated_bindings) if value in {None, ""}
@@ -2758,6 +4088,7 @@ def validate_runtime_receipt(
         "registry_sha256": binding["registry_sha256"],
         "source_commit": binding["source_commit"],
         "workflow": receipt["workflow"],
+        "entry_mode": receipt["entry_mode"],
         "case_kind": receipt["case_kind"],
     }
     require(
@@ -2792,6 +4123,41 @@ def validate_runtime_receipt(
         "runtime_task_export_binding_mismatch",
         f"{receipt['receipt_id']}: artifact_index",
     )
+    file_access_binding = task_export_document.get("file_access")
+    require(
+        isinstance(file_access_binding, dict),
+        "runtime_task_export_binding_mismatch",
+        f"{receipt['receipt_id']}: file_access",
+    )
+    file_access_path = resolve_durable_file(
+        file_access_binding,
+        root=root,
+        label=f"{receipt['receipt_id']}.file_access",
+    )
+    file_access_document = load_structured_file(file_access_path)
+    require(
+        file_access_document.get("schema_version") == 1,
+        "runtime_file_access_schema",
+        receipt["receipt_id"],
+    )
+    for key in ("task_id", "plugin_version", "registry_sha256", "source_commit", "workflow", "entry_mode"):
+        require(
+            file_access_document.get(key) == expected_identity[key],
+            "runtime_linked_identity_mismatch",
+            f"{receipt['receipt_id']}: file_access.{key}",
+        )
+    require(
+        {
+            "reads": file_access_document.get("reads"),
+            "writes": file_access_document.get("writes"),
+            "source_artifact_hashes_unchanged": file_access_document.get(
+                "source_artifact_hashes_unchanged"
+            ),
+        }
+        == receipt["file_access"],
+        "runtime_file_access_receipt_mismatch",
+        receipt["receipt_id"],
+    )
 
     require(actor_manifest.get("schema_version") == 1, "runtime_actor_manifest_schema", receipt["receipt_id"])
     require(actor_manifest.get("workflow") == receipt["workflow"], "runtime_actor_manifest_scope", receipt["receipt_id"])
@@ -2819,6 +4185,12 @@ def validate_runtime_receipt(
     actors_by_role: dict[str, set[str]] = {
         role: set() for role in actor_role_contract["allowed_roles"]
     }
+    independent_reviewer_actor_roles = set(
+        actor_role_contract["independent_reviewer_actor_roles"]
+    )
+    independent_reviewer_isolation_mode = actor_role_contract[
+        "independent_reviewer_isolation_mode"
+    ]
     skill_contracts = {skill["name"]: skill for skill in registry["skills"]}
     machine = registry["workflow_state_machines"][receipt["workflow"]]
     runtime_profile = machine.get("workflow_profile", "default")
@@ -2853,6 +4225,10 @@ def validate_runtime_receipt(
         "runtime_actor_role_contract_invalid",
         f"{receipt['workflow']}: finalizer role",
     )
+    expected_supporting_edges = {
+        role: edge_derived_actor_edges(registry, receipt["workflow"], role)
+        for role in ("supporting_reviewer", "supporting_writer")
+    }
     panel_role_instances: dict[str, str] = {}
     strategy_role_instances: dict[str, str] = {}
     for actor in actors:
@@ -2883,6 +4259,15 @@ def validate_runtime_receipt(
                 f"registry={skill_contract['role']}"
             ),
         )
+        if actor["role"] in independent_reviewer_actor_roles:
+            require(
+                isinstance(actor.get("round_id"), str)
+                and bool(actor["round_id"])
+                and actor.get("isolation_mode")
+                == independent_reviewer_isolation_mode,
+                "runtime_reviewer_isolation_mismatch",
+                actor["instance_id"],
+            )
         if actor["role"] == "writer":
             require(
                 actor["skill"] in expected_writer_skills
@@ -2894,8 +4279,7 @@ def validate_runtime_receipt(
             require(
                 actor["skill"] == expected_evaluator_skill
                 and skill_contract["requires_independent_subagent"] is True
-                and isinstance(actor.get("round_id"), str)
-                and actor["round_id"],
+                and actor["role"] in independent_reviewer_actor_roles,
                 "runtime_evaluator_skill_mismatch",
                 actor["instance_id"],
             )
@@ -2904,8 +4288,7 @@ def validate_runtime_receipt(
             require(
                 actor["skill"] == expected_panel_skill
                 and skill_contract["requires_independent_subagent"] is True
-                and isinstance(actor.get("round_id"), str)
-                and actor["round_id"],
+                and actor["role"] in independent_reviewer_actor_roles,
                 "runtime_panel_skill_mismatch",
                 actor["instance_id"],
             )
@@ -2922,14 +4305,43 @@ def validate_runtime_receipt(
                 expected_strategy_skill is not None
                 and actor["skill"] == expected_strategy_skill
                 and skill_contract["requires_independent_subagent"] is True
-                and isinstance(actor.get("round_id"), str)
-                and actor["round_id"]
                 and actor.get("strategy_role") in expected_strategy_roles
                 and actor["strategy_role"] not in strategy_role_instances,
                 "runtime_strategy_reviewer_role_mismatch",
                 actor["instance_id"],
             )
             strategy_role_instances[actor["strategy_role"]] = actor["instance_id"]
+        elif actor["role"] == "supporting_reviewer":
+            edge_identity = (
+                actor.get("dispatch_source"),
+                actor["skill"],
+                actor.get("dispatch_mode"),
+                actor.get("dispatch_trigger"),
+            )
+            require(
+                edge_identity in expected_supporting_edges["supporting_reviewer"],
+                "runtime_supporting_reviewer_edge_mismatch",
+                actor["instance_id"],
+            )
+            require(
+                skill_contract["requires_independent_subagent"] is True
+                and actor.get("isolation_mode") == "fresh_subagent",
+                "runtime_supporting_reviewer_isolation_mismatch",
+                actor["instance_id"],
+            )
+        elif actor["role"] == "supporting_writer":
+            edge_identity = (
+                actor.get("dispatch_source"),
+                actor["skill"],
+                actor.get("dispatch_mode"),
+                actor.get("dispatch_trigger"),
+            )
+            require(
+                edge_identity in expected_supporting_edges["supporting_writer"]
+                and skill_contract["role"] == "drafter",
+                "runtime_supporting_writer_edge_mismatch",
+                actor["instance_id"],
+            )
         elif actor["role"] == "orchestrator":
             require(
                 actor["skill"] == machine["orchestrator"],
@@ -2947,6 +4359,10 @@ def validate_runtime_receipt(
                 "runtime_assembler_skill_mismatch",
                 actor["instance_id"],
             )
+        if actor["role"] in set(
+            actor_role_contract["edge_provenance_required_actor_roles"]
+        ):
+            validate_actor_dispatch_edge_runtime(actor, receipt["workflow"], registry)
     require(len(actor_ids) == len(set(actor_ids)), "runtime_actor_id_reused", receipt["receipt_id"])
     role_ids = list(actors_by_role.values())
     require(
@@ -3028,34 +4444,29 @@ def validate_runtime_receipt(
     review_output_artifacts: list[dict[str, Any]] = []
     finding_index_artifacts: list[dict[str, Any]] = []
     final_package_artifacts: list[dict[str, Any]] = []
-    review_output_roles = {
-        "evaluation_report",
-        "research_polisher_evaluation_report",
-        "research_polisher_strategy_report",
-        "review_report",
-        "audit_report",
-        "panel_report",
-        "verification_report",
-        "readiness_report",
-        "continuation_brief",
-    }
+    artifact_role_contract = runtime_artifact_role_contract(registry)
+    review_output_roles = set(artifact_role_contract["review_output_roles"])
     verifier_outputs = set(
         registry["scenario_eval_contract"]
         .get("verifier_compositor_outputs", {})
         .get(expected_final_skill, [])
     )
-    assembler_outputs = {
-        "final_handoff_package",
-        "review_finding_index",
-        "strategy_report_manifest",
-        "research_polisher_candidate_portfolio",
-        "research_polisher_selection_dossier",
-        "revision_delta",
-    }
+    assembler_outputs = set(
+        artifact_role_contract["assembler_outputs_by_skill"].get(
+            expected_final_skill, []
+        )
+    )
+    finding_index_role = artifact_role_contract["finding_index_role_by_workflow"][
+        receipt["workflow"]
+    ]
+    polisher_review_outputs = artifact_role_contract[
+        "research_polisher_review_outputs_by_actor_role_and_skill"
+    ]
     final_package_roles = {
         "final_handoff_package",
         "research_polisher_selection_dossier",
     }
+    external_input_contract = artifact_role_contract["external_input_contract"]
     artifact_required = {
         "artifact_id",
         "version_id",
@@ -3096,20 +4507,46 @@ def validate_runtime_receipt(
             "runtime_artifact_actor_missing",
             artifact_ref,
         )
-        if artifact["created_by_instance_id"] != "external-input":
+        if artifact["created_by_instance_id"] == external_input_contract[
+            "creator_sentinel"
+        ]:
+            validate_external_input_artifact_runtime(
+                artifact=artifact,
+                workflow=receipt["workflow"],
+                entry_mode=receipt["entry_mode"],
+                contract=external_input_contract,
+            )
+        else:
             creator = actor_by_id[artifact["created_by_instance_id"]]
             require(
                 creator["skill"] == artifact["source_skill"],
                 "runtime_artifact_creator_skill_mismatch",
                 artifact_ref,
             )
-            if creator["role"] in {"evaluator", "panel", "strategy_reviewer"}:
+            if receipt["workflow"] == "research_polisher" and creator["role"] in set(
+                polisher_review_outputs
+            ):
+                allowed_polisher_outputs = (
+                    polisher_review_outputs[creator["role"]].get(
+                        creator["skill"], []
+                    )
+                )
+                require(
+                    artifact["artifact_role"] in set(allowed_polisher_outputs),
+                    "runtime_polisher_actor_output_role_mismatch",
+                    artifact_ref,
+                )
+            if creator["role"] in {
+                "evaluator",
+                "panel",
+                "strategy_reviewer",
+                "supporting_reviewer",
+            }:
                 require(
                     artifact["artifact_role"] in review_output_roles,
                     "runtime_reviewer_wrote_source_artifact",
                     artifact_ref,
                 )
-                review_output_artifacts.append(artifact)
             elif creator["role"] == "verifier_compositor":
                 require(
                     artifact["artifact_role"] in verifier_outputs,
@@ -3122,6 +4559,27 @@ def validate_runtime_receipt(
                     "runtime_assembler_wrote_source_artifact",
                     artifact_ref,
                 )
+            elif creator["role"] == "supporting_writer":
+                supporting_writer_outputs = artifact_role_contract[
+                    "supporting_writer_outputs_by_skill"
+                ].get(creator["skill"], [])
+                require(
+                    artifact["artifact_role"] in set(supporting_writer_outputs),
+                    "runtime_supporting_writer_output_mismatch",
+                    artifact_ref,
+                )
+            if artifact["artifact_role"] not in final_package_roles:
+                validate_actor_output_role_runtime(
+                    actor=creator,
+                    artifact=artifact,
+                    contract=artifact_role_contract,
+                )
+            if artifact_is_review_finding_report(
+                creator_role=creator["role"],
+                artifact_role=artifact["artifact_role"],
+                contract=artifact_role_contract,
+            ):
+                review_output_artifacts.append(artifact)
         require(artifact["status"] == "frozen", "runtime_artifact_not_frozen", artifact_ref)
         if artifact["artifact_role"] in final_package_roles:
             final_package_count += 1
@@ -3134,7 +4592,7 @@ def validate_runtime_receipt(
                 "runtime_final_package_creator_mismatch",
                 artifact_ref,
             )
-        if artifact["artifact_role"] == "review_finding_index":
+        if artifact["artifact_role"] == finding_index_role:
             finding_index_artifacts.append(artifact)
     for artifact in artifacts:
         for parent in artifact["based_on"]:
@@ -3186,6 +4644,52 @@ def validate_runtime_receipt(
     require(lineage["current_artifact_ref"] in artifact_refs, "runtime_current_artifact_missing", receipt["receipt_id"])
     if lineage["evaluated_artifact_ref"] is not None:
         require(lineage["evaluated_artifact_ref"] in artifact_refs, "runtime_evaluated_artifact_missing", receipt["receipt_id"])
+    artifacts_by_ref = {ref_for(artifact): artifact for artifact in artifacts}
+    current_artifact = artifacts_by_ref[lineage["current_artifact_ref"]]
+    require(
+        current_artifact["artifact_role"] == machine["primary_artifact_type"],
+        "runtime_current_primary_role_mismatch",
+        lineage["current_artifact_ref"],
+    )
+    primary_creator_skills = set(machine["primary_artifact_creator_skills"])
+    if current_artifact["created_by_instance_id"] == "external-input":
+        require(
+            receipt["entry_mode"]
+            in set(
+                external_input_contract["external_primary_allowed_modes"][
+                    receipt["workflow"]
+                ]
+            ),
+            "runtime_current_primary_external_forbidden",
+            receipt["entry_mode"],
+        )
+    else:
+        require(
+            current_artifact["source_skill"] in primary_creator_skills,
+            "runtime_current_primary_creator_mismatch",
+            lineage["current_artifact_ref"],
+        )
+    if receipt["case_kind"] == "happy" and receipt["entry_mode"] not in set(
+        external_input_contract["external_primary_allowed_modes"][receipt["workflow"]]
+    ):
+        lineage_closure: set[str] = set()
+        pending_lineage = [lineage["current_artifact_ref"]]
+        while pending_lineage:
+            candidate_ref = pending_lineage.pop()
+            if candidate_ref in lineage_closure:
+                continue
+            lineage_closure.add(candidate_ref)
+            pending_lineage.extend(parent_graph.get(candidate_ref, []))
+        require(
+            any(
+                ref in artifacts_by_ref
+                and artifacts_by_ref[ref]["source_skill"] in primary_creator_skills
+                and artifacts_by_ref[ref]["created_by_instance_id"] != "external-input"
+                for ref in lineage_closure
+            ),
+            "runtime_primary_writer_lineage_missing",
+            receipt["receipt_id"],
+        )
 
     file_access = receipt["file_access"]
     reads = file_access.get("reads")
@@ -3280,7 +4784,18 @@ def validate_runtime_receipt(
         actors_by_role["evaluator"]
         | actors_by_role["panel"]
         | actors_by_role["strategy_reviewer"]
+        | actors_by_role["supporting_reviewer"]
         | actors_by_role["verifier_compositor"]
+    )
+    blind_reviewer_roles = set(
+        registry["scenario_eval_contract"]["blindness_policy"][
+            "runtime_blind_reviewer_actor_roles"
+        ]
+    )
+    forbidden_oracle_roles = set(
+        registry["scenario_eval_contract"]["blindness_policy"][
+            "runtime_forbidden_oracle_artifact_roles"
+        ]
     )
     for reviewer_id in reviewer_like_ids:
         indexed_reviewer_writes = {
@@ -3300,6 +4815,13 @@ def validate_runtime_receipt(
             "runtime_reviewer_modified_input",
             reviewer_id,
         )
+        if actor_by_id[reviewer_id]["role"] in blind_reviewer_roles:
+            validate_blind_reviewer_inputs_runtime(
+                reviewer_id=reviewer_id,
+                read_paths=read_paths_by_actor[reviewer_id],
+                artifacts_by_path=artifacts_by_path,
+                forbidden_oracle_roles=forbidden_oracle_roles,
+            )
         if reviewer_id in actors_by_role["panel"]:
             require(
                 all(
@@ -3320,6 +4842,17 @@ def validate_runtime_receipt(
                     if path in artifacts_by_path
                 ),
                 "runtime_strategy_reviewer_peer_output_visible",
+                reviewer_id,
+            )
+        if reviewer_id in actors_by_role["supporting_reviewer"]:
+            require(
+                all(
+                    artifacts_by_path[path]["artifact_role"]
+                    not in review_output_roles
+                    for path in read_paths_by_actor[reviewer_id]
+                    if path in artifacts_by_path
+                ),
+                "runtime_supporting_reviewer_prior_review_visible",
                 reviewer_id,
             )
     for evaluator_id in actors_by_role["evaluator"]:
@@ -3345,6 +4878,12 @@ def validate_runtime_receipt(
         "runtime_task_export_access_attestation_mismatch",
         receipt["receipt_id"],
     )
+    validate_verifier_compositor_internal_outputs_runtime(
+        artifacts=artifacts,
+        actor_by_id=actor_by_id,
+        read_paths_by_actor=read_paths_by_actor,
+        contract=artifact_role_contract,
+    )
 
     review_state = receipt["review_state"]
     dissent = set(review_state["dissent_ids"])
@@ -3356,7 +4895,13 @@ def validate_runtime_receipt(
     observed_unresolved_fatal: set[str] = set()
     evaluator_inputs: set[str] = set()
     panel_inputs: set[str] = set()
+    review_inputs_by_actor: dict[str, set[str]] = {}
+    strategy_cells_by_ref: dict[str, set[tuple[str, str]]] = {}
     review_outputs_by_actor: dict[str, int] = Counter()
+    review_reports_by_skill: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    review_pass_by_actor: dict[str, bool] = {}
+    review_unresolved_by_actor: dict[str, set[str]] = {}
+    finding_provenance: dict[str, dict[str, Any]] = {}
     for artifact in review_output_artifacts:
         report = load_structured_file(resolved_artifact_paths[artifact["path"]])
         creator_id = artifact["created_by_instance_id"]
@@ -3374,6 +4919,13 @@ def validate_runtime_receipt(
             "runtime_prior_scores_visible",
             artifact["path"],
         )
+        if creator["role"] in independent_reviewer_actor_roles:
+            require(
+                report.get("isolation_mode")
+                == independent_reviewer_isolation_mode,
+                "runtime_reviewer_report_isolation_mismatch",
+                artifact["path"],
+            )
         if creator["role"] == "panel":
             require(
                 report.get("panel_tier") == creator.get("panel_tier")
@@ -3388,6 +4940,15 @@ def validate_runtime_receipt(
                 "runtime_strategy_reviewer_role_mismatch",
                 artifact["path"],
             )
+            if receipt["workflow"] == "research_polisher":
+                strategy_cells_by_ref[ref_for(artifact)] = (
+                    validate_research_polisher_strategy_report_runtime(
+                        report,
+                        creator,
+                        artifact_role_contract,
+                        artifact["path"],
+                    )
+                )
         input_refs = report.get("input_artifact_refs")
         require(
             isinstance(input_refs, list)
@@ -3397,16 +4958,57 @@ def validate_runtime_receipt(
             "runtime_review_output_inputs_invalid",
             artifact["path"],
         )
-        for key in (
-            "dissent_ids",
-            "fatal_finding_ids",
-            "unresolved_fatal_finding_ids",
-        ):
-            require(isinstance(report.get(key), list), "runtime_review_output_schema", artifact["path"])
-        observed_dissent.update(report["dissent_ids"])
-        observed_fatal.update(report["fatal_finding_ids"])
-        observed_unresolved_fatal.update(report["unresolved_fatal_finding_ids"])
+        expected_read_paths = {
+            artifacts_by_ref[input_ref]["path"] for input_ref in input_refs
+        }
+        require(
+            read_paths_by_actor[creator_id] == expected_read_paths,
+            "runtime_review_input_read_mismatch",
+            (
+                f"{creator_id}: claimed={sorted(expected_read_paths)}, "
+                f"actual={sorted(read_paths_by_actor[creator_id])}"
+            ),
+        )
+        (
+            report_dissent,
+            report_fatal,
+            report_unresolved_fatal,
+            report_unresolved,
+        ) = validate_runtime_review_report_findings(
+            report, artifact_role_contract, artifact["path"]
+        )
+        observed_dissent.update(report_dissent)
+        observed_fatal.update(report_fatal)
+        observed_unresolved_fatal.update(report_unresolved_fatal)
+        require(
+            review_outputs_by_actor[creator_id] == 0,
+            "runtime_reviewer_multiple_reports",
+            creator_id,
+        )
+        review_pass_by_actor[creator_id] = validate_runtime_review_decision(
+            report, creator, registry, artifact["path"]
+        )
+        review_unresolved_by_actor[creator_id] = report_unresolved
+        report_record = {
+            "artifact": artifact,
+            "report": report,
+            "creator": creator,
+            "input_refs": set(input_refs),
+            "decision_pass": review_pass_by_actor[creator_id],
+        }
+        review_reports_by_skill[creator["skill"]].append(report_record)
+        for finding in report["findings"]:
+            require(
+                finding["id"] not in finding_provenance,
+                "runtime_review_finding_id_reused",
+                finding["id"],
+            )
+            finding_provenance[finding["id"]] = {
+                **report_record,
+                "finding": finding,
+            }
         review_outputs_by_actor[creator_id] += 1
+        review_inputs_by_actor[creator_id] = set(input_refs)
         if creator["role"] == "evaluator":
             evaluator_inputs.update(input_refs)
         elif creator["role"] == "panel":
@@ -3415,11 +5017,21 @@ def validate_runtime_receipt(
         actors_by_role["evaluator"]
         | actors_by_role["panel"]
         | actors_by_role["strategy_reviewer"]
+        | actors_by_role["supporting_reviewer"]
+        | actors_by_role["verifier_compositor"]
     ):
         require(
-            review_outputs_by_actor[reviewer_id] > 0,
+            review_outputs_by_actor[reviewer_id] == 1,
             "runtime_reviewer_output_missing",
             reviewer_id,
+        )
+    if receipt["workflow"] == "research_polisher":
+        validate_research_polisher_portfolio_lineage_runtime(
+            artifacts=artifacts,
+            actor_by_id=actor_by_id,
+            strategy_cells_by_ref=strategy_cells_by_ref,
+            read_paths_by_actor=read_paths_by_actor,
+            contract=artifact_role_contract,
         )
     if receipt["case_kind"] == "happy":
         require(
@@ -3429,7 +5041,12 @@ def validate_runtime_receipt(
         )
         if machine.get("post_evaluation_panel_required", True):
             require(
-                lineage["current_artifact_ref"] in panel_inputs,
+                panel_inputs == {lineage["current_artifact_ref"]}
+                and all(
+                    review_inputs_by_actor[panel_instance]
+                    == {lineage["current_artifact_ref"]}
+                    for panel_instance in panel_role_instances.values()
+                ),
                 "runtime_current_version_review_missing",
                 receipt["receipt_id"],
             )
@@ -3438,6 +5055,35 @@ def validate_runtime_receipt(
             "runtime_fresh_evaluator_round_missing",
             receipt["receipt_id"],
         )
+        current_evaluators = {
+            actor_id
+            for actor_id in actors_by_role["evaluator"]
+            if lineage["current_artifact_ref"]
+            in review_inputs_by_actor.get(actor_id, set())
+        }
+        ready_decision_actor_ids = (
+            current_evaluators
+            | set(panel_role_instances.values())
+            | actors_by_role["strategy_reviewer"]
+            | actors_by_role["supporting_reviewer"]
+            | actors_by_role["verifier_compositor"]
+        )
+        require(
+            bool(current_evaluators)
+            and all(
+                review_pass_by_actor.get(actor_id) is True
+                and not review_unresolved_by_actor.get(actor_id, set())
+                for actor_id in ready_decision_actor_ids
+            ),
+            "runtime_ready_review_decision_not_pass",
+            receipt["receipt_id"],
+        )
+        for required_skill in case_contract["required_review_skills"]:
+            require(
+                bool(review_reports_by_skill.get(required_skill)),
+                "runtime_happy_required_independent_gate_missing",
+                f"{receipt['receipt_id']}: {required_skill}",
+            )
 
     require(
         dissent == observed_dissent
@@ -3498,7 +5144,9 @@ def validate_runtime_receipt(
             "runtime_happy_not_ready",
             receipt["receipt_id"],
         )
-        require(not unresolved_fatal, "runtime_false_ready", receipt["receipt_id"])
+        validate_ready_has_no_unresolved_fatal(
+            unresolved_fatal, receipt["receipt_id"]
+        )
         require(
             lineage["evaluated_artifact_ref"] == lineage["current_artifact_ref"],
             "runtime_stale_evaluation",
@@ -3565,6 +5213,12 @@ def validate_runtime_receipt(
                         "runtime_package_input_omitted",
                         receipt["receipt_id"],
                     )
+            if receipt["workflow"] == "proposal":
+                validate_proposal_sap_package_runtime(
+                    package_parent_artifacts=package_parent_artifacts,
+                    artifacts=artifacts,
+                    actor_by_id=actor_by_id,
+                )
             require(
                 package.get("schema_version") == 1
                 and package.get("final_state") == receipt["final_state"]
@@ -3606,6 +5260,17 @@ def validate_runtime_receipt(
             receipt["receipt_id"],
         )
         require(final_package_count == 0, "runtime_control_false_ready", receipt["receipt_id"])
+        validate_control_independent_gates_runtime(
+            workflow=receipt["workflow"],
+            case_contract=case_contract,
+            current_ref=lineage["current_artifact_ref"],
+            control_finding_id=control_evidence["finding"],
+            review_reports_by_skill=review_reports_by_skill,
+            finding_provenance=finding_provenance,
+            strategy_role_instances=strategy_role_instances,
+            strategy_cells_by_ref=strategy_cells_by_ref,
+            registry=registry,
+        )
         if receipt["final_state"] == "blocked":
             require(bool(unresolved_fatal), "runtime_blocked_without_fatal", receipt["receipt_id"])
 
@@ -4085,8 +5750,11 @@ def _build_legacy_runtime_validator_fixture(
             "schema_version": 1,
             "reviewer_instance_id": "evaluator-001",
             "round_id": "round-001",
+            "isolation_mode": "fresh_subagent",
             "input_artifact_refs": ["primary@v001"],
             "decision": "revise",
+            "findings": [],
+            "unresolved_issues": [],
             "dissent_ids": [],
             "fatal_finding_ids": [],
             "unresolved_fatal_finding_ids": [],
@@ -4100,8 +5768,11 @@ def _build_legacy_runtime_validator_fixture(
             "schema_version": 1,
             "reviewer_instance_id": "evaluator-002",
             "round_id": "round-002",
+            "isolation_mode": "fresh_subagent",
             "input_artifact_refs": ["primary@v002"],
             "decision": "promote",
+            "findings": [],
+            "unresolved_issues": [],
             "dissent_ids": [],
             "fatal_finding_ids": [],
             "unresolved_fatal_finding_ids": [],
@@ -4115,8 +5786,19 @@ def _build_legacy_runtime_validator_fixture(
             "schema_version": 1,
             "reviewer_instance_id": "panel-001",
             "round_id": "round-002-panel",
+            "isolation_mode": "fresh_subagent",
             "input_artifact_refs": ["primary@v002"],
             "decision": "handoff_ready",
+            "findings": [
+                {
+                    "id": "dissent-001",
+                    "severity": "minor",
+                    "blocking": False,
+                    "resolved": False,
+                    "dissent": True,
+                }
+            ],
+            "unresolved_issues": [],
             "dissent_ids": ["dissent-001"],
             "fatal_finding_ids": [],
             "unresolved_fatal_finding_ids": [],
@@ -4151,6 +5833,7 @@ def _build_legacy_runtime_validator_fixture(
         {
             "schema_version": 1,
             "workflow": "idea",
+            "entry_mode": "standard",
             **identity,
             "actors": [
                 {
@@ -4165,6 +5848,7 @@ def _build_legacy_runtime_validator_fixture(
                     "skill": "idea-evaluator",
                     "role": "evaluator",
                     "round_id": "round-001",
+                    "isolation_mode": "fresh_subagent",
                     "allowed_read_roots": ["evidence"],
                     "allowed_write_roots": ["evidence"],
                 },
@@ -4173,6 +5857,7 @@ def _build_legacy_runtime_validator_fixture(
                     "skill": "idea-evaluator",
                     "role": "evaluator",
                     "round_id": "round-002",
+                    "isolation_mode": "fresh_subagent",
                     "allowed_read_roots": ["evidence"],
                     "allowed_write_roots": ["evidence"],
                 },
@@ -4181,6 +5866,7 @@ def _build_legacy_runtime_validator_fixture(
                     "skill": "idea-adversarial-review-panel",
                     "role": "panel",
                     "round_id": "round-002-panel",
+                    "isolation_mode": "fresh_subagent",
                     "allowed_read_roots": ["evidence"],
                     "allowed_write_roots": ["evidence"],
                 },
@@ -4312,6 +5998,25 @@ def _build_legacy_runtime_validator_fixture(
         ("assembler-001", finding_index, "evidence/finding-index.json"),
         ("assembler-001", final_package, "evidence/final-package.json"),
     ]
+    read_records = [
+        {
+            "actor_instance_id": actor_id,
+            "path": path,
+            "sha256": sha256_file(file_path),
+            "sha256_before": sha256_file(file_path),
+            "sha256_after": sha256_file(file_path),
+        }
+        for actor_id, file_path, path in read_specs
+    ]
+    write_records = [
+        {
+            "actor_instance_id": actor_id,
+            "path": path,
+            "sha256": sha256_file(file_path),
+            "allowed_write_root": "evidence",
+        }
+        for actor_id, file_path, path in write_specs
+    ]
     actor_binding = {
         "path": "evidence/actor-manifest.json",
         "sha256": sha256_file(actor_manifest),
@@ -4320,6 +6025,23 @@ def _build_legacy_runtime_validator_fixture(
         "path": "evidence/artifact-index.json",
         "sha256": sha256_file(artifact_index),
     }
+    file_access = evidence / "file-access.json"
+    write_json_file(
+        file_access,
+        {
+            "schema_version": 1,
+            "workflow": "idea",
+            "entry_mode": "standard",
+            **identity,
+            "reads": read_records,
+            "writes": write_records,
+            "source_artifact_hashes_unchanged": True,
+        },
+    )
+    file_access_binding = {
+        "path": "evidence/file-access.json",
+        "sha256": sha256_file(file_access),
+    }
     write_json_file(
         task_export,
         {
@@ -4327,11 +6049,13 @@ def _build_legacy_runtime_validator_fixture(
             "platform": "codex",
             **identity,
             "workflow": "idea",
+            "entry_mode": "standard",
             "case_kind": "happy",
             "final_state": "human_signoff_required",
             "automatic_external_submission": False,
             "actor_manifest": actor_binding,
             "artifact_index": artifact_binding,
+            "file_access": file_access_binding,
             "file_access_attestation": {
                 "source_artifact_hashes_unchanged": True,
                 "files_read_count": len(read_specs),
@@ -4342,6 +6066,7 @@ def _build_legacy_runtime_validator_fixture(
     return {
         "receipt_id": "phase7-validator-self-test",
         "workflow": "idea",
+        "entry_mode": "standard",
         "case_kind": "happy",
         "expected_final_state": "human_signoff_required",
         "status": "verified",
@@ -4352,6 +6077,7 @@ def _build_legacy_runtime_validator_fixture(
             "task_export": {
                 "platform": "codex",
                 "task_id": identity["task_id"],
+                "entry_mode": "standard",
                 "path": "evidence/task-export.json",
                 "sha256": sha256_file(task_export),
             },
@@ -4359,25 +6085,8 @@ def _build_legacy_runtime_validator_fixture(
             "artifact_index": artifact_binding,
         },
         "file_access": {
-            "reads": [
-                {
-                    "actor_instance_id": actor_id,
-                    "path": path,
-                    "sha256": sha256_file(file_path),
-                    "sha256_before": sha256_file(file_path),
-                    "sha256_after": sha256_file(file_path),
-                }
-                for actor_id, file_path, path in read_specs
-            ],
-            "writes": [
-                {
-                    "actor_instance_id": actor_id,
-                    "path": path,
-                    "sha256": sha256_file(file_path),
-                    "allowed_write_root": "evidence",
-                }
-                for actor_id, file_path, path in write_specs
-            ],
+            "reads": read_records,
+            "writes": write_records,
             "source_artifact_hashes_unchanged": True,
         },
         "lineage": {
@@ -4427,6 +6136,7 @@ def build_runtime_validator_fixture(
                 "skill": "idea-adversarial-review-panel",
                 "role": "panel",
                 "round_id": "round-002-panel",
+                "isolation_mode": "fresh_subagent",
                 "panel_tier": panel_tier,
                 "panel_role": role,
                 "allowed_read_roots": ["evidence"],
@@ -4441,10 +6151,13 @@ def build_runtime_validator_fixture(
                 "schema_version": 1,
                 "reviewer_instance_id": instance_id,
                 "round_id": "round-002-panel",
+                "isolation_mode": "fresh_subagent",
                 "panel_tier": panel_tier,
                 "panel_role": role,
                 "input_artifact_refs": ["primary@v002"],
                 "decision": "handoff_ready",
+                "findings": [],
+                "unresolved_issues": [],
                 "dissent_ids": [],
                 "fatal_finding_ids": [],
                 "unresolved_fatal_finding_ids": [],
@@ -4484,6 +6197,82 @@ def build_runtime_validator_fixture(
                 "allowed_write_root": "evidence",
             }
         )
+
+    supporting_reviewer_id = "supporting-reviewer-001"
+    supporting_report_rel = "evidence/supporting-preflight-report.json"
+    supporting_report_path = root / Path(*PurePosixPath(supporting_report_rel).parts)
+    actor_manifest["actors"].append(
+        {
+            "instance_id": supporting_reviewer_id,
+            "skill": "methodology-statistics-preflight",
+            "role": "supporting_reviewer",
+            "round_id": "round-002-supporting-preflight",
+            "isolation_mode": "fresh_subagent",
+            "dispatch_source": "research-idea-orchestrator",
+            "dispatch_mode": "delegated",
+            "dispatch_trigger": "method_or_endpoint_fit_needs_review",
+            "allowed_read_roots": ["evidence"],
+            "allowed_write_roots": ["evidence"],
+        }
+    )
+    write_json_file(
+        supporting_report_path,
+        {
+            "schema_version": 1,
+            "reviewer_instance_id": supporting_reviewer_id,
+            "round_id": "round-002-supporting-preflight",
+            "isolation_mode": "fresh_subagent",
+            "input_artifact_refs": ["primary@v002"],
+            "decision": "pass",
+            "findings": [
+                {
+                    "id": "support-dissent-001",
+                    "severity": "minor",
+                    "blocking": False,
+                    "resolved": False,
+                    "dissent": True,
+                }
+            ],
+            "unresolved_issues": [],
+            "dissent_ids": ["support-dissent-001"],
+            "fatal_finding_ids": [],
+            "unresolved_fatal_finding_ids": [],
+            "prior_scores_visible": False,
+            "source_edits_performed": False,
+        },
+    )
+    new_artifacts.append(
+        {
+            "artifact_id": "supporting-preflight-report",
+            "version_id": "v001",
+            "artifact_role": "preflight_report",
+            "path": supporting_report_rel,
+            "sha256": sha256_file(supporting_report_path),
+            "source_skill": "methodology-statistics-preflight",
+            "created_by_instance_id": supporting_reviewer_id,
+            "based_on": ["primary@v002"],
+            "change_type": "fresh_independent_supporting_review",
+            "status": "frozen",
+        }
+    )
+    primary_path = root / "evidence" / "primary-v2.md"
+    receipt["file_access"]["reads"].append(
+        {
+            "actor_instance_id": supporting_reviewer_id,
+            "path": "evidence/primary-v2.md",
+            "sha256": sha256_file(primary_path),
+            "sha256_before": sha256_file(primary_path),
+            "sha256_after": sha256_file(primary_path),
+        }
+    )
+    receipt["file_access"]["writes"].append(
+        {
+            "actor_instance_id": supporting_reviewer_id,
+            "path": supporting_report_rel,
+            "sha256": sha256_file(supporting_report_path),
+            "allowed_write_root": "evidence",
+        }
+    )
 
     support_specs = [
         ("context-001", "research-context-builder", "builder", "research-context", "research_context"),
@@ -4540,6 +6329,31 @@ def build_runtime_validator_fixture(
                 entry["sha256_after"] = digest
     artifact_index["artifacts"].extend(new_artifacts)
 
+    finding_index_artifact = next(
+        artifact
+        for artifact in artifact_index["artifacts"]
+        if artifact["artifact_role"] == "review_finding_index"
+    )
+    finding_index_artifact["based_on"].append("supporting-preflight-report@v001")
+    finding_index_path = root / Path(*PurePosixPath(finding_index_artifact["path"]).parts)
+    finding_index_document = load_structured_file(finding_index_path)
+    finding_index_document["dissent_ids"].append("support-dissent-001")
+    finding_index_document["preserved_dissent_ids"].append("support-dissent-001")
+    write_json_file(finding_index_path, finding_index_document)
+    finding_index_artifact["sha256"] = sha256_file(finding_index_path)
+    for entry in receipt["file_access"]["writes"]:
+        if entry["path"] == finding_index_artifact["path"]:
+            entry["sha256"] = finding_index_artifact["sha256"]
+    receipt["file_access"]["reads"].append(
+        {
+            "actor_instance_id": "assembler-001",
+            "path": supporting_report_rel,
+            "sha256": sha256_file(supporting_report_path),
+            "sha256_before": sha256_file(supporting_report_path),
+            "sha256_after": sha256_file(supporting_report_path),
+        }
+    )
+
     package_artifact = next(
         artifact
         for artifact in artifact_index["artifacts"]
@@ -4564,6 +6378,7 @@ def build_runtime_validator_fixture(
             "input_artifact_refs": package_parent_refs,
             "source_edits_performed": False,
             "source_identity_unchanged": True,
+            "preserved_dissent_ids": ["dissent-001", "support-dissent-001"],
         }
     )
     write_json_file(final_package_path, final_package)
@@ -4597,15 +6412,41 @@ def build_runtime_validator_fixture(
             }
         )
 
+    idea_edges_by_destination: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    for edge in registry["workflow_edges"]:
+        if edge["workflow"] == "idea":
+            idea_edges_by_destination[edge["destination"]].append(edge)
+    for actor in actor_manifest["actors"]:
+        if actor["role"] == "orchestrator":
+            continue
+        candidate_edges = idea_edges_by_destination.get(actor["skill"], [])
+        require(
+            bool(candidate_edges),
+            "runtime_fixture_actor_edge_missing",
+            actor["skill"],
+        )
+        edge = candidate_edges[0]
+        actor.setdefault("dispatch_source", edge["source"])
+        actor.setdefault("dispatch_mode", edge["dispatch_mode"])
+        actor.setdefault("dispatch_trigger", edge["trigger"])
+
     write_json_file(actor_path, actor_manifest)
     receipt["binding"]["actor_manifest"]["sha256"] = sha256_file(actor_path)
     write_json_file(artifact_path, artifact_index)
     receipt["binding"]["artifact_index"]["sha256"] = sha256_file(artifact_path)
     task_export = load_structured_file(task_path)
+    file_access_path = root / task_export["file_access"]["path"]
+    file_access_document = load_structured_file(file_access_path)
+    file_access_document.update(receipt["file_access"])
+    write_json_file(file_access_path, file_access_document)
     task_export.update(
         {
             "actor_manifest": receipt["binding"]["actor_manifest"],
             "artifact_index": receipt["binding"]["artifact_index"],
+            "file_access": {
+                "path": task_export["file_access"]["path"],
+                "sha256": sha256_file(file_access_path),
+            },
             "panel_tier": panel_tier,
             "panel_role_instances": {
                 role: f"panel-{index:03d}"
@@ -4628,6 +6469,14 @@ def build_runtime_validator_fixture(
         "route": None,
         "continuation_artifact_ref": None,
     }
+    receipt["review_state"]["dissent_ids"] = [
+        "dissent-001",
+        "support-dissent-001",
+    ]
+    receipt["review_state"]["preserved_dissent_ids"] = [
+        "dissent-001",
+        "support-dissent-001",
+    ]
     return receipt
 
 
@@ -4641,7 +6490,7 @@ def build_runtime_control_validator_fixture(
     receipt["control_evidence"] = {
         "input_condition": "independent_review_no_incremental_gain",
         "gate": "unfixable_no_gain_or_user_stop",
-        "finding": "no_further_gain_under_current_scope",
+        "finding": "no-gain-001",
         "route": "human_review_or_explicit_resume",
         "continuation_artifact_ref": "continuation-brief@v001",
     }
@@ -4658,6 +6507,26 @@ def build_runtime_control_validator_fixture(
     )
     artifact_path = root / "evidence" / "artifact-index.json"
     artifact_document = load_structured_file(artifact_path)
+    evaluator_path = root / "evidence" / "evaluator-v2.json"
+    evaluator_document = load_structured_file(evaluator_path)
+    evaluator_document["decision"] = "keep_as_backup"
+    evaluator_document["findings"] = [
+        {
+            "id": "no-gain-001",
+            "severity": "major",
+            "blocking": True,
+            "resolved": False,
+            "dissent": False,
+        }
+    ]
+    evaluator_document["unresolved_issues"] = ["no-gain-001"]
+    write_json_file(evaluator_path, evaluator_document)
+    evaluator_digest = sha256_file(evaluator_path)
+    next(
+        artifact
+        for artifact in artifact_document["artifacts"]
+        if artifact["path"] == "evidence/evaluator-v2.json"
+    )["sha256"] = evaluator_digest
     artifact_document["artifacts"] = [
         artifact
         for artifact in artifact_document["artifacts"]
@@ -4684,6 +6553,14 @@ def build_runtime_control_validator_fixture(
         for entry in receipt["file_access"]["writes"]
         if entry["path"] != "evidence/final-package.json"
     ]
+    for entry in receipt["file_access"]["writes"]:
+        if entry["path"] == "evidence/evaluator-v2.json":
+            entry["sha256"] = evaluator_digest
+    for entry in receipt["file_access"]["reads"]:
+        if entry["path"] == "evidence/evaluator-v2.json":
+            entry["sha256"] = evaluator_digest
+            entry["sha256_before"] = evaluator_digest
+            entry["sha256_after"] = evaluator_digest
     receipt["file_access"]["writes"].append(
         {
             "actor_instance_id": "orchestrator-001",
@@ -4694,9 +6571,17 @@ def build_runtime_control_validator_fixture(
     )
     task_path = root / "evidence" / "task-export.json"
     task_document = load_structured_file(task_path)
+    file_access_path = root / "evidence" / "file-access.json"
+    file_access_document = load_structured_file(file_access_path)
+    file_access_document.update(receipt["file_access"])
+    write_json_file(file_access_path, file_access_document)
     task_document["case_kind"] = "control"
     task_document["final_state"] = "stopped"
     task_document["artifact_index"] = receipt["binding"]["artifact_index"]
+    task_document["file_access"] = {
+        "path": "evidence/file-access.json",
+        "sha256": sha256_file(file_access_path),
+    }
     task_document["final_package_actor_instance_id"] = None
     task_document["file_access_attestation"] = {
         "source_artifact_hashes_unchanged": True,
@@ -4708,13 +6593,1539 @@ def build_runtime_control_validator_fixture(
     return receipt
 
 
+def build_contract_complete_workflow_fixture(
+    root: Path,
+    registry: dict[str, Any],
+    source_commit: str,
+    workflow: str,
+) -> dict[str, Any]:
+    """Build one complete happy-path runtime receipt for any registered workflow."""
+
+    entry_modes = {
+        "idea": "standard",
+        "proposal": "standard",
+        "article": "standard",
+        "perspective": "full",
+        "research_polisher": "standard",
+    }
+    evidence = root / "evidence"
+    evidence.mkdir(parents=True, exist_ok=True)
+    machine = registry["workflow_state_machines"][workflow]
+    entry_mode = entry_modes[workflow]
+    task_id = f"contract-complete-{workflow}"
+    identity = {
+        "task_id": task_id,
+        "plugin_version": registry["plugin_version"],
+        "registry_sha256": sha256_repository_file(REGISTRY_PATH),
+        "source_commit": source_commit,
+    }
+    skill_contracts = {skill["name"]: skill for skill in registry["skills"]}
+    artifact_contract = registry["scenario_eval_contract"][
+        "runtime_artifact_role_contract"
+    ]
+    review_output_roles = set(artifact_contract["review_output_roles"])
+    decision_contracts = registry["scenario_eval_contract"][
+        "review_decision_contracts"
+    ]
+    package_contract = registry["scenario_eval_contract"][
+        "package_input_contracts"
+    ][workflow]
+    panel_tier, panel_roles = default_panel_roles(workflow, registry)
+    panel_skill = panel_skill_for(
+        {"workflow": workflow, "case_id": f"contract-complete-{workflow}"},
+        registry,
+    )
+    review_group = (
+        registry["scenario_eval_contract"]
+        .get("review_group_contracts", {})
+        .get(workflow)
+    )
+
+    actors: list[dict[str, Any]] = []
+    actor_by_id: dict[str, dict[str, Any]] = {}
+    actor_by_skill_role: dict[tuple[str, str], list[str]] = defaultdict(list)
+    actor_serials: Counter[str] = Counter()
+    artifacts: list[dict[str, Any]] = []
+    artifacts_by_ref: dict[str, dict[str, Any]] = {}
+    actor_read_refs: dict[str, set[str]] = defaultdict(set)
+    actor_write_paths: dict[str, set[str]] = defaultdict(set)
+    artifact_serial = 0
+
+    workflow_edges_by_destination: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    for edge in registry["workflow_edges"]:
+        if edge["workflow"] == workflow:
+            workflow_edges_by_destination[edge["destination"]].append(edge)
+
+    def add_actor(
+        skill: str,
+        role: str,
+        *,
+        suffix: str | None = None,
+        extra: dict[str, Any] | None = None,
+    ) -> str:
+        actor_serials[role] += 1
+        serial = actor_serials[role]
+        instance_id = (
+            f"{normalized_id(skill)}-{suffix}"
+            if suffix
+            else f"{normalized_id(skill)}-{serial:03d}"
+        )
+        actor: dict[str, Any] = {
+            "instance_id": instance_id,
+            "skill": skill,
+            "role": role,
+            "allowed_read_roots": ["evidence"],
+            "allowed_write_roots": ["evidence"],
+        }
+        if role != "orchestrator":
+            edges = workflow_edges_by_destination.get(skill, [])
+            require(
+                bool(edges),
+                "runtime_fixture_actor_edge_missing",
+                f"{workflow}: {skill}",
+            )
+            edge = edges[0]
+            actor.update(
+                {
+                    "dispatch_source": edge["source"],
+                    "dispatch_mode": edge["dispatch_mode"],
+                    "dispatch_trigger": edge["trigger"],
+                }
+            )
+        if role in {
+            "evaluator",
+            "panel",
+            "strategy_reviewer",
+            "supporting_reviewer",
+            "verifier_compositor",
+        }:
+            actor.setdefault("round_id", f"round-{serial:03d}-{role}")
+            actor.setdefault("isolation_mode", "fresh_subagent")
+        if extra:
+            actor.update(extra)
+        require(
+            instance_id not in actor_by_id,
+            "runtime_fixture_actor_id_reused",
+            instance_id,
+        )
+        actors.append(actor)
+        actor_by_id[instance_id] = actor
+        actor_by_skill_role[(skill, role)].append(instance_id)
+        return instance_id
+
+    orchestrator_id = add_actor(machine["orchestrator"], "orchestrator")
+    expected_final_skill = machine["final_package_skill"]
+    expected_final_role = (
+        "verifier_compositor"
+        if skill_contracts[expected_final_skill]["requires_independent_subagent"]
+        else "assembler"
+    )
+    finalizer_id = add_actor(expected_final_skill, expected_final_role)
+
+    def existing_actor(skill: str, role: str) -> str | None:
+        values = actor_by_skill_role.get((skill, role), [])
+        return values[0] if values else None
+
+    def ensure_actor(skill: str) -> str:
+        if skill == machine["orchestrator"]:
+            return orchestrator_id
+        if skill == expected_final_skill:
+            return finalizer_id
+        if (
+            skill in set(machine.get("primary_writer_skills", []))
+            and primary_writer_id is not None
+        ):
+            return primary_writer_id
+        registry_role = skill_contracts[skill]["role"]
+        runtime_role = {
+            "builder": "builder",
+            "retrieval": "retrieval",
+            "controller": "controller",
+            "drafter": "supporting_writer",
+            "reviewer": "supporting_reviewer",
+            "assembler": "assembler",
+            "generator": "writer",
+        }.get(registry_role)
+        require(
+            runtime_role is not None,
+            "runtime_fixture_actor_role_missing",
+            f"{workflow}: {skill}/{registry_role}",
+        )
+        found = existing_actor(skill, runtime_role)
+        return found if found is not None else add_actor(skill, runtime_role)
+
+    def add_artifact(
+        *,
+        artifact_role: str,
+        source_skill: str,
+        creator_id: str,
+        based_on: list[str],
+        change_type: str,
+        artifact_id: str | None = None,
+        version_id: str = "v001",
+        document: dict[str, Any] | None = None,
+        extra: dict[str, Any] | None = None,
+        external_source_id: str | None = None,
+    ) -> dict[str, Any]:
+        nonlocal artifact_serial
+        artifact_serial += 1
+        selected_id = artifact_id or (
+            f"{normalized_id(artifact_role)}-{artifact_serial:03d}"
+        )
+        extension = "json" if document is not None else "md"
+        relative = f"evidence/{selected_id}-{version_id}.{extension}"
+        path = root / Path(*PurePosixPath(relative).parts)
+        if document is None:
+            path.write_text(
+                f"contract-complete {workflow} {artifact_role}\n",
+                encoding="utf-8",
+                newline="\n",
+            )
+        else:
+            write_json_file(path, document)
+        artifact: dict[str, Any] = {
+            "artifact_id": selected_id,
+            "version_id": version_id,
+            "artifact_role": artifact_role,
+            "path": relative,
+            "sha256": sha256_file(path),
+            "source_skill": source_skill,
+            "created_by_instance_id": creator_id,
+            "based_on": list(based_on),
+            "change_type": change_type,
+            "status": "frozen",
+        }
+        if extra:
+            artifact.update(extra)
+        if external_source_id is not None:
+            artifact["external_source_id"] = external_source_id
+        artifact_ref = ref_for(artifact)
+        require(
+            artifact_ref not in artifacts_by_ref,
+            "runtime_fixture_artifact_ref_reused",
+            artifact_ref,
+        )
+        artifacts.append(artifact)
+        artifacts_by_ref[artifact_ref] = artifact
+        if creator_id != "external-input":
+            actor_write_paths[creator_id].add(relative)
+            actor_read_refs[creator_id].update(based_on)
+        return artifact
+
+    def add_external(artifact_role: str, artifact_id: str) -> dict[str, Any]:
+        return add_artifact(
+            artifact_role=artifact_role,
+            source_skill="external-input",
+            creator_id="external-input",
+            based_on=[],
+            change_type="frozen_external_input",
+            artifact_id=artifact_id,
+            external_source_id=f"external:{workflow}:{artifact_id}",
+        )
+
+    source_artifact = add_external("source_material", "external-source")
+    source_ref = ref_for(source_artifact)
+    minimal_intake_ref: str | None = None
+    if workflow == "article":
+        minimal_intake_ref = ref_for(
+            add_external("minimal_intake", "external-minimal-intake")
+        )
+
+    def pass_decision(skill: str) -> str:
+        values = decision_contracts[skill]["pass"]
+        require(bool(values), "runtime_fixture_pass_decision_missing", skill)
+        return values[0]
+
+    def revise_decision(skill: str) -> str:
+        values = decision_contracts[skill]["revise"]
+        require(bool(values), "runtime_fixture_revise_decision_missing", skill)
+        return values[0]
+
+    def polisher_option(strategy_role: str, tier: str) -> dict[str, Any]:
+        reposition = tier == "reposition_only"
+        return {
+            "proposal_id": f"{strategy_role}-{tier}",
+            "effort_tier": tier,
+            "status": "proposed",
+            "positioning_change": "Reframe the contribution for this lens.",
+            "value_gain_mechanism": "Clarify why the frozen result matters.",
+            "claim_delta": "Reorder only claims supported by frozen evidence.",
+            "target_audience": "Relevant scientific and practice stakeholders.",
+            "added_work_items": [] if reposition else ["One bounded validation."],
+            "resource_dependencies": [] if reposition else ["Existing assets."],
+            "feasibility": {
+                "rating": "high",
+                "basis": "The bounded package uses available assets.",
+            },
+            "evidence_dependencies": ["Frozen dossier evidence."],
+            "risks": ["The impact gain may remain outlet-dependent."],
+            "stop_conditions": ["Stop if claims exceed frozen evidence."],
+            "new_work_flags": {
+                "new_analysis": tier == "moderate_extension",
+                "new_experiment": False,
+                "new_data": False,
+                "new_validation": tier == "small_extension",
+            },
+            "bounded_package": True,
+            "independent_new_study": False,
+            "core_design_rebuild": False,
+        }
+
+    def add_review_report(
+        *,
+        actor_id: str,
+        artifact_role: str,
+        input_refs: list[str],
+        decision: str,
+        artifact_id: str,
+        change_type: str,
+        artifact_extra: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
+        actor = actor_by_id[actor_id]
+        report: dict[str, Any] = {
+            "schema_version": 1,
+            "reviewer_instance_id": actor_id,
+            "round_id": actor["round_id"],
+            "isolation_mode": "fresh_subagent",
+            "input_artifact_refs": list(input_refs),
+            "decision": decision,
+            "findings": [],
+            "unresolved_issues": [],
+            "dissent_ids": [],
+            "fatal_finding_ids": [],
+            "unresolved_fatal_finding_ids": [],
+            "prior_scores_visible": False,
+            "source_edits_performed": False,
+        }
+        if actor["role"] == "panel":
+            report.update(
+                {
+                    "panel_tier": actor["panel_tier"],
+                    "panel_role": actor["panel_role"],
+                }
+            )
+        if actor["role"] == "strategy_reviewer":
+            report.update(
+                {
+                    "strategy_role": actor["strategy_role"],
+                    "peer_outputs_visible": False,
+                    "strategy_options": [
+                        polisher_option(actor["strategy_role"], tier)
+                        for tier in review_group["effort_tiers"]
+                    ],
+                }
+            )
+        return add_artifact(
+            artifact_role=artifact_role,
+            source_skill=actor["skill"],
+            creator_id=actor_id,
+            based_on=input_refs,
+            change_type=change_type,
+            artifact_id=artifact_id,
+            document=report,
+            extra=artifact_extra,
+        )
+
+    primary_writer_id: str | None = None
+    strategy_report_refs: list[str] = []
+    dossier_ref: str | None = None
+    evidence_map_ref: str | None = None
+    if workflow != "research_polisher":
+        primary_skill = machine["primary_writer_skills"][0]
+        primary_writer_id = add_actor(primary_skill, "writer")
+        primary_v1 = add_artifact(
+            artifact_role=machine["primary_artifact_type"],
+            source_skill=primary_skill,
+            creator_id=primary_writer_id,
+            based_on=[source_ref],
+            change_type="initial_generation",
+            artifact_id="primary",
+            version_id="v001",
+        )
+        evaluator_one_id = add_actor(
+            machine["evaluator_skill"], "evaluator", suffix="round-001"
+        )
+        evaluation_role = (
+            "research_polisher_evaluation_report"
+            if workflow == "research_polisher"
+            else "evaluation_report"
+        )
+        evaluation_v1 = add_review_report(
+            actor_id=evaluator_one_id,
+            artifact_role=evaluation_role,
+            input_refs=[ref_for(primary_v1)],
+            decision=revise_decision(machine["evaluator_skill"]),
+            artifact_id="evaluation-round-001",
+            change_type="independent_evaluation",
+        )
+        primary_v2 = add_artifact(
+            artifact_role=machine["primary_artifact_type"],
+            source_skill=primary_skill,
+            creator_id=primary_writer_id,
+            based_on=[ref_for(primary_v1), ref_for(evaluation_v1)],
+            change_type="targeted_revision",
+            artifact_id="primary",
+            version_id="v002",
+        )
+    else:
+        dossier_actor = ensure_actor("article-context-builder")
+        dossier = add_artifact(
+            artifact_role="research_polisher_dossier",
+            source_skill="article-context-builder",
+            creator_id=dossier_actor,
+            based_on=[source_ref],
+            change_type="context_normalization",
+            artifact_id="research-polisher-dossier",
+        )
+        dossier_ref = ref_for(dossier)
+        evidence_actor = ensure_actor("research-opportunity-mapper")
+        evidence_map = add_artifact(
+            artifact_role="evidence_map",
+            source_skill="research-opportunity-mapper",
+            creator_id=evidence_actor,
+            based_on=[source_ref],
+            change_type="evidence_mapping",
+            artifact_id="research-polisher-evidence-map",
+        )
+        evidence_map_ref = ref_for(evidence_map)
+        for index, strategy_role in enumerate(review_group["roles"], start=1):
+            strategy_id = add_actor(
+                review_group["skill"],
+                "strategy_reviewer",
+                suffix=f"{index:03d}",
+                extra={"strategy_role": strategy_role},
+            )
+            strategy_report = add_review_report(
+                actor_id=strategy_id,
+                artifact_role="research_polisher_strategy_report",
+                input_refs=[dossier_ref, evidence_map_ref],
+                decision=pass_decision(review_group["skill"]),
+                artifact_id=f"strategy-report-{index:03d}",
+                change_type="blind_strategy_review",
+            )
+            strategy_report_refs.append(ref_for(strategy_report))
+        primary_v1 = add_artifact(
+            artifact_role=machine["primary_artifact_type"],
+            source_skill=expected_final_skill,
+            creator_id=finalizer_id,
+            based_on=strategy_report_refs,
+            change_type="candidate_portfolio_assembly",
+            artifact_id="portfolio",
+            version_id="v001",
+        )
+        evaluator_one_id = add_actor(
+            machine["evaluator_skill"], "evaluator", suffix="round-001"
+        )
+        evaluation_v1 = add_review_report(
+            actor_id=evaluator_one_id,
+            artifact_role="research_polisher_evaluation_report",
+            input_refs=[ref_for(primary_v1)],
+            decision=revise_decision(machine["evaluator_skill"]),
+            artifact_id="evaluation-round-001",
+            change_type="independent_evaluation",
+        )
+        primary_v2 = add_artifact(
+            artifact_role=machine["primary_artifact_type"],
+            source_skill=expected_final_skill,
+            creator_id=finalizer_id,
+            based_on=[
+                *strategy_report_refs,
+                ref_for(primary_v1),
+                ref_for(evaluation_v1),
+            ],
+            change_type="candidate_portfolio_revision",
+            artifact_id="portfolio",
+            version_id="v002",
+        )
+
+    current_ref = ref_for(primary_v2)
+    evaluator_two_id = add_actor(
+        machine["evaluator_skill"], "evaluator", suffix="round-002"
+    )
+    current_evaluation = add_review_report(
+        actor_id=evaluator_two_id,
+        artifact_role=(
+            "research_polisher_evaluation_report"
+            if workflow == "research_polisher"
+            else "evaluation_report"
+        ),
+        input_refs=[current_ref],
+        decision=pass_decision(machine["evaluator_skill"]),
+        artifact_id="evaluation-round-002",
+        change_type="fresh_independent_evaluation",
+    )
+
+    panel_role_instances: dict[str, str] = {}
+    panel_artifacts: list[dict[str, Any]] = []
+    if panel_skill is not None:
+        for index, panel_role in enumerate(panel_roles, start=1):
+            panel_id = add_actor(
+                panel_skill,
+                "panel",
+                suffix=f"{index:03d}",
+                extra={"panel_tier": panel_tier, "panel_role": panel_role},
+            )
+            panel_role_instances[panel_role] = panel_id
+            panel_artifacts.append(
+                add_review_report(
+                    actor_id=panel_id,
+                    artifact_role="panel_report",
+                    input_refs=[current_ref],
+                    decision=pass_decision(panel_skill),
+                    artifact_id=f"panel-report-{index:03d}",
+                    change_type=f"independent_panel_role:{panel_role}",
+                )
+            )
+
+    def artifacts_matching_rule(rule: dict[str, Any]) -> list[dict[str, Any]]:
+        return package_rule_matches(artifacts, rule, current_ref=current_ref)
+
+    def input_refs_for_supporting_review(skill: str, rule: dict[str, Any]) -> list[str]:
+        if skill == "article-readiness-triage" and minimal_intake_ref is not None:
+            return [minimal_intake_ref]
+        if skill == "proposal-readiness-triage":
+            context = next(
+                (
+                    artifact
+                    for artifact in artifacts
+                    if artifact["artifact_role"] == "proposal_context"
+                ),
+                None,
+            )
+            return [ref_for(context)] if context is not None else [current_ref]
+        if rule.get("selected_artifact_lineage_role"):
+            selected = [
+                artifact
+                for artifact in artifacts
+                if artifact["artifact_role"]
+                == rule["selected_artifact_lineage_role"]
+            ]
+            require(bool(selected), "runtime_fixture_selected_input_missing", skill)
+            return [ref_for(selected[-1])]
+        return [current_ref]
+
+    def create_required_artifact(rule: dict[str, Any]) -> dict[str, Any]:
+        source_skill = rule.get("source_skill")
+        if source_skill is None:
+            source_skill = next(
+                skill
+                for skill in rule.get("source_skills", [])
+                if skill != "external-input"
+            )
+        actor_id = ensure_actor(source_skill)
+        artifact_role = rule["artifact_role"]
+        if artifact_role in review_output_roles:
+            input_refs = input_refs_for_supporting_review(source_skill, rule)
+            return add_review_report(
+                actor_id=actor_id,
+                artifact_role=artifact_role,
+                input_refs=input_refs,
+                decision=pass_decision(source_skill),
+                artifact_id=(
+                    f"{normalized_id(source_skill)}-{normalized_id(artifact_role)}"
+                ),
+                change_type=(
+                    "fresh_independent_evaluation"
+                    if source_skill == "sap-evaluator"
+                    else "fresh_independent_supporting_review"
+                ),
+            )
+        parent_refs = [source_ref]
+        if rule.get("selected_artifact_lineage_role"):
+            selected = [
+                artifact
+                for artifact in artifacts
+                if artifact["artifact_role"]
+                == rule["selected_artifact_lineage_role"]
+            ]
+            require(bool(selected), "runtime_fixture_selected_input_missing", source_skill)
+            parent_refs = [ref_for(selected[-1])]
+        elif artifact_role == "research_polisher_sealed_provenance":
+            parent_refs = list(strategy_report_refs)
+        elif artifact_role not in {"proposal_context", "research_context", "evidence_map"}:
+            parent_refs = [current_ref]
+        return add_artifact(
+            artifact_role=artifact_role,
+            source_skill=source_skill,
+            creator_id=actor_id,
+            based_on=parent_refs,
+            change_type="required_package_input",
+            artifact_id=(
+                "sap"
+                if artifact_role == "sap"
+                else f"{normalized_id(source_skill)}-{normalized_id(artifact_role)}"
+            ),
+        )
+
+    for rule in package_contract["required_inputs"]:
+        if (
+            workflow == "research_polisher"
+            and rule["artifact_role"]
+            == artifact_contract["finding_index_role_by_workflow"][workflow]
+        ):
+            # The finding index must be assembled from the completed review set,
+            # not synthesized as a generic package prerequisite.
+            continue
+        required_count = (
+            len(panel_roles)
+            if rule.get("count_from_panel_roles")
+            else int(rule.get("count", rule.get("minimum_count", 1)))
+        )
+        if required_count == 0:
+            continue
+        matches = artifacts_matching_rule(rule)
+        while len(matches) < required_count:
+            create_required_artifact(rule)
+            matches = artifacts_matching_rule(rule)
+
+    def review_artifacts() -> list[dict[str, Any]]:
+        return [
+            artifact
+            for artifact in artifacts
+            if artifact["created_by_instance_id"] in actor_by_id
+            and artifact_is_review_finding_report(
+                creator_role=actor_by_id[artifact["created_by_instance_id"]]["role"],
+                artifact_role=artifact["artifact_role"],
+                contract=artifact_contract,
+            )
+        ]
+
+    finding_index_role = artifact_contract["finding_index_role_by_workflow"][workflow]
+
+    def add_finding_index(*, creation_sequence: int | None = None) -> dict[str, Any]:
+        all_review_artifacts = review_artifacts()
+        prior_review_artifacts = [
+            artifact
+            for artifact in all_review_artifacts
+            if artifact["created_by_instance_id"] != finalizer_id
+        ]
+        internal_review_refs = [
+            ref_for(artifact)
+            for artifact in all_review_artifacts
+            if artifact["created_by_instance_id"] == finalizer_id
+        ]
+        extra: dict[str, Any] = {
+            "internal_output_refs": internal_review_refs,
+        }
+        if creation_sequence is not None:
+            extra["creation_sequence"] = creation_sequence
+        return add_artifact(
+            artifact_role=finding_index_role,
+            source_skill=expected_final_skill,
+            creator_id=finalizer_id,
+            based_on=[ref_for(artifact) for artifact in prior_review_artifacts],
+            change_type="finding_index_assembly",
+            artifact_id="review-finding-index",
+            document={
+                "schema_version": 1,
+                "task_id": task_id,
+                "dissent_ids": [],
+                "preserved_dissent_ids": [],
+                "fatal_finding_ids": [],
+                "unresolved_fatal_finding_ids": [],
+            },
+            extra=extra,
+        )
+
+    if workflow == "research_polisher":
+        add_finding_index()
+
+    package_parents: list[dict[str, Any]] = []
+    for rule in package_contract["required_inputs"]:
+        matches = artifacts_matching_rule(rule)
+        required_count = (
+            len(panel_roles)
+            if rule.get("count_from_panel_roles")
+            else int(rule.get("count", rule.get("minimum_count", 1)))
+        )
+        if rule.get("include_all_created") or rule.get("all_panel_instances"):
+            chosen = matches
+        else:
+            chosen = matches[:required_count]
+        package_parents.extend(chosen)
+    package_parent_by_ref = {
+        ref_for(artifact): artifact for artifact in package_parents
+    }
+    package_parents = list(package_parent_by_ref.values())
+    package_parent_refs = [ref_for(artifact) for artifact in package_parents]
+
+    perspective_internal_artifacts: list[dict[str, Any]] = []
+    if expected_final_role == "verifier_compositor":
+        prior_review_refs = [ref_for(artifact) for artifact in review_artifacts()]
+        verifier_input_refs = list(
+            dict.fromkeys([*package_parent_refs, *prior_review_refs])
+        )
+        if workflow == "perspective":
+            panel_refs = [ref_for(artifact) for artifact in panel_artifacts]
+            perspective_internal_artifacts.extend(
+                [
+                    add_artifact(
+                        artifact_role="panel_summary",
+                        source_skill=expected_final_skill,
+                        creator_id=finalizer_id,
+                        based_on=panel_refs,
+                        change_type="panel_summary_assembly",
+                        artifact_id="panel-summary",
+                        document={"schema_version": 1, "panel_report_refs": panel_refs},
+                        extra={"creation_sequence": 1},
+                    ),
+                    add_artifact(
+                        artifact_role="artifact_index",
+                        source_skill=expected_final_skill,
+                        creator_id=finalizer_id,
+                        based_on=prior_review_refs,
+                        change_type="handoff_artifact_index",
+                        artifact_id="handoff-artifact-index",
+                        document={"schema_version": 1, "review_refs": prior_review_refs},
+                        extra={"creation_sequence": 2},
+                    ),
+                ]
+            )
+        verification = add_review_report(
+            actor_id=finalizer_id,
+            artifact_role="verification_report",
+            input_refs=verifier_input_refs,
+            decision=pass_decision(expected_final_skill),
+            artifact_id="final-verification",
+            change_type="independent_final_verification",
+            artifact_extra=(
+                {"creation_sequence": 3} if workflow == "perspective" else None
+            ),
+        )
+        if workflow == "perspective":
+            perspective_internal_artifacts.append(verification)
+        finding_index = add_finding_index(
+            creation_sequence=4 if workflow == "perspective" else None
+        )
+        if workflow == "perspective":
+            perspective_internal_artifacts.append(finding_index)
+    elif workflow != "research_polisher":
+        finding_index = add_finding_index()
+
+    final_state = registry["scenario_eval_contract"]["workflow_final_states"][workflow]
+    final_role = (
+        "research_polisher_selection_dossier"
+        if workflow == "research_polisher"
+        else "final_handoff_package"
+    )
+    package_extra: dict[str, Any] | None = None
+    if workflow == "perspective":
+        package_extra = {
+            "creation_sequence": 5,
+            "internal_output_refs": [
+                ref_for(artifact) for artifact in perspective_internal_artifacts
+            ],
+        }
+    final_package = add_artifact(
+        artifact_role=final_role,
+        source_skill=expected_final_skill,
+        creator_id=finalizer_id,
+        based_on=package_parent_refs,
+        change_type="human_review_packaging",
+        artifact_id="final-package",
+        document={
+            "schema_version": 1,
+            "final_state": final_state,
+            "source_edits_performed": False,
+            "source_identity_unchanged": True,
+            "input_artifact_refs": package_parent_refs,
+            "preserved_dissent_ids": [],
+            "unresolved_fatal_finding_ids": [],
+        },
+        extra=package_extra,
+    )
+
+    reads: list[dict[str, Any]] = []
+    for actor_id, input_refs in actor_read_refs.items():
+        for input_ref in sorted(input_refs):
+            artifact = artifacts_by_ref[input_ref]
+            path = root / Path(*PurePosixPath(artifact["path"]).parts)
+            digest = sha256_file(path)
+            reads.append(
+                {
+                    "actor_instance_id": actor_id,
+                    "path": artifact["path"],
+                    "sha256": digest,
+                    "sha256_before": digest,
+                    "sha256_after": digest,
+                }
+            )
+    writes: list[dict[str, Any]] = []
+    artifact_by_path = {artifact["path"]: artifact for artifact in artifacts}
+    for actor_id, paths in actor_write_paths.items():
+        for relative in sorted(paths):
+            writes.append(
+                {
+                    "actor_instance_id": actor_id,
+                    "path": relative,
+                    "sha256": artifact_by_path[relative]["sha256"],
+                    "allowed_write_root": "evidence",
+                }
+            )
+
+    actor_manifest_path = evidence / "actor-manifest.json"
+    write_json_file(
+        actor_manifest_path,
+        {
+            "schema_version": 1,
+            "workflow": workflow,
+            "entry_mode": entry_mode,
+            **identity,
+            "actors": actors,
+        },
+    )
+    artifact_index_path = evidence / "artifact-index.json"
+    write_json_file(
+        artifact_index_path,
+        {
+            "schema_version": 1,
+            "workflow": workflow,
+            "entry_mode": entry_mode,
+            **identity,
+            "artifacts": artifacts,
+        },
+    )
+    file_access_path = evidence / "file-access.json"
+    file_access_document = {
+        "schema_version": 1,
+        "workflow": workflow,
+        "entry_mode": entry_mode,
+        **identity,
+        "reads": reads,
+        "writes": writes,
+        "source_artifact_hashes_unchanged": True,
+    }
+    write_json_file(file_access_path, file_access_document)
+    actor_binding = {
+        "path": "evidence/actor-manifest.json",
+        "sha256": sha256_file(actor_manifest_path),
+    }
+    artifact_binding = {
+        "path": "evidence/artifact-index.json",
+        "sha256": sha256_file(artifact_index_path),
+    }
+    file_access_binding = {
+        "path": "evidence/file-access.json",
+        "sha256": sha256_file(file_access_path),
+    }
+    task_export_path = evidence / "task-export.json"
+    task_export: dict[str, Any] = {
+        "schema_version": 1,
+        "platform": "codex",
+        **identity,
+        "workflow": workflow,
+        "entry_mode": entry_mode,
+        "case_kind": "happy",
+        "final_state": final_state,
+        "automatic_external_submission": False,
+        "actor_manifest": actor_binding,
+        "artifact_index": artifact_binding,
+        "file_access": file_access_binding,
+        "file_access_attestation": {
+            "source_artifact_hashes_unchanged": True,
+            "files_read_count": len(reads),
+            "files_written_count": len(writes),
+        },
+        "final_package_actor_instance_id": finalizer_id,
+    }
+    if panel_skill is not None:
+        task_export.update(
+            {
+                "panel_tier": panel_tier,
+                "panel_role_instances": panel_role_instances,
+            }
+        )
+    else:
+        task_export["strategy_role_instances"] = {
+            actor["strategy_role"]: actor["instance_id"]
+            for actor in actors
+            if actor["role"] == "strategy_reviewer"
+        }
+    write_json_file(task_export_path, task_export)
+    task_binding = {
+        "platform": "codex",
+        "task_id": task_id,
+        "entry_mode": entry_mode,
+        "path": "evidence/task-export.json",
+        "sha256": sha256_file(task_export_path),
+    }
+    return {
+        "receipt_id": f"phase7-contract-complete-{workflow}",
+        "workflow": workflow,
+        "entry_mode": entry_mode,
+        "case_kind": "happy",
+        "expected_final_state": final_state,
+        "status": "verified",
+        "binding": {
+            "plugin_version": registry["plugin_version"],
+            "registry_sha256": sha256_repository_file(REGISTRY_PATH),
+            "source_commit": source_commit,
+            "task_export": task_binding,
+            "actor_manifest": actor_binding,
+            "artifact_index": artifact_binding,
+        },
+        "file_access": {
+            "reads": reads,
+            "writes": writes,
+            "source_artifact_hashes_unchanged": True,
+        },
+        "lineage": {
+            "complete": True,
+            "current_artifact_ref": current_ref,
+            "evaluated_artifact_ref": current_ref,
+        },
+        "review_state": {
+            "dissent_ids": [],
+            "preserved_dissent_ids": [],
+            "fatal_finding_ids": [],
+            "unresolved_fatal_finding_ids": [],
+            "fatal_findings_visible": True,
+        },
+        "control_evidence": {
+            "input_condition": None,
+            "gate": None,
+            "finding": None,
+            "route": None,
+            "continuation_artifact_ref": None,
+        },
+        "final_state": final_state,
+        "automatic_external_submission": False,
+        "reason": "Contract-complete synthetic validator fixture only.",
+    }
+
+
 def run_runtime_validator_self_tests(
     *, schema: dict[str, Any], collection: dict[str, Any], registry: dict[str, Any]
-) -> list[dict[str, Any]]:
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
     fake_commit = "a" * 40
     results: list[dict[str, Any]] = []
+    positive_workflow_results: list[dict[str, Any]] = []
+    runtime_actor_role_contract(registry, schema)
+    runtime_artifact_role_contract(registry)
+    expected_supporting_reviewer_skills = {
+        "idea": {"academic-language-assessor", "methodology-statistics-preflight"},
+        "proposal": {
+            "academic-language-assessor",
+            "methodology-statistics-preflight",
+            "proposal-readiness-triage",
+            "sap-evaluator",
+        },
+        "article": {
+            "academic-language-assessor",
+            "article-claim-auditor",
+            "article-methods-statistics-auditor",
+            "article-readiness-triage",
+            "medical-journal-review",
+            "methodology-statistics-preflight",
+        },
+        "perspective": {"academic-language-assessor", "medical-journal-review"},
+        "research_polisher": {
+            "medical-journal-review",
+            "methodology-statistics-preflight",
+        },
+    }
+    expected_supporting_writer_skills = {
+        "idea": set(),
+        "proposal": {"sap-writer"},
+        "article": {"article-frontmatter-drafter"},
+        "perspective": set(),
+        "research_polisher": set(),
+    }
+    for workflow in registry["workflow_state_machines"]:
+        reviewer_edges = edge_derived_actor_edges(
+            registry, workflow, "supporting_reviewer"
+        )
+        writer_edges = edge_derived_actor_edges(
+            registry, workflow, "supporting_writer"
+        )
+        require(
+            {edge[1] for edge in reviewer_edges}
+            == expected_supporting_reviewer_skills[workflow],
+            "runtime_supporting_reviewer_edge_contract_invalid",
+            workflow,
+        )
+        require(
+            {edge[1] for edge in writer_edges}
+            == expected_supporting_writer_skills[workflow],
+            "runtime_supporting_writer_edge_contract_invalid",
+            workflow,
+        )
+
+    def expect_direct_rejection(
+        callback: Any, mutation: str, expected_code: str
+    ) -> None:
+        try:
+            callback()
+        except ModeViolation as exc:
+            require(
+                exc.code == expected_code,
+                "runtime_negative_wrong_error",
+                f"{mutation}: expected {expected_code}, got {exc.code}",
+            )
+            results.append(
+                {
+                    "mutation": mutation,
+                    "status": "rejected_as_expected",
+                    "error_code": exc.code,
+                }
+            )
+        else:
+            raise ModeViolation("runtime_negative_accepted", mutation)
+
+    artifact_contract = runtime_artifact_role_contract(registry)
+
+    def strategy_option(role: str, tier: str) -> dict[str, Any]:
+        is_reposition = tier == "reposition_only"
+        flags = {
+            "new_analysis": tier == "moderate_extension",
+            "new_experiment": False,
+            "new_data": False,
+            "new_validation": tier == "small_extension",
+        }
+        return {
+            "proposal_id": f"{role}-{tier}",
+            "effort_tier": tier,
+            "status": "proposed",
+            "positioning_change": "Reframe the contribution for the selected lens.",
+            "value_gain_mechanism": "Clarifies why the result matters to the audience.",
+            "claim_delta": "Keeps claims traceable while changing their hierarchy.",
+            "target_audience": "Relevant scientific and practice stakeholders.",
+            "added_work_items": [] if is_reposition else ["One bounded validation package."],
+            "resource_dependencies": [] if is_reposition else ["Existing study assets."],
+            "feasibility": {"rating": "high", "basis": "Uses available assets and a bounded method."},
+            "evidence_dependencies": ["Frozen dossier evidence."],
+            "risks": ["The impact gain may remain outlet-dependent."],
+            "stop_conditions": ["Stop if the claim would exceed frozen evidence."],
+            "new_work_flags": flags,
+            "bounded_package": True,
+            "independent_new_study": False,
+            "core_design_rebuild": False,
+        }
+
+    polisher_matrix = artifact_contract["research_polisher_strategy_matrix_contract"]
+    strategy_actors: dict[str, dict[str, Any]] = {}
+    strategy_reports: dict[str, dict[str, Any]] = {}
+    strategy_cells: dict[str, set[tuple[str, str]]] = {}
+    strategy_artifacts: list[dict[str, Any]] = []
+    for index, role in enumerate(polisher_matrix["strategy_roles"], start=1):
+        actor_id = f"strategy-{index:03d}"
+        actor = {
+            "instance_id": actor_id,
+            "skill": polisher_matrix["strategy_skill"],
+            "role": "strategy_reviewer",
+            "strategy_role": role,
+        }
+        report = {
+            "strategy_role": role,
+            "peer_outputs_visible": False,
+            "strategy_options": [
+                strategy_option(role, tier)
+                for tier in polisher_matrix["effort_tiers"]
+            ],
+        }
+        report_ref = f"strategy-report-{index:03d}@v001"
+        strategy_actors[actor_id] = actor
+        strategy_reports[report_ref] = report
+        strategy_cells[report_ref] = validate_research_polisher_strategy_report_runtime(
+            report, actor, artifact_contract, report_ref
+        )
+        strategy_artifacts.append(
+            {
+                "artifact_id": f"strategy-report-{index:03d}",
+                "version_id": "v001",
+                "artifact_role": "research_polisher_strategy_report",
+                "path": f"evidence/strategy-report-{index:03d}.json",
+                "source_skill": polisher_matrix["strategy_skill"],
+                "created_by_instance_id": actor_id,
+                "based_on": ["dossier@v001"],
+            }
+        )
+    assembler_id = "polisher-assembler-001"
+    portfolio_artifact = {
+        "artifact_id": "portfolio",
+        "version_id": "v001",
+        "artifact_role": "research_polisher_candidate_portfolio",
+        "path": "evidence/portfolio.json",
+        "source_skill": polisher_matrix["portfolio_skill"],
+        "created_by_instance_id": assembler_id,
+        "based_on": list(strategy_reports),
+    }
+    polisher_actor_map = {
+        **strategy_actors,
+        assembler_id: {
+            "instance_id": assembler_id,
+            "skill": polisher_matrix["portfolio_skill"],
+            "role": "assembler",
+        },
+    }
+    polisher_reads = {
+        assembler_id: {artifact["path"] for artifact in strategy_artifacts}
+    }
+    validate_research_polisher_portfolio_lineage_runtime(
+        artifacts=[*strategy_artifacts, portfolio_artifact],
+        actor_by_id=polisher_actor_map,
+        strategy_cells_by_ref=strategy_cells,
+        read_paths_by_actor=polisher_reads,
+        contract=artifact_contract,
+    )
+
+    missing_tier_report = copy.deepcopy(next(iter(strategy_reports.values())))
+    missing_tier_report["strategy_options"].pop()
+    expect_direct_rejection(
+        lambda: validate_research_polisher_strategy_report_runtime(
+            missing_tier_report,
+            strategy_actors["strategy-001"],
+            artifact_contract,
+            "missing-tier",
+        ),
+        "polisher_strategy_report_missing_tier",
+        "runtime_polisher_strategy_matrix_incomplete",
+    )
+    smuggled_reposition = copy.deepcopy(next(iter(strategy_reports.values())))
+    smuggled_reposition["strategy_options"][0]["added_work_items"] = [
+        "Run an undeclared new analysis."
+    ]
+    smuggled_reposition["strategy_options"][0]["new_work_flags"][
+        "new_analysis"
+    ] = True
+    expect_direct_rejection(
+        lambda: validate_research_polisher_strategy_report_runtime(
+            smuggled_reposition,
+            strategy_actors["strategy-001"],
+            artifact_contract,
+            "smuggled-reposition",
+        ),
+        "polisher_reposition_smuggles_new_analysis",
+        "runtime_polisher_reposition_smuggles_new_work",
+    )
+    low_feasibility = copy.deepcopy(next(iter(strategy_reports.values())))
+    low_feasibility["strategy_options"][1]["feasibility"]["rating"] = "low"
+    expect_direct_rejection(
+        lambda: validate_research_polisher_strategy_report_runtime(
+            low_feasibility,
+            strategy_actors["strategy-001"],
+            artifact_contract,
+            "low-feasibility",
+        ),
+        "polisher_low_feasibility_marked_proposed",
+        "runtime_polisher_extension_feasibility_invalid",
+    )
+    missing_claim_delta = copy.deepcopy(next(iter(strategy_reports.values())))
+    missing_claim_delta["strategy_options"][1].pop("claim_delta")
+    expect_direct_rejection(
+        lambda: validate_research_polisher_strategy_report_runtime(
+            missing_claim_delta,
+            strategy_actors["strategy-001"],
+            artifact_contract,
+            "missing-claim-delta",
+        ),
+        "polisher_strategy_option_missing_required_field",
+        "runtime_polisher_strategy_option_schema",
+    )
+    generic_strategy_artifacts = copy.deepcopy(strategy_artifacts)
+    generic_strategy_artifacts[-1]["artifact_role"] = "review_report"
+    expect_direct_rejection(
+        lambda: validate_research_polisher_portfolio_lineage_runtime(
+            artifacts=[*generic_strategy_artifacts, portfolio_artifact],
+            actor_by_id=polisher_actor_map,
+            strategy_cells_by_ref=strategy_cells,
+            read_paths_by_actor=polisher_reads,
+            contract=artifact_contract,
+        ),
+        "polisher_generic_review_substitutes_strategy_report",
+        "runtime_polisher_candidate_portfolio_strategy_lineage",
+    )
+    expect_direct_rejection(
+        lambda: validate_actor_output_role_runtime(
+            actor=strategy_actors["strategy-001"],
+            artifact={"artifact_role": "review_report"},
+            contract=artifact_contract,
+        ),
+        "polisher_strategist_writes_generic_review_report",
+        "runtime_actor_output_role_mismatch",
+    )
+    incomplete_reads = {assembler_id: set(polisher_reads[assembler_id])}
+    incomplete_reads[assembler_id].remove(strategy_artifacts[-1]["path"])
+    expect_direct_rejection(
+        lambda: validate_research_polisher_portfolio_lineage_runtime(
+            artifacts=[*strategy_artifacts, portfolio_artifact],
+            actor_by_id=polisher_actor_map,
+            strategy_cells_by_ref=strategy_cells,
+            read_paths_by_actor=incomplete_reads,
+            contract=artifact_contract,
+        ),
+        "polisher_assembler_does_not_read_all_strategy_reports",
+        "runtime_polisher_assembler_strategy_report_not_read",
+    )
+
+    sap_actor_map = {
+        "sap-writer-001": {
+            "instance_id": "sap-writer-001",
+            "role": "supporting_writer",
+            "skill": "sap-writer",
+        },
+        "sap-evaluator-001": {
+            "instance_id": "sap-evaluator-001",
+            "role": "supporting_reviewer",
+            "skill": "sap-evaluator",
+            "isolation_mode": "fresh_subagent",
+        },
+    }
+    sap_v1 = {"artifact_id": "sap", "version_id": "v001", "artifact_role": "sap", "source_skill": "sap-writer", "created_by_instance_id": "sap-writer-001"}
+    sap_v2 = {"artifact_id": "sap", "version_id": "v002", "artifact_role": "sap", "source_skill": "sap-writer", "created_by_instance_id": "sap-writer-001"}
+    sap_eval_v2 = {"artifact_id": "sap-eval", "version_id": "v002", "artifact_role": "evaluation_report", "source_skill": "sap-evaluator", "created_by_instance_id": "sap-evaluator-001", "based_on": ["sap@v002"], "change_type": "fresh_independent_evaluation"}
+    validate_proposal_sap_package_runtime(
+        package_parent_artifacts=[sap_v2, sap_eval_v2],
+        artifacts=[sap_v1, sap_v2, sap_eval_v2],
+        actor_by_id=sap_actor_map,
+    )
+    expect_direct_rejection(
+        lambda: validate_proposal_sap_package_runtime(
+            package_parent_artifacts=[sap_eval_v2], artifacts=[sap_eval_v2], actor_by_id=sap_actor_map
+        ),
+        "proposal_package_missing_sap_writer_artifact",
+        "runtime_sap_writer_artifact_missing",
+    )
+    expect_direct_rejection(
+        lambda: validate_proposal_sap_package_runtime(
+            package_parent_artifacts=[sap_v2], artifacts=[sap_v1, sap_v2], actor_by_id=sap_actor_map
+        ),
+        "proposal_package_missing_sap_evaluator",
+        "runtime_sap_evaluation_lineage_mismatch",
+    )
+    wrong_sap_writer_actor = copy.deepcopy(sap_actor_map)
+    wrong_sap_writer_actor["sap-writer-001"]["role"] = "writer"
+    expect_direct_rejection(
+        lambda: validate_proposal_sap_package_runtime(
+            package_parent_artifacts=[sap_v2, sap_eval_v2],
+            artifacts=[sap_v1, sap_v2, sap_eval_v2],
+            actor_by_id=wrong_sap_writer_actor,
+        ),
+        "proposal_sap_not_created_by_supporting_writer",
+        "runtime_sap_writer_actor_mismatch",
+    )
+    inline_sap_evaluator = copy.deepcopy(sap_actor_map)
+    inline_sap_evaluator["sap-evaluator-001"]["isolation_mode"] = "inline"
+    expect_direct_rejection(
+        lambda: validate_proposal_sap_package_runtime(
+            package_parent_artifacts=[sap_v2, sap_eval_v2],
+            artifacts=[sap_v1, sap_v2, sap_eval_v2],
+            actor_by_id=inline_sap_evaluator,
+        ),
+        "proposal_sap_evaluator_not_fresh",
+        "runtime_sap_evaluator_actor_mismatch",
+    )
+    expect_direct_rejection(
+        lambda: validate_proposal_sap_package_runtime(
+            package_parent_artifacts=[sap_v1, {**sap_eval_v2, "based_on": ["sap@v001"]}],
+            artifacts=[sap_v1, sap_v2, sap_eval_v2],
+            actor_by_id=sap_actor_map,
+        ),
+        "proposal_package_selects_stale_sap",
+        "runtime_sap_package_stale_selection",
+    )
+    expect_direct_rejection(
+        lambda: validate_proposal_sap_package_runtime(
+            package_parent_artifacts=[sap_v2, {**sap_eval_v2, "based_on": ["sap@v001"]}],
+            artifacts=[sap_v1, sap_v2, sap_eval_v2],
+            actor_by_id=sap_actor_map,
+        ),
+        "proposal_sap_evaluator_reviews_stale_version",
+        "runtime_sap_evaluation_lineage_mismatch",
+    )
+
+    external_contract = artifact_contract["external_input_contract"]
+    for mutation, workflow, role, spoofed_skill in (
+        ("external_input_impersonates_sap_writer", "proposal", "sap", "sap-writer"),
+        ("external_input_impersonates_sap_evaluator", "proposal", "evaluation_report", "sap-evaluator"),
+        ("external_input_impersonates_readiness_reviewer", "proposal", "readiness_report", "proposal-readiness-triage"),
+        ("external_input_impersonates_article_auditor", "article", "audit_report", "article-claim-auditor"),
+        ("external_input_impersonates_revision_delta", "proposal", "revision_delta", "proposal-drafter"),
+    ):
+        fake_external = {
+            "artifact_id": mutation,
+            "artifact_role": role,
+            "created_by_instance_id": "external-input",
+            "source_skill": spoofed_skill,
+            "external_source_id": "external:user-file",
+        }
+        expect_direct_rejection(
+            lambda artifact=fake_external, selected_workflow=workflow: validate_external_input_artifact_runtime(
+                artifact=artifact,
+                workflow=selected_workflow,
+                entry_mode="standard",
+                contract=external_contract,
+            ),
+            mutation,
+            "runtime_external_input_impersonation",
+        )
+    expect_direct_rejection(
+        lambda: validate_blind_reviewer_inputs_runtime(
+            reviewer_id="blind-evaluator",
+            read_paths={"evidence/result-oracle.json"},
+            artifacts_by_path={
+                "evidence/result-oracle.json": {"artifact_role": "result_oracle"}
+            },
+            forbidden_oracle_roles={"result_oracle", "review_oracle"},
+        ),
+        "blind_reviewer_reads_result_oracle",
+        "runtime_reviewer_oracle_visible",
+    )
+
+    verifier_fatal_report = {
+        "decision": "human_signoff_required",
+        "findings": [{"id": "verifier-fatal-001", "severity": "fatal", "blocking": True, "resolved": False, "dissent": False}],
+        "unresolved_issues": ["verifier-fatal-001"],
+        "dissent_ids": [],
+        "fatal_finding_ids": ["verifier-fatal-001"],
+        "unresolved_fatal_finding_ids": ["verifier-fatal-001"],
+    }
+    _, _, verifier_unresolved_fatal, _ = validate_runtime_review_report_findings(
+        verifier_fatal_report, artifact_contract, "verifier-fatal"
+    )
+    require(
+        artifact_is_review_finding_report(
+            creator_role="verifier_compositor",
+            artifact_role="verification_report",
+            contract=artifact_contract,
+        )
+        and not artifact_is_review_finding_report(
+            creator_role="verifier_compositor",
+            artifact_role="final_handoff_package",
+            contract=artifact_contract,
+        ),
+        "runtime_verifier_finding_contract_invalid",
+        "verification report selection",
+    )
+    expect_direct_rejection(
+        lambda: validate_ready_has_no_unresolved_fatal(
+            verifier_unresolved_fatal, "verifier-fatal"
+        ),
+        "verifier_fatal_finding_false_ready",
+        "runtime_false_ready",
+    )
+
+    for workflow in (
+        "idea",
+        "proposal",
+        "article",
+        "perspective",
+        "research_polisher",
+    ):
+        control_contract = runtime_case_contract(schema, workflow, "control")
+        current_ref = f"{workflow}-current@v001"
+        finding_id = f"{workflow}-control-finding"
+        reports = {
+            skill: [{"synthetic": True}]
+            for skill in control_contract["required_review_skills"]
+        }
+        finding_skill = next(
+            reversed(control_contract["control_finding_decisions_by_skill"])
+        )
+        finding_decision = control_contract[
+            "control_finding_decisions_by_skill"
+        ][finding_skill][0]
+        provenance = {
+            finding_id: {
+                "creator": {"skill": finding_skill},
+                "input_refs": {current_ref},
+                "decision_pass": False,
+                "report": {"decision": finding_decision},
+                "finding": {
+                    "id": finding_id,
+                    "severity": control_contract[
+                        "control_finding_allowed_severities"
+                    ][0],
+                    "blocking": control_contract["control_finding_blocking"],
+                    "resolved": control_contract["control_finding_resolved"],
+                    "dissent": False,
+                },
+            }
+        }
+        control_strategy_roles: dict[str, str] = {}
+        control_strategy_cells: dict[str, set[tuple[str, str]]] = {}
+        if control_contract["required_strategy_matrix"]:
+            control_strategy_roles = {
+                role: f"{workflow}-{index}"
+                for index, role in enumerate(polisher_matrix["strategy_roles"], start=1)
+            }
+            control_strategy_cells = strategy_cells
+        validate_control_independent_gates_runtime(
+            workflow=workflow,
+            case_contract=control_contract,
+            current_ref=current_ref,
+            control_finding_id=finding_id,
+            review_reports_by_skill=reports,
+            finding_provenance=provenance,
+            strategy_role_instances=control_strategy_roles,
+            strategy_cells_by_ref=control_strategy_cells,
+            registry=registry,
+        )
+        if workflow == "research_polisher":
+            mutated_strategy_roles = dict(control_strategy_roles)
+            mutated_strategy_roles.pop(next(iter(mutated_strategy_roles)))
+            callback = lambda roles=mutated_strategy_roles: validate_control_independent_gates_runtime(
+                workflow=workflow,
+                case_contract=control_contract,
+                current_ref=current_ref,
+                control_finding_id=finding_id,
+                review_reports_by_skill=reports,
+                finding_provenance=provenance,
+                strategy_role_instances=roles,
+                strategy_cells_by_ref=control_strategy_cells,
+                registry=registry,
+            )
+        else:
+            missing_reports = dict(reports)
+            missing_reports.pop(control_contract["required_review_skills"][0])
+            callback = lambda report_map=missing_reports: validate_control_independent_gates_runtime(
+                workflow=workflow,
+                case_contract=control_contract,
+                current_ref=current_ref,
+                control_finding_id=finding_id,
+                review_reports_by_skill=report_map,
+                finding_provenance=provenance,
+                strategy_role_instances=control_strategy_roles,
+                strategy_cells_by_ref=control_strategy_cells,
+                registry=registry,
+            )
+        expect_direct_rejection(
+            callback,
+            f"{workflow}_control_missing_required_independent_gate",
+            "runtime_control_required_independent_gate_missing",
+        )
+
+        wrong_decision_provenance = copy.deepcopy(provenance)
+        allowed_decisions = registry["scenario_eval_contract"][
+            "review_decision_contracts"
+        ][finding_skill]["allowed"]
+        wrong_decision = next(
+            (
+                decision
+                for decision in allowed_decisions
+                if decision
+                not in set(
+                    control_contract["control_finding_decisions_by_skill"][
+                        finding_skill
+                    ]
+                )
+            ),
+            "invalid_control_decision",
+        )
+        wrong_decision_provenance[finding_id]["report"]["decision"] = (
+            wrong_decision
+        )
+        expect_direct_rejection(
+            lambda provenance_map=wrong_decision_provenance: validate_control_independent_gates_runtime(
+                workflow=workflow,
+                case_contract=control_contract,
+                current_ref=current_ref,
+                control_finding_id=finding_id,
+                review_reports_by_skill=reports,
+                finding_provenance=provenance_map,
+                strategy_role_instances=control_strategy_roles,
+                strategy_cells_by_ref=control_strategy_cells,
+                registry=registry,
+            ),
+            f"{workflow}_control_finding_uses_non_stop_decision",
+            "runtime_control_finding_provenance_mismatch",
+        )
+
+        for field, value, mutation in (
+            (
+                "blocking",
+                not control_contract["control_finding_blocking"],
+                "nonblocking_control_finding",
+            ),
+            (
+                "resolved",
+                not control_contract["control_finding_resolved"],
+                "resolved_control_finding",
+            ),
+        ):
+            wrong_semantics_provenance = copy.deepcopy(provenance)
+            wrong_semantics_provenance[finding_id]["finding"][field] = value
+            expect_direct_rejection(
+                lambda provenance_map=wrong_semantics_provenance: validate_control_independent_gates_runtime(
+                    workflow=workflow,
+                    case_contract=control_contract,
+                    current_ref=current_ref,
+                    control_finding_id=finding_id,
+                    review_reports_by_skill=reports,
+                    finding_provenance=provenance_map,
+                    strategy_role_instances=control_strategy_roles,
+                    strategy_cells_by_ref=control_strategy_cells,
+                    registry=registry,
+                ),
+                f"{workflow}_{mutation}",
+                "runtime_control_finding_semantics_mismatch",
+            )
+
+    def expect_registry_contract_rejection(
+        mutated_registry: dict[str, Any], mutation: str, expected_code: str
+    ) -> None:
+        try:
+            runtime_artifact_role_contract(mutated_registry)
+        except ModeViolation as exc:
+            require(
+                exc.code == expected_code,
+                "runtime_negative_wrong_error",
+                f"{mutation}: expected {expected_code}, got {exc.code}",
+            )
+            results.append(
+                {
+                    "mutation": mutation,
+                    "status": "rejected_as_expected",
+                    "error_code": exc.code,
+                }
+            )
+        else:
+            raise ModeViolation("runtime_negative_accepted", mutation)
+
+    missing_polisher_assembler_role = copy.deepcopy(registry)
+    missing_polisher_assembler_role["scenario_eval_contract"][
+        "runtime_artifact_role_contract"
+    ]["assembler_outputs_by_skill"]["research-polisher-plan-assembler"].remove(
+        "research_polisher_specialist_findings_bundle"
+    )
+    expect_registry_contract_rejection(
+        missing_polisher_assembler_role,
+        "polisher_assembler_output_role_omitted",
+        "runtime_artifact_role_contract_invalid",
+    )
+    wrong_polisher_finding_role = copy.deepcopy(registry)
+    wrong_polisher_finding_role["scenario_eval_contract"][
+        "runtime_artifact_role_contract"
+    ]["finding_index_role_by_workflow"]["research_polisher"] = "review_finding_index"
+    expect_registry_contract_rejection(
+        wrong_polisher_finding_role,
+        "polisher_finding_index_uses_generic_role",
+        "runtime_artifact_role_contract_invalid",
+    )
     with tempfile.TemporaryDirectory(prefix="phase7-runtime-validator-") as directory:
         root = Path(directory)
+
+        for workflow in registry["workflow_state_machines"]:
+            complete_fixture = build_contract_complete_workflow_fixture(
+                root, registry, fake_commit, workflow
+            )
+            validated_complete = validate_runtime_receipt(
+                complete_fixture,
+                registry=registry,
+                schema=schema,
+                expected_source_commit=fake_commit,
+                root=root,
+            )
+            positive_workflow_results.append(
+                {
+                    "workflow": workflow,
+                    "status": "passed",
+                    "receipt_id": validated_complete["receipt_id"],
+                    "final_state": validated_complete["final_state"],
+                    "actor_counts": validated_complete["actor_counts"],
+                    "artifact_count": validated_complete["artifact_count"],
+                }
+            )
 
         def expect_runtime_rejection(
             mutated: dict[str, Any], mutation: str, expected_code: str
@@ -4756,6 +8167,18 @@ def run_runtime_validator_self_tests(
             mutated["binding"]["actor_manifest"]["sha256"] = sha256_file(actor_path)
             mutated["binding"]["artifact_index"]["sha256"] = sha256_file(artifact_path)
             task_document = load_structured_file(task_path)
+            file_access_binding = task_document.get("file_access")
+            if isinstance(file_access_binding, dict) and file_access_binding.get("path"):
+                file_access_path = root / Path(
+                    *PurePosixPath(file_access_binding["path"]).parts
+                )
+                file_access_document = load_structured_file(file_access_path)
+                file_access_document.update(mutated["file_access"])
+                write_json_file(file_access_path, file_access_document)
+                task_document["file_access"] = {
+                    "path": file_access_binding["path"],
+                    "sha256": sha256_file(file_access_path),
+                }
             task_document["actor_manifest"] = mutated["binding"]["actor_manifest"]
             task_document["artifact_index"] = mutated["binding"]["artifact_index"]
             task_document["file_access_attestation"] = {
@@ -4798,6 +8221,273 @@ def run_runtime_validator_self_tests(
                 if entry["path"] == relative_path:
                     entry["sha256"] = digest
             refresh_linked_bindings(mutated)
+
+        def load_bound_artifact_index(
+            receipt: dict[str, Any],
+        ) -> tuple[Path, dict[str, Any]]:
+            artifact_path = root / Path(
+                *PurePosixPath(receipt["binding"]["artifact_index"]["path"]).parts
+            )
+            return artifact_path, load_structured_file(artifact_path)
+
+        def load_bound_actor_manifest(
+            receipt: dict[str, Any],
+        ) -> dict[str, Any]:
+            actor_path = root / Path(
+                *PurePosixPath(receipt["binding"]["actor_manifest"]["path"]).parts
+            )
+            return load_structured_file(actor_path)
+
+        supporting_nonpass = build_contract_complete_workflow_fixture(
+            root, registry, fake_commit, "article"
+        )
+        _, supporting_index = load_bound_artifact_index(supporting_nonpass)
+        supporting_artifact = next(
+            artifact
+            for artifact in supporting_index["artifacts"]
+            if artifact["source_skill"] == "article-methods-statistics-auditor"
+        )
+        supporting_report_path = root / Path(
+            *PurePosixPath(supporting_artifact["path"]).parts
+        )
+        supporting_report = load_structured_file(supporting_report_path)
+        supporting_report["decision"] = "methodologically_blocked"
+        supporting_report["findings"] = [
+            {
+                "id": "supporting-block-001",
+                "severity": "major",
+                "blocking": True,
+                "resolved": False,
+                "dissent": False,
+            }
+        ]
+        supporting_report["unresolved_issues"] = ["supporting-block-001"]
+        write_json_file(supporting_report_path, supporting_report)
+        refresh_indexed_artifact_binding(
+            supporting_nonpass, supporting_artifact["path"]
+        )
+        expect_runtime_rejection(
+            supporting_nonpass,
+            "ready_article_with_nonpass_supporting_reviewer",
+            "runtime_ready_review_decision_not_pass",
+        )
+
+        unresolved_pass = build_contract_complete_workflow_fixture(
+            root, registry, fake_commit, "article"
+        )
+        _, unresolved_index = load_bound_artifact_index(unresolved_pass)
+        current_ref = unresolved_pass["lineage"]["current_artifact_ref"]
+        current_evaluation = next(
+            artifact
+            for artifact in unresolved_index["artifacts"]
+            if artifact["source_skill"] == "article-evaluator"
+            and current_ref in artifact["based_on"]
+        )
+        unresolved_report_path = root / Path(
+            *PurePosixPath(current_evaluation["path"]).parts
+        )
+        unresolved_report = load_structured_file(unresolved_report_path)
+        unresolved_report["findings"] = [
+            {
+                "id": "major-block-001",
+                "severity": "major",
+                "blocking": True,
+                "resolved": False,
+                "dissent": False,
+            }
+        ]
+        unresolved_report["unresolved_issues"] = ["major-block-001"]
+        write_json_file(unresolved_report_path, unresolved_report)
+        refresh_indexed_artifact_binding(
+            unresolved_pass, current_evaluation["path"]
+        )
+        expect_runtime_rejection(
+            unresolved_pass,
+            "ready_article_with_pass_decision_and_unresolved_blocking_finding",
+            "runtime_ready_review_decision_not_pass",
+        )
+
+        duplicate_reviewer_report = build_contract_complete_workflow_fixture(
+            root, registry, fake_commit, "idea"
+        )
+        duplicate_index_path, duplicate_index = load_bound_artifact_index(
+            duplicate_reviewer_report
+        )
+        duplicate_actor_manifest = load_bound_actor_manifest(
+            duplicate_reviewer_report
+        )
+        panel_actor_ids = {
+            actor["instance_id"]
+            for actor in duplicate_actor_manifest["actors"]
+            if actor["role"] == "panel"
+        }
+        original_panel_artifact = next(
+            artifact
+            for artifact in duplicate_index["artifacts"]
+            if artifact["created_by_instance_id"] in panel_actor_ids
+        )
+        original_panel_path = root / Path(
+            *PurePosixPath(original_panel_artifact["path"]).parts
+        )
+        duplicate_panel_path_value = "evidence/duplicate-panel-report.json"
+        duplicate_panel_path = root / Path(
+            *PurePosixPath(duplicate_panel_path_value).parts
+        )
+        duplicate_panel_document = copy.deepcopy(
+            load_structured_file(original_panel_path)
+        )
+        write_json_file(duplicate_panel_path, duplicate_panel_document)
+        duplicate_panel_artifact = copy.deepcopy(original_panel_artifact)
+        duplicate_panel_artifact.update(
+            {
+                "artifact_id": "duplicate-panel-report",
+                "version_id": "v001",
+                "path": duplicate_panel_path_value,
+                "sha256": sha256_file(duplicate_panel_path),
+            }
+        )
+        duplicate_index["artifacts"].append(duplicate_panel_artifact)
+        write_json_file(duplicate_index_path, duplicate_index)
+        duplicate_reviewer_report["file_access"]["writes"].append(
+            {
+                "actor_instance_id": original_panel_artifact[
+                    "created_by_instance_id"
+                ],
+                "path": duplicate_panel_path_value,
+                "sha256": sha256_file(duplicate_panel_path),
+            }
+        )
+        refresh_linked_bindings(duplicate_reviewer_report)
+        expect_runtime_rejection(
+            duplicate_reviewer_report,
+            "same_reviewer_instance_emits_multiple_reports",
+            "runtime_reviewer_multiple_reports",
+        )
+
+        stale_actual_panel_read = build_contract_complete_workflow_fixture(
+            root, registry, fake_commit, "perspective"
+        )
+        _, stale_read_index = load_bound_artifact_index(stale_actual_panel_read)
+        stale_actor_manifest = load_bound_actor_manifest(stale_actual_panel_read)
+        stale_panel_id = next(
+            actor["instance_id"]
+            for actor in stale_actor_manifest["actors"]
+            if actor["role"] == "panel"
+        )
+        stale_current_artifact_id, stale_current_version = (
+            stale_actual_panel_read["lineage"]["current_artifact_ref"].split("@")
+        )
+        stale_source = next(
+            artifact
+            for artifact in stale_read_index["artifacts"]
+            if artifact["artifact_id"] == stale_current_artifact_id
+            and artifact["version_id"] != stale_current_version
+        )
+        stale_read_entry = next(
+            entry
+            for entry in stale_actual_panel_read["file_access"]["reads"]
+            if entry["actor_instance_id"] == stale_panel_id
+        )
+        stale_read_entry.update(
+            {
+                "path": stale_source["path"],
+                "sha256": stale_source["sha256"],
+                "sha256_before": stale_source["sha256"],
+                "sha256_after": stale_source["sha256"],
+            }
+        )
+        refresh_linked_bindings(stale_actual_panel_read)
+        expect_runtime_rejection(
+            stale_actual_panel_read,
+            "panel_claims_current_input_but_reads_stale_file",
+            "runtime_review_input_read_mismatch",
+        )
+
+        compositor_self_read = build_contract_complete_workflow_fixture(
+            root, registry, fake_commit, "perspective"
+        )
+        _, compositor_index = load_bound_artifact_index(compositor_self_read)
+        compositor_actor_manifest = load_bound_actor_manifest(compositor_self_read)
+        compositor_id = next(
+            actor["instance_id"]
+            for actor in compositor_actor_manifest["actors"]
+            if actor["skill"] == "perspective-final-compositor"
+        )
+        compositor_internal_artifact = next(
+            artifact
+            for artifact in compositor_index["artifacts"]
+            if artifact["created_by_instance_id"] == compositor_id
+            and artifact["artifact_role"] == "artifact_index"
+        )
+        compositor_self_read["file_access"]["reads"].append(
+            {
+                "actor_instance_id": compositor_id,
+                "path": compositor_internal_artifact["path"],
+                "sha256": compositor_internal_artifact["sha256"],
+                "sha256_before": compositor_internal_artifact["sha256"],
+                "sha256_after": compositor_internal_artifact["sha256"],
+            }
+        )
+        refresh_linked_bindings(compositor_self_read)
+        expect_runtime_rejection(
+            compositor_self_read,
+            "perspective_compositor_reads_its_own_internal_output",
+            "runtime_reviewer_modified_input",
+        )
+
+        compositor_order = build_contract_complete_workflow_fixture(
+            root, registry, fake_commit, "perspective"
+        )
+        compositor_order_index_path, compositor_order_index = (
+            load_bound_artifact_index(compositor_order)
+        )
+        order_actor_manifest = load_bound_actor_manifest(compositor_order)
+        order_compositor_id = next(
+            actor["instance_id"]
+            for actor in order_actor_manifest["actors"]
+            if actor["skill"] == "perspective-final-compositor"
+        )
+        next(
+            artifact
+            for artifact in compositor_order_index["artifacts"]
+            if artifact["created_by_instance_id"] == order_compositor_id
+            and artifact["artifact_role"] == "artifact_index"
+        )["creation_sequence"] = 1
+        write_json_file(compositor_order_index_path, compositor_order_index)
+        refresh_linked_bindings(compositor_order)
+        expect_runtime_rejection(
+            compositor_order,
+            "perspective_compositor_internal_outputs_out_of_order",
+            "runtime_compositor_creation_order_mismatch",
+        )
+
+        compositor_dependencies = build_contract_complete_workflow_fixture(
+            root, registry, fake_commit, "perspective"
+        )
+        dependency_index_path, dependency_index = load_bound_artifact_index(
+            compositor_dependencies
+        )
+        dependency_actor_manifest = load_bound_actor_manifest(
+            compositor_dependencies
+        )
+        dependency_compositor_id = next(
+            actor["instance_id"]
+            for actor in dependency_actor_manifest["actors"]
+            if actor["skill"] == "perspective-final-compositor"
+        )
+        next(
+            artifact
+            for artifact in dependency_index["artifacts"]
+            if artifact["created_by_instance_id"] == dependency_compositor_id
+            and artifact["artifact_role"] == "final_handoff_package"
+        )["internal_output_refs"] = []
+        write_json_file(dependency_index_path, dependency_index)
+        refresh_linked_bindings(compositor_dependencies)
+        expect_runtime_rejection(
+            compositor_dependencies,
+            "perspective_compositor_internal_dependencies_omitted",
+            "runtime_compositor_internal_dependency_mismatch",
+        )
 
         def expect_collection_rejection(
             mutated: dict[str, Any],
@@ -5363,6 +9053,16 @@ def run_runtime_validator_self_tests(
             "runtime_bound_file_digest_mismatch",
         )
 
+        entry_mode_binding_mismatch = copy.deepcopy(valid)
+        entry_mode_binding_mismatch["binding"]["task_export"]["entry_mode"] = (
+            "resume_candidates"
+        )
+        expect_runtime_rejection(
+            entry_mode_binding_mismatch,
+            "receipt_and_task_slot_entry_mode_mismatch",
+            "runtime_entry_mode_binding_mismatch",
+        )
+
         task_content_mismatch = copy.deepcopy(valid)
         task_path = root / task_content_mismatch["binding"]["task_export"]["path"]
         task_document = load_structured_file(task_path)
@@ -5373,6 +9073,18 @@ def run_runtime_validator_self_tests(
             task_content_mismatch,
             "task_export_content_identity_mismatch",
             "runtime_task_export_identity_mismatch",
+        )
+
+        valid = build_runtime_validator_fixture(root, registry, fake_commit)
+        supporting_finding_omitted = copy.deepcopy(valid)
+        supporting_finding_omitted["review_state"]["dissent_ids"] = ["dissent-001"]
+        supporting_finding_omitted["review_state"]["preserved_dissent_ids"] = [
+            "dissent-001"
+        ]
+        expect_runtime_rejection(
+            supporting_finding_omitted,
+            "supporting_reviewer_finding_omitted_from_review_state",
+            "runtime_review_state_mismatch",
         )
 
         valid = build_runtime_validator_fixture(root, registry, fake_commit)
@@ -5388,6 +9100,16 @@ def run_runtime_validator_self_tests(
         fatal_hidden = copy.deepcopy(valid)
         panel_path = root / "evidence" / "panel-report.json"
         panel_document = load_structured_file(panel_path)
+        panel_document["findings"].append(
+            {
+                "id": "fatal-001",
+                "severity": "fatal",
+                "blocking": True,
+                "resolved": False,
+                "dissent": False,
+            }
+        )
+        panel_document["unresolved_issues"] = ["fatal-001"]
         panel_document["fatal_finding_ids"] = ["fatal-001"]
         panel_document["unresolved_fatal_finding_ids"] = ["fatal-001"]
         write_json_file(panel_path, panel_document)
@@ -5411,10 +9133,154 @@ def run_runtime_validator_self_tests(
         task_document["artifact_index"] = fatal_hidden["binding"]["artifact_index"]
         write_json_file(task_path, task_document)
         fatal_hidden["binding"]["task_export"]["sha256"] = sha256_file(task_path)
+        refresh_linked_bindings(fatal_hidden)
         expect_runtime_rejection(
             fatal_hidden,
             "review_artifact_fatal_hidden_false_ready",
-            "runtime_review_state_mismatch",
+            "runtime_ready_review_decision_not_pass",
+        )
+
+        valid = build_runtime_validator_fixture(root, registry, fake_commit)
+        supporting_report_missing_isolation = copy.deepcopy(valid)
+        supporting_report_path = root / "evidence" / "supporting-preflight-report.json"
+        supporting_report_document = load_structured_file(supporting_report_path)
+        supporting_report_document.pop("isolation_mode")
+        write_json_file(supporting_report_path, supporting_report_document)
+        refresh_indexed_artifact_binding(
+            supporting_report_missing_isolation,
+            "evidence/supporting-preflight-report.json",
+        )
+        expect_runtime_rejection(
+            supporting_report_missing_isolation,
+            "supporting_reviewer_report_missing_fresh_isolation",
+            "runtime_reviewer_report_isolation_mismatch",
+        )
+
+        for actor_id, mutation in (
+            ("evaluator-001", "evaluator_actor_not_fresh_subagent"),
+            ("panel-001", "panel_actor_not_fresh_subagent"),
+        ):
+            valid = build_runtime_validator_fixture(root, registry, fake_commit)
+            mutated = copy.deepcopy(valid)
+            actor_path = root / "evidence" / "actor-manifest.json"
+            actor_document = load_structured_file(actor_path)
+            next(
+                actor
+                for actor in actor_document["actors"]
+                if actor["instance_id"] == actor_id
+            )["isolation_mode"] = "inline"
+            write_json_file(actor_path, actor_document)
+            refresh_linked_bindings(mutated)
+            expect_runtime_rejection(
+                mutated,
+                mutation,
+                "runtime_reviewer_isolation_mismatch",
+            )
+
+        for report_path_value, mutation in (
+            ("evidence/evaluator-v2.json", "evaluator_report_missing_fresh_isolation"),
+            ("evidence/panel-report.json", "panel_report_not_fresh_subagent"),
+        ):
+            valid = build_runtime_validator_fixture(root, registry, fake_commit)
+            mutated = copy.deepcopy(valid)
+            report_path = root / Path(*PurePosixPath(report_path_value).parts)
+            report_document = load_structured_file(report_path)
+            if "evaluator" in mutation:
+                report_document.pop("isolation_mode")
+            else:
+                report_document["isolation_mode"] = "inline"
+            write_json_file(report_path, report_document)
+            refresh_indexed_artifact_binding(mutated, report_path_value)
+            expect_runtime_rejection(
+                mutated,
+                mutation,
+                "runtime_reviewer_report_isolation_mismatch",
+            )
+
+        valid = build_runtime_validator_fixture(root, registry, fake_commit)
+        current_evaluator_rejects = copy.deepcopy(valid)
+        evaluator_path = root / "evidence" / "evaluator-v2.json"
+        evaluator_document = load_structured_file(evaluator_path)
+        evaluator_document["decision"] = "reject"
+        write_json_file(evaluator_path, evaluator_document)
+        refresh_indexed_artifact_binding(
+            current_evaluator_rejects, "evidence/evaluator-v2.json"
+        )
+        expect_runtime_rejection(
+            current_evaluator_rejects,
+            "ready_state_with_reject_decision_and_empty_fatal_ids",
+            "runtime_ready_review_decision_not_pass",
+        )
+
+        valid = build_runtime_validator_fixture(root, registry, fake_commit)
+        unknown_decision = copy.deepcopy(valid)
+        evaluator_path = root / "evidence" / "evaluator-v2.json"
+        evaluator_document = load_structured_file(evaluator_path)
+        evaluator_document["decision"] = "fabricated_acceptance"
+        write_json_file(evaluator_path, evaluator_document)
+        refresh_indexed_artifact_binding(
+            unknown_decision, "evidence/evaluator-v2.json"
+        )
+        expect_runtime_rejection(
+            unknown_decision,
+            "reviewer_uses_unknown_decision_value",
+            "runtime_review_decision_unknown",
+        )
+
+        valid = build_runtime_validator_fixture(root, registry, fake_commit)
+        fatal_finding_id_omitted = copy.deepcopy(valid)
+        evaluator_path = root / "evidence" / "evaluator-v2.json"
+        evaluator_document = load_structured_file(evaluator_path)
+        evaluator_document["findings"] = [
+            {
+                "id": "fatal-omitted-001",
+                "severity": "fatal",
+                "blocking": True,
+                "resolved": False,
+                "dissent": False,
+            }
+        ]
+        evaluator_document["unresolved_issues"] = ["fatal-omitted-001"]
+        write_json_file(evaluator_path, evaluator_document)
+        refresh_indexed_artifact_binding(
+            fatal_finding_id_omitted, "evidence/evaluator-v2.json"
+        )
+        expect_runtime_rejection(
+            fatal_finding_id_omitted,
+            "fatal_finding_object_omitted_from_id_arrays",
+            "runtime_review_finding_derivation_mismatch",
+        )
+
+        valid = build_runtime_validator_fixture(root, registry, fake_commit)
+        dissent_finding_id_omitted = copy.deepcopy(valid)
+        panel_path = root / "evidence" / "panel-report.json"
+        panel_document = load_structured_file(panel_path)
+        panel_document["dissent_ids"] = []
+        write_json_file(panel_path, panel_document)
+        refresh_indexed_artifact_binding(
+            dissent_finding_id_omitted, "evidence/panel-report.json"
+        )
+        expect_runtime_rejection(
+            dissent_finding_id_omitted,
+            "dissent_finding_object_omitted_from_id_arrays",
+            "runtime_review_finding_derivation_mismatch",
+        )
+
+        valid = build_runtime_validator_fixture(root, registry, fake_commit)
+        supporting_reviewer_source_write = copy.deepcopy(valid)
+        artifact_path = root / "evidence" / "artifact-index.json"
+        artifact_document = load_structured_file(artifact_path)
+        next(
+            artifact
+            for artifact in artifact_document["artifacts"]
+            if artifact["created_by_instance_id"] == "supporting-reviewer-001"
+        )["artifact_role"] = "candidate_idea_set"
+        write_json_file(artifact_path, artifact_document)
+        refresh_linked_bindings(supporting_reviewer_source_write)
+        expect_runtime_rejection(
+            supporting_reviewer_source_write,
+            "supporting_reviewer_writes_source_artifact",
+            "runtime_reviewer_wrote_source_artifact",
         )
 
         valid = build_runtime_validator_fixture(root, registry, fake_commit)
@@ -5427,6 +9293,7 @@ def run_runtime_validator_self_tests(
         primary_path = root / "evidence" / "primary-v2.md"
         panel_write["path"] = "evidence/primary-v2.md"
         panel_write["sha256"] = sha256_file(primary_path)
+        refresh_linked_bindings(reviewer_primary_write)
         expect_runtime_rejection(
             reviewer_primary_write,
             "panel_writes_primary_input",
@@ -5490,6 +9357,81 @@ def run_runtime_validator_self_tests(
         )
 
         valid = build_runtime_validator_fixture(root, registry, fake_commit)
+        supporting_reviewer_wrong_skill = copy.deepcopy(valid)
+        actor_path = root / "evidence" / "actor-manifest.json"
+        actor_document = load_structured_file(actor_path)
+        next(
+            actor
+            for actor in actor_document["actors"]
+            if actor["instance_id"] == "supporting-reviewer-001"
+        )["skill"] = "proposal-readiness-triage"
+        write_json_file(actor_path, actor_document)
+        refresh_linked_bindings(supporting_reviewer_wrong_skill)
+        expect_runtime_rejection(
+            supporting_reviewer_wrong_skill,
+            "supporting_reviewer_not_on_workflow_edge",
+            "runtime_supporting_reviewer_edge_mismatch",
+        )
+
+        valid = build_runtime_validator_fixture(root, registry, fake_commit)
+        supporting_reviewer_not_fresh = copy.deepcopy(valid)
+        actor_path = root / "evidence" / "actor-manifest.json"
+        actor_document = load_structured_file(actor_path)
+        next(
+            actor
+            for actor in actor_document["actors"]
+            if actor["instance_id"] == "supporting-reviewer-001"
+        )["isolation_mode"] = "inline"
+        write_json_file(actor_path, actor_document)
+        refresh_linked_bindings(supporting_reviewer_not_fresh)
+        expect_runtime_rejection(
+            supporting_reviewer_not_fresh,
+            "supporting_reviewer_not_fresh_subagent",
+            "runtime_reviewer_isolation_mismatch",
+        )
+
+        valid = build_runtime_validator_fixture(root, registry, fake_commit)
+        supporting_reviewer_missing_round = copy.deepcopy(valid)
+        actor_path = root / "evidence" / "actor-manifest.json"
+        actor_document = load_structured_file(actor_path)
+        next(
+            actor
+            for actor in actor_document["actors"]
+            if actor["instance_id"] == "supporting-reviewer-001"
+        ).pop("round_id")
+        write_json_file(actor_path, actor_document)
+        refresh_linked_bindings(supporting_reviewer_missing_round)
+        expect_runtime_rejection(
+            supporting_reviewer_missing_round,
+            "supporting_reviewer_missing_round_id",
+            "runtime_reviewer_isolation_mismatch",
+        )
+
+        valid = build_runtime_validator_fixture(root, registry, fake_commit)
+        arbitrary_supporting_writer = copy.deepcopy(valid)
+        actor_path = root / "evidence" / "actor-manifest.json"
+        actor_document = load_structured_file(actor_path)
+        actor_document["actors"].append(
+            {
+                "instance_id": "supporting-writer-invalid-001",
+                "skill": "proposal-drafter",
+                "role": "supporting_writer",
+                "dispatch_source": "research-idea-orchestrator",
+                "dispatch_mode": "orchestrated",
+                "dispatch_trigger": "fabricated_conditional_draft",
+                "allowed_read_roots": ["evidence"],
+                "allowed_write_roots": ["evidence"],
+            }
+        )
+        write_json_file(actor_path, actor_document)
+        refresh_linked_bindings(arbitrary_supporting_writer)
+        expect_runtime_rejection(
+            arbitrary_supporting_writer,
+            "supporting_writer_not_on_conditional_drafter_edge",
+            "runtime_supporting_writer_edge_mismatch",
+        )
+
+        valid = build_runtime_validator_fixture(root, registry, fake_commit)
         wrong_workflow_orchestrator = copy.deepcopy(valid)
         actor_path = root / "evidence" / "actor-manifest.json"
         actor_document = load_structured_file(actor_path)
@@ -5521,6 +9463,98 @@ def run_runtime_validator_self_tests(
             "runtime_writer_skill_mismatch",
         )
 
+        for actor_id, replacement_skill, mutation in (
+            (
+                "context-001",
+                "proposal-context-brief-builder",
+                "cross_workflow_builder_actor",
+            ),
+            (
+                "evidence-001",
+                "academic-deep-search",
+                "cross_workflow_retrieval_actor",
+            ),
+        ):
+            valid = build_runtime_validator_fixture(root, registry, fake_commit)
+            cross_workflow_actor = copy.deepcopy(valid)
+            actor_path = root / "evidence" / "actor-manifest.json"
+            actor_document = load_structured_file(actor_path)
+            next(
+                actor
+                for actor in actor_document["actors"]
+                if actor["instance_id"] == actor_id
+            )["skill"] = replacement_skill
+            write_json_file(actor_path, actor_document)
+            refresh_linked_bindings(cross_workflow_actor)
+            expect_runtime_rejection(
+                cross_workflow_actor,
+                mutation,
+                "runtime_actor_edge_provenance_mismatch",
+            )
+
+        valid = build_runtime_validator_fixture(root, registry, fake_commit)
+        cross_workflow_controller = copy.deepcopy(valid)
+        actor_path = root / "evidence" / "actor-manifest.json"
+        actor_document = load_structured_file(actor_path)
+        actor_document["actors"].append(
+            {
+                "instance_id": "cross-workflow-controller-001",
+                "skill": "article-refinement-controller",
+                "role": "controller",
+                "dispatch_source": "research-idea-orchestrator",
+                "dispatch_mode": "orchestrated",
+                "dispatch_trigger": "fabricated_revision",
+                "allowed_read_roots": ["evidence"],
+                "allowed_write_roots": ["evidence"],
+            }
+        )
+        write_json_file(actor_path, actor_document)
+        refresh_linked_bindings(cross_workflow_controller)
+        expect_runtime_rejection(
+            cross_workflow_controller,
+            "cross_workflow_controller_actor",
+            "runtime_actor_edge_provenance_mismatch",
+        )
+
+        valid = build_runtime_validator_fixture(root, registry, fake_commit)
+        unrelated_writer_output = copy.deepcopy(valid)
+        artifact_path = root / "evidence" / "artifact-index.json"
+        artifact_document = load_structured_file(artifact_path)
+        next(
+            artifact
+            for artifact in artifact_document["artifacts"]
+            if artifact["artifact_id"] == "revision-delta"
+        )["artifact_role"] = "research_context"
+        write_json_file(artifact_path, artifact_document)
+        refresh_linked_bindings(unrelated_writer_output)
+        expect_runtime_rejection(
+            unrelated_writer_output,
+            "primary_writer_emits_unrelated_output_role",
+            "runtime_actor_output_role_mismatch",
+        )
+
+        valid = build_runtime_validator_fixture(root, registry, fake_commit)
+        standard_external_primary = copy.deepcopy(valid)
+        artifact_path = root / "evidence" / "artifact-index.json"
+        artifact_document = load_structured_file(artifact_path)
+        current_primary = next(
+            artifact
+            for artifact in artifact_document["artifacts"]
+            if ref_for(artifact) == "primary@v002"
+        )
+        current_primary.update(
+            source_skill="external-input",
+            created_by_instance_id="external-input",
+            external_source_id="external:user-draft",
+        )
+        write_json_file(artifact_path, artifact_document)
+        refresh_linked_bindings(standard_external_primary)
+        expect_runtime_rejection(
+            standard_external_primary,
+            "standard_mode_current_primary_is_external",
+            "runtime_external_input_impersonation",
+        )
+
         valid = build_runtime_validator_fixture(root, registry, fake_commit)
         missing_panel_role = copy.deepcopy(valid)
         actor_path = root / "evidence" / "actor-manifest.json"
@@ -5539,6 +9573,37 @@ def run_runtime_validator_self_tests(
         )
 
         valid = build_runtime_validator_fixture(root, registry, fake_commit)
+        stale_panel_role = copy.deepcopy(valid)
+        stale_panel_path = root / "evidence" / "panel-report-002.json"
+        stale_panel_document = load_structured_file(stale_panel_path)
+        stale_panel_document["input_artifact_refs"] = ["primary@v001"]
+        write_json_file(stale_panel_path, stale_panel_document)
+        primary_v1_path = root / "evidence" / "primary-v1.md"
+        primary_v1_digest = sha256_file(primary_v1_path)
+        stale_panel_read = next(
+            entry
+            for entry in stale_panel_role["file_access"]["reads"]
+            if entry["actor_instance_id"] == "panel-002"
+            and entry["path"] == "evidence/primary-v2.md"
+        )
+        stale_panel_read.update(
+            path="evidence/primary-v1.md",
+            sha256=primary_v1_digest,
+            sha256_before=primary_v1_digest,
+            sha256_after=primary_v1_digest,
+        )
+        refresh_indexed_artifact_binding(
+            stale_panel_role,
+            "evidence/panel-report-002.json",
+            based_on=["primary@v001"],
+        )
+        expect_runtime_rejection(
+            stale_panel_role,
+            "one_panel_role_reviews_stale_primary_version",
+            "runtime_current_version_review_missing",
+        )
+
+        valid = build_runtime_validator_fixture(root, registry, fake_commit)
         panel_reads_peer = copy.deepcopy(valid)
         peer_path = root / "evidence" / "panel-report.json"
         peer_digest = sha256_file(peer_path)
@@ -5551,10 +9616,51 @@ def run_runtime_validator_self_tests(
                 "sha256_after": peer_digest,
             }
         )
+        refresh_linked_bindings(panel_reads_peer)
         expect_runtime_rejection(
             panel_reads_peer,
             "panel_role_reads_peer_output",
             "runtime_panel_peer_output_visible",
+        )
+
+        valid = build_runtime_validator_fixture(root, registry, fake_commit)
+        supporting_reviewer_reads_review = copy.deepcopy(valid)
+        prior_review_path = root / "evidence" / "evaluator-v1.json"
+        prior_review_digest = sha256_file(prior_review_path)
+        supporting_reviewer_reads_review["file_access"]["reads"].append(
+            {
+                "actor_instance_id": "supporting-reviewer-001",
+                "path": "evidence/evaluator-v1.json",
+                "sha256": prior_review_digest,
+                "sha256_before": prior_review_digest,
+                "sha256_after": prior_review_digest,
+            }
+        )
+        refresh_linked_bindings(supporting_reviewer_reads_review)
+        expect_runtime_rejection(
+            supporting_reviewer_reads_review,
+            "supporting_reviewer_reads_prior_review_output",
+            "runtime_supporting_reviewer_prior_review_visible",
+        )
+
+        valid = build_runtime_validator_fixture(root, registry, fake_commit)
+        evaluator_reads_supporting_review = copy.deepcopy(valid)
+        supporting_report_path = root / "evidence" / "supporting-preflight-report.json"
+        supporting_report_digest = sha256_file(supporting_report_path)
+        evaluator_reads_supporting_review["file_access"]["reads"].append(
+            {
+                "actor_instance_id": "evaluator-002",
+                "path": "evidence/supporting-preflight-report.json",
+                "sha256": supporting_report_digest,
+                "sha256_before": supporting_report_digest,
+                "sha256_after": supporting_report_digest,
+            }
+        )
+        refresh_linked_bindings(evaluator_reads_supporting_review)
+        expect_runtime_rejection(
+            evaluator_reads_supporting_review,
+            "fresh_evaluator_reads_supporting_reviewer_output",
+            "runtime_evaluator_prior_review_visible",
         )
 
         valid = build_runtime_validator_fixture(root, registry, fake_commit)
@@ -5607,7 +9713,7 @@ def run_runtime_validator_self_tests(
         expect_runtime_rejection(
             stale_fresh_evaluator,
             "fresh_evaluator_reviews_stale_artifact_version",
-            "runtime_current_version_review_missing",
+            "runtime_review_input_read_mismatch",
         )
 
         valid = build_runtime_validator_fixture(root, registry, fake_commit)
@@ -5728,6 +9834,19 @@ def run_runtime_validator_self_tests(
         valid_control = build_runtime_control_validator_fixture(
             root, registry, fake_commit
         )
+        control_unknown_finding = copy.deepcopy(valid_control)
+        control_unknown_finding["control_evidence"]["finding"] = (
+            "fabricated-control-finding"
+        )
+        expect_runtime_rejection(
+            control_unknown_finding,
+            "control_finding_not_bound_to_required_report",
+            "runtime_control_finding_provenance_mismatch",
+        )
+
+        valid_control = build_runtime_control_validator_fixture(
+            root, registry, fake_commit
+        )
         wrong_continuation_type = copy.deepcopy(valid_control)
         artifact_path = root / "evidence" / "artifact-index.json"
         artifact_document = load_structured_file(artifact_path)
@@ -5773,7 +9892,7 @@ def run_runtime_validator_self_tests(
                 "runtime_negative_accepted",
                 "repository_authored_export_without_platform_trust_adapter",
             )
-    return results
+    return results, positive_workflow_results
 
 
 def release_gate_statuses(
@@ -6518,16 +10637,21 @@ def run_all(
     require(gate_bypass_count == len(declared_pairs), "gate_bypass_coverage", str(gate_bypass_count))
     final_states = Counter(item["final_state"] for item in positive_results)
     skill_count = len(registry["skills"])
-    explicit_callable_entries = len(
+    declared_entry_set = set(
         registry.get("public_entry_policy", {}).get("declared_entries", [])
     )
-    implicit_prompt_entries = len(
+    implicit_entry_set = set(
         registry.get("public_entry_policy", {}).get("implicit_active_entries", [])
     )
+    explicit_callable_entries = len(declared_entry_set)
+    implicit_prompt_entries = len(implicit_entry_set)
+    expected_implicit_entries = declared_entry_set - {"research-polisher-orchestrator"}
     require(
-        (skill_count, explicit_callable_entries, implicit_prompt_entries)
-        == (49, 7, 6),
-        "phase7_a_discovery_baseline",
+        skill_count == 49
+        and explicit_callable_entries == 7
+        and "research-polisher-orchestrator" in declared_entry_set
+        and implicit_entry_set == expected_implicit_entries,
+        "phase7_release_discovery_baseline",
         str((skill_count, explicit_callable_entries, implicit_prompt_entries)),
     )
     reviewer_count = sum(
@@ -6556,7 +10680,10 @@ def run_all(
             runtime_receipts_path=RUNTIME_RECEIPTS_PATH,
             expected_source_commit=expected_source_commit,
         )
-    runtime_negative_results = run_runtime_validator_self_tests(
+    (
+        runtime_negative_results,
+        runtime_contract_complete_results,
+    ) = run_runtime_validator_self_tests(
         schema=runtime_schema,
         collection=runtime_collection,
         registry=registry,
@@ -6639,6 +10766,10 @@ def run_all(
         phase_status_detail = "release_evidence_pending"
     return {
         "schema_version": 3,
+        "active_acceptance_profile": "personal-owner",
+        "personal_profile_status": "in_progress_owner_observation",
+        "personal_readiness_report": "research-skills-openai/reports/personal-readiness.json",
+        "deferred_preview_status": phase_status,
         "phase_status": phase_status,
         "verification_level": runtime_verification_level,
         "provider_verified": runtime_verification_level == PROVIDER_VERIFIED,
@@ -6724,6 +10855,9 @@ def run_all(
             ),
             "results": runtime_results,
             "validator_negative_guards": runtime_negative_results,
+            "contract_complete_positive_fixtures": (
+                runtime_contract_complete_results
+            ),
             "reviewer_unavailable_fault_injection": (
                 reviewer_unavailable_fault_injection
             ),
@@ -6807,6 +10941,9 @@ def run_all(
             ),
             "runtime_validator_negative_guards_rejected": len(
                 runtime_negative_results
+            ),
+            "runtime_contract_complete_workflows_verified": len(
+                runtime_contract_complete_results
             ),
             "reviewer_unavailable_fault_injections_verified": 1,
             "completion_gates_verified": sum(
@@ -6998,7 +11135,7 @@ def main() -> int:
         f"entry modes: {summary['positive_modes_passed']}/{summary['declared_entry_modes']}"
     )
     print(
-        "A-release discovery: "
+        "personal-owner discovery: "
         f"{summary['installed_skill_count']} installed skills / "
         f"{summary['explicit_callable_entries']} explicit entries / "
         f"{summary['implicit_prompt_entries']} implicit entries"
@@ -7007,7 +11144,7 @@ def main() -> int:
         "negative guards: "
         f"{summary['mode_specific_gate_bypasses_rejected']} mode-specific gate bypasses + "
         f"{summary['additional_stale_or_lineage_guards_rejected']} entry stale/lineage mutations + "
-        f"{summary['qualifying_reviewer_receipt_negatives_rejected']} evaluator/panel/strategy-reviewer receipt mutations rejected"
+        f"{summary['qualifying_reviewer_receipt_negatives_rejected']} evaluator/panel/strategy/supporting-reviewer receipt mutations rejected"
     )
     print(
         "Research Polisher routing boundaries: "
@@ -7027,11 +11164,16 @@ def main() -> int:
         f"{summary['synthetic_control_receipts_validated']} control"
     )
     print(
+        "runtime contract-complete fixtures: "
+        f"{summary['runtime_contract_complete_workflows_verified']}/5 workflows"
+    )
+    print(
         "durable runtime receipts: "
         f"{summary['runtime_receipts_verified']}/{summary['runtime_receipts_expected']} verified; "
         f"{summary['completion_gates_pending']} completion gates pending"
     )
-    print(f"Phase 7 status: {result['phase_status']}")
+    print(f"Personal profile status: {result['personal_profile_status']}")
+    print(f"Deferred Preview status: {result['deferred_preview_status']}")
     return 0
 
 

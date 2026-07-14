@@ -4,7 +4,7 @@
   "external_evidence_schema": "tests/openai_phase7/release-evidence.schema.yaml",
   "evidence_policy": "Derived fields come from the current tree. External evidence is preserved only for an unchanged version, manifest, registry/schema, license, provenance, skill-tree digest, validation-contract tree, and marketplace source. Accepted external records store only immutable GitHub Release/run/asset locators and digests, and require a registered verifier to live re-query those external assets. Shared bundle validation proves integrity only and never determines gate eligibility. preview_attested is explicitly not verified or provider_verified. provider_verified is unavailable until a separately registered authenticated provider adapter exists. Repository files, status text, screenshots, and manual notes never suffice. Unobserved evidence remains pending.",
   "release": {
-    "version": "0.7.0-preview.1",
+    "version": "0.7.0-preview.2",
     "external_evidence_trust": {
       "adapter_status": "unavailable",
       "adapter_id": null,
@@ -24,16 +24,16 @@
       "sha256": "2a709b1d9d1f9484112fffb0b0c50b749316c32a29718711b1ca47692c091416"
     },
     "installable_contracts": {
-      "manifest_sha256": "93788fff78bd32c2f94d2da7463920464f642c6f8951aebdb733878e629a57a7",
-      "registry_sha256": "43e621b09d663f3dad8fc13e7fd88fea860da8a14f26db4c9c75401214f4052a",
+      "manifest_sha256": "5a01636cdd1622927932592e66253016d11d878ca7496c41d6ab982a1cd6d839",
+      "registry_sha256": "fca5969feb43b726ea7b7c31b7ff00cab43b42393230090cfe3c87eed02b9d26",
       "registry_schema_version": 5,
       "license_sha256": "0200f93cb786f526f23f9a901367dda528e65c3d8c3d9a1c92bcedb3fe5cba1a",
-      "provenance_sha256": "998cf2ea86ae717174bdfc393dbf85feec943b1ad9fc8527155540b05b89ddd7"
+      "provenance_sha256": "7e8fe72c8aee7818703e2bbea189d0dde642980e54830928e2fc5ef61c2ee0e9"
     },
     "validation_contract_tree": {
       "algorithm": "sha256_sorted_repository_relative_path_nul_crlf_normalized_bytes_nul",
-      "file_count": 82,
-      "sha256": "7256455cd10fc79f1b6d0e00a09bfad430c2c06720a42374d661f01f46321ee4",
+      "file_count": 146,
+      "sha256": "2066aa2962e81ab44430ee99d44f69b5eafa444fe3d3ede6ca14ecbe84be5c85",
       "mutable_runtime_evidence_excluded": [
         "tests/openai_phase7/current-version-runtime-receipts.yaml",
         "tests/openai_phase8/live-repeat-receipts.yaml",
@@ -82,6 +82,29 @@
         "evidence_locator": null,
         "reason": "Repository branch protection and the required Preview check have not been verified through an authenticated repository API."
       }
+    },
+    "accepted_phase78_closure": {
+      "status": "pending",
+      "source_commit": null,
+      "release_stage": null,
+      "producer_summary_schema": null,
+      "producer_run_id": null,
+      "producer_run_attempt": null,
+      "producer_summary_sha256": null,
+      "consumer_result_schema": null,
+      "consumer_run_id": null,
+      "consumer_run_attempt": null,
+      "consumer_result_sha256": null,
+      "phase7_verified_runtime_count": null,
+      "phase8_verified_reviewer_count": null,
+      "phase8_verified_retrieval_count": null,
+      "phase8_verified_slot_count": null,
+      "verification_level": null,
+      "provider_verified": null,
+      "counts_as_phase78_closure": null,
+      "accepted": null,
+      "evidence_locator": null,
+      "reason": "No immutable Release evidence binds an independently consumed Phase 7-8 accepted summary for this release."
     },
     "marketplace_source": {
       "marketplace_name": "xuxu-research-preview",
@@ -132,7 +155,7 @@
       },
       "rollback": {
         "status": "pending",
-        "from_version": "0.7.0-preview.1",
+        "from_version": "0.7.0-preview.2",
         "to_version": null,
         "target_commit": null,
         "restored_cache_path": null,

@@ -4,9 +4,10 @@ These instructions apply to the `research-skills-openai/` plugin subtree.
 
 ## Product status and scope
 
-- Treat this plugin as a personal Experimental/Preview distribution for ChatGPT Work and Codex.
+- Treat this plugin as an owner-operated Personal Experimental/Preview distribution for the owner's research work in ChatGPT Work and Codex.
 - Keep it skills-only unless a real MCP server, app mapping, or hook is implemented and tested.
-- Do not claim production stability or automatic external submission.
+- Do not claim public support, production stability, automatic updates, or automatic external submission.
+- Use the `personal-owner` acceptance profile as the default development and release boundary. Shared/public attestation and provider verification are out of the active roadmap unless the owner explicitly reopens them.
 - Preserve plugin-level SemVer in `.codex-plugin/plugin.json` and keep `workflow-registry.yaml` on the identical version.
 
 ## Skill authoring workflow
@@ -21,7 +22,7 @@ These instructions apply to the `research-skills-openai/` plugin subtree.
 
 ## Discovery and context budget
 
-- Keep the seven declared public entries limited to the five orchestrators (including `research-polisher-orchestrator`), `research-opportunity-mapper`, and `academic-deep-search` unless another deliberate product decision changes the set. Keep Research Polisher explicit-only until the Phase 7-8 external-evidence gate is recorded complete; the other six may be implicit.
+- Keep the seven declared/discoverable entries limited to the five orchestrators (including `research-polisher-orchestrator`), `research-opportunity-mapper`, and `academic-deep-search` unless another deliberate product decision changes the set. Keep Research Polisher explicit-only as a permanent personal routing boundary; only a new owner decision may change it. The other six may be implicit.
 - For new or substantially rewritten skills, target no more than 180 lines and 8,000 characters and do not exceed 250 lines or 12,000 characters. Existing oversized skills are Roadmap debt: do not increase them, and reduce them when touched.
 - Keep a skill plus its default mandatory references below 16,000 characters where practical.
 - New or substantially rewritten references longer than 100 lines require a table of contents; split references longer than 300 lines. Existing exceptions are Roadmap debt and must not grow.
@@ -76,17 +77,19 @@ input normalization
 - A fatal or unresolved blocking finding prevents promotion or ready status.
 - Final states stop at a package prepared for human review and signature. Do not submit to journals, funders, repositories, or other external platforms.
 
-## Preview evidence boundary
+## Personal acceptance boundary
 
-- Treat App Server exports as `capture_only`; redact credentials and account data before retaining them.
-- Treat `scripts/openai_preview_evidence.py` and its offline CLI as integrity validators only. Their output cannot advance a runtime or release gate.
-- Keep raw current-release evidence in immutable GitHub prerelease assets, not in `main`. Bind it by source commit, manifest/registry/skill-tree identity, asset ID, size, and digest.
-- Require a separate executable verifier to re-query the GitHub Release, Actions run, committed verifier, and assets before recording `preview_attested`.
-- Keep the ordinary release-ledger and Preview validators structural-only when no external bundle root is supplied; their success is not a live acceptance result.
-- Gate accepted evidence through `.github/workflows/openai-preview-accepted-evidence.yml` with distinct immutable evidence/candidate Releases, an isolated trusted default-branch workspace, and the production live callback.
-- Store `OPENAI_PREVIEW_GOVERNANCE_TOKEN` only in the protected `openai-preview-governance` Environment. Do not expose it to caller-selected source code or use it for ordinary Release downloads.
-- Never derive `provider_verified` from a filename, status string, boolean, screenshot, handwritten note, or locally authored provider receipt. That level requires a registered authenticated provider adapter.
-- Keep synthetic reachability evidence visibly non-counting and confined to an internal temporary test capability.
+- Keep deterministic fixtures distinct from owner-observed runs. Passing fixtures establishes `deterministic_validated`; it does not establish that a current plugin cache completed a real task.
+- Record a real task only as `owner_observed` when it binds the plugin version, task ID, source identity, artifact IDs/paths/versions, SHA-256 digests, timestamps, reviewer instance IDs where applicable, relevant source URLs, final state, and owner confirmation.
+- Derive `owner_observed_ready` only after the personal runbook's installation/discovery, five workflow happy paths, two controls, three Search cases, inactive Deep Research control, and one completed Deep Research return cycle all pass.
+- Until then, report `in_progress_owner_observation`. Never relabel owner-authored receipts as externally attested or provider verified.
+- Source immutability, reviewer isolation, complete lineage, visible dissent, and the fatal-finding stop gate remain mandatory for the personal profile.
+
+## Deferred evidence assets
+
+- Existing Preview capture, immutable-release, external re-query, and provider-adapter assets are retained as historical/deferred engineering work. They are not required validation for the personal-owner profile and should not be expanded unless the owner reopens shared/public distribution work.
+- Treat App Server exports and task-authored capture files as `capture_only`; redact credentials and account data before retaining them.
+- A pending deferred Preview report is not a personal-profile failure and cannot block `owner_observed_ready`.
 
 ## Required validation
 
@@ -101,24 +104,12 @@ python scripts/test_openai_phase2_phase3.py
 python scripts/test_openai_phase4_scenarios.py --check-report
 python scripts/test_openai_phase7_modes.py --check-report
 python scripts/test_openai_phase8_corpus.py --check-report
-python scripts/test_openai_preview_evidence.py
-python scripts/test_build_openai_preview_accepted_summary.py
-python scripts/test_build_openai_preview_verifier_summary.py
-python scripts/test_download_openai_release_ledger_assets.py
-python scripts/test_validate_openai_preview_evidence_bundle.py
-python scripts/test_openai_app_server_capture.py
-python scripts/test_validate_openai_phase7_runtime_evidence.py
-python scripts/test_validate_openai_phase8_external_evidence.py
-python scripts/test_validate_openai_release_evidence.py
-python scripts/test_verify_openai_preview_accepted_summary.py
-python scripts/test_openai_phase8_preview_verifier.py
-python scripts/test_openai_preview_workflows.py
-python scripts/test_validate_openai_preview_accepted_phase78.py
+python scripts/test_validate_openai_personal_readiness.py
+python scripts/validate_openai_personal_readiness.py --check-report
 python scripts/codex_plugin_converter.py --mode codex --fail-on-invalid
-python scripts/generate_openai_release_ledger.py --check
-python scripts/test_openai_release_ledger.py
-python scripts/validate_openai_preview_release.py
 python C:\Users\10149\.codex\skills\.system\plugin-creator\scripts\validate_plugin.py research-skills-openai
 ```
+
+Run the deferred Preview/Release test suites only when changing their retained implementation. A structurally valid but externally pending result is acceptable for the personal-owner profile.
 
 Also run `python scripts/audit_research_workflows.py` when shared Hermes workflow contracts or sources were changed.

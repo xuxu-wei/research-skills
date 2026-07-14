@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import importlib.util
+import copy
 import json
 import os
 import tempfile
@@ -919,7 +920,33 @@ def structured_result_tests(verifier) -> int:
                 json.dumps({"capture": {"captured_at": captured_at}}),
                 encoding="utf-8",
             )
-            report.write_text(json.dumps({"verdict": "accepted"}), encoding="utf-8")
+            report.write_text(
+                json.dumps(
+                    {
+                        "verifier_id": verifier.DRAFT_VERIFIER_ID,
+                        "verifier_code_sha256": verifier.normalized_digest(
+                            (
+                                REPO
+                                / "scripts"
+                                / "verify_openai_preview_draft_bundle.py"
+                            ).read_bytes()
+                        ),
+                        "independent": True,
+                        "verdict": "accepted",
+                        "verified_at": "2026-07-13T10:01:00Z",
+                        "execution": {
+                            "repository": "owner/repository",
+                            "workflow_run_id": 6001,
+                            "workflow_path": verifier.DRAFT_VERIFIER_WORKFLOW,
+                            "workflow_event": "workflow_dispatch",
+                            "run_head_sha": identity["source_commit"],
+                            "run_attempt": 1,
+                            "actor": "draft-verifier-bot",
+                        },
+                    }
+                ),
+                encoding="utf-8",
+            )
             records = []
             for asset_id, path, kind in (
                 (101, raw, "raw_export"),
@@ -949,6 +976,7 @@ def structured_result_tests(verifier) -> int:
                             "release_id": 17,
                             "release_tag": "v1",
                         },
+                        "github_witness": {"workflow_run_id": 5001},
                         "assets": records,
                     }
                 ),
@@ -1025,8 +1053,59 @@ def structured_result_tests(verifier) -> int:
                 for record in records
             }
             payload_by_url[index_live["url"]] = index_path.read_bytes()
+            draft_run_url = (
+                "https://api.github.com/repos/owner/repository/actions/runs/6001"
+            )
+            draft_run = {
+                "id": 6001,
+                "run_attempt": 1,
+                "path": verifier.DRAFT_VERIFIER_WORKFLOW,
+                "event": "workflow_dispatch",
+                "head_sha": identity["source_commit"],
+                "head_branch": "main",
+                "status": "completed",
+                "conclusion": "success",
+                "repository": {"full_name": "owner/repository"},
+                "actor": {"login": "draft-verifier-bot"},
+                "run_started_at": "2026-07-13T10:00:00Z",
+                "updated_at": "2026-07-13T10:02:00Z",
+            }
+            current_workflow_url = (
+                "https://api.github.com/repos/owner/repository/actions/workflows/"
+                "openai-preview-evidence.yml"
+            )
+            current_workflow = {
+                "id": 7000,
+                "url": "https://api.github.com/repos/owner/repository/actions/workflows/7000",
+                "path": verifier.PREVIEW_VERIFIER_WORKFLOW,
+                "state": "active",
+            }
+            current_run_url = (
+                "https://api.github.com/repos/owner/repository/actions/runs/7001"
+            )
+            current_run = {
+                "id": 7001,
+                "run_attempt": 2,
+                "url": current_run_url,
+                "html_url": "https://github.com/owner/repository/actions/runs/7001",
+                "workflow_id": 7000,
+                "path": verifier.PREVIEW_VERIFIER_WORKFLOW,
+                "event": "workflow_dispatch",
+                "head_sha": identity["source_commit"],
+                "head_branch": "main",
+                "status": "in_progress",
+                "conclusion": None,
+                "repository": {"full_name": "owner/repository"},
+                "actor": {"login": "preview-verifier-bot"},
+            }
 
             def fake_github(url, *, binary, opener=None):
+                if not binary and url == draft_run_url:
+                    return draft_run
+                if not binary and url == current_workflow_url:
+                    return current_workflow
+                if not binary and url == current_run_url:
+                    return current_run
                 if not binary or url not in payload_by_url:
                     raise AssertionError("unexpected GitHub request in result-contract test")
                 return payload_by_url[url]
@@ -1034,7 +1113,20 @@ def structured_result_tests(verifier) -> int:
             environment = {
                 "GITHUB_ACTIONS": "true" if not synthetic else "false",
                 "GITHUB_RUN_ID": "7001" if not synthetic else "",
+                "GITHUB_RUN_ATTEMPT": "2" if not synthetic else "",
                 "GITHUB_REPOSITORY": "owner/repository" if not synthetic else "",
+                "GITHUB_EVENT_NAME": "workflow_dispatch" if not synthetic else "",
+                "GITHUB_SHA": identity["source_commit"] if not synthetic else "",
+                "GITHUB_WORKFLOW_SHA": identity["source_commit"] if not synthetic else "",
+                "GITHUB_REF": "refs/heads/main" if not synthetic else "",
+                "GITHUB_REF_NAME": "main" if not synthetic else "",
+                "GITHUB_WORKFLOW_REF": (
+                    "owner/repository/"
+                    f"{verifier.PREVIEW_VERIFIER_WORKFLOW}@refs/heads/main"
+                    if not synthetic
+                    else ""
+                ),
+                "GITHUB_ACTOR": "preview-verifier-bot" if not synthetic else "",
             }
             with patch.object(
                 verifier, "validate_code_bindings", lambda *_a, **_k: {}
@@ -1117,11 +1209,164 @@ def structured_result_tests(verifier) -> int:
                     or integrity.get("release_asset_index_asset_id") != 104
                     or result["verified_assets"][-1].get("evidence_kind")
                     != "release_asset_index"
+                    or result["live_verifier"].get("source_ci_workflow_run_id")
+                    != 5001
+                    or result["live_verifier"].get(
+                        "draft_verifier_workflow_run_id"
+                    )
+                    != 6001
+                    or result["live_verifier"].get("verifier_workflow_run_id")
+                    != 7001
+                    or result["live_verifier"].get("verifier_run_attempt") != 2
+                    or result["live_verifier"].get("verifier_workflow_path")
+                    != verifier.PREVIEW_VERIFIER_WORKFLOW
                 ):
                     raise AssertionError("live result omitted a raw/E/V/index binding")
     if getattr(verifier.verify, "adapter_id", None) != verifier.PREVIEW_ADAPTER_ID:
         raise AssertionError("verify callable has no canonical adapter id")
     return 3
+
+
+def current_execution_witness_tests(verifier) -> int:
+    repository = "owner/repository"
+    source_commit = "c" * 40
+    source_run_id = 5001
+    draft_run_id = 6001
+    current_run_id = 7001
+    workflow_id = 7000
+    workflow_url = (
+        f"https://api.github.com/repos/{repository}/actions/workflows/"
+        "openai-preview-evidence.yml"
+    )
+    run_url = (
+        f"https://api.github.com/repos/{repository}/actions/runs/{current_run_id}"
+    )
+    workflow = {
+        "id": workflow_id,
+        "url": (
+            f"https://api.github.com/repos/{repository}/actions/workflows/"
+            f"{workflow_id}"
+        ),
+        "path": verifier.PREVIEW_VERIFIER_WORKFLOW,
+        "state": "active",
+    }
+    run = {
+        "id": current_run_id,
+        "run_attempt": 2,
+        "url": run_url,
+        "html_url": f"https://github.com/{repository}/actions/runs/{current_run_id}",
+        "workflow_id": workflow_id,
+        "path": verifier.PREVIEW_VERIFIER_WORKFLOW,
+        "event": "workflow_dispatch",
+        "head_sha": source_commit,
+        "head_branch": "main",
+        "status": "in_progress",
+        "conclusion": None,
+        "repository": {"full_name": repository},
+        "actor": {"login": "preview-verifier-bot"},
+    }
+    environment = {
+        "GITHUB_ACTIONS": "true",
+        "GITHUB_RUN_ID": str(current_run_id),
+        "GITHUB_RUN_ATTEMPT": "2",
+        "GITHUB_REPOSITORY": repository,
+        "GITHUB_EVENT_NAME": "workflow_dispatch",
+        "GITHUB_SHA": source_commit,
+        "GITHUB_WORKFLOW_SHA": source_commit,
+        "GITHUB_REF": "refs/heads/main",
+        "GITHUB_REF_NAME": "main",
+        "GITHUB_WORKFLOW_REF": (
+            f"{repository}/{verifier.PREVIEW_VERIFIER_WORKFLOW}@refs/heads/main"
+        ),
+        "GITHUB_ACTOR": "preview-verifier-bot",
+    }
+
+    def execute(
+        live_workflow,
+        live_run,
+        *,
+        env=None,
+        source_id=source_run_id,
+        draft_id=draft_run_id,
+    ):
+        def fake_github(url, *, binary, opener=None):
+            if binary:
+                raise AssertionError("current execution witness requested binary data")
+            if url == workflow_url:
+                return live_workflow
+            if url == run_url:
+                return live_run
+            raise AssertionError(f"unexpected current execution URL: {url}")
+
+        with patch.object(verifier, "github_request", fake_github), patch.dict(
+            os.environ, env or environment, clear=False
+        ):
+            return verifier.validate_current_verifier_execution(
+                repository=repository,
+                source_commit=source_commit,
+                source_ci_run_id=source_id,
+                draft_verifier_run_id=draft_id,
+            )
+
+    observed = execute(workflow, run)
+    if (
+        observed.get("workflow_run_id") != current_run_id
+        or observed.get("workflow_id") != workflow_id
+        or observed.get("run_attempt") != 2
+        or observed.get("workflow_path") != verifier.PREVIEW_VERIFIER_WORKFLOW
+        or observed.get("actor") != "preview-verifier-bot"
+    ):
+        raise AssertionError("current verifier execution witness is incomplete")
+
+    mutations = (
+        ("workflow path", "workflow", "path", ".github/workflows/other.yml"),
+        ("workflow state", "workflow", "state", "disabled_manually"),
+        ("run workflow", "run", "workflow_id", workflow_id + 1),
+        ("run path", "run", "path", ".github/workflows/other.yml"),
+        ("run event", "run", "event", "push"),
+        ("run head", "run", "head_sha", "0" * 40),
+        ("run branch", "run", "head_branch", "feature"),
+        ("run attempt", "run", "run_attempt", 3),
+        ("run actor", "actor", "login", "other-actor"),
+        ("completed current run", "run", "status", "completed"),
+    )
+    for label, target, field, value in mutations:
+        candidate_workflow = copy.deepcopy(workflow)
+        candidate_run = copy.deepcopy(run)
+        if target == "workflow":
+            candidate_workflow[field] = value
+        elif target == "actor":
+            candidate_run["actor"][field] = value
+        else:
+            candidate_run[field] = value
+        expect_rejected(
+            verifier,
+            lambda candidate_workflow=candidate_workflow, candidate_run=candidate_run: execute(
+                candidate_workflow, candidate_run
+            ),
+            f"current verifier {label}",
+        )
+
+    bad_environment = dict(environment)
+    bad_environment["GITHUB_WORKFLOW_REF"] = (
+        f"{repository}/.github/workflows/other.yml@refs/heads/main"
+    )
+    expect_rejected(
+        verifier,
+        lambda: execute(workflow, run, env=bad_environment),
+        "unregistered current verifier workflow ref",
+    )
+    expect_rejected(
+        verifier,
+        lambda: execute(workflow, run, source_id=current_run_id),
+        "current verifier reuses source run",
+    )
+    expect_rejected(
+        verifier,
+        lambda: execute(workflow, run, draft_id=current_run_id),
+        "current verifier reuses draft run",
+    )
+    return 14
 
 
 def main() -> int:
@@ -1132,6 +1377,7 @@ def main() -> int:
         + bundle_request_tests(verifier)
         + verify_call_order_test(verifier)
         + structured_result_tests(verifier)
+        + current_execution_witness_tests(verifier)
     )
     print(f"Phase 8 Preview verifier transport tests passed; guards={count}")
     return 0

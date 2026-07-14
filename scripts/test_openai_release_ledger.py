@@ -100,6 +100,20 @@ EXTERNAL_EVIDENCE_TYPES = {
     "fresh_task_discovery",
     "rollback",
 }
+PHASE78_CLOSURE_EVIDENCE_TYPE = "accepted_phase78_closure"
+ALL_RELEASE_EVIDENCE_TYPES = {
+    *EXTERNAL_EVIDENCE_TYPES,
+    PHASE78_CLOSURE_EVIDENCE_TYPE,
+}
+PHASE78_CLOSURE_PRODUCER_SCHEMAS = {
+    "openai-preview-accepted-run-summary/v2",
+    "openai-preview-accepted-run-summary/v3",
+}
+PHASE78_CLOSURE_CONSUMER_SCHEMA = (
+    "openai-preview-accepted-summary-consumer/v1"
+)
+RESEARCH_POLISHER_ENTRY = "research-polisher-orchestrator"
+EXPECTED_PUBLIC_ENTRY_COUNT = 7
 # Repository-authored envelopes prove integrity but cannot authenticate their
 # provider origin. Add an adapter only with a verifier that checks evidence
 # outside the record being validated.
@@ -553,7 +567,11 @@ def validate_bound_external_evidence(
 
     if not isinstance(record, dict) or record.get("status") == "pending":
         return
-    require(evidence_type in EXTERNAL_EVIDENCE_TYPES, f"{label} uses unknown evidence type", errors)
+    require(
+        evidence_type in ALL_RELEASE_EVIDENCE_TYPES,
+        f"{label} uses unknown evidence type",
+        errors,
+    )
 
     # Preserve old synthetic mutation fixtures without allowing legacy `verified`
     # records to count as Preview or provider evidence.
@@ -1304,6 +1322,102 @@ def validate_release_evidence(
     source_commit = release.get("source_commit")
     validate_status_record(source_commit, named("source_commit"), errors, ("sha",))
 
+    phase78_closure = release.get("accepted_phase78_closure")
+    closure_label = named(PHASE78_CLOSURE_EVIDENCE_TYPE)
+    validate_status_record(
+        phase78_closure,
+        closure_label,
+        errors,
+        (
+            "source_commit",
+            "release_stage",
+            "producer_summary_schema",
+            "producer_run_id",
+            "producer_run_attempt",
+            "producer_summary_sha256",
+            "consumer_result_schema",
+            "consumer_run_id",
+            "consumer_run_attempt",
+            "consumer_result_sha256",
+            "phase7_verified_runtime_count",
+            "phase8_verified_reviewer_count",
+            "phase8_verified_retrieval_count",
+            "phase8_verified_slot_count",
+            "verification_level",
+            "provider_verified",
+            "counts_as_phase78_closure",
+            "accepted",
+        ),
+        external=True,
+        allow_legacy_synthetic_verified=synthetic_external_trust_override,
+    )
+    if is_external_accepted(phase78_closure):
+        require(
+            isinstance(source_commit, dict)
+            and source_commit.get("status") == "verified"
+            and phase78_closure.get("source_commit") == source_commit.get("sha"),
+            f"{closure_label} source commit mismatch",
+            errors,
+        )
+        require(
+            phase78_closure.get("release_stage") == "A"
+            and phase78_closure.get("producer_summary_schema")
+            in PHASE78_CLOSURE_PRODUCER_SCHEMAS
+            and phase78_closure.get("consumer_result_schema")
+            == PHASE78_CLOSURE_CONSUMER_SCHEMA,
+            f"{closure_label} summary or consumer schema is invalid",
+            errors,
+        )
+        require(
+            all(
+                isinstance(phase78_closure.get(field), int)
+                and not isinstance(phase78_closure.get(field), bool)
+                and phase78_closure[field] > 0
+                for field in (
+                    "producer_run_id",
+                    "producer_run_attempt",
+                    "consumer_run_id",
+                    "consumer_run_attempt",
+                )
+            ),
+            f"{closure_label} workflow identity is invalid",
+            errors,
+        )
+        require(
+            all(
+                SHA256_RE.fullmatch(str(phase78_closure.get(field, "")))
+                is not None
+                for field in (
+                    "producer_summary_sha256",
+                    "consumer_result_sha256",
+                )
+            ),
+            f"{closure_label} digest binding is invalid",
+            errors,
+        )
+        require(
+            phase78_closure.get("phase7_verified_runtime_count") == 10
+            and phase78_closure.get("phase8_verified_reviewer_count") == 6
+            and phase78_closure.get("phase8_verified_retrieval_count") == 6
+            and phase78_closure.get("phase8_verified_slot_count") == 12,
+            f"{closure_label} does not bind the complete 10+12 Phase 7-8 matrix",
+            errors,
+        )
+        require(
+            phase78_closure.get("status") == PREVIEW_ATTESTED
+            and phase78_closure.get("verification_level") == PREVIEW_ATTESTED
+            and phase78_closure.get("provider_verified") is False
+            and phase78_closure.get("counts_as_phase78_closure") is True
+            and phase78_closure.get("accepted") is True,
+            f"{closure_label} decision or trust level is invalid",
+            errors,
+        )
+    validate_external(
+        phase78_closure,
+        PHASE78_CLOSURE_EVIDENCE_TYPE,
+        closure_label,
+    )
+
     marketplace_source = release.get("marketplace_source", {})
     resolved_commit = marketplace_source.get("resolved_commit") if isinstance(marketplace_source, dict) else None
     validate_status_record(
@@ -1695,6 +1809,218 @@ def validate_rollback_history_binding(
         )
 
 
+def validate_release_stage_entry_policy(
+    declared_entries: list[str],
+    implicit_entries: list[str],
+    errors: list[str],
+    *,
+    label: str = "release entry policy",
+) -> str | None:
+    """Return Stage A/B only for the two owner-approved implicit-entry sets."""
+
+    if not (
+        isinstance(declared_entries, list)
+        and len(declared_entries) == EXPECTED_PUBLIC_ENTRY_COUNT
+        and all(isinstance(entry, str) and entry for entry in declared_entries)
+        and len(set(declared_entries)) == EXPECTED_PUBLIC_ENTRY_COUNT
+        and RESEARCH_POLISHER_ENTRY in declared_entries
+    ):
+        require(False, f"{label} must declare seven unique entries including Research Polisher", errors)
+        return None
+    if not (
+        isinstance(implicit_entries, list)
+        and all(isinstance(entry, str) and entry for entry in implicit_entries)
+        and len(set(implicit_entries)) == len(implicit_entries)
+    ):
+        require(False, f"{label} implicit entry list is invalid", errors)
+        return None
+    declared = set(declared_entries)
+    implicit = set(implicit_entries)
+    stage_a = declared - {RESEARCH_POLISHER_ENTRY}
+    if implicit == stage_a:
+        return "A"
+    if implicit == declared:
+        return "B"
+    require(
+        False,
+        f"{label} must be exact Stage A (six without Research Polisher) or Stage B (all seven)",
+        errors,
+    )
+    return None
+
+
+def _safe_external_records(release: dict[str, Any]) -> dict[str, Any] | None:
+    try:
+        ci = release["ci"]
+        receipts = release["receipts"]
+        return {
+            "repository_preview_ci": ci["repository_preview"],
+            "canonical_plugin_validator_ci": ci["canonical_plugin_validator"]["ci"],
+            "main_branch_protection": release["governance"]["main_branch_protection"],
+            "marketplace_resolved_commit": release["marketplace_source"]["resolved_commit"],
+            "marketplace_upgrade": receipts["marketplace_upgrade"],
+            "explicit_reinstall": receipts["explicit_reinstall"],
+            "fresh_task_discovery": receipts["fresh_task_discovery"],
+            "rollback": receipts["rollback"],
+        }
+    except (KeyError, TypeError):
+        return None
+
+
+def phase78_closure_is_complete_stage_a(release: dict[str, Any]) -> bool:
+    """Return true only for an immutable, independently consumed 10+12 closure."""
+
+    closure = release.get("accepted_phase78_closure")
+    source = release.get("source_commit")
+    if not isinstance(closure, dict) or not isinstance(source, dict):
+        return False
+    locator_errors: list[str] = []
+    validate_external_evidence_locator(
+        closure.get("evidence_locator"),
+        PHASE78_CLOSURE_EVIDENCE_TYPE,
+        locator_errors,
+    )
+    return (
+        not locator_errors
+        and closure.get("status") == PREVIEW_ATTESTED
+        and source.get("status") == "verified"
+        and closure.get("source_commit") == source.get("sha")
+        and closure.get("release_stage") == "A"
+        and closure.get("producer_summary_schema")
+        in PHASE78_CLOSURE_PRODUCER_SCHEMAS
+        and closure.get("consumer_result_schema")
+        == PHASE78_CLOSURE_CONSUMER_SCHEMA
+        and all(
+            isinstance(closure.get(field), int)
+            and not isinstance(closure.get(field), bool)
+            and closure[field] > 0
+            for field in (
+                "producer_run_id",
+                "producer_run_attempt",
+                "consumer_run_id",
+                "consumer_run_attempt",
+            )
+        )
+        and all(
+            SHA256_RE.fullmatch(str(closure.get(field, ""))) is not None
+            for field in (
+                "producer_summary_sha256",
+                "consumer_result_sha256",
+            )
+        )
+        and closure.get("phase7_verified_runtime_count") == 10
+        and closure.get("phase8_verified_reviewer_count") == 6
+        and closure.get("phase8_verified_retrieval_count") == 6
+        and closure.get("phase8_verified_slot_count") == 12
+        and closure.get("verification_level") == PREVIEW_ATTESTED
+        and closure.get("provider_verified") is False
+        and closure.get("counts_as_phase78_closure") is True
+        and closure.get("accepted") is True
+    )
+
+
+def validate_phase_b_previous_a_evidence(
+    release: dict[str, Any],
+    previous_releases: list[Any],
+    declared_entries: list[str],
+    implicit_entries: list[str],
+    errors: list[str],
+    *,
+    stage: str | None = None,
+    require_current_acceptance: bool = False,
+) -> None:
+    """Require one accepted Stage A; bind accepted B rollback to that release.
+
+    Structural candidate validation permits current Stage B receipts to remain
+    pending so the candidate can first be pushed and installed.  Protected
+    closure validation sets ``require_current_acceptance`` and additionally
+    requires all eight current external records.
+    """
+
+    current_stage = stage
+    if current_stage is None:
+        current_stage = validate_release_stage_entry_policy(
+            declared_entries, implicit_entries, errors
+        )
+    if current_stage != "B":
+        return
+    receipts = release.get("receipts", {})
+    rollback = receipts.get("rollback", {}) if isinstance(receipts, dict) else {}
+    require(isinstance(rollback, dict), "Stage B rollback receipt is missing", errors)
+    if not isinstance(rollback, dict):
+        return
+    require(
+        rollback.get("status") in {"pending", *EXTERNAL_ACCEPTED_STATUS},
+        "Stage B rollback receipt status is invalid",
+        errors,
+    )
+    declared = set(declared_entries)
+    expected_stage_a = declared - {RESEARCH_POLISHER_ENTRY}
+    candidates: list[tuple[int, dict[str, Any]]] = []
+    for index, previous in enumerate(previous_releases):
+        if not isinstance(previous, dict):
+            continue
+        records = _safe_external_records(previous)
+        if records is None or set(records) != EXTERNAL_EVIDENCE_TYPES:
+            continue
+        if not all(
+            isinstance(record, dict)
+            and record.get("status") in EXTERNAL_ACCEPTED_STATUS
+            for record in records.values()
+        ):
+            continue
+        if not phase78_closure_is_complete_stage_a(previous):
+            continue
+        discovery = records["fresh_task_discovery"]
+        explicit_skills = discovery.get("explicit_callable_entry_skills")
+        implicit_skills = discovery.get("implicit_prompt_entry_skills")
+        if not (
+            isinstance(explicit_skills, list)
+            and all(isinstance(entry, str) and entry for entry in explicit_skills)
+            and discovery.get("explicit_callable_entries") == len(declared)
+            and set(explicit_skills) == declared
+            and isinstance(implicit_skills, list)
+            and all(isinstance(entry, str) and entry for entry in implicit_skills)
+            and discovery.get("implicit_prompt_entries") == len(expected_stage_a)
+            and set(implicit_skills) == expected_stage_a
+        ):
+            continue
+        candidates.append((index, previous))
+    require(
+        len(candidates) == 1,
+        "Stage B requires exactly one fully accepted previous Stage A release",
+        errors,
+    )
+    if len(candidates) != 1:
+        return
+    index, previous_a = candidates[0]
+    label = f"previous_releases[{index}]"
+    previous_records = _safe_external_records(previous_a)
+    assert previous_records is not None
+    if rollback.get("status") in EXTERNAL_ACCEPTED_STATUS:
+        previous_source = previous_a.get("source_commit", {})
+        require(
+            rollback.get("to_version") == previous_a.get("version")
+            and isinstance(previous_source, dict)
+            and rollback.get("target_commit") == previous_source.get("sha"),
+            f"Stage B accepted rollback is not bound to {label}",
+            errors,
+        )
+    if require_current_acceptance:
+        current_records = _safe_external_records(release)
+        require(
+            current_records is not None
+            and set(current_records) == EXTERNAL_EVIDENCE_TYPES
+            and all(
+                isinstance(record, dict)
+                and record.get("status") in EXTERNAL_ACCEPTED_STATUS
+                for record in (current_records or {}).values()
+            ),
+            "Stage B protected closure requires all eight current external records",
+            errors,
+        )
+
+
 def bind_fixture_evidence(
     record: dict[str, Any], evidence_type: str, path: Path
 ) -> None:
@@ -1722,6 +2048,90 @@ def bind_fixture_evidence(
     )
     record["evidence_path"] = path.relative_to(REPO).as_posix()
     record["evidence_sha256"] = hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def synthetic_phase78_consumer_result(
+    record: dict[str, Any],
+) -> dict[str, Any]:
+    binding: dict[str, Any] = {
+        "schema_version": record["producer_summary_schema"],
+        "evidence_release_id": 11,
+        "evidence_release_tag": "fixture-evidence",
+        "candidate_release_id": 12,
+        "candidate_release_tag": "fixture-candidate",
+        "candidate_ledger_sha256": "7" * 64,
+        "phase7_live_slot_count": 10,
+        "phase8_reviewer_count": 6,
+        "phase8_retrieval_count": 6,
+        "current_evidence_id_count": 30,
+        "current_asset_count": 120,
+    }
+    if record["producer_summary_schema"].endswith("/v3"):
+        binding["release_stage"] = "A"
+    return {
+        "schema_version": PHASE78_CLOSURE_CONSUMER_SCHEMA,
+        "consumer": {
+            "workflow_path": (
+                ".github/workflows/openai-preview-accepted-summary-consumer.yml"
+            ),
+            "run_id": record["consumer_run_id"],
+            "run_attempt": record["consumer_run_attempt"],
+            "source_commit": record["source_commit"],
+        },
+        "target_run": {
+            "workflow_path": ".github/workflows/openai-preview-accepted-evidence.yml",
+            "run_id": record["producer_run_id"],
+            "run_attempt": record["producer_run_attempt"],
+            "head_sha": record["source_commit"],
+            "status": "completed",
+            "conclusion": "success",
+        },
+        "artifact": {
+            "summary_sha256": record["producer_summary_sha256"],
+        },
+        "accepted_summary_binding": binding,
+        "decision": {
+            "verification_level": PREVIEW_ATTESTED,
+            "provider_verified": False,
+            "counts_as_phase78_closure": True,
+            "accepted": True,
+        },
+    }
+
+
+def accepted_phase78_closure_fixture(
+    release: dict[str, Any],
+    *,
+    producer_schema: str = "openai-preview-accepted-run-summary/v3",
+) -> dict[str, Any]:
+    source = release["source_commit"]["sha"]
+    record: dict[str, Any] = {
+        "status": PREVIEW_ATTESTED,
+        "source_commit": source,
+        "release_stage": "A",
+        "producer_summary_schema": producer_schema,
+        "producer_run_id": 7001,
+        "producer_run_attempt": 1,
+        "producer_summary_sha256": "6" * 64,
+        "consumer_result_schema": PHASE78_CLOSURE_CONSUMER_SCHEMA,
+        "consumer_run_id": 7002,
+        "consumer_run_attempt": 1,
+        "consumer_result_sha256": None,
+        "phase7_verified_runtime_count": 10,
+        "phase8_verified_reviewer_count": 6,
+        "phase8_verified_retrieval_count": 6,
+        "phase8_verified_slot_count": 12,
+        "verification_level": PREVIEW_ATTESTED,
+        "provider_verified": False,
+        "counts_as_phase78_closure": True,
+        "accepted": True,
+        "evidence_locator": None,
+    }
+    consumer_result = synthetic_phase78_consumer_result(record)
+    record["consumer_result_sha256"] = hashlib.sha256(
+        canonical_json_bytes(consumer_result)
+    ).hexdigest()
+    return record
 
 
 class SyntheticLiveVerifier:
@@ -1767,6 +2177,10 @@ class SyntheticLiveVerifier:
             "evidence_type": evidence_type,
             "observed": evidence_payload(record),
         }
+        if evidence_type == PHASE78_CLOSURE_EVIDENCE_TYPE:
+            raw_export["consumer_result"] = synthetic_phase78_consumer_result(
+                record
+            )
         cache_inventory = cache_inventory_for_evidence(record, evidence_type)
         if cache_inventory is not None:
             raw_export.update(
@@ -2119,6 +2533,10 @@ def verified_release_fixture(evidence_dir: Path, prefix: str = "fixture") -> dic
             "reason": "synthetic fixture uses an explicit test-only trust override",
         },
         "source_commit": {"status": "verified", "sha": sha},
+        "accepted_phase78_closure": {
+            "status": "pending",
+            "reason": "Synthetic fixture has no accepted Phase 7-8 closure.",
+        },
         "installable_skill_tree": {
             "root": "skills/",
             "algorithm": SKILL_TREE_ALGORITHM,
@@ -2571,6 +2989,220 @@ def run_live_evidence_mutation_tests(evidence_dir: Path) -> tuple[int, list[str]
         if not any(expected_error in error for error in errors):
             failures.append(f"wrong discovery {description} was not rejected")
         count += 1
+
+    stage_errors: list[str] = []
+    stage = validate_release_stage_entry_policy(
+        explicit, implicit_a, stage_errors, label="synthetic Stage A"
+    )
+    if stage != "A" or stage_errors:
+        failures.append(f"valid Stage A entry policy was rejected: {stage_errors}")
+    count += 1
+
+    def phase_b_history_fixture() -> tuple[dict[str, Any], list[dict[str, Any]]]:
+        current, _ = discovery_case(implicit_count=7, implicit_skills=explicit)
+        current["version"] = "1.2.0-preview.1"
+        previous = copy.deepcopy(current)
+        previous["version"] = "1.1.0-preview.1"
+        previous["source_commit"] = {"status": "verified", "sha": "b" * 40}
+        for record in external_records(previous).values():
+            record["status"] = PREVIEW_ATTESTED
+        previous_discovery = previous["receipts"]["fresh_task_discovery"]
+        previous_discovery["explicit_callable_entries"] = len(explicit)
+        previous_discovery["explicit_callable_entry_skills"] = list(explicit)
+        previous_discovery["implicit_prompt_entries"] = len(implicit_a)
+        previous_discovery["implicit_prompt_entry_skills"] = list(implicit_a)
+        previous["accepted_phase78_closure"] = (
+            accepted_phase78_closure_fixture(previous)
+        )
+        previous["accepted_phase78_closure"]["evidence_locator"] = copy.deepcopy(
+            previous_discovery["evidence_locator"]
+        )
+        rollback = current["receipts"]["rollback"]
+        rollback.update(
+            status=PREVIEW_ATTESTED,
+            from_version=current["version"],
+            to_version=previous["version"],
+            target_commit="b" * 40,
+        )
+        return current, [previous]
+
+    current_b, previous_a = phase_b_history_fixture()
+    stage_errors = []
+    stage = validate_release_stage_entry_policy(
+        explicit, explicit, stage_errors, label="synthetic Stage B"
+    )
+    validate_phase_b_previous_a_evidence(
+        current_b, previous_a, explicit, explicit, stage_errors, stage=stage
+    )
+    if stage != "B" or stage_errors:
+        failures.append(f"valid Stage B history was rejected: {stage_errors}")
+    count += 1
+
+    pending_b, pending_history = phase_b_history_fixture()
+    pending_b["receipts"]["rollback"].update(
+        status="pending", to_version=None, target_commit=None
+    )
+    pending_structural_errors: list[str] = []
+    validate_phase_b_previous_a_evidence(
+        pending_b,
+        pending_history,
+        explicit,
+        explicit,
+        pending_structural_errors,
+        stage="B",
+    )
+    if pending_structural_errors:
+        failures.append(
+            "Stage B candidate with pending current receipts failed structural validation: "
+            f"{pending_structural_errors}"
+        )
+    pending_releasable_errors: list[str] = []
+    validate_phase_b_previous_a_evidence(
+        pending_b,
+        pending_history,
+        explicit,
+        explicit,
+        pending_releasable_errors,
+        stage="B",
+        require_current_acceptance=True,
+    )
+    if not any("all eight current external records" in error for error in pending_releasable_errors):
+        failures.append("Stage B pending candidate incorrectly passed protected closure validation")
+    count += 1
+
+    wrong_six = explicit[1:]
+    stage_errors = []
+    if validate_release_stage_entry_policy(explicit, wrong_six, stage_errors) is not None:
+        failures.append("a six-entry set that includes Research Polisher was assigned a release stage")
+    if not any("exact Stage A" in error for error in stage_errors):
+        failures.append("wrong six-entry Stage A set was not rejected")
+    count += 1
+
+    missing_history_errors: list[str] = []
+    validate_phase_b_previous_a_evidence(
+        current_b, [], explicit, explicit, missing_history_errors, stage="B"
+    )
+    if not any("fully accepted previous Stage A" in error for error in missing_history_errors):
+        failures.append("Stage B without a rollback-bound Stage A predecessor was not rejected")
+    count += 1
+
+    prior_b_current, prior_b_history = phase_b_history_fixture()
+    prior_b_discovery = prior_b_history[0]["receipts"]["fresh_task_discovery"]
+    prior_b_discovery["implicit_prompt_entries"] = len(explicit)
+    prior_b_discovery["implicit_prompt_entry_skills"] = list(explicit)
+    prior_b_errors: list[str] = []
+    validate_phase_b_previous_a_evidence(
+        prior_b_current, prior_b_history, explicit, explicit, prior_b_errors, stage="B"
+    )
+    if not any("fully accepted previous Stage A" in error for error in prior_b_errors):
+        failures.append("Stage B accepted a prior seven-implicit release as its Stage A baseline")
+    count += 1
+
+    incomplete_current, incomplete_history = phase_b_history_fixture()
+    incomplete_history[0]["ci"]["repository_preview"]["status"] = "pending"
+    incomplete_errors: list[str] = []
+    validate_phase_b_previous_a_evidence(
+        incomplete_current,
+        incomplete_history,
+        explicit,
+        explicit,
+        incomplete_errors,
+        stage="B",
+    )
+    if not any("fully accepted previous Stage A" in error for error in incomplete_errors):
+        failures.append("Stage B accepted an incomplete previous Stage A evidence set")
+    count += 1
+
+    missing_closure_current, missing_closure_history = phase_b_history_fixture()
+    missing_closure_history[0].pop(PHASE78_CLOSURE_EVIDENCE_TYPE)
+    missing_closure_errors: list[str] = []
+    validate_phase_b_previous_a_evidence(
+        missing_closure_current,
+        missing_closure_history,
+        explicit,
+        explicit,
+        missing_closure_errors,
+        stage="B",
+    )
+    if not any(
+        "fully accepted previous Stage A" in error
+        for error in missing_closure_errors
+    ):
+        failures.append("Stage B accepted a previous Stage A without a closure")
+    count += 1
+
+    wrong_count_current, wrong_count_history = phase_b_history_fixture()
+    wrong_count_history[0][PHASE78_CLOSURE_EVIDENCE_TYPE][
+        "phase8_verified_slot_count"
+    ] = 11
+    wrong_count_errors: list[str] = []
+    validate_phase_b_previous_a_evidence(
+        wrong_count_current,
+        wrong_count_history,
+        explicit,
+        explicit,
+        wrong_count_errors,
+        stage="B",
+    )
+    if not any(
+        "fully accepted previous Stage A" in error for error in wrong_count_errors
+    ):
+        failures.append("Stage B accepted a closure without the 10+12 matrix")
+    count += 1
+
+    wrong_digest_current, wrong_digest_history = phase_b_history_fixture()
+    wrong_digest_history[0][PHASE78_CLOSURE_EVIDENCE_TYPE][
+        "consumer_result_sha256"
+    ] = "not-a-digest"
+    wrong_digest_errors: list[str] = []
+    validate_phase_b_previous_a_evidence(
+        wrong_digest_current,
+        wrong_digest_history,
+        explicit,
+        explicit,
+        wrong_digest_errors,
+        stage="B",
+    )
+    if not any(
+        "fully accepted previous Stage A" in error for error in wrong_digest_errors
+    ):
+        failures.append("Stage B accepted an unbound consumer result digest")
+    count += 1
+
+    legacy_v2_current, legacy_v2_history = phase_b_history_fixture()
+    legacy_v2_history[0][PHASE78_CLOSURE_EVIDENCE_TYPE][
+        "producer_summary_schema"
+    ] = "openai-preview-accepted-run-summary/v2"
+    legacy_v2_errors: list[str] = []
+    validate_phase_b_previous_a_evidence(
+        legacy_v2_current,
+        legacy_v2_history,
+        explicit,
+        explicit,
+        legacy_v2_errors,
+        stage="B",
+    )
+    if legacy_v2_errors:
+        failures.append(
+            "Stage B rejected a compatible v2 Stage A closure: "
+            f"{legacy_v2_errors}"
+        )
+    count += 1
+
+    mismatch_current, mismatch_history = phase_b_history_fixture()
+    mismatch_current["receipts"]["rollback"]["target_commit"] = "c" * 40
+    mismatch_errors: list[str] = []
+    validate_phase_b_previous_a_evidence(
+        mismatch_current,
+        mismatch_history,
+        explicit,
+        explicit,
+        mismatch_errors,
+        stage="B",
+    )
+    if not any("accepted rollback is not bound" in error for error in mismatch_errors):
+        failures.append("Stage B accepted rollback was not required to bind the Stage A release")
+    count += 1
 
     return count, failures
 
@@ -3403,6 +4035,7 @@ def validate_provenance(registry: dict[str, Any], errors: list[str]) -> None:
         "README.md",
         "ROADMAP.md",
         "PHASE7-8-RUNBOOK.md",
+        "PREVIEW-EVIDENCE-CAPTURE.md",
         "workflow-registry.yaml",
         "LICENSE",
         "PROVENANCE.yaml",
@@ -3426,7 +4059,7 @@ def main() -> int:
             .get("enum", [])
         )
         require(
-            declared_types == EXTERNAL_EVIDENCE_TYPES,
+            declared_types == ALL_RELEASE_EVIDENCE_TYPES,
             "release evidence schema types differ from the validator contract",
             errors,
         )
@@ -3551,6 +4184,12 @@ def main() -> int:
         "release discovery baseline must contain 6 Phase-7A or 7 Phase-7B implicit entries",
         errors,
     )
+    release_stage = validate_release_stage_entry_policy(
+        declared_entries if isinstance(declared_entries, list) else [],
+        implicit_entries if isinstance(implicit_entries, list) else [],
+        errors,
+        label="release discovery baseline",
+    )
 
     file_count, digest = normalized_skill_tree_digest(PLUGIN / "skills")
     tree = release.get("installable_skill_tree", {})
@@ -3633,6 +4272,14 @@ def main() -> int:
                 )
                 validate_verified_source_commit_tree(previous_release, errors, label)
         validate_rollback_history_binding(release, previous_releases, errors)
+        validate_phase_b_previous_a_evidence(
+            release,
+            previous_releases,
+            declared_entries if isinstance(declared_entries, list) else [],
+            implicit_entries if isinstance(implicit_entries, list) else [],
+            errors,
+            stage=release_stage,
+        )
 
     root_license = (REPO / "LICENSE").read_bytes()
     plugin_license = PLUGIN / "LICENSE"

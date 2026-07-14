@@ -48,15 +48,17 @@ def rejected(ledger: dict, code: str) -> None:
 
 
 def main() -> int:
+    previous = release("v1")
+    previous["accepted_phase78_closure"] = record("v1-phase78-closure")
     ledger = {
         "release": release("v2"),
-        "previous_releases": [release("v1"), release("v0", "pending")],
+        "previous_releases": [previous, release("v0", "pending")],
     }
     assert accepted_release_pairs(
         ledger,
         current_repository=REPOSITORY,
         current_release_tag="v2",
-    ) == [(REPOSITORY, "v1")]
+    ) == [(REPOSITORY, "v1"), (REPOSITORY, "v1-phase78-closure")]
     outside = copy.deepcopy(ledger)
     outside["previous_releases"][0]["ci"]["repository_preview"]["evidence_locator"][
         "repository"
@@ -72,8 +74,13 @@ def main() -> int:
         "evidence_locator"
     )
     rejected(missing, "missing_locator")
+    closure_outside = copy.deepcopy(ledger)
+    closure_outside["previous_releases"][0]["accepted_phase78_closure"][
+        "evidence_locator"
+    ]["repository"] = "other/repository"
+    rejected(closure_outside, "closure_cross_repository")
     rejected({"release": release("v2"), "previous_releases": {}}, "history_not_list")
-    print("Historical release asset discovery contracts passed: 4 guards")
+    print("Historical release asset discovery contracts passed: 5 guards")
     return 0
 
 

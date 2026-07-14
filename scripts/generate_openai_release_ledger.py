@@ -40,6 +40,7 @@ VALIDATION_CONTRACT_FILES = (
     ".github/workflows/openai-plugin-preview.yml",
     ".github/workflows/openai-preview-accepted-evidence.yml",
     ".github/workflows/openai-preview-accepted-summary-consumer.yml",
+    ".github/workflows/openai-preview-draft-bundle-verifier.yml",
     ".github/workflows/openai-preview-evidence.yml",
     "codex-plugin-validation.json",
 )
@@ -175,6 +176,57 @@ def tracked_repository_file(
     )
 
 
+def repository_candidate_file(
+    path: Path,
+    repository: Path = REPO,
+) -> Path:
+    """Return one tracked or non-ignored new regular repository file."""
+
+    repository = repository.resolve(strict=True)
+    path = path.absolute()
+    try:
+        relative = path.relative_to(repository).as_posix()
+    except ValueError as exc:
+        raise RuntimeError(f"release-ledger file escapes repository: {path}") from exc
+    tracked = _git_file_listing(
+        repository,
+        "--cached",
+        "--stage",
+        "-z",
+        "--",
+        relative,
+    )
+    if tracked:
+        if len(tracked) != 1:
+            raise RuntimeError(
+                f"release-ledger source is not uniquely tracked: {relative}"
+            )
+        mode, stage, tracked_relative = _decode_tracked_record(tracked[0])
+        if tracked_relative != relative:
+            raise RuntimeError(f"Git returned an out-of-scope source: {tracked_relative}")
+        _require_regular_tracked_record(mode, stage, relative)
+    else:
+        untracked = _git_file_listing(
+            repository,
+            "--others",
+            "--exclude-per-directory=.gitignore",
+            "-z",
+            "--",
+            relative,
+        )
+        decoded = [item.decode("utf-8") for item in untracked]
+        if decoded != [relative]:
+            raise RuntimeError(
+                "release-ledger source is neither tracked nor one unique "
+                f"non-ignored file: {relative}"
+            )
+    if is_validation_runtime_cache(path, repository):
+        raise RuntimeError(
+            f"tracked runtime cache is forbidden in release identity: {relative}"
+        )
+    return _validate_worktree_file(path, repository, repository, relative)
+
+
 def repository_candidate_files(
     root: Path,
     repository: Path = REPO,
@@ -277,7 +329,7 @@ def validation_contract_paths() -> list[Path]:
     for root in VALIDATION_TEST_ROOTS:
         paths.extend(repository_candidate_files(REPO / root))
     paths.extend(
-        tracked_repository_file(REPO / path)
+        repository_candidate_file(REPO / path)
         for path in VALIDATION_CONTRACT_FILES
     )
     return sorted(
@@ -386,6 +438,28 @@ def default_external_evidence(version: str) -> dict[str, Any]:
         "marketplace_resolved_commit": pending(
             "The rolling marketplace ref has not yet been resolved and bound to this release.",
             sha=None,
+            evidence_locator=None,
+        ),
+        "accepted_phase78_closure": pending(
+            "No immutable Release evidence binds an independently consumed Phase 7-8 accepted summary for this release.",
+            source_commit=None,
+            release_stage=None,
+            producer_summary_schema=None,
+            producer_run_id=None,
+            producer_run_attempt=None,
+            producer_summary_sha256=None,
+            consumer_result_schema=None,
+            consumer_run_id=None,
+            consumer_run_attempt=None,
+            consumer_result_sha256=None,
+            phase7_verified_runtime_count=None,
+            phase8_verified_reviewer_count=None,
+            phase8_verified_retrieval_count=None,
+            phase8_verified_slot_count=None,
+            verification_level=None,
+            provider_verified=None,
+            counts_as_phase78_closure=None,
+            accepted=None,
             evidence_locator=None,
         ),
         "receipts": {
@@ -520,6 +594,7 @@ def build_ledger(existing: dict[str, Any] | None = None) -> dict[str, Any]:
         },
         "ci": external["ci"],
         "governance": external["governance"],
+        "accepted_phase78_closure": external["accepted_phase78_closure"],
         "marketplace_source": {
             **marketplace_source(),
             "resolved_commit": external["marketplace_resolved_commit"],
@@ -540,6 +615,7 @@ def build_ledger(existing: dict[str, Any] | None = None) -> dict[str, Any]:
                     "source_commit",
                     "ci",
                     "governance",
+                    "accepted_phase78_closure",
                     "receipts",
                 ):
                     if key in prior_release:

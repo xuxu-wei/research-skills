@@ -11,7 +11,7 @@ from pathlib import Path
 from typing import Any, Mapping, Sequence
 
 
-SCHEMA = "openai-preview-accepted-run-summary/v2"
+SCHEMA = "openai-preview-accepted-run-summary/v3"
 WORKFLOW_PATH = ".github/workflows/openai-preview-accepted-evidence.yml"
 COMMIT_RE = re.compile(r"[0-9a-f]{40}")
 SHA256_RE = re.compile(r"[0-9a-f]{64}")
@@ -67,6 +67,16 @@ EXTERNAL_RECORD_PATHS = {
     "rollback": ("receipts", "rollback"),
 }
 ACCEPTED_EXTERNAL_STATUSES = {"preview_attested", "provider_verified"}
+PHASE78_CLOSURE_EVIDENCE_TYPE = "accepted_phase78_closure"
+PHASE78_CLOSURE_PRODUCER_SCHEMAS = {
+    "openai-preview-accepted-run-summary/v2",
+    "openai-preview-accepted-run-summary/v3",
+}
+PHASE78_CLOSURE_CONSUMER_SCHEMA = (
+    "openai-preview-accepted-summary-consumer/v1"
+)
+RESEARCH_POLISHER_ENTRY = "research-polisher-orchestrator"
+EXPECTED_PUBLIC_ENTRY_COUNT = 7
 CHAIN_ASSET_KINDS = {
     "raw_export_asset": {"raw_export", "structured_export", "task_export"},
     "envelope_asset": {"evidence_envelope"},
@@ -514,6 +524,12 @@ def _historical_expectations(
             record = _nested(previous, path, f"{scope}.{evidence_type}")
             if record.get("status") in ACCEPTED_EXTERNAL_STATUSES:
                 accepted_records.append((evidence_type, record))
+        closure = previous.get(PHASE78_CLOSURE_EVIDENCE_TYPE)
+        if (
+            isinstance(closure, Mapping)
+            and closure.get("status") in ACCEPTED_EXTERNAL_STATUSES
+        ):
+            accepted_records.append((PHASE78_CLOSURE_EVIDENCE_TYPE, closure))
         if accepted_records:
             require(
                 isinstance(source_commit, str)
@@ -546,6 +562,138 @@ def _historical_expectations(
     return expectations
 
 
+def _release_stage_history_contract(ledger: Mapping[str, Any]) -> dict[str, Any]:
+    """Bind Stage B to one fully accepted six-implicit Stage A predecessor."""
+
+    release = ledger.get("release")
+    require(isinstance(release, Mapping), "candidate ledger release is missing")
+    discovery = _nested(
+        release, EXTERNAL_RECORD_PATHS["fresh_task_discovery"], "fresh_task_discovery"
+    )
+    explicit = discovery.get("explicit_callable_entry_skills")
+    implicit = discovery.get("implicit_prompt_entry_skills")
+    require(
+        discovery.get("status") == "preview_attested"
+        and isinstance(explicit, list)
+        and len(explicit) == EXPECTED_PUBLIC_ENTRY_COUNT
+        and all(isinstance(item, str) and item for item in explicit)
+        and len(set(explicit)) == EXPECTED_PUBLIC_ENTRY_COUNT
+        and RESEARCH_POLISHER_ENTRY in explicit
+        and discovery.get("explicit_callable_entries") == len(explicit)
+        and isinstance(implicit, list)
+        and all(isinstance(item, str) and item for item in implicit)
+        and len(set(implicit)) == len(implicit)
+        and discovery.get("implicit_prompt_entries") == len(implicit),
+        "candidate discovery does not carry a valid seven-entry release-stage contract",
+    )
+    declared = set(explicit or [])
+    actual_implicit = set(implicit or [])
+    stage_a_implicit = declared - {RESEARCH_POLISHER_ENTRY}
+    if actual_implicit == stage_a_implicit:
+        return {
+            "release_stage": "A",
+            "stage_a_predecessor_scope": None,
+            "stage_a_verified_record_count": 0,
+            "stage_a_closure_record": None,
+        }
+    require(
+        actual_implicit == declared,
+        "candidate discovery is neither exact Stage A nor exact Stage B",
+    )
+    rollback = _nested(release, EXTERNAL_RECORD_PATHS["rollback"], "rollback")
+    require(
+        rollback.get("status") == "preview_attested",
+        "Stage B candidate has no Preview-attested rollback receipt",
+    )
+    previous_releases = ledger.get("previous_releases")
+    require(isinstance(previous_releases, list), "candidate ledger previous_releases is invalid")
+    matches: list[tuple[int, Mapping[str, Any]]] = []
+    for index, previous in enumerate(previous_releases or []):
+        if not isinstance(previous, Mapping):
+            continue
+        source = previous.get("source_commit")
+        if (
+            previous.get("version") == rollback.get("to_version")
+            and isinstance(source, Mapping)
+            and source.get("sha") == rollback.get("target_commit")
+        ):
+            matches.append((index, previous))
+    require(
+        len(matches) == 1,
+        "Stage B rollback does not identify exactly one Stage A predecessor",
+    )
+    index, previous_a = matches[0]
+    scope = f"previous_releases[{index}]"
+    previous_records = {
+        evidence_type: _nested(previous_a, path, f"{scope}.{evidence_type}")
+        for evidence_type, path in EXTERNAL_RECORD_PATHS.items()
+    }
+    require(
+        all(record.get("status") == "preview_attested" for record in previous_records.values()),
+        f"{scope} does not contain eight Preview-attested Stage A records",
+    )
+    previous_discovery = previous_records["fresh_task_discovery"]
+    require(
+        previous_discovery.get("explicit_callable_entries") == len(declared)
+        and set(previous_discovery.get("explicit_callable_entry_skills") or []) == declared
+        and previous_discovery.get("implicit_prompt_entries") == len(stage_a_implicit)
+        and set(previous_discovery.get("implicit_prompt_entry_skills") or [])
+        == stage_a_implicit,
+        f"{scope} fresh-task discovery is not the six-implicit Stage A baseline",
+    )
+    closure = previous_a.get(PHASE78_CLOSURE_EVIDENCE_TYPE)
+    require(
+        isinstance(closure, Mapping)
+        and closure.get("status") == "preview_attested"
+        and closure.get("source_commit") == previous_a["source_commit"]["sha"]
+        and closure.get("release_stage") == "A"
+        and closure.get("producer_summary_schema")
+        in PHASE78_CLOSURE_PRODUCER_SCHEMAS
+        and positive_integer(
+            closure.get("producer_run_id"), f"{scope}.closure.producer_run_id"
+        )
+        > 0
+        and positive_integer(
+            closure.get("producer_run_attempt"),
+            f"{scope}.closure.producer_run_attempt",
+        )
+        > 0
+        and isinstance(closure.get("producer_summary_sha256"), str)
+        and SHA256_RE.fullmatch(str(closure.get("producer_summary_sha256")))
+        is not None
+        and closure.get("consumer_result_schema")
+        == PHASE78_CLOSURE_CONSUMER_SCHEMA
+        and positive_integer(
+            closure.get("consumer_run_id"), f"{scope}.closure.consumer_run_id"
+        )
+        > 0
+        and positive_integer(
+            closure.get("consumer_run_attempt"),
+            f"{scope}.closure.consumer_run_attempt",
+        )
+        > 0
+        and isinstance(closure.get("consumer_result_sha256"), str)
+        and SHA256_RE.fullmatch(str(closure.get("consumer_result_sha256")))
+        is not None
+        and closure.get("phase7_verified_runtime_count") == 10
+        and closure.get("phase8_verified_reviewer_count") == 6
+        and closure.get("phase8_verified_retrieval_count") == 6
+        and closure.get("phase8_verified_slot_count") == 12
+        and closure.get("verification_level") == "preview_attested"
+        and closure.get("provider_verified") is False
+        and closure.get("counts_as_phase78_closure") is True
+        and closure.get("accepted") is True
+        and isinstance(closure.get("evidence_locator"), Mapping),
+        f"{scope} lacks an accepted independent Phase 7-8 closure",
+    )
+    return {
+        "release_stage": "B",
+        "stage_a_predecessor_scope": scope,
+        "stage_a_verified_record_count": len(EXTERNAL_RECORD_PATHS) + 1,
+        "stage_a_closure_record": dict(closure),
+    }
+
+
 def _bind_historical_results(
     *,
     results: Any,
@@ -570,7 +718,8 @@ def _bind_historical_results(
             isinstance(scope, str)
             and scope.startswith("previous_releases[")
             and isinstance(evidence_type, str)
-            and evidence_type in EXTERNAL_RECORD_PATHS
+            and evidence_type
+            in {*EXTERNAL_RECORD_PATHS, PHASE78_CLOSURE_EVIDENCE_TYPE}
             and isinstance(locator_sha256, str)
             and re.fullmatch(r"sha256:[0-9a-f]{64}", locator_sha256) is not None
             and key not in by_key,
@@ -850,6 +999,7 @@ def build_summary(
         and release_source.get("sha") == source_commit,
         "candidate ledger does not bind the trusted source commit",
     )
+    stage_history = _release_stage_history_contract(ledger)
     runner = load_object(release_runner_result_path, "release-evidence runner result")
     expected_types = set(EXTERNAL_RECORD_PATHS)
     require(
@@ -879,6 +1029,83 @@ def build_summary(
             expectations=historical_expectations,
         )
     )
+    predecessor_scope = stage_history["stage_a_predecessor_scope"]
+    predecessor_history = [
+        item for item in history_items if item.get("release_scope") == predecessor_scope
+    ]
+    expected_predecessor_types = {
+        *EXTERNAL_RECORD_PATHS,
+        PHASE78_CLOSURE_EVIDENCE_TYPE,
+    }
+    require(
+        stage_history["release_stage"] == "A"
+        or (
+            len(predecessor_history) == len(expected_predecessor_types)
+            and {item.get("evidence_type") for item in predecessor_history}
+            == expected_predecessor_types
+        ),
+        "Stage B accepted summary does not live-verify all eight Stage A records and its independent closure",
+    )
+    closure_record = stage_history.pop("stage_a_closure_record")
+    stage_a_closure: dict[str, Any] | None = None
+    if stage_history["release_stage"] == "B":
+        require(
+            isinstance(closure_record, Mapping),
+            "Stage B accepted summary has no Stage A closure record",
+        )
+        closure_items = [
+            item
+            for item in predecessor_history
+            if item.get("evidence_type") == PHASE78_CLOSURE_EVIDENCE_TYPE
+        ]
+        require(
+            len(closure_items) == 1,
+            "Stage B accepted summary has no unique live-verified Stage A closure",
+        )
+        closure_item = closure_items[0]
+        stage_a_closure = {
+            "release_scope": predecessor_scope,
+            "evidence_type": PHASE78_CLOSURE_EVIDENCE_TYPE,
+            "source_commit": closure_record["source_commit"],
+            "release_stage": closure_record["release_stage"],
+            "producer_summary_schema": closure_record["producer_summary_schema"],
+            "producer_run_id": closure_record["producer_run_id"],
+            "producer_run_attempt": closure_record["producer_run_attempt"],
+            "producer_summary_sha256": closure_record[
+                "producer_summary_sha256"
+            ],
+            "consumer_result_schema": closure_record["consumer_result_schema"],
+            "consumer_run_id": closure_record["consumer_run_id"],
+            "consumer_run_attempt": closure_record["consumer_run_attempt"],
+            "consumer_result_sha256": closure_record["consumer_result_sha256"],
+            "phase7_verified_runtime_count": closure_record[
+                "phase7_verified_runtime_count"
+            ],
+            "phase8_verified_reviewer_count": closure_record[
+                "phase8_verified_reviewer_count"
+            ],
+            "phase8_verified_retrieval_count": closure_record[
+                "phase8_verified_retrieval_count"
+            ],
+            "phase8_verified_slot_count": closure_record[
+                "phase8_verified_slot_count"
+            ],
+            "verification_level": closure_record["verification_level"],
+            "provider_verified": closure_record["provider_verified"],
+            "counts_as_phase78_closure": closure_record[
+                "counts_as_phase78_closure"
+            ],
+            "accepted": closure_record["accepted"],
+            "evidence_id": closure_item["evidence_id"],
+            "locator_sha256": closure_item["locator_sha256"],
+            "validated_result_sha256": closure_item[
+                "validated_result_sha256"
+            ],
+            "verifier_workflow_run_id": closure_item[
+                "verifier_workflow_run_id"
+            ],
+            "verified_at": closure_item["verified_at"],
+        }
     live_by_type = {
         str(item.get("evidence_type")): item for item in live_results
     }
@@ -1160,6 +1387,8 @@ def build_summary(
         "phase8": phase78["phase8"],
         "release_evidence": {
             "adapter_id": runner.get("adapter_id"),
+            **stage_history,
+            "stage_a_closure": stage_a_closure,
             "verified_record_count": 8,
             "historical_verified_record_count": len(history_items),
             "provider_verified": False,

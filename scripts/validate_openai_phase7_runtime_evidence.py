@@ -411,7 +411,7 @@ def _manifest_binding(
 
 
 def _required_workspace_paths(
-    receipt: Mapping[str, Any], artifact_index_payload: bytes
+    receipt: Mapping[str, Any], artifact_index_payload: bytes, task_export_payload: bytes
 ) -> set[str]:
     receipt_id = str(receipt.get("receipt_id"))
     binding = _mapping(receipt.get("binding"), f"receipts.{receipt_id}.binding")
@@ -428,6 +428,16 @@ def _required_workspace_paths(
     for offset, item in enumerate(_sequence(artifact_index.get("artifacts"), f"receipts.{receipt_id}.artifact_index.artifacts")):
         artifact = _mapping(item, f"receipts.{receipt_id}.artifact_index.artifacts[{offset}]")
         required.add(_canonical_logical_path(artifact.get("path"), f"receipts.{receipt_id}.artifact_index.artifacts[{offset}].path"))
+    task_export = _parse_mapping(task_export_payload, f"receipts.{receipt_id}.task_export")
+    file_access_binding = _mapping(
+        task_export.get("file_access"), f"receipts.{receipt_id}.task_export.file_access"
+    )
+    required.add(
+        _canonical_logical_path(
+            file_access_binding.get("path"),
+            f"receipts.{receipt_id}.task_export.file_access.path",
+        )
+    )
     return required
 
 
@@ -500,7 +510,15 @@ def _workspace_files(
     artifact_file = next((item for item in files if item.logical_path == artifact_path), None)
     if artifact_file is None:
         _fail("workspace_artifact_index_missing", label, artifact_path)
-    required = _required_workspace_paths(receipt, artifact_file.payload)
+    task_binding = _mapping(binding.get("task_export"), f"receipts.{receipt_id}.binding.task_export")
+    task_path = _canonical_logical_path(task_binding.get("path"), f"receipts.{receipt_id}.binding.task_export.path")
+    task_file = next(item for item in files if item.logical_path == task_path)
+    task_asset = assets[task_file.asset_id]
+    if task_asset.evidence_kind != "task_export" or task_binding.get("sha256") != task_file.digest:
+        _fail("workspace_task_export_binding", label, task_path)
+    required = _required_workspace_paths(
+        receipt, artifact_file.payload, task_file.payload
+    )
     actual = {item.logical_path for item in files}
     if actual != required:
         _fail(
@@ -508,13 +526,6 @@ def _workspace_files(
             label,
             f"missing={sorted(required - actual)} extra={sorted(actual - required)}",
         )
-
-    task_binding = _mapping(binding.get("task_export"), f"receipts.{receipt_id}.binding.task_export")
-    task_path = _canonical_logical_path(task_binding.get("path"), f"receipts.{receipt_id}.binding.task_export.path")
-    task_file = next(item for item in files if item.logical_path == task_path)
-    task_asset = assets[task_file.asset_id]
-    if task_asset.evidence_kind != "task_export" or task_binding.get("sha256") != task_file.digest:
-        _fail("workspace_task_export_binding", label, task_path)
     reserved_ids = {
         asset.asset_id
         for asset in assets.values()

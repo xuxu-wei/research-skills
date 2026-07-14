@@ -713,11 +713,29 @@ def validate_evidence_envelope(
             "the capture envelope may name expected verifier code, but cannot contain later verifier results",
         )
 
-    if captured_at > verified_index.witnessed_at:
+    witness_role = witness.get("workflow_witness_role")
+    if witness_role is None:
+        # Legacy envelopes used a post-capture packaging witness.
+        if captured_at > verified_index.witnessed_at:
+            _fail(
+                "invalid_timestamp_order",
+                "envelope.capture.captured_at",
+                "captured_at must be earlier than or equal to witnessed_at",
+            )
+    elif witness_role == "source_commit_main_ci":
+        # The production Preview adapter binds the already-frozen successful
+        # main-push CI run, which necessarily precedes live task capture.
+        if verified_index.witnessed_at > captured_at:
+            _fail(
+                "invalid_timestamp_order",
+                "envelope.capture.captured_at",
+                "source-commit CI witnessed_at must precede captured_at",
+            )
+    else:
         _fail(
-            "invalid_timestamp_order",
-            "envelope.capture.captured_at",
-            "captured_at must be earlier than or equal to witnessed_at",
+            "unsupported_workflow_witness_role",
+            "envelope.github_witness.workflow_witness_role",
+            str(witness_role),
         )
 
     verifier_report_asset = next(

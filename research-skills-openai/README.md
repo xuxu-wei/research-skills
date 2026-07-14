@@ -1,30 +1,33 @@
-# Research Skills (Preview)
+# Research Skills (Personal Preview)
 
-`research-skills-openai` is a personal, experimental ChatGPT/Codex research
-workflow plugin. It contains 49 skills for research ideas, proposals, articles,
-perspectives, research-impact positioning, evidence retrieval, and independent
-review. It is not presented as production-stable.
+`research-skills-openai` is an owner-operated, experimental ChatGPT/Codex
+research workflow plugin. It contains 49 skills for research ideas, proposals,
+articles, perspectives, research-impact positioning, evidence retrieval, and
+independent review. It is maintained for one owner's research work and is not
+presented as a production-stable, supported, shared, or public distribution.
 
-Roadmap Phase 0 through Phase 6 are complete. Phase 7 and Phase 8 are in
-progress. CI enforces the static, deterministic, fixture, registry, package,
-and Preview-release contracts. The repository now includes an App Server
-capture helper, an integrity-only Release-asset validator, and a separate live
-GitHub witness verifier; no current runtime slot is complete until real
-external evidence passes that chain. A historical Codex App cycle verified GitHub
-Preview upgrade, reinstall, and fresh-task discovery; that receipt is evidence,
-not a continuous or current-version guarantee. ChatGPT web installation,
-sharing permission, and discovery remain unverified.
+The source is `deterministic_validated`: the static audits, workflow fixtures,
+reviewer-isolation checks, context budgets, registry, and plugin package pass the
+maintained test suite. Current-version owner-observed runtime checks are still
+in progress, so the plugin is not yet labelled `owner_observed_ready`.
 
-The immediate Roadmap priority remains the Phase 7 and Phase 8 maintenance and
-runtime proof gates. Current-version live workflow runs, release/rollback
-evidence, and two complete Deep Research return cycles are still pending. The
-owner-approved Research Polisher expansion is the next Phase 9 feature, but its
-source presence is not evidence that those live gates or its current-version
-marketplace discovery have passed. See [ROADMAP.md](ROADMAP.md) for sequencing
-and [PHASE7-8-RUNBOOK.md](PHASE7-8-RUNBOOK.md) for the A/B release and external
-evidence execution checklist.
+The immediate priorities are deliberately small:
 
-## Install from GitHub Preview
+1. verify the current GitHub marketplace install, update/reinstall, cache
+   identity, and fresh-task discovery on the owner's Codex App;
+2. run one owner-observed happy path for each of the five workflows plus two
+   cross-workflow controls; and
+3. exercise three built-in Search cases, one inactive-Deep-Research control,
+   and one complete user-started Deep Research handoff-return-resume cycle.
+
+Research Polisher is already implemented as the seventh declared entry and is
+permanently explicit-only under the current personal routing policy. See
+[ROADMAP.md](ROADMAP.md) for sequencing and
+[PHASE7-8-RUNBOOK.md](PHASE7-8-RUNBOOK.md) for the personal acceptance checklist.
+ChatGPT web installation, sharing, and discovery have not been verified and are
+not required for the current personal Codex profile.
+
+## Install from GitHub
 
 Register the GitHub repository as the rolling Preview marketplace once, then
 install the marketplace-qualified plugin:
@@ -73,13 +76,13 @@ python scripts/codex_plugin_converter.py --mode codex --install --fail-on-invali
 
 The helper preserves the base version, including any prerelease identifier, and
 synchronizes the manifest and workflow registry, for example
-`0.7.0-preview.1` to `0.7.0-preview.1+codex.local-YYYYMMDD-HHMMSS`. Never commit
+`0.7.0-preview.2` to `0.7.0-preview.2+codex.local-YYYYMMDD-HHMMSS`. Never commit
 or push a `+codex.local-*` version to the rolling Preview channel.
 
-## Verified surfaces and context loading
+## Inventory and invocation policy
 
-The maintained `0.7.0-preview.1` source contains 49 skill contracts and declares
-seven discoverable public entries. Six currently set
+The maintained `0.7.0-preview.2` source contains 49 skill contracts and declares
+seven discoverable entry skills. Six currently set
 `allow_implicit_invocation: true`:
 
 - `academic-deep-search`
@@ -89,20 +92,23 @@ seven discoverable public entries. Six currently set
 - `research-idea-orchestrator`
 - `research-opportunity-mapper`
 
-`research-polisher-orchestrator` is the seventh public entry and has a complete
-quickstart, but remains explicit-only while the Phase 7-8 external-evidence
-gates are open. The other 42 private roles also set the policy to `false` and
-remain available for explicit or orchestrated delegation. The only completed catalog observation belongs to
-an already-installed historical `0.5.0-preview.1` cache, where six implicit
-entries and zero non-implicit roles were observed. It does not verify the
-`0.7.0-preview.1` catalog. Current-version marketplace install, fresh-task
-discovery, workflow execution, and rollback remain Phase 7 gates; the Phase 8
-live retrieval and independent-review gates also remain pending. ChatGPT web
-installation, discovery, sharing, and runtime behavior remain unverified.
+`research-polisher-orchestrator` is the seventh declared entry and has a complete
+quickstart. It remains explicit-only as a permanent personal routing boundary;
+it must not take over language polishing, ordinary drafting, new-idea
+generation, or general literature-search requests. The other 42 private roles
+also set the policy to `false` and remain available for explicit or
+orchestrated delegation.
 
-## Public entry quickstarts
+A local audit on 2026-07-14 confirmed that the GitHub marketplace is registered,
+the plugin is enabled, and Codex currently holds the coherent
+`0.7.0-preview.1` cache. The installation mechanism is therefore implemented.
+The working-tree `0.7.0-preview.2` cannot be installed from GitHub until it is
+committed and pushed; Phase 7 records the post-push upgrade and fresh-task
+discovery rather than treating the older cache as current-version evidence.
 
-Each prompt explicitly names one public entry so it can be pasted into a fresh
+## Entry-skill quickstarts
+
+Each prompt explicitly names one declared entry so it can be pasted into a fresh
 task without asking the router to choose among unrelated workflows.
 
 ### `$academic-deep-search`
@@ -186,6 +192,8 @@ Use $research-opportunity-mapper for this broad evidence question: [question]. D
 
 ```powershell
 python scripts/audit_openai_research_plugin.py
+python scripts/audit_openai_research_proposal.py
+python scripts/audit_openai_research_perspective.py
 python scripts/test_openai_release_contract.py
 python scripts/sync_openai_fixture_versions.py
 python scripts/test_openai_phase6_context.py
@@ -193,133 +201,36 @@ python scripts/test_openai_phase2_phase3.py
 python scripts/test_openai_phase4_scenarios.py --check-report
 python scripts/test_openai_phase7_modes.py --check-report
 python scripts/test_openai_phase8_corpus.py --check-report
-python scripts/test_openai_preview_evidence.py
-python scripts/test_build_openai_preview_accepted_summary.py
-python scripts/test_build_openai_preview_verifier_summary.py
-python scripts/test_download_openai_release_ledger_assets.py
-python scripts/test_validate_openai_preview_evidence_bundle.py
-python scripts/test_openai_app_server_capture.py
-python scripts/test_validate_openai_phase7_runtime_evidence.py
-python scripts/test_validate_openai_phase8_external_evidence.py
-python scripts/test_validate_openai_release_evidence.py
-python scripts/test_verify_openai_preview_accepted_summary.py
-python scripts/test_openai_phase8_preview_verifier.py
-python scripts/test_openai_preview_workflows.py
-python scripts/test_validate_openai_preview_accepted_phase78.py
+python scripts/test_validate_openai_personal_readiness.py
+python scripts/validate_openai_personal_readiness.py --check-report
 python scripts/codex_plugin_converter.py --mode codex --fail-on-invalid
-python scripts/generate_openai_release_ledger.py --check
-python scripts/test_openai_release_ledger.py
-python scripts/validate_openai_preview_release.py
 python C:\Users\10149\.codex\skills\.system\plugin-creator\scripts\validate_plugin.py research-skills-openai
 ```
 
-GitHub Actions runs the portable audit, context proxy, fixture, package, release,
-and SemVer-bump checks on pull requests and pushes to `main`.
+GitHub Actions runs the portable audits, context budgets, workflow fixtures,
+package checks, and SemVer checks on pull requests and pushes to `main`.
 
-The two commands ending in `test_openai_release_ledger.py` and
-`validate_openai_preview_release.py` perform structural validation when no
-external bundle root is supplied; that path never claims to have repeated a
-live re-query. Accepted evidence is gated separately by
-`.github/workflows/openai-preview-accepted-evidence.yml`, which runs the fixed
-production callback and then the complete release validator inside the
-protected `openai-preview-governance` Environment. Its producer summary uses
-`acceptance_scope: producer_internal` and explicitly cannot close Phase 7-8.
-After that workflow completes,
-`.github/workflows/openai-preview-accepted-summary-consumer.yml` runs from
-trusted default-branch code with no governance secret. It re-queries the exact
-attempt, successful protected job and deployment, current Environment policy
-and approval history, run-bound artifact, ZIP digest, and summary lineage. Only
-its accepted result may set `counts_as_phase78_closure: true`.
+The personal runtime evidence level is `owner_observed`. Each accepted
+observation binds the plugin version, task ID, frozen input and output artifact
+IDs or paths, SHA-256 digests, timestamps, reviewer instances where applicable,
+and an explicit owner confirmation. These receipts support only the personal
+state `owner_observed_ready`; they do not assert external, provider, shared, or
+public attestation.
 
-The verified historical GitHub reinstall and fresh-process discovery trace is
-in `reports/phase5-upgrade-smoke.md`. The current candidate's commit, CI,
-marketplace upgrade/reinstall, fresh-task discovery, and rollback status are
-tracked without inference in `reports/release-ledger.json`. Raw runtime evidence
-does not enter `main`: it is bound to an immutable prerelease tag and stored as
-GitHub Release assets with asset IDs and SHA-256 digests. The local bundle CLI
-checks only structure, source identity, and byte integrity; it never makes a
-receipt gate-eligible. A separate executable adapter must re-query the GitHub
-Release, Actions run, committed verifier, and indexed assets before the ledger
-can record `preview_attested`. Repository-authored status text, screenshots,
-handwritten YAML, or an internally consistent local envelope cannot close a
-gate.
+The current receipt collection is
+`../tests/openai_personal/current-version-owner-observed-receipts.yaml`; the
+derived status is `reports/personal-readiness.json`. Pending observations are a
+valid `in_progress_owner_observation` state and do not fail deterministic CI.
 
-External promotion uses two distinct immutable Releases at the same frozen
-source commit. The evidence Release contains R/E/V/I before the first live
-verifier run. After that run produces its bound summary, the candidate Release
-contains the derived ledger plus the accepted Phase 7 runtime, Phase 8 reviewer,
-and Phase 8 retrieval collections. The protected workflow keeps candidate
-files outside the evidence bundle root and never exposes its governance
-credential to a caller-selected checkout.
+The core runtime constraints remain unchanged:
 
-The accepted-state bridge binds the candidate ledger bytes independently to
-the candidate Release inventory and production runner result. It verifies the
-current eight release/distribution chains, ten Phase 7 chains, and twelve Phase
-8 chains as 30 globally unique evidence IDs with 120 unique R/E/V/I content
-digests, while validating accepted history separately. Both Release tags are
-resolved through exact `refs/tags/...` lookups with annotated-tag peeling. The
-accepted summary is uploaded only after the trusted checkout and both isolated
-validation workspaces pass their final immutability/allowlist proof. The
-artifact counts only when the independent consumer observes that exact attempt
-as successful, binds the Environment deployment status to the protected job's
-canonical URL, and revalidates the artifact; the producer JSON alone is not an
-acceptance credential. Both producer and consumer reports use 90-day Actions
-artifacts. Treat this as a time-limited attestation: refresh/re-attest before
-expiry or add a separately reviewed immutable attestation Release before
-claiming long-term reproducibility.
-
-Evidence levels are intentionally distinct. `capture_only` is a redacted raw
-export and never counts. `preview_attested` is the acceptance level for this
-personal Experimental/Preview plugin: it requires an immutable external GitHub
-witness and independent executable verification, but it is not an OpenAI
-provider attestation. `provider_verified` is stricter and remains unavailable
-until a registered authenticated provider adapter exists. The evidence
-contracts are defined in `../tests/openai_phase7/release-evidence.schema.yaml`
-and `../scripts/openai_preview_evidence.py`; all current real records remain
-pending.
-
-Install, reinstall, discovery, and rollback evidence must also include the
-provider-exported cache inventory. The validator recomputes a cache content
-identity from the plugin version, immutable source commit, manifest, registry,
-complete skill tree, and bundled license. Fresh-task discovery must name and
-exactly match one verified N+1 install cache; rollback must bind the selected
-current cache and a distinct cache matching the previous release. A cache path
-or `cache_mixing_absent` label alone cannot close these gates.
-
-Phase 8 evidence is split deliberately: the anonymous synthetic corpus passes;
-three Search runs and one inactive Deep Research pause are historical
-`0.6.0-preview.1` snapshots and do not satisfy current-release live gates.
-Six earlier review snapshots are retained as explicitly excluded historical
-records because their reviewer-visible identifiers disclosed outcome labels;
-six fresh replacements using opaque A01-A03 source, case, run, bundle, prompt,
-and real instance identifiers remain historical release-mismatch evidence, not
-current observations. Repository-authored files and recomputed
-digests are integrity records, not external provenance, and can never promote a
-receipt by themselves. Preview promotion requires the registered executable
-GitHub live-requery verifier plus source-commit/tree identity and current
-timestamps; provider promotion additionally requires an authenticated provider
-adapter. Accepted
-review dispatch must use a source-only sanitized blind bundle whose content
-and lineage contain no prior reviewer/evaluator outputs, scores, or decisions.
-Validation also reads the bound source file bytes. It requires exactly one
-embedded metadata block with the declared field allowlist and accepts only
-source/data/context/blueprint/analysis/evidence-class `based_on` artifacts; a
-clean bundle cannot mask review instructions, revision briefs, expected-result
-oracles, prior conclusions, scores, decisions, or review-artifact lineage in
-the source itself. Reviewer-visible identifiers and non-skill resource paths
-also reject tokenized outcome labels such as `happy`, `fixable`, `fatal`,
-`pending`, `expected`, `oracle`, `accept`, `reject`, `blocked`, or `ready`;
-declared skill-resource paths are excluded from this name check.
-For Deep Research, every opened source must be primary or authoritative,
-identity-verified, and traced to material claims; mapper return and workflow
-resume must bind the same real evidence-artifact paths and SHA-256 digests. A
-provider-run-completed receipt must bind provider run ID, status, time, and raw
-output, with strict `handoff < user start < provider complete < mapper return <
-resume` ordering. No authenticated provider adapter is currently installed.
-The Preview adapter contract and synthetic reachability checks never count as
-runtime evidence; real GitHub-witnessed captures are still required. Two
-complete Deep Research cycles remain pending. See
-`reports/phase8-corpus-results.json`.
+- generators and drafters do not review their own work;
+- reviewer roles run in fresh delegated instances against frozen inputs and do
+  not edit the reviewed artifact;
+- substantive revisions create a new version and receive a fresh evaluation;
+- artifact lineage and reviewer dissent remain visible; and
+- a fatal or unresolved blocking finding prevents promotion or human-handoff
+  readiness.
 
 The workflow stops at a package prepared for human review and signature. It
 does not submit material to external journals, funders, or other platforms.

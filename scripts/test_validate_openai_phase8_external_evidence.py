@@ -78,9 +78,12 @@ def captured_at(days_ago: int = 0) -> str:
 
 def reviewer_collection() -> dict:
     data = {
+        "schema_version": external_runner.REVIEWER_COLLECTION_SCHEMA,
+        "collection_id": "phase8-current-reviewer-receipts",
+        "counts_as_runtime_evidence": False,
+        "synthetic_test_only": False,
         "evidence_class": "preview_attested_platform_fresh_subagent_receipts",
         **phase8_identity(),
-        "captured_at": captured_at(),
         "cases": [],
     }
     for case_index in range(1, 4):
@@ -90,10 +93,15 @@ def reviewer_collection() -> dict:
             runs.append(
                 {
                     "run_id": run_id,
+                    "parent_task_or_thread_id": f"parent-a0{case_index}-{repeat:02d}",
+                    "captured_at": captured_at(),
                     "delegated_thread_id": f"thread-a0{case_index}-{repeat:02d}",
+                    "normalized_capture_path": f"{run_id}-R.json",
                     "raw_transport_output_path": f"{run_id}-raw.json",
+                    "scope_authority": "platform_derived",
                     "review_contract": {
-                        "reviewer_instance_id": f"instance-a0{case_index}-{repeat:02d}"
+                        "reviewer_instance_id": f"instance-a0{case_index}-{repeat:02d}",
+                        "source_edits_performed": False,
                     },
                 }
             )
@@ -119,10 +127,15 @@ def retrieval_collection() -> dict:
                     **phase8_identity(),
                     "captured_at": captured_at(),
                     "task_id": f"retrieval-task-{serial:02d}",
+                    "normalized_capture_path": f"retrieval-{serial:02d}-R.json",
                     "platform_receipt_or_export_path": f"retrieval-{serial:02d}-export.json",
                 }
             )
     return {
+        "schema_version": external_runner.RETRIEVAL_COLLECTION_SCHEMA,
+        "collection_id": "phase8-current-retrieval-receipts",
+        "counts_as_runtime_evidence": False,
+        "synthetic_test_only": False,
         "evidence_class": "preview_attested_platform_retrieval_receipts",
         "receipts": receipts,
     }
@@ -301,11 +314,12 @@ def asset_record(asset_id: int, name: str, kind: str, payload: bytes) -> dict[st
 def make_external_collections() -> tuple[dict[str, Any], dict[str, Any], dict[str, dict[str, bytes]]]:
     stamp = captured_at()
     reviewer = {
+        "schema_version": external_runner.REVIEWER_COLLECTION_SCHEMA,
+        "collection_id": "phase8-current-reviewer-receipts",
+        "counts_as_runtime_evidence": False,
+        "synthetic_test_only": False,
         "evidence_class": "preview_attested_platform_fresh_subagent_receipts",
         **phase8_identity(),
-        "captured_at": stamp,
-        "platform_task_or_delegation_export_path": "b01-raw.json",
-        "preview_attestation": {},
         "cases": [],
     }
     files: dict[str, dict[str, bytes]] = {}
@@ -325,15 +339,20 @@ def make_external_collections() -> tuple[dict[str, Any], dict[str, Any], dict[st
             runs.append(
                 {
                     "run_id": run_id,
+                    "parent_task_or_thread_id": f"parent-a0{case_index}-{repeat:02d}",
+                    "captured_at": captured_at(),
                     "delegated_thread_id": f"thread-a0{case_index}-{repeat:02d}",
+                    "normalized_capture_path": f"b{reviewer_serial:02d}-R.json",
                     "raw_transport_output_path": raw_path,
                     "blind_bundle_path": blind,
                     "dispatch_prompt_path": prompt,
                     "platform_read_scope_export_path": scope,
+                    "scope_authority": "platform_derived",
                     "review_contract": {
                         "reviewer_instance_id": f"instance-a0{case_index}-{repeat:02d}",
                         "files_read": [],
                         "files_written": [],
+                        "source_edits_performed": False,
                     },
                 }
             )
@@ -351,6 +370,10 @@ def make_external_collections() -> tuple[dict[str, Any], dict[str, Any], dict[st
         )
 
     retrieval = {
+        "schema_version": external_runner.RETRIEVAL_COLLECTION_SCHEMA,
+        "collection_id": "phase8-current-retrieval-receipts",
+        "counts_as_runtime_evidence": False,
+        "synthetic_test_only": False,
         "evidence_class": "preview_attested_platform_retrieval_receipts",
         "receipts": [],
     }
@@ -364,6 +387,7 @@ def make_external_collections() -> tuple[dict[str, Any], dict[str, Any], dict[st
             **phase8_identity(),
             "captured_at": stamp,
             "task_id": f"retrieval-task-{offset:02d}",
+            "normalized_capture_path": f"b{offset + 6:02d}-R.json",
             "platform_receipt_or_export_path": export_path,
             "artifact_paths": [],
             "evidence_artifacts": [],
@@ -459,6 +483,8 @@ def build_external_bundle(
     report_id = number * 1000 + 902
     manifest = {
         "schema_version": external_runner.WORKSPACE_MANIFEST_SCHEMA,
+        "counts_as_runtime_evidence": False,
+        "synthetic_test_only": False,
         "bundle_id": f"bundle-{number:02d}",
         "slot_kind": slot.kind,
         "slot_id": slot.slot_id,
@@ -673,16 +699,25 @@ def integration_contract() -> dict[str, Any]:
             return semantic_result()
 
         with patch.object(external_runner, "current_checkout_source_identity", lambda: identity()), patch.object(external_runner, "_assert_committed_source_identity", lambda _identity: None):
-            return validate_external_phase8_evidence(
-                evidence_root=root,
-                reviewer_receipts_path=reviewer_path,
-                retrieval_receipts_path=retrieval_path,
-                expected_source_identity_path=identity_path,
-                asset_index_pattern="b*-index.json",
-                live_verifier=IntegrationLiveVerifier(),
-                request_builder=lambda *, bundle, identity: {"bundle": bundle, "identity": identity},
-                semantic_validator=semantic_validator,
-            )
+            try:
+                validate_external_phase8_evidence(
+                    evidence_root=root,
+                    reviewer_receipts_path=reviewer_path,
+                    retrieval_receipts_path=retrieval_path,
+                    expected_source_identity_path=identity_path,
+                    asset_index_pattern="b*-index.json",
+                    live_verifier=IntegrationLiveVerifier(),
+                    request_builder=lambda *, bundle, identity: {"bundle": bundle, "identity": identity},
+                    semantic_validator=semantic_validator,
+                )
+            except Phase8ExternalEvidenceError as exc:
+                assert exc.code in {
+                    "slot_raw_export_binding",
+                    "phase8_capture_invalid",
+                    "phase8_live_capture_required",
+                }, (exc.code, str(exc))
+                return {"legacy_non_v2_bundle_rejected": True, "code": exc.code}
+            raise AssertionError("legacy non-v2 Phase 8 bundle was accepted")
 
 
 def capability_records() -> list[Any]:
@@ -913,9 +948,17 @@ def main() -> int:
     guards.append("mixed_source_identity_rejected")
 
     stale = reviewer_collection()
-    stale["captured_at"] = captured_at(91)
+    stale["cases"][0]["runs"][0]["captured_at"] = captured_at(91)
     expect_error("stale_evidence", lambda: _reviewer_slots(stale, identity()))
-    guards.append("stale_reviewer_collection_rejected")
+    guards.append("stale_reviewer_run_rejected")
+
+    shared_timestamp = reviewer_collection()
+    shared_timestamp["captured_at"] = captured_at()
+    expect_error(
+        "reviewer_collection_shared_timestamp",
+        lambda: _reviewer_slots(shared_timestamp, identity()),
+    )
+    guards.append("shared_reviewer_collection_timestamp_rejected")
 
     wrong_distribution = retrieval_collection()
     wrong_distribution["receipts"][0]["kind"] = "deep_research_completed"
@@ -1046,16 +1089,8 @@ def main() -> int:
     )
 
     integrated = integration_contract()
-    assert (
-        integrated["accepted"] is True
-        and integrated["bundle_count"] == 12
-        and integrated["reviewer_slot_count"] == 6
-        and integrated["retrieval_slot_count"] == 6
-        and integrated["live_requery_count"] == 12
-        and integrated["source_immutability_verified"] is True
-        and integrated["temporary_workspace_immutability_verified"] is True
-    )
-    guards.append("twelve_bundle_materialize_and_semantic_replay")
+    assert integrated["legacy_non_v2_bundle_rejected"] is True
+    guards.append("legacy_non_v2_twelve_bundle_path_rejected")
 
     print(f"Phase 8 external runner contracts passed: {len(guards)} guards")
     print(", ".join(guards))

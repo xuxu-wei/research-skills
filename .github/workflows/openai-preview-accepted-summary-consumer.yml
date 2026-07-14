@@ -90,7 +90,7 @@ jobs:
       - name: Publish the non-overwriting consumer result
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: openai-preview-accepted-consumer-${{ github.event.workflow_run.id }}-${{ github.event.workflow_run.run_attempt }}
+          name: openai-preview-accepted-consumer-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.event.workflow_run.id }}-${{ github.event.workflow_run.run_attempt }}
           path: ${{ runner.temp }}/openai-preview-accepted-consumer-result.json
           if-no-files-found: error
           retention-days: 90

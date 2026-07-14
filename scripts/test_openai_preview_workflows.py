@@ -10,6 +10,11 @@ from typing import Any
 
 import yaml
 
+from generate_openai_release_ledger import (
+    VALIDATION_CONTRACT_FILES,
+    validation_contract_paths,
+)
+
 
 REPO = Path(__file__).resolve().parents[1]
 MAIN_PATH = REPO / ".github" / "workflows" / "openai-plugin-preview.yml"
@@ -22,6 +27,9 @@ CONSUMER_PATH = (
     / ".github"
     / "workflows"
     / "openai-preview-accepted-summary-consumer.yml"
+)
+DRAFT_VERIFIER_PATH = (
+    REPO / ".github" / "workflows" / "openai-preview-draft-bundle-verifier.yml"
 )
 PINNED_ACTION_RE = re.compile(r"^[^@\s]+@[0-9a-f]{40}$")
 RUNNER_CONTEXT_RE = re.compile(r"\brunner\b", re.IGNORECASE)
@@ -101,7 +109,7 @@ def validate_action_pins(document: dict[str, Any]) -> None:
 
 
 def validate_main(document: dict[str, Any], text: str) -> None:
-    validate_permissions(document, {"contents": "read"})
+    validate_permissions(document, {"actions": "read", "contents": "read"})
     validate_action_pins(document)
     main_jobs = document.get("jobs", {})
     require(
@@ -121,43 +129,38 @@ def validate_main(document: dict[str, Any], text: str) -> None:
     )
     commands = command_blob(document)
     required = {
-        "python -m py_compile": "evidence tooling compilation",
-        "scripts/build_openai_preview_accepted_summary.py": "accepted summary compilation",
-        "scripts/openai_preview_evidence.py": "evidence core compilation",
-        "scripts/download_openai_release_ledger_assets.py": "historical release downloader compilation",
-        "scripts/validate_openai_preview_evidence_bundle.py": "bundle CLI",
-        "scripts/validate_openai_phase7_runtime_evidence.py": "Phase 7 runtime evidence runner",
-        "scripts/validate_openai_phase8_external_evidence.py": "Phase 8 external evidence runner",
-        "scripts/validate_openai_release_evidence.py": "release evidence live runner",
-        "scripts/verify_openai_preview_accepted_summary.py": "accepted-summary consumer compilation",
-        "scripts/validate_openai_preview_accepted_phase78.py": "accepted Phase 7/8 bridge compilation",
-        "scripts/materialize_openai_preview_evidence_subset.py": "stage-specific evidence materializer compilation",
-        "scripts/capture_openai_codex_app_server.py": "capture helper compilation",
-        "python scripts/test_openai_preview_evidence.py": "evidence core tests",
-        "python scripts/test_build_openai_preview_accepted_summary.py": "accepted summary tests",
-        "python scripts/test_build_openai_preview_verifier_summary.py": "live-verifier summary tests",
-        "python scripts/test_download_openai_release_ledger_assets.py": "historical release downloader tests",
-        "python scripts/test_validate_openai_preview_evidence_bundle.py": "CLI tests",
-        "python scripts/test_openai_app_server_capture.py": "capture tests",
-        "python scripts/test_validate_openai_phase7_runtime_evidence.py": "Phase 7 runtime runner tests",
-        "python scripts/test_validate_openai_phase8_external_evidence.py": "Phase 8 external runner tests",
-        "python scripts/test_validate_openai_release_evidence.py": "release evidence runner tests",
-        "python scripts/test_verify_openai_preview_accepted_summary.py": "accepted-summary consumer tests",
-        "python scripts/test_openai_preview_workflows.py": "workflow invariants",
-        "python scripts/test_validate_openai_preview_accepted_phase78.py": "accepted evidence-subset tests",
-        "python scripts/test_openai_phase8_preview_verifier.py": "Phase 8 transport boundary tests",
+        "python scripts/check_openai_version_bump.py": "installable behavior version guard",
+        "python scripts/normalize_openai_skills.py": "skill metadata normalization",
+        "python scripts/normalize_openai_references.py": "reference normalization",
+        "python scripts/generate_openai_workflow_registry.py": "registry generation",
+        "python scripts/sync_openai_fixture_versions.py": "fixture version synchronization",
+        "python scripts/audit_openai_research_plugin.py": "plugin audit",
+        "python scripts/test_openai_phase4_scenarios.py --check-report": "workflow scenarios",
+        "python scripts/test_openai_phase6_context.py": "context budget checks",
+        "python scripts/test_openai_phase7_modes.py --check-report": "entry-mode checks",
+        "python scripts/test_openai_phase8_corpus.py --check-report": "regression corpus",
+        "python scripts/test_validate_openai_personal_readiness.py": "personal readiness contract tests",
+        "python scripts/validate_openai_personal_readiness.py --check-report": "non-promoting personal readiness report check",
+        "python scripts/codex_plugin_converter.py --mode codex --fail-on-invalid": "personal plugin package validation",
         "raw.githubusercontent.com/openai/codex/${OPENAI_CODEX_VALIDATOR_COMMIT}": "pinned canonical OpenAI validator source",
         "sha256sum --check --strict": "canonical validator digest check",
         'python "$OPENAI_CODEX_VALIDATOR_PATH" research-skills-openai': "canonical OpenAI plugin validation",
     }
     for marker, label in required.items():
-        require(marker in commands, "main_evidence_tests", label)
+        require(marker in commands, "main_personal_tests", label)
+    deferred_commands = {
+        "test_openai_preview_evidence.py",
+        "test_build_openai_preview_accepted_summary.py",
+        "test_validate_openai_release_evidence.py",
+        "generate_openai_release_ledger.py",
+        "validate_openai_preview_release.py",
+    }
     require(
-        "python scripts/capture_openai_codex_app_server.py" not in commands
-        and "codex app-server" not in commands,
-        "hosted_capture_forbidden",
-        "hosted CI may test the capture helper but may not perform a capture",
+        not any(marker in commands for marker in deferred_commands),
+        "main_personal_scope",
+        "deferred shared/public validation must not block personal-owner CI",
     )
+    require("codex app-server" not in commands, "hosted_capture_forbidden", "hosted CI may not perform an App capture")
     require("pull_request_target" not in text, "main_triggers", "unsafe trigger")
 
 
@@ -379,6 +382,123 @@ def validate_evidence(document: dict[str, Any], text: str) -> None:
         == 1,
         "evidence_privilege",
         "exactly one pinned run-summary artifact upload is allowed",
+    )
+
+
+def validate_draft_verifier(document: dict[str, Any], text: str) -> None:
+    require(
+        ".github/workflows/openai-preview-draft-bundle-verifier.yml"
+        in VALIDATION_CONTRACT_FILES,
+        "draft_verifier_identity",
+        "draft verifier workflow must be part of release validation identity",
+    )
+    require(
+        DRAFT_VERIFIER_PATH in validation_contract_paths(),
+        "draft_verifier_identity",
+        "draft verifier bytes are absent from the worktree validation digest",
+    )
+    expected_permissions = {"actions": "read", "contents": "write"}
+    validate_permissions(document, expected_permissions)
+    validate_action_pins(document)
+    triggers = document.get("on", {})
+    require(
+        isinstance(triggers, dict) and set(triggers) == {"workflow_dispatch"},
+        "draft_verifier_trigger",
+        "draft verifier must be manual workflow_dispatch only",
+    )
+    inputs = triggers.get("workflow_dispatch", {}).get("inputs", {})
+    expected_inputs = {
+        "source_commit",
+        "release_id",
+        "source_ci_run_id",
+        "raw_asset_name",
+        "envelope_asset_name",
+        "verifier_asset_name",
+    }
+    require(
+        isinstance(inputs, dict)
+        and set(inputs) == expected_inputs
+        and all(value.get("required") == "true" for value in inputs.values()),
+        "draft_verifier_inputs",
+        "source, Release, source-CI, and exact R/E/V names are mandatory",
+    )
+    draft_jobs = document.get("jobs", {})
+    require(
+        isinstance(draft_jobs, dict)
+        and set(draft_jobs) == {"verify-uploaded-r-e"}
+        and draft_jobs["verify-uploaded-r-e"].get("runs-on") == "ubuntu-latest"
+        and int(draft_jobs["verify-uploaded-r-e"].get("timeout-minutes", "0")) == 15,
+        "draft_verifier_job",
+        "one bounded verifier job is required",
+    )
+    checkout = next(
+        (
+            item
+            for item in steps(document)
+            if str(item.get("uses", "")).startswith("actions/checkout@")
+        ),
+        None,
+    )
+    checkout_with = checkout.get("with", {}) if isinstance(checkout, dict) else {}
+    require(
+        checkout_with.get("ref") == "${{ inputs.source_commit }}"
+        and checkout_with.get("fetch-depth") == "0"
+        and checkout_with.get("persist-credentials") == "false",
+        "draft_verifier_checkout",
+        "checkout must use the exact source commit without persisted credentials",
+    )
+    commands = command_blob(document)
+    for marker, label in {
+        '[[ "$GITHUB_REF_NAME" == "main" && "$GITHUB_SHA" == "$SOURCE_COMMIT" ]]': "main dispatch SHA binding",
+        '[[ "$(git rev-parse HEAD)" == "$SOURCE_COMMIT" ]]': "exact checkout binding",
+        'gh api "repos/${GITHUB_REPOSITORY}/releases/${RELEASE_ID}"': "draft Release API snapshot",
+        'gh api "repos/${GITHUB_REPOSITORY}/actions/runs/${SOURCE_CI_RUN_ID}"': "source CI API snapshot",
+        "release must remain a draft prerelease": "draft prerelease guard",
+        'gh api -H "Accept: application/octet-stream"': "asset-ID downloads",
+        "verify_openai_preview_draft_bundle.py": "independent V implementation",
+        'gh release upload "$tag" "$STAGING_ROOT/bundle/$VERIFIER_NAME"': "single V upload",
+        "V asset name already exists": "V no-overwrite guard",
+        "release-after-v.json": "post-upload Release snapshot",
+        "uploaded V did not resolve exactly once": "unique V API object",
+    }.items():
+        require(marker in commands, "draft_verifier_contract", label)
+    require(
+        "--clobber" not in commands
+        and "pull_request" not in str(triggers)
+        and "pull_request_target" not in text
+        and "continue-on-error" not in text
+        and "|| true" not in commands
+        and "set +e" not in commands,
+        "draft_verifier_fail_closed",
+        "draft verifier cannot overwrite, broaden triggers, or suppress failures",
+    )
+    dangerous = re.findall(r"sys\.exit\([^\n]*else 0\);\s*[^'\n]+", text)
+    require(
+        not dangerous,
+        "draft_verifier_python_exit",
+        "a successful inline Python guard must not exit before later statements",
+    )
+    upload = next(
+        (
+            item
+            for item in steps(document)
+            if str(item.get("uses", "")).startswith("actions/upload-artifact@")
+        ),
+        None,
+    )
+    upload_with = upload.get("with", {}) if isinstance(upload, dict) else {}
+    upload_path = str(upload_with.get("path", ""))
+    require(
+        upload_with.get("name") == "openai-preview-draft-v-${{ github.run_id }}"
+        and upload_with.get("if-no-files-found") == "error"
+        and upload_with.get("retention-days") == "90"
+        and upload_with.get("overwrite") == "false"
+        and upload_with.get("include-hidden-files") == "false"
+        and "${{ inputs.verifier_asset_name }}" in upload_path
+        and "api/v-asset.json" in upload_path
+        and "verification-result.json" in upload_path,
+        "draft_verifier_artifact",
+        "V, its GitHub asset snapshot, and result must be retained together without overwrite",
     )
 
 
@@ -1013,7 +1133,7 @@ def validate_consumer(document: dict[str, Any], text: str) -> None:
         == "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02"
         and "if" not in upload
         and upload_with.get("name")
-        == "openai-preview-accepted-consumer-${{ github.event.workflow_run.id }}-${{ github.event.workflow_run.run_attempt }}"
+        == "openai-preview-accepted-consumer-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.event.workflow_run.id }}-${{ github.event.workflow_run.run_attempt }}"
         and upload_with.get("path")
         == "${{ runner.temp }}/openai-preview-accepted-consumer-result.json"
         and upload_with.get("if-no-files-found") == "error"
@@ -1760,10 +1880,12 @@ def main() -> int:
     evidence_document, evidence_text = load(EVIDENCE_PATH)
     accepted_document, accepted_text = load(ACCEPTED_PATH)
     consumer_document, consumer_text = load(CONSUMER_PATH)
+    draft_document, draft_text = load(DRAFT_VERIFIER_PATH)
     validate_main(main_document, main_text)
     validate_evidence(evidence_document, evidence_text)
     validate_accepted(accepted_document, accepted_text)
     validate_consumer(consumer_document, consumer_text)
+    validate_draft_verifier(draft_document, draft_text)
     mutation_count = validate_mutation_guards(
         main_document,
         main_text,
@@ -1774,6 +1896,37 @@ def main() -> int:
         consumer_document,
         consumer_text,
     )
+    draft_mutable_action = copy.deepcopy(draft_document)
+    next(item for item in steps(draft_mutable_action) if "uses" in item)["uses"] = (
+        "actions/checkout@v4"
+    )
+    expect_rejected(
+        "workflow_action_pin",
+        draft_mutable_action,
+        draft_text,
+        validate_draft_verifier,
+    )
+    draft_read_only = copy.deepcopy(draft_document)
+    draft_read_only["permissions"] = {"actions": "read", "contents": "read"}
+    expect_rejected(
+        "workflow_permissions",
+        draft_read_only,
+        draft_text,
+        validate_draft_verifier,
+    )
+    draft_wrong_ref = copy.deepcopy(draft_document)
+    next(
+        item
+        for item in steps(draft_wrong_ref)
+        if str(item.get("uses", "")).startswith("actions/checkout@")
+    )["with"]["ref"] = "main"
+    expect_rejected(
+        "draft_verifier_checkout",
+        draft_wrong_ref,
+        draft_text,
+        validate_draft_verifier,
+    )
+    mutation_count += 3
     print("OpenAI Preview workflow invariants passed")
     print(
         "coverage: pinned actions, least-privilege read permissions, immutable tag/commit, "

@@ -5,14 +5,14 @@ execution_scope: evaluation_revision_delivery_with_entry_receipts
 workflow: article
 workflow_id: wf-phase4-article-001
 entry_mode: standard
-plugin_version: 0.7.0-preview.1
+plugin_version: 0.7.0-preview.2
 registry_schema_version: 5
 initial_artifacts:
   - artifact_id: article-intake-v1
     version_id: i001
     workflow_id: wf-phase4-article-001
     round_id: entry-001
-    plugin_version: 0.7.0-preview.1
+    plugin_version: 0.7.0-preview.2
     source_skill: external-input
     created_by_instance_id: fixture-user-article-001
     based_on: []
@@ -27,7 +27,7 @@ initial_artifacts:
     version_id: c001
     workflow_id: wf-phase4-article-001
     round_id: entry-001
-    plugin_version: 0.7.0-preview.1
+    plugin_version: 0.7.0-preview.2
     source_skill: external-input
     created_by_instance_id: fixture-user-article-001
     based_on: []
@@ -42,7 +42,7 @@ initial_artifacts:
     version_id: m001
     workflow_id: wf-phase4-article-001
     round_id: entry-001
-    plugin_version: 0.7.0-preview.1
+    plugin_version: 0.7.0-preview.2
     source_skill: external-input
     created_by_instance_id: fixture-user-article-001
     based_on: []
@@ -97,7 +97,7 @@ events:
         version_id: rd001
         workflow_id: wf-phase4-article-001
         round_id: entry-001
-        plugin_version: 0.7.0-preview.1
+        plugin_version: 0.7.0-preview.2
         source_skill: article-readiness-triage
         created_by_instance_id: article-readiness-001
         based_on: [article-intake-v1@i001]
@@ -108,6 +108,34 @@ events:
         frozen: true
         artifact_role: readiness_report
     expected_state_after: initialized
+  - event_id: article-literature-grounding
+    type: produce
+    actor_instance_id: article-literature-grounder-001
+    source_skill: article-orchestrator
+    destination_skill: article-literature-grounder
+    dispatch_mode: orchestrated
+    trigger: context_ready_and_grounding_required
+    allowed_read_paths: [01_context/article-context-v001.md, 02_methods/frozen-method-facts-v001.md]
+    allowed_write_paths: [04_blueprint/evidence-ledger-v001.md]
+    input_artifact_ids: [article-context-v1, article-method-facts-v1]
+    input_versions: [c001, m001]
+    outputs:
+      - artifact_id: article-evidence-ledger-v1
+        version_id: el001
+        workflow_id: wf-phase4-article-001
+        round_id: preprocess-001
+        plugin_version: 0.7.0-preview.2
+        source_skill: article-literature-grounder
+        created_by_instance_id: article-literature-grounder-001
+        based_on: [article-context-v1@c001, article-method-facts-v1@m001]
+        change_type: initial
+        path: 04_blueprint/evidence-ledger-v001.md
+        status: current
+        content_digest: computed
+        frozen: true
+        artifact_role: evidence_ledger
+        content: "frozen evidence ledger"
+    expected_state_after: initialized
   - event_id: article-blueprint
     type: produce
     actor_instance_id: article-architect-001
@@ -115,19 +143,19 @@ events:
     destination_skill: article-architect
     dispatch_mode: orchestrated
     trigger: context_and_grounding_ready
-    allowed_read_paths: [01_context/article-context-v001.md, 02_methods/frozen-method-facts-v001.md]
-    allowed_write_paths: [04_blueprint/article-blueprint-v001.md, 04_blueprint/claim-evidence-matrix-v001.md, 04_blueprint/evidence-ledger-v001.md, 04_blueprint/journal-adapter-v001.md]
-    input_artifact_ids: [article-context-v1, article-method-facts-v1]
-    input_versions: [c001, m001]
+    allowed_read_paths: [01_context/article-context-v001.md, 02_methods/frozen-method-facts-v001.md, 04_blueprint/evidence-ledger-v001.md]
+    allowed_write_paths: [04_blueprint/article-blueprint-v001.md, 04_blueprint/claim-evidence-matrix-v001.md, 04_blueprint/journal-adapter-v001.md]
+    input_artifact_ids: [article-context-v1, article-method-facts-v1, article-evidence-ledger-v1]
+    input_versions: [c001, m001, el001]
     outputs:
       - artifact_id: article-blueprint-v1
         version_id: b001
         workflow_id: wf-phase4-article-001
         round_id: preprocess-001
-        plugin_version: 0.7.0-preview.1
+        plugin_version: 0.7.0-preview.2
         source_skill: article-architect
         created_by_instance_id: article-architect-001
-        based_on: [article-context-v1@c001, article-method-facts-v1@m001]
+        based_on: [article-context-v1@c001, article-method-facts-v1@m001, article-evidence-ledger-v1@el001]
         change_type: initial
         path: 04_blueprint/article-blueprint-v001.md
         status: current
@@ -139,10 +167,10 @@ events:
         version_id: cm001
         workflow_id: wf-phase4-article-001
         round_id: preprocess-001
-        plugin_version: 0.7.0-preview.1
+        plugin_version: 0.7.0-preview.2
         source_skill: article-architect
         created_by_instance_id: article-architect-001
-        based_on: [article-context-v1@c001, article-method-facts-v1@m001]
+        based_on: [article-context-v1@c001, article-method-facts-v1@m001, article-evidence-ledger-v1@el001]
         change_type: initial
         path: 04_blueprint/claim-evidence-matrix-v001.md
         status: current
@@ -150,26 +178,11 @@ events:
         frozen: true
         artifact_role: claim_evidence_matrix
         content: "frozen claim-evidence matrix"
-      - artifact_id: article-evidence-ledger-v1
-        version_id: el001
-        workflow_id: wf-phase4-article-001
-        round_id: preprocess-001
-        plugin_version: 0.7.0-preview.1
-        source_skill: article-architect
-        created_by_instance_id: article-architect-001
-        based_on: [article-context-v1@c001, article-method-facts-v1@m001]
-        change_type: initial
-        path: 04_blueprint/evidence-ledger-v001.md
-        status: current
-        content_digest: computed
-        frozen: true
-        artifact_role: evidence_ledger
-        content: "frozen evidence ledger"
       - artifact_id: article-journal-adapter-v1
         version_id: ja001
         workflow_id: wf-phase4-article-001
         round_id: preprocess-001
-        plugin_version: 0.7.0-preview.1
+        plugin_version: 0.7.0-preview.2
         source_skill: article-architect
         created_by_instance_id: article-architect-001
         based_on: [article-context-v1@c001]
@@ -214,7 +227,7 @@ events:
         version_id: ar001
         workflow_id: wf-phase4-article-001
         round_id: preprocess-001
-        plugin_version: 0.7.0-preview.1
+        plugin_version: 0.7.0-preview.2
         source_skill: article-methods-statistics-auditor
         created_by_instance_id: article-methods-auditor-001
         based_on: [article-context-v1@c001, article-method-facts-v1@m001]
@@ -241,7 +254,7 @@ events:
         version_id: v001
         workflow_id: wf-phase4-article-001
         round_id: round-001
-        plugin_version: 0.7.0-preview.1
+        plugin_version: 0.7.0-preview.2
         source_skill: article-drafter
         created_by_instance_id: article-writer-001
         based_on: [article-context-v1@c001, article-blueprint-v1@b001, article-claim-matrix-v1@cm001, article-evidence-ledger-v1@el001, article-methods-report-v1@ar001]
@@ -286,7 +299,7 @@ events:
         version_id: cr001
         workflow_id: wf-phase4-article-001
         round_id: round-001
-        plugin_version: 0.7.0-preview.1
+        plugin_version: 0.7.0-preview.2
         source_skill: article-claim-auditor
         created_by_instance_id: article-claim-auditor-001
         based_on: [article-context-v1@c001, article-blueprint-v1@b001, article-claim-matrix-v1@cm001, article-evidence-ledger-v1@el001, manuscript-v1@v001]
@@ -342,7 +355,7 @@ events:
         version_id: r001
         workflow_id: wf-phase4-article-001
         round_id: round-001
-        plugin_version: 0.7.0-preview.1
+        plugin_version: 0.7.0-preview.2
         source_skill: article-evaluator
         created_by_instance_id: article-evaluator-001
         based_on: [article-context-v1@c001, article-blueprint-v1@b001, manuscript-v1@v001]
@@ -369,7 +382,7 @@ events:
         version_id: rp002
         workflow_id: wf-phase4-article-001
         round_id: round-002
-        plugin_version: 0.7.0-preview.1
+        plugin_version: 0.7.0-preview.2
         source_skill: article-refinement-controller
         created_by_instance_id: article-controller-001
         based_on: [manuscript-v1@v001, article-eval-v1@r001]
@@ -397,7 +410,7 @@ events:
         version_id: v002
         workflow_id: wf-phase4-article-001
         round_id: round-002
-        plugin_version: 0.7.0-preview.1
+        plugin_version: 0.7.0-preview.2
         source_skill: article-drafter
         created_by_instance_id: article-writer-002
         based_on: [manuscript-v1@v001, article-revision-plan-v2@rp002]
@@ -412,7 +425,7 @@ events:
         version_id: rr002
         workflow_id: wf-phase4-article-001
         round_id: round-002
-        plugin_version: 0.7.0-preview.1
+        plugin_version: 0.7.0-preview.2
         source_skill: article-drafter
         created_by_instance_id: article-writer-002
         based_on: [manuscript-v1@v001, article-revision-plan-v2@rp002, manuscript-v2@v002]
@@ -427,7 +440,7 @@ events:
         version_id: rd002
         workflow_id: wf-phase4-article-001
         round_id: round-002
-        plugin_version: 0.7.0-preview.1
+        plugin_version: 0.7.0-preview.2
         source_skill: article-drafter
         created_by_instance_id: article-writer-002
         based_on: [manuscript-v1@v001, article-revision-plan-v2@rp002, manuscript-v2@v002]
@@ -472,7 +485,7 @@ events:
         version_id: cr002
         workflow_id: wf-phase4-article-001
         round_id: round-002
-        plugin_version: 0.7.0-preview.1
+        plugin_version: 0.7.0-preview.2
         source_skill: article-claim-auditor
         created_by_instance_id: article-claim-auditor-002
         based_on: [article-context-v1@c001, article-blueprint-v1@b001, article-claim-matrix-v1@cm001, article-evidence-ledger-v1@el001, manuscript-v2@v002]
@@ -516,7 +529,7 @@ events:
         version_id: r002
         workflow_id: wf-phase4-article-001
         round_id: round-002
-        plugin_version: 0.7.0-preview.1
+        plugin_version: 0.7.0-preview.2
         source_skill: article-evaluator
         created_by_instance_id: article-evaluator-002
         based_on: [article-context-v1@c001, article-blueprint-v1@b001, manuscript-v2@v002]
@@ -561,7 +574,7 @@ events:
         version_id: p001
         workflow_id: wf-phase4-article-001
         round_id: panel-001
-        plugin_version: 0.7.0-preview.1
+        plugin_version: 0.7.0-preview.2
         source_skill: article-review-panel
         created_by_instance_id: article-panel-methods-001
         based_on: [manuscript-v2@v002]
@@ -615,7 +628,7 @@ events:
         version_id: p002
         workflow_id: wf-phase4-article-001
         round_id: panel-001
-        plugin_version: 0.7.0-preview.1
+        plugin_version: 0.7.0-preview.2
         source_skill: article-review-panel
         created_by_instance_id: article-panel-claims-001
         based_on: [manuscript-v2@v002]
@@ -660,7 +673,7 @@ events:
         version_id: p003
         workflow_id: wf-phase4-article-001
         round_id: panel-001
-        plugin_version: 0.7.0-preview.1
+        plugin_version: 0.7.0-preview.2
         source_skill: article-review-panel
         created_by_instance_id: article-panel-submission-guard-001
         based_on: [article-journal-adapter-v1@ja001, manuscript-v2@v002]
@@ -693,7 +706,7 @@ events:
         version_id: fm001
         workflow_id: wf-phase4-article-001
         round_id: package-001
-        plugin_version: 0.7.0-preview.1
+        plugin_version: 0.7.0-preview.2
         source_skill: article-frontmatter-drafter
         created_by_instance_id: article-frontmatter-writer-001
         based_on: [article-blueprint-v1@b001, article-journal-adapter-v1@ja001, manuscript-v2@v002]
@@ -721,7 +734,7 @@ events:
         version_id: cl001
         workflow_id: wf-phase4-article-001
         round_id: package-001
-        plugin_version: 0.7.0-preview.1
+        plugin_version: 0.7.0-preview.2
         source_skill: article-cover-letter
         created_by_instance_id: article-cover-letter-writer-001
         based_on: [article-journal-adapter-v1@ja001, manuscript-v2@v002, article-frontmatter-v1@fm001]
@@ -736,7 +749,7 @@ events:
         version_id: cq001
         workflow_id: wf-phase4-article-001
         round_id: package-001
-        plugin_version: 0.7.0-preview.1
+        plugin_version: 0.7.0-preview.2
         source_skill: article-cover-letter
         created_by_instance_id: article-cover-letter-writer-001
         based_on: [article-cover-letter-v1@cl001]
@@ -757,6 +770,7 @@ events:
     trigger: all_required_artifacts_and_reviews_frozen
     allowed_read_paths:
       - 06_drafts/manuscript-v002.md
+      - 03_readiness/article-readiness-v001.md
       - 08_evaluations/evaluation-v002.md
       - 04_blueprint/article-blueprint-v001.md
       - 04_blueprint/claim-evidence-matrix-v001.md
@@ -773,9 +787,9 @@ events:
       - 09_revisions/round-002/revision-plan-r002.md
       - 09_revisions/round-002/response-to-reviewers-r002.md
       - 09_revisions/round-002/revision-delta-r002.md
-    allowed_write_paths: [12_package/compositor-verification-report.md, 12_package/manuscript-v002-copy.md]
-    input_artifact_ids: [manuscript-v2, article-blueprint-v1, article-claim-matrix-v1, article-evidence-ledger-v1, article-eval-v2, article-methods-report-v1, article-claim-report-v2, article-panel-methods-report, article-panel-claims-report, article-panel-submission-guard-report, article-journal-adapter-v1, article-frontmatter-v1, article-cover-letter-v1, article-cover-letter-check-v1, article-revision-plan-v2, article-response-v2, article-delta-v2]
-    input_versions: [v002, b001, cm001, el001, r002, ar001, cr002, p001, p002, p003, ja001, fm001, cl001, cq001, rp002, rr002, rd002]
+    allowed_write_paths: [12_package/compositor-verification-report.md, 12_package/review-finding-index.yaml, 12_package/manuscript-v002-copy.md]
+    input_artifact_ids: [manuscript-v2, article-readiness-v1, article-blueprint-v1, article-claim-matrix-v1, article-evidence-ledger-v1, article-eval-v2, article-methods-report-v1, article-claim-report-v2, article-panel-methods-report, article-panel-claims-report, article-panel-submission-guard-report, article-journal-adapter-v1, article-frontmatter-v1, article-cover-letter-v1, article-cover-letter-check-v1, article-revision-plan-v2, article-response-v2, article-delta-v2]
+    input_versions: [v002, rd001, b001, cm001, el001, r002, ar001, cr002, p001, p002, p003, ja001, fm001, cl001, cq001, rp002, rr002, rd002]
     preserved_dissent_ids: [article-dissent-001]
     artifact_index_dissent_ids: [article-dissent-001]
     automatic_external_submission: false
@@ -787,9 +801,9 @@ events:
       review_scope: frozen submission package verification
       workflow_id: wf-phase4-article-001
       round_id: package-001
-      input_artifact_ids: [manuscript-v2, article-blueprint-v1, article-claim-matrix-v1, article-evidence-ledger-v1, article-eval-v2, article-methods-report-v1, article-claim-report-v2, article-panel-methods-report, article-panel-claims-report, article-panel-submission-guard-report, article-journal-adapter-v1, article-frontmatter-v1, article-cover-letter-v1, article-cover-letter-check-v1, article-revision-plan-v2, article-response-v2, article-delta-v2]
-      input_versions: [v002, b001, cm001, el001, r002, ar001, cr002, p001, p002, p003, ja001, fm001, cl001, cq001, rp002, rr002, rd002]
-      files_read: [06_drafts/manuscript-v002.md, 04_blueprint/article-blueprint-v001.md, 04_blueprint/claim-evidence-matrix-v001.md, 04_blueprint/evidence-ledger-v001.md, 08_evaluations/evaluation-v002.md, 05_audit/methods-statistics-audit-v001.md, 07_claim-audit/claim-audit-v002.md, 10_panel/methods-statistics-review-v002.md, 10_panel/claims-evidence-review-v002.md, 10_panel/submission-guard-review-v002.md, 04_blueprint/journal-adapter-v001.md, 11_frontmatter/frontmatter-v001.md, 11_cover-letter/cover-letter-v001.md, 11_cover-letter/cover-letter-quality-check-v001.md, 09_revisions/round-002/revision-plan-r002.md, 09_revisions/round-002/response-to-reviewers-r002.md, 09_revisions/round-002/revision-delta-r002.md]
+      input_artifact_ids: [manuscript-v2, article-readiness-v1, article-blueprint-v1, article-claim-matrix-v1, article-evidence-ledger-v1, article-eval-v2, article-methods-report-v1, article-claim-report-v2, article-panel-methods-report, article-panel-claims-report, article-panel-submission-guard-report, article-journal-adapter-v1, article-frontmatter-v1, article-cover-letter-v1, article-cover-letter-check-v1, article-revision-plan-v2, article-response-v2, article-delta-v2]
+      input_versions: [v002, rd001, b001, cm001, el001, r002, ar001, cr002, p001, p002, p003, ja001, fm001, cl001, cq001, rp002, rr002, rd002]
+      files_read: [06_drafts/manuscript-v002.md, 03_readiness/article-readiness-v001.md, 04_blueprint/article-blueprint-v001.md, 04_blueprint/claim-evidence-matrix-v001.md, 04_blueprint/evidence-ledger-v001.md, 08_evaluations/evaluation-v002.md, 05_audit/methods-statistics-audit-v001.md, 07_claim-audit/claim-audit-v002.md, 10_panel/methods-statistics-review-v002.md, 10_panel/claims-evidence-review-v002.md, 10_panel/submission-guard-review-v002.md, 04_blueprint/journal-adapter-v001.md, 11_frontmatter/frontmatter-v001.md, 11_cover-letter/cover-letter-v001.md, 11_cover-letter/cover-letter-quality-check-v001.md, 09_revisions/round-002/revision-plan-r002.md, 09_revisions/round-002/response-to-reviewers-r002.md, 09_revisions/round-002/revision-delta-r002.md]
       isolation_mode: fresh_subagent
       prior_scores_visible: false
       source_edits_performed: false
@@ -803,24 +817,38 @@ events:
         version_id: vr001
         workflow_id: wf-phase4-article-001
         round_id: package-001
-        plugin_version: 0.7.0-preview.1
+        plugin_version: 0.7.0-preview.2
         source_skill: article-submission-compositor
         created_by_instance_id: article-compositor-001
-        based_on: [manuscript-v2@v002, article-blueprint-v1@b001, article-claim-matrix-v1@cm001, article-evidence-ledger-v1@el001, article-eval-v2@r002, article-methods-report-v1@ar001, article-claim-report-v2@cr002, article-panel-methods-report@p001, article-panel-claims-report@p002, article-panel-submission-guard-report@p003, article-journal-adapter-v1@ja001, article-frontmatter-v1@fm001, article-cover-letter-v1@cl001, article-cover-letter-check-v1@cq001, article-revision-plan-v2@rp002, article-response-v2@rr002, article-delta-v2@rd002]
+        based_on: [manuscript-v2@v002, article-readiness-v1@rd001, article-blueprint-v1@b001, article-claim-matrix-v1@cm001, article-evidence-ledger-v1@el001, article-eval-v2@r002, article-methods-report-v1@ar001, article-claim-report-v2@cr002, article-panel-methods-report@p001, article-panel-claims-report@p002, article-panel-submission-guard-report@p003, article-journal-adapter-v1@ja001, article-frontmatter-v1@fm001, article-cover-letter-v1@cl001, article-cover-letter-check-v1@cq001, article-revision-plan-v2@rp002, article-response-v2@rr002, article-delta-v2@rd002]
         change_type: verification
         path: 12_package/compositor-verification-report.md
         status: final
         content_digest: computed
         frozen: true
         artifact_role: verification_report
+      - artifact_id: article-review-finding-index
+        version_id: fi001
+        workflow_id: wf-phase4-article-001
+        round_id: package-001
+        plugin_version: 0.7.0-preview.2
+        source_skill: article-submission-compositor
+        created_by_instance_id: article-compositor-001
+        based_on: [article-compositor-report@vr001]
+        change_type: aggregation
+        path: 12_package/review-finding-index.yaml
+        status: final
+        content_digest: computed
+        frozen: true
+        artifact_role: review_finding_index
       - artifact_id: article-package-copy
         version_id: pkg001
         workflow_id: wf-phase4-article-001
         round_id: package-001
-        plugin_version: 0.7.0-preview.1
+        plugin_version: 0.7.0-preview.2
         source_skill: article-submission-compositor
         created_by_instance_id: article-compositor-001
-        based_on: [manuscript-v2@v002]
+        based_on: [manuscript-v2@v002, article-compositor-report@vr001, article-review-finding-index@fi001]
         change_type: assembly
         path: 12_package/manuscript-v002-copy.md
         status: final
@@ -850,6 +878,7 @@ expected:
   dissent_ids: [article-dissent-001]
   required_destinations_in_order:
     - article-readiness-triage
+    - article-literature-grounder
     - article-architect
     - article-methods-statistics-auditor
     - article-drafter

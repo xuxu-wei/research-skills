@@ -255,7 +255,7 @@
       "reviewer_edit_boundary_compliance_percent": 100.0,
       "reviewer_isolation_compliance_percent": 100.0
     },
-    "plugin_version_binding": "0.7.0-preview.1",
+    "plugin_version_binding": "0.7.0-preview.2",
     "research_polisher_domain_coverage": {
       "basic_experimental": 1,
       "clinical_or_observational": 1,
@@ -383,7 +383,7 @@
         "state_agreement": true
       }
     ],
-    "current_plugin_version": "0.7.0-preview.1",
+    "current_plugin_version": "0.7.0-preview.2",
     "declared_preview_review_count": 0,
     "durable_binding_negative_guard_count": 6,
     "durable_binding_negative_guards": [
@@ -532,7 +532,7 @@
     "verified_live_review_count": 0
   },
   "phase_status": "in_progress",
-  "plugin_version": "0.7.0-preview.1",
+  "plugin_version": "0.7.0-preview.2",
   "provider_trust": {
     "preview_adapter_contracts": {
       "github_release_asset_preview_v1": {
@@ -542,7 +542,7 @@
           "release-assets.githubusercontent.com"
         ],
         "verification_request_schema": 2,
-        "verifier_digest": "sha256:2312a0ed303a3da407402f511f77262c80362931c541b5c1ddf404a95177cb97",
+        "verifier_digest": "sha256:4e7712827979e16e7dde0c5f6f08481badba4d456c1b4a05b5378882d4586e76",
         "verifier_path": "tests/openai_phase8/verify_preview_evidence.py",
         "workflow_event": "push",
         "workflow_path": ".github/workflows/openai-plugin-preview.yml",

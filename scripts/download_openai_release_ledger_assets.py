@@ -40,6 +40,7 @@ def external_records(release: Mapping[str, Any]) -> list[Mapping[str, Any]]:
         receipts.get("explicit_reinstall") if isinstance(receipts, Mapping) else None,
         receipts.get("fresh_task_discovery") if isinstance(receipts, Mapping) else None,
         receipts.get("rollback") if isinstance(receipts, Mapping) else None,
+        release.get("accepted_phase78_closure"),
     ]
     return [value for value in values if isinstance(value, Mapping)]
 

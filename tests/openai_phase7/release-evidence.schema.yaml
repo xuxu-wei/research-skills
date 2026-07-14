@@ -28,6 +28,7 @@ properties:
       - explicit_reinstall
       - fresh_task_discovery
       - rollback
+      - accepted_phase78_closure
   verification_level:
     enum: [preview_attested, provider_verified]
   provider_verified:

@@ -11,6 +11,8 @@ license:
     - skills/**
     - reports/**
     - AGENTS.md
+    - PHASE7-8-RUNBOOK.md
+    - PREVIEW-EVIDENCE-CAPTURE.md
     - README.md
     - ROADMAP.md
     - workflow-registry.yaml
@@ -24,6 +26,8 @@ resource_groups:
     scopes:
       - .codex-plugin/**
       - AGENTS.md
+      - PHASE7-8-RUNBOOK.md
+      - PREVIEW-EVIDENCE-CAPTURE.md
       - README.md
       - ROADMAP.md
       - workflow-registry.yaml

@@ -82,7 +82,21 @@ def make_receipts() -> tuple[dict[str, Any], list[dict[str, bytes]]]:
         artifact = json_bytes({"schema_version": 1, "artifacts": []})
         actor_path = f"{prefix}/actor-manifest.json"
         artifact_path = f"{prefix}/artifact-index.json"
+        access_path = f"{prefix}/file-access.json"
         task_path = f"{prefix}/task-export.json"
+        access = json_bytes(
+            {
+                "schema_version": 1,
+                "task_id": f"task-{offset:02d}",
+                "plugin_version": IDENTITY["plugin_version"],
+                "registry_sha256": IDENTITY["registry_sha256"],
+                "source_commit": IDENTITY["source_commit"],
+                "workflow": workflow,
+                "reads": [],
+                "writes": [],
+                "source_artifact_hashes_unchanged": True,
+            }
+        )
         task = json_bytes(
             {
                 "schema_version": 1,
@@ -90,6 +104,10 @@ def make_receipts() -> tuple[dict[str, Any], list[dict[str, bytes]]]:
                 "receipt_id": receipt_id,
                 "workflow": workflow,
                 "case_kind": case_kind,
+                "file_access": {
+                    "path": access_path,
+                    "sha256": sha256_bytes(access),
+                },
             }
         )
         state = final_state(workflow, case_kind)
@@ -145,7 +163,9 @@ def make_receipts() -> tuple[dict[str, Any], list[dict[str, bytes]]]:
                 "reason": "Externally witnessed test fixture.",
             }
         )
-        payloads.append({"task": task, "actor": actor, "artifact": artifact})
+        payloads.append(
+            {"task": task, "actor": actor, "artifact": artifact, "access": access}
+        )
     collection = {
         "schema_version": 2,
         "evidence_kind": "current_version_durable_runtime_receipts",
@@ -185,12 +205,13 @@ def build_bundle(
 ) -> None:
     directory.mkdir(parents=True)
     ids = {name: bundle_number * 100 + offset for offset, name in enumerate(
-        ("task", "actor", "artifact", "collection", "manifest", "envelope", "report"), start=1
+        ("task", "actor", "artifact", "access", "collection", "manifest", "envelope", "report"), start=1
     )}
     local_names = {
         "task": "task-export.json",
         "actor": "actor-manifest.json",
         "artifact": "artifact-index.json",
+        "access": "file-access.json",
         "collection": "runtime-receipts.yaml",
         "manifest": "workspace-manifest.json",
         "envelope": "evidence-envelope.json",
@@ -201,6 +222,7 @@ def build_bundle(
         "task": binding["task_export"]["path"],
         "actor": binding["actor_manifest"]["path"],
         "artifact": binding["artifact_index"]["path"],
+        "access": json.loads(payloads["task"])["file_access"]["path"],
     }
     if logical_path_override is not None:
         paths["task"] = logical_path_override
@@ -222,7 +244,7 @@ def build_bundle(
                 "sha256": sha256_bytes(payloads[key]),
                 "size": len(payloads[key]),
             }
-            for key in ("task", "actor", "artifact")
+            for key in ("task", "actor", "artifact", "access")
         ],
     }
     manifest_bytes = json_bytes(manifest)
@@ -251,7 +273,7 @@ def build_bundle(
         "github_witness": {
             "repository": "example/research-skills",
             "release_id": 700,
-            "release_tag": "v0.7.0-preview.1",
+            "release_tag": f"v{IDENTITY['plugin_version']}",
             "workflow_run_id": 800,
             "actor": "fixture-actor",
             "raw_export_asset_id": ids["task"],
@@ -282,6 +304,7 @@ def build_bundle(
         "task": payloads["task"],
         "actor": payloads["actor"],
         "artifact": payloads["artifact"],
+        "access": payloads["access"],
         "collection": collection_bytes,
         "manifest": manifest_bytes,
         "envelope": envelope_bytes,
@@ -291,6 +314,7 @@ def build_bundle(
         asset_record(ids["task"], local_names["task"], "task_export", bundle_payloads["task"]),
         asset_record(ids["actor"], local_names["actor"], "supporting_file", bundle_payloads["actor"]),
         asset_record(ids["artifact"], local_names["artifact"], "supporting_file", bundle_payloads["artifact"]),
+        asset_record(ids["access"], local_names["access"], "supporting_file", bundle_payloads["access"]),
         asset_record(ids["collection"], local_names["collection"], "supporting_file", collection_bytes),
         asset_record(ids["manifest"], local_names["manifest"], "supporting_file", manifest_bytes),
         asset_record(ids["envelope"], local_names["envelope"], "evidence_envelope", envelope_bytes),
@@ -302,7 +326,7 @@ def build_bundle(
         "github_release": {
             "repository": "example/research-skills",
             "release_id": 700,
-            "release_tag": "v0.7.0-preview.1",
+            "release_tag": f"v{IDENTITY['plugin_version']}",
         },
         "github_witness": {
             "workflow_run_id": 800,
@@ -551,9 +575,49 @@ def main() -> int:
             ModeViolation,
             assert_phase7_complete_preview,
             consume_external_runtime_validation_session,
+            edge_derived_actor_edges,
             issue_external_runtime_attestation,
             issue_external_runtime_validation_session,
+            runtime_actor_role_contract,
+            runtime_artifact_role_contract,
         )
+
+        repository_root = Path(__file__).resolve().parents[1]
+        registry = yaml.safe_load(
+            (repository_root / "research-skills-openai" / "workflow-registry.yaml").read_text(
+                encoding="utf-8"
+            )
+        )
+        schema = yaml.safe_load(
+            (repository_root / "tests" / "openai_phase7" / "runtime-receipts.schema.yaml").read_text(
+                encoding="utf-8"
+            )
+        )
+        role_contract = runtime_actor_role_contract(registry, schema)
+        assert {"supporting_reviewer", "supporting_writer"} <= set(
+            role_contract["allowed_roles"]
+        )
+        proposal_supporting_writers = edge_derived_actor_edges(
+            registry, "proposal", "supporting_writer"
+        )
+        assert {edge[1] for edge in proposal_supporting_writers} == {"sap-writer"}
+        assert {edge[0] for edge in proposal_supporting_writers} == {
+            "proposal-orchestrator",
+            "sap-refinement-controller",
+        }
+        polisher_roles = runtime_artifact_role_contract(registry)
+        assert (
+            polisher_roles["finding_index_role_by_workflow"]["research_polisher"]
+            == "research_polisher_review_finding_index"
+        )
+        assert "research_polisher_specialist_findings_bundle" in polisher_roles[
+            "assembler_outputs_by_skill"
+        ]["research-polisher-plan-assembler"]
+        assert polisher_roles["supporting_writer_outputs_by_skill"] == {
+            "sap-writer": ["sap"],
+            "article-frontmatter-drafter": ["frontmatter"],
+        }
+        checks += 1
 
         factory_contract = create_fixture(base / "factory-contract")
         factory_result = validate_external_runtime_evidence(

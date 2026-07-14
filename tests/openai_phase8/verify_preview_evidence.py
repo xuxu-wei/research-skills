@@ -19,7 +19,7 @@ import sys
 import urllib.error
 import urllib.parse
 import urllib.request
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Mapping
 
@@ -35,6 +35,14 @@ from openai_preview_evidence import (  # noqa: E402
     normalize_sha256,
     sha256_bytes,
     validate_evidence_bundle,
+)
+from normalize_openai_preview_capture import (  # noqa: E402
+    CAPTURE_ADAPTER_ID as PHASE7_CAPTURE_ADAPTER_ID,
+    CaptureNormalizationError,
+)
+from openai_preview_capture_contracts import (  # noqa: E402
+    PHASE8_CAPTURE_ADAPTER_ID,
+    validate_normalized_capture,
 )
 
 
@@ -53,6 +61,15 @@ SHA256_RE = re.compile(r"^sha256:[0-9a-f]{64}$")
 REQUEST_SCHEMA_VERSION = 2
 PREVIEW_ADAPTER_ID = "github_release_asset_preview_v1"
 PROVIDER_REGISTRY_RELATIVE = "tests/openai_phase8/provider-verifier-registry.yaml"
+DRAFT_VERIFIER_RELATIVE = "scripts/verify_openai_preview_draft_bundle.py"
+DRAFT_VERIFIER_WORKFLOW = ".github/workflows/openai-preview-draft-bundle-verifier.yml"
+DRAFT_VERIFIER_ID = "independent-draft-bundle-verifier-v1"
+PREVIEW_VERIFIER_WORKFLOW = ".github/workflows/openai-preview-evidence.yml"
+PROTECTED_REVALIDATOR_WORKFLOW = ".github/workflows/openai-preview-accepted-evidence.yml"
+TRUSTED_CURRENT_VERIFIER_WORKFLOWS = frozenset(
+    {PREVIEW_VERIFIER_WORKFLOW, PROTECTED_REVALIDATOR_WORKFLOW}
+)
+TRUSTED_VERIFIER_BRANCH = "main"
 MAX_TAG_DEREFERENCE_DEPTH = 8
 RELEASE_ASSETS_PER_PAGE = 100
 MAX_RELEASE_ASSET_PAGES = 100
@@ -354,21 +371,32 @@ def validate_code_bindings(
     )
     if not isinstance(adapter, dict):
         raise VerificationError("Preview adapter is not present in the bound registry")
-    if (
-        adapter.get("enabled") is not True
-        or adapter.get("adapter_type") != "preview_attestation"
-        or adapter.get("trust_level") != PREVIEW_ATTESTED
-        or adapter.get("verifier_path") != request.get("verifier_path")
-        or adapter.get("verifier_digest") != request.get("verifier_digest")
-        or adapter.get("verification_request_schema") != REQUEST_SCHEMA_VERSION
-        or adapter.get("workflow_witness_role") != "source_commit_main_ci"
-        or adapter.get("workflow_path") != request.get("workflow_path")
-        or adapter.get("workflow_event") != request.get("workflow_event")
-        or adapter.get("api_host") != API_HOST
-        or set(adapter.get("asset_redirect_hosts", [])) != set(ASSET_REDIRECT_HOSTS)
-        or adapter.get("real_verification_requires_github_requery") is not True
-    ):
-        raise VerificationError("verification request conflicts with the bound adapter")
+    checks = {
+        "enabled": adapter.get("enabled") is True,
+        "adapter_type": adapter.get("adapter_type") == "preview_attestation",
+        "trust_level": adapter.get("trust_level") == PREVIEW_ATTESTED,
+        "verifier_path": adapter.get("verifier_path") == request.get("verifier_path"),
+        "verifier_digest": adapter.get("verifier_digest") == request.get("verifier_digest"),
+        "verification_request_schema": adapter.get("verification_request_schema") == REQUEST_SCHEMA_VERSION,
+        "workflow_witness_role": (
+            adapter.get("workflow_witness_role") == "source_commit_main_ci"
+            and (
+                request.get("workflow_witness_role") == "source_commit_main_ci"
+                or (synthetic_self_test and request.get("workflow_witness_role") is None)
+            )
+        ),
+        "workflow_path": adapter.get("workflow_path") == request.get("workflow_path"),
+        "workflow_event": adapter.get("workflow_event") == request.get("workflow_event"),
+        "api_host": adapter.get("api_host") == API_HOST,
+        "asset_redirect_hosts": set(adapter.get("asset_redirect_hosts", [])) == set(ASSET_REDIRECT_HOSTS),
+        "github_requery": adapter.get("real_verification_requires_github_requery") is True,
+    }
+    mismatches = sorted(field for field, valid in checks.items() if not valid)
+    if mismatches:
+        raise VerificationError(
+            "verification request conflicts with the bound adapter: "
+            + ",".join(mismatches)
+        )
     return adapter
 
 
@@ -495,6 +523,8 @@ def build_request_from_bundle(
         "provider_registry_path": PROVIDER_REGISTRY_RELATIVE,
         "provider_registry_digest": normalized_digest(registry_path.read_bytes()),
         "workflow_path": witness.get("workflow_path"),
+        "workflow_witness_role": witness.get("workflow_witness_role")
+        or adapter.get("workflow_witness_role"),
         "workflow_id": witness.get("workflow_id"),
         "workflow_event": witness.get("workflow_event"),
         "workflow_run_id": witness.get("workflow_run_id"),
@@ -679,6 +709,8 @@ def validate_live_github_witness(
         raise VerificationError("verification request does not bind the source commit")
     if (
         request.get("workflow_path") != witness.get("workflow_path")
+        or request.get("workflow_witness_role")
+        != witness.get("workflow_witness_role")
         or request.get("workflow_id") != workflow_id
         or request.get("workflow_event") != witness.get("workflow_event")
         or request.get("workflow_run_id") != workflow_run_id
@@ -815,8 +847,205 @@ def validate_live_github_witness(
     return verified, live_index_asset
 
 
-def verify(
-    request: Mapping[str, Any], *, synthetic_self_test: bool = False
+def validate_draft_verifier_execution(
+    *,
+    report_payload: bytes,
+    repository: str,
+    source_commit: str,
+    source_ci_run_id: int,
+) -> int:
+    """Re-query the distinct pre-index GitHub Actions run recorded by V."""
+
+    try:
+        report = json.loads(report_payload.decode("utf-8"))
+    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise VerificationError("draft verifier report is not valid JSON") from exc
+    if not isinstance(report, Mapping):
+        raise VerificationError("draft verifier report is not an object")
+    verifier_path = repository_path(DRAFT_VERIFIER_RELATIVE, "draft verifier")
+    expected_digest = normalized_digest(verifier_path.read_bytes())
+    if (
+        report.get("verifier_id") != DRAFT_VERIFIER_ID
+        or report.get("verifier_code_sha256") != expected_digest
+        or report.get("independent") is not True
+        or report.get("verdict") != "accepted"
+    ):
+        raise VerificationError("draft verifier code or verdict binding mismatch")
+    execution = report.get("execution")
+    if not isinstance(execution, Mapping):
+        raise VerificationError("draft verifier execution witness is missing")
+    run_id = execution.get("workflow_run_id")
+    run_attempt = execution.get("run_attempt")
+    actor = execution.get("actor")
+    if (
+        isinstance(run_id, bool)
+        or not isinstance(run_id, int)
+        or run_id <= 0
+        or run_id == source_ci_run_id
+        or isinstance(run_attempt, bool)
+        or not isinstance(run_attempt, int)
+        or run_attempt <= 0
+        or execution.get("repository") != repository
+        or execution.get("workflow_path") != DRAFT_VERIFIER_WORKFLOW
+        or execution.get("workflow_event") != "workflow_dispatch"
+        or execution.get("run_head_sha") != source_commit
+        or not isinstance(actor, str)
+        or not actor
+    ):
+        raise VerificationError("draft verifier execution identity is invalid")
+    live = github_request(
+        f"https://api.github.com/repos/{repository}/actions/runs/{run_id}",
+        binary=False,
+    )
+    if not isinstance(live, Mapping):
+        raise VerificationError("draft verifier workflow response is invalid")
+    live_repo = live.get("repository")
+    live_actor = live.get("actor")
+    if (
+        live.get("id") != run_id
+        or live.get("run_attempt") != run_attempt
+        or live.get("path") != DRAFT_VERIFIER_WORKFLOW
+        or live.get("event") != "workflow_dispatch"
+        or live.get("head_sha") != source_commit
+        or live.get("head_branch") != "main"
+        or live.get("status") != "completed"
+        or live.get("conclusion") != "success"
+        or not isinstance(live_repo, Mapping)
+        or live_repo.get("full_name") != repository
+        or not isinstance(live_actor, Mapping)
+        or live_actor.get("login") != actor
+    ):
+        raise VerificationError("draft verifier workflow witness mismatch")
+    try:
+        verified_at = datetime.fromisoformat(
+            str(report.get("verified_at", "")).replace("Z", "+00:00")
+        )
+        started_at = datetime.fromisoformat(
+            str(live.get("run_started_at", "")).replace("Z", "+00:00")
+        )
+        completed_at = datetime.fromisoformat(
+            str(live.get("updated_at", "")).replace("Z", "+00:00")
+        )
+    except ValueError as exc:
+        raise VerificationError("draft verifier chronology is invalid") from exc
+    if any(value.tzinfo is None for value in (verified_at, started_at, completed_at)):
+        raise VerificationError("draft verifier chronology lacks timezone")
+    if not (started_at <= verified_at <= completed_at + timedelta(minutes=5)):
+        raise VerificationError("draft verifier timestamp is outside its workflow run")
+    return int(run_id)
+
+
+def validate_current_verifier_execution(
+    *,
+    repository: str,
+    source_commit: str,
+    source_ci_run_id: int,
+    draft_verifier_run_id: int,
+) -> dict[str, Any]:
+    """Re-query and bind the Actions run executing this live verification."""
+
+    run_id_text = os.environ.get("GITHUB_RUN_ID", "")
+    run_attempt_text = os.environ.get("GITHUB_RUN_ATTEMPT", "")
+    actor = os.environ.get("GITHUB_ACTOR", "")
+    workflow_ref = os.environ.get("GITHUB_WORKFLOW_REF", "")
+    workflow_prefix = f"{repository}/"
+    workflow_suffix = f"@refs/heads/{TRUSTED_VERIFIER_BRANCH}"
+    if (
+        os.environ.get("GITHUB_ACTIONS") != "true"
+        or not run_id_text.isdigit()
+        or int(run_id_text) <= 0
+        or not run_attempt_text.isdigit()
+        or int(run_attempt_text) <= 0
+        or os.environ.get("GITHUB_REPOSITORY") != repository
+        or os.environ.get("GITHUB_EVENT_NAME") != "workflow_dispatch"
+        or os.environ.get("GITHUB_SHA") != source_commit
+        or os.environ.get("GITHUB_WORKFLOW_SHA") != source_commit
+        or os.environ.get("GITHUB_REF")
+        != f"refs/heads/{TRUSTED_VERIFIER_BRANCH}"
+        or os.environ.get("GITHUB_REF_NAME") != TRUSTED_VERIFIER_BRANCH
+        or not workflow_ref.startswith(workflow_prefix)
+        or not workflow_ref.endswith(workflow_suffix)
+        or not actor
+    ):
+        raise VerificationError(
+            "live Preview promotion requires a bound GitHub Actions execution"
+        )
+    workflow_path = workflow_ref[
+        len(workflow_prefix) : len(workflow_ref) - len(workflow_suffix)
+    ]
+    if workflow_path not in TRUSTED_CURRENT_VERIFIER_WORKFLOWS:
+        raise VerificationError("current verifier workflow is not registered")
+
+    run_id = int(run_id_text)
+    run_attempt = int(run_attempt_text)
+    if len({source_ci_run_id, draft_verifier_run_id, run_id}) != 3:
+        raise VerificationError(
+            "source, draft, and current verifier runs must be distinct"
+        )
+
+    workflow_name = Path(workflow_path).name
+    workflow_api_url = (
+        f"https://api.github.com/repos/{repository}/actions/workflows/{workflow_name}"
+    )
+    workflow = github_request(workflow_api_url, binary=False)
+    if not isinstance(workflow, Mapping):
+        raise VerificationError("current verifier workflow response is invalid")
+    workflow_id = workflow.get("id")
+    if (
+        isinstance(workflow_id, bool)
+        or not isinstance(workflow_id, int)
+        or workflow_id <= 0
+        or workflow.get("url")
+        != f"https://api.github.com/repos/{repository}/actions/workflows/{workflow_id}"
+        or workflow.get("path") != workflow_path
+        or workflow.get("state") != "active"
+    ):
+        raise VerificationError("current verifier workflow identity is invalid")
+
+    run_api_url = f"https://api.github.com/repos/{repository}/actions/runs/{run_id}"
+    run = github_request(run_api_url, binary=False)
+    if not isinstance(run, Mapping):
+        raise VerificationError("current verifier run response is invalid")
+    run_repository = run.get("repository")
+    run_actor = run.get("actor")
+    run_path = str(run.get("path", "")).split("@", 1)[0]
+    run_url = f"https://github.com/{repository}/actions/runs/{run_id}"
+    if (
+        run.get("id") != run_id
+        or run.get("run_attempt") != run_attempt
+        or run.get("url") != run_api_url
+        or run.get("html_url") != run_url
+        or run.get("workflow_id") != workflow_id
+        or run_path != workflow_path
+        or run.get("event") != "workflow_dispatch"
+        or run.get("head_sha") != source_commit
+        or run.get("head_branch") != TRUSTED_VERIFIER_BRANCH
+        or run.get("status") != "in_progress"
+        or run.get("conclusion") is not None
+        or not isinstance(run_repository, Mapping)
+        or run_repository.get("full_name") != repository
+        or not isinstance(run_actor, Mapping)
+        or run_actor.get("login") != actor
+    ):
+        raise VerificationError("current verifier workflow run witness mismatch")
+    return {
+        "workflow_id": workflow_id,
+        "workflow_run_id": run_id,
+        "run_attempt": run_attempt,
+        "workflow_path": workflow_path,
+        "workflow_event": "workflow_dispatch",
+        "run_head_sha": source_commit,
+        "run_head_ref": f"refs/heads/{TRUSTED_VERIFIER_BRANCH}",
+        "actor": actor,
+        "run_url": run_url,
+    }
+
+
+def _verify(
+    request: Mapping[str, Any],
+    *,
+    synthetic_self_test: bool,
+    require_current_execution: bool,
 ) -> dict[str, Any]:
     if request.get("schema_version") != REQUEST_SCHEMA_VERSION:
         raise VerificationError("unsupported request schema")
@@ -916,6 +1145,20 @@ def verify(
     ):
         raise VerificationError("shared integrity layer returned an invalid Preview contract")
 
+    draft_verifier_run_id: int | None = None
+    if not synthetic_self_test:
+        report_payload = fetched_asset_payloads.get(result.verifier_report_asset_id)
+        release_record = asset_index.get("github_release", {})
+        witness_record = asset_index.get("github_witness", {})
+        if not isinstance(report_payload, bytes):
+            raise VerificationError("draft verifier report asset was not fetched")
+        draft_verifier_run_id = validate_draft_verifier_execution(
+            report_payload=report_payload,
+            repository=str(release_record.get("repository", "")),
+            source_commit=source_commit,
+            source_ci_run_id=int(witness_record.get("workflow_run_id", 0)),
+        )
+
     raw_asset = next(
         (item for item in assets if item.get("asset_id") == result.raw_export_asset_id),
         None,
@@ -944,6 +1187,37 @@ def verify(
         raise VerificationError("raw export capture timestamp mismatch")
     if time_digest(captured_at) != request.get("capture_timestamp_digest"):
         raise VerificationError("capture timestamp digest mismatch")
+
+    envelope_adapter = envelope.get("adapter", {})
+    if (
+        isinstance(envelope_adapter, Mapping)
+        and envelope_adapter.get("adapter_id")
+        in {PHASE7_CAPTURE_ADAPTER_ID, PHASE8_CAPTURE_ADAPTER_ID}
+    ):
+        try:
+            normalized_capture = validate_normalized_capture(
+                header,
+                now=datetime.now(timezone.utc),
+                verify_checkout=True,
+            )
+        except CaptureNormalizationError as exc:
+            raise VerificationError(
+                f"normalized App Server capture is invalid: {exc.code} at {exc.path}"
+            ) from exc
+        except ValueError as exc:
+            raise VerificationError(
+                f"normalized capture schema is unsupported: {exc}"
+            ) from exc
+        normalized_capture_fields = normalized_capture.get("capture", {})
+        if (
+            normalized_capture.get("source_identity") != expected_source_identity
+            or normalized_capture.get("captured_at") != captured_at
+            or normalized_capture_fields.get("task_or_thread_id")
+            != envelope.get("capture", {}).get("task_or_thread_id")
+        ):
+            raise VerificationError(
+                "normalized App Server capture is not bound to the envelope and source"
+            )
 
     if synthetic_self_test:
         if request.get("synthetic_test_only") is not True or header.get(
@@ -993,25 +1267,23 @@ def verify(
     verified_assets.sort(key=lambda item: int(item["asset_id"]))
 
     verified_at = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
-    gate_eligible = not synthetic_self_test
-    verifier_workflow_run_id: int | None = None
-    verifier_run_url: str | None = None
+    live_requery = not synthetic_self_test
+    gate_eligible = live_requery and require_current_execution
+    source_ci_run_id = asset_index.get("github_witness", {}).get("workflow_run_id")
+    current_execution: dict[str, Any] | None = None
     if gate_eligible:
-        run_id_text = os.environ.get("GITHUB_RUN_ID", "")
-        repository_name = os.environ.get("GITHUB_REPOSITORY", "")
         if (
-            os.environ.get("GITHUB_ACTIONS") != "true"
-            or not run_id_text.isdigit()
-            or int(run_id_text) <= 0
-            or repository_name != repository
+            isinstance(source_ci_run_id, bool)
+            or not isinstance(source_ci_run_id, int)
+            or source_ci_run_id <= 0
+            or draft_verifier_run_id is None
         ):
-            raise VerificationError(
-                "live Preview promotion requires an independent GitHub Actions run"
-            )
-        verifier_workflow_run_id = int(run_id_text)
-        verifier_run_url = (
-            f"https://github.com/{repository_name}/actions/runs/"
-            f"{verifier_workflow_run_id}"
+            raise VerificationError("live Preview execution lineage is incomplete")
+        current_execution = validate_current_verifier_execution(
+            repository=repository,
+            source_commit=source_commit,
+            source_ci_run_id=source_ci_run_id,
+            draft_verifier_run_id=draft_verifier_run_id,
         )
     artifact_digests = {
         "raw_export_sha256": result.raw_export_sha256,
@@ -1048,14 +1320,41 @@ def verify(
         "adapter_code_sha256": str(request.get("verifier_digest", "")).removeprefix(
             "sha256:"
         ),
-        "live_requery": gate_eligible,
+        "live_requery": live_requery,
         # Legacy spelling retained for the release-ledger validator.
-        "live_requery_performed": gate_eligible,
+        "live_requery_performed": live_requery,
         "independent": gate_eligible,
-        "requery_source": "github_api" if gate_eligible else "synthetic_fixture",
+        "requery_source": "github_api" if live_requery else "synthetic_fixture",
         "verified_at": verified_at,
-        "verifier_workflow_run_id": verifier_workflow_run_id,
-        "verifier_run_url": verifier_run_url,
+        "source_ci_workflow_run_id": source_ci_run_id if gate_eligible else None,
+        "draft_verifier_workflow_run_id": (
+            draft_verifier_run_id if gate_eligible else None
+        ),
+        "verifier_workflow_id": (
+            current_execution["workflow_id"] if current_execution else None
+        ),
+        "verifier_workflow_run_id": (
+            current_execution["workflow_run_id"] if current_execution else None
+        ),
+        "verifier_run_attempt": (
+            current_execution["run_attempt"] if current_execution else None
+        ),
+        "verifier_workflow_path": (
+            current_execution["workflow_path"] if current_execution else None
+        ),
+        "verifier_workflow_event": (
+            current_execution["workflow_event"] if current_execution else None
+        ),
+        "verifier_run_head_sha": (
+            current_execution["run_head_sha"] if current_execution else None
+        ),
+        "verifier_run_head_ref": (
+            current_execution["run_head_ref"] if current_execution else None
+        ),
+        "verifier_actor": current_execution["actor"] if current_execution else None,
+        "verifier_run_url": (
+            current_execution["run_url"] if current_execution else None
+        ),
     }
     gate_eligibility = {
         "eligible": gate_eligible,
@@ -1068,7 +1367,15 @@ def verify(
     }
     return {
         "schema_version": 3,
-        "verdict": PREVIEW_ATTESTED if not synthetic_self_test else "synthetic_contract_valid",
+        "verdict": (
+            PREVIEW_ATTESTED
+            if gate_eligible
+            else (
+                "external_integrity_requeried"
+                if live_requery
+                else "synthetic_contract_valid"
+            )
+        ),
         "evidence_id": result.evidence_id,
         "verification_level": PREVIEW_ATTESTED,
         "adapter_id": PREVIEW_ADAPTER_ID,
@@ -1086,6 +1393,18 @@ def verify(
         "counts_as_provider_verified": False,
         "synthetic_self_test": synthetic_self_test,
     }
+
+
+def verify(
+    request: Mapping[str, Any], *, synthetic_self_test: bool = False
+) -> dict[str, Any]:
+    """Run the registered Preview verifier and bind its current trusted run."""
+
+    return _verify(
+        request,
+        synthetic_self_test=synthetic_self_test,
+        require_current_execution=not synthetic_self_test,
+    )
 
 
 # The release-ledger dispatcher checks this attribute before invoking a live

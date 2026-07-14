@@ -10,11 +10,14 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import yaml
+
 from openai_ui_utils import short_description_error
 
 
 REPO = Path(__file__).resolve().parents[1]
 SKILLS_ROOT = REPO / "research-skills-openai" / "skills"
+REGISTRY = REPO / "research-skills-openai" / "workflow-registry.yaml"
 
 PUBLIC_ENTRY_SKILLS = {
     "research-idea-orchestrator",
@@ -25,11 +28,6 @@ PUBLIC_ENTRY_SKILLS = {
     "research-opportunity-mapper",
     "academic-deep-search",
 }
-
-# The seventh public entry is discoverable and explicitly callable in 0.7, but
-# the owner-approved roadmap keeps implicit routing frozen until the Phase 7-8
-# external evidence gates are complete.
-IMPLICIT_SKILLS = PUBLIC_ENTRY_SKILLS - {"research-polisher-orchestrator"}
 
 DISPLAY_NAMES = {
     "research-polisher-orchestrator": "Research Polisher",
@@ -205,7 +203,44 @@ def default_prompt(name: str) -> str:
     return f"Use ${name} for this task and follow its workflow and output contract."
 
 
-def normalize_skill(skill_md: Path) -> None:
+def registry_implicit_policies() -> dict[str, bool]:
+    if not REGISTRY.is_file():
+        return {}
+    registry = yaml.safe_load(REGISTRY.read_text(encoding="utf-8-sig")) or {}
+    skills = registry.get("skills", []) if isinstance(registry, dict) else []
+    if not isinstance(skills, list):
+        raise ValueError("workflow registry skills must be a list")
+    policies: dict[str, bool] = {}
+    for entry in skills:
+        if not isinstance(entry, dict) or not isinstance(entry.get("name"), str):
+            continue
+        policy = entry.get("invocation_policy")
+        if policy not in {"implicit", "explicit", "explicit_or_orchestrated"}:
+            raise ValueError(
+                f"{entry['name']}: registry invocation_policy is unsupported: {policy!r}"
+            )
+        policies[entry["name"]] = policy == "implicit"
+    return policies
+
+
+def source_implicit_policy(skill_md: Path, registry_policies: dict[str, bool]) -> bool:
+    name = skill_md.parent.name
+    openai_yaml = skill_md.parent / "agents" / "openai.yaml"
+    if openai_yaml.is_file():
+        document = yaml.safe_load(openai_yaml.read_text(encoding="utf-8-sig")) or {}
+        policy = document.get("policy", {}) if isinstance(document, dict) else {}
+        value = policy.get("allow_implicit_invocation") if isinstance(policy, dict) else None
+        if not isinstance(value, bool):
+            raise ValueError(
+                f"{name}: agents/openai.yaml policy.allow_implicit_invocation must be boolean"
+            )
+        return value
+    if name in registry_policies:
+        return registry_policies[name]
+    return False
+
+
+def normalize_skill(skill_md: Path, registry_policies: dict[str, bool]) -> None:
     text = skill_md.read_text(encoding="utf-8-sig")
     frontmatter, body = split_frontmatter(text)
     name_block = field_block(frontmatter, "name")
@@ -213,6 +248,9 @@ def normalize_skill(skill_md: Path) -> None:
     name = unquote(name_block[0].split(":", 1)[1])
     if name != skill_md.parent.name:
         raise ValueError(f"Skill name does not match directory: {name} != {skill_md.parent.name}")
+    allow_implicit_invocation = source_implicit_policy(skill_md, registry_policies)
+    if allow_implicit_invocation and name not in PUBLIC_ENTRY_SKILLS:
+        raise ValueError(f"{name}: only public entry skills may allow implicit invocation")
 
     description = DESCRIPTIONS.get(name, description_text(description_block))
     normalized_frontmatter = [
@@ -233,7 +271,8 @@ def normalize_skill(skill_md: Path) -> None:
             f"  short_description: {yaml_quote(short_description(name))}",
             f"  default_prompt: {yaml_quote(default_prompt(name))}",
             "policy:",
-            f"  allow_implicit_invocation: {'true' if name in IMPLICIT_SKILLS else 'false'}",
+            "  allow_implicit_invocation: "
+            f"{'true' if allow_implicit_invocation else 'false'}",
             "",
         ]
     )
@@ -265,8 +304,9 @@ def main() -> int:
         error = short_description_error(SHORT_DESCRIPTIONS[name])
         if error:
             raise RuntimeError(f"{name}: {error}")
+    registry_policies = registry_implicit_policies()
     for skill_md in skill_files:
-        normalize_skill(skill_md)
+        normalize_skill(skill_md, registry_policies)
     print(f"normalized {len(skill_files)} OpenAI skills")
     return 0
 

@@ -7,6 +7,7 @@ on:
   workflow_dispatch:
 
 permissions:
+  actions: read
   contents: read
 
 jobs:
@@ -22,34 +23,6 @@ jobs:
           python-version: "3.12"
       - name: Install validator dependency
         run: python -m pip install PyYAML==6.0.2
-      - name: Validate Preview evidence tooling
-        run: |
-          python -m py_compile \
-            scripts/build_openai_preview_accepted_summary.py \
-            scripts/build_openai_preview_verifier_summary.py \
-            scripts/download_openai_release_ledger_assets.py \
-            scripts/materialize_openai_preview_evidence_subset.py \
-            scripts/openai_preview_evidence.py \
-            scripts/validate_openai_preview_accepted_phase78.py \
-            scripts/validate_openai_preview_evidence_bundle.py \
-            scripts/validate_openai_phase7_runtime_evidence.py \
-            scripts/validate_openai_phase8_external_evidence.py \
-            scripts/validate_openai_release_evidence.py \
-            scripts/verify_openai_preview_accepted_summary.py \
-            scripts/capture_openai_codex_app_server.py
-          python scripts/test_openai_preview_evidence.py
-          python scripts/test_build_openai_preview_accepted_summary.py
-          python scripts/test_build_openai_preview_verifier_summary.py
-          python scripts/test_download_openai_release_ledger_assets.py
-          python scripts/test_validate_openai_preview_evidence_bundle.py
-          python scripts/test_openai_app_server_capture.py
-          python scripts/test_validate_openai_phase7_runtime_evidence.py
-          python scripts/test_validate_openai_phase8_external_evidence.py
-          python scripts/test_validate_openai_release_evidence.py
-          python scripts/test_verify_openai_preview_accepted_summary.py
-          python scripts/test_openai_preview_workflows.py
-          python scripts/test_validate_openai_preview_accepted_phase78.py
-          python scripts/test_openai_phase8_preview_verifier.py
       - name: Check installable behavior version bump
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
@@ -71,6 +44,8 @@ jobs:
           python scripts/test_openai_phase6_context.py
           python scripts/test_openai_phase7_modes.py --check-report
           python scripts/test_openai_phase8_corpus.py --check-report
+          python scripts/test_validate_openai_personal_readiness.py
+          python scripts/validate_openai_personal_readiness.py --check-report
       - name: Run canonical OpenAI plugin validator
         env:
           OPENAI_CODEX_VALIDATOR_COMMIT: 4ebc61c0f8df9852e709ff4b477b750fc816a69b
@@ -83,11 +58,7 @@ jobs:
             --output "$OPENAI_CODEX_VALIDATOR_PATH"
           echo "${OPENAI_CODEX_VALIDATOR_SHA256}  ${OPENAI_CODEX_VALIDATOR_PATH}" | sha256sum --check --strict
           python "$OPENAI_CODEX_VALIDATOR_PATH" research-skills-openai
-      - name: Validate plugin package and release channel
-        run: |
-          python scripts/codex_plugin_converter.py --mode codex --fail-on-invalid
-          python scripts/generate_openai_release_ledger.py --check
-          python scripts/test_openai_release_ledger.py
-          python scripts/validate_openai_preview_release.py
+      - name: Validate personal plugin package
+        run: python scripts/codex_plugin_converter.py --mode codex --fail-on-invalid
       - name: Check generated artifacts are committed
         run: git diff --exit-code

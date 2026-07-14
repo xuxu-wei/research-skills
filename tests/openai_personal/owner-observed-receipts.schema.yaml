@@ -1,0 +1,82 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+$id: openai-personal-owner-observed-receipts/v1
+title: Research Skills personal-owner observation receipts
+type: object
+required:
+  - schema_version
+  - profile
+  - plugin_version
+  - evidence_level
+  - distribution
+  - workflow_runs
+  - control_runs
+  - retrieval_runs
+properties:
+  schema_version: {const: 1}
+  profile: {const: personal-owner}
+  plugin_version: {type: string, minLength: 1}
+  evidence_level: {const: owner_observed}
+  distribution: {$ref: '#/$defs/receipt'}
+  workflow_runs:
+    type: array
+    minItems: 5
+    maxItems: 5
+    items: {$ref: '#/$defs/receipt'}
+  control_runs:
+    type: array
+    minItems: 2
+    maxItems: 2
+    items: {$ref: '#/$defs/receipt'}
+  retrieval_runs:
+    type: array
+    minItems: 5
+    maxItems: 5
+    items: {$ref: '#/$defs/receipt'}
+$defs:
+  receipt:
+    type: object
+    required:
+      - slot_id
+      - kind
+      - expected_outcome
+      - status
+      - binding
+    properties:
+      slot_id: {type: string, minLength: 1}
+      kind: {type: string, minLength: 1}
+      workflow: {type: [string, 'null']}
+      expected_outcome: {type: string, minLength: 1}
+      actual_outcome: {type: [string, 'null']}
+      status:
+        enum: [pending_owner_observation, owner_observed]
+      binding:
+        type: object
+        required:
+          - task_id
+          - plugin_version
+          - source_identity
+          - artifact_bindings
+          - reviewer_instance_ids
+          - source_urls
+          - started_at
+          - completed_at
+          - owner_confirmed
+        properties:
+          task_id: {type: [string, 'null']}
+          plugin_version: {type: [string, 'null']}
+          source_identity: {type: [string, 'null']}
+          artifact_bindings:
+            type: array
+            items:
+              type: object
+              required: [artifact_id, version, path, sha256]
+          reviewer_instance_ids:
+            type: array
+            items: {type: string}
+          source_urls:
+            type: array
+            items: {type: string}
+          started_at: {type: [string, 'null']}
+          completed_at: {type: [string, 'null']}
+          owner_confirmed: {type: boolean}
+      notes: {type: [string, 'null']}

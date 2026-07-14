@@ -49,10 +49,16 @@ RESULT_SCHEMA = "openai-release-evidence-runner-result/v1"
 RUN_SUMMARY_SCHEMA = "openai-preview-live-verifier-summary/v1"
 RUN_SUMMARY_JSON_NAME = "openai-preview-live-verifier-summary.json"
 RUN_SUMMARY_ARTIFACT_PREFIX = "openai-preview-live-verifier-summary-"
+CONSUMER_RESULT_JSON_NAME = "openai-preview-accepted-consumer-result.json"
+CONSUMER_RESULT_ARTIFACT_PREFIX = "openai-preview-accepted-consumer-"
 RUN_SUMMARY_ARCHIVE_MAX_BYTES = 1_000_000
 RUN_SUMMARY_JSON_MAX_BYTES = 1_000_000
 GITHUB_API_HOST = "api.github.com"
 EXPECTED_EVIDENCE_TYPES = frozenset(ledger_contract.EXTERNAL_EVIDENCE_TYPES)
+PHASE78_CLOSURE_EVIDENCE_TYPE = ledger_contract.PHASE78_CLOSURE_EVIDENCE_TYPE
+ALL_EXPECTED_EVIDENCE_TYPES = frozenset(
+    {*EXPECTED_EVIDENCE_TYPES, PHASE78_CLOSURE_EVIDENCE_TYPE}
+)
 ASSET_FIELDS = {
     "envelope_asset": "evidence_envelope",
     "raw_export_asset": None,
@@ -397,7 +403,7 @@ def _validate_release_evidence_schema(errors: list[str]) -> None:
         else set()
     )
     ledger_contract.require(
-        declared_types == EXPECTED_EVIDENCE_TYPES,
+        declared_types == ALL_EXPECTED_EVIDENCE_TYPES,
         "release evidence schema evidence types are stale",
         errors,
     )
@@ -555,6 +561,162 @@ class ReleaseEvidenceLiveCallback:
         if not isinstance(document, Mapping):
             _fail("verifier_summary_invalid", "verifier summary root is not an object")
         return document
+
+    def _parse_consumer_result_archive(self, payload: bytes) -> Mapping[str, Any]:
+        """Parse one exact accepted-summary consumer result from an Actions ZIP."""
+
+        try:
+            with zipfile.ZipFile(io.BytesIO(payload), "r") as archive:
+                members = archive.infolist()
+                if archive.comment or len(members) != 1:
+                    _fail(
+                        "phase78_consumer_artifact_invalid",
+                        "consumer result ZIP must contain exactly one uncommented member",
+                    )
+                member = members[0]
+                if (
+                    member.filename != CONSUMER_RESULT_JSON_NAME
+                    or member.is_dir()
+                    or member.flag_bits & 0x1
+                    or member.file_size <= 0
+                    or member.file_size > RUN_SUMMARY_JSON_MAX_BYTES
+                ):
+                    _fail(
+                        "phase78_consumer_artifact_invalid",
+                        "consumer result ZIP member is unsafe or oversized",
+                    )
+                document_bytes = archive.read(member)
+        except ReleaseEvidenceRunnerError:
+            raise
+        except (OSError, RuntimeError, zipfile.BadZipFile) as exc:
+            _fail(
+                "phase78_consumer_artifact_invalid",
+                f"consumer result ZIP is invalid: {exc}",
+            )
+        try:
+            document = json.loads(document_bytes.decode("utf-8-sig"))
+        except (UnicodeError, json.JSONDecodeError) as exc:
+            _fail(
+                "phase78_consumer_artifact_invalid",
+                f"consumer result JSON is invalid: {exc}",
+            )
+        if not isinstance(document, Mapping):
+            _fail(
+                "phase78_consumer_artifact_invalid",
+                "consumer result root is not an object",
+            )
+        return document
+
+    def _load_consumer_result_artifact(
+        self,
+        *,
+        repository: str,
+        consumer_run_id: int,
+        consumer_run_attempt: int,
+        producer_run_id: int,
+        producer_run_attempt: int,
+        source_commit: str,
+    ) -> Mapping[str, Any]:
+        """Fetch and authenticate the exact result emitted by the consumer run."""
+
+        artifact_name = (
+            f"{CONSUMER_RESULT_ARTIFACT_PREFIX}{consumer_run_id}-"
+            f"{consumer_run_attempt}-{producer_run_id}-{producer_run_attempt}"
+        )
+        listing_url = (
+            f"https://api.github.com/repos/{repository}/actions/runs/"
+            f"{consumer_run_id}/artifacts"
+        )
+        listing = self._github_json(listing_url, "accepted-summary consumer artifacts")
+        artifacts = listing.get("artifacts")
+        total_count = listing.get("total_count")
+        if (
+            not isinstance(artifacts, list)
+            or isinstance(total_count, bool)
+            or not isinstance(total_count, int)
+            or total_count != len(artifacts)
+            or total_count > 30
+        ):
+            _fail(
+                "phase78_consumer_artifact_invalid",
+                "consumer artifact listing is incomplete or oversized",
+            )
+        matches = [
+            item
+            for item in artifacts
+            if isinstance(item, Mapping) and item.get("name") == artifact_name
+        ]
+        if len(matches) != 1:
+            _fail(
+                "phase78_consumer_artifact_invalid",
+                "consumer run has no unique producer-attempt-bound result artifact",
+            )
+        artifact = matches[0]
+        artifact_id = artifact.get("id")
+        artifact_size = artifact.get("size_in_bytes")
+        artifact_digest = artifact.get("digest")
+        workflow_run = artifact.get("workflow_run")
+        archive_url = (
+            f"https://api.github.com/repos/{repository}/actions/artifacts/"
+            f"{artifact_id}/zip"
+        )
+        if (
+            not isinstance(artifact_id, int)
+            or isinstance(artifact_id, bool)
+            or artifact_id <= 0
+            or not isinstance(artifact_size, int)
+            or isinstance(artifact_size, bool)
+            or artifact_size <= 0
+            or artifact_size > RUN_SUMMARY_ARCHIVE_MAX_BYTES
+            or not isinstance(artifact_digest, str)
+            or not artifact_digest.startswith("sha256:")
+            or ledger_contract.SHA256_RE.fullmatch(
+                artifact_digest.removeprefix("sha256:")
+            )
+            is None
+            or artifact.get("expired") is not False
+            or artifact.get("archive_download_url") != archive_url
+            or not isinstance(workflow_run, Mapping)
+            or workflow_run.get("id") != consumer_run_id
+            or workflow_run.get("head_sha") != source_commit
+            or workflow_run.get("head_branch") != "main"
+        ):
+            _fail(
+                "phase78_consumer_artifact_invalid",
+                "consumer result artifact is expired, malformed, or misbound",
+            )
+
+        direct_url = (
+            f"https://api.github.com/repos/{repository}/actions/artifacts/{artifact_id}"
+        )
+        direct = self._github_json(direct_url, "accepted-summary consumer artifact")
+        direct_fields = {
+            "id",
+            "name",
+            "size_in_bytes",
+            "archive_download_url",
+            "digest",
+            "expired",
+            "workflow_run",
+        }
+        if any(direct.get(field) != artifact.get(field) for field in direct_fields):
+            _fail(
+                "phase78_consumer_artifact_invalid",
+                "direct consumer artifact differs from the run artifact listing",
+            )
+
+        archive_payload = self._github_bytes(
+            archive_url, "accepted-summary consumer result"
+        )
+        if (
+            len(archive_payload) != artifact_size
+            or "sha256:" + _sha256_hex(archive_payload) != artifact_digest
+        ):
+            _fail(
+                "phase78_consumer_artifact_digest_mismatch",
+                "consumer result ZIP size or GitHub digest differs",
+            )
+        return self._parse_consumer_result_archive(archive_payload)
 
     def _load_run_summary(self, repository: str, run_id: int) -> Mapping[str, Any]:
         key = (repository, run_id)
@@ -984,6 +1146,17 @@ class ReleaseEvidenceLiveCallback:
                     f"{label}.{evidence_type}",
                     release_scope=label,
                 )
+        closure = release.get(PHASE78_CLOSURE_EVIDENCE_TYPE)
+        if (
+            isinstance(closure, Mapping)
+            and closure.get("status") in ledger_contract.EXTERNAL_ACCEPTED_STATUS
+        ):
+            self._bind_record(
+                PHASE78_CLOSURE_EVIDENCE_TYPE,
+                closure,
+                f"{label}.{PHASE78_CLOSURE_EVIDENCE_TYPE}",
+                release_scope=label,
+            )
 
     def prepare_ledger(self, ledger: Mapping[str, Any]) -> None:
         release = ledger.get("release")
@@ -1004,9 +1177,33 @@ class ReleaseEvidenceLiveCallback:
         evidence_type: str,
         locator: Mapping[str, Any],
         expected_source_identity: Mapping[str, Any],
-    ) -> None:
+        bundle: MiniBundle,
+    ) -> dict[str, Any]:
         repository = str(locator.get("repository", ""))
         run_id = locator.get("verifier_workflow_run_id")
+        capture_run_id = locator.get("capture_workflow_run_id")
+        verifier_report = _load_json(
+            bundle.verifier_report, "historical draft verifier report"
+        )
+        draft_execution = verifier_report.get("execution")
+        draft_run_id = (
+            draft_execution.get("workflow_run_id")
+            if isinstance(draft_execution, Mapping)
+            else None
+        )
+        if (
+            any(
+                isinstance(value, bool)
+                or not isinstance(value, int)
+                or value <= 0
+                for value in (capture_run_id, draft_run_id, run_id)
+            )
+            or len({capture_run_id, draft_run_id, run_id}) != 3
+        ):
+            _fail(
+                "verifier_runs_not_independent",
+                "capture, draft verifier, and completed verifier run IDs must be distinct",
+            )
         workflow_url = (
             f"https://api.github.com/repos/{repository}/actions/workflows/"
             "openai-preview-evidence.yml"
@@ -1030,6 +1227,8 @@ class ReleaseEvidenceLiveCallback:
             )
         workflow_path = str(run.get("path", "")).split("@", 1)[0]
         run_repository = run.get("repository", {})
+        run_actor = run.get("actor", {})
+        run_attempt = run.get("run_attempt")
         if (
             run.get("id") != run_id
             or run.get("url") != api_url
@@ -1039,9 +1238,16 @@ class ReleaseEvidenceLiveCallback:
             or run.get("workflow_id") != workflow_id
             or workflow_path != ".github/workflows/openai-preview-evidence.yml"
             or run.get("event") != "workflow_dispatch"
+            or isinstance(run_attempt, bool)
+            or not isinstance(run_attempt, int)
+            or run_attempt <= 0
             or run.get("status") != "completed"
             or run.get("conclusion") != "success"
             or run.get("head_sha") != expected_source_identity.get("source_commit")
+            or run.get("head_branch") != "main"
+            or not isinstance(run_actor, Mapping)
+            or not isinstance(run_actor.get("login"), str)
+            or not run_actor.get("login")
         ):
             _fail(
                 "verifier_run_witness_mismatch",
@@ -1056,6 +1262,19 @@ class ReleaseEvidenceLiveCallback:
             locator=locator,
             expected_source_identity=expected_source_identity,
         )
+        return {
+            "source_ci_workflow_run_id": capture_run_id,
+            "draft_verifier_workflow_run_id": draft_run_id,
+            "verifier_workflow_id": workflow_id,
+            "verifier_workflow_run_id": run_id,
+            "verifier_run_attempt": run_attempt,
+            "verifier_workflow_path": ".github/workflows/openai-preview-evidence.yml",
+            "verifier_workflow_event": "workflow_dispatch",
+            "verifier_run_head_sha": expected_source_identity.get("source_commit"),
+            "verifier_run_head_ref": "refs/heads/main",
+            "verifier_actor": run_actor["login"],
+            "verifier_run_url": locator.get("verifier_run_url"),
+        }
 
     def _snapshot_unchanged(
         self, bundle: MiniBundle, locator: Mapping[str, Any]
@@ -1077,6 +1296,193 @@ class ReleaseEvidenceLiveCallback:
             snapshot[field] = payload
         return snapshot
 
+    def _verify_phase78_closure_raw_export(
+        self,
+        raw_export: Mapping[str, Any],
+        *,
+        locator: Mapping[str, Any],
+        expected_source_identity: Mapping[str, Any],
+    ) -> dict[str, Any]:
+        """Live-bind the immutable closure payload to its independent consumer run."""
+
+        observed = raw_export.get("observed")
+        raw_consumer_result = raw_export.get("consumer_result")
+        if not isinstance(observed, Mapping) or not isinstance(
+            raw_consumer_result, Mapping
+        ):
+            _fail(
+                "phase78_closure_payload_invalid",
+                "closure raw export lacks observed fields or consumer result",
+            )
+        source_commit = expected_source_identity.get("source_commit")
+        repository = locator.get("repository")
+        consumer_run_id = observed.get("consumer_run_id")
+        consumer_run_attempt = observed.get("consumer_run_attempt")
+        producer_run_id = observed.get("producer_run_id")
+        producer_run_attempt = observed.get("producer_run_attempt")
+        if any(
+            isinstance(value, bool) or not isinstance(value, int) or value <= 0
+            for value in (
+                consumer_run_id,
+                consumer_run_attempt,
+                producer_run_id,
+                producer_run_attempt,
+            )
+        ):
+            _fail(
+                "phase78_closure_contract_mismatch",
+                "closure workflow run or attempt identity is invalid",
+            )
+        if consumer_run_id == producer_run_id:
+            _fail(
+                "phase78_closure_contract_mismatch",
+                "producer and consumer workflow runs are not independent",
+            )
+
+        run_url = (
+            f"https://api.github.com/repos/{repository}/actions/runs/"
+            f"{consumer_run_id}"
+        )
+        exact_attempt_url = run_url + f"/attempts/{consumer_run_attempt}"
+        run = self._github_json(run_url, "latest accepted-summary consumer run")
+        exact_run = self._github_json(
+            exact_attempt_url, "exact accepted-summary consumer run attempt"
+        )
+
+        def consumer_run_valid(value: Mapping[str, Any]) -> bool:
+            run_repository = value.get("repository")
+            run_path = str(value.get("path", "")).split("@", 1)[0]
+            workflow_id = value.get("workflow_id")
+            return (
+                value.get("id") == consumer_run_id
+                and value.get("run_attempt") == consumer_run_attempt
+                and value.get("url") == run_url
+                and value.get("html_url")
+                == f"https://github.com/{repository}/actions/runs/{consumer_run_id}"
+                and value.get("head_sha") == source_commit
+                and value.get("head_branch") == "main"
+                and value.get("event") == "workflow_run"
+                and value.get("status") == "completed"
+                and value.get("conclusion") == "success"
+                and isinstance(workflow_id, int)
+                and not isinstance(workflow_id, bool)
+                and workflow_id > 0
+                and run_path
+                == ".github/workflows/openai-preview-accepted-summary-consumer.yml"
+                and isinstance(run_repository, Mapping)
+                and run_repository.get("full_name") == repository
+            )
+
+        if not consumer_run_valid(run) or not consumer_run_valid(exact_run):
+            _fail(
+                "phase78_consumer_run_invalid",
+                "GitHub does not confirm the bound latest exact consumer attempt",
+            )
+
+        persisted_consumer_result = self._load_consumer_result_artifact(
+            repository=str(repository),
+            consumer_run_id=int(consumer_run_id),
+            consumer_run_attempt=int(consumer_run_attempt),
+            producer_run_id=int(producer_run_id),
+            producer_run_attempt=int(producer_run_attempt),
+            source_commit=str(source_commit),
+        )
+        # The run-bound Actions artifact is authoritative.  The immutable
+        # Release carries a durable copy, which must match byte-semantically but
+        # cannot authenticate itself.
+        if dict(persisted_consumer_result) != dict(raw_consumer_result):
+            _fail(
+                "phase78_consumer_artifact_content_mismatch",
+                "immutable closure copy differs from the exact consumer artifact",
+            )
+        canonical_result = json.dumps(
+            dict(persisted_consumer_result),
+            ensure_ascii=False,
+            sort_keys=True,
+            separators=(",", ":"),
+        ).encode("utf-8")
+        if _sha256_hex(canonical_result) != observed.get("consumer_result_sha256"):
+            _fail(
+                "phase78_consumer_artifact_digest_mismatch",
+                "authoritative consumer artifact digest differs from the closure record",
+            )
+
+        consumer_result = persisted_consumer_result
+        producer_schema = observed.get("producer_summary_schema")
+        consumer = consumer_result.get("consumer")
+        target = consumer_result.get("target_run")
+        artifact = consumer_result.get("artifact")
+        binding = consumer_result.get("accepted_summary_binding")
+        decision = consumer_result.get("decision")
+        if not (
+            raw_export.get("evidence_type") == PHASE78_CLOSURE_EVIDENCE_TYPE
+            and observed.get("source_commit") == source_commit
+            and observed.get("release_stage") == "A"
+            and producer_schema
+            in ledger_contract.PHASE78_CLOSURE_PRODUCER_SCHEMAS
+            and observed.get("consumer_result_schema")
+            == ledger_contract.PHASE78_CLOSURE_CONSUMER_SCHEMA
+            and consumer_result.get("schema_version")
+            == ledger_contract.PHASE78_CLOSURE_CONSUMER_SCHEMA
+            and isinstance(consumer, Mapping)
+            and consumer.get("workflow_path")
+            == ".github/workflows/openai-preview-accepted-summary-consumer.yml"
+            and consumer.get("run_id") == observed.get("consumer_run_id")
+            and consumer.get("run_attempt")
+            == observed.get("consumer_run_attempt")
+            and consumer.get("source_commit") == source_commit
+            and isinstance(target, Mapping)
+            and target.get("workflow_path")
+            == ".github/workflows/openai-preview-accepted-evidence.yml"
+            and target.get("run_id") == observed.get("producer_run_id")
+            and target.get("run_attempt") == observed.get("producer_run_attempt")
+            and observed.get("producer_run_id") != observed.get("consumer_run_id")
+            and target.get("head_sha") == source_commit
+            and target.get("status") == "completed"
+            and target.get("conclusion") == "success"
+            and isinstance(artifact, Mapping)
+            and artifact.get("summary_sha256")
+            == observed.get("producer_summary_sha256")
+            and isinstance(binding, Mapping)
+            and binding.get("schema_version") == producer_schema
+            and binding.get("phase7_live_slot_count") == 10
+            and binding.get("phase8_reviewer_count") == 6
+            and binding.get("phase8_retrieval_count") == 6
+            and binding.get("current_evidence_id_count") == 30
+            and binding.get("current_asset_count") == 120
+            and (
+                (
+                    producer_schema.endswith("/v3")
+                    and binding.get("release_stage") == "A"
+                )
+                or (
+                    producer_schema.endswith("/v2")
+                    and binding.get("release_stage") in {None, "A"}
+                )
+            )
+            and decision
+            == {
+                "verification_level": PREVIEW_ATTESTED,
+                "provider_verified": False,
+                "counts_as_phase78_closure": True,
+                "accepted": True,
+            }
+            and observed.get("phase7_verified_runtime_count") == 10
+            and observed.get("phase8_verified_reviewer_count") == 6
+            and observed.get("phase8_verified_retrieval_count") == 6
+            and observed.get("phase8_verified_slot_count") == 12
+            and observed.get("verification_level") == PREVIEW_ATTESTED
+            and observed.get("provider_verified") is False
+            and observed.get("counts_as_phase78_closure") is True
+            and observed.get("accepted") is True
+        ):
+            _fail(
+                "phase78_closure_contract_mismatch",
+                "closure does not bind the Stage A producer, independent consumer, and 10+12 matrix",
+            )
+        return copy.deepcopy(dict(persisted_consumer_result))
+
+
     def __call__(
         self,
         *,
@@ -1087,7 +1493,7 @@ class ReleaseEvidenceLiveCallback:
         expected_verification_level: str,
     ) -> dict[str, Any]:
         if (
-            evidence_type not in EXPECTED_EVIDENCE_TYPES
+            evidence_type not in ALL_EXPECTED_EVIDENCE_TYPES
             or expected_adapter_id != self.adapter_id
             or expected_verification_level != PREVIEW_ATTESTED
         ):
@@ -1105,8 +1511,8 @@ class ReleaseEvidenceLiveCallback:
         if key in self._used:
             _fail("bundle_reused", f"live verifier invoked twice for {evidence_type}")
         self._snapshot_unchanged(bundle, evidence_locator)
-        self._verify_historical_verifier_run(
-            evidence_type, evidence_locator, expected_source_identity
+        historical_verifier_execution = self._verify_historical_verifier_run(
+            evidence_type, evidence_locator, expected_source_identity, bundle
         )
 
         with tempfile.TemporaryDirectory(prefix="release-evidence-identity-") as temp:
@@ -1198,6 +1604,12 @@ class ReleaseEvidenceLiveCallback:
             raw_snapshot = Path(temp) / bundle.raw_export.name
             raw_snapshot.write_bytes(verified_snapshot["raw_export_asset"])
             raw_export = self.phase8.raw_header(raw_snapshot)
+        if evidence_type == PHASE78_CLOSURE_EVIDENCE_TYPE:
+            self._verify_phase78_closure_raw_export(
+                raw_export,
+                locator=evidence_locator,
+                expected_source_identity=expected_source_identity,
+            )
         live_verifier_metadata = copy.deepcopy(result.get("live_verifier"))
         if not isinstance(live_verifier_metadata, dict):
             _fail("live_result_invalid", "live verifier metadata is missing")
@@ -1205,12 +1617,7 @@ class ReleaseEvidenceLiveCallback:
         # The durable ledger locator instead names the completed historical
         # evidence workflow that produced the mini-bundle, independently
         # re-queried above. Preserve that historical witness for ledger binding.
-        live_verifier_metadata["verifier_workflow_run_id"] = evidence_locator[
-            "verifier_workflow_run_id"
-        ]
-        live_verifier_metadata["verifier_run_url"] = evidence_locator[
-            "verifier_run_url"
-        ]
+        live_verifier_metadata.update(historical_verifier_execution)
         validated_result = {
             "schema_version": result.get("schema_version"),
             "evidence_type": raw_export.get("evidence_type"),

@@ -31,6 +31,9 @@ from build_openai_preview_accepted_summary import (
     EXPECTED_PHASE8_RETRIEVAL_RECEIPTS,
     EXPECTED_PHASE8_REVIEWER_CASES,
     EXPECTED_RETRIEVAL_DISTRIBUTION,
+    PHASE78_CLOSURE_CONSUMER_SCHEMA,
+    PHASE78_CLOSURE_EVIDENCE_TYPE,
+    PHASE78_CLOSURE_PRODUCER_SCHEMAS,
 )
 
 
@@ -41,7 +44,7 @@ SOURCE_WORKFLOW_PATH = ".github/workflows/openai-preview-accepted-evidence.yml"
 CONSUMER_WORKFLOW_PATH = (
     ".github/workflows/openai-preview-accepted-summary-consumer.yml"
 )
-SOURCE_SUMMARY_SCHEMA = "openai-preview-accepted-run-summary/v2"
+SOURCE_SUMMARY_SCHEMA = "openai-preview-accepted-run-summary/v3"
 RESULT_SCHEMA = "openai-preview-accepted-summary-consumer/v1"
 ENVIRONMENT_NAME = "openai-preview-governance"
 DEFAULT_BRANCH = "main"
@@ -625,8 +628,24 @@ def _validate_source_summary(
     evidence_ids: set[str] = set()
     live_digests: set[str] = set()
     release_evidence = summary.get("release_evidence")
+    expected_release_evidence_fields = {
+        "adapter_id",
+        "release_stage",
+        "stage_a_predecessor_scope",
+        "stage_a_verified_record_count",
+        "stage_a_closure",
+        "verified_record_count",
+        "historical_verified_record_count",
+        "provider_verified",
+        "items",
+        "history_items",
+        "unique_current_chain_count",
+        "unique_current_evidence_id_count",
+        "unique_current_chain_digest_count",
+    }
     require(
         isinstance(release_evidence, Mapping)
+        and set(release_evidence) == expected_release_evidence_fields
         and isinstance(release_evidence.get("adapter_id"), str)
         and bool(release_evidence.get("adapter_id"))
         and release_evidence.get("verified_record_count") == 8
@@ -649,6 +668,134 @@ def _validate_source_summary(
         "summary_evidence_invalid",
         "release evidence inventories are malformed",
     )
+    release_stage = release_evidence.get("release_stage")
+    predecessor_scope = release_evidence.get("stage_a_predecessor_scope")
+    predecessor_count = release_evidence.get("stage_a_verified_record_count")
+    stage_a_closure = release_evidence.get("stage_a_closure")
+    if release_stage == "A":
+        require(
+            predecessor_scope is None
+            and predecessor_count == 0
+            and stage_a_closure is None,
+            "summary_evidence_invalid",
+            "Stage A summary claims a Stage A predecessor binding",
+        )
+    elif release_stage == "B":
+        predecessor_items = [
+            item
+            for item in history
+            if isinstance(item, Mapping)
+            and item.get("release_scope") == predecessor_scope
+        ]
+        expected_predecessor_types = {
+            *EXTERNAL_RECORD_PATHS,
+            PHASE78_CLOSURE_EVIDENCE_TYPE,
+        }
+        require(
+            isinstance(predecessor_scope, str)
+            and re.fullmatch(r"previous_releases\[\d+\]", predecessor_scope) is not None
+            and predecessor_count == len(expected_predecessor_types)
+            and len(predecessor_items) == len(expected_predecessor_types)
+            and {item.get("evidence_type") for item in predecessor_items}
+            == expected_predecessor_types,
+            "summary_evidence_invalid",
+            "Stage B summary lacks a complete live-verified Stage A predecessor",
+        )
+        closure_history = [
+            item
+            for item in predecessor_items
+            if item.get("evidence_type") == PHASE78_CLOSURE_EVIDENCE_TYPE
+        ]
+        require(
+            isinstance(stage_a_closure, Mapping)
+            and set(stage_a_closure)
+            == {
+                "release_scope",
+                "evidence_type",
+                "source_commit",
+                "release_stage",
+                "producer_summary_schema",
+                "producer_run_id",
+                "producer_run_attempt",
+                "producer_summary_sha256",
+                "consumer_result_schema",
+                "consumer_run_id",
+                "consumer_run_attempt",
+                "consumer_result_sha256",
+                "phase7_verified_runtime_count",
+                "phase8_verified_reviewer_count",
+                "phase8_verified_retrieval_count",
+                "phase8_verified_slot_count",
+                "verification_level",
+                "provider_verified",
+                "counts_as_phase78_closure",
+                "accepted",
+                "evidence_id",
+                "locator_sha256",
+                "validated_result_sha256",
+                "verifier_workflow_run_id",
+                "verified_at",
+            }
+            and len(closure_history) == 1
+            and stage_a_closure.get("release_scope") == predecessor_scope
+            and stage_a_closure.get("evidence_type")
+            == PHASE78_CLOSURE_EVIDENCE_TYPE
+            and stage_a_closure.get("source_commit")
+            == closure_history[0].get("source_commit")
+            and stage_a_closure.get("release_stage") == "A"
+            and stage_a_closure.get("producer_summary_schema")
+            in PHASE78_CLOSURE_PRODUCER_SCHEMAS
+            and stage_a_closure.get("consumer_result_schema")
+            == PHASE78_CLOSURE_CONSUMER_SCHEMA
+            and stage_a_closure.get("phase7_verified_runtime_count") == 10
+            and stage_a_closure.get("phase8_verified_reviewer_count") == 6
+            and stage_a_closure.get("phase8_verified_retrieval_count") == 6
+            and stage_a_closure.get("phase8_verified_slot_count") == 12
+            and stage_a_closure.get("verification_level") == "preview_attested"
+            and stage_a_closure.get("provider_verified") is False
+            and stage_a_closure.get("counts_as_phase78_closure") is True
+            and stage_a_closure.get("accepted") is True
+            and all(
+                stage_a_closure.get(field) == closure_history[0].get(field)
+                for field in (
+                    "evidence_id",
+                    "locator_sha256",
+                    "validated_result_sha256",
+                    "verifier_workflow_run_id",
+                    "verified_at",
+                )
+            ),
+            "summary_evidence_invalid",
+            "Stage B summary lacks an accepted, live-bound 10+12 Stage A closure",
+        )
+        positive_integer(
+            stage_a_closure.get("producer_run_id"),
+            "stage_a_closure.producer_run_id",
+        )
+        positive_integer(
+            stage_a_closure.get("producer_run_attempt"),
+            "stage_a_closure.producer_run_attempt",
+        )
+        positive_integer(
+            stage_a_closure.get("consumer_run_id"),
+            "stage_a_closure.consumer_run_id",
+        )
+        positive_integer(
+            stage_a_closure.get("consumer_run_attempt"),
+            "stage_a_closure.consumer_run_attempt",
+        )
+        bare_digest(
+            stage_a_closure.get("producer_summary_sha256"),
+            "stage_a_closure.producer_summary_sha256",
+            prefix_optional=True,
+        )
+        bare_digest(
+            stage_a_closure.get("consumer_result_sha256"),
+            "stage_a_closure.consumer_result_sha256",
+            prefix_optional=True,
+        )
+    else:
+        fail("summary_evidence_invalid", "release stage is neither A nor B")
     require(
         {item.get("evidence_type") for item in items} == set(EXTERNAL_RECORD_PATHS),
         "summary_evidence_invalid",
@@ -944,6 +1091,14 @@ def _validate_source_summary(
     )
     return {
         "schema_version": summary.get("schema_version"),
+        "release_stage": release_stage,
+        "stage_a_predecessor_scope": predecessor_scope,
+        "stage_a_verified_record_count": predecessor_count,
+        "stage_a_closure_consumer_result_sha256": (
+            stage_a_closure.get("consumer_result_sha256")
+            if isinstance(stage_a_closure, Mapping)
+            else None
+        ),
         "evidence_release_id": evidence_release.get("release_id"),
         "evidence_release_tag": evidence_release.get("tag"),
         "candidate_release_id": candidate_release.get("release_id"),
