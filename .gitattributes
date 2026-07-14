@@ -5,6 +5,7 @@ tests/openai_phase4/** text eol=lf
 tests/openai_phase6/** text eol=lf
 tests/openai_phase7/** text eol=lf
 tests/openai_phase8/** text eol=lf
+tests/openai_personal/** text eol=lf
 scripts/*.py text eol=lf
 .github/workflows/*.yml text eol=lf
 .agents/plugins/*.json text eol=lf

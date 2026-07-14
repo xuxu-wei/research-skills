@@ -4,6 +4,8 @@
 from __future__ import annotations
 
 import copy
+import tempfile
+from pathlib import Path
 
 import validate_openai_personal_readiness as validator
 
@@ -48,6 +50,13 @@ def promote_all(receipts: dict, plugin_version: str) -> dict:
 
 
 def main() -> int:
+    with tempfile.TemporaryDirectory() as directory:
+        lf_path = Path(directory) / "lf.txt"
+        crlf_path = Path(directory) / "crlf.txt"
+        lf_path.write_bytes(b"alpha\nbeta\n")
+        crlf_path.write_bytes(b"alpha\r\nbeta\r\n")
+        assert validator.file_sha256(lf_path) == validator.file_sha256(crlf_path)
+
     deterministic, deterministic_errors = validator.deterministic_checks()
     assert not deterministic_errors, deterministic_errors
     plugin_version = deterministic["plugin_version"]

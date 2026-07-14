@@ -79,7 +79,8 @@ def load_json(path: Path) -> dict[str, Any]:
 
 
 def file_sha256(path: Path) -> str:
-    return hashlib.sha256(path.read_bytes()).hexdigest()
+    """Hash tracked text canonically so Windows and Linux agree."""
+    return hashlib.sha256(path.read_bytes().replace(b"\r\n", b"\n")).hexdigest()
 
 
 def deterministic_checks() -> tuple[dict[str, Any], list[str]]:
