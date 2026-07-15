@@ -1,8 +1,8 @@
 # Research Skills OpenAI Plugin Roadmap
 
 Status: Personal Experimental/Preview
-Planning baseline: 2026-07-14
-Current version: `0.7.0-preview.3`
+Planning baseline: 2026-07-15
+Current version: `0.8.0-preview.1`
 Current scope: 49 skills, including the four-skill Research Polisher series
 
 ## Product position
@@ -20,7 +20,7 @@ unresolved blocking findings prevent promotion.
 
 The active sequence is:
 
-1. complete the artifact-completeness and Article DOCX hardening checkpoint;
+1. complete the minimal project README and Cover Letter maintenance checkpoint;
 2. finish the current-version local install, update, and fresh-task discovery
    check;
 3. complete the bounded owner-observed Phase 7 workflow runs;
@@ -32,7 +32,7 @@ No additional entry skill is planned while these checks are incomplete.
 
 ## Current baseline
 
-- 49 registered skills and 67 workflow edges.
+- 49 registered skills and 68 workflow edges.
 - Five workflow entry points: Idea, Proposal, Article, Perspective, and Research
   Polisher.
 - Twenty reviewer-class skills require fresh independent subagents.
@@ -51,8 +51,7 @@ No additional entry skill is planned while these checks are incomplete.
 - A 2026-07-14 local audit confirmed that `xuxu-research-preview` is registered,
   `research-skills-openai` is enabled, and the coherent installed cache is
   `0.7.0-preview.2`. Installation is implemented; the working-tree
-  `0.7.0-preview.3` still requires commit, push, upgrade/reinstall, and
-  fresh-task discovery.
+  `0.8.0-preview.1` still requires upgrade/reinstall and fresh-task discovery.
 - ChatGPT web installation, sharing, discovery, and runtime behavior remain
   unverified and do not block the personal Codex profile.
 
@@ -189,6 +188,38 @@ Completed outcomes:
 - No local plugin reinstall, live owner-observed task, commit, push, or Phase
   7–8 acceptance credit occurs during this checkpoint.
 
+## Project README and Cover Letter maintenance
+
+- Priority: P0 maintenance before Phase 7–8 resumes
+- Type: navigation, editorial handoff, and deterministic contract maintenance
+- Status: Complete in source for `0.8.0-preview.1`; awaiting current-version install and owner observation
+
+### Deliverables
+
+- Require all five full-workflow orchestrators to update one minimal project-root
+  README before normal delivery, pause, or stop; keep it outside reviewer inputs.
+- Support versioned Article and Perspective Cover Letters through the existing
+  `article-cover-letter` writer and Perspective final-copy route.
+- Keep the Cover Letter quality check mechanical and free of a self-promotion
+  decision.
+- Add scoped publication-probability estimates only to an existing fresh
+  `medical-journal-review` report, with Search-backed benchmarks when available,
+  explicit uncertainty, and no extra reviewer round, artifact, state, or gate.
+
+### Acceptance
+
+- Five orchestrators use the same six-part README contract, valid relative links,
+  authoritative state, and a next human action; reviewer `files_read` excludes it.
+- Article and Perspective letters are versioned and source-bound; a Perspective
+  final copy is text-identical, and stale source/outlet changes invalidate old
+  letters and reviews.
+- Probability cases cover full-artifact, cover-letter-only, heuristic, and
+  `not_estimable` scopes; stage and overall estimates are coherent and cannot
+  override fatal, blocking, stale-input, or reviewer-isolation gates.
+- Counts remain 49 skills, 20 reviewers, seven declared entries, six implicit
+  entries, and one explicit-only entry; deterministic audits and scenario suites
+  pass without changing existing workflow states.
+
 ## Phase 7 — Personal install and workflow readiness
 
 - Priority: P0
@@ -199,7 +230,7 @@ Completed outcomes:
 
 1. Verify the current GitHub marketplace source resolves the intended
    repository, `main` revision, and `research-skills-openai` subdirectory.
-2. Upgrade or explicitly reinstall `0.7.0-preview.3`, restart the Codex App when
+2. Upgrade or explicitly reinstall `0.8.0-preview.1`, restart the Codex App when
    necessary, and inspect the resulting user cache.
 3. Open a fresh Codex task and confirm discovery of 49 skills, seven declared
    entries, six implicit entries, and the permanent explicit-only Research

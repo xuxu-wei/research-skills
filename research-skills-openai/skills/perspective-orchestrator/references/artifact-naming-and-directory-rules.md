@@ -10,6 +10,7 @@
 - [Revision Naming](#revision-naming)
 - [Evaluation And Panel Naming](#evaluation-and-panel-naming)
 - [Language QA Naming](#language-qa-naming)
+- [Cover Letter Naming](#cover-letter-naming)
 - [Final Naming](#final-naming)
 - [Artifact Index](#artifact-index)
 <!-- toc:end -->
@@ -28,7 +29,8 @@ Use this file to keep Perspective/Viewpoint/Commentary workflow artifacts ordere
   05_evaluations/ # independent evaluation reports
   06_revisions/   # revision rounds, reviewer responses, deltas
   07_panel/       # panel reports and reviewer briefs
-  08_final/       # final perspective and compositor reports
+  08_cover-letter/# versioned Cover Letter, mechanical check, medical review
+  08_final/       # final perspective, optional Cover Letter copy, compositor reports
   09_state/       # workflow-manifest.yaml, decision-log.md, artifact-index.md
   10_delegates/   # isolated subagent briefs and outputs
 ```
@@ -39,6 +41,7 @@ Use this file to keep Perspective/Viewpoint/Commentary workflow artifacts ordere
 - Drafts belong only in `04_drafts/`.
 - Reviewer responses, revision plans, and revision deltas belong only in `06_revisions/round-NNN/`.
 - Final submission-facing files belong only in `08_final/`.
+- Versioned Cover Letter materials belong only in `08_cover-letter/`; a current frozen letter may be copied unchanged into `08_final/`.
 - `09_state/workflow-manifest.yaml` stores current pointers and revision lineage.
 - `09_state/artifact-index.md` is the human-readable inventory.
 
@@ -103,10 +106,22 @@ Evaluation and panel files must name the draft version they reviewed. If the dra
 
 Language assessment reports are separate artifacts. The orchestrator must explicitly delegate `academic-language-assessor` to a fresh independent subagent for English, Chinese, or bilingual perspective text before final composition and after any language polishing pass. Language polishing must not be embedded in reviewer responses. If a changed perspective file is saved after language polishing, create the next draft version and record `change_type: language_only`.
 
+## Cover Letter Naming
+
+```text
+08_cover-letter/cover-letter-v001.md
+08_cover-letter/cover-letter-quality-check-v001.md
+08_cover-letter/medical-journal-cover-letter-review-v001.md
+08_final/cover-letter.md
+```
+
+A changed Perspective digest, target outlet, or core argument makes the letter and its review stale. The final copy must be text-identical to the current frozen letter.
+
 ## Final Naming
 
 ```text
 08_final/final-perspective.md
+08_final/cover-letter.md              # only when a Cover Letter exists
 08_final/final-edit-log.md
 08_final/final-compositor-report.md
 08_final/submission-readiness-report.md

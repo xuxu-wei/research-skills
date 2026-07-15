@@ -100,6 +100,10 @@ OPENAI_NATIVE_SKILLS = {
 }
 
 SKILL_IO_OVERRIDES = {
+    "article-cover-letter": (
+        "frozen_qualifying_article_or_perspective_outlet_evidence_and_disclosures",
+        "versioned_cover_letter_and_mechanical_quality_check",
+    ),
     "research-polisher-orchestrator": (
         "completed_or_near_complete_research_assets_and_constraints",
         "research_polisher_workflow_state_and_human_selection_handoff",
@@ -116,6 +120,12 @@ SKILL_IO_OVERRIDES = {
         "frozen_research_polisher_dossier_necessary_evidence_anonymous_candidate_portfolio_optional_verified_target_adapter_and_sanitized_specialist_findings_bundle",
         "research_polisher_evaluation_report",
     ),
+}
+
+RELATED_SKILL_ADDITIONS = {
+    "article-cover-letter": {"perspective-orchestrator", "perspective-final-compositor"},
+    "perspective-orchestrator": {"article-cover-letter"},
+    "perspective-final-compositor": {"article-cover-letter"},
 }
 
 # workflow, source, destination, dispatch mode, trigger, input contract,
@@ -166,7 +176,7 @@ WORKFLOW_EDGES = [
     ("article", "article-orchestrator", "article-review-panel", "delegated", "article_evaluation_passed_or_mock_review_explicit", "frozen_manuscript_and_one_role_brief", "sealed_individual_panel_report", "independent_review_pending"),
     ("article", "article-orchestrator", "article-frontmatter-drafter", "orchestrated", "evaluated_manuscript_ready_for_delivery", "frozen_manuscript_blueprint_and_journal_adapter", "versioned_frontmatter", "frontmatter_blocked"),
     ("article", "article-orchestrator", "article-cover-letter", "orchestrated", "frontmatter_and_manuscript_ready", "frozen_manuscript_frontmatter_and_journal_adapter", "cover_letter_and_quality_check", "cover_letter_blocked"),
-    ("article", "article-orchestrator", "medical-journal-review", "delegated", "biomedical_cover_letter_review_required", "frozen_cover_letter_and_scope", "medical_journal_review_report", "independent_review_pending"),
+    ("article", "article-orchestrator", "medical-journal-review", "delegated", "biomedical_review_or_publication_probability_requested", "frozen_cover_letter_target_outlet_and_declared_scope", "medical_journal_review_report", "independent_review_pending"),
     ("article", "article-orchestrator", "article-submission-compositor", "delegated", "all_required_artifacts_and_reviews_frozen", "frozen_submission_artifacts_reviews_and_dissent", "verified_human_review_package", "independent_review_pending"),
 
     ("perspective", "perspective-orchestrator", "perspective-input-builder", "orchestrated", "input_brief_required", "user_thesis_outlet_evidence_and_constraints", "perspective_input_brief", "clarification_required"),
@@ -179,8 +189,9 @@ WORKFLOW_EDGES = [
     ("perspective", "perspective-refinement-controller", "perspective-drafter", "orchestrated", "revision_plan_frozen", "current_perspective_and_targeted_plan", "new_perspective_version_and_delta", "drafting_blocked"),
     ("perspective", "perspective-refinement-controller", "perspective-evaluator", "delegated", "revised_perspective_version_frozen", "latest_perspective_stable_rubric_facts_and_optional_anonymous_issues", "fresh_perspective_evaluation_report", "independent_review_pending"),
     ("perspective", "perspective-orchestrator", "perspective-review-panel", "delegated", "perspective_evaluation_passed", "frozen_perspective_and_one_role_brief", "sealed_individual_panel_report", "independent_review_pending"),
+    ("perspective", "perspective-orchestrator", "article-cover-letter", "orchestrated", "qualifying_perspective_cover_letter_requested", "frozen_perspective_outlet_core_argument_evidence_and_disclosures", "cover_letter_and_quality_check", "cover_letter_blocked"),
+    ("perspective", "perspective-orchestrator", "medical-journal-review", "delegated", "biomedical_review_or_publication_probability_requested", "frozen_perspective_optional_cover_letter_target_outlet_and_declared_scope", "medical_journal_review_report", "independent_review_pending"),
     ("perspective", "perspective-orchestrator", "academic-language-assessor", "delegated", "final_perspective_language_check", "frozen_perspective_and_language_scope", "language_assessment_report", "independent_review_pending"),
-    ("perspective", "perspective-orchestrator", "medical-journal-review", "delegated", "biomedical_journal_review_required", "frozen_perspective_and_journal_scope", "medical_journal_review_report", "independent_review_pending"),
     ("perspective", "perspective-orchestrator", "perspective-final-compositor", "delegated", "all_required_artifacts_and_reviews_frozen", "frozen_final_artifacts_reviews_and_dissent", "verified_human_review_package", "independent_review_pending"),
 
     ("research_polisher", "research-polisher-orchestrator", "article-context-builder", "orchestrated", "dossier_normalization_required", "frozen_research_assets_scope_and_constraints", "article_context_brief_for_research_polisher", "clarification_required"),
@@ -802,7 +813,7 @@ PACKAGE_INPUT_CONTRACTS = {
         ],
     },
     "article": {
-        "allowed_roles": ["manuscript", "article_blueprint", "claim_evidence_matrix", "evidence_ledger", "readiness_report", "evaluation_report", "audit_report", "panel_report", "journal_adapter", "frontmatter", "cover_letter", "quality_check", "revision_plan", "response_to_reviewers", "revision_delta"],
+        "allowed_roles": ["manuscript", "article_blueprint", "claim_evidence_matrix", "evidence_ledger", "readiness_report", "evaluation_report", "audit_report", "panel_report", "journal_adapter", "frontmatter", "cover_letter", "quality_check", "medical_journal_review_report", "revision_plan", "response_to_reviewers", "revision_delta"],
         "required_inputs": [
             {"artifact_role": "manuscript", "source_skills": ["article-drafter", "external-input"], "current_primary": True, "count": 1},
             {"artifact_role": "article_blueprint", "source_skill": "article-architect", "count": 1},
@@ -823,7 +834,7 @@ PACKAGE_INPUT_CONTRACTS = {
         ],
     },
     "perspective": {
-        "allowed_roles": ["perspective", "target_outlet_profile", "claim_ledger", "claim_evidence_matrix", "evidence_limitations", "citation_risk_log", "contrary_evidence_log", "reference_list", "evaluation_report", "panel_report"],
+        "allowed_roles": ["perspective", "target_outlet_profile", "claim_ledger", "claim_evidence_matrix", "evidence_limitations", "citation_risk_log", "contrary_evidence_log", "reference_list", "evaluation_report", "panel_report", "cover_letter", "quality_check", "medical_journal_review_report"],
         "required_inputs": [
             {"artifact_role": "perspective", "source_skill": "perspective-drafter", "current_primary": True, "count": 1},
             {"artifact_role": "target_outlet_profile", "source_skill": "perspective-input-builder", "count": 1},
@@ -1716,6 +1727,7 @@ def main() -> int:
             source_relative = source_skill.parent.relative_to(HERMES_SKILLS)
             package = source_relative.parts[0]
             related = related_skills(source_skill, names)
+        related = sorted(set(related) | RELATED_SKILL_ADDITIONS.get(name, set()))
         role = role_for(name)
         if name in SKILL_IO_OVERRIDES:
             allowed_inputs, output = SKILL_IO_OVERRIDES[name]

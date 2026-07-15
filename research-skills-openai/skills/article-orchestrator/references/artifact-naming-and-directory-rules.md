@@ -148,9 +148,9 @@ Run `academic-language-assessor` for English, Chinese, or bilingual manuscript t
 ### Cover Letter
 
 ```
-11_cover-letter/cover-letter.md
-11_cover-letter/cover-letter-quality-check.md
-11_cover-letter/medical-journal-cover-letter-review.md
+11_cover-letter/cover-letter-v001.md
+11_cover-letter/cover-letter-quality-check-v001.md
+11_cover-letter/medical-journal-cover-letter-review-v001.md
 ```
 
 ### Package

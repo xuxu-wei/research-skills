@@ -46,10 +46,11 @@ Route minor/editorial must-fix items through controller/drafter, save a new draf
 
 ### STEP 9: Final Compositor
 
-1. When biomedical journal review is applicable, first delegate a fresh `medical-journal-review`; route blocking substantive findings back before composition.
-2. Delegate `academic-language-assessor` against the frozen final draft. Any saved polishing change creates a new version and fresh evaluation requirement.
-3. Delegate `perspective-final-compositor` against frozen draft, claims, evidence, outlet, panel, and reference artifacts. It may assemble and verify only; it must not repair source prose.
-4. Write final manuscript, edit log, compositor report, and submission-readiness report under `08_final/`.
+1. If requested, route frozen qualifying inputs to `article-cover-letter`; freeze its versioned pair under `08_cover-letter/`.
+2. At the existing medical-review point, use one fresh `medical-journal-review` for biomedical review or requested publication probability; its same report holds any estimate.
+3. Run fresh language assessment; saved changes require a new version and evaluation.
+4. Give frozen sources, optional letter, and review to a fresh compositor; it may copy/verify only and cannot recalculate probability.
+5. Write the final manuscript, optional identical letter, logs, and reports under `08_final/`.
 
 ## Delegated Brief and Return Contract
 
@@ -63,6 +64,7 @@ Every reviewer brief records workflow/round, skill/scope, frozen IDs/versions/pa
 
 ## Conditional Resources
 
+- For any finish/pause/stop, apply `research-idea-orchestrator/references/project-readme-contract.md`.
 - Read `references/workflow-modes.md` when selecting lite, standard, or full mode.
 - Read `references/workflow-manifest-schema.md` for workflow state.
 - Read `references/decision-log-schema.md` for overrides, user decisions, or accepted risks.
@@ -76,4 +78,4 @@ Every reviewer brief records workflow/round, skill/scope, frozen IDs/versions/pa
 
 ## Completion Check
 
-Confirm state and decision-log consistency, curator-only ledger writes, unique reviewer instance IDs, prior-score blindness, new-version/new-evaluator pairing, complete panel membership, visible dissent, justified status caps, and human-review-only final handoff.
+Confirm state/log consistency, curator-only ledger writes, blind fresh review, version/evaluator pairing, panel/dissent, status caps, and human-only handoff.

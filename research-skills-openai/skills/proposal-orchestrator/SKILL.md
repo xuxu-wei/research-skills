@@ -91,6 +91,7 @@ phase_summary:
 
 ## Conditional Resources
 
+- For any finish/pause/stop, apply `research-idea-orchestrator/references/project-readme-contract.md`.
 - Read `references/workflow-state-schema.md` when creating or validating workflow state.
 - Read `references/artifact-naming-and-directory-rules.md` when creating paths, versions, or the artifact index.
 - Read `references/delegate-brief-templates.md` for readiness, proposal evaluation, SAP evaluation, and common panel inputs.
@@ -100,4 +101,4 @@ phase_summary:
 
 ## Completion Check
 
-Confirm state/index, complete proposal/digest, forbidden-history blindness, fresh read-only reviewers, SAP/panel status, visible dissent, justified package state, and human-only handoff.
+Confirm state, complete proposal, blind fresh review, SAP/panel/dissent, justified package, and human-only handoff.

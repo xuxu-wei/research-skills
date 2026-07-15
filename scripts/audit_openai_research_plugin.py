@@ -886,6 +886,43 @@ def main() -> int:
         errors.append("article panel aggregate must be orchestrator-owned")
     if "human_signoff_ref" not in panel_contract:
         errors.append("article panel dissent lacks human-signoff lineage")
+    cover_letter_skill = read(SKILLS / "article-cover-letter" / "SKILL.md")
+    for marker in (
+        "workflow_profile: article | perspective",
+        "11_cover-letter/cover-letter-vNNN.md",
+        "08_cover-letter/cover-letter-vNNN.md",
+        "may_call: []",
+    ):
+        if marker not in cover_letter_skill:
+            errors.append(f"article-cover-letter lacks dual-workflow contract marker `{marker}`")
+    if "recommended_status" in cover_letter_skill:
+        errors.append("article-cover-letter mechanical check must not promote itself")
+    medical_review_skill = read(SKILLS / "medical-journal-review" / "SKILL.md")
+    probability_contract = read(
+        SKILLS
+        / "medical-journal-review"
+        / "references"
+        / "publication-probability-assessment.md"
+    )
+    if "publication-probability-assessment.md" not in medical_review_skill:
+        errors.append("medical-journal-review does not conditionally own probability estimation")
+    for forbidden in (
+        "without converting the score into publication probability",
+        "Do not turn a structured score into a publication probability",
+    ):
+        if forbidden in medical_review_skill:
+            errors.append("medical-journal-review retains the obsolete probability prohibition")
+    for marker in (
+        "assessment_scope: cover_letter_only | full_artifact | full_submission_package",
+        "benchmark_status: verified_public | user_supplied | heuristic_only | unavailable",
+        "eventual_acceptance_probability",
+        "confidence: high | moderate | low | not_estimable",
+        "built-in Search",
+        "mathematically coherent",
+        "do not create another artifact, reviewer, round, stage, state, or promotion rule",
+    ):
+        if marker not in probability_contract:
+            errors.append(f"publication-probability contract lacks `{marker}`")
     article_compositor = read(SKILLS / "article-submission-compositor" / "SKILL.md")
     if (
         "reviewer_dissent_items" not in article_compositor
@@ -1027,6 +1064,40 @@ def main() -> int:
     perspective_compositor = read(SKILLS / "perspective-final-compositor" / "SKILL.md")
     if "text-identical" not in perspective_compositor or "Do not edit" not in perspective_compositor:
         errors.append("perspective compositor may change final prose after evaluation")
+    if not all(
+        marker in perspective_orchestrator
+        for marker in ("`article-cover-letter`", "08_cover-letter/", "publication probability")
+    ):
+        errors.append("perspective workflow lacks the Cover Letter or probability route")
+    if not all(
+        marker in perspective_compositor
+        for marker in ("08_final/cover-letter.md", "text-identically", "do not calculate, reinterpret, or adjust")
+    ):
+        errors.append("perspective compositor does not faithfully carry the Cover Letter or probability")
+
+    readme_contract = read(
+        SKILLS
+        / "research-idea-orchestrator"
+        / "references"
+        / "project-readme-contract.md"
+    )
+    for marker in (
+        "## Current delivery",
+        "## Current artifact",
+        "## Status",
+        "## Review summary",
+        "## Next action",
+        "## Publication probability",
+        "Never give it to a reviewer",
+    ):
+        if marker not in readme_contract:
+            errors.append(f"project README contract lacks `{marker}`")
+    for orchestrator_name in orchestrators:
+        if "project-readme-contract.md" not in read(names[orchestrator_name]):
+            errors.append(f"{orchestrator_name}: project README terminal-update route missing")
+    for reviewer_name in reviewer_names:
+        if "project-readme-contract.md" in read(names[reviewer_name]):
+            errors.append(f"{reviewer_name}: reviewer must not read the project README")
 
     polisher_orchestrator = read(
         SKILLS / "research-polisher-orchestrator" / "SKILL.md"

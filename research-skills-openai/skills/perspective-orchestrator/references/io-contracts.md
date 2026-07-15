@@ -91,4 +91,8 @@ All artifacts are Markdown unless noted. YAML is reserved for workflow state.
 
 `07_panel/perspective-vNNN-standard-panel-summary.md` must retain individual reviewer issue IDs and mark consensus, severity, and route.
 
+When requested, `08_cover-letter/` contains a versioned Cover Letter and matching mechanical quality check bound to the qualifying Perspective digest. Any `medical-journal-review` report remains a separate independent report in this directory; its probability block, when present, is carried unchanged.
+
 `08_final/submission-readiness-report.md` must state `yes`, `no`, `conditional`, or `outlet-targeting-only`.
+
+When a Cover Letter exists, `08_final/cover-letter.md` must be text-identical to the current frozen version under `08_cover-letter/`.

@@ -1,5 +1,5 @@
 schema_version: 5
-plugin_version: "0.7.0-preview.3"
+plugin_version: "0.8.0-preview.1"
 public_entry_policy:
   declared_entries:
     - academic-deep-search
@@ -71,11 +71,11 @@ skills:
   - name: "article-cover-letter"
     package: "research-article"
     role: "builder"
-    related_skills: ["article-frontmatter-drafter", "article-orchestrator", "article-submission-compositor", "medical-journal-review"]
+    related_skills: ["article-frontmatter-drafter", "article-orchestrator", "article-submission-compositor", "medical-journal-review", "perspective-final-compositor", "perspective-orchestrator"]
     invocation_policy: "explicit_or_orchestrated"
     requires_independent_subagent: false
-    allowed_input_artifacts: "approved_upstream_artifacts"
-    output_artifact_type: "structured_builder_artifact"
+    allowed_input_artifacts: "frozen_qualifying_article_or_perspective_outlet_evidence_and_disclosures"
+    output_artifact_type: "versioned_cover_letter_and_mechanical_quality_check"
   - name: "article-drafter"
     package: "research-article"
     role: "drafter"
@@ -239,7 +239,7 @@ skills:
   - name: "perspective-final-compositor"
     package: "research-perspective"
     role: "reviewer"
-    related_skills: ["medical-journal-review", "perspective-orchestrator"]
+    related_skills: ["article-cover-letter", "medical-journal-review", "perspective-orchestrator"]
     invocation_policy: "explicit_or_orchestrated"
     requires_independent_subagent: true
     allowed_input_artifacts: "frozen_artifacts_and_review_brief"
@@ -255,7 +255,7 @@ skills:
   - name: "perspective-orchestrator"
     package: "research-perspective"
     role: "orchestrator"
-    related_skills: ["academic-language-assessor", "perspective-argument-architect", "perspective-claim-evidence-curator", "perspective-drafter", "perspective-evaluator", "perspective-final-compositor", "perspective-input-builder", "perspective-refinement-controller", "perspective-review-panel", "research-opportunity-mapper"]
+    related_skills: ["academic-language-assessor", "article-cover-letter", "perspective-argument-architect", "perspective-claim-evidence-curator", "perspective-drafter", "perspective-evaluator", "perspective-final-compositor", "perspective-input-builder", "perspective-refinement-controller", "perspective-review-panel", "research-opportunity-mapper"]
     invocation_policy: "implicit"
     requires_independent_subagent: false
     allowed_input_artifacts: "user_inputs_and_existing_workflow_artifacts"
@@ -769,8 +769,8 @@ workflow_edges:
     source: "article-orchestrator"
     destination: "medical-journal-review"
     dispatch_mode: "delegated"
-    trigger: "biomedical_cover_letter_review_required"
-    input_contract: "frozen_cover_letter_and_scope"
+    trigger: "biomedical_review_or_publication_probability_requested"
+    input_contract: "frozen_cover_letter_target_outlet_and_declared_scope"
     output_contract: "medical_journal_review_report"
     failure_route: "independent_review_pending"
   - workflow: "article"
@@ -863,19 +863,27 @@ workflow_edges:
     failure_route: "independent_review_pending"
   - workflow: "perspective"
     source: "perspective-orchestrator"
+    destination: "article-cover-letter"
+    dispatch_mode: "orchestrated"
+    trigger: "qualifying_perspective_cover_letter_requested"
+    input_contract: "frozen_perspective_outlet_core_argument_evidence_and_disclosures"
+    output_contract: "cover_letter_and_quality_check"
+    failure_route: "cover_letter_blocked"
+  - workflow: "perspective"
+    source: "perspective-orchestrator"
+    destination: "medical-journal-review"
+    dispatch_mode: "delegated"
+    trigger: "biomedical_review_or_publication_probability_requested"
+    input_contract: "frozen_perspective_optional_cover_letter_target_outlet_and_declared_scope"
+    output_contract: "medical_journal_review_report"
+    failure_route: "independent_review_pending"
+  - workflow: "perspective"
+    source: "perspective-orchestrator"
     destination: "academic-language-assessor"
     dispatch_mode: "delegated"
     trigger: "final_perspective_language_check"
     input_contract: "frozen_perspective_and_language_scope"
     output_contract: "language_assessment_report"
-    failure_route: "independent_review_pending"
-  - workflow: "perspective"
-    source: "perspective-orchestrator"
-    destination: "medical-journal-review"
-    dispatch_mode: "delegated"
-    trigger: "biomedical_journal_review_required"
-    input_contract: "frozen_perspective_and_journal_scope"
-    output_contract: "medical_journal_review_report"
     failure_route: "independent_review_pending"
   - workflow: "perspective"
     source: "perspective-orchestrator"
@@ -2306,6 +2314,7 @@ scenario_eval_contract:
       - frontmatter
       - cover_letter
       - quality_check
+      - medical_journal_review_report
       - revision_plan
       - response_to_reviewers
       - revision_delta
@@ -2379,6 +2388,9 @@ scenario_eval_contract:
       - reference_list
       - evaluation_report
       - panel_report
+      - cover_letter
+      - quality_check
+      - medical_journal_review_report
       required_inputs:
       - artifact_role: perspective
         source_skill: perspective-drafter

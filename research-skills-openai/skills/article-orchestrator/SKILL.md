@@ -43,7 +43,7 @@ Mark fast-track backfill `confidence: low` and `scope_limitation: fast_track_bac
 10. **Revise and re-evaluate.** Controller/drafter writes a complete new manuscript plus separate revision artifacts. Give a fresh evaluator only the latest manuscript/digest, current display assets, stable rubric, necessary facts, and optional anonymous must-fix list. Never expose prior manuscripts, deltas, reports, scores, or decisions; compare sealed rounds and the delta only here.
 11. **Panel.** Dispatch one fresh `article-review-panel` subagent per role against the same frozen version; hide evaluator and peer outputs. Aggregate after all return and preserve dissent. Fatal methods findings cap at `not_ready`.
 12. **Resolve panel route.** Major or substantive changes return to revision and fresh evaluation. Minor changes that alter prose also create a new version and require fresh evaluation. Unfixable `reject_or_redesign` stops.
-13. **Prepare delivery.** Route frontmatter to `article-frontmatter-drafter`, cover letter to `article-cover-letter`, and biomedical cover-letter review to a fresh `medical-journal-review` instance.
+13. **Prepare delivery.** Route frontmatter and Cover Letter to their writers. At the existing medical-review point, one fresh `medical-journal-review` may add scoped probability to its same report.
 14. **Verify package.** Delegate `article-submission-compositor` against frozen sources. When DOCX-capable document tooling exists, require a synchronized DOCX with native tables, embedded figures, parity checks, and page-render QA. It may format and verify only; it must not repair source content.
 
 ## Promotion and Stop Rules
@@ -55,6 +55,7 @@ Mark fast-track backfill `confidence: low` and `scope_limitation: fast_track_bac
 
 ## Conditional Resources
 
+- For any finish/pause/stop, apply `research-idea-orchestrator/references/project-readme-contract.md`.
 - Read `references/workflow-state-schema.md` for workflow state.
 - Read `references/artifact-naming-and-directory-rules.md` for paths, versions, or the index.
 - Read `references/artifact-contracts.md` for intake through claim-audit schemas.
@@ -70,4 +71,4 @@ Mark fast-track backfill `confidence: low` and `scope_limitation: fast_track_bac
 
 ## Completion Check
 
-Return a concise phase summary with artifact pointers. Confirm complete manuscript/digest/identity gates, forbidden-history blindness, unique reviewer IDs, read-only scope, fresh evaluation, panel/dissent, DOCX parity/render status when applicable, package caps, and a human-review-only final state.
+Return a concise phase summary with artifact pointers. Confirm complete manuscript/identity, blind fresh read-only review, panel/dissent, applicable DOCX gates, package caps, and human-only handoff.

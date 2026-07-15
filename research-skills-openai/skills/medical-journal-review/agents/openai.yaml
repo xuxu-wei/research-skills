@@ -1,6 +1,6 @@
 interface:
   display_name: "Medical Journal Review"
-  short_description: "Independently review medical research for rigor and fit"
+  short_description: "Review rigor, journal fit, and publication odds"
   default_prompt: "Use $medical-journal-review for this task and follow its workflow and output contract."
 policy:
   allow_implicit_invocation: false

@@ -77,6 +77,7 @@ Reviewer briefs bind workflow/round, scope, frozen IDs/versions/paths/digests, a
 
 ## Conditional Resources
 
+- Read `references/project-readme-contract.md` when finishing, pausing, or stopping.
 - Read `references/idea-artifact-lifecycle.md` whenever creating, revising, reviewing, packaging, resuming, or locating an Idea.
 - Read `references/artifact-naming-and-directory-rules.md` only for compact naming and index rules not covered by the lifecycle contract.
 - Read `references/workflow-manifest.md` for state and round lineage.
@@ -94,4 +95,4 @@ Reviewer briefs bind workflow/round, scope, frozen IDs/versions/paths/digests, a
 
 ## Completion Check
 
-Confirm node/state consistency, complete snapshot/digest/identity gates, lineage, fresh blind reviewers, adversarial roles, visible dissent, and handoff only after every gate passes.
+Confirm state, complete snapshot/identity, lineage, fresh blind review, dissent, passed gates, and justified handoff.

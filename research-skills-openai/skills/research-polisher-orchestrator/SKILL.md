@@ -66,6 +66,7 @@ Return a concise phase summary, current state, current artifact pointers, unreso
 
 ## Conditional Resources
 
+- For any finish/pause/stop, apply `research-idea-orchestrator/references/project-readme-contract.md`.
 - Read `references/workflow-contract.md` for dossier, dispatch, state, continuation, or handoff artifacts.
 - Read `research-polisher-strategy-reviewer/references/effort-tier-rules.md` before validating the 3x3 matrix.
 - Read `research-polisher-plan-assembler/references/assembly-contract.md` before accepting a portfolio or selection dossier.
@@ -73,4 +74,4 @@ Return a concise phase summary, current state, current artifact pointers, unreso
 
 ## Completion Check
 
-Confirm frozen source digests are unchanged, reviewer instance IDs are distinct, all nine cells are accounted for, raw strategy reports stayed sealed from the final reviewer, every portfolio change received a fresh evaluation, dissent remains visible, and the workflow stopped for human selection.
+Confirm frozen sources, distinct reviewer IDs, all nine cells, sealed raw reports, fresh evaluation after change, visible dissent, and human selection.

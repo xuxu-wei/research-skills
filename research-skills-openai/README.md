@@ -76,12 +76,12 @@ python scripts/codex_plugin_converter.py --mode codex --install --fail-on-invali
 
 The helper preserves the base version, including any prerelease identifier, and
 synchronizes the manifest and workflow registry, for example
-`0.7.0-preview.3` to `0.7.0-preview.3+codex.local-YYYYMMDD-HHMMSS`. Never commit
+`0.8.0-preview.1` to `0.8.0-preview.1+codex.local-YYYYMMDD-HHMMSS`. Never commit
 or push a `+codex.local-*` version to the rolling Preview channel.
 
 ## Inventory and invocation policy
 
-The maintained `0.7.0-preview.3` source contains 49 skill contracts and declares
+The maintained `0.8.0-preview.1` source contains 49 skill contracts and declares
 seven discoverable entry skills. Six currently set
 `allow_implicit_invocation: true`:
 
@@ -100,11 +100,11 @@ also set the policy to `false` and remain available for explicit or
 orchestrated delegation.
 
 A local audit on 2026-07-14 confirmed that the GitHub marketplace is registered,
-the plugin is enabled, and Codex currently holds the coherent
-`0.7.0-preview.2` cache. The installation mechanism is therefore implemented.
-The working-tree `0.7.0-preview.3` cannot be installed from GitHub until it is
-committed and pushed; Phase 7 records the post-push upgrade and fresh-task
-discovery rather than treating the older cache as current-version evidence.
+the plugin is enabled, and Codex held the coherent `0.7.0-preview.2` cache. The
+installation mechanism is therefore implemented. The maintained
+`0.8.0-preview.1` source still requires a marketplace upgrade/reinstall and
+fresh-task discovery before the older cache can count as current-version
+evidence for Phase 7.
 
 ## Artifact format defaults
 
@@ -119,6 +119,14 @@ discovery rather than treating the older cache as current-version evidence.
   user-facing format when document tooling is available. DOCX packages integrate
   native tables and available figures and must pass content-parity and full-page
   render QA before human sign-off.
+- Each full workflow updates one minimal project-root `README.md` before a normal
+  handoff, pause, or stop. It links current deliverables, summarizes state and
+  unresolved review issues, and supplies the next human action; reviewers never
+  use it as evidence.
+- Article and Perspective can produce versioned Cover Letters. When the existing
+  `medical-journal-review` call can support a publication-probability estimate,
+  the scoped interval, confidence, benchmarks, and limitations stay inside that
+  same independent review report and are only summarized in the project README.
 
 ## Entry-skill quickstarts
 

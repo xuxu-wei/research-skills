@@ -20,17 +20,18 @@ Assemble and verify the exact frozen Perspective version that passed required ev
 
 ## Required Inputs
 
-Frozen latest Perspective, claim ledger/matrix, citation-risk and contrary-evidence logs, evidence limitations, outlet profile, reference list, panel summary, artifact index, and latest evaluation report identity/version.
+Frozen latest Perspective, claim ledger/matrix, citation-risk and contrary-evidence logs, evidence limitations, outlet profile, reference list, panel summary, artifact index, and latest evaluation report identity/version. When present, also receive the frozen versioned Cover Letter, its mechanical check, and the existing `medical-journal-review` report.
 
 ## Procedure
 
 1. Verify source version, artifact ID, and checksum/text identity against the latest qualifying evaluator report and current state pointer.
 2. Copy the source unchanged to `08_final/final-perspective.md`; record `source_edits_performed: false`.
-3. Audit journal/outlet fit, citation support/identity, title/abstract requirements without editing them, anti-patterns, and claim-ledger consistency.
-4. Preserve every panel dissent, fatal/blocking finding, unresolved issue, and accepted risk with stable source references.
-5. If any text or formatting change is needed, return a change request to `perspective-refinement-controller`/`perspective-drafter`; the changed artifact must receive a new version and fresh `perspective-evaluator` before composition restarts.
-6. Map unresolved fatal/blocking findings to `blocked`; unavailable review to `independent_review_pending`; unfixable/no-gain route to `stopped`; a verified unchanged package to `human_signoff_required`.
-7. Never infer author approval, signature, or external submission.
+3. If a Cover Letter is present, verify its current source digest and copy it text-identically to `08_final/cover-letter.md`. Preserve any probability block in the medical review unchanged; do not calculate, reinterpret, or adjust it.
+4. Audit journal/outlet fit, citation support/identity, title/abstract requirements without editing them, anti-patterns, and claim-ledger consistency.
+5. Preserve every panel dissent, fatal/blocking finding, unresolved issue, and accepted risk with stable source references.
+6. If any text or formatting change is needed, return a change request to the owning writer; the changed artifact must receive a new version and required fresh review before composition restarts.
+7. Map unresolved fatal/blocking findings to `blocked`; unavailable review to `independent_review_pending`; unfixable/no-gain route to `stopped`; a verified unchanged package to `human_signoff_required`.
+8. Never infer author approval, signature, or external submission.
 
 ## Review Report Contract
 
@@ -59,6 +60,7 @@ text_identity_verified: false
 ## Outputs
 
 - `08_final/final-perspective.md`: unchanged copy of the latest evaluated source.
+- `08_final/cover-letter.md`: optional unchanged copy of the current frozen Cover Letter.
 - `08_final/final-edit-log.md`: states no source edits; lists proposed return-route changes only.
 - `08_final/final-compositor-report.md`: five audit results, findings, dissent, fatal items, and version/checksum verification.
 - `08_final/submission-readiness-report.md`: workflow state, remaining risks, required author checks, and outlet-targeting limitation.
@@ -67,7 +69,7 @@ text_identity_verified: false
 
 - `human_signoff_required` requires current/evaluated version equality, text identity, completed required reviews, no unresolved fatal/blocking finding, and preserved dissent.
 - Generic outlet profile can reach only an outlet-targeting handoff, not human sign-off.
-- Any changed copy is invalid and routes back for new version plus fresh evaluation.
+- Any changed manuscript copy is invalid and routes back for a new version plus fresh evaluation. Any changed Cover Letter copy routes back for a new version and refreshed medical review when that review applies.
 
 ## Conditional Resources
 
@@ -78,4 +80,4 @@ text_identity_verified: false
 
 ## Completion Check
 
-Confirm source/evaluated version equality, unchanged final text, complete provenance, visible dissent/fatal findings, justified canonical state, no source edits, and human-signoff-only handoff.
+Confirm source/evaluated version equality, unchanged final text, optional Cover Letter identity, unchanged carried probability, complete provenance, visible dissent/fatal findings, justified canonical state, no source edits, and human-signoff-only handoff.

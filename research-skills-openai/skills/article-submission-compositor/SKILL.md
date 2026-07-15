@@ -31,6 +31,7 @@ Read only declared frozen files from `06_drafts/**`, `11_frontmatter/**`, `11_co
 5. **Verify package parity.** Compare normalized DOCX headings, body, table cells, and captions with the frozen Markdown/manifest; verify display numbering, callouts, supplements, and result consistency.
 6. **Render DOCX.** Render every page to PNG, inspect at 100%, fix formatting-only defects, and re-render. Content drift routes back to faithful composition; required missing assets or unavailable render QA cap status below human sign-off.
 7. **Preserve review risk.** Carry forward blueprint risks, audits, evaluation, panel reports, conflicts, dissent, fatal findings, and unresolved issues with stable source references.
+   Preserve any `publication_probability_assessment` in the frozen `medical-journal-review` report unchanged; never calculate, reinterpret, or adjust it.
 8. **Create human sign-off.** Leave author data/statistics/contribution/declaration/reference/journal/figure confirmations pending; never infer a signature or external submission.
 9. **Assign state/status.** Map unavailable review to `independent_review_pending`, DOCX absence to `docx_generation_pending`, unavailable render to `docx_visual_qa_pending`, fatal/blocking findings to `blocked`, and only a synchronized/rendered unchanged package to `human_signoff_required`.
 
@@ -107,4 +108,4 @@ Write the verified `manuscript-vNNN.docx`, `submission-package.md`, `package-man
 
 ## Completion Check
 
-Confirm canonical/evaluated digest equality, DOCX parity/render pass, display assets, manifest completeness, visible dissent/fatal findings, justified caps, unchanged sources, and a final state that still requires human review.
+Confirm canonical/evaluated digest equality, DOCX parity/render pass, display assets, manifest completeness, unchanged carried probability when present, visible dissent/fatal findings, justified caps, unchanged sources, and a final state that still requires human review.

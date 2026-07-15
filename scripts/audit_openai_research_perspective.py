@@ -94,6 +94,30 @@ def check_orchestrator_invariants() -> list[str]:
         issues.append("perspective-orchestrator/SKILL.md: Lite mode must retain provisional claim/evidence preprocessing")
     if "fresh independent subagents" not in text or "independent_review_pending" not in text:
         issues.append("perspective-orchestrator/SKILL.md: missing fresh delegation and unavailable-reviewer routing")
+    for marker in ("`article-cover-letter`", "08_cover-letter/", "publication probability"):
+        if marker not in text:
+            issues.append(f"perspective-orchestrator/SKILL.md: missing Cover Letter route marker {marker}")
+    return issues
+
+
+def check_cover_letter_contract() -> list[str]:
+    issues: list[str] = []
+    naming = (ROOT / "perspective-orchestrator/references/artifact-naming-and-directory-rules.md").read_text(encoding="utf-8")
+    io_contract = (ROOT / "perspective-orchestrator/references/io-contracts.md").read_text(encoding="utf-8")
+    compositor = (ROOT / "perspective-final-compositor/SKILL.md").read_text(encoding="utf-8")
+    for marker in (
+        "08_cover-letter/cover-letter-v001.md",
+        "08_cover-letter/cover-letter-quality-check-v001.md",
+        "08_cover-letter/medical-journal-cover-letter-review-v001.md",
+        "08_final/cover-letter.md",
+    ):
+        if marker not in naming:
+            issues.append(f"perspective naming contract missing {marker}")
+    if "text-identical" not in io_contract:
+        issues.append("perspective I/O contract does not require a text-identical final Cover Letter")
+    for marker in ("08_final/cover-letter.md", "text-identically", "do not calculate, reinterpret, or adjust"):
+        if marker not in compositor:
+            issues.append(f"perspective compositor missing Cover Letter/probability marker {marker}")
     return issues
 
 
@@ -128,6 +152,7 @@ def main() -> int:
     issues.extend(check_frontmatter())
     issues.extend(check_markdown_references())
     issues.extend(check_orchestrator_invariants())
+    issues.extend(check_cover_letter_contract())
     issues.extend(check_agent_configs())
     issues.extend(check_panel_invariants())
 

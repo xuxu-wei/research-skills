@@ -1,59 +1,57 @@
 ---
 name: medical-journal-review
-description: "Independently review frozen medical research artifacts for editorial fit, methods, statistics, and claims."
+description: "Independently review research rigor, journal fit, and supportable publication probability."
 ---
 # Medical Journal Research Design Review
 
 ## Purpose
 
-Independently assess a medical study, protocol, proposal, or manuscript from the perspective of a general medical journal editor, clinical epidemiologist, and statistical reviewer. Identify fatal flaws, important weaknesses, defensible claims, journal fit, and concrete redesign or revision priorities.
+Independently assess a medical study, protocol, proposal, manuscript, or submission artifact from editorial, clinical-epidemiology, and statistical perspectives. Identify fatal flaws, weaknesses, defensible claims, journal fit, and repair priorities. When the target outlet and available material support it, append a scoped publication-probability assessment to this same review report.
 
-This skill evaluates existing artifacts. It does not draft, rewrite, polish, fabricate missing material, or promise publication.
+The substantive rigor review is medical-domain work. A requested probability assessment may cover a non-medical artifact, but must state its domain limits. This skill evaluates frozen artifacts; it does not draft, rewrite, polish, repair, or promise publication.
 
 ## Independent Execution Contract
 
-- Run this skill only in a fresh independent subagent or delegated thread. Never review an artifact in the agent context that generated, drafted, or revised it.
-- Receive frozen artifact IDs, file paths, and versions. Treat every source artifact as read-only and write only the review report.
-- Do not edit, rewrite, polish, repair, or directly modify the reviewed design, protocol, proposal, manuscript, tables, figures, or supplementary files.
-- Do not use parent-thread hidden reasoning, expected conclusions, prior reviewer outputs, or prior scores. Base the review only on the frozen inputs and declared rubric.
-- Report the exact files read, sections reviewed, missing materials, scope limitations, and independent reviewer instance identifier.
-- If a fresh subagent cannot be created, return `independent_review_pending` with a self-contained continuation brief and stop. Never fall back to inline review.
+- Run only in a fresh independent subagent or delegated thread, never in the context that generated, drafted, or revised the artifact.
+- Receive frozen artifact IDs, paths, versions, and digests. Treat inputs as read-only and write only this review report.
+- Do not edit, rewrite, polish, repair, or modify the reviewed design, protocol, proposal, manuscript, cover letter, tables, figures, or supplements.
+- Do not use parent hidden reasoning, expected conclusions, prior reviewer outputs, or prior scores. Use only frozen allowed inputs and the declared rubric.
+- Report exact files read, sections reviewed, missing materials, scope limits, and reviewer instance ID.
+- If a fresh subagent is unavailable, return `independent_review_pending` with a self-contained continuation brief and stop; never fall back to inline review.
 
 ## Inputs
 
 Accept the available subset of:
 
-- research question and intended claim;
+- research question, intended claim, and contribution statement;
 - study type, population, exposure/intervention, comparator, outcomes, and time window;
-- data source, sample size, protocol/SAP, analysis plan, and preliminary results;
-- manuscript, tables, figures, appendices, and supplementary materials;
-- target journal or journal tier;
-- frozen artifact IDs and versions.
+- data source, sample size, protocol/SAP, analysis plan, and results;
+- manuscript, Perspective, cover letter, tables, figures, appendices, and supplements;
+- target outlet, article type, supplied benchmark facts, and frozen artifact identity.
 
-When a manuscript refers to supplementary material, inspect the supplied task files and artifact manifest. Do not search product-specific caches or assume that files uploaded together belong to the same manuscript. Verify association from title, authors, identifiers, or explicit manifest links.
-
-If inputs are incomplete, distinguish what can be judged, what cannot be judged, the most important missing items, and how those gaps limit confidence.
+When a manuscript cites supplementary material, inspect supplied task files and the artifact manifest. Do not infer association from upload proximity or search product caches; verify title, author, identifier, or manifest linkage. Distinguish what can and cannot be judged when inputs are incomplete.
 
 ## Review Route
 
-Choose one route and record it in the report:
+Choose and record one route:
 
-- **Design review**: research question, design-question fit, endpoint choice, comparator, bias, confounding, analysis route, and redesign options.
-- **Editorial review**: importance, evidence gap, claim support, reporting completeness, journal fit, and revision priority. Load `references/12-step-editorial-review.md` when this route is selected.
-- **Statistical review**: estimand/target, model-data fit, missing data, multiplicity, uncertainty, validation, sensitivity analyses, and interpretation. Load `references/bmj-statistical-review-standards.md` when this route is selected.
+- **Design review**: question–design fit, endpoint, comparator, bias, confounding, analysis, and redesign.
+- **Editorial review**: importance, gap, claim support, completeness, fit, and revision priority. Load `references/12-step-editorial-review.md`.
+- **Statistical review**: estimand, model–data fit, missingness, multiplicity, uncertainty, validation, sensitivity, and interpretation. Load `references/bmj-statistical-review-standards.md`.
+- **Cover-letter-only review**: editorial triage case, source-bounded claims, outlet fit, and limitations visible from the letter alone. Do not infer manuscript quality from unavailable material.
 
 ## Workflow
 
-1. Record the frozen inputs, review route, target outlet, and scope limitations.
-2. Identify study type, intended claim type, and primary decision the evidence is meant to support.
-3. Summarize population, data, exposure/intervention, comparator, outcomes, timing, and analysis route.
-4. Check design-question fit and whether the available evidence can support the stated claim.
-5. Check endpoint, comparator, bias, confounding, missingness, multiplicity, validation, and uncertainty as applicable.
-6. Inspect all supplied tables, figures, and supplementary materials before declaring an analysis absent.
-7. Identify fatal flaws, major weaknesses, minor issues, and claims requiring downscaling.
-8. Provide at least one feasible redesign or repair route when defects are reparable.
-9. Assess target-journal fit without converting the score into publication probability.
-10. Produce the structured report using `templates/review-report.md`. Use this resource only when producing its named artifact.
+1. Record frozen inputs, route, target outlet, article type, requested assessment scope, and limitations.
+2. Identify the study and claim type plus the decision the evidence is meant to support.
+3. Summarize the available population, data, intervention/exposure, comparator, outcomes, timing, and analysis.
+4. Check design–question fit and whether the evidence supports the claims.
+5. Check endpoints, bias, confounding, missingness, multiplicity, validation, and uncertainty as applicable.
+6. Inspect supplied tables, figures, and supplements before declaring an analysis absent.
+7. Separate fatal, major, and minor findings; identify claims requiring downscaling.
+8. Give feasible repair or redesign routes when defects are reparable.
+9. Assess target-outlet fit. When probability is explicitly requested or the current medical-review call has adequate target and artifact inputs, load `references/publication-probability-assessment.md` and append its block to this report. Use built-in Search only for current public benchmark facts.
+10. Produce one structured report using `templates/review-report.md`; never create a separate probability artifact.
 
 ## Decision Labels
 
@@ -66,7 +64,7 @@ Choose one route and record it in the report:
 
 ## Report Contract
 
-Every report must include:
+Every report includes:
 
 ```yaml
 review_id:
@@ -90,26 +88,30 @@ minor_findings:
 claim_adjustments:
 repair_or_redesign_options:
 journal_fit:
+publication_probability_assessment: null | object
 unresolved_issues:
 ```
+
+The optional object must follow the conditional probability contract. Its absence never creates a separate workflow state.
 
 ## Boundaries
 
 - Do not draft or revise the reviewed artifact.
 - Do not infer unreported analyses from filenames or narrative hints.
-- Do not declare an analysis missing before checking supplied supplementary materials.
-- Do not present observational or predictive findings as causal.
-- Do not treat novelty of method as proof of clinical importance.
-- Do not turn a structured score into a publication probability.
-- Do not hide dissent, uncertainty, missing evidence, or fatal flaws.
+- Check supplied supplements before declaring an analysis missing.
+- Do not present observational or predictive findings as causal, or method novelty as proof of importance.
+- Do not let a probability estimate override fatal, blocking, stale-input, or reviewer-isolation gates.
+- Preserve dissent, uncertainty, missing evidence, scope limits, and fatal flaws.
 
 ## Verification
 
-- Review ran in a fresh independent subagent.
-- Artifact identifiers and versions are frozen and reported.
-- All files read are listed.
-- Study type and intended claim are explicit.
-- Supplementary materials were checked when provided.
-- Fatal flaws and scope limitations are visible.
-- Recommendations are traceable to findings.
-- Source artifacts were not modified.
+- Review ran in a fresh independent subagent against frozen reported inputs; all files read are listed and source artifacts are unchanged.
+- Study and claim type, checked supplements, fatal findings, scope limits, and traceable recommendations are visible.
+- When probability is assessed, it remains in this report, scope and benchmark status are explicit, Search sources record URL/date/type/applicability, stage and overall estimates are coherent, and unsupported cases use `not_estimable`.
+
+## Conditional Resources
+
+- Read `references/12-step-editorial-review.md` only for an editorial route.
+- Read `references/bmj-statistical-review-standards.md` only for a statistical route.
+- Read `references/publication-probability-assessment.md` only when producing or validating the optional probability block.
+- Use `templates/review-report.md` only when writing the review report.

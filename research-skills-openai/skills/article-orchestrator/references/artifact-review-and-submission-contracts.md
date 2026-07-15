@@ -174,7 +174,12 @@ panel_report:
 cover_letter:
   schema_version: "research-article.v6"
   artifact_id: "cover-letter-001"
+  version_id: "v001"
   source_skill: "article-cover-letter"
+  workflow_profile: article
+  source_artifact_id: ""
+  source_version: ""
+  source_digest: "sha256:"
   target_journal: ""
   manuscript_title: ""
   status: draft | final | blocked
@@ -192,9 +197,9 @@ cover_letter:
     data_code_availability: ""
     conflicts_of_interest: ""
     related_submissions: ""
-  quality_check_ref: "11_cover-letter/cover-letter-quality-check.md"
-  biomedical_review_ref: ""
-  cover_letter_review_status: not_applicable | complete | delegate_unavailable
+  quality_check_ref: "11_cover-letter/cover-letter-quality-check-v001.md"
+  medical_review_ref: ""
+  cover_letter_review_status: not_applicable | complete | independent_review_pending
 ```
 
 ## Submission Package
@@ -241,8 +246,8 @@ submission_package:
     abstract: ""
     key_points: ""
     title: ""
-    cover_letter: "11_cover-letter/cover-letter.md"
-    cover_letter_quality_check: "11_cover-letter/cover-letter-quality-check.md"
+    cover_letter: "11_cover-letter/cover-letter-v001.md"
+    cover_letter_quality_check: "11_cover-letter/cover-letter-quality-check-v001.md"
     medical_cover_letter_review: ""
     reporting_checklist_mapping: ""
     reviewer_risk_matrix: ""

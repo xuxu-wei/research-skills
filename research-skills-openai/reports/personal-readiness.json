@@ -13,14 +13,14 @@
     "entry_mode_count": 17,
     "implicit_entry_count": 6,
     "independent_reviewer_count": 20,
-    "manifest_sha256": "fa51a3d55dba8909df736f94ed87b7ef872ec61857d93df9b59cfc89abdbeb0b",
+    "manifest_sha256": "9abb67e370cafc89cef9b4e75424bcb442ca9d38d0d07e45e79cc414931c9990",
     "phase4_negative_guards_rejected": 63,
     "phase4_workflows_passed": 5,
     "phase8_case_count": 20,
     "phase8_false_ready_count": 0,
-    "plugin_version": "0.7.0-preview.3",
+    "plugin_version": "0.8.0-preview.1",
     "receipt_schema_sha256": "01db4f7e566933fa20d6ba62cf548d797767ba2a07c325d33750be1a9aee7fd7",
-    "registry_sha256": "15b14cdd80a9cb4b4a4014328313ab55770aa7850405a0283489ca2d50e81936",
+    "registry_sha256": "a3c749cde1d03fbe813cf2a2caf41b2fc802109a77e40134be9c03d5c9438abe",
     "skill_count": 49,
     "workflow_count": 5
   },
@@ -49,7 +49,7 @@
     "status": "in_progress_owner_observation"
   },
   "personal_status": "in_progress_owner_observation",
-  "plugin_version": "0.7.0-preview.3",
+  "plugin_version": "0.8.0-preview.1",
   "profile": "personal-owner",
   "schema_version": 1
 }

@@ -1,159 +1,133 @@
 ---
 name: article-cover-letter
-description: "Draft a journal cover letter and quality check from frozen evaluated materials without altering source artifacts."
+description: "Draft a source-bound Cover Letter and mechanical check for a qualifying Article or Perspective."
 ---
+
 # article-cover-letter
 
 ## Purpose
 
-Draft the journal cover letter as an editorial triage memo: a concise case for why the manuscript deserves editorial attention, why it fits the target journal, what knowledge-state change it offers, and what disclosures the editor must know.
+Draft an editor-facing triage memo for a qualifying Article or Perspective. State the problem, knowledge delta or core argument, contribution type, outlet fit, and credibility without repeating the abstract or changing the source work.
 
-This skill does NOT draft abstracts, titles, key points, manuscript text, reviewer responses, or submission packages. It writes and evaluates cover letter artifacts only.
+This is a writer role. Its quality check is mechanical and does not replace independent `medical-journal-review` when that review is part of the workflow.
 
-## Core Rules
+## Workflow Profile
 
-- Write the editorial case, not a second abstract.
-- Lead with the field's unresolved issue and the manuscript's delta.
-- State the contribution type: evidence-strengthening, conceptual reframing, practice decision, measurement advance, boundary condition, evidence organization, or research enablement.
-- Keep the letter concise: one page; target 350-500 English words unless journal instructions differ.
-- Include disclosures and credibility signals: preprint, related submissions, prior communication, conflicts, ethics, author approval, suggested/excluded reviewers if applicable.
-- Do not introduce claims not present in the manuscript, blueprint, evaluation, or panel report.
-- For biomedical manuscripts, return the frozen cover letter to the orchestrator, which must explicitly delegate a fresh independent cover-letter-only review through `medical-journal-review`.
-
-## I/O Contract
+The orchestrator must set exactly one:
 
 ```yaml
-io_contract:
-  allowed_inputs:
-    - manuscript_draft
-    - article_blueprint (contribution_statement, journal_adapter, reviewer_risk_preview)
-    - literature_grounding_report
-    - evaluation_report
-    - panel_report (optional)
-    - frontmatter (optional, for consistency only)
-  required_outputs:
-    - cover_letter
-    - cover_letter_quality_check
-    - medical_cover_letter_review (for biomedical manuscripts)
-  may_read:
-    - "03_literature/**"
-    - "04_blueprint/**"
-    - "06_drafts/**"
-    - "08_evaluations/**"
-    - "10_panel/**"
-    - "11_frontmatter/**"
-  may_write:
-    - "11_cover-letter/cover-letter.md"
-    - "11_cover-letter/cover-letter-quality-check.md"
-    - "11_cover-letter/medical-journal-cover-letter-review.md"
-  must_not_write:
-    - "06_drafts/**"
-    - "11_frontmatter/**"
-    - "12_package/**"
-  may_call:
-    - medical-journal-review
-  must_not_call:
-    - article-drafter
-    - article-evaluator
-  failure_modes:
-    - "contribution delta unclear -> request article-architect clarification via orchestrator"
-    - "journal fit unavailable -> draft generic fit cautiously and cap confidence at low"
-    - "biomedical review delegate unavailable -> perform no substitute manuscript review; mark cover_letter_review_status: delegate_unavailable"
-  escalation_route: "article-orchestrator"
+workflow_profile: article | perspective
 ```
+
+- `article`: use the qualifying manuscript and contribution statement.
+- `perspective`: use the qualifying Perspective and its frozen core argument.
+
+Do not use this skill for a non-qualifying draft, a language-polishing request, or submission-package assembly.
+
+## Input and Output Contract
+
+```yaml
+inputs:
+  required:
+    - workflow_profile
+    - qualifying_main_artifact_ref
+    - qualifying_main_artifact_digest
+    - contribution_statement_or_core_argument
+    - target_journal_or_outlet
+  optional:
+    - article_type
+    - frontmatter
+    - evidence_or_claim_ledger
+    - verified_outlet_facts
+    - disclosures
+outputs:
+  - versioned_cover_letter
+  - versioned_cover_letter_quality_check
+```
+
+Freeze all inputs before drafting. Every factual or comparative claim must trace to the qualifying main artifact, allowed evidence, or a verified outlet fact. Mark missing disclosure facts as unresolved; do not invent them.
+
+## File Scope
+
+```yaml
+article:
+  may_write:
+    - "11_cover-letter/cover-letter-vNNN.md"
+    - "11_cover-letter/cover-letter-quality-check-vNNN.md"
+perspective:
+  may_write:
+    - "08_cover-letter/cover-letter-vNNN.md"
+    - "08_cover-letter/cover-letter-quality-check-vNNN.md"
+must_not_write:
+  - qualifying main artifact
+  - workflow state or evaluation reports
+  - final package directories
+may_call: []
+```
+
+The writer never edits its source artifact and never writes an independent review report.
 
 ## Procedure
 
-### Step 1: Confirm Scope and Inputs
+### 1. Validate the frozen basis
 
-Load the manuscript title, target journal, article type, contribution statement, journal adapter, literature grounding, evaluation decision, and known disclosures. Confirm the cover letter can be written without inventing facts.
+Confirm the source ID, version, path, digest, qualifying decision, target outlet, and profile. If the source is stale, incomplete, or not qualifying, stop with `cover_letter_blocked` and list the missing basis.
 
-### Step 2: Build the Editorial Case
+### 2. Build the editorial case
 
-Use `references/cover-letter-principles.md` to identify:
+Read `references/cover-letter-principles.md`. Extract only source-supported statements for:
 
-- `problem`: the specific unresolved issue in the field
-- `delta`: what changes after this manuscript exists
-- `innovation_type`: incremental improvement or 0-to-1 reframing/enabling
-- `journal_fit`: why this journal's readers need this delta
-- `credibility`: prior work, design strength, evidence boundary, or research-program continuity
-- `disclosures`: editor-relevant submission facts
+1. the important problem;
+2. the current knowledge or argument gap;
+3. what this work changes;
+4. the contribution type and strongest credible evidence;
+5. why the named outlet and audience fit;
+6. relevant declarations and disclosures.
 
-### Step 3: Draft the Cover Letter
+Do not overclaim novelty, impact, generalizability, causality, or journal fit.
 
-Use `templates/cover-letter.md`. Default structure:
+### 3. Draft the letter
 
-1. Submission statement and problem positioning
-2. Knowledge delta and contribution type
-3. Journal fit and readership value
-4. Credibility, boundaries, and disclosures
+Use `templates/cover-letter.md` as a drafting aid. Prefer a short opening with the submission identity, a compact problem–delta–contribution argument, an outlet-fit paragraph, and a factual declaration close. Adapt the structure when the outlet requires a different form.
 
-### Step 4: Self-Check
+The letter must stand on its own but must not reproduce the abstract mechanically. Perspective letters should foreground the importance, timeliness, synthesis or argument contribution, and intended readership rather than implying original empirical results that the source does not contain.
 
-Produce `cover-letter-quality-check.md`:
+### 4. Record the mechanical quality check
+
+Write the matching versioned check:
 
 ```yaml
 cover_letter_quality_check:
-  repeats_abstract: yes | no
-  delta_visible: strong | adequate | weak
-  journal_fit_specificity: high | medium | low
-  novelty_claim_supported: yes | no | not_applicable
-  evidence_boundaries_clear: yes | partial | no
-  disclosures_complete: yes | partial | no
+  workflow_profile: article | perspective
+  source_artifact_id:
+  source_version:
+  source_digest:
+  target_outlet:
+  word_count:
+  structure_complete: true | false
+  target_outlet_matches: true | false
+  problem_delta_fit_present: true | false
+  repeats_abstract_mechanically: true | false
   unsupported_claims: []
-  recommended_status: ready | revise | blocked
+  missing_disclosures: []
+  inputs_sufficient: true | false
 ```
 
-### Step 5: Biomedical Independent Review
+This check reports observable completeness only. Return both frozen artifacts to the orchestrator, which owns any independent review and downstream routing.
 
-If the manuscript is biomedical, clinical, public health, translational, health policy, medical AI, epidemiology, diagnostic, prognostic, or life-science medical journal work:
+## Versioning and Staleness
 
-1. Use a fresh delegate/subagent when available.
-2. Invoke `medical-journal-review` with a strict cover-letter-only brief.
-3. Provide only `11_cover-letter/cover-letter.md` content, not the manuscript, blueprint, context, evaluation, or panel report.
-4. Ask the reviewer to judge only the cover letter as an editorial triage document and to explicitly estimate the apparent article tier from the cover letter alone.
+- A changed qualifying main artifact, digest, target outlet, or core contribution makes the letter and its review stale.
+- Any content change creates the next `vNNN` pair; never overwrite an older frozen pair.
+- A Perspective final compositor may faithfully copy the frozen letter to `08_final/cover-letter.md`; all content changes must return here as a new version.
 
-Required review output:
+## Completion Check
 
-```yaml
-medical_cover_letter_review:
-  review_scope: cover_letter_only
-  apparent_article_tier: top_general_medical | top_specialty | solid_specialty | incremental_specialty | low_competitiveness | cannot_judge
-  tier_confidence: high | medium | low
-  editorial_case_strength: strong | adequate | weak
-  main_reason_for_tier: ""
-  missing_or_unclear_editorial_value: []
-  overclaim_or_fit_risks: []
-  revision_recommendations: []
-```
+Confirm profile and paths agree, the source is qualifying and digest-bound, problem/delta/fit are present, claims and outlet facts are traceable, disclosures are accurate or visibly unresolved, the letter is not an abstract copy, and the quality check contains no promotion decision.
 
-If true delegation is unavailable, record `cover_letter_review_status: delegate_unavailable` and cap cover-letter review confidence at low. Do not replace this with a full manuscript review.
+## Conditional Resources
 
-## Output
-
-- `11_cover-letter/cover-letter.md`
-- `11_cover-letter/cover-letter-quality-check.md`
-- `11_cover-letter/medical-journal-cover-letter-review.md` for biomedical manuscripts
-
-## Pitfalls
-
-- Do not repeat the abstract or list methods/results mechanically.
-- Do not praise the journal generically.
-- Do not use "first", "novel", or "unique" unless literature grounding supports it.
-- Do not hide limitations or disclosures the editor needs.
-- Do not provide the manuscript to `medical-journal-review` for the cover-letter-only check.
-
-## Verification
-
-- Cover letter is one page or journal-compliant.
-- Problem, delta, journal fit, credibility, and disclosure are all present.
-- No unsupported novelty or importance claims.
-- Biomedical manuscripts have a cover-letter-only `medical-journal-review` output or an explicit delegate-unavailable limitation.
-- The apparent article tier is stated when biomedical review is performed.
-
-## References
-
-- `references/cover-letter-principles.md`: Editorial triage memo principles and contribution patterns.
-- `templates/cover-letter.md`: Drafting template.
-- `article-orchestrator/references/artifact-contracts.md`: Canonical cover letter and submission package contracts.
-- `article-orchestrator/references/artifact-naming-and-directory-rules.md`: Directory and naming conventions.
+- Read `references/cover-letter-principles.md` while constructing the editorial case.
+- Use `templates/cover-letter.md` only while drafting the versioned letter.
+- Read `article-orchestrator/references/artifact-review-and-submission-contracts.md` when validating Article handoff or package references.
+- Read `perspective-orchestrator/references/io-contracts.md` when validating Perspective handoff or final-copy references.

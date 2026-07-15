@@ -4,7 +4,7 @@ Status: active personal-owner procedure
 
 Plugin: `research-skills-openai`
 
-Maintained source version: `0.7.0-preview.2`
+Maintained source version: `0.8.0-preview.1`
 
 This runbook validates the plugin for one owner's research work. It does not
 create a public-release, external-attestation, or provider-verification claim.
@@ -29,11 +29,11 @@ configuration currently contains:
 - marketplace `xuxu-research-preview`;
 - source `https://github.com/xuxu-wei/research-skills.git`, ref `main`;
 - plugin `research-skills-openai@xuxu-research-preview`, enabled; and
-- installed cache `0.7.0-preview.1`.
+- installed cache last observed as `0.7.0-preview.2`.
 
-The maintained working tree is `0.7.0-preview.2`, but those changes have not yet
-been committed and pushed. Reinstalling before that push can only reinstall the
-GitHub `0.7.0-preview.1` source and does not validate the working tree.
+The maintained source is `0.8.0-preview.1`, but that version has not yet been
+owner-observed after marketplace upgrade/reinstall. The older cache does not
+validate the current source; run the upgrade after this version is pushed.
 
 ## 3. Deterministic preflight
 
@@ -45,6 +45,8 @@ python scripts/audit_openai_research_proposal.py
 python scripts/audit_openai_research_perspective.py
 python scripts/test_openai_release_contract.py
 python scripts/sync_openai_fixture_versions.py
+python scripts/test_openai_artifact_completeness.py
+python scripts/test_openai_article_docx_contract.py
 python scripts/test_openai_phase6_context.py
 python scripts/test_openai_phase2_phase3.py
 python scripts/test_openai_phase4_scenarios.py --check-report
@@ -58,7 +60,7 @@ python C:\Users\10149\.codex\skills\.system\plugin-creator\scripts\validate_plug
 
 Required deterministic baseline:
 
-- 49 skills, 20 independent reviewers, 67 workflow edges;
+- 49 skills, 20 independent reviewers, 68 workflow edges;
 - seven declared entries and six implicit entries;
 - Research Polisher fixed to explicit-only personal routing;
 - five workflows and 17/17 entry modes;

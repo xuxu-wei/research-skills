@@ -100,9 +100,9 @@ Minimum validation checks at each cross-skill handoff boundary in the research-a
 
 - All frontmatter items status = `final`
 - Abstract word count within journal limit
-- Cover letter exists at `11_cover-letter/cover-letter.md` unless the target journal explicitly does not require one
+- A current versioned Cover Letter and matching mechanical check exist under `11_cover-letter/` unless the target journal explicitly does not require one
 - Cover letter addresses the correct journal
-- Biomedical cover letters have a cover-letter-only independent `medical-journal-review` output; if that required review cannot run, return `independent_review_pending` rather than reviewing inline
+- When biomedical review applies or probability was requested, the current Cover Letter has one fresh `medical-journal-review` report; any probability block stays inside that report and cannot override blocking gates
 - Canonical Markdown/evaluation digests match; DOCX parity, required displays, and full-page render QA pass or explicitly cap status below human sign-off.
 - The submission compositor/verifier has a fresh independent instance and frozen source artifact IDs, paths, and versions.
 

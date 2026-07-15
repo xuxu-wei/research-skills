@@ -172,16 +172,16 @@ Do NOT rewrite title, abstract, or manuscript. Return route recommendations only
 Independent final compliance verifier and package compositor. Copy the latest evaluated source text byte-for-byte; find issues and return routes, but do not fix source text.
 
 ## Allowed Files
-draft-final.md, claim-ledger.md, claim-evidence-matrix.md, citation-risk-log.md, contrary-evidence-log.md, evidence-limitations.md, target-outlet-profile.md, panel-summary.md, reference-list.md
+draft-final.md, claim-ledger.md, claim-evidence-matrix.md, citation-risk-log.md, contrary-evidence-log.md, evidence-limitations.md, target-outlet-profile.md, panel-summary.md, reference-list.md, and any frozen Cover Letter, mechanical check, or medical-journal-review report selected for the package
 
 ## Five Audits
 1. Journal fit 2. Citation accuracy 3. Title/abstract 4. Anti-pattern final scan 5. Claim-consistency
 
 ## Required Output
-08_final/final-perspective.md, final-edit-log.md, final-compositor-report.md, submission-readiness-report.md
+08_final/final-perspective.md, optional cover-letter.md, final-edit-log.md, final-compositor-report.md, submission-readiness-report.md
 
 ## Permitted
-Create package directories, copy the evaluated source unchanged, calculate its digest, and write only the manifest, artifact index, edit/verification log, compositor report, and readiness report.
+Create package directories, copy the evaluated source and any frozen Cover Letter unchanged, calculate digests, and write only package copies, manifest/index, edit/verification log, compositor report, and readiness report. Carry any medical-review probability block unchanged.
 
 ## Prohibited
 Any formatting, title, abstract, grammar, citation, heading, deduplication, terminology, claim, evidence, caveat, or prose change. If any text change is needed, return it to the owning drafter/curator, create a new version, and require fresh evaluation.

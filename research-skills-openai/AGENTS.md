@@ -9,6 +9,7 @@ These instructions apply to the `research-skills-openai/` plugin subtree.
 - Do not claim public support, production stability, automatic updates, or automatic external submission.
 - Use the `personal-owner` acceptance profile as the default development and release boundary. Shared/public attestation and provider verification are out of the active roadmap unless the owner explicitly reopens them.
 - Preserve plugin-level SemVer in `.codex-plugin/plugin.json` and keep `workflow-registry.yaml` on the identical version.
+- Whenever the plugin version changes, update README, ROADMAP, generated registries/manifests, fixtures, validation expectations, and every other document that states the current version in the same change; preserve intentionally historical version records.
 
 ## Skill authoring workflow
 
