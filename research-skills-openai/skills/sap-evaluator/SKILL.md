@@ -14,7 +14,7 @@ Evaluate a frozen Statistical Analysis Plan for methodological/statistical execu
 - Require frozen SAP, context/proposal, preflight, endpoint, data, population, goal, constraint, and version artifacts. Treat sources as read-only.
 - Write only the SAP evaluation report. Do not edit, draft, rewrite, polish, repair, or fix any source.
 - Do not read parent hidden reasoning, expected conclusions, prior scores/decisions, or other reviewer outputs.
-- In re-evaluation, read only the latest SAP, stable rubric, necessary facts, and optionally an anonymized must-fix list plus delta.
+- Require a complete frozen SAP and matching digest. In re-evaluation, read only that SAP, the stable rubric, necessary facts, and optionally an anonymized must-fix list; never read a prior SAP or revision delta.
 - Report exact files read, scope, limitations, and reviewer instance ID.
 - If independent execution is unavailable, return `independent_review_pending` with a continuation brief and stop; never review inline or emit `accept`.
 
@@ -40,7 +40,11 @@ files_read: []
 review_scope: []
 isolation_mode: fresh_subagent
 prior_scores_visible: false
+prior_versions_visible: false
+revision_delta_visible: false
 source_edits_performed: false
+reviewed_artifact_digest: "sha256:"
+complete_artifact_confirmed: true
 decision: accept | revise | reject
 findings: []
 unresolved_issues: []
@@ -63,4 +67,4 @@ revision_priorities: []
 
 ## Completion Check
 
-Confirm SAP-only scope, all dimensions, endpoint/data/method and missingness/sensitivity checks, clinical checks when applicable, prespecification separation, every gate/fatal flaw, one gate-consistent decision, prior-score blindness, and unchanged sources.
+Confirm SAP-only scope, complete-artifact/digest binding, forbidden-history blindness, all method checks, every gate/fatal flaw, one consistent decision, and unchanged sources.

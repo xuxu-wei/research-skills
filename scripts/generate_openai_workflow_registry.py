@@ -123,12 +123,12 @@ SKILL_IO_OVERRIDES = {
 WORKFLOW_EDGES = [
     ("idea", "research-idea-orchestrator", "research-context-builder", "orchestrated", "context_required", "user_inputs_and_constraints", "research_context_brief", "clarification_required"),
     ("idea", "research-idea-orchestrator", "research-opportunity-mapper", "orchestrated", "evidence_or_opportunity_map_required", "context_sources_and_scope", "evidence_and_opportunity_maps", "evidence_mapping_pending"),
-    ("idea", "research-idea-orchestrator", "multi-path-idea-generator", "orchestrated", "context_and_opportunity_map_ready_or_revision_authorized", "frozen_context_opportunity_current_candidates_and_revision_plan", "versioned_candidate_set_and_delta", "generation_blocked"),
-    ("idea", "research-idea-orchestrator", "methodology-statistics-preflight", "delegated", "method_or_endpoint_fit_needs_review", "frozen_candidates_and_method_facts", "preflight_report", "independent_review_pending"),
-    ("idea", "research-idea-orchestrator", "idea-evaluator", "delegated", "candidate_set_frozen_or_revised", "frozen_candidates_stable_rubric_and_facts", "idea_evaluation_report", "independent_review_pending"),
-    ("idea", "research-idea-orchestrator", "idea-adversarial-review-panel", "delegated", "proposal_handoff_candidate_exists", "frozen_promoted_candidates_and_role_brief", "sealed_individual_adversarial_report", "independent_review_pending"),
+    ("idea", "research-idea-orchestrator", "multi-path-idea-generator", "orchestrated", "context_and_opportunity_map_ready_or_revision_authorized", "frozen_context_opportunity_current_complete_snapshots_and_revision_plan", "versioned_complete_snapshots_candidate_index_and_delta", "generation_blocked"),
+    ("idea", "research-idea-orchestrator", "methodology-statistics-preflight", "delegated", "method_or_endpoint_fit_needs_review", "frozen_complete_snapshots_and_method_facts", "preflight_report", "independent_review_pending"),
+    ("idea", "research-idea-orchestrator", "idea-evaluator", "delegated", "candidate_set_frozen_or_revised", "one_frozen_complete_snapshot_stable_rubric_and_facts", "idea_evaluation_report", "independent_review_pending"),
+    ("idea", "research-idea-orchestrator", "idea-adversarial-review-panel", "delegated", "proposal_handoff_candidate_exists", "one_frozen_promoted_complete_snapshot_and_role_brief", "sealed_individual_adversarial_report", "independent_review_pending"),
     ("idea", "research-idea-orchestrator", "academic-language-assessor", "delegated", "external_facing_portfolio_language_check", "frozen_portfolio_text_and_language_scope", "language_assessment_report", "independent_review_pending"),
-    ("idea", "research-idea-orchestrator", "idea-portfolio-assembler", "orchestrated", "evaluation_and_adversarial_reports_sealed", "evaluated_candidates_lineage_and_dissent", "pi_review_portfolio", "assembly_blocked"),
+    ("idea", "research-idea-orchestrator", "idea-portfolio-assembler", "orchestrated", "evaluation_and_adversarial_reports_sealed", "evaluated_complete_snapshots_lineage_and_dissent", "pi_review_portfolio", "assembly_blocked"),
     ("idea", "research-idea-orchestrator", "proposal-orchestrator", "handoff", "proposal_handoff_gate_passed", "promoted_idea_package_and_limitations", "proposal_workflow_state", "proposal_handoff_blocked"),
 
     ("proposal", "proposal-orchestrator", "proposal-context-brief-builder", "orchestrated", "context_brief_required", "idea_draft_call_and_constraints", "proposal_context_brief", "clarification_required"),
@@ -1516,6 +1516,37 @@ CONTEXT_PROFILE_POLICY = {
     ],
 }
 
+ARTIFACT_COMPLETENESS_POLICY = {
+    "idea_schema": "research-idea.v2",
+    "idea_current_artifact": "complete_markdown_snapshot",
+    "idea_node_layout": "03_ideas/nodes/<idea-id>",
+    "idea_tree_mode": "flat_nodes_with_parent_ids",
+    "idea_legacy_layout_behavior": "layout_migration_required_read_only",
+    "core_identity_drift_behavior": "new_idea_required_no_automatic_branch",
+    "proposal_current_artifact": "complete_proposal",
+    "article_schema": "research-article.v6",
+    "article_current_artifact": "complete_canonical_markdown",
+    "fresh_re_evaluation": {
+        "allowed": ["current_complete_artifact_and_digest", "stable_rubric", "necessary_facts", "anonymous_must_fix_list"],
+        "forbidden": ["prior_artifact", "revision_delta", "prior_report", "prior_score", "prior_decision"],
+        "orchestrator_compares_sealed_rounds_after_return": True,
+    },
+}
+
+ARTICLE_DOCX_DELIVERY_POLICY = {
+    "content_authority": "canonical_markdown",
+    "primary_user_delivery_when_capable": "docx",
+    "display_manifest": "04_blueprint/display-asset-manifest.yaml",
+    "faithful_format_transform_only": True,
+    "required_ready_gates": [
+        "qualifying_markdown_digest_match",
+        "required_display_assets_complete",
+        "docx_content_parity_passed",
+        "full_page_render_qa_passed",
+    ],
+    "fallback_states": ["docx_generation_pending", "docx_visual_qa_pending"],
+}
+
 
 def read(path: Path) -> str:
     return path.read_text(encoding="utf-8-sig")
@@ -1664,6 +1695,8 @@ def main() -> int:
         "  isolation_mode: fresh_subagent",
         "  inline_fallback: false",
         "  prior_scores_visible_to_reviewer: false",
+        "  prior_versions_visible_to_reviewer: false",
+        "  revision_deltas_visible_to_reviewer: false",
         "  source_artifacts_read_only: true",
         "skills:",
     ]
@@ -1725,6 +1758,8 @@ def main() -> int:
         "workflow_state_machines": WORKFLOW_STATE_MACHINES,
         "scenario_eval_contract": SCENARIO_EVAL_CONTRACT,
         "context_profile_policy": CONTEXT_PROFILE_POLICY,
+        "artifact_completeness_policy": ARTIFACT_COMPLETENESS_POLICY,
+        "article_docx_delivery_policy": ARTICLE_DOCX_DELIVERY_POLICY,
     }
     lines.extend(yaml.safe_dump(state_registry, sort_keys=False, allow_unicode=True).rstrip().splitlines())
 

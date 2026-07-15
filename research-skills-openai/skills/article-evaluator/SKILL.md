@@ -15,7 +15,7 @@ Evaluate a frozen manuscript holistically with a stable seven-dimension rubric a
 - Write only `08_evaluations/evaluation-vNNN.md`. Do not edit, draft, rewrite, polish, repair, or fix source artifacts.
 - Do not read parent hidden reasoning, expected conclusions, prior evaluation scores/decisions, audit reports, panel reports, revision records, or other reviewer outputs.
 - Apply the language rubric directly; the separately delegated language assessor remains sealed from this evaluator.
-- In re-evaluation, read only the latest frozen manuscript, stable rubric, necessary factual artifacts, and optionally an anonymized issue list plus delta.
+- Require a complete frozen manuscript, current display assets, identity anchor, and matching digest. In re-evaluation, read only those current artifacts, the stable rubric, necessary facts, and optionally an anonymized must-fix list; never read prior manuscripts or deltas.
 - Report exact files read, scope, limitations, and reviewer instance ID.
 - If independent execution is unavailable, return `independent_review_pending` with a self-contained continuation brief and stop; never review inline.
 
@@ -47,7 +47,12 @@ files_read: []
 review_scope: []
 isolation_mode: fresh_subagent
 prior_scores_visible: false
+prior_versions_visible: false
+revision_delta_visible: false
 source_edits_performed: false
+reviewed_artifact_digest: "sha256:"
+complete_artifact_confirmed: true
+identity_drift_detected: false
 decision: accept | revise | reject
 findings: []
 unresolved_issues: []
@@ -66,4 +71,4 @@ supplementary_audit: {}
 
 ## Completion Check
 
-Confirm seven scored dimensions, every gate, supplementary audit, locatable prioritized findings, a gate-consistent decision, prior-score blindness, no reviewer reports read, and unchanged source files.
+Confirm seven dimensions, all gates, current displays, complete-artifact/digest/identity checks, forbidden-history blindness, locatable findings, one consistent decision, and unchanged sources.

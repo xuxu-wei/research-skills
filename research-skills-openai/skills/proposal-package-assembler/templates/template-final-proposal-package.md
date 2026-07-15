@@ -10,6 +10,9 @@
 ## 2. Final Deliverables
 - Final proposal file path:
 - Final proposal version:
+- Final proposal SHA-256:
+- Qualifying evaluation reviewed SHA-256:
+- Digest match: pass / fail
 - Submission-clean proposal file path, if already produced:
 - Optional SAP file path, if requested:
 

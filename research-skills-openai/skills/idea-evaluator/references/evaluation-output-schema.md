@@ -10,7 +10,12 @@
 - exact files read and review scope
 - `isolation_mode: fresh_subagent`
 - `prior_scores_visible: false`
+- `prior_versions_visible: false`
+- `revision_delta_visible: false`
 - `source_edits_performed: false`
+- reviewed snapshot SHA-256
+- complete snapshot confirmation
+- identity drift status
 - idea identifier and title
 - independence status
 - input sufficiency status

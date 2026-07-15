@@ -14,7 +14,7 @@ Evaluate a frozen proposal and return a defensible decision plus repair prioriti
 - Require frozen proposal, context/readiness, evidence, goal, constraint, and version artifacts. Treat sources as read-only.
 - Write only the evaluation report. Do not edit, draft, rewrite, polish, repair, or fix any source.
 - Do not read parent hidden reasoning, expected conclusions, prior scores/decisions, language-assessor reports, panel reports, or other reviewer outputs.
-- In re-evaluation, read only the latest frozen proposal, stable rubric, necessary facts, and optionally an anonymized must-fix list plus revision delta.
+- Require a complete frozen proposal and matching digest. In re-evaluation, read only that proposal, the stable rubric, necessary facts, and optionally an anonymized must-fix list; never read a prior proposal or revision delta.
 - Report exact files read, scope, limitations, and reviewer instance ID.
 - If independent execution is unavailable, return `independent_review_pending` with a continuation brief and stop; never review inline or emit `accept`.
 
@@ -42,7 +42,11 @@ files_read: []
 review_scope: []
 isolation_mode: fresh_subagent
 prior_scores_visible: false
+prior_versions_visible: false
+revision_delta_visible: false
 source_edits_performed: false
+reviewed_artifact_digest: "sha256:"
+complete_artifact_confirmed: true
 decision: accept | revise | reject
 findings: []
 unresolved_issues: []
@@ -64,4 +68,4 @@ revision_priorities: []
 
 ## Completion Check
 
-Confirm proposal-only scope, six scores, all gates/fatal flaws, reviewer defensibility, tagged locatable priorities, a gate-consistent decision, prior-score blindness, and unchanged source files.
+Confirm proposal-only scope, complete-artifact/digest binding, forbidden-history blindness, six scores, all gates/fatal flaws, defensibility, locatable priorities, one consistent decision, and unchanged sources.

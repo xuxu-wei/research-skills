@@ -137,6 +137,8 @@ def validate_main(document: dict[str, Any], text: str) -> None:
         "python scripts/audit_openai_research_plugin.py": "plugin audit",
         "python scripts/test_openai_phase4_scenarios.py --check-report": "workflow scenarios",
         "python scripts/test_openai_phase6_context.py": "context budget checks",
+        "python scripts/test_openai_artifact_completeness.py": "complete-artifact and blind re-review checks",
+        "python scripts/test_openai_article_docx_contract.py": "structural Article DOCX contract checks",
         "python scripts/test_openai_phase7_modes.py --check-report": "entry-mode checks",
         "python scripts/test_openai_phase8_corpus.py --check-report": "regression corpus",
         "python scripts/test_validate_openai_personal_readiness.py": "personal readiness contract tests",

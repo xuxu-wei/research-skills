@@ -2,7 +2,7 @@
 
 ## 1. Input Triage
 
-- Schema version: `research-idea.v1`
+- Schema version: `research-idea.v2`
 - Artifact ID:
 - Created round:
 - Input type:

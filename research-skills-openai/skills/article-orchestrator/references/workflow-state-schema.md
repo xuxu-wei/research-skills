@@ -12,7 +12,7 @@
 
 ```yaml
 workflow_state:
-  schema_version: "research-article.v5"
+  schema_version: "research-article.v6"
   workflow_id: ""
   plugin_version: ""
   project_slug: ""
@@ -41,10 +41,13 @@ workflow_state:
       literature_grounding_path: ""
       grounding_confidence: ""
       blueprint_path: ""
+      display_asset_manifest_path: ""
       methods_audit_path: ""
       audit_status: ""
       draft_path: ""
       draft_version: 0
+      draft_content_digest: ""
+      draft_identity_status: preserved | drifted | unknown
       draft_status: ""
       supplementary_path: ""
       supplementary_version: 0
@@ -58,6 +61,10 @@ workflow_state:
       cover_letter_review_path: ""
       package_path: ""
       package_status: ""
+      docx_path: ""
+      docx_content_digest: ""
+      docx_sync_status: synchronized | content_drift | not_generated
+      render_qa_status: passed | docx_visual_qa_pending | failed | not_generated
     registry:
       - artifact_id: ""
         role: ""
@@ -97,6 +104,11 @@ workflow_state:
     result_consistency_status: not_started | pass | partial | fail
     journal_instructions_verified: verified | user_supplied_only | not_checked
     ethics_declarations_status: not_started | complete | incomplete | not_applicable
+    complete_manuscript_confirmed: false
+    qualifying_digest_match: false
+    required_display_assets_complete: false
+    docx_parity_passed: false
+    docx_render_qa_passed: false
   scope_limitations: []
   unresolved_issues: []
   human_signoff:
@@ -110,7 +122,7 @@ workflow_state:
     reference_accuracy_verified: false
     corresponding_author_confirmed: false
     unresolved_issues_acknowledged: false
-  workflow_status: initialized | preprocessing | artifact_frozen | pending_review | independent_review_pending | revision_required | panel_pending | packaging_pending | blocked | stopped | human_signoff_required
+  workflow_status: initialized | preprocessing | artifact_frozen | pending_review | independent_review_pending | revision_required | panel_pending | packaging_pending | docx_generation_pending | docx_visual_qa_pending | blocked | stopped | human_signoff_required
 ```
 
 ## Field Rules
@@ -123,11 +135,12 @@ Every article artifact uses the canonical runtime record: `artifact_id`, `versio
 - `artifacts.registry`: append-only artifact inventory mirrored in `13_state/artifact-index.md`.
 - Artifact paths are relative to the project root. Use `""` for not-yet-created; use `null` for intentionally skipped.
 - `revision.history`: append-only list of revision round summaries.
-- `verification.true_isolated_evaluation_completed`: required before `human_signoff_required`; the qualifying evaluator must have read the exact current draft version.
+- `verification.true_isolated_evaluation_completed`: required before `human_signoff_required`; the qualifying evaluator must have read the exact complete current draft digest.
+- DOCX-capable workflows also require complete display assets, Markdown/DOCX parity, and passed full-page render QA before `human_signoff_required`.
 - `scope_limitations`: required when permitted non-review steps are skipped or backfilled with low confidence. Missing reviewer-class execution sets `independent_review_pending` and stops the workflow.
 - `unresolved_issues`: issues that block submission, carried forward across steps. Never silently dropped.
 - `human_signoff`: tracks which signoff items have been confirmed. Initially all `false`.
-- Any source-text change creates a new version and returns to `artifact_frozen`/`pending_review`; panel and packaging remain gated until a fresh evaluator reads that version without prior scores.
+- Any source-text, data, table-content, caption, claim, or evidence-link change creates a new canonical version and returns to review. Formatting-only DOCX fixes repeat parity/render QA without changing source.
 - Fatal findings set `blocked`; reviewer unavailability sets `independent_review_pending`. Parallel phases retain one writer per source artifact/version, and reviewers read frozen inputs only.
 
 ## State File Location

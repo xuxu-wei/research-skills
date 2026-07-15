@@ -25,7 +25,7 @@ Stop and return an input-gap report when required facts, context, or readiness a
 - Distinguish known facts, evidence-backed claims, assumptions, and unresolved items.
 - Use quantitative success criteria only when the project type and supplied information support them.
 - Do not turn uncertainty into certainty or claim novelty/feasibility without support.
-- Never overwrite a prior proposal. Save `04_drafts/proposal-vNNN.md` with lineage and change type.
+- Every `04_drafts/proposal-vNNN.md` is a complete, independently readable proposal. Never overwrite a prior proposal or register a revision plan, response, delta, or changed section as the current proposal.
 - Keep reviewer-response language out of proposal prose.
 
 ## Procedure
@@ -37,7 +37,7 @@ Stop and return an input-gap report when required facts, context, or readiness a
 5. **Maintain evidence discipline.** Attach claims to supplied evidence and expose limitations. Do not use a literature list as a substitute for gap logic.
 6. **Revise narrowly.** Apply the controller's `add | replace | condense | delete | clarify` strategy and `enter_manuscript | response_only | no_action` destination for each finding.
 7. **Write revision artifacts.** In revision mode, save a clean new proposal, `06_revisions/round-NNN/response-to-reviewers-rNNN.md`, and a change summary. Save `language-change-log-rNNN.md` for language-only work.
-8. **Handoff.** Return paths, versions, lineage, concise change summary, unresolved issues, and `evaluation` or `re-evaluation` as the next route. Do not return an accept/reject decision.
+8. **Handoff.** Return the complete current path/version/SHA-256, lineage, separate change summary, unresolved issues, and `evaluation` or `re-evaluation`. Do not return a verdict.
 
 ## Output Contract
 

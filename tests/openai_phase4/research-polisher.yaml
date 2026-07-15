@@ -5,14 +5,14 @@ execution_scope: evaluation_revision_delivery_with_entry_receipts
 workflow: research_polisher
 workflow_id: wf-phase4-research-polisher-001
 entry_mode: standard
-plugin_version: 0.7.0-preview.2
+plugin_version: 0.7.0-preview.3
 registry_schema_version: 5
 initial_artifacts:
   - artifact_id: polisher-dossier-v1
     version_id: d001
     workflow_id: wf-phase4-research-polisher-001
     round_id: entry-001
-    plugin_version: 0.7.0-preview.2
+    plugin_version: 0.7.0-preview.3
     source_skill: article-context-builder
     created_by_instance_id: article-context-builder-polisher-001
     based_on: []
@@ -59,7 +59,7 @@ initial_artifacts:
     version_id: e001
     workflow_id: wf-phase4-research-polisher-001
     round_id: entry-001
-    plugin_version: 0.7.0-preview.2
+    plugin_version: 0.7.0-preview.3
     source_skill: research-opportunity-mapper
     created_by_instance_id: research-opportunity-mapper-polisher-001
     based_on: []
@@ -230,7 +230,7 @@ events:
         version_id: sr001
         workflow_id: wf-phase4-research-polisher-001
         round_id: strategy-001
-        plugin_version: 0.7.0-preview.2
+        plugin_version: 0.7.0-preview.3
         source_skill: research-polisher-strategy-reviewer
         created_by_instance_id: polisher-strategist-scientific-001
         based_on: [polisher-dossier-v1@d001, polisher-evidence-v1@e001]
@@ -350,7 +350,7 @@ events:
         version_id: sr002
         workflow_id: wf-phase4-research-polisher-001
         round_id: strategy-001
-        plugin_version: 0.7.0-preview.2
+        plugin_version: 0.7.0-preview.3
         source_skill: research-polisher-strategy-reviewer
         created_by_instance_id: polisher-strategist-practical-001
         based_on: [polisher-dossier-v1@d001, polisher-evidence-v1@e001]
@@ -470,7 +470,7 @@ events:
         version_id: sr003
         workflow_id: wf-phase4-research-polisher-001
         round_id: strategy-001
-        plugin_version: 0.7.0-preview.2
+        plugin_version: 0.7.0-preview.3
         source_skill: research-polisher-strategy-reviewer
         created_by_instance_id: polisher-strategist-dissemination-001
         based_on: [polisher-dossier-v1@d001, polisher-evidence-v1@e001]
@@ -503,7 +503,7 @@ events:
         version_id: v001
         workflow_id: wf-phase4-research-polisher-001
         round_id: round-001
-        plugin_version: 0.7.0-preview.2
+        plugin_version: 0.7.0-preview.3
         source_skill: research-polisher-plan-assembler
         created_by_instance_id: polisher-assembler-001
         based_on: [polisher-dossier-v1@d001, polisher-evidence-v1@e001]
@@ -540,7 +540,7 @@ events:
         version_id: sm001
         workflow_id: wf-phase4-research-polisher-001
         round_id: round-001
-        plugin_version: 0.7.0-preview.2
+        plugin_version: 0.7.0-preview.3
         source_skill: research-polisher-plan-assembler
         created_by_instance_id: polisher-assembler-001
         based_on: [polisher-dossier-v1@d001, polisher-evidence-v1@e001, polisher-strategy-scientific-report-v1@sr001, polisher-strategy-practical-report-v1@sr002, polisher-strategy-dissemination-report-v1@sr003, polisher-portfolio-v1@v001]
@@ -668,7 +668,7 @@ events:
         version_id: er001
         workflow_id: wf-phase4-research-polisher-001
         round_id: round-001
-        plugin_version: 0.7.0-preview.2
+        plugin_version: 0.7.0-preview.3
         source_skill: research-polisher-methodology-publishability-reviewer
         created_by_instance_id: polisher-method-reviewer-001
         based_on: [polisher-dossier-v1@d001, polisher-evidence-v1@e001, polisher-portfolio-v1@v001]
@@ -696,7 +696,7 @@ events:
         version_id: rp002
         workflow_id: wf-phase4-research-polisher-001
         round_id: round-002
-        plugin_version: 0.7.0-preview.2
+        plugin_version: 0.7.0-preview.3
         source_skill: research-polisher-plan-assembler
         created_by_instance_id: polisher-assembler-revision-001
         based_on: [polisher-portfolio-v1@v001, polisher-strategy-manifest-v1@sm001, polisher-evaluation-v1@er001]
@@ -815,7 +815,7 @@ events:
         version_id: sr004
         workflow_id: wf-phase4-research-polisher-001
         round_id: round-002
-        plugin_version: 0.7.0-preview.2
+        plugin_version: 0.7.0-preview.3
         source_skill: research-polisher-strategy-reviewer
         created_by_instance_id: polisher-strategist-scientific-002
         based_on: [polisher-dossier-v1@d001, polisher-evidence-v1@e001, polisher-revision-plan-v2@rp002]
@@ -851,7 +851,7 @@ events:
         version_id: v002
         workflow_id: wf-phase4-research-polisher-001
         round_id: round-002
-        plugin_version: 0.7.0-preview.2
+        plugin_version: 0.7.0-preview.3
         source_skill: research-polisher-plan-assembler
         created_by_instance_id: polisher-assembler-002
         based_on: [polisher-dossier-v1@d001, polisher-evidence-v1@e001]
@@ -888,7 +888,7 @@ events:
         version_id: sm002
         workflow_id: wf-phase4-research-polisher-001
         round_id: round-002
-        plugin_version: 0.7.0-preview.2
+        plugin_version: 0.7.0-preview.3
         source_skill: research-polisher-plan-assembler
         created_by_instance_id: polisher-assembler-002
         based_on: [polisher-dossier-v1@d001, polisher-evidence-v1@e001, polisher-portfolio-v1@v001, polisher-strategy-manifest-v1@sm001, polisher-revision-plan-v2@rp002, polisher-strategy-scientific-report-v2@sr004, polisher-strategy-practical-report-v1@sr002, polisher-strategy-dissemination-report-v1@sr003, polisher-portfolio-v2@v002]
@@ -918,7 +918,7 @@ events:
         version_id: rd002
         workflow_id: wf-phase4-research-polisher-001
         round_id: round-002
-        plugin_version: 0.7.0-preview.2
+        plugin_version: 0.7.0-preview.3
         source_skill: research-polisher-plan-assembler
         created_by_instance_id: polisher-assembler-002
         based_on: [polisher-portfolio-v1@v001, polisher-revision-plan-v2@rp002, polisher-portfolio-v2@v002]
@@ -1018,7 +1018,7 @@ events:
         version_id: er002
         workflow_id: wf-phase4-research-polisher-001
         round_id: round-002
-        plugin_version: 0.7.0-preview.2
+        plugin_version: 0.7.0-preview.3
         source_skill: research-polisher-methodology-publishability-reviewer
         created_by_instance_id: polisher-method-reviewer-002
         based_on: [polisher-dossier-v1@d001, polisher-evidence-v1@e001, polisher-portfolio-v2@v002]
@@ -1046,7 +1046,7 @@ events:
         version_id: fi001
         workflow_id: wf-phase4-research-polisher-001
         round_id: selection-001
-        plugin_version: 0.7.0-preview.2
+        plugin_version: 0.7.0-preview.3
         source_skill: research-polisher-plan-assembler
         created_by_instance_id: polisher-assembler-003
         based_on: [polisher-portfolio-v2@v002, polisher-strategy-manifest-v2@sm002, polisher-evaluation-v2@er002]
@@ -1086,7 +1086,7 @@ events:
         version_id: pkg001
         workflow_id: wf-phase4-research-polisher-001
         round_id: selection-001
-        plugin_version: 0.7.0-preview.2
+        plugin_version: 0.7.0-preview.3
         source_skill: research-polisher-plan-assembler
         created_by_instance_id: polisher-assembler-004
         based_on: [polisher-dossier-v1@d001, polisher-evidence-v1@e001, polisher-portfolio-v2@v002, polisher-strategy-manifest-v2@sm002, polisher-evaluation-v2@er002, polisher-review-finding-index-v1@fi001, polisher-revision-plan-v2@rp002, polisher-revision-delta-v2@rd002]

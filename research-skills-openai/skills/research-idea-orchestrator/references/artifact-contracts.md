@@ -6,7 +6,7 @@
 - [Global Rules](#global-rules)
 - [Research Context Brief](#research-context-brief)
 - [Evidence and Opportunity Artifacts](#evidence-and-opportunity-artifacts)
-- [Candidate Idea](#candidate-idea)
+- [Complete Idea Snapshot](#complete-idea-snapshot)
 - [Methodology-Statistics Preflight](#methodology-statistics-preflight)
 - [Idea Evaluation](#idea-evaluation)
 - [Lineage Record](#lineage-record)
@@ -28,7 +28,7 @@ This is the canonical contract for artifacts passed between `research-idea` skil
 
 ```yaml
 research_context_brief:
-  schema_version: "research-idea.v1"
+  schema_version: "research-idea.v2"
   artifact_id: "context-001"
   source_skill: "research-context-builder"
   created_round: 1
@@ -77,7 +77,7 @@ research_context_brief:
 
 ```yaml
 evidence_packet:
-  schema_version: "research-idea.v1"
+  schema_version: "research-idea.v2"
   artifact_id: "evidence-001"
   source_skill: "research-opportunity-mapper"
   created_round: 1
@@ -104,45 +104,48 @@ opportunity:
   recommended_generation_paths: []
 ```
 
-## Candidate Idea
+## Complete Idea Snapshot
+
+The authoritative body is
+`03_ideas/nodes/<idea-id>/snapshots/idea-snapshot-vNNN.md`. Follow
+`idea-artifact-lifecycle.md`; do not serialize the body a second time in YAML.
 
 ```yaml
-idea:
-  schema_version: "research-idea.v1"
+idea_snapshot_frontmatter:
+  schema_version: "research-idea.v2"
+  plugin_version: ""
+  artifact_id: "idea-I01-001-v001"
   idea_id: "I01-001"
-  previous_ids: []
+  version_id: "v001"
+  parent_idea_ids: []
+  based_on: []
   source_skill: "multi-path-idea-generator"
   created_round: 1
-  origin_round: 1
-  revision_round: 0
-  status: draft | promoted | revise | reframe | merge | reject | backup | evaluation_failed
-  title: ""
-  one_sentence_summary: ""
-  research_question: ""
-  hypothesis_or_objective: ""
-  endpoint_or_metric: ""
-  data_source_or_evidence_base: ""
-  minimal_experiment_or_analysis: ""
-  value_claim: ""
-  novelty_claim:
-    text: ""
-    confidence: high | moderate | low | speculative | unverified
-  supporting_opportunity_ids: []
-  generation_paths: []
-  assumptions_and_uncertainties: []
-  risks_or_objections: []
-  lineage:
-    lineage_id: "L-I01-001"
-    parent_idea_ids: []
-    variant_type: original | expanded | refined | merged | reframed | salvaged
-    changes_from_parent: []
+  status: draft | promoted | revise | reject | backup | evaluation_failed
+  frozen: true
+
+idea_node:
+  current_snapshot_id: "idea-I01-001-v001"
+  current_version: "v001"
+  current_path: "03_ideas/nodes/I01-001/snapshots/idea-snapshot-v001.md"
+  current_digest: "sha256:"
+  parent_idea_ids: []
+  lineage_id: "L-I01-001"
+  identity_anchor:
+    primary_research_question: ""
+    primary_objective: ""
+    study_object: ""
+    core_data_or_evidence_base: ""
+    primary_unit_of_inference: ""
+  identity_status: preserved | drifted
+  qualifying_evaluation_ref: ""
 ```
 
 ## Methodology-Statistics Preflight
 
 ```yaml
 methodology_statistics_preflight:
-  schema_version: "research-idea.v1"
+  schema_version: "research-idea.v2"
   preflight_id: "P001"
   source_skill: "methodology-statistics-preflight"
   created_round: 1
@@ -160,7 +163,7 @@ methodology_statistics_preflight:
 
 ```yaml
 idea_evaluation:
-  schema_version: "research-idea.v1"
+  schema_version: "research-idea.v2"
   evaluation_id: "E001"
   source_skill: "idea-evaluator"
   created_round: 1
@@ -168,6 +171,11 @@ idea_evaluation:
   independence_status: valid | invalid
   evaluator_generation_involvement: none | generated | revised | unknown
   input_sufficiency_status: sufficient | insufficient
+  reviewed_snapshot_digest: "sha256:"
+  complete_snapshot_confirmed: true | false
+  identity_drift_detected: true | false
+  prior_versions_visible: false
+  revision_delta_visible: false
   dimension_scores:
     novelty: 0
     feasibility: 0
@@ -190,7 +198,7 @@ idea_evaluation:
 
 ```yaml
 idea_lineage_record:
-  schema_version: "research-idea.v1"
+  schema_version: "research-idea.v2"
   lineage_id: "L-I01-001"
   idea_id: "I01-001"
   parent_idea_ids: []
@@ -211,19 +219,27 @@ idea_lineage_record:
 
 ```yaml
 promoted_idea_package:
-  schema_version: "research-idea.v1"
+  schema_version: "research-idea.v2"
   artifact_id: "portfolio-package-001"
   source_skill: "idea-portfolio-assembler"
   created_round: 1
   idea_id: "I01-001"
+  snapshot_ref: "03_ideas/nodes/I01-001/snapshots/idea-snapshot-v001.md"
+  snapshot_digest: "sha256:"
   title: ""
+  one_sentence_summary: ""
   research_question: ""
-  hypothesis_or_objective: ""
-  endpoint_or_metric: ""
-  data_source_or_evidence_base: ""
-  minimal_experiment_or_analysis: ""
-  value_claim: ""
-  novelty_claim: ""
+  research_objectives: []
+  research_content_and_work_packages: []
+  core_hypothesis: ""
+  scientific_significance: ""
+  relevance_impact_and_innovation: ""
+  potential_applications: ""
+  data_materials_and_evidence_base: ""
+  research_methods: ""
+  required_analyses_and_evidence: []
+  feasibility_resources_and_constraints: []
+  risks_assumptions_uncertainties_and_stop_conditions: []
   evidence_summary: ""
   evidence_limitations: []
   evaluation_summary: ""

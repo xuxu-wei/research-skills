@@ -25,7 +25,7 @@ Each isolated subagent receives:
 - User goal and target journal (required)
 - Scope limitations (if applicable)
 - Stable rubric and necessary factual artifacts (required for evaluation)
-- An anonymized must-fix list and revision delta only when fix verification is required; never prior scores or decisions
+- An anonymized must-fix list only when fix verification is required; never prior versions, deltas, reports, scores, or decisions
 
 ## Subagent Prohibitions
 

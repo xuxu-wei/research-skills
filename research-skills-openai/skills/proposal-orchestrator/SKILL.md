@@ -39,7 +39,7 @@ Skipped artifacts remain `null` with `evaluation_scope_limitation`; do not silen
 4. **Triage.** Delegate `proposal-readiness-triage`. Continue on `ready_for_proposal`; ask only blocking questions on `needs_clarification`; route to idea refinement or independent methodology preflight when requested; stop on `not_proposalizable_yet`.
 5. **Draft.** Route initial or targeted proposal writing to `proposal-drafter`.
 6. **Evaluate.** Delegate a fresh `proposal-evaluator`. Route `accept` forward, `revise` to revision, and `reject` to stop. Do not treat evaluator output as a drafting instruction without a revision plan.
-7. **Revise and re-evaluate.** Route findings through `proposal-refinement-controller`; `proposal-drafter` writes a new proposal plus revision plan, response, and delta under `06_revisions/round-NNN/`. Delegate a fresh evaluator using the latest proposal, stable rubric, necessary facts, and optionally an anonymized must-fix list plus delta. Compare sealed rounds only here; stop after two rounds by default or on `stop_no_gain`.
+7. **Revise and re-evaluate.** Route findings through `proposal-refinement-controller`; `proposal-drafter` writes a complete new proposal plus separate revision artifacts. Give a fresh evaluator only the latest proposal, its digest, stable rubric, necessary facts, and optionally an anonymized must-fix list. Never expose the prior proposal, delta, report, score, or decision; compare sealed rounds and the delta only here.
 8. **Run optional SAP.** Only when explicitly requested or required by the target output: delegate `methodology-statistics-preflight`, route writing to `sap-writer`, delegate `sap-evaluator`, and route fixable findings through `sap-refinement-controller` plus a fresh SAP evaluator.
 9. **Panel.** Treat `proposal-review-panel` as a role contract. Dispatch one fresh subagent per selected role concurrently against the same frozen proposal. Blind reviewers receive neither context/evaluation/delta/unresolved-issue files nor peer outputs. Aggregate only after all required roles return and preserve dissent.
 10. **Resolve panel route.** A credible fatal/blocking finding overrides supportive labels. Substantive fixes return to revision and fresh evaluation; unfixable findings stop. If panel requires SAP, run the SAP branch before assembly.
@@ -100,4 +100,4 @@ phase_summary:
 
 ## Completion Check
 
-Confirm state/index consistency, unique reviewer instance IDs, prior-score blindness, read-only reviewer scope, new-version/new-evaluator pairing, explicit SAP status, complete panel membership, visible dissent, justified package status, and human-review-only final handoff.
+Confirm state/index, complete proposal/digest, forbidden-history blindness, fresh read-only reviewers, SAP/panel status, visible dissent, justified package state, and human-only handoff.

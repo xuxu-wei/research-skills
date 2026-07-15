@@ -6,7 +6,7 @@ This file defines the structured object produced by `research-context-builder`. 
 
 ```yaml
 research_context_brief:
-  schema_version: "research-idea.v1"
+  schema_version: "research-idea.v2"
   artifact_id: "context-001"
   source_skill: "research-context-builder"
   created_round: 1

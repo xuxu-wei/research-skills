@@ -12,7 +12,7 @@ Assemble frozen manuscript, frontmatter, cover letter, figures/tables, supplemen
 
 - Run only in a fresh independent subagent or delegated thread, never in generator, drafter, revision, evaluator, or orchestrator context.
 - Require frozen artifact IDs, paths, and versions. Treat every source artifact as read-only.
-- Write only package copies, manifest/index, verification reports, risk matrix, and human sign-off checklist under `12_package/**`.
+- Write only faithful package copies (including DOCX), manifest/index, parity/render verification, risk matrix, and human sign-off checklist under `12_package/**`.
 - Do not edit, draft, rewrite, polish, repair, fix, re-score, or hide findings in any source artifact.
 - Read reviewer outputs only as declared frozen inputs needed to preserve findings; do not reinterpret dissent into consensus.
 - Report exact files read, review scope, limitations, and reviewer instance ID.
@@ -20,18 +20,19 @@ Assemble frozen manuscript, frontmatter, cover letter, figures/tables, supplemen
 
 ## Allowed Inputs and Writes
 
-Read only declared frozen files from `06_drafts/**`, `11_frontmatter/**`, `11_cover-letter/**`, `04_blueprint/**`, `08_evaluations/**`, `07_claim-audit/**`, `05_audit/**`, `10_panel/**`, and `09_revisions/**`. Write only `12_package/**`. Do not call drafters, architects, evaluators, or other reviewers.
+Read only declared frozen files from `06_drafts/**`, `11_frontmatter/**`, `11_cover-letter/**`, `04_blueprint/**`, `08_evaluations/**`, `07_claim-audit/**`, `05_audit/**`, `10_panel/**`, and `09_revisions/**`. Write only `12_package/**`. DOCX-capable document tooling may perform faithful formatting and render QA; do not call content drafters, architects, evaluators, or reviewers.
 
 ## Procedure
 
 1. **Validate provenance.** Confirm the latest manuscript version matches the latest qualifying evaluation and the state/index current pointer. Treat unresolvable mismatches as blocking; recoverable mismatches cap status at `ready_for_author_check`.
 2. **Inventory artifacts.** Record artifact ID, type, path, version, and `present | missing | incomplete` in the package manifest.
-3. **Assemble copies.** Build the journal-ordered manuscript package and keep the cover letter separate unless verified instructions require otherwise. Never alter source wording.
+3. **Assemble copies.** Bind the complete canonical Markdown digest. When document tooling is available, generate the primary user-facing DOCX, embed native tables and available figures from the display manifest, and never alter source wording or data.
 4. **Map reporting checklist.** Record standard item, manuscript location, and `addressed | partially_addressed | not_addressed | not_applicable`.
-5. **Verify submission requirements.** Check reference metadata, table/figure/result consistency, current journal instructions, supplementary limits/formats/cross-references, data/code availability statements, and required approval/consent/declaration/disclosure items.
-6. **Preserve review risk.** Carry forward blueprint risks, audits, evaluation, panel reports, conflicts, dissent, fatal findings, and unresolved issues with stable source references.
-7. **Create human sign-off.** Leave author data/statistics/contribution/declaration/reference/journal/figure confirmations pending; never infer a signature or external submission.
-8. **Assign state/status.** Map unavailable review to `independent_review_pending`, fatal/blocking findings to `blocked`, unfixable/no-gain to `stopped`, and a verified unchanged package to `human_signoff_required`; retain package-detail labels only as subordinate status.
+5. **Verify package parity.** Compare normalized DOCX headings, body, table cells, and captions with the frozen Markdown/manifest; verify display numbering, callouts, supplements, and result consistency.
+6. **Render DOCX.** Render every page to PNG, inspect at 100%, fix formatting-only defects, and re-render. Content drift routes back to faithful composition; required missing assets or unavailable render QA cap status below human sign-off.
+7. **Preserve review risk.** Carry forward blueprint risks, audits, evaluation, panel reports, conflicts, dissent, fatal findings, and unresolved issues with stable source references.
+8. **Create human sign-off.** Leave author data/statistics/contribution/declaration/reference/journal/figure confirmations pending; never infer a signature or external submission.
+9. **Assign state/status.** Map unavailable review to `independent_review_pending`, DOCX absence to `docx_generation_pending`, unavailable render to `docx_visual_qa_pending`, fatal/blocking findings to `blocked`, and only a synchronized/rendered unchanged package to `human_signoff_required`.
 
 ## Review Provenance
 
@@ -50,6 +51,10 @@ review_scope: []
 isolation_mode: fresh_subagent
 prior_scores_visible: false
 source_edits_performed: false
+canonical_content_digest: "sha256:"
+docx_content_digest: "sha256:"
+docx_sync_status: synchronized | content_drift | not_generated
+render_qa_status: passed | docx_visual_qa_pending | failed | not_generated
 decision:
 findings: []
 unresolved_issues: []
@@ -81,6 +86,7 @@ Any unresolved blocking dissent or fatal finding caps package status at `blocked
 ## Status Caps
 
 - Missing or partial required artifacts -> `partial` or `blocked`.
+- Missing required display assets, DOCX generation, content parity, or render QA -> `docx_generation_pending`, `docx_visual_qa_pending`, or `blocked`; never `human_signoff_required`.
 - Unverified journal requirements, references, or result consistency -> at most `ready_for_author_check`.
 - Minor/major unresolved revisions -> corresponding pending/required status.
 - All gates passed, current/evaluated versions equal, and instructions verified -> `human_signoff_required` with subordinate `ready_for_author_signoff`.
@@ -88,7 +94,7 @@ Any unresolved blocking dissent or fatal finding caps package status at `blocked
 
 ## Outputs
 
-Write `submission-package.md`, `package-manifest.md`, `reporting-checklist-mapping.md`, `submission-readiness-summary.md`, `reviewer-risk-matrix.md`, and `human-signoff-checklist.md` under `12_package/`.
+Write the verified `manuscript-vNNN.docx`, `submission-package.md`, `package-manifest.md`, `docx-parity-and-render-report.md`, `reporting-checklist-mapping.md`, `submission-readiness-summary.md`, `reviewer-risk-matrix.md`, and `human-signoff-checklist.md` under `12_package/`.
 
 ## Conditional Resources
 
@@ -97,7 +103,8 @@ Write `submission-package.md`, `package-manifest.md`, `reporting-checklist-mappi
 - Read `references/supplementary-compliance-guide.md` when supplementary items exist or are required.
 - Read `article-orchestrator/references/artifact-review-and-submission-contracts.md` for package and sign-off schemas.
 - Read `article-orchestrator/references/artifact-naming-and-directory-rules.md` when validating paths and versions.
+- Read `article-orchestrator/references/article-docx-delivery-contract.md` whenever generating, synchronizing, or verifying DOCX and display assets.
 
 ## Completion Check
 
-Confirm manifest completeness, version consistency, checklist locations, supplementary compliance, visible dissent/fatal findings, justified status caps, unchanged source artifacts, and a final state that still requires human review and sign-off.
+Confirm canonical/evaluated digest equality, DOCX parity/render pass, display assets, manifest completeness, visible dissent/fatal findings, justified caps, unchanged sources, and a final state that still requires human review.

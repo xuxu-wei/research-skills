@@ -7,7 +7,7 @@ This reference defines the minimum input objects required by `idea-portfolio-ass
 - `research_context_brief`
 - `evidence_map_summary`
 - `opportunity_map_summary`
-- `idea_pool`
+- current complete Idea snapshots, node pointers, and SHA-256 digests
 - `idea_evaluation_reports`
 - `idea_lineage_records`
 - `orchestrator_decisions`
@@ -25,12 +25,13 @@ Do not assemble a final portfolio unless each candidate idea has:
 
 - idea identifier;
 - title or short label;
-- research question or objective;
+- all twelve complete-snapshot sections;
+- matching current node pointer and SHA-256;
 - evidence / opportunity reference;
-- independent evaluation report;
+- independent evaluation report that confirms the same digest and complete snapshot;
 - hard gate status;
 - recommendation from `idea-evaluator`;
 - lineage record or parent/source note.
 - a completed adversarial panel report with no unresolved blocking finding when the idea is marked `ready` or `conditional` for proposal handoff.
 
-If independent evaluation is missing, produce `portfolio-assembly-failure-report`.
+If the complete snapshot, digest match, preserved identity, or independent evaluation is missing, produce `portfolio-assembly-failure-report`.

@@ -53,9 +53,9 @@ Revision loop limits, targeted repair rules, independent re-evaluation, and stop
 After each revision round:
 
 1. Create a new independent evaluator instance; never reuse the prior evaluator context.
-2. Give it only the latest frozen draft, stable rubric, necessary factual artifacts, and—if required—an anonymized must-fix list plus revision delta. Do not provide prior scores or decisions.
+2. Give it only the latest complete frozen draft and digest, current display assets, stable rubric, necessary facts, and—if required—an anonymized must-fix list. Do not provide a prior draft, delta, report, score, or decision.
 3. Seal the new report before any cross-round comparison.
-4. The orchestrator compares the current and prior sealed reports with the revision delta, performs the Thesis Integrity check, and decides whether the result improved, requires another permitted revision, or is `stop_no_gain`.
+4. After the fresh report returns, the orchestrator compares sealed reports with the separately held delta, performs the Thesis Integrity check, and decides improvement, another permitted revision, or `stop_no_gain`.
 5. If the core claim became less clear, route to `revise` with a subtractive repair direction.
 6. If a fresh evaluator cannot run, return `independent_review_pending` with a continuation brief and stop. Never re-evaluate inline.
 
@@ -64,5 +64,6 @@ After each revision round:
 Before routing to re-evaluation, verify that:
 
 - The delta is not empty and does not contain only vague claims such as "polished expression" or "improved clarity."
+- The revised manuscript is complete, its digest is registered, and its blueprint identity anchor is preserved; otherwise stop or route back before evaluation.
 - Every evaluator concern is marked `addressed`, `partially_addressed`, or `not_addressed_with_reason`.
 - An insufficient delta returns to `article-refinement-controller` for completion before re-evaluation.

@@ -32,9 +32,9 @@
   01_readiness/                         # Readiness Triage Report
   02_context/                           # Article Context Brief
   03_literature/                        # Literature Grounding Report
-  04_blueprint/                         # Article Blueprint + EDP + EPL + Supplementary Index
+  04_blueprint/                         # Blueprint + EDP/EPL + display-asset-manifest.yaml
   05_audit/                             # Methods & Statistics Audit Report
-  06_drafts/                            # manuscript-vNNN.md + supplementary-vNNN.md
+  06_drafts/                            # canonical manuscript-vNNN.md + synchronized user-facing DOCX
   07_claim-audit/                       # Claim Audit Reports
   08_evaluations/                       # Evaluation Reports
   09_revisions/                         # Revision rounds
@@ -43,7 +43,7 @@
   10_panel/                             # Panel Report + reviewer briefs
   11_frontmatter/                       # Abstract, Key Points, Title, Highlights
   11_cover-letter/                      # Cover letter and cover-letter-only reviews
-  12_package/                           # Submission Package
+  12_package/                           # Verified DOCX and human-review package
   13_state/                             # workflow-state.yaml, artifact-index.md
   14_delegates/                         # Isolated subagent briefs (audit trail)
 ```
@@ -86,6 +86,7 @@ frozen
 06_drafts/manuscript-v001.md
 06_drafts/manuscript-v002.md
 06_drafts/manuscript-v003.md
+06_drafts/manuscript-v003.docx
 ```
 
 ### Supplementary Materials
@@ -156,6 +157,8 @@ Run `academic-language-assessor` for English, Chinese, or bilingual manuscript t
 
 ```
 12_package/submission-package.md
+12_package/manuscript-vNNN.docx
+12_package/docx-parity-and-render-report.md
 12_package/reporting-checklist-mapping.md
 12_package/reviewer-risk-matrix.md
 12_package/human-signoff-checklist.md
@@ -184,6 +187,7 @@ Run `academic-language-assessor` for English, Chinese, or bilingual manuscript t
 ### Overwrite Prohibition
 
 - Prior manuscript versions must **never** be overwritten or deleted.
+- A DOCX is derived from the same-version canonical Markdown. It never replaces the current Markdown pointer or authorizes source edits.
 - `13_state/workflow-state.yaml` is the single authoritative pointer to the current version.
 - When a new version is created, the previous version's path is recorded in revision history.
 

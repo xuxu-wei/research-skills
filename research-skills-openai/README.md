@@ -76,12 +76,12 @@ python scripts/codex_plugin_converter.py --mode codex --install --fail-on-invali
 
 The helper preserves the base version, including any prerelease identifier, and
 synchronizes the manifest and workflow registry, for example
-`0.7.0-preview.2` to `0.7.0-preview.2+codex.local-YYYYMMDD-HHMMSS`. Never commit
+`0.7.0-preview.3` to `0.7.0-preview.3+codex.local-YYYYMMDD-HHMMSS`. Never commit
 or push a `+codex.local-*` version to the rolling Preview channel.
 
 ## Inventory and invocation policy
 
-The maintained `0.7.0-preview.2` source contains 49 skill contracts and declares
+The maintained `0.7.0-preview.3` source contains 49 skill contracts and declares
 seven discoverable entry skills. Six currently set
 `allow_implicit_invocation: true`:
 
@@ -101,10 +101,24 @@ orchestrated delegation.
 
 A local audit on 2026-07-14 confirmed that the GitHub marketplace is registered,
 the plugin is enabled, and Codex currently holds the coherent
-`0.7.0-preview.1` cache. The installation mechanism is therefore implemented.
-The working-tree `0.7.0-preview.2` cannot be installed from GitHub until it is
+`0.7.0-preview.2` cache. The installation mechanism is therefore implemented.
+The working-tree `0.7.0-preview.3` cannot be installed from GitHub until it is
 committed and pushed; Phase 7 records the post-push upgrade and fresh-task
 discovery rather than treating the older cache as current-version evidence.
+
+## Artifact format defaults
+
+- Idea uses `research-idea.v2`: one flat node directory per Idea, complete
+  versioned Markdown snapshots, concise YAML indexes, and a logical tree derived
+  from parent IDs. Revisions stay in the same node; identity drift requires a
+  user-started new Idea workflow.
+- Proposal and Article re-evaluators receive only the complete current artifact,
+  its digest, stable facts/rubric, and an optional anonymous must-fix list. Prior
+  versions, deltas, reports, scores, and decisions remain sealed.
+- Article uses complete Markdown as the audit source and DOCX as the preferred
+  user-facing format when document tooling is available. DOCX packages integrate
+  native tables and available figures and must pass content-parity and full-page
+  render QA before human sign-off.
 
 ## Entry-skill quickstarts
 
@@ -129,8 +143,8 @@ Use $article-orchestrator in [standard | fast_track_draft | fast_track_draft_and
 ```
 
 - Minimum input: an entry mode, study summary, and paths to available study or manuscript artifacts.
-- Expected output: the requested blueprint, section, draft, or verified human-review package with lineage and review status.
-- Stop states: `blocked`, `stopped`, `independent_review_pending`, or `context_handoff_required`.
+- Expected output: the requested blueprint/section or a complete canonical manuscript plus synchronized DOCX and integrated table/figure package when document tooling is available.
+- Stop states: `blocked`, `stopped`, `independent_review_pending`, `docx_generation_pending`, `docx_visual_qa_pending`, or `context_handoff_required`.
 - Resume: paste the continuation brief and provide the requested artifact, reviewer availability, or current frozen version.
 
 ### `$perspective-orchestrator`
@@ -162,8 +176,8 @@ Use $research-idea-orchestrator in [standard | resume_candidates | portfolio_onl
 ```
 
 - Minimum input: a research direction or practical problem and one usable context, evidence, funding, or data cue.
-- Expected output: a ranked PI-review portfolio with candidate lineage, independent evaluations, dissent, and handoff status.
-- Stop states: `blocked`, `stopped`, `independent_review_pending`, or `context_handoff_required`.
+- Expected output: a self-contained PI-review portfolio built from complete Idea snapshots, with node/tree lineage, digest-bound evaluations, dissent, and handoff status.
+- Stop states: `blocked`, `stopped`, `new_idea_required`, `layout_migration_required`, `independent_review_pending`, or `context_handoff_required`.
 - Resume: paste the continuation brief and provide the missing context, evidence, frozen candidate set, or reviewer capacity.
 
 ### `$research-polisher-orchestrator`
@@ -196,6 +210,8 @@ python scripts/audit_openai_research_proposal.py
 python scripts/audit_openai_research_perspective.py
 python scripts/test_openai_release_contract.py
 python scripts/sync_openai_fixture_versions.py
+python scripts/test_openai_artifact_completeness.py
+python scripts/test_openai_article_docx_contract.py
 python scripts/test_openai_phase6_context.py
 python scripts/test_openai_phase2_phase3.py
 python scripts/test_openai_phase4_scenarios.py --check-report

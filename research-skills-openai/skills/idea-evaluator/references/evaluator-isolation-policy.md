@@ -13,7 +13,8 @@ Mark evaluation invalid if:
 - evaluator invents evidence
 - evaluator ignores hard gates
 - evaluator omits scores, gates, recommendation, or repair direction
-- evaluator reads parent hidden reasoning, prior scores/decision, or another reviewer output
+- evaluator reads parent hidden reasoning, a prior snapshot, revision delta, prior score/decision, or another reviewer output
+- evaluator evaluates a partial/delta-only Idea or cannot bind the current digest
 - evaluator edits any source artifact
 
 ## Recovery

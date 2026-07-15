@@ -1,135 +1,62 @@
-# Research Idea Artifact Naming and Directory Rules
+# Research Idea Naming and Index Rules
 
-## Contents
+Use `idea-artifact-lifecycle.md` as the canonical directory, snapshot, identity,
+and review-visibility contract. This file only defines compact names and indexes.
 
-<!-- toc:start -->
-- [Project Directory Layout](#project-directory-layout)
-- [Directory Rules](#directory-rules)
-- [Cross-Package Version Fields](#cross-package-version-fields)
-- [Idea And Round Naming](#idea-and-round-naming)
-- [Portfolio And Handoff Naming](#portfolio-and-handoff-naming)
-- [Revision Record Naming](#revision-record-naming)
-- [Artifact Index](#artifact-index)
-<!-- toc:end -->
-
-Use this file to keep research-idea workflow artifacts ordered, versioned, and traceable across generation rounds, evaluation, adversarial review, portfolio assembly, and proposal handoff.
-
-## Project Directory Layout
+## Project and node names
 
 ```text
-<workspace>/research-idea-projects/<project-slug>/
-  00_input/          # raw user materials and constraints
-  01_context/        # research context brief
-  02_evidence/       # evidence, opportunity, and limitation packets
-  03_ideas/          # generated and revised idea pools
-  04_preflight/      # methodology/statistics preflight reports
-  05_evaluations/    # independent idea evaluation reports
-  06_adversarial/    # pre-proposal adversarial reviews
-  07_portfolio/      # final and interim idea portfolios
-  08_handoff/        # proposal handoff packages
-  09_state/          # workflow-state.yaml, artifact-index.md, round manifests
-  10_delegates/      # isolated subagent briefs and outputs
+research-idea-projects/<project-slug>/
+03_ideas/idea-tree.yaml
+03_ideas/candidate-set-v001.yaml
+03_ideas/nodes/I01-001/
+03_ideas/nodes/I01-001/node.yaml
+03_ideas/nodes/I01-001/snapshots/idea-snapshot-v001.md
+03_ideas/nodes/I01-001/snapshots/idea-snapshot-v002.md
+03_ideas/nodes/I01-001/revisions/round-001/revision-plan.md
+03_ideas/nodes/I01-001/revisions/round-001/revision-delta.md
+03_ideas/nodes/I01-001/reviews/preflight-r001.md
+03_ideas/nodes/I01-001/reviews/evaluation-r001.md
+03_ideas/nodes/I01-001/adversarial/<role>-r001.md
+03_ideas/nodes/I01-001/handoff/proposal-handoff-v001.md
+04_portfolio/research-idea-portfolio-v001.md
+05_state/workflow-state.yaml
+05_state/artifact-index.md
+05_state/round-001-manifest.md
+06_delegates/<review-id>-brief.md
 ```
 
-## Directory Rules
+Use canonical Idea IDs from `idea-id-and-lineage-rules.md`. A snapshot version
+is monotonic within one node. Never recycle a node ID or overwrite a snapshot.
 
-- Two-digit prefixes keep filesystem order aligned with workflow order.
-- Store all workflow artifacts in the user project directory, not inside the skill package.
-- `09_state/workflow-state.yaml` is the authoritative current pointer store.
-- `09_state/artifact-index.md` is the human-readable artifact inventory.
-- `10_delegates/` stores isolated subagent inputs and outputs for auditability.
-- Generated or revised idea artifacts live only in `03_ideas/`; portfolio artifacts live only in `07_portfolio/`; proposal handoff artifacts live only in `08_handoff/`.
-- Reviewer-response artifacts, when requested for external-facing handoff, must be saved separately from portfolio or handoff package prose.
+## Node and tree indexes
 
-## Cross-Package Version Fields
+`node.yaml` is the authoritative current pointer for one Idea. Record the
+fields required by `idea-artifact-lifecycle.md` plus `workflow_id`, `round_id`,
+`plugin_version`, `source_skill`, `created_by_instance_id`, `based_on`,
+`change_type`, `status`, and `frozen` where applicable.
 
-Every artifact registered in `09_state/artifact-index.md` should use the same lineage fields as the proposal, perspective, and article packages where applicable:
+`idea-tree.yaml` contains only node IDs, parent IDs, current versions, paths,
+digests, and statuses. Generate it from node files; never copy Idea prose into
+it. `candidate-set-vNNN.yaml` is likewise an immutable multi-Idea index, not a
+second body representation.
+
+`05_state/artifact-index.md` contains one row per artifact:
 
 ```text
-current_artifact_path
-artifact_id
-version_id
-workflow_id
-round_id
-plugin_version
-revision_round
-based_on
-change_type
-status
-source_skill
-created_by_instance_id
-content_digest
-frozen
+| artifact_id | idea_id | role | version | path | digest | based_on | status |
 ```
 
-For idea-level artifacts, `idea_id`, `previous_ids`, `origin_round`, and `revision_round` remain the canonical lineage fields. For portfolio and handoff artifacts, use monotonically increasing `vNNN` versions so downstream proposal workflows can cite a stable source package.
+Allowed statuses are `current`, `superseded`, `stale_after_revision`,
+`partial`, `blocked`, and `final`.
 
-## Idea And Round Naming
+## Version and legacy rules
 
-Canonical idea IDs follow `idea-id-and-lineage-rules.md`:
-
-```text
-I<round>-<sequence>
-I01-001
-I01-002-R01
-I02-M001
-```
-
-Round artifacts use three-digit round folders:
-
-```text
-03_ideas/round-001/generated-idea-set.md
-03_ideas/round-001/idea-pool.yaml
-03_ideas/round-002/revised-idea-set.md
-04_preflight/round-001/preflight-I01-001.md
-05_evaluations/round-001/idea-evaluation-I01-001.md
-06_adversarial/round-002/adversarial-review-I01-001.md
-```
-
-## Portfolio And Handoff Naming
-
-```text
-07_portfolio/research-idea-portfolio-v001.md
-07_portfolio/research-idea-portfolio-v002.md
-08_handoff/proposal-handoff-I01-001.md
-08_handoff/proposal-handoff-package-v001.md
-08_handoff/proposal-handoff-package-v002.md
-```
-
-Language assessment is only required for external-facing portfolio or handoff artifacts:
-
-```text
-07_portfolio/language-assessment-v001.md
-07_portfolio/language-change-log-r001.md
-```
-
-Language QA must be explicitly delegated to a fresh independent `academic-language-assessor` subagent for English, Chinese, or bilingual external-facing portfolio or handoff text. Language QA must not affect idea scores, promotion/rejection decisions, or adversarial handoff status; it only improves portfolio/handoff readability. If a changed portfolio or handoff file is saved after language polishing, create the next `vNNN` version and record `change_type: language_only`.
-
-## Revision Record Naming
-
-Research-idea revisions are idea-level, not manuscript-level, but repair rounds still need traceable records:
-
-```text
-03_ideas/round-002/revision-plan-r002.md
-03_ideas/round-002/revision-delta-r002.md
-```
-
-If an external reviewer response is requested, save it separately:
-
-```text
-08_handoff/response-to-reviewers-r002.md
-```
-
-## Artifact Index
-
-`09_state/artifact-index.md` should contain one row per artifact:
-
-```text
-| artifact_id | role | version | path | source_skill | created_step | based_on | status |
-```
-
-Allowed statuses:
-
-```text
-current | superseded | stale_after_revision | partial | blocked | final
-```
+- A substantive, structural, or saved language change writes the next complete
+  snapshot version and invalidates prior reviews.
+- A revision plan or delta never becomes the current artifact.
+- A user-authorized new research problem creates a new node and may record
+  parent IDs; ordinary revisions stay in the same node.
+- Detect legacy `03_ideas/round-NNN`, `04_preflight`, `05_evaluations`,
+  `06_adversarial`, `08_handoff`, `09_state`, or `10_delegates` layouts as
+  read-only and return `layout_migration_required`. Do not auto-migrate them.

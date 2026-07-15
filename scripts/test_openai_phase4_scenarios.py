@@ -214,6 +214,7 @@ class ScenarioEngine:
         self.edge_receipts: list[str] = []
         self.lifecycle_receipts: list[dict[str, Any]] = []
         self.initial_artifact_ids: list[str] = []
+        self.idea_node_id: str | None = None
 
     def canonical_artifact_role(self, role: str) -> str:
         if self.workflow == "research_polisher":
@@ -495,7 +496,9 @@ class ScenarioEngine:
         require(artifact["frozen"] is True, "artifact_not_frozen", artifact["artifact_id"])
         require(artifact["content_digest"] == "computed", "artifact_digest", "fixtures must require runtime-computed digests")
         artifact["path"] = safe_relative(artifact["path"])
-        if self.workflow == "research_polisher":
+        if self.workflow == "idea":
+            self.validate_idea_artifact_path(artifact)
+        elif self.workflow == "research_polisher":
             self.validate_polisher_artifact_path(artifact)
         require(artifact["artifact_id"] not in self.artifacts, "duplicate_artifact_id", artifact["artifact_id"])
         pending_output_ids = pending_output_ids or set()
@@ -720,6 +723,36 @@ class ScenarioEngine:
                 ["scientific_significance", "practical_value", "dissemination_editorial"],
             )
         )
+
+    def validate_idea_artifact_path(self, artifact: dict[str, Any]) -> None:
+        role = self.canonical_artifact_role(artifact["artifact_role"])
+        folder_by_role = {
+            "candidate_idea_set": "snapshots",
+            "evaluation_report": "reviews",
+            "revision_plan": "revisions",
+            "revision_delta": "revisions",
+            "panel_report": "adversarial",
+        }
+        path = Path(artifact["path"])
+        if role == "final_handoff_package":
+            require(path.parts[0] == "04_portfolio", "idea_artifact_path", artifact["path"])
+            return
+        folder = folder_by_role.get(role)
+        if folder is None:
+            return
+        require(
+            len(path.parts) >= 5
+            and path.parts[:2] == ("03_ideas", "nodes")
+            and path.parts[3] == folder,
+            "idea_artifact_path",
+            artifact["path"],
+        )
+        node_id = path.parts[2]
+        if self.idea_node_id is None:
+            self.idea_node_id = node_id
+        require(node_id == self.idea_node_id, "idea_artifact_path", "Idea artifacts span nodes")
+        if role == "candidate_idea_set":
+            require(path.name.startswith("idea-snapshot-v"), "idea_artifact_path", artifact["path"])
 
     def validate_polisher_artifact_path(self, artifact: dict[str, Any]) -> None:
         path = Path(artifact["path"])
@@ -1778,6 +1811,30 @@ class ScenarioEngine:
             )
             self.validate_polisher_evaluation_report(event, report)
 
+        if self.workflow == "idea" and destination == self.machine["evaluator_skill"]:
+            snapshots = [
+                self.artifacts[item]
+                for item in event["input_artifact_ids"]
+                if self.artifact_has_role(self.artifacts[item], self.machine["primary_artifact_type"])
+            ]
+            require(len(snapshots) == 1, "idea_snapshot_binding", event["event_id"])
+            snapshot = snapshots[0]
+            if report.get("reviewed_snapshot_digest") == "computed":
+                report["reviewed_snapshot_digest"] = snapshot["content_digest"]
+            require(
+                report.get("reviewed_snapshot_digest") == snapshot["content_digest"]
+                and report.get("complete_snapshot_confirmed") is True,
+                "idea_snapshot_binding",
+                event["event_id"],
+            )
+            require(
+                report.get("identity_drift_detected") is False
+                and report.get("prior_versions_visible") is False
+                and report.get("revision_delta_visible") is False,
+                "forbidden_review_input",
+                event["event_id"],
+            )
+
         final_verifier = destination in self.contract["verifier_compositor_outputs"]
         is_panel = destination == PANEL_SKILLS[self.workflow]
         forbidden_roles = set(self.contract["blindness_policy"]["forbidden_input_roles_for_evaluator_or_panel"])
@@ -2542,10 +2599,10 @@ def mutate_fixture(fixture: dict[str, Any], mutation: str) -> None:
         index = event["input_artifact_ids"].index("ideas-v2")
         event["input_artifact_ids"][index] = "ideas-v1"
         event["input_versions"][index] = "v001"
-        event["allowed_read_paths"][index] = "03_ideas/round-001/generated-idea-set-v001.md"
+        event["allowed_read_paths"][index] = "03_ideas/nodes/idea-001/snapshots/idea-snapshot-v001.md"
         event["review_report"]["input_artifact_ids"][index] = "ideas-v1"
         event["review_report"]["input_versions"][index] = "v001"
-        event["review_report"]["files_read"][index] = "03_ideas/round-001/generated-idea-set-v001.md"
+        event["review_report"]["files_read"][index] = "03_ideas/nodes/idea-001/snapshots/idea-snapshot-v001.md"
         event["outputs"][0]["based_on"] = ["ideas-v1@v001"]
     elif mutation == "sap_evaluator_unbound":
         event = next(event for event in reviews if event["destination_skill"] == "sap-evaluator")

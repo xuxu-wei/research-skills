@@ -99,6 +99,8 @@ python scripts/audit_openai_research_proposal.py
 python scripts/audit_openai_research_perspective.py
 python scripts/test_openai_release_contract.py
 python scripts/sync_openai_fixture_versions.py
+python scripts/test_openai_artifact_completeness.py
+python scripts/test_openai_article_docx_contract.py
 python scripts/test_openai_phase6_context.py
 python scripts/test_openai_phase2_phase3.py
 python scripts/test_openai_phase4_scenarios.py --check-report

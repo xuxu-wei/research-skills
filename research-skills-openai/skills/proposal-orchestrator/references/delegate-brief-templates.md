@@ -72,9 +72,9 @@ Input:
 - Constraints: {{constraints}}
 - Evidence artifacts or limitations: {{evidence_artifacts_or_limitations}}
 - Funding call or format requirements: {{funding_call_or_format_requirements}}
-- Anonymized prior must-fix issue list, if re-evaluation: {{anonymized_prior_must_fix_list}}
-- Revision delta report, if re-evaluation: {{revision_delta_report_path_or_text}}
-- Previous frozen proposal path/version, if re-evaluation: {{previous_proposal_path_and_version}}
+- Current complete proposal SHA-256: {{current_proposal_digest}}
+- Anonymized must-fix issue list, if re-evaluation: {{anonymized_must_fix_list}}
+- Forbidden: prior proposal, revision delta, prior report, score, rationale, or decision
 - Prior scores, overall rationale, and decision visible: false
 - Workflow state limitation: {{evaluation_scope_limitation}}
 
@@ -111,9 +111,9 @@ Input:
 - Available data description: {{data_description}}
 - Analysis population: {{analysis_population}}
 - User goal and constraints: {{user_goal_and_constraints}}
-- Anonymized prior must-fix issue list, if re-evaluation: {{anonymized_prior_sap_must_fix_list}}
-- SAP revision delta report, if re-evaluation: {{sap_revision_delta_report_path_or_text}}
-- Previous frozen SAP path/version, if re-evaluation: {{previous_sap_path_and_version}}
+- Current complete SAP SHA-256: {{current_sap_digest}}
+- Anonymized must-fix issue list, if re-evaluation: {{anonymized_sap_must_fix_list}}
+- Forbidden: prior SAP, revision delta, prior report, score, rationale, or decision
 - Prior scores, overall rationale, and decision visible: false
 
 Rubric path: research-proposal/sap-evaluator/references/rubric-sap-evaluation.md

@@ -13,6 +13,11 @@
 
 ## To isolated idea-evaluator
 
+Pass current complete snapshot paths, versions, SHA-256 digests, node identity
+anchors, supporting opportunity/evidence limitations, and necessary preflight
+facts. For re-evaluation, never pass a prior snapshot, revision delta, prior
+report, score, or decision.
+
 所有生成的 idea 都必须经 orchestrator 派发给隔离、独立 evaluator。交付内容包括：
 
 - generated idea set；

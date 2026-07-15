@@ -39,6 +39,20 @@ EXPECTED_IMPLICIT_ENTRIES = EXPECTED_PUBLIC_ENTRIES - {
 }
 DESCRIPTION_PROXY_LIMIT = 6_200
 ORCHESTRATOR_PROXY_LIMIT = 13_400
+DESCRIPTION_REGRESSION_LIMIT = 6_086
+ORCHESTRATOR_REGRESSION_LIMITS = {
+    "research-idea-orchestrator": 13_088,
+    "proposal-orchestrator": 13_266,
+    "article-orchestrator": 13_146,
+}
+TOUCHED_SKILL_BODY_REGRESSION_LIMIT = 73_043
+TOUCHED_SKILLS = {
+    "research-idea-orchestrator", "multi-path-idea-generator", "idea-evaluator",
+    "idea-portfolio-assembler", "proposal-orchestrator", "proposal-evaluator",
+    "proposal-drafter", "sap-evaluator", "article-orchestrator",
+    "article-architect", "article-drafter", "article-evaluator",
+    "article-refinement-controller", "article-submission-compositor",
+}
 QUICKSTART_FIELDS = ("Minimum input:", "Expected output:", "Stop states:", "Resume:")
 
 
@@ -170,6 +184,11 @@ def main() -> int:
         errors.append(
             f"all-skill description proxy exceeds {DESCRIPTION_PROXY_LIMIT}: {description_chars}"
         )
+    if description_chars > DESCRIPTION_REGRESSION_LIMIT:
+        errors.append(
+            "all-skill descriptions grew beyond the 9f64ad3 regression baseline: "
+            f"{description_chars}/{DESCRIPTION_REGRESSION_LIMIT}"
+        )
 
     orchestrators = {
         entry["name"]
@@ -191,6 +210,21 @@ def main() -> int:
                 f"{name}: description+full-SKILL proxy exceeds "
                 f"{ORCHESTRATOR_PROXY_LIMIT}: {proxy}"
             )
+        regression_limit = ORCHESTRATOR_REGRESSION_LIMITS.get(name)
+        if regression_limit is not None and proxy > regression_limit:
+            errors.append(
+                f"{name}: initial-load proxy grew beyond the 9f64ad3 baseline "
+                f"{proxy}/{regression_limit}"
+            )
+
+    touched_body_chars = sum(
+        len(read(SKILLS / name / "SKILL.md")) for name in TOUCHED_SKILLS
+    )
+    if touched_body_chars > TOUCHED_SKILL_BODY_REGRESSION_LIMIT:
+        errors.append(
+            "touched SKILL.md bodies grew beyond the 9f64ad3 aggregate baseline: "
+            f"{touched_body_chars}/{TOUCHED_SKILL_BODY_REGRESSION_LIMIT}"
+        )
 
     readme = read(README)
     if "## Entry-skill quickstarts" not in readme:
@@ -363,9 +397,17 @@ def main() -> int:
     )
     print(f"declared-entry description characters: {public_description_chars}")
     print(f"all-skill description proxy: {description_chars}/{DESCRIPTION_PROXY_LIMIT}")
+    print(
+        "description regression baseline: "
+        f"{description_chars}/{DESCRIPTION_REGRESSION_LIMIT}"
+    )
     for name, proxy in sorted(orchestrator_proxies.items()):
         print(f"{name} conservative description+full-SKILL proxy: {proxy}/{ORCHESTRATOR_PROXY_LIMIT}")
     print(f"maximum orchestrator proxy: {max_proxy}/{ORCHESTRATOR_PROXY_LIMIT}")
+    print(
+        "touched SKILL.md aggregate regression baseline: "
+        f"{touched_body_chars}/{TOUCHED_SKILL_BODY_REGRESSION_LIMIT}"
+    )
     print(f"quickstarts: {quickstarts_passed}/{len(public_names)}")
     print(f"fresh-subagent routing smokes: {routing_smokes_passed}/{len(public_names)}")
     print(

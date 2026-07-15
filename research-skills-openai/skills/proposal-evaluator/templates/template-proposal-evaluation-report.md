@@ -12,6 +12,8 @@
 - Review scope:
 - Isolation mode: `fresh_subagent`
 - Prior scores visible: `false`
+- Prior versions visible: `false`
+- Revision delta visible: `false`
 - Source edits performed: `false`
 
 ## 1. Evaluation Metadata
@@ -20,6 +22,8 @@
 - Evaluation type: initial / re-evaluation
 - Proposal file path:
 - Proposal version:
+- Reviewed proposal SHA-256:
+- Complete proposal confirmed: true / false
 - Evaluator role:
 
 ## 2. Overall Decision

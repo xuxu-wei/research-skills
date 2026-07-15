@@ -14,7 +14,7 @@ Evaluate frozen research ideas against context, evidence/opportunity maps, appli
 - Require frozen artifact IDs, paths, and versions. Treat all sources as read-only and write only an evaluation/failure report.
 - Do not draft, rewrite, polish, fix, merge, or modify candidates or source files.
 - Do not read parent hidden reasoning, expected conclusions, prior scores/decisions, or other reviewer outputs.
-- In re-evaluation, read only the latest candidates, stable rubric, necessary facts, and optionally an anonymized issue list plus revision delta.
+- Require the current complete snapshot and matching digest. In re-evaluation, read only that snapshot, the stable rubric, necessary facts, and optionally an anonymized must-fix list; never read prior snapshots or revision deltas.
 - Report exact files read, scope, limitations, and reviewer instance ID.
 - If independent execution is unavailable, return `independent_review_pending` with a self-contained continuation brief and stop; never evaluate inline.
 
@@ -43,6 +43,11 @@ review_scope: []
 isolation_mode: fresh_subagent
 prior_scores_visible: false
 source_edits_performed: false
+reviewed_snapshot_digest: "sha256:"
+complete_snapshot_confirmed: true
+identity_drift_detected: false
+prior_versions_visible: false
+revision_delta_visible: false
 decision:
 findings: []
 unresolved_issues: []
@@ -62,10 +67,11 @@ repair_directions: []
 - Read `references/evaluator-isolation-policy.md` when validating fresh-instance separation.
 - Read `references/downstream-handoff-rules.md` before returning the report to the orchestrator.
 - Read `research-idea-orchestrator/references/artifact-contracts.md` when validating artifact lineage.
+- Read `research-idea-orchestrator/references/idea-artifact-lifecycle.md` when validating snapshot completeness, digest visibility, or identity preservation.
 - Read `research-idea-orchestrator/references/handoff-validation.md` before handoff.
 - Use `templates/idea-evaluation-report.md` for a completed evaluation.
 - Use `templates/evaluation-failure-report.md` when input or isolation is insufficient.
 
 ## Completion Check
 
-Confirm six scores and simple average, all gates/fatal flaws, evidence limitations, locatable objections, one allowed decision, exact inputs, prior-score blindness, and unchanged candidate artifacts.
+Confirm six scores and simple average, all gates/fatal flaws, evidence limits, one decision, exact current digest, complete-snapshot and identity checks, forbidden-history blindness, and unchanged sources.

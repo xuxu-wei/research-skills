@@ -337,12 +337,35 @@ def main() -> int:
         state_machines = registry_data.get("workflow_state_machines", {})
         scenario_contract = registry_data.get("scenario_eval_contract", {})
         context_policy = registry_data.get("context_profile_policy", {})
+        review_execution = registry_data.get("review_execution", {})
+        artifact_policy = registry_data.get("artifact_completeness_policy", {})
+        docx_policy = registry_data.get("article_docx_delivery_policy", {})
     if not REGISTRY.exists():
         edges = []
         state_policy = {}
         state_machines = {}
         scenario_contract = {}
         context_policy = {}
+        review_execution = {}
+        artifact_policy = {}
+        docx_policy = {}
+
+    if review_execution.get("prior_versions_visible_to_reviewer") is not False:
+        errors.append("registry fresh reviewers must not see prior artifact versions")
+    if review_execution.get("revision_deltas_visible_to_reviewer") is not False:
+        errors.append("registry fresh reviewers must not see revision deltas")
+    if artifact_policy.get("idea_schema") != "research-idea.v2":
+        errors.append("registry must use research-idea.v2 complete snapshots")
+    if artifact_policy.get("article_schema") != "research-article.v6":
+        errors.append("registry must use research-article.v6 canonical Markdown")
+    if artifact_policy.get("core_identity_drift_behavior") != "new_idea_required_no_automatic_branch":
+        errors.append("registry Idea identity drift must stop without automatic branching")
+    if docx_policy.get("content_authority") != "canonical_markdown":
+        errors.append("registry Article content authority must remain canonical Markdown")
+    if docx_policy.get("primary_user_delivery_when_capable") != "docx":
+        errors.append("registry Article preferred capable delivery must be DOCX")
+    if set(docx_policy.get("fallback_states", [])) != {"docx_generation_pending", "docx_visual_qa_pending"}:
+        errors.append("registry Article DOCX fallback states are incomplete")
 
     registry_names = {entry.get("name", "") for entry in entries}
     if registry_names != set(names):

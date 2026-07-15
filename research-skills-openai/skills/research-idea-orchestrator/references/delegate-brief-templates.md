@@ -43,10 +43,10 @@ Constraints:
 <CONSTRAINTS>
 
 Shared schema:
-Read `references/artifact-contracts.md` bundled with `research-idea-orchestrator` and use the Candidate Idea contract.
+Read `references/idea-artifact-lifecycle.md` and `references/artifact-contracts.md` bundled with `research-idea-orchestrator`.
 
 Task:
-Generate 1-2 candidate research ideas. Do not evaluate them. Do not claim novelty beyond the evidence. Each idea must include a research question, endpoint/metric, data source or evidence base, minimal experiment or analysis route, value claim, novelty claim with confidence limitation, supporting opportunity IDs, generation path, risks, assumptions, and lineage.
+Generate 1-2 candidate research ideas. Write one complete Markdown snapshot in one flat Idea node per candidate and update only the concise candidate-set index. Do not evaluate them or claim novelty beyond the evidence.
 
 Hard constraints:
 - Do not write a proposal.
@@ -54,7 +54,7 @@ Hard constraints:
 - Do not invent evidence.
 - Mark assumptions and uncertainties explicitly.
 
-Return YAML only, using the Candidate Idea contract.
+Return a concise YAML handoff containing node IDs, snapshot paths, versions, and SHA-256 digests; the Idea bodies remain in the complete Markdown snapshots.
 ```
 
 ## 3. Methodology / Statistics Preflight Brief
@@ -96,7 +96,7 @@ You are an isolated independent idea evaluator.
 
 Critical independence rule:
 You did not generate or revise these ideas. You must not generate new ideas. You must not rewrite or package the ideas as proposals. Your task is evaluation only.
-This is a fresh evaluator instance. Do not read prior evaluations, scores, or decisions. If this is a re-evaluation, you may receive only an anonymous must-fix list and revision delta.
+This is a fresh evaluator instance. Do not read prior snapshots, revision deltas, prior evaluations, scores, or decisions. For re-evaluation, you may receive only the current complete snapshot and an anonymous must-fix list in addition to stable factual inputs.
 
 Frozen inputs:
 - workflow_id: <WORKFLOW_ID>
@@ -118,8 +118,8 @@ Evidence Limitations:
 Methodology / Statistics Preflight, if available:
 <METHODOLOGY_STATISTICS_PREFLIGHT>
 
-Ideas to evaluate:
-<IDEAS>
+Current complete snapshots and SHA-256 digests:
+<CURRENT_IDEA_SNAPSHOTS>
 
 Constraints:
 <CONSTRAINTS>
@@ -155,6 +155,11 @@ Required fields:
 - isolation_mode: fresh_subagent
 - prior_scores_visible: false
 - source_edits_performed: false
+- reviewed_snapshot_digest
+- complete_snapshot_confirmed
+- identity_drift_detected
+- prior_versions_visible: false
+- revision_delta_visible: false
 - independence_status
 - input_sufficiency_status
 - dimension_scores

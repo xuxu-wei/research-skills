@@ -12,12 +12,16 @@
 - Review scope:
 - Isolation mode: `fresh_subagent`
 - Prior scores visible: `false`
+- Prior versions visible: `false`
+- Revision delta visible: `false`
 - Source edits performed: `false`
 
 ## Metadata
 
 - SAP file path:
 - SAP version:
+- Reviewed SAP SHA-256:
+- Complete SAP confirmed: true / false
 - Linked proposal file path:
 - Evaluation type: initial / re-evaluation
 - Evaluator role: independent methodology/statistics evaluator

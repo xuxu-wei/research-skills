@@ -222,7 +222,7 @@ Output an individual reviewer report following the template.
 - Replace every `{{...}}` placeholder before dispatch.
 - Preserve all schema/rubric/template paths.
 - Assign readiness, proposal evaluation, SAP evaluation, and each re-evaluation to a fresh independent subagent or delegated thread.
-- For re-evaluation, use a new evaluator instance and exclude prior scores, overall rationale, and decision.
+- For re-evaluation, use a new evaluator instance with only the complete current artifact/digest, stable facts/rubric, and optional anonymous must-fix list. Exclude prior versions, deltas, reports, scores, rationale, and decisions.
 - Start one fresh independent subagent or delegated thread per panel reviewer role concurrently, then wait for all reports before aggregation.
 - Default panel: `standard_panel` with 5 reviewers including skeptical and submission-guard.
 - Lightweight panel: 3 reviewers including domain expert, methodology/statistics, and submission-guard.

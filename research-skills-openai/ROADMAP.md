@@ -2,7 +2,7 @@
 
 Status: Personal Experimental/Preview
 Planning baseline: 2026-07-14
-Current version: `0.7.0-preview.2`
+Current version: `0.7.0-preview.3`
 Current scope: 49 skills, including the four-skill Research Polisher series
 
 ## Product position
@@ -20,11 +20,12 @@ unresolved blocking findings prevent promotion.
 
 The active sequence is:
 
-1. finish the current-version local install, update, and fresh-task discovery
+1. complete the artifact-completeness and Article DOCX hardening checkpoint;
+2. finish the current-version local install, update, and fresh-task discovery
    check;
-2. complete the bounded owner-observed Phase 7 workflow runs;
-3. complete the bounded Phase 8 Search and Deep Research runs; and
-4. consider Phase 10 only after the current personal workflows are useful in
+3. complete the bounded owner-observed Phase 7 workflow runs;
+4. complete the bounded Phase 8 Search and Deep Research runs; and
+5. consider Phase 10 only after the current personal workflows are useful in
    real research work.
 
 No additional entry skill is planned while these checks are incomplete.
@@ -43,14 +44,14 @@ No additional entry skill is planned while these checks are incomplete.
 - The 20-case anonymous corpus passes with false-ready zero and 100% compliance
   for fatal/blocking detection, lineage, reviewer isolation, source-edit
   boundaries, and dissent preservation.
-- Context proxies pass at 6,086/6,200 characters for all descriptions and
-  13,266/13,400 for the largest descriptions-plus-orchestrator load.
+- Context proxies remain at 6,086 descriptions and at or below the historical
+  13,266 maximum; the current largest orchestrator proxy is 13,171.
 - Plugin structure, registry generation, GitHub marketplace metadata, and local
   development installation support are implemented.
 - A 2026-07-14 local audit confirmed that `xuxu-research-preview` is registered,
   `research-skills-openai` is enabled, and the coherent installed cache is
-  `0.7.0-preview.1`. Installation is implemented; the working-tree
-  `0.7.0-preview.2` still requires commit, push, upgrade/reinstall, and
+  `0.7.0-preview.2`. Installation is implemented; the working-tree
+  `0.7.0-preview.3` still requires commit, push, upgrade/reinstall, and
   fresh-task discovery.
 - ChatGPT web installation, sharing, discovery, and runtime behavior remain
   unverified and do not block the personal Codex profile.
@@ -161,17 +162,44 @@ Completed outcomes:
   are checked for consistency.
 - ChatGPT web behavior is not inferred from Codex evidence.
 
+## Artifact completeness and DOCX delivery hardening
+
+- Priority: P0 blocker before Phase 7–8 resumes
+- Type: deterministic source and artifact-contract maintenance
+- Status: Complete in source for `0.7.0-preview.3`; awaiting owner confirmation before Phase 7 resumes
+
+### Deliverables
+
+- Adopt `research-idea.v2` complete Markdown snapshots, flat per-Idea nodes,
+  logical parent-ID trees, digest-bound reviews, and complete PI portfolios.
+- Make Proposal/SAP/Article fresh re-evaluation current-artifact-only; keep old
+  versions, deltas, reports, scores, and decisions sealed from reviewers.
+- Adopt `research-article.v6` with Markdown authority, preferred DOCX delivery,
+  display-asset manifests, native tables/figures, parity checks, and render QA.
+- Keep all descriptions and modified default-loaded SKILL bodies within the
+  `9f64ad3` regression baselines through conditional references.
+
+### Acceptance
+
+- Delta-only Ideas, comparative-only summaries, partial proposals/manuscripts,
+  identity drift, stale digests, or reviewer history access are rejected.
+- A synthetic complete Article produces a native-table/embedded-figure DOCX
+  whose content, captions, callouts, manifest, and page renders pass QA.
+- All deterministic audits and Phase 4/6/7/8 fixtures pass at the new version.
+- No local plugin reinstall, live owner-observed task, commit, push, or Phase
+  7–8 acceptance credit occurs during this checkpoint.
+
 ## Phase 7 — Personal install and workflow readiness
 
 - Priority: P0
 - Type: maintenance and owner-observed runtime validation
-- Status: In progress
+- Status: Paused until the hardening checkpoint passes and the owner resumes it
 
 ### Deliverables
 
 1. Verify the current GitHub marketplace source resolves the intended
    repository, `main` revision, and `research-skills-openai` subdirectory.
-2. Upgrade or explicitly reinstall `0.7.0-preview.2`, restart the Codex App when
+2. Upgrade or explicitly reinstall `0.7.0-preview.3`, restart the Codex App when
    necessary, and inspect the resulting user cache.
 3. Open a fresh Codex task and confirm discovery of 49 skills, seven declared
    entries, six implicit entries, and the permanent explicit-only Research
@@ -226,7 +254,7 @@ and runtime checks.
 
 - Priority: P0 after the Phase 7 install check
 - Type: owner-observed Search and Deep Research validation
-- Status: In progress
+- Status: Paused with Phase 7 until the hardening checkpoint passes
 
 ### Deliverables
 

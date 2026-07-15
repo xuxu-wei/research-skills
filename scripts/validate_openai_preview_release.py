@@ -1329,6 +1329,8 @@ def main(
             "test_openai_phase2_phase3.py",
             "test_openai_phase4_scenarios.py --check-report",
             "test_openai_phase6_context.py",
+            "test_openai_artifact_completeness.py",
+            "test_openai_article_docx_contract.py",
             "test_openai_phase7_modes.py --check-report",
             "test_openai_phase8_corpus.py --check-report",
             "test_openai_preview_evidence.py",

@@ -164,10 +164,12 @@ Evaluate the manuscript independently across seven dimensions with non-compensat
 - 06_drafts/manuscript-vNNN.md
 - 06_drafts/supplementary-vNNN.md (if applicable)
 - 04_blueprint/article-blueprint.md
+- 04_blueprint/display-asset-manifest.yaml and current available assets
 - 02_context/article-context-brief.md
 - 03_literature/literature-grounding-report.md
 - Stable rubric and necessary factual artifacts
-- Anonymized must-fix list plus revision delta (only when fix verification is required)
+- Current manuscript SHA-256
+- Anonymized must-fix list (only when fix verification is required)
 
 ## Context
 - User goal: [goal]
@@ -183,6 +185,7 @@ Evaluate the manuscript independently across seven dimensions with non-compensat
 - Do NOT substitute for claim-auditor or methods-auditor
 - Do NOT lower standards to push the workflow forward
 - Do NOT read any prior evaluation report, score, or decision
+- Do NOT read any prior manuscript or revision delta
 
 ## Sub-Delegation
 - None. The orchestrator runs `academic-language-assessor` separately and does not expose either sealed report to the other reviewer.
@@ -255,13 +258,15 @@ You are the methodology/statistics reviewer. In internal diagnostic mode, you ha
 
 ```text
 ## Task
-Assemble package copies and verify the final frozen artifact set. Do not modify any source artifact.
+Assemble faithful package copies, including the primary DOCX when document tooling is available, and verify the final frozen artifact set. Do not modify any source artifact.
 
 ## Input Files
-- Frozen artifact IDs, versions, and paths for the final manuscript, supplementary materials, frontmatter, cover letter, audits, evaluations, panel report, revision history, and journal adapter
+- Frozen artifact IDs, versions, paths, and digests for the complete final manuscript, display-asset manifest/assets, supplementary materials, frontmatter, cover letter, audits, evaluations, panel report, revision history, and journal adapter
 
 ## Required Output
 - 12_package/submission-package.md
+- 12_package/manuscript-vNNN.docx
+- 12_package/docx-parity-and-render-report.md
 - 12_package/submission-readiness-summary.md
 - 12_package/human-signoff-checklist.md
 - Standard reviewer provenance block
@@ -271,6 +276,7 @@ Assemble package copies and verify the final frozen artifact set. Do not modify 
 - Do NOT re-score or reinterpret upstream review findings
 - Do NOT hide dissent or unresolved issues
 - Do NOT emit a ready status when independent evaluation or fresh final verification is incomplete
+- Do NOT emit `human_signoff_required` when Markdown/DOCX parity, required assets, or full-page render QA is incomplete
 
 ## Failure Route
 - If a fresh independent compositor/verifier cannot run, return `independent_review_pending` with this completed continuation brief and stop.

@@ -1,43 +1,26 @@
-# Generated Idea Set
+# Candidate Set Handoff
 
-## Generation Context
+```yaml
+candidate_set:
+  schema_version: research-idea.v2
+  artifact_id: candidate-set-v001
+  workflow_id: ""
+  round_id: round-001
+  context_ref: ""
+  opportunity_map_ref: ""
+  candidates:
+    - idea_id: I01-001
+      node_path: 03_ideas/nodes/I01-001/node.yaml
+      snapshot_path: 03_ideas/nodes/I01-001/snapshots/idea-snapshot-v001.md
+      snapshot_version: v001
+      snapshot_digest: sha256:
+      supporting_opportunity_ids: []
+      generation_paths: []
+      status: draft
+  duplicate_control_notes: []
+  downstream_needs:
+    methodology_statistics_preflight: []
+    isolated_independent_evaluation: required
+```
 
-- Schema version: `research-idea.v1`
-- Created round:
-- Research Context Brief reference:
-- Opportunity Map reference:
-- Requested paths:
-- Recommended paths, if orchestrator did not specify:
-- Existing idea pool reference:
-- ID namespace / next sequence:
-
-## Candidate Ideas
-
-### Idea <ID> — <Title>
-
-- One-sentence summary:
-- Research question:
-- Hypothesis or objective:
-- Endpoint / metric:
-- Data source or evidence base:
-- Minimal experiment / analysis:
-- Value claim:
-- Novelty claim:
-- Novelty claim confidence:
-- Supporting opportunity IDs:
-- Generation path:
-- Assumptions and uncertainties:
-- Risks or reviewer objections:
-- Lineage:
-- Previous IDs, if normalized:
-
-## Duplicate Control Notes
-
-| Candidate | Action | Related idea IDs | Reason |
-|---|---|---|---|
-
-## Downstream Needs
-
-- Needs methodology/statistics preflight:
-- Needs isolated independent evaluation: yes
-- Notes for evaluator:
+Do not copy snapshot prose into this index.

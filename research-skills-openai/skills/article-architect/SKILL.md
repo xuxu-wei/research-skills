@@ -15,11 +15,11 @@ Read approved readiness, context, literature-grounding, and result artifacts. Wr
 ## Procedure
 
 1. Define one contribution statement: known baseline, study addition, contribution type/strength, and concise takeaway.
-2. Confirm study type and express the central question, answer, and supporting evidence.
+2. Confirm study type and freeze an identity anchor: central question, primary contribution, main answer, study object, and core evidence basis.
 3. Build a claim-evidence matrix with claim ID/type, section, evidence IDs, inference type, target wording strength, and overclaim risk.
 4. Seed the evidence provenance ledger with evidence ID/type, mapped claims, source, verification status, risk, and notes; never invent evidence.
 5. Select and justify one Results organization mode: norm-, argument-, hybrid-, artifact-, theory-, or evidence-synthesis-driven.
-6. Build an evidence-display plan with carrier, placement, supported claims, source, and creation status.
+6. Build an evidence-display plan and `04_blueprint/display-asset-manifest.yaml` with stable IDs, source paths/digests, captions, callouts, placement, availability, and main/supplement status.
 7. Build the supplementary index with stable IDs, content, claim/display links, main-text cross-reference, reporting/journal requirements, limits, format, and availability policies.
 8. Build the paragraph-level Results skeleton with claims, display items, key numbers, and transitions.
 9. Record a journal adapter with verified or explicitly unverified article type, word/abstract/display/reference limits, structural requirements, and supplementary policy.
@@ -32,9 +32,11 @@ article_blueprint:
   contribution_statement: {}
   study_type_confirmation: {}
   core_qa: {}
+  manuscript_identity_anchor: {}
   claim_evidence_matrix: []
   evidence_provenance_ledger: {}
   evidence_display_plan: {}
+  display_asset_manifest_ref: "04_blueprint/display-asset-manifest.yaml"
   supplementary_index: {}
   results_skeleton: []
   journal_adapter: {}
@@ -52,6 +54,7 @@ Return only a concise phase summary and the blueprint artifact pointer.
 - Read `article-orchestrator/references/evidence-provenance-ledger-schema.md` when seeding ledger granularity and fields.
 - Read `article-orchestrator/references/artifact-naming-and-directory-rules.md` when assigning paths and versions.
 - Read `article-orchestrator/references/handoff-validation.md` before handing the blueprint to the drafter or auditor.
+- Read `article-orchestrator/references/article-docx-delivery-contract.md` when defining display assets for a DOCX-capable workflow.
 
 ## Completion Check
 

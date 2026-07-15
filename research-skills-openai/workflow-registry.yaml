@@ -1,5 +1,5 @@
 schema_version: 5
-plugin_version: "0.7.0-preview.2"
+plugin_version: "0.7.0-preview.3"
 public_entry_policy:
   declared_entries:
     - academic-deep-search
@@ -24,6 +24,8 @@ review_execution:
   isolation_mode: fresh_subagent
   inline_fallback: false
   prior_scores_visible_to_reviewer: false
+  prior_versions_visible_to_reviewer: false
+  revision_deltas_visible_to_reviewer: false
   source_artifacts_read_only: true
 skills:
   - name: "academic-deep-search"
@@ -440,15 +442,15 @@ workflow_edges:
     destination: "multi-path-idea-generator"
     dispatch_mode: "orchestrated"
     trigger: "context_and_opportunity_map_ready_or_revision_authorized"
-    input_contract: "frozen_context_opportunity_current_candidates_and_revision_plan"
-    output_contract: "versioned_candidate_set_and_delta"
+    input_contract: "frozen_context_opportunity_current_complete_snapshots_and_revision_plan"
+    output_contract: "versioned_complete_snapshots_candidate_index_and_delta"
     failure_route: "generation_blocked"
   - workflow: "idea"
     source: "research-idea-orchestrator"
     destination: "methodology-statistics-preflight"
     dispatch_mode: "delegated"
     trigger: "method_or_endpoint_fit_needs_review"
-    input_contract: "frozen_candidates_and_method_facts"
+    input_contract: "frozen_complete_snapshots_and_method_facts"
     output_contract: "preflight_report"
     failure_route: "independent_review_pending"
   - workflow: "idea"
@@ -456,7 +458,7 @@ workflow_edges:
     destination: "idea-evaluator"
     dispatch_mode: "delegated"
     trigger: "candidate_set_frozen_or_revised"
-    input_contract: "frozen_candidates_stable_rubric_and_facts"
+    input_contract: "one_frozen_complete_snapshot_stable_rubric_and_facts"
     output_contract: "idea_evaluation_report"
     failure_route: "independent_review_pending"
   - workflow: "idea"
@@ -464,7 +466,7 @@ workflow_edges:
     destination: "idea-adversarial-review-panel"
     dispatch_mode: "delegated"
     trigger: "proposal_handoff_candidate_exists"
-    input_contract: "frozen_promoted_candidates_and_role_brief"
+    input_contract: "one_frozen_promoted_complete_snapshot_and_role_brief"
     output_contract: "sealed_individual_adversarial_report"
     failure_route: "independent_review_pending"
   - workflow: "idea"
@@ -480,7 +482,7 @@ workflow_edges:
     destination: "idea-portfolio-assembler"
     dispatch_mode: "orchestrated"
     trigger: "evaluation_and_adversarial_reports_sealed"
-    input_contract: "evaluated_candidates_lineage_and_dissent"
+    input_contract: "evaluated_complete_snapshots_lineage_and_dissent"
     output_contract: "pi_review_portfolio"
     failure_route: "assembly_blocked"
   - workflow: "idea"
@@ -2911,3 +2913,39 @@ context_profile_policy:
   - pending_edge
   - isolation_requirements
   - next_route
+artifact_completeness_policy:
+  idea_schema: research-idea.v2
+  idea_current_artifact: complete_markdown_snapshot
+  idea_node_layout: 03_ideas/nodes/<idea-id>
+  idea_tree_mode: flat_nodes_with_parent_ids
+  idea_legacy_layout_behavior: layout_migration_required_read_only
+  core_identity_drift_behavior: new_idea_required_no_automatic_branch
+  proposal_current_artifact: complete_proposal
+  article_schema: research-article.v6
+  article_current_artifact: complete_canonical_markdown
+  fresh_re_evaluation:
+    allowed:
+    - current_complete_artifact_and_digest
+    - stable_rubric
+    - necessary_facts
+    - anonymous_must_fix_list
+    forbidden:
+    - prior_artifact
+    - revision_delta
+    - prior_report
+    - prior_score
+    - prior_decision
+    orchestrator_compares_sealed_rounds_after_return: true
+article_docx_delivery_policy:
+  content_authority: canonical_markdown
+  primary_user_delivery_when_capable: docx
+  display_manifest: 04_blueprint/display-asset-manifest.yaml
+  faithful_format_transform_only: true
+  required_ready_gates:
+  - qualifying_markdown_digest_match
+  - required_display_assets_complete
+  - docx_content_parity_passed
+  - full_page_render_qa_passed
+  fallback_states:
+  - docx_generation_pending
+  - docx_visual_qa_pending

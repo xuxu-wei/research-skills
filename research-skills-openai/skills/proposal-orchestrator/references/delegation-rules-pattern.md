@@ -16,15 +16,16 @@ Use this pattern for every evaluator, triage, auditor, assessor, panel reviewer,
 | Reviewer skill | Explicit caller | Frozen inputs | Prohibited work |
 |---|---|---|---|
 | `proposal-readiness-triage` | `proposal-orchestrator` | idea/package, context brief, evidence artifacts, goal, constraints, target output | drafting, SAP writing, panel review |
-| `proposal-evaluator` | `proposal-orchestrator` or `proposal-refinement-controller` | proposal version, context, evidence, goal, constraints; for re-evaluation, previous version plus anonymized issue list and delta | drafting, revising, SAP writing, panel review |
-| `sap-evaluator` | `proposal-orchestrator` or `sap-refinement-controller` | SAP version, proposal/context, preflight, endpoint/metric definitions, data description; for re-evaluation, previous version plus anonymized issue list and delta | SAP writing, proposal drafting/evaluation, panel review |
+| `proposal-evaluator` | `proposal-orchestrator` | complete current proposal/digest, context, evidence, goal, constraints; optional anonymous must-fix list | prior proposal/delta/report, drafting, revising, panel review |
+| `sap-evaluator` | `proposal-orchestrator` | complete current SAP/digest, proposal/context, preflight, endpoint/data facts; optional anonymous must-fix list | prior SAP/delta/report, writing, proposal evaluation, panel review |
 | `proposal-review-panel` | `proposal-orchestrator` | frozen proposal version, mode, tier, review scenario | drafting, revising, source cleanup |
 
 ## Re-evaluation isolation
 
 - Start a new evaluator instance after every revision.
 - Do not expose the prior score, overall rationale, or decision.
-- Provide only the current and previous frozen versions, a stable rubric, necessary factual materials, an anonymized must-fix issue list, and the revision delta.
+- Provide only the current complete frozen artifact and digest, stable rubric, necessary facts, and an optional anonymized must-fix list.
+- Do not provide a prior version, revision delta, prior report, score, rationale, or decision.
 - The orchestrator compares completed reports and decides whether the workflow improved, reached a gate, or should stop.
 
 ## Panel concurrency

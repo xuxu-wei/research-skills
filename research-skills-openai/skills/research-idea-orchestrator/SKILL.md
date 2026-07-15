@@ -10,8 +10,9 @@ Control idea-workflow state, routing, delegation, stop decisions, and proposal h
 
 ## Invariants
 
-- Track current pointers, inventory, and versioned round manifests under `09_state/`; freeze every reviewer input with artifact ID, path, version, and scope.
-- Keep generation/revision separate from evaluation. Every changed candidate requires a fresh `idea-evaluator` without prior scores or decisions.
+- Track current pointers and manifests under `05_state/`; keep every Idea-specific artifact in its flat node under `03_ideas/nodes/`.
+- Make every current Idea a complete versioned Markdown snapshot. A patch or delta is never a candidate artifact.
+- Keep generation/revision separate from evaluation. Every changed snapshot requires a fresh `idea-evaluator` against its exact digest.
 - Delegate methodology/statistics preflight, idea evaluation, each adversarial role, and external-facing language assessment to fresh independent subagents.
 - Use registry states: review wait -> `pending_review`; unavailable reviewer -> `independent_review_pending`; fatal -> `blocked`; unfixable/no gain -> `stopped`; verified portfolio -> `human_signoff_required`.
 - Phase delegation is allowed, but each source artifact/version has one writer; never run concurrent source writes.
@@ -49,17 +50,17 @@ non_bypass_gates:
 ```
 <!-- idea-entry-mode-contract:end -->
 
-`standard` freezes new inputs; `resume_candidates` validates scope and rebuilds stale inputs; `portfolio_only` requires current candidates, qualifying evaluation, fresh adversarial reports, and indexed dissent/fatal findings. Every mode requires distinct fresh reviewers and `idea-portfolio-assembler`; substantive change invalidates prior reviews.
+`standard` freezes inputs; `resume_candidates` validates scope; `portfolio_only` requires current evaluated snapshots and complete adversarial findings. Every mode uses fresh reviewers and the assembler; substantive change invalidates review.
 
 ## Workflow Kernel
 
 1. **Initialize.** Record user goal, target output, constraints, source materials, current artifacts, and unresolved issues.
 2. **Build context.** Route normalized research context to `research-context-builder`.
 3. **Map evidence/opportunity.** Route retrieval, source verification, limitations, and opportunity mapping to `research-opportunity-mapper`; reuse valid maps when scope matches.
-4. **Generate candidates.** Route selected paths to `multi-path-idea-generator`; assign stable IDs and freeze the set.
+4. **Generate candidates.** Route selected paths to `multi-path-idea-generator`; create one flat node per Idea, write complete snapshots, index their digests, and freeze the set.
 5. **Preflight.** For clinical, observational, predictive, experimental, benchmark, statistical, or unclear endpoint/data/method ideas, delegate `methodology-statistics-preflight` without exposing evaluator output.
-6. **Evaluate.** Delegate a fresh `idea-evaluator` against frozen context, evidence/opportunity artifacts, candidates, and applicable preflight facts.
-7. **Revise loop.** Route `revise`, `reframe`, or `merge` to the owning builder. Version the result and delta, then use a fresh evaluator with latest candidates, stable rubric, necessary facts, and an optional anonymous must-fix list plus delta. Compare sealed rounds only here; stop after three rounds or no gain.
+6. **Evaluate.** Delegate a fresh `idea-evaluator` for each current complete snapshot with frozen context, evidence/opportunity artifacts, and applicable preflight facts.
+7. **Revise loop.** Route repair to the owning builder. Write a complete new snapshot version plus a separate delta in the same node. Give a fresh evaluator only that snapshot, stable rubric, necessary facts, and an optional anonymous must-fix list; compare sealed rounds and the delta only after it returns. Identity drift returns `new_idea_required`; never auto-branch. Stop after three rounds or no gain.
 8. **Adversarial handoff review.** Before a `ready` or `conditional` proposal handoff, dispatch the novelty/gap, feasibility/method, and PI-strategy roles of `idea-adversarial-review-panel` concurrently in separate fresh subagents. Keep evaluator and peer reports sealed; aggregate after all return and preserve dissent.
 9. **Resolve objections.** Route blocking evidence, method, framing, or candidate defects to the owning skill plus fresh evaluation; never hand a blocked idea to proposal workflow.
 10. **Assemble portfolio.** Route sealed decisions and reports to `idea-portfolio-assembler`. It aggregates promoted, backup, merged, and rejected candidates without re-scoring or hiding dissent.
@@ -67,17 +68,17 @@ non_bypass_gates:
 
 ## Delegated Brief and Return Contract
 
-Every reviewer brief records workflow/round, skill/scope, frozen IDs/versions/paths, allowed files, output path, prohibited reads/writes, and failure route. Reports use the standard review identity, files-read, isolation, prior-score, source-edit, decision, finding, and unresolved-issue fields. Subtasks return only a concise phase summary with artifact pointers, versions, decisions, unresolved issues, and `next_route`.
+Reviewer briefs bind workflow/round, scope, frozen IDs/versions/paths/digests, allowed files/writes, and failure route. Re-evaluation forbids prior snapshots, deltas, reports, scores, and decisions. Phase summary returns contain only artifact pointers, decisions, unresolved issues, and `next_route`.
 
 ## Promotion and Stop Rules
 
-- Stop on blocked context/evidence, unfixable fatal flaw, absent independent review, no-gain revision, or blocking adversarial objection.
-- Any unresolved fatal finding prevents `promoted`, `conditional`, and proposal-ready status.
-- Proposal handoff requires qualifying evaluation, visible evidence limitations, sufficient endpoint/data/method path, and no blocking adversarial objection.
+- Stop on blocked inputs, fatal flaws, unavailable review, no gain, or blocking objection.
+- Promotion/handoff requires a complete matching snapshot/evaluation digest, preserved identity, visible evidence limits, viable method path, and no blocking finding.
 
 ## Conditional Resources
 
-- Read `references/artifact-naming-and-directory-rules.md` for paths, versions, or the artifact index.
+- Read `references/idea-artifact-lifecycle.md` whenever creating, revising, reviewing, packaging, resuming, or locating an Idea.
+- Read `references/artifact-naming-and-directory-rules.md` only for compact naming and index rules not covered by the lifecycle contract.
 - Read `references/workflow-manifest.md` for state and round lineage.
 - Use `templates/round-manifest.md` when recording a new workflow round.
 - Read `references/idea-id-and-lineage-rules.md` when assigning, merging, or deriving idea IDs.
@@ -93,4 +94,4 @@ Every reviewer brief records workflow/round, skill/scope, frozen IDs/versions/pa
 
 ## Completion Check
 
-Confirm state/index consistency, stable IDs and lineage, unique reviewer instances, prior-score blindness, new-version/new-evaluator pairing, complete adversarial roles, visible dissent, justified promotion states, and a proposal-ready handoff only when all gates pass.
+Confirm node/state consistency, complete snapshot/digest/identity gates, lineage, fresh blind reviewers, adversarial roles, visible dissent, and handoff only after every gate passes.

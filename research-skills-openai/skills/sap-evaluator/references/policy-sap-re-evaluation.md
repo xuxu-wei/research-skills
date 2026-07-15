@@ -1,27 +1,10 @@
 # SAP Re-evaluation Policy
 
-SAP re-evaluation must be performed by a new isolated evaluator instance after revision. The evaluator must not see the prior evaluator's scores, overall rationale, or decision.
+Use a fresh isolated evaluator for a revised SAP. Give it only the latest
+complete frozen SAP and SHA-256, the stable rubric, necessary proposal/context
+and preflight facts, user constraints, and an optional anonymized must-fix list.
 
-## Requirements
-
-The evaluator should receive:
-
-- current SAP file path;
-- previous SAP version or path;
-- anonymized prior must-fix issue list without scores, overall rationale, or decision;
-- SAP revision delta report;
-- methodology/statistics preflight report;
-- relevant proposal or context brief;
-- user constraints and target output.
-
-## Evaluation Focus
-
-- Were prior must-fix issues addressed?
-- Were prior hard gate failures resolved?
-- Were new defects introduced?
-- Was the revision substantive, or only stylistic?
-- Is another revision likely to add value?
-
-## stop_no_gain
-
-Use `stop_no_gain` when the revision does not materially improve key defects, when critical flaws remain, or when further revision requires missing information rather than writing effort.
+Do not provide the prior SAP, revision delta, prior report, score, rationale, or
+decision. Record `prior_versions_visible: false` and
+`revision_delta_visible: false`. Evaluate the current SAP de novo. The
+orchestrator compares sealed rounds and decides improvement or `stop_no_gain`.

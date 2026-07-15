@@ -7,7 +7,7 @@ This reference defines the output objects for portfolio assembly.
 - executive decision summary;
 - research context summary;
 - evidence / opportunity map summary;
-- ranked candidate ideas;
+- ranked candidate ideas with complete snapshot-derived content and digest binding;
 - score and hard gate table;
 - promoted idea packages;
 - rejected / merged / backup idea summary;
@@ -22,4 +22,4 @@ This reference defines the output objects for portfolio assembly.
 
 ## Formatting Principle
 
-The final output is a PI-review document. It should be readable, concise, and traceable. Do not output a raw machine schema dump unless the user or orchestrator explicitly requests it.
+The final output is a self-contained PI-review document. Keep scores, lineage changes, and revision history subordinate to the complete current Idea. Do not output a raw machine schema dump unless explicitly requested.

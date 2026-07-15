@@ -26,7 +26,7 @@ Translate sealed findings into a bounded revision plan, route prose changes to `
 4. Route the plan and frozen source to `article-drafter`; require a clean new manuscript version and separate response artifact.
 5. Build the delta with addressed/partial/unaddressed findings, locatable substantive changes, new issues, claim/method/result/contribution changes, and new assumptions.
 6. For language polishing, ask the orchestrator to delegate a fresh `academic-language-assessor`, route critical/major fixes to the drafter, record the language log, and use another fresh assessor for reassessment. If independent review is unavailable, return `independent_review_pending` and stop.
-7. Return the new frozen manuscript, anonymized must-fix list when needed, and delta to the orchestrator for a fresh `article-evaluator` instance that cannot see prior scores or decisions.
+7. Return the complete new frozen manuscript/digest, anonymized must-fix list when needed, and a separately sealed delta to the orchestrator. The fresh `article-evaluator` receives the current manuscript and optional anonymous list, never the delta or prior version/report.
 8. Do not compare evaluator rounds or derive `stop_no_gain`; that remains orchestrator-owned.
 
 ## Output Contract

@@ -27,13 +27,19 @@
 ### Idea 1 — <Title>
 
 - Idea ID:
-- Research question:
-- Hypothesis or objective:
-- Endpoint / metric:
-- Data source / evidence base:
-- Minimal experiment / analysis:
-- Value claim:
-- Novelty claim:
+- Current snapshot / version / SHA-256:
+- Complete one-sentence summary:
+- Research question and objectives:
+- Research content and work packages:
+- Core hypothesis:
+- Scientific significance:
+- Relevance, impact, and innovation:
+- Potential applications:
+- Data, materials, and evidence base:
+- Research methods:
+- Required analyses and evidence:
+- Feasibility, resources, and constraints:
+- Risks, assumptions, uncertainties, and stop conditions:
 - Evidence summary:
 - Evaluation summary:
 - Hard gate status:
@@ -56,6 +62,8 @@
 
 | Idea ID | Parent IDs | Generation paths | Variant type | Key changes | Decision |
 |---|---|---|---|---|---|
+
+Key changes are subordinate metadata; they never replace the complete current Idea above.
 
 ## 8. Remaining Uncertainties and PI Decision Points
 

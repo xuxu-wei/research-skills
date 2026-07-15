@@ -47,7 +47,7 @@ minimal_intake_summary:
 
 ```yaml
 article_readiness_report:
-  schema_version: "research-article.v5"
+  schema_version: "research-article.v6"
   artifact_id: "readiness-001"
   source_skill: "article-readiness-triage"
   review_id: "review-001"
@@ -83,7 +83,7 @@ article_readiness_report:
 
 ```yaml
 article_context_brief:
-  schema_version: "research-article.v5"
+  schema_version: "research-article.v6"
   artifact_id: "context-001"
   source_skill: "article-context-builder"
   study_design:
@@ -139,7 +139,7 @@ article_context_brief:
 
 ```yaml
 literature_grounding_report:
-  schema_version: "research-article.v5"
+  schema_version: "research-article.v6"
   artifact_id: "lit-ground-001"
   source_skill: "article-literature-grounder"
   search_protocol:
@@ -171,7 +171,7 @@ literature_grounding_report:
 
 ```yaml
 article_blueprint:
-  schema_version: "research-article.v5"
+  schema_version: "research-article.v6"
   artifact_id: "blueprint-001"
   source_skill: "article-architect"
   contribution:
@@ -186,9 +186,16 @@ article_blueprint:
     research_question: ""
     main_answer: ""
     answer_strength: definitive | strong | moderate | suggestive | exploratory
+  manuscript_identity_anchor:
+    central_question: ""
+    primary_contribution: ""
+    main_answer: ""
+    study_object: ""
+    core_evidence_basis: ""
   claim_evidence_matrix: []
   evidence_provenance_ledger_ref: "04_blueprint/evidence-provenance-ledger.md"
   evidence_display_plan: []
+  display_asset_manifest_ref: "04_blueprint/display-asset-manifest.yaml"
   supplementary_index:
     items: []
     journal_limits:
@@ -212,7 +219,7 @@ article_blueprint:
 
 ```yaml
 methods_audit_report:
-  schema_version: "research-article.v5"
+  schema_version: "research-article.v6"
   artifact_id: "methods-audit-001"
   source_skill: "article-methods-statistics-auditor"
   review_id: "review-002"
@@ -240,11 +247,14 @@ methods_audit_report:
 
 ```yaml
 manuscript_draft:
-  schema_version: "research-article.v5"
+  schema_version: "research-article.v6"
   artifact_id: "manuscript-v001"
   source_skill: "article-drafter"
   version: 1
+  artifact_completeness: complete
   blueprint_ref: "04_blueprint/article-blueprint.md"
+  identity_anchor_ref: "04_blueprint/article-blueprint.md#manuscript_identity_anchor"
+  display_manifest_ref: "04_blueprint/display-asset-manifest.yaml"
   sections:
     introduction: {content: "", word_count: 0}
     methods: {content: "", word_count: 0, reporting_items_covered: []}
@@ -256,11 +266,13 @@ manuscript_draft:
   drafting_assumptions: []
 ```
 
+Register the canonical Markdown SHA-256 in workflow state. A current manuscript must contain complete Introduction, Methods, Results, and Discussion sections; a revision delta or changed-section extract is never a manuscript version.
+
 ## Claim Audit Report
 
 ```yaml
 claim_audit_report:
-  schema_version: "research-article.v5"
+  schema_version: "research-article.v6"
   artifact_id: "claim-audit-001"
   source_skill: "article-claim-auditor"
   review_id: "review-003"
@@ -284,6 +296,5 @@ claim_audit_report:
         rationale: ""
   recommendation: pass | downscale_and_proceed | revise_and_reaudit | blocked
 ```
-
 
 For evaluation, revision, panel, cover-letter, and submission contracts, read `artifact-review-and-submission-contracts.md`.

@@ -4,6 +4,13 @@
 
 ## Minimum requirements
 
+Every accepted output is a complete Markdown snapshot satisfying all twelve
+sections in `research-idea-orchestrator/references/idea-artifact-lifecycle.md`.
+Its one-sentence summary describes the whole current Idea, not a change. Also
+require a matching node pointer, identity anchor, candidate-set entry, and
+SHA-256 digest. Reject a patch, changed-section list, revision delta, or partial
+Idea even when the changed portion is well written.
+
 每个 idea 必须包含：
 
 - research question 或 objective；

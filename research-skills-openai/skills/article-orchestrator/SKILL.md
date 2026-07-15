@@ -10,14 +10,11 @@ Control article routing, state, delegation, stops, and handoff. Do not retrieve 
 
 ## Invariants
 
-- Track current pointers and inventory under `13_state/`; freeze every delegated input with artifact ID, path, version, and scope.
-- Never overwrite `06_drafts/manuscript-vNNN.md`; every saved change creates a version and lineage record.
-- Delegate readiness triage, methods/statistics audit, claim audit, evaluation, every panel role, language assessment, medical journal review, and submission verification to fresh independent subagents.
-- Use registry states: review wait -> `pending_review`; unavailable reviewer -> `independent_review_pending`; fatal -> `blocked`; unfixable/no gain -> `stopped`; verified package -> `human_signoff_required`.
-- Phase delegation is allowed, but each source artifact/version has one writer; never run concurrent source writes.
-- A changed manuscript cannot reach panel, packaging, or readiness until a fresh `article-evaluator` evaluates its frozen new version without prior scores.
-- Preserve fatal findings, unresolved issues, conflicts, and dissent through final packaging.
-- Stop at human sign-off; do not submit externally.
+- Track current pointers under `13_state/`; freeze delegated IDs, paths, versions, digests, scope, and read/write limits.
+- Keep every Markdown manuscript complete, identity-bound, immutable, and separately versioned from revisions/deltas.
+- Delegate every reviewer/verifier role to a fresh independent subagent; one writer owns each source version and concurrent source writes are forbidden. A changed manuscript requires a fresh evaluator before panel or package.
+- Map review wait to `pending_review`, unavailable review to `independent_review_pending`, fatal findings to `blocked`, and no gain to `stopped`; preserve dissent and unresolved issues.
+- Stop at verified human sign-off; never submit externally.
 
 ## Entry Routing
 
@@ -43,24 +40,18 @@ Mark fast-track backfill `confidence: low` and `scope_limitation: fast_track_bac
 7. **Draft.** Route Methods -> Results -> Introduction -> Discussion and supplementary organization to `article-drafter`.
 8. **Audit claims.** Delegate `article-claim-auditor`. Route fixable repairs through controller/drafter, then use a fresh auditor; stop on fatal overclaims.
 9. **Evaluate.** In parallel, delegate a fresh `article-evaluator` and optional `academic-language-assessor`; keep reports sealed. Route `accept`, `revise`, or `reject`.
-10. **Revise and re-evaluate.** Controller/drafter writes a new version, plan, response, and delta under `09_revisions/round-NNN/`. Use a fresh evaluator with latest draft, stable rubric, necessary facts, and optional anonymous must-fix list plus delta. Compare sealed rounds only here; stop after two rounds or `stop_no_gain`.
+10. **Revise and re-evaluate.** Controller/drafter writes a complete new manuscript plus separate revision artifacts. Give a fresh evaluator only the latest manuscript/digest, current display assets, stable rubric, necessary facts, and optional anonymous must-fix list. Never expose prior manuscripts, deltas, reports, scores, or decisions; compare sealed rounds and the delta only here.
 11. **Panel.** Dispatch one fresh `article-review-panel` subagent per role against the same frozen version; hide evaluator and peer outputs. Aggregate after all return and preserve dissent. Fatal methods findings cap at `not_ready`.
 12. **Resolve panel route.** Major or substantive changes return to revision and fresh evaluation. Minor changes that alter prose also create a new version and require fresh evaluation. Unfixable `reject_or_redesign` stops.
 13. **Prepare delivery.** Route frontmatter to `article-frontmatter-drafter`, cover letter to `article-cover-letter`, and biomedical cover-letter review to a fresh `medical-journal-review` instance.
-14. **Verify package.** Delegate `article-submission-compositor` against frozen sources. It may assemble and verify only; it must not rewrite, patch, re-score, or hide issues.
-
-## Delegated Brief and Return Contract
-
-Every reviewer brief includes workflow/round, scope, frozen IDs/versions/paths, allowed files, output path, prohibited reads/writes, and failure route. Require standard review identity and isolation fields.
-
-Subtasks return a phase summary with status, artifact pointers/versions, decisions, unresolved issues, and `next_route`.
+14. **Verify package.** Delegate `article-submission-compositor` against frozen sources. When DOCX-capable document tooling exists, require a synchronized DOCX with native tables, embedded figures, parity checks, and page-render QA. It may format and verify only; it must not repair source content.
 
 ## Promotion and Stop Rules
 
 - Stop on failed readiness, clarification, reanalysis, method block, fatal flaw, no gain, incomplete review, or panel redesign/rejection.
 - Any unresolved fatal finding prevents `accept`, `promoted`, and ready-for-signoff states.
 - Journal instructions, references, table/figure/result consistency, and final declarations are checked only at submission-package verification. Missing verification caps status below `ready_for_author_signoff`.
-- The latest packaged manuscript version must match the latest qualifying evaluator report.
+- The packaged Markdown digest must match the qualifying evaluator. DOCX content drift, required missing assets, unavailable render QA, or manuscript identity drift prevents `human_signoff_required`.
 
 ## Conditional Resources
 
@@ -74,8 +65,9 @@ Subtasks return a phase summary with status, artifact pointers/versions, decisio
 - Read `references/loop-control-rules.md` for revision or no-gain decisions.
 - Read `references/evidence-confirmation-and-routing.md` when a finding is tagged `[evidence]`.
 - Read `references/evidence-provenance-ledger-schema.md` when creating or validating the evidence provenance ledger.
+- Read `references/article-docx-delivery-contract.md` only when producing or verifying a user-facing DOCX or its display assets.
 - Use `templates/round-manifest.md` when recording a new workflow or revision round.
 
 ## Completion Check
 
-Confirm state and index consistency, unique reviewer instance IDs, prior-score blindness, read-only reviewer scope, new-version/new-evaluator pairing, complete panel membership, visible dissent, package status caps, and a human-review-only final state.
+Return a concise phase summary with artifact pointers. Confirm complete manuscript/digest/identity gates, forbidden-history blindness, unique reviewer IDs, read-only scope, fresh evaluation, panel/dissent, DOCX parity/render status when applicable, package caps, and a human-review-only final state.

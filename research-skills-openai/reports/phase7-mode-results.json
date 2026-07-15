@@ -984,7 +984,7 @@
   "phase_status": "in_progress_live_and_release_evidence_pending",
   "phase_status_derivation": "complete_preview_attested or complete_provider_verified only when every runtime and release-ledger gate is verified at one evidence level",
   "phase_status_detail": "runtime_and_release_evidence_pending",
-  "plugin_version": "0.7.0-preview.2",
+  "plugin_version": "0.7.0-preview.3",
   "positive_mode_results": [
     {
       "artifacts_validated": 15,
@@ -3030,7 +3030,7 @@
   "provider_verified": false,
   "registry_independent_reviewer_count": 20,
   "registry_schema_version": 5,
-  "registry_sha256": "sha256:fca5969feb43b726ea7b7c31b7ff00cab43b42393230090cfe3c87eed02b9d26",
+  "registry_sha256": "sha256:15b14cdd80a9cb4b4a4014328313ab55770aa7850405a0283489ca2d50e81936",
   "registry_skill_count": 49,
   "registry_workflow_edge_count": 67,
   "release_ledger_sha256": "sha256:ce264209d13d8eaf852bfc1a66030bf2a0db853d89ad3d3f58b6e3fe893b203c",

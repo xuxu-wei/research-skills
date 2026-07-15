@@ -1,6 +1,6 @@
 schema_version: 1
 profile: personal-owner
-plugin_version: 0.7.0-preview.2
+plugin_version: 0.7.0-preview.3
 evidence_level: owner_observed
 
 # This collection is intentionally pending. Repository-authored files can
@@ -22,7 +22,7 @@ distribution:
     started_at: null
     completed_at: null
     owner_confirmed: false
-  notes: Installed GitHub cache is 0.7.0-preview.1; 0.7.0-preview.2 is not yet pushed.
+  notes: Installed GitHub cache is 0.7.0-preview.2; 0.7.0-preview.3 is not yet installed or pushed.
 
 workflow_runs:
   - slot_id: personal-idea-happy

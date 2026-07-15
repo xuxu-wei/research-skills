@@ -80,9 +80,10 @@ Minimum validation checks at each cross-skill handoff boundary in the research-a
 ### Step 11 → Step 10 (Re-evaluation): Refinement Controller → Evaluator
 
 - New `draft_version` exists
-- `revision-delta-rNNN.md` exists
+- `revision-delta-rNNN.md` exists but remains sealed from the fresh evaluator
+- the revised manuscript is complete, its digest is registered, and the blueprint identity anchor is preserved
 - `response-to-reviewers-rNNN.md` exists
-- Re-evaluation uses a new fresh independent evaluator instance with no shared context, prior report, score, or decision
+- Re-evaluation uses a new fresh independent evaluator with only the current complete manuscript/digest, current displays, necessary facts/rubric, and optional anonymous must-fix list; no prior manuscript, delta, report, score, or decision
 
 ### Step 10/11 → Step 12: Evaluator → Review Panel
 
@@ -102,7 +103,7 @@ Minimum validation checks at each cross-skill handoff boundary in the research-a
 - Cover letter exists at `11_cover-letter/cover-letter.md` unless the target journal explicitly does not require one
 - Cover letter addresses the correct journal
 - Biomedical cover letters have a cover-letter-only independent `medical-journal-review` output; if that required review cannot run, return `independent_review_pending` rather than reviewing inline
-- References, table/figure/result consistency, journal instructions, and ethics/declarations checks are complete or explicitly capped.
+- Canonical Markdown/evaluation digests match; DOCX parity, required displays, and full-page render QA pass or explicitly cap status below human sign-off.
 - The submission compositor/verifier has a fresh independent instance and frozen source artifact IDs, paths, and versions.
 
 ### Step 14 → Human Review: Compositor → Author

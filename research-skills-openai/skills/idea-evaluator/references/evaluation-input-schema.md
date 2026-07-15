@@ -4,7 +4,7 @@
 
 ## Required Inputs
 
-- candidate idea
+- current complete `idea-snapshot-vNNN.md`, its node ID, version, path, and SHA-256
 - Research Context Brief
 - Evidence Map or explicit evidence limitation
 - Opportunity Map or explicit reason for absence
@@ -17,7 +17,7 @@
 ## Conditional Inputs
 
 - Methodology-Statistics Preflight Report
-- anonymous must-fix list and revision delta for revised ideas, only when needed; never prior scores, findings, or decision
+- anonymous must-fix list for a revised Idea, only when needed
 - portfolio context for comparison
 - target journal or funding context, if provided
 
@@ -25,4 +25,4 @@
 
 If missing information prevents defensible scoring, return `evaluation-failure-report.md` rather than guessing.
 
-Every input artifact must be frozen and identified by artifact ID, exact path, and version. If the evaluator is not running in a fresh independent subagent/delegated thread, return `independent_review_pending` with a continuation brief and stop.
+Every input must be frozen and identified by artifact ID, exact path, version, and digest. A re-evaluator must not read prior snapshots, deltas, reports, scores, or decisions. If fresh delegation is unavailable, return `independent_review_pending` with a continuation brief and stop.

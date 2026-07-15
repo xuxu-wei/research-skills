@@ -6,12 +6,12 @@ Each research-idea run should maintain one manifest per round. The manifest is t
 
 ```yaml
 round_manifest:
-  schema_version: "research-idea.v1"
+  schema_version: "research-idea.v2"
   workflow_id: ""
   plugin_version: ""
   round: 1
   project_directory: ""
-  artifact_index_path: "09_state/artifact-index.md"
+  artifact_index_path: "05_state/artifact-index.md"
   user_goal: ""
   intended_output: ""
   selected_strategy: ""
@@ -28,7 +28,8 @@ round_manifest:
     input: []
     context_brief: ""
     evidence_packet: ""
-    generated_idea_set: ""
+    candidate_set_index: ""
+    idea_nodes: []
     preflight_reports: []
     evaluation_reports: []
     portfolio: ""
@@ -57,9 +58,10 @@ round_manifest:
 - Maintain the idea ID namespace according to `references/idea-id-and-lineage-rules.md`; do not recycle rejected, backup, or superseded IDs.
 - Record failed or invalid subagent outputs; do not overwrite them silently.
 - Record the reason for skipping evidence mapping, preflight, or evaluation.
-- Store the manifest in the user project directory as `09_state/round-<n>-manifest.md` or YAML only when used for agent-to-agent transfer.
-- Keep `09_state/artifact-index.md` synchronized with generated idea, preflight, evaluation, adversarial, portfolio, handoff, and language QA artifacts.
-- Any changed candidate creates a new version and returns to `artifact_frozen`/`pending_review`; panel or portfolio assembly requires a fresh evaluation of that exact version.
+- Store the manifest as `05_state/round-NNN-manifest.md`; use YAML only for agent-to-agent transfer.
+- Keep `05_state/artifact-index.md`, node current pointers, and `idea-tree.yaml` synchronized without copying Idea prose into indexes.
+- Any changed Idea writes a complete snapshot in the same node and returns to `artifact_frozen`/`pending_review`; panel or portfolio assembly requires a fresh evaluation of that exact digest.
+- Return `layout_migration_required` for a legacy layout and do not modify it.
 - Permit parallel delegated phases only when each source artifact/version has one writer; reviewer inputs are read-only.
 
 ## Canonical Runtime Artifact Record

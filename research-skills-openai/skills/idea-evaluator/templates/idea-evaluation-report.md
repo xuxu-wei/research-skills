@@ -9,6 +9,11 @@
 - Recommendation:
 - Overall simple average:
 - Hard gate status:
+- Reviewed snapshot digest:
+- Complete snapshot confirmed: true / false
+- Identity drift detected: true / false
+- Prior versions visible: false
+- Revision delta visible: false
 
 ## 2. Dimension Scores
 

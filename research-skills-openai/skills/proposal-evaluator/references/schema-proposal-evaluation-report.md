@@ -15,7 +15,11 @@ The report should include the following fields. This file defines structure only
 - review_scope
 - isolation_mode: fresh_subagent
 - prior_scores_visible: false
+- prior_versions_visible: false
+- revision_delta_visible: false
 - source_edits_performed: false
+- reviewed_artifact_digest
+- complete_artifact_confirmed: true
 - evaluation_id
 - proposal_file_path
 - proposal_version
@@ -43,8 +47,6 @@ The report should include the following fields. This file defines structure only
 - revision_priorities
 - unresolved_issues
 - if_re_evaluation
-  - previous_version_compared
-  - resolved_issues
-  - persistent_issues
-  - new_issues
-  - delta_assessment
+  - anonymized_must_fix_list_used: true | false
+  - prior_versions_visible: false
+  - revision_delta_visible: false

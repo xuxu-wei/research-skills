@@ -1,30 +1,18 @@
 # Re-evaluation Policy
 
-Use this policy when evaluating a revised proposal.
+Use a fresh isolated evaluator for a revised proposal.
 
-## Required Comparisons
+## Allowed inputs
 
-Compare the revised proposal against:
+- the latest complete frozen proposal and SHA-256;
+- the stable rubric and necessary factual context/evidence; and
+- an anonymized must-fix list without scores, rationale, decision, authorship,
+  or change narrative, only when fix verification is needed.
 
-- previous proposal version;
-- anonymized prior must-fix issue list without scores, overall rationale, or decision;
-- revision plan;
-- revision delta report, if available.
+Do not provide the prior proposal, revision plan, response, delta, prior report,
+score, rationale, or decision. Record `prior_versions_visible: false` and
+`revision_delta_visible: false`.
 
-## Judgment Criteria
-
-Determine whether the revision:
-
-- resolves the previous major weaknesses;
-- improves hard gate status;
-- reduces fatal flaw risk;
-- improves reviewer defensibility;
-- introduces new inconsistencies or unsupported claims;
-- merely improves language without addressing substance.
-
-## Decision Guidance
-
-- Use `accept` only if hard gates pass and no fatal flaw remains.
-- Use `revise` if remaining problems are clear and repairable.
-- Use `stop_no_gain` if a targeted revision failed to improve core weaknesses or repeated the same flaws.
-- Use `reject` if the revision reveals or fails to repair an unrecoverable fatal flaw.
+Evaluate the current proposal de novo. The orchestrator alone compares sealed
+round reports and the delta to decide improvement or `stop_no_gain`. The
+evaluator returns only `accept`, `revise`, or `reject` under the stable gates.
