@@ -219,7 +219,10 @@ def file_sha256(path: Path) -> str:
 def skill_tree_sha256(skills_root: Path) -> str:
     """Hash installable skill paths and canonical content deterministically."""
     digest = hashlib.sha256()
-    files = sorted(path for path in skills_root.rglob("*") if path.is_file())
+    files = sorted(
+        (path for path in skills_root.rglob("*") if path.is_file()),
+        key=lambda path: path.relative_to(skills_root).as_posix(),
+    )
     for path in files:
         relative = path.relative_to(skills_root).as_posix().encode("utf-8")
         content = path.read_bytes().replace(b"\r\n", b"\n")

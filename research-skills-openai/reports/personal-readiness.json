@@ -17,7 +17,7 @@
     "registry_sha256": "22d2f8c1d5f81f47f30d2e86f66c4b79a67ebadc3423be9870cd0df8ed9d9bc6",
     "run_index_schema_sha256": "aa3a9303dc9c0fc263370f6f0d99b4a219ce2f9c6360c1eb260d49421fe1c800",
     "skill_count": 49,
-    "skill_tree_sha256": "66009555904ce750cdec42894a205a2b1de5fbb3911f3c7ba89017afd79dab4f",
+    "skill_tree_sha256": "9bbb5cdb75c8303b32b0ef05a9cccae994b5c273215983e5729f9f4d1af8be3c",
     "workflow_count": 5
   },
   "deterministic_status": "deterministic_validated",

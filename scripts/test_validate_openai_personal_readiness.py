@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import copy
+import hashlib
 import json
 import os
 import re
@@ -27,6 +28,29 @@ def _file(path: Path, text: str) -> dict[str, str]:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(text, encoding="utf-8", newline="\n")
     return {"path": _rel(path), "sha256": validator.raw_file_sha256(path)}
+
+
+def _assert_skill_tree_hash_portable() -> None:
+    """The tree digest must use POSIX relative-path order on every host OS."""
+    with tempfile.TemporaryDirectory() as root_value:
+        root = Path(root_value)
+        files = {
+            "sample/SKILL.md": "skill\n",
+            "sample/_meta.json": "{}\n",
+            "sample/agents/openai.yaml": "interface: {}\n",
+        }
+        for relative, content in files.items():
+            path = root / relative
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(content, encoding="utf-8", newline="\n")
+        expected = hashlib.sha256()
+        for relative in sorted(files):
+            content = (root / relative).read_bytes().replace(b"\r\n", b"\n")
+            expected.update(relative.encode("utf-8"))
+            expected.update(b"\0")
+            expected.update(hashlib.sha256(content).digest())
+            expected.update(b"\0")
+        assert validator.skill_tree_sha256(root) == expected.hexdigest()
 
 
 def _artifact(path: Path, artifact_id: str, version: str, text: str) -> dict[str, str]:
@@ -1579,6 +1603,7 @@ def _assert_extra_auditor_rejected(
 
 def main() -> int:
     assert "\ufffd" not in Path(validator.__file__).read_text(encoding="utf-8")
+    _assert_skill_tree_hash_portable()
     deterministic, deterministic_errors = validator.deterministic_checks()
     assert not deterministic_errors, deterministic_errors
     plugin_version = deterministic["plugin_version"]
