@@ -1,0 +1,96 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+$id: openai-personal-runtime-run-index/v1
+title: Research Skills private Codex runtime run index
+type: object
+additionalProperties: false
+required:
+  - schema_version
+  - slot_id
+  - task_id
+  - session_id
+  - plugin_version
+  - source_identity
+  - command
+  - started_at
+  - completed_at
+  - exit_code
+  - files
+  - input_bindings
+  - output_bindings
+  - actor_bindings
+  - event_summary
+properties:
+  schema_version: {const: 1}
+  slot_id: {type: string, minLength: 1}
+  task_id: {type: string, minLength: 1}
+  session_id: {type: string, minLength: 1}
+  plugin_version: {type: string, minLength: 1}
+  source_identity: {$ref: 'owner-observed-receipts.schema.yaml#/$defs/source_identity'}
+  command:
+    type: object
+    additionalProperties: false
+    required:
+      - argv
+      - cwd
+      - sandbox
+      - approval_policy
+      - search_enabled
+      - multi_agent_enabled
+    properties:
+      argv:
+        type: array
+        minItems: 1
+        items: {type: string}
+      cwd: {type: string, minLength: 1}
+      sandbox: {type: string, minLength: 1}
+      approval_policy: {type: string, minLength: 1}
+      search_enabled: {type: boolean}
+      multi_agent_enabled: {type: boolean}
+  started_at: {type: string, format: date-time}
+  completed_at: {type: string, format: date-time}
+  exit_code: {type: integer}
+  files:
+    type: object
+    additionalProperties: false
+    required: [prompt, jsonl, stderr, final_message]
+    properties:
+      prompt: {$ref: 'owner-observed-receipts.schema.yaml#/$defs/file_binding'}
+      jsonl: {$ref: 'owner-observed-receipts.schema.yaml#/$defs/file_binding'}
+      stderr: {$ref: 'owner-observed-receipts.schema.yaml#/$defs/file_binding'}
+      final_message: {$ref: 'owner-observed-receipts.schema.yaml#/$defs/file_binding'}
+  input_bindings:
+    type: array
+    uniqueItems: true
+    items: {$ref: 'owner-observed-receipts.schema.yaml#/$defs/artifact_binding'}
+  output_bindings:
+    type: array
+    uniqueItems: true
+    items: {$ref: 'owner-observed-receipts.schema.yaml#/$defs/artifact_binding'}
+  actor_bindings:
+    type: array
+    uniqueItems: true
+    items: {$ref: 'owner-observed-receipts.schema.yaml#/$defs/actor_binding'}
+  event_summary:
+    type: object
+    additionalProperties: false
+    required:
+      - thread_started_event_id
+      - turn_completed_event_ids
+      - web_search_event_ids
+      - resume_event_ids
+    properties:
+      thread_started_event_id: {type: string, minLength: 1}
+      turn_completed_event_ids:
+        type: array
+        minItems: 1
+        uniqueItems: true
+        items: {type: string, minLength: 1}
+      web_search_event_ids:
+        type: array
+        uniqueItems: true
+        items: {type: string, minLength: 1}
+      resume_event_ids:
+        type: array
+        maxItems: 1
+        uniqueItems: true
+        items: {type: string, minLength: 1}

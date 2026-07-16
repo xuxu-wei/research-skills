@@ -1,4 +1,4 @@
-schema_version: 1
+schema_version: 2
 profile: personal-owner
 plugin_version: 0.9.0-preview.1
 evidence_level: owner_observed
@@ -14,11 +14,17 @@ distribution:
   status: pending_owner_observation
   binding: &pending_binding
     task_id: null
+    session_id: null
     plugin_version: null
     source_identity: null
+    runtime_evidence: null
+    workflow_evidence: null
     artifact_bindings: []
-    reviewer_instance_ids: []
+    actor_bindings: []
     source_urls: []
+    search_evidence: null
+    control_evidence: null
+    deep_research_evidence: null
     started_at: null
     completed_at: null
     owner_confirmed: false

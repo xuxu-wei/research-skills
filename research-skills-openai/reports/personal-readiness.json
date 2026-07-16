@@ -13,9 +13,11 @@
     "phase8_case_count": 20,
     "phase8_false_ready_count": 0,
     "plugin_version": "0.9.0-preview.1",
-    "receipt_schema_sha256": "01db4f7e566933fa20d6ba62cf548d797767ba2a07c325d33750be1a9aee7fd7",
+    "receipt_schema_sha256": "f023ea278781c2173c1e264bc7f4def3c2afd6648f88b2e4b451662f4fe980e3",
     "registry_sha256": "22d2f8c1d5f81f47f30d2e86f66c4b79a67ebadc3423be9870cd0df8ed9d9bc6",
+    "run_index_schema_sha256": "aa3a9303dc9c0fc263370f6f0d99b4a219ce2f9c6360c1eb260d49421fe1c800",
     "skill_count": 49,
+    "skill_tree_sha256": "66009555904ce750cdec42894a205a2b1de5fbb3911f3c7ba89017afd79dab4f",
     "workflow_count": 5
   },
   "deterministic_status": "deterministic_validated",
@@ -45,5 +47,5 @@
   "personal_status": "in_progress_owner_observation",
   "plugin_version": "0.9.0-preview.1",
   "profile": "personal-owner",
-  "schema_version": 1
+  "schema_version": 2
 }

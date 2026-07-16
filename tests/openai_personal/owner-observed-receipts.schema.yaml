@@ -1,7 +1,8 @@
 $schema: https://json-schema.org/draft/2020-12/schema
-$id: openai-personal-owner-observed-receipts/v1
+$id: openai-personal-owner-observed-receipts/v2
 title: Research Skills personal-owner observation receipts
 type: object
+additionalProperties: false
 required:
   - schema_version
   - profile
@@ -12,11 +13,17 @@ required:
   - control_runs
   - retrieval_runs
 properties:
-  schema_version: {const: 1}
+  schema_version: {const: 2}
   profile: {const: personal-owner}
   plugin_version: {type: string, minLength: 1}
   evidence_level: {const: owner_observed}
-  distribution: {$ref: '#/$defs/receipt'}
+  distribution:
+    allOf:
+      - {$ref: '#/$defs/receipt'}
+      - properties:
+          slot_id: {const: personal-distribution-current}
+          kind: {const: distribution}
+          workflow: {type: 'null'}
   workflow_runs:
     type: array
     minItems: 5
@@ -32,51 +39,728 @@ properties:
     minItems: 5
     maxItems: 5
     items: {$ref: '#/$defs/receipt'}
+
 $defs:
+  sha256:
+    type: string
+    pattern: '^[0-9a-f]{64}$'
+
+  file_binding:
+    type: object
+    additionalProperties: false
+    required: [path, sha256]
+    properties:
+      path: {type: string, minLength: 1}
+      sha256: {$ref: '#/$defs/sha256'}
+
+  artifact_binding:
+    type: object
+    additionalProperties: false
+    required: [artifact_id, version, path, sha256]
+    properties:
+      artifact_id: {type: string, minLength: 1}
+      version: {type: string, minLength: 1}
+      path: {type: string, minLength: 1}
+      sha256: {$ref: '#/$defs/sha256'}
+
+  source_identity:
+    type: object
+    additionalProperties: false
+    required:
+      - git_commit
+      - marketplace_revision
+      - manifest_sha256
+      - registry_sha256
+      - skill_tree_sha256
+      - installed_cache_path
+      - installed_manifest_sha256
+      - installed_registry_sha256
+      - installed_skill_tree_sha256
+      - marketplace_metadata_path
+      - marketplace_metadata_sha256
+      - marketplace_source
+      - marketplace_ref
+      - config_path
+      - config_sha256
+      - cli_version
+      - cli_path
+      - cli_sha256
+      - model
+    properties:
+      git_commit: {type: string, pattern: '^[0-9a-f]{40}$'}
+      marketplace_revision: {type: string, pattern: '^[0-9a-f]{40}$'}
+      manifest_sha256: {$ref: '#/$defs/sha256'}
+      registry_sha256: {$ref: '#/$defs/sha256'}
+      skill_tree_sha256: {$ref: '#/$defs/sha256'}
+      installed_cache_path: {type: string, minLength: 1}
+      installed_manifest_sha256: {$ref: '#/$defs/sha256'}
+      installed_registry_sha256: {$ref: '#/$defs/sha256'}
+      installed_skill_tree_sha256: {$ref: '#/$defs/sha256'}
+      marketplace_metadata_path: {type: string, minLength: 1}
+      marketplace_metadata_sha256: {$ref: '#/$defs/sha256'}
+      marketplace_source: {type: string, format: uri}
+      marketplace_ref: {type: string, minLength: 1}
+      config_path: {type: string, minLength: 1}
+      config_sha256: {$ref: '#/$defs/sha256'}
+      cli_version: {type: string, minLength: 1}
+      cli_path: {type: string, minLength: 1}
+      cli_sha256: {$ref: '#/$defs/sha256'}
+      model: {type: string, minLength: 1}
+
+  actor_binding:
+    type: object
+    additionalProperties: false
+    required:
+      - actor_id
+      - role
+      - skill
+      - instance_id
+      - review_stage
+      - isolation_mode
+      - prior_scores_visible
+      - prior_versions_visible
+      - revision_delta_visible
+      - source_edits_performed
+      - files_read
+      - files_written
+    properties:
+      actor_id: {type: string, minLength: 1}
+      role: {type: string, minLength: 1}
+      skill: {type: string, minLength: 1}
+      instance_id: {type: string, minLength: 1}
+      review_stage:
+        enum:
+          - not_applicable
+          - initial_evaluator
+          - fresh_reevaluator
+          - supporting_pre_generation
+          - supporting_historical
+          - supporting_qualifying
+          - panel_reviewer
+          - final_verifier
+          - strategist_initial
+          - strategist_revision
+          - polisher_initial_final
+          - polisher_fresh_final
+      isolation_mode:
+        enum: [host_orchestrator, fresh_subagent, delegated_thread, inline_nonreviewer]
+      prior_scores_visible: {type: boolean}
+      prior_versions_visible: {type: boolean}
+      revision_delta_visible: {type: boolean}
+      source_edits_performed: {type: boolean}
+      files_read:
+        type: array
+        uniqueItems: true
+        items: {type: string, minLength: 1}
+      files_written:
+        type: array
+        uniqueItems: true
+        items: {type: string, minLength: 1}
+
+  runtime_evidence:
+    type: object
+    additionalProperties: false
+    required: [prompt, jsonl, stderr, final_message, run_index, exit_code]
+    properties:
+      prompt:
+        anyOf:
+          - {$ref: '#/$defs/file_binding'}
+          - {type: 'null'}
+      jsonl:
+        anyOf:
+          - {$ref: '#/$defs/file_binding'}
+          - {type: 'null'}
+      stderr:
+        anyOf:
+          - {$ref: '#/$defs/file_binding'}
+          - {type: 'null'}
+      final_message:
+        anyOf:
+          - {$ref: '#/$defs/file_binding'}
+          - {type: 'null'}
+      run_index:
+        anyOf:
+          - {$ref: '#/$defs/file_binding'}
+          - {type: 'null'}
+      exit_code: {type: [integer, 'null']}
+
+  polisher_matrix_cell:
+    type: object
+    additionalProperties: false
+    required: [perspective, tier, outcome, artifact_id, content_summary]
+    properties:
+      perspective:
+        enum: [scientific_significance, practical_value, dissemination_editorial]
+      tier:
+        enum: [reposition_only, small_extension, moderate_extension]
+      outcome: {enum: [option, no_defensible_option]}
+      artifact_id: {type: string, minLength: 1}
+      content_summary: {type: string, minLength: 40}
+
+  polisher_matrix:
+    type: object
+    additionalProperties: false
+    required:
+      - initial_strategist_instance_ids
+      - revision_strategist_instance_id
+      - perspectives
+      - tier_ids
+      - cells
+      - initial_final_reviewer_instance_id
+      - fresh_final_reviewer_instance_id
+    properties:
+      initial_strategist_instance_ids:
+        type: array
+        minItems: 3
+        maxItems: 3
+        uniqueItems: true
+        items: {type: string, minLength: 1}
+      revision_strategist_instance_id: {type: string, minLength: 1}
+      perspectives:
+        type: array
+        minItems: 3
+        maxItems: 3
+        uniqueItems: true
+        prefixItems:
+          - {const: scientific_significance}
+          - {const: practical_value}
+          - {const: dissemination_editorial}
+        items: false
+      tier_ids:
+        type: array
+        minItems: 3
+        maxItems: 3
+        uniqueItems: true
+        prefixItems:
+          - {const: reposition_only}
+          - {const: small_extension}
+          - {const: moderate_extension}
+        items: false
+      cells:
+        type: array
+        minItems: 9
+        maxItems: 9
+        items: {$ref: '#/$defs/polisher_matrix_cell'}
+      initial_final_reviewer_instance_id: {type: string, minLength: 1}
+      fresh_final_reviewer_instance_id: {type: string, minLength: 1}
+
+  workflow_evidence:
+    type: object
+    additionalProperties: false
+    required:
+      - profile
+      - source_inputs_before
+      - source_inputs_after
+      - frozen_review_inputs
+      - version_artifacts
+      - revision_delta
+      - evaluation_artifacts
+      - panel_or_compositor_artifacts
+      - state_artifact
+      - compositor_verification_artifact
+      - status_trace
+      - terminal_state
+      - generator_actor_ids
+      - reviewer_actor_ids
+      - assembler_actor_ids
+      - dissent_preserved
+      - fresh_evaluation_rounds
+      - polisher_matrix
+    properties:
+      profile:
+        enum: [idea, proposal, article, perspective, research_polisher]
+      source_inputs_before:
+        type: array
+        minItems: 1
+        items: {$ref: '#/$defs/artifact_binding'}
+      source_inputs_after:
+        type: array
+        minItems: 1
+        items: {$ref: '#/$defs/artifact_binding'}
+      frozen_review_inputs:
+        type: array
+        minItems: 1
+        description: Frozen, versioned inputs exposed to independent reviewers; may be generated from immutable source inputs.
+        items: {$ref: '#/$defs/artifact_binding'}
+      version_artifacts:
+        type: array
+        minItems: 2
+        description: Ordered initial and substantively revised complete artifacts.
+        items: {$ref: '#/$defs/artifact_binding'}
+      revision_delta: {$ref: '#/$defs/artifact_binding'}
+      evaluation_artifacts:
+        type: array
+        minItems: 2
+        description: Ordered initial evaluation and fresh re-evaluation reports.
+        items: {$ref: '#/$defs/artifact_binding'}
+      panel_or_compositor_artifacts:
+        type: array
+        minItems: 2
+        description: At least two panel reports, or the Polisher portfolio and selection dossier.
+        items: {$ref: '#/$defs/artifact_binding'}
+      state_artifact: {$ref: '#/$defs/artifact_binding'}
+      compositor_verification_artifact:
+        anyOf:
+          - {$ref: '#/$defs/artifact_binding'}
+          - {type: 'null'}
+      status_trace:
+        type: array
+        minItems: 2
+        items: {type: string, minLength: 1}
+      terminal_state: {type: string, minLength: 1}
+      generator_actor_ids:
+        type: array
+        minItems: 2
+        description: Ordered initial and revised artifact producers; Polisher uses its two plan assemblers.
+        uniqueItems: true
+        items: {type: string, minLength: 1}
+      reviewer_actor_ids:
+        type: array
+        minItems: 4
+        description: Includes initial evaluator, fresh re-evaluator, and at least two panel reviewers; Polisher uses its matrix-specific reviewer roles.
+        uniqueItems: true
+        items: {type: string, minLength: 1}
+      assembler_actor_ids:
+        type: array
+        minItems: 1
+        description: Includes the final assembler or compositor actor.
+        uniqueItems: true
+        items: {type: string, minLength: 1}
+      dissent_preserved: {const: true}
+      fresh_evaluation_rounds: {type: integer, minimum: 2}
+      polisher_matrix:
+        anyOf:
+          - {$ref: '#/$defs/polisher_matrix'}
+          - {type: 'null'}
+    allOf:
+      - if:
+          properties: {profile: {const: research_polisher}}
+        then:
+          properties:
+            reviewer_actor_ids: {minItems: 6}
+            polisher_matrix: {$ref: '#/$defs/polisher_matrix'}
+        else:
+          properties:
+            polisher_matrix: {type: 'null'}
+
+  source_record:
+    type: object
+    additionalProperties: false
+    required:
+      - source_id
+      - url
+      - title
+      - publisher
+      - source_type
+      - publication_date
+      - accessed_at
+      - applicability_scope
+      - evidence_event_ids
+    properties:
+      source_id: {type: string, minLength: 1}
+      url: {type: string, format: uri}
+      title: {type: string, minLength: 1}
+      publisher: {type: string, minLength: 1}
+      source_type:
+        enum: [official_primary, peer_reviewed_primary, registry, authoritative_secondary, other]
+      publication_date: {type: [string, 'null'], format: date}
+      accessed_at: {type: string, format: date-time}
+      applicability_scope: {type: string, minLength: 1}
+      evidence_event_ids:
+        type: array
+        minItems: 1
+        uniqueItems: true
+        items: {type: string, minLength: 1}
+
+  claim_mapping:
+    type: object
+    additionalProperties: false
+    required: [claim_id, claim, source_urls, source_record_ids]
+    properties:
+      claim_id: {type: string, minLength: 1}
+      claim: {type: string, minLength: 1}
+      source_urls:
+        type: array
+        minItems: 1
+        uniqueItems: true
+        items: {type: string, format: uri}
+      source_record_ids:
+        type: array
+        minItems: 1
+        uniqueItems: true
+        items: {type: string, minLength: 1}
+
+  search_evidence:
+    type: object
+    additionalProperties: false
+    required:
+      - web_search_event_count
+      - event_ids
+      - opened_urls
+      - source_report
+      - source_records
+      - claim_mappings
+    properties:
+      web_search_event_count: {type: integer, minimum: 1}
+      event_ids:
+        type: array
+        minItems: 1
+        uniqueItems: true
+        items: {type: string, minLength: 1}
+      opened_urls:
+        type: array
+        minItems: 1
+        uniqueItems: true
+        items: {type: string, format: uri}
+      source_report: {$ref: '#/$defs/artifact_binding'}
+      source_records:
+        type: array
+        minItems: 1
+        items: {$ref: '#/$defs/source_record'}
+      claim_mappings:
+        type: array
+        minItems: 1
+        items: {$ref: '#/$defs/claim_mapping'}
+
+  digest_mismatch_evidence:
+    type: object
+    additionalProperties: false
+    required: [path, expected_sha256, supplied_sha256, post_run_sha256, mismatch_detected]
+    properties:
+      path: {type: string, minLength: 1}
+      expected_sha256: {$ref: '#/$defs/sha256'}
+      supplied_sha256: {$ref: '#/$defs/sha256'}
+      post_run_sha256: {$ref: '#/$defs/sha256'}
+      mismatch_detected: {const: true}
+
+  control_evidence:
+    type: object
+    additionalProperties: false
+    required:
+      - control_type
+      - state_trace
+      - terminal_state
+      - ready_state_observed
+      - source_inputs_modified
+      - state_artifact
+      - source_inputs_before
+      - source_inputs_after
+      - digest_mismatch_evidence
+    properties:
+      control_type:
+        enum: [reviewer_unavailable, fatal_digest_mismatch]
+      state_trace:
+        type: array
+        minItems: 1
+        items: {type: string, minLength: 1}
+      terminal_state: {type: string, minLength: 1}
+      ready_state_observed: {const: false}
+      source_inputs_modified: {const: false}
+      state_artifact: {$ref: '#/$defs/artifact_binding'}
+      source_inputs_before:
+        type: array
+        minItems: 1
+        items: {$ref: '#/$defs/artifact_binding'}
+      source_inputs_after:
+        type: array
+        minItems: 1
+        items: {$ref: '#/$defs/artifact_binding'}
+      digest_mismatch_evidence:
+        anyOf:
+          - {$ref: '#/$defs/digest_mismatch_evidence'}
+          - {type: 'null'}
+    allOf:
+      - if:
+          properties: {control_type: {const: fatal_digest_mismatch}}
+        then:
+          properties:
+            digest_mismatch_evidence: {$ref: '#/$defs/digest_mismatch_evidence'}
+        else:
+          properties:
+            digest_mismatch_evidence: {type: 'null'}
+
+  deep_research_evidence:
+    type: object
+    additionalProperties: false
+    required:
+      - mode
+      - pending_edge_id
+      - origin_task_id
+      - origin_session_id
+      - handoff_run_index
+      - resume_run_index
+      - pending_edge_ledger
+      - edge_ledger
+      - continuation_package
+      - returned_result
+      - mapper_artifact
+      - resume_session_id
+      - resume_event_ids
+      - resume_count
+      - edge_consumed
+    properties:
+      mode: {enum: [inactive_handoff, completed_resume]}
+      pending_edge_id: {type: string, minLength: 1}
+      origin_task_id: {type: string, minLength: 1}
+      origin_session_id: {type: string, minLength: 1}
+      handoff_run_index: {$ref: '#/$defs/file_binding'}
+      resume_run_index:
+        anyOf:
+          - {$ref: '#/$defs/file_binding'}
+          - {type: 'null'}
+      pending_edge_ledger: {$ref: '#/$defs/artifact_binding'}
+      edge_ledger: {$ref: '#/$defs/artifact_binding'}
+      continuation_package: {$ref: '#/$defs/artifact_binding'}
+      returned_result:
+        anyOf:
+          - {$ref: '#/$defs/artifact_binding'}
+          - {type: 'null'}
+      mapper_artifact:
+        anyOf:
+          - {$ref: '#/$defs/artifact_binding'}
+          - {type: 'null'}
+      resume_session_id: {type: [string, 'null'], minLength: 1}
+      resume_event_ids:
+        type: array
+        maxItems: 1
+        uniqueItems: true
+        items: {type: string, minLength: 1}
+      resume_count: {type: integer, minimum: 0, maximum: 1}
+      edge_consumed: {type: boolean}
+    allOf:
+      - if:
+          properties: {mode: {const: inactive_handoff}}
+        then:
+          properties:
+            returned_result: {type: 'null'}
+            mapper_artifact: {type: 'null'}
+            resume_run_index: {type: 'null'}
+            resume_session_id: {type: 'null'}
+            resume_event_ids: {maxItems: 0}
+            resume_count: {const: 0}
+            edge_consumed: {const: false}
+      - if:
+          properties: {mode: {const: completed_resume}}
+        then:
+          properties:
+            returned_result: {$ref: '#/$defs/artifact_binding'}
+            mapper_artifact: {$ref: '#/$defs/artifact_binding'}
+            resume_run_index: {$ref: '#/$defs/file_binding'}
+            resume_session_id: {type: string, minLength: 1}
+            resume_event_ids: {minItems: 1, maxItems: 1}
+            resume_count: {const: 1}
+            edge_consumed: {const: true}
+
+  binding:
+    type: object
+    additionalProperties: false
+    required:
+      - task_id
+      - session_id
+      - plugin_version
+      - source_identity
+      - runtime_evidence
+      - workflow_evidence
+      - artifact_bindings
+      - actor_bindings
+      - source_urls
+      - search_evidence
+      - control_evidence
+      - deep_research_evidence
+      - started_at
+      - completed_at
+      - owner_confirmed
+    properties:
+      task_id: {type: [string, 'null'], minLength: 1}
+      session_id: {type: [string, 'null'], minLength: 1}
+      plugin_version: {type: [string, 'null'], minLength: 1}
+      source_identity:
+        anyOf:
+          - {$ref: '#/$defs/source_identity'}
+          - {type: 'null'}
+      runtime_evidence:
+        anyOf:
+          - {$ref: '#/$defs/runtime_evidence'}
+          - {type: 'null'}
+      workflow_evidence:
+        anyOf:
+          - {$ref: '#/$defs/workflow_evidence'}
+          - {type: 'null'}
+      artifact_bindings:
+        type: array
+        items: {$ref: '#/$defs/artifact_binding'}
+      actor_bindings:
+        type: array
+        items: {$ref: '#/$defs/actor_binding'}
+      source_urls:
+        type: array
+        uniqueItems: true
+        items: {type: string, format: uri}
+      search_evidence:
+        anyOf:
+          - {$ref: '#/$defs/search_evidence'}
+          - {type: 'null'}
+      control_evidence:
+        anyOf:
+          - {$ref: '#/$defs/control_evidence'}
+          - {type: 'null'}
+      deep_research_evidence:
+        anyOf:
+          - {$ref: '#/$defs/deep_research_evidence'}
+          - {type: 'null'}
+      started_at: {type: [string, 'null'], format: date-time}
+      completed_at: {type: [string, 'null'], format: date-time}
+      owner_confirmed: {type: boolean}
+
   receipt:
     type: object
+    additionalProperties: false
     required:
       - slot_id
       - kind
+      - workflow
       - expected_outcome
+      - actual_outcome
       - status
       - binding
+      - notes
     properties:
-      slot_id: {type: string, minLength: 1}
-      kind: {type: string, minLength: 1}
-      workflow: {type: [string, 'null']}
+      slot_id:
+        enum:
+          - personal-distribution-current
+          - personal-idea-happy
+          - personal-proposal-happy
+          - personal-article-happy
+          - personal-perspective-happy
+          - personal-research-polisher-happy
+          - personal-reviewer-unavailable-control
+          - personal-fatal-finding-control
+          - personal-search-current
+          - personal-search-exact
+          - personal-search-narrow-academic
+          - personal-deep-research-inactive
+          - personal-deep-research-complete
+      kind:
+        enum:
+          - distribution
+          - workflow_happy
+          - workflow_control
+          - search
+          - deep_research_inactive
+          - deep_research_complete
+      workflow:
+        type: [string, 'null']
+        enum: [idea, proposal, article, perspective, research_polisher, cross_workflow, research, null]
       expected_outcome: {type: string, minLength: 1}
-      actual_outcome: {type: [string, 'null']}
+      actual_outcome: {type: [string, 'null'], minLength: 1}
       status:
         enum: [pending_owner_observation, owner_observed]
-      binding:
-        type: object
-        required:
-          - task_id
-          - plugin_version
-          - source_identity
-          - artifact_bindings
-          - reviewer_instance_ids
-          - source_urls
-          - started_at
-          - completed_at
-          - owner_confirmed
-        properties:
-          task_id: {type: [string, 'null']}
-          plugin_version: {type: [string, 'null']}
-          source_identity: {type: [string, 'null']}
-          artifact_bindings:
-            type: array
-            items:
-              type: object
-              required: [artifact_id, version, path, sha256]
-          reviewer_instance_ids:
-            type: array
-            items: {type: string}
-          source_urls:
-            type: array
-            items: {type: string}
-          started_at: {type: [string, 'null']}
-          completed_at: {type: [string, 'null']}
-          owner_confirmed: {type: boolean}
+      binding: {$ref: '#/$defs/binding'}
       notes: {type: [string, 'null']}
+    allOf:
+      - if:
+          properties: {status: {const: pending_owner_observation}}
+        then:
+          properties:
+            actual_outcome: {type: 'null'}
+            binding:
+              properties:
+                task_id: {type: 'null'}
+                session_id: {type: 'null'}
+                plugin_version: {type: 'null'}
+                source_identity: {type: 'null'}
+                runtime_evidence: {type: 'null'}
+                workflow_evidence: {type: 'null'}
+                artifact_bindings: {maxItems: 0}
+                actor_bindings: {maxItems: 0}
+                source_urls: {maxItems: 0}
+                search_evidence: {type: 'null'}
+                control_evidence: {type: 'null'}
+                deep_research_evidence: {type: 'null'}
+                started_at: {type: 'null'}
+                completed_at: {type: 'null'}
+                owner_confirmed: {const: false}
+      - if:
+          properties: {status: {const: owner_observed}}
+        then:
+          properties:
+            actual_outcome: {type: string, minLength: 1}
+            binding:
+              properties:
+                task_id: {type: string, minLength: 1}
+                session_id: {type: string, minLength: 1}
+                plugin_version: {type: string, minLength: 1}
+                source_identity: {$ref: '#/$defs/source_identity'}
+                runtime_evidence:
+                  allOf:
+                    - {$ref: '#/$defs/runtime_evidence'}
+                    - properties:
+                        prompt: {$ref: '#/$defs/file_binding'}
+                        jsonl: {$ref: '#/$defs/file_binding'}
+                        stderr: {$ref: '#/$defs/file_binding'}
+                        final_message: {$ref: '#/$defs/file_binding'}
+                        run_index: {$ref: '#/$defs/file_binding'}
+                        exit_code: {type: integer}
+                artifact_bindings: {minItems: 1}
+                actor_bindings: {minItems: 1}
+                started_at: {type: string, format: date-time}
+                completed_at: {type: string, format: date-time}
+                owner_confirmed: {const: true}
+      - if:
+          properties:
+            kind: {const: workflow_happy}
+            status: {const: owner_observed}
+        then:
+          properties:
+            binding:
+              properties:
+                workflow_evidence: {$ref: '#/$defs/workflow_evidence'}
+        else:
+          properties:
+            binding:
+              properties:
+                workflow_evidence: {type: 'null'}
+      - if:
+          properties:
+            kind: {const: search}
+            status: {const: owner_observed}
+        then:
+          properties:
+            binding:
+              properties:
+                source_urls: {minItems: 1}
+                search_evidence: {$ref: '#/$defs/search_evidence'}
+        else:
+          properties:
+            binding:
+              properties:
+                source_urls: {maxItems: 0}
+                search_evidence: {type: 'null'}
+      - if:
+          properties:
+            kind: {const: workflow_control}
+            status: {const: owner_observed}
+        then:
+          properties:
+            binding:
+              properties:
+                control_evidence: {$ref: '#/$defs/control_evidence'}
+        else:
+          properties:
+            binding:
+              properties:
+                control_evidence: {type: 'null'}
+      - if:
+          properties:
+            kind: {enum: [deep_research_inactive, deep_research_complete]}
+            status: {const: owner_observed}
+        then:
+          properties:
+            binding:
+              properties:
+                deep_research_evidence: {$ref: '#/$defs/deep_research_evidence'}
+        else:
+          properties:
+            binding:
+              properties:
+                deep_research_evidence: {type: 'null'}

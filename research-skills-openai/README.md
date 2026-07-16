@@ -295,6 +295,12 @@ and an explicit owner confirmation. These receipts support only the personal
 state `owner_observed_ready`; they do not assert external, provider, shared, or
 public attestation.
 
+Receipt schema v2 also validates a private runtime run index, Codex JSONL,
+source/install identity, typed review reports, workflow lineage, Search records,
+and the single-edge Deep Research handoff. Delegation identity, opened-source
+authority, and imported web Deep Research results remain owner-attested rather
+than cryptographically proven.
+
 The tracked
 `../tests/openai_personal/current-version-owner-observed-receipts.yaml` is only
 an all-pending schema template. Copy it to the ignored local path
