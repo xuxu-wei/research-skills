@@ -686,7 +686,8 @@ def _normalized_artifact_path(value: dict[str, Any], repo_root: Path) -> str | N
     stored = value.get("path")
     if not isinstance(stored, str) or not stored.strip():
         return None
-    return os.path.normcase(str((repo_root / Path(stored)).resolve()))
+    portable = stored.replace("\\", "/")
+    return os.path.normcase(str((repo_root / Path(portable)).resolve()))
 
 
 IDEA_DOSSIER_SECTIONS = (
