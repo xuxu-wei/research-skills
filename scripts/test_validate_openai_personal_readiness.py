@@ -91,7 +91,10 @@ def _sectioned_document(title: str, sections: list[tuple[str, str]]) -> str:
 
 def _workflow_document(profile: str, title: str, version: str) -> str:
     if profile == "idea":
-        return idea_dossier("0.9.0-preview.1", version=int(version.removeprefix("v")))
+        plugin_version = str(
+            validator.load_json(validator.PLUGIN / ".codex-plugin" / "plugin.json")["version"]
+        )
+        return idea_dossier(plugin_version, version=int(version.removeprefix("v")))
     shared = {
         "proposal": [
             ("Executive summary", "This complete proposal states the decision, study population, contribution, and bounded plan."),

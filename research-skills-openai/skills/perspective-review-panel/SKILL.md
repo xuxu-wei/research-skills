@@ -56,7 +56,7 @@ unresolved_issues:
 
 | 项目 | 内容 |
 |------|------|
-| 隔离包文件 | draft, argument-skeleton, README.md |
+| 隔离包文件 | draft, argument-skeleton |
 | 核心任务 | 持相反立场，攻击核心判断和论证链每一步 |
 | 核心问题 | "如果我完全不同意你的前提，你的论证哪一步最先崩溃？" |
 | 输出 | 论证链每环抵抗力评分(1-5) + 最弱一环 + 总体建议 + outlet 变化影响声明 |
@@ -69,7 +69,7 @@ Must Not Read: claim-ledger, evidence-matrix, evaluator reports, 其他 reviewer
 
 | 项目 | 内容 |
 |------|------|
-| 隔离包文件 | draft, claim-evidence-matrix, claim-ledger, contrary-evidence-log, README.md |
+| 隔离包文件 | draft, claim-evidence-matrix, claim-ledger, contrary-evidence-log |
 | 核心任务 | 检查证据-主张匹配度、选择性引用、遗漏关键反证、过度推断 |
 | 核心问题 | "最硬的主张是否匹配最硬的证据？有没有被忽略的反证？" |
 | 输出 | 每步证据充分性评分(1-5) + 证据缺口标注 + 总体建议 + outlet 变化影响声明 |
@@ -82,7 +82,7 @@ Must Not Read: evaluator reports, 其他 reviewer 评审
 
 | 项目 | 内容 |
 |------|------|
-| 隔离包文件 | draft, target-outlet-profile（最多）, README.md |
+| 隔离包文件 | draft, target-outlet-profile（最多） |
 | 核心任务 | 检查叙事连贯性、论证推进力、反模式、读者体验 |
 | 核心问题 | "读者读完是改变了理解还是只是知道了更多信息？" |
 | 输出 | 整体叙事力评分(1-5) + 反模式检出清单 + 总体建议 + outlet 变化影响声明 |
@@ -99,7 +99,7 @@ Use conditional reviewers only when the trigger is present. They are additive to
 
 Trigger when the Perspective contains method-heavy, causal, predictive, statistical, benchmark, or design-quality claims.
 
-Allowed files: draft, claim-evidence-matrix, claim-ledger, methodology/statistics preflight if available, README.md.
+Allowed files: draft, claim-evidence-matrix, claim-ledger, and an anonymous frozen methods-facts bundle if needed. The bundle must not expose a reviewer identity, score, decision, route, or report path.
 
 Task: audit whether methodological or statistical claims are properly bounded and whether the article overstates what the methods can establish.
 
@@ -107,7 +107,7 @@ Task: audit whether methodological or statistical claims are properly bounded an
 
 Trigger when the Perspective involves clinical medicine, public health practice, patient care, guideline interpretation, screening, diagnosis, treatment, or implementation in care settings.
 
-Allowed files: draft, target-outlet-profile, clinical evidence subset if available, README.md.
+Allowed files: draft, target-outlet-profile, clinical evidence subset if available.
 
 Task: audit clinical plausibility, endpoint relevance, practice-facing implications, and whether the framing would be credible to a frontline clinician.
 
@@ -115,7 +115,7 @@ Task: audit clinical plausibility, endpoint relevance, practice-facing implicati
 
 Trigger when a concrete target journal, outlet, article type, or commissioned format is specified.
 
-Allowed files: draft, target-outlet-profile, title/abstract if separate, README.md.
+Allowed files: draft, target-outlet-profile, title/abstract if separate.
 
 Task: audit fit with outlet audience, article type, stance strength, structure, word/reference constraints, and likely editor objections.
 

@@ -1,6 +1,6 @@
 schema_version: 2
 profile: personal-owner
-plugin_version: 0.9.0-preview.1
+plugin_version: 0.9.0-preview.2
 evidence_level: owner_observed
 
 # This collection is intentionally pending. Repository-authored files can
@@ -28,7 +28,7 @@ distribution:
     started_at: null
     completed_at: null
     owner_confirmed: false
-  notes: Deterministic acceptance for 0.9.0-preview.1 is complete, and App/CLI diagnostics confirmed the coherent current-version cache and discovery; the formal distribution slot remains pending until its complete binding and owner confirmation are recorded.
+  notes: Deterministic acceptance for 0.9.0-preview.2 is complete; the formal distribution slot remains pending until the refreshed cache, discovery, complete binding, and owner confirmation are recorded.
 
 workflow_runs:
   - slot_id: personal-idea-happy

@@ -25,7 +25,7 @@ The report should include the following fields. This file defines structure only
 - proposal_version
 - evaluation_type: initial | re-evaluation
 - evaluator_role
-- overall_decision: accept | revise | reject | stop_no_gain
+- overall_decision: accept | revise | reject
 - overall_rationale
 - dimension_scores
   - novelty

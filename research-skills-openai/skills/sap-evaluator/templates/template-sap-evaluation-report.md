@@ -100,14 +100,15 @@
 
 ## Re-evaluation Notes
 
-- Prior issues resolved:
-- Prior issues unresolved:
-- New issues introduced:
-- Substantive improvement:
+- Anonymous must-fix items no longer present:
+- Anonymous must-fix items still present:
+- New defects in the current complete SAP:
+
+Do not compare a prior SAP, revision delta, prior score, or prior decision.
 
 ## Decision
 
-Decision: accept / revise / reject / stop_no_gain
+Decision: accept / revise / reject
 
 Rationale:
 

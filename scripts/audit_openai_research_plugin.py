@@ -1252,6 +1252,64 @@ def main() -> int:
         if "project-readme-contract.md" in read(names[reviewer_name]):
             errors.append(f"{reviewer_name}: reviewer must not read the project README")
 
+    reviewer_input_allowance = re.compile(
+        r"(?:allowed inputs?|allowed files?|may read|frozen reads|隔离包文件)[^\n]*README\.md",
+        re.I,
+    )
+    for reviewer_name in reviewer_names:
+        if reviewer_input_allowance.search(read(names[reviewer_name])):
+            errors.append(f"{reviewer_name}: project README is listed as an allowed reviewer input")
+
+    perspective_panel = read(SKILLS / "perspective-review-panel" / "SKILL.md")
+    idea_panel = read(SKILLS / "idea-adversarial-review-panel" / "SKILL.md")
+    proposal_briefs = read(
+        SKILLS / "proposal-orchestrator" / "references" / "delegate-brief-templates.md"
+    )
+    perspective_briefs = read(
+        SKILLS / "perspective-orchestrator" / "references" / "delegate-brief-templates.md"
+    )
+    language_assessor = read(SKILLS / "academic-language-assessor" / "SKILL.md")
+    language_template = read(
+        SKILLS / "academic-language-assessor" / "templates" / "language-assessment-report.md"
+    )
+    if "preflight if available" in perspective_panel or "evidence limits, preflight" in idea_panel:
+        errors.append("review panels must receive anonymous methods facts, not preflight reports")
+    if "readiness_report_path_or_text" in proposal_briefs or "preflight_report_path_or_text" in proposal_briefs:
+        errors.append("proposal evaluator briefs expose another reviewer report")
+    if "list and revision delta" in language_assessor.lower() or "| Metric | Previous | Current |" in language_template:
+        errors.append("language reassessment exposes revision history or prior scores")
+    if "list and revision delta" in perspective_briefs.lower():
+        errors.append("Perspective re-evaluation brief exposes the revision delta")
+    if "methodology-statistics-preflight.md if available" in perspective_briefs:
+        errors.append("Perspective methodology reviewer brief exposes a preflight report")
+    proposal_refiner = read(SKILLS / "proposal-refinement-controller" / "SKILL.md")
+    proposal_rules = read(
+        SKILLS / "proposal-orchestrator" / "references" / "delegation-rules-pattern.md"
+    )
+    if "must-fix list plus delta" in proposal_refiner.lower():
+        errors.append("proposal re-evaluation brief exposes the revision delta")
+    if "proposal/context, preflight," in proposal_rules.lower():
+        errors.append("SAP evaluator routing exposes a preflight reviewer report")
+    evaluator_contract_files = (
+        SKILLS / "proposal-evaluator" / "references" / "schema-proposal-evaluation-report.md",
+        SKILLS / "proposal-evaluator" / "templates" / "template-proposal-evaluation-report.md",
+        SKILLS / "sap-evaluator" / "references" / "schema-sap-evaluation-report.md",
+        SKILLS / "sap-evaluator" / "templates" / "template-sap-evaluation-report.md",
+    )
+    for contract_path in evaluator_contract_files:
+        if "stop_no_gain" in read(contract_path):
+            errors.append(
+                f"{relative(contract_path)}: evaluator must not derive cross-round stop_no_gain"
+            )
+    sap_controller = read(SKILLS / "sap-refinement-controller" / "SKILL.md")
+    if "It must exclude the previous SAP, SAP delta, preflight report" not in sap_controller:
+        errors.append("SAP re-evaluation brief does not seal history and preflight review")
+    proposal_panel_independence = read(
+        SKILLS / "proposal-review-panel" / "references" / "policy-reviewer-independence.md"
+    )
+    if "proposal evaluation report, if provided" in proposal_panel_independence.lower():
+        errors.append("proposal panel independence policy exposes an evaluator report")
+
     polisher_orchestrator = read(
         SKILLS / "research-polisher-orchestrator" / "SKILL.md"
     )

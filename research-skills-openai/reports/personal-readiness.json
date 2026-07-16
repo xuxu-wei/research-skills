@@ -7,17 +7,17 @@
     "entry_mode_count": 17,
     "implicit_entry_count": 6,
     "independent_reviewer_count": 20,
-    "manifest_sha256": "6a3a7b28f9d704cac669529880c65e0cc959bb761b0d5a25aa3c8ee4d62b3b85",
+    "manifest_sha256": "8ef84914a2a381a08ca7f23701f91cc851ef84d8dce90ab14d1dc1a6eb2c380d",
     "phase4_negative_guards_rejected": 63,
     "phase4_workflows_passed": 5,
     "phase8_case_count": 20,
     "phase8_false_ready_count": 0,
-    "plugin_version": "0.9.0-preview.1",
+    "plugin_version": "0.9.0-preview.2",
     "receipt_schema_sha256": "f023ea278781c2173c1e264bc7f4def3c2afd6648f88b2e4b451662f4fe980e3",
-    "registry_sha256": "22d2f8c1d5f81f47f30d2e86f66c4b79a67ebadc3423be9870cd0df8ed9d9bc6",
+    "registry_sha256": "b7f934b103789e1f6f68debcf38dbc3165fb318d072b7727269578e22a047c18",
     "run_index_schema_sha256": "aa3a9303dc9c0fc263370f6f0d99b4a219ce2f9c6360c1eb260d49421fe1c800",
     "skill_count": 49,
-    "skill_tree_sha256": "9bbb5cdb75c8303b32b0ef05a9cccae994b5c273215983e5729f9f4d1af8be3c",
+    "skill_tree_sha256": "6cd74e5f7e34decab533e0850c1388013a0b53039e4d2ad7a2d238f1bbdfa293",
     "workflow_count": 5
   },
   "deterministic_status": "deterministic_validated",
@@ -45,7 +45,7 @@
     "status": "in_progress_owner_observation"
   },
   "personal_status": "in_progress_owner_observation",
-  "plugin_version": "0.9.0-preview.1",
+  "plugin_version": "0.9.0-preview.2",
   "profile": "personal-owner",
   "schema_version": 2
 }

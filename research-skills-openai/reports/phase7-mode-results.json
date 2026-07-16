@@ -614,7 +614,7 @@
       "workflow": "research_polisher"
     }
   ],
-  "plugin_version": "0.9.0-preview.1",
+  "plugin_version": "0.9.0-preview.2",
   "profile": "personal-owner",
   "research_polisher_routing_results": [
     {

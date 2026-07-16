@@ -62,7 +62,7 @@ Use this schema as a structural checklist, not as executable code.
   - sensitivity_analysis_concerns
   - reproducibility_concerns
 - Decision
-  - accept | revise | reject | stop_no_gain
+  - accept | revise | reject
   - rationale
 - Revision Priorities
 - Re-evaluation Notes, if applicable

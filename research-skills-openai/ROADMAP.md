@@ -6,7 +6,7 @@
 |---|---|
 | 文档状态 | Personal Experimental/Preview |
 | 规划基线 | 2026-07-16 |
-| 当前插件版本 | `0.9.0-preview.1` |
+| 当前插件版本 | `0.9.0-preview.2` |
 | 当前范围 | 49 个 Skill、20 个独立 Reviewer、5 个完整工作流 |
 | 发现面 | 7 个声明入口、6 个隐式入口、1 个 explicit-only 入口 |
 | 当前验收状态 | `in_progress_owner_observation`，`0/13` 个 owner-observed 槽位完成 |
@@ -19,12 +19,12 @@
 
 ## 当前状态
 
-- 当前源码为 `0.9.0-preview.1`，包含 49 个 Skill 和 68 条工作流边。
+- 当前源码为 `0.9.0-preview.2`，包含 49 个 Skill 和 68 条工作流边。
 - 五个完整工作流为 Idea、Proposal、Article、Perspective 和 Research Polisher。
 - 七个声明入口中，六个允许隐式调用；Research Polisher 永久保持 explicit-only。
 - 17 个 entry mode 已通过确定性回放；Phase 4 的五个工作流和 63 个负向守卫通过。
 - Phase 8 的 20-case 匿名语料全部通过，false-ready 为 0，Fatal/Blocking 检出、血缘、Reviewer 隔离、写入边界和异议保留均为 100%。
-- GitHub Marketplace 安装机制已经实现；所有者环境已在 Codex App 和新的 Codex CLI 任务中诊断确认 `0.9.0-preview.1` 安装缓存与当前版本发现。正式 `personal-distribution-current` owner receipt 尚未记录，因此该槽位仍未完成。
+- GitHub Marketplace 安装机制已经实现；`0.9.0-preview.2` 刷新后的安装缓存与当前版本发现须在 Phase 7 distribution 槽位重新绑定。正式 owner receipt 尚未记录，因此该槽位仍未完成。
 - 确定性验证不等于真实运行验收。当前 13 个 owner-observed 槽位全部待完成，因此状态保持 `in_progress_owner_observation`。
 
 ## 阶段总览
@@ -156,7 +156,7 @@
 
 ### 待完成
 
-- `0.9.0-preview.1` 的安装缓存与新任务发现已完成诊断确认；正式 owner-observed 记录属于 Phase 7，不重复记为本阶段开发工作。
+- `0.9.0-preview.2` 的安装缓存与新任务发现须在 Phase 7 重新诊断和绑定；正式 owner-observed 记录属于 Phase 7，不重复记为本阶段开发工作。
 
 ### 完成条件
 
@@ -200,7 +200,7 @@
 
 ### 待完成
 
-- 完成 `personal-distribution-current`：把已诊断确认的 `0.9.0-preview.1` 安装、App/CLI 发现、49 个 Skill、7 个声明入口和6 个隐式入口绑定到正式 owner receipt。
+- 完成 `personal-distribution-current`：把 `0.9.0-preview.2` 安装、App/CLI 发现、49 个 Skill、7 个声明入口和6 个隐式入口绑定到正式 owner receipt。
 - 完成五个 happy path：Idea、Proposal、Article、Perspective 和 `personal-research-polisher-happy`。
 - 完成两个控制：Reviewer 不可用时停在 `independent_review_pending`；Fatal 或未解决 Blocking finding 不得产生 ready 状态。
 - Research Polisher 必须验证显式正向调用，同时不接管语言润色、普通写作、新 Idea 或一般文献检索。

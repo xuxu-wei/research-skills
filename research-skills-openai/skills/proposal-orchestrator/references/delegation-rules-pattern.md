@@ -17,7 +17,7 @@ Use this pattern for every evaluator, triage, auditor, assessor, panel reviewer,
 |---|---|---|---|
 | `proposal-readiness-triage` | `proposal-orchestrator` | idea/package, context brief, evidence artifacts, goal, constraints, target output | drafting, SAP writing, panel review |
 | `proposal-evaluator` | `proposal-orchestrator` | complete current proposal/digest, context, evidence, goal, constraints; optional anonymous must-fix list | prior proposal/delta/report, drafting, revising, panel review |
-| `sap-evaluator` | `proposal-orchestrator` | complete current SAP/digest, proposal/context, preflight, endpoint/data facts; optional anonymous must-fix list | prior SAP/delta/report, writing, proposal evaluation, panel review |
+| `sap-evaluator` | `proposal-orchestrator` | complete current SAP/digest, proposal/context, anonymous methods facts, endpoint/data facts; optional anonymous must-fix list | preflight report, prior SAP/delta/report, writing, proposal evaluation, panel review |
 | `proposal-review-panel` | `proposal-orchestrator` | frozen proposal version, mode, tier, review scenario | drafting, revising, source cleanup |
 
 ## Re-evaluation isolation

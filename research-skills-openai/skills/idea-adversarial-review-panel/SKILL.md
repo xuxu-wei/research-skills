@@ -28,7 +28,7 @@ evaluator decisions, or draft proposal text.
 Dispatch novelty/gap skeptic, feasibility/method skeptic, and PI-strategy
 reviewer concurrently. Read `references/reviewer-role-definitions.md` for role
 scope. Each may receive the frozen dossier and only role-necessary context,
-maps, evidence limits, preflight, user constraints, workflow confirmation that
+maps, evidence limits, an anonymous methods-facts bundle, user constraints, workflow confirmation that
 evaluation completed without its findings/scores, and the node reference ledger.
 
 ## Procedure

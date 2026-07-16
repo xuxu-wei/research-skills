@@ -1,13 +1,13 @@
 # Phase 6 Codex Catalog and Context Measurement
 
-Date: 2026-07-16
+Date: 2026-07-17
 Surface: source policy and Codex desktop installation observations
 ChatGPT web: not tested; no inference is made about its discovery or loading
 Status: Complete
 
 ## Result
 
-The maintained `0.9.0-preview.1` source contains 49 skill contracts. Registry
+The maintained `0.9.0-preview.2` source contains 49 skill contracts. Registry
 policy declares seven discoverable entries; six are implicit-active, while
 Research Polisher is permanently explicit-only under the personal routing
 policy:
@@ -20,12 +20,11 @@ policy:
 - `research-opportunity-mapper`
 - `research-polisher-orchestrator`
 
-A 2026-07-16 current-environment diagnostic confirmed that marketplace
-`xuxu-research-preview` is registered, the plugin is enabled with the coherent
-`0.9.0-preview.1` cache, and the current version is discoverable in Codex App
-and a fresh Codex CLI task. This diagnostic is not the formal owner-observed
-distribution record; `personal-distribution-current` remains pending until its
-task/source identity, artifact digest, timestamps, outcome, and owner
+A prior current-environment diagnostic confirmed that marketplace
+`xuxu-research-preview` is registered and that enabled-plugin discovery works
+in Codex App and a fresh Codex CLI task. The `0.9.0-preview.2` cache refresh and
+formal `personal-distribution-current` observation remain pending until their
+task/source identity, artifact digests, timestamps, outcome, and owner
 confirmation are captured. The retained historical routing snapshot remains
 bound to `0.6.0-preview.1` and six entries.
 
@@ -40,14 +39,14 @@ adds its complete `SKILL.md`, including frontmatter, to the description total.
 | Declared-entry descriptions | 956 | Informational |
 | All 49 descriptions | 6,029 | 6,200 |
 | Article orchestrator proxy | 12,833 | 13,400 |
-| Perspective orchestrator proxy | 12,733 | 13,400 |
+| Perspective orchestrator proxy | 12,728 | 13,400 |
 | Proposal orchestrator proxy | 13,146 | 13,400 |
 | Research-idea orchestrator proxy | 12,937 | 13,400 |
 | Research-polisher orchestrator proxy | 12,195 | 13,400 |
 
 The regression limits pass with 171 description characters and 254
 maximum-orchestrator-proxy characters of conservative headroom. The 14 touched
-skill bodies total 68,687 characters against the 73,043 baseline.
+skill bodies total 68,852 characters against the 73,043 baseline.
 
 ## Reproducible checks
 
@@ -75,7 +74,7 @@ replace the still-pending formal distribution receipt.
 ## Interpretation and limits
 
 - Source package: 49 skills; policy declares seven entries, six currently implicit-active.
-- Runtime catalog loading for `0.9.0-preview.1`: diagnostically confirmed in App and a fresh CLI task; formal owner receipt pending.
+- Runtime catalog loading for `0.9.0-preview.2`: refresh and formal owner-observed binding pending in Phase 7.
 - Non-implicit source skills: 43 (the explicit-only Research Polisher entry plus 42 private roles); no claim is made that they load initially.
 - This is character-based headroom, not model-token accounting.
 - Source presence, hashes, or a repository-authored routing snapshot cannot

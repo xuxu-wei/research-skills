@@ -47,7 +47,7 @@ Must Not Call: panel reviewer, architect/curator(通过routing上报)
 已处理/未处理/新引入/核心主张变化。
 
 ### 5. Delegate Re-evaluation
-制备新隔离包并冻结 artifact IDs、路径和版本 → 显式派发新的 fresh independent `perspective-evaluator` subagent/delegated thread。不得提供 prior scores 或 prior decision；确需核对 must-fix 时仅提供匿名问题清单和 revision delta。若无法创建独立实例，返回 `independent_review_pending` 和续跑 brief 后停止，不得 inline self-review。
+制备新隔离包并冻结 artifact IDs、路径和版本 → 显式派发新的 fresh independent `perspective-evaluator` subagent/delegated thread。仅提供最新版完整 draft、稳定 rubric、必要事实材料和可选匿名 must-fix 清单；不得提供旧 draft、revision delta、prior scores 或 prior decision。若无法创建独立实例，返回 `independent_review_pending` 和续跑 brief 后停止，不得 inline self-review。
 
 ### 6. Compare and Route
 

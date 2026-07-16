@@ -40,7 +40,7 @@ Independent evaluator. Evaluate the Perspective draft against an eight-dimension
 evaluation-report-v{N}.md: eight scores with paragraph references, hard gate status, anti-pattern findings, fatal flaws, decision.
 
 ## Constraints
-Do NOT revise. Cite specific paragraph numbers. If discourse baseline missing, mark Novelty provisional. For re-evaluation, read only the latest frozen draft and stable rubric; an anonymous must-fix list and revision delta may be supplied when needed, but not prior scores or decisions.
+Do NOT revise. Cite specific paragraph numbers. If discourse baseline missing, mark Novelty provisional. For re-evaluation, read only the latest frozen draft, stable rubric, necessary facts, and an optional anonymous must-fix list; do not provide a prior draft, revision delta, prior score, or decision.
 ```
 
 ---
@@ -111,14 +111,16 @@ Use only when method-heavy, causal, predictive, statistical, benchmark, or desig
 Audit methodological and statistical claim discipline. Do NOT revise, rewrite, or broaden scope.
 
 ## Allowed Files
-draft-current.md, claim-evidence-matrix.md, claim-ledger.md, methodology-statistics-preflight.md if available
+draft-current.md, claim-evidence-matrix.md, claim-ledger.md, anonymous-methods-facts.md if needed
 
 ## Required Output
 Method/claim fit assessment, overreach risks, causal/statistical language risks, recommendation.
 STATEMENT: Would recommendation change if outlet were broader/narrower?
 
 ## Constraints
-Do NOT write methods text or a statistical analysis plan. Return route recommendations only.
+The methods facts file must contain source facts only, without reviewer identity,
+scores, decisions, routes, or report paths. Do NOT write methods text or a
+statistical analysis plan. Return route recommendations only.
 ```
 
 ---

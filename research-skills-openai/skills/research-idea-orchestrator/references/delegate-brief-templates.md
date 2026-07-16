@@ -68,10 +68,11 @@ files_read: [<exact dossier path>]
 ```text
 Role: <novelty/gap skeptic | feasibility/method skeptic | PI strategy reviewer>
 Run in a fresh instance; do not score, rewrite, or read evaluator findings.
-Frozen reads: <dossier and role-necessary context/map/preflight/ledger>
+Frozen reads: <dossier and role-necessary context/map/anonymous methods facts/ledger>
 Allowed writes: <one role report>
 
-Attack Proposal handoff readiness. Use readable finding titles and dossier
+Do not read a preflight report, reviewer identity, score, decision, or route;
+the methods bundle may contain source facts only. Attack Proposal handoff readiness. Use readable finding titles and dossier
 locators. Display an essential internal reference as `ID: readable label` and
 resolve it through the ledger. Return objections, dissent, and route only.
 ```

@@ -11,7 +11,7 @@ Evaluate a frozen Statistical Analysis Plan for methodological/statistical execu
 ## Independent Execution Contract
 
 - Run only in a fresh independent subagent or delegated thread, never in the context that wrote or revised the SAP.
-- Require frozen SAP, context/proposal, preflight, endpoint, data, population, goal, constraint, and version artifacts. Treat sources as read-only.
+- Require the frozen SAP, necessary proposal/context, endpoint, data, population, goal, constraint, version, and anonymous methods-facts artifacts. Treat sources as read-only; do not read preflight or other reviewer reports.
 - Write only the SAP evaluation report. Do not edit, draft, rewrite, polish, repair, or fix any source.
 - Do not read parent hidden reasoning, expected conclusions, prior scores/decisions, or other reviewer outputs.
 - Require a complete frozen SAP and matching digest. In re-evaluation, read only that SAP, the stable rubric, necessary facts, and optionally an anonymized must-fix list; never read a prior SAP or revision delta.
@@ -22,7 +22,7 @@ Evaluate a frozen Statistical Analysis Plan for methodological/statistical execu
 
 1. Confirm SAP-only scope and sufficient frozen inputs.
 2. Assess Clarity, Feasibility, Completion, Methodological Rigor, Endpoint-Analysis Alignment, Data-Method Fit, Clinical Data Readiness, Clinical Feature Descriptives, Prespecification Discipline, Missing Data, Sensitivity/Robustness, and Reproducibility.
-3. Check endpoint/population/primary route definitions, method/data fit, clinical source/windows/ascertainment, relevant descriptive features, prespecified versus post hoc separation, confounding, missingness, sensitivity, alignment with proposal/preflight, and executability.
+3. Check endpoint/population/primary route definitions, method/data fit, clinical source/windows/ascertainment, relevant descriptive features, prespecified versus post hoc separation, confounding, missingness, sensitivity, alignment with the proposal and frozen source facts, and executability.
 4. Mark each hard-gate/fatal finding and fixability; never assume unstated data, sample, variables, models, or feasibility.
 5. Return `accept`, `revise`, or `reject`. Do not derive cross-round `stop_no_gain`; the orchestrator compares sealed reports.
 

@@ -8,7 +8,7 @@ presented as a production-stable, supported, shared, or public distribution.
 
 The maintained deterministic suite covers static audits, workflow fixtures,
 reviewer isolation, context budgets, registry generation, and plugin packaging.
-The `0.9.0-preview.1` Idea-v3 checkpoint passes that suite. The plugin remains
+The `0.9.0-preview.2` reviewer-input-isolation checkpoint passes that suite. The plugin remains
 `in_progress_owner_observation`, not `owner_observed_ready`, until its private
 current-version runtime slots are completed.
 
@@ -106,12 +106,12 @@ python scripts/codex_plugin_converter.py --mode codex --install --fail-on-invali
 
 The helper preserves the base version, including any prerelease identifier, and
 synchronizes the manifest and workflow registry, for example
-`0.9.0-preview.1` to `0.9.0-preview.1+codex.local-YYYYMMDD-HHMMSS`. Never commit
+`0.9.0-preview.2` to `0.9.0-preview.2+codex.local-YYYYMMDD-HHMMSS`. Never commit
 or push a `+codex.local-*` version to the rolling Preview channel.
 
 ## Inventory and invocation policy
 
-The maintained `0.9.0-preview.1` source contains 49 skill contracts and declares
+The maintained `0.9.0-preview.2` source contains 49 skill contracts and declares
 seven discoverable entry skills. Six currently set
 `allow_implicit_invocation: true`:
 
@@ -129,14 +129,11 @@ generation, or general literature-search requests. The other 42 private roles
 also set the policy to `false` and remain available for explicit or
 orchestrated delegation.
 
-A current-environment diagnostic on 2026-07-16 confirmed that the GitHub
-marketplace is registered, the plugin is enabled with the coherent
-`0.9.0-preview.1` cache, and the current version is discoverable in both Codex
-App and a fresh Codex CLI task. The installation mechanism and current-version
-loading are therefore diagnostically confirmed. The formal
-`personal-distribution-current` slot remains pending until its task/source
-identity, artifact digest, timestamps, outcome, and owner confirmation are
-captured in the private receipt.
+A prior current-environment diagnostic confirmed the GitHub marketplace,
+enabled-plugin, and fresh-task discovery mechanism. Refreshing and observing the
+`0.9.0-preview.2` cache is part of the pending Phase 7 distribution slot, which
+also requires task/source identity, artifact digests, timestamps, outcome, and
+owner confirmation in the private receipt.
 
 ## Artifact format defaults
 

@@ -66,7 +66,7 @@ Input:
 - proposal_file_path: {{proposal_file_path}}
 - proposal_version: {{proposal_version}}
 - Proposal context brief: {{context_brief_path_or_text}}
-- Readiness report: {{readiness_report_path_or_text}}
+- Necessary factual context/evidence only: {{necessary_facts_or_evidence}}
 - User goal: {{user_goal}}
 - Target output: {{target_output}}
 - Constraints: {{constraints}}
@@ -88,7 +88,7 @@ Task:
 1. Read the proposal file.
 2. Evaluate all rubric dimensions.
 3. Apply hard gates and fatal flaw checks.
-4. Return one decision: accept | revise | reject | stop_no_gain.
+4. Return one decision: accept | revise | reject. The orchestrator alone derives `stop_no_gain` from sealed rounds.
 5. Prefix each revision priority with [evidence], [clarity], [substance], or [other].
 6. Output an evaluation report following the template.
 ```
@@ -106,7 +106,7 @@ Input:
 - sap_version: {{sap_version}}
 - proposal_file_path: {{proposal_file_path}}
 - Proposal context brief: {{context_brief_path_or_text}}
-- Methodology/statistics preflight report: {{preflight_report_path_or_text}}
+- Frozen methods-facts bundle without reviewer identity, scores, decisions, or report path: {{methods_facts_bundle}}
 - Endpoint/outcome/metric definitions: {{endpoint_metric_definitions}}
 - Available data description: {{data_description}}
 - Analysis population: {{analysis_population}}
@@ -128,7 +128,7 @@ Task:
 1. Read the SAP file.
 2. Evaluate SAP dimensions, endpoint-analysis alignment, and data-method fit.
 3. Apply hard gates and fatal flaw checks.
-4. Return one decision: accept | revise | reject | stop_no_gain.
+4. Return one decision: accept | revise | reject. The orchestrator alone derives `stop_no_gain` from sealed rounds.
 5. Output a SAP evaluation report following the template.
 ```
 

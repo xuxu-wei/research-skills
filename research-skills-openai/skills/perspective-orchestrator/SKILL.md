@@ -36,7 +36,7 @@ Control Perspective workflow state, routing, delegation, stop decisions, and fin
 4. **Architect.** Route the argument chain and paragraph plan to `perspective-argument-architect`; approved claim changes return to the curator.
 5. **Draft.** Route frozen architecture and claim artifacts to `perspective-drafter`; require a new version plus paragraph map and prohibit unregistered claims.
 6. **Evaluate.** Delegate a fresh `perspective-evaluator`. Route `accept` forward; route revision, argument/evidence rebuild, thesis redesign, or outlet retargeting to the owning upstream role; stop on `reject_not_salvageable`.
-7. **Revise and re-evaluate.** Controller/drafter creates a new version, plan, response, and delta in `06_revisions/round-NNN/`; use a fresh evaluator with latest draft, stable rubric, necessary facts, and optional anonymous must-fix list plus delta. Compare sealed rounds only here; stop on no gain or round limit.
+7. **Revise and re-evaluate.** Save the new version, plan, response, and delta in `06_revisions/round-NNN/`; give a fresh evaluator only the latest draft, stable rubric, necessary facts, and optional anonymous must-fix list. Seal prior drafts/deltas. Compare sealed rounds here; stop on no gain or round limit.
 8. **Panel.** Dispatch counter-position, evidence, and narrative roles of `perspective-review-panel` concurrently in fresh subagents; add conditional roles only when triggered. Hide evaluator and peer reports; aggregate after all return and preserve dissent.
 9. **Resolve panel route.** Strong support proceeds; major/substantive changes return to revision and fresh evaluation; not-ready returns upstream; unfixable redesign/rejection stops.
 

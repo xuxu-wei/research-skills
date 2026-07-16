@@ -11,7 +11,7 @@ Evaluate a frozen proposal and return a defensible decision plus repair prioriti
 ## Independent Execution Contract
 
 - Run only in a fresh independent subagent or delegated thread, never in the context that drafted or revised the proposal.
-- Require frozen proposal, context/readiness, evidence, goal, constraint, and version artifacts. Treat sources as read-only.
+- Require the frozen proposal plus only necessary factual context/evidence, goal, constraints, and version artifacts. Treat sources as read-only; do not read readiness or other reviewer reports.
 - Write only the evaluation report. Do not edit, draft, rewrite, polish, repair, or fix any source.
 - Do not read parent hidden reasoning, expected conclusions, prior scores/decisions, language-assessor reports, panel reports, or other reviewer outputs.
 - Require a complete frozen proposal and matching digest. In re-evaluation, read only that proposal, the stable rubric, necessary facts, and optionally an anonymized must-fix list; never read a prior proposal or revision delta.

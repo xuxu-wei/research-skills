@@ -28,7 +28,7 @@
 
 ## 2. Overall Decision
 
-- Decision: accept / revise / reject / stop_no_gain
+- Decision: accept / revise / reject
 - Rationale:
 
 ## 3. Dimension Scores
@@ -82,15 +82,15 @@ Rank by priority. Each item prefixed with a category tag:
 2. [category]
 3. [category]
 
-## 10. Re-evaluation Delta
+## 10. Current Re-evaluation Assessment
 
 Use only for revised proposals.
 
-- Previous version compared:
-- Resolved issues:
-- Persistent issues:
-- New issues:
-- Delta assessment:
+- Anonymous must-fix items no longer present:
+- Anonymous must-fix items still present:
+- New defects in the current complete proposal:
+
+Do not compare a prior proposal, revision delta, prior score, or prior decision.
 
 ## 11. Unresolved Issues
 

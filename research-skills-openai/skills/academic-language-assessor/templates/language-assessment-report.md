@@ -88,15 +88,16 @@
 
 ---
 
-## Re-Assessment Delta (if applicable)
+## Re-Assessment Status (if applicable)
 
-| Metric | Previous | Current |
-|--------|----------|---------|
-| Overall level | {{previous}} | {{current}} |
-| Issues resolved | — | {{count}} |
-| Issues remaining | — | {{count}} |
-| New issues | — | {{count}} |
-| Improvement | — | {{significant / moderate / minimal / none / degraded}} |
+Use only the optional anonymous issue list; do not compare prior scores,
+decisions, text versions, or revision deltas.
+
+| Check | Current assessment |
+|--------|--------------------|
+| Listed issues no longer present | {{count and issue IDs}} |
+| Listed issues still present | {{count and issue IDs}} |
+| New current-text issues | {{count and issue IDs}} |
 
 ---
 

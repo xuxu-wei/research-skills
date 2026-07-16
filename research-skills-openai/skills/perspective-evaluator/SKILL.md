@@ -50,13 +50,13 @@ unresolved_issues:
 
 ```
 Allowed Inputs（仅限隔离包）:
-  - input-brief, argument-skeleton, draft, paragraph-map, claim-ledger, claim-evidence-matrix, target-outlet-profile, existing-discourse-baseline, README.md
+  - input-brief, argument-skeleton, draft, paragraph-map, claim-ledger, claim-evidence-matrix, target-outlet-profile, existing-discourse-baseline
 
 Required Outputs:
   - evaluation-report-v{N}.md（八维 + gates + 反模式 + 决策）
 
 May Read: 隔离包内所有文件（paragraph-map 仅限第二遍）
-Must Not Read: 前次 eval/score/decision, response-to-reviewers, panel, 父目录；复评仅可按需读取匿名 must-fix 清单和 revision delta
+Must Not Read: 前次 eval/score/decision, response-to-reviewers, panel, 父目录, 项目 README, previous draft, revision delta；复评仅可按需读取匿名 must-fix 清单
 Must Not Write: draft, claim-ledger, 非 eval 文件
 May Call: 无
 Must Not Call: drafter/architect/curator

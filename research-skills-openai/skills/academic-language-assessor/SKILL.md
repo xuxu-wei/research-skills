@@ -14,7 +14,7 @@ Determine whether frozen academic text meets its language baseline and report lo
 - Require frozen artifact IDs, paths, versions, target language, discipline, and scope. Treat source artifacts as read-only.
 - Write only the Language Assessment Report. Do not edit, draft, rewrite, polish, repair, or fix the assessed text.
 - Do not use parent hidden reasoning, expected conclusions, prior scores/decisions, or other reviewer outputs.
-- For reassessment, read only the latest text plus an anonymized issue list and revision delta when issue-resolution checking is required.
+- For reassessment, read only the latest text plus an anonymized issue list when issue-resolution checking is required; do not read a prior version or revision delta.
 - Report exact files and sections read, scope limitations, and reviewer instance ID.
 - If independent execution is unavailable, return `independent_review_pending` with a self-contained continuation brief and stop; never assess inline.
 
@@ -24,7 +24,7 @@ Determine whether frozen academic text meets its language baseline and report lo
 - `target_language`: `English`, `Chinese`, or `bilingual`;
 - discipline and optional target journal;
 - full-text or named-section scope;
-- optional anonymized issue list and revision delta for reassessment.
+- optional anonymized issue list for reassessment.
 
 Stop with clarification needs when no text is readable or discipline cannot be established without changing the applicable convention set.
 
@@ -61,7 +61,7 @@ findings: []
 unresolved_issues: []
 ```
 
-The report must also contain target language, discipline, scope, sections assessed, six dimension scores, hard-gate results, locatable issues, strengths, revision priorities, recommendation, limitations, and reassessment delta when applicable.
+The report must also contain target language, discipline, scope, sections assessed, six dimension scores, hard-gate results, locatable issues, strengths, revision priorities, recommendation, limitations, and current reassessment status when applicable.
 
 ## Decision Rules
 

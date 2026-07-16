@@ -24,7 +24,7 @@ Stop when proposal/evaluation inputs are missing, the decision is not revision-e
 - Create a new proposal version for every saved substantive or language-only change.
 - Keep revision plan, response-to-reviewers, delta, and optional language log separate from proposal prose.
 - Delegate language assessment and proposal re-evaluation to fresh independent subagents; never reuse the prior evaluator instance.
-- A re-evaluator receives no prior score, rationale, or decision. It may receive only the latest frozen proposal, stable rubric, necessary factual artifacts, and—when required—an anonymized must-fix list plus delta.
+- A re-evaluator receives only the latest frozen proposal, stable rubric, necessary factual artifacts, and an optional anonymized must-fix list; never a prior proposal, delta, report, score, rationale, or decision.
 - Compare sealed reports only after the new evaluator returns; no controller-generated accept decision is valid.
 
 ## Procedure

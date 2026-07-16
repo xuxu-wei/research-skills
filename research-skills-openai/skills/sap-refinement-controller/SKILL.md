@@ -93,7 +93,7 @@ After the update, produce or require a SAP delta report covering:
 
 Explicitly assign a new `sap-evaluator` instance to a fresh independent subagent or delegated thread. Do not re-use the prior evaluator or evaluate inline.
 
-The re-evaluation brief must include the updated and previous frozen SAP files/versions, an anonymized prior must-fix issue list, SAP delta report, preflight report, endpoint/metric definitions, data description, and user constraints. It must exclude the prior scores, rationale, and decision.
+The re-evaluation brief must include only the latest complete frozen SAP and digest, stable rubric, endpoint/metric definitions, data description, user constraints, necessary source facts, and an optional anonymized prior must-fix issue list. It must exclude the previous SAP, SAP delta, preflight report, prior scores, rationale, and decision.
 
 ### 6. Decide Loop Outcome
 
@@ -145,7 +145,7 @@ Return:
 
 ## References
 
-- `../sap-evaluator/references/policy-sap-re-evaluation.md`: governs SAP re-evaluation, version comparison, and `stop_no_gain`.
+- `../sap-evaluator/references/policy-sap-re-evaluation.md`: governs fresh SAP re-evaluation inputs; the orchestrator compares sealed rounds for `stop_no_gain`.
 - `../sap-evaluator/references/policy-endpoint-analysis-alignment.md`: defines endpoint-analysis alignment checks used to prioritize SAP fixes.
 - `../sap-evaluator/references/policy-data-method-fit.md`: defines data-method fit checks used to prioritize SAP fixes.
 - `../sap-writer/references/policy-sap-file-maintenance.md`: governs SAP file paths, version lineage, change summaries, and unresolved SAP issues.
