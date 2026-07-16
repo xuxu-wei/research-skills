@@ -1,54 +1,51 @@
 # Idea Evaluation Report
 
-## 1. Evaluation Summary
+- Reviewer instance ID:
+- Review ID / workflow ID / round ID:
+- Input artifact IDs / versions:
+- Idea ID/title:
+- Current dossier / version / SHA-256:
+- Files read: `<exactly one dossier path>`
+- Isolation mode: `fresh_subagent`
+- Reviewed dossier digest:
+- Complete dossier confirmed:
+- Dossier-only input confirmed:
+- Identity drift detected:
+- Historical identity drift assessed: `false`
+- Prior scores/versions/delta visible: `false / false / false`
+- Source edits performed: `false`
 
-- Idea ID:
-- Title:
-- Independence status:
-- Input sufficiency:
-- Recommendation:
-- Overall simple average:
-- Hard gate status:
-- Reviewed snapshot digest:
-- Complete snapshot confirmed: true / false
-- Identity drift detected: true / false
-- Prior versions visible: false
-- Revision delta visible: false
+## Evidence-chain checks
 
-## 2. Dimension Scores
+| Chain title | Input sufficiency | Transformation validity | Output relevance | Objective/hypothesis traceability | Closure |
+|---|---|---|---|---|---|
 
-| Dimension | Score | Rationale |
+## Title and positioning Claim-Support checks
+
+| Claim | Registration complete | Implementation/output support | Actual increment accurate | Qualifier retained | Positioning scope supported |
+|---|---|---|---|---|---|
+
+## Scores and gates
+
+| Dimension | Score | Dossier-located rationale |
 |---|---:|---|
-| Novelty |  |  |
-| Feasibility |  |  |
-| Impact |  |  |
-| Relevance |  |  |
-| Clarity |  |  |
-| Completion |  |  |
+| Novelty | | |
+| Feasibility | | |
+| Impact | | |
+| Relevance | | |
+| Clarity | | |
+| Completion | | |
 
-## 3. Hard Gates
+- Simple mean:
+- Failed hard gates:
+- Fatal flaws:
+- Decision:
 
-| Gate | Threshold | Status | Comment |
-|---|---:|---|---|
-| Feasibility | 3.0 |  |  |
-| Relevance | 3.0 |  |  |
-| Clarity | 3.0 |  |  |
-| Completion | 3.0 |  |  |
+## Findings
 
-## 4. Fatal Flaws
+| Title | Dossier locator | Severity | Rationale |
+|---|---|---|---|
 
-- None identified / list issues:
-
-## 5. Reviewer Objections
-
--
-
-## 6. Targeted Repair Direction
-
-- Weakest dimension:
-- Repair direction:
-- Suggested next skill:
-
-## 7. Evaluation Limitations
+## Repair directions, unresolved issues, and limitations
 
 -

@@ -5,14 +5,14 @@ execution_scope: evaluation_revision_delivery_with_entry_receipts
 workflow: proposal
 workflow_id: wf-phase4-proposal-001
 entry_mode: standard
-plugin_version: 0.8.0-preview.1
+plugin_version: 0.9.0-preview.1
 registry_schema_version: 5
 initial_artifacts:
   - artifact_id: proposal-context-v1
     version_id: c001
     workflow_id: wf-phase4-proposal-001
     round_id: entry-001
-    plugin_version: 0.8.0-preview.1
+    plugin_version: 0.9.0-preview.1
     source_skill: proposal-context-brief-builder
     created_by_instance_id: proposal-context-brief-builder-001
     based_on: []
@@ -27,7 +27,7 @@ initial_artifacts:
     version_id: e001
     workflow_id: wf-phase4-proposal-001
     round_id: entry-001
-    plugin_version: 0.8.0-preview.1
+    plugin_version: 0.9.0-preview.1
     source_skill: external-input
     created_by_instance_id: fixture-user-proposal-001
     based_on: []
@@ -81,7 +81,7 @@ events:
         version_id: rd001
         workflow_id: wf-phase4-proposal-001
         round_id: entry-001
-        plugin_version: 0.8.0-preview.1
+        plugin_version: 0.9.0-preview.1
         source_skill: proposal-readiness-triage
         created_by_instance_id: proposal-readiness-001
         based_on: [proposal-context-v1@c001, proposal-evidence-v1@e001]
@@ -108,7 +108,7 @@ events:
         version_id: v001
         workflow_id: wf-phase4-proposal-001
         round_id: round-001
-        plugin_version: 0.8.0-preview.1
+        plugin_version: 0.9.0-preview.1
         source_skill: proposal-drafter
         created_by_instance_id: proposal-writer-001
         based_on: [proposal-context-v1@c001, proposal-evidence-v1@e001, proposal-readiness-v1@rd001]
@@ -165,7 +165,7 @@ events:
         version_id: r001
         workflow_id: wf-phase4-proposal-001
         round_id: round-001
-        plugin_version: 0.8.0-preview.1
+        plugin_version: 0.9.0-preview.1
         source_skill: proposal-evaluator
         created_by_instance_id: proposal-evaluator-001
         based_on: [proposal-context-v1@c001, proposal-evidence-v1@e001, proposal-v1@v001]
@@ -192,7 +192,7 @@ events:
         version_id: rp002
         workflow_id: wf-phase4-proposal-001
         round_id: round-002
-        plugin_version: 0.8.0-preview.1
+        plugin_version: 0.9.0-preview.1
         source_skill: proposal-refinement-controller
         created_by_instance_id: proposal-controller-001
         based_on: [proposal-v1@v001, proposal-eval-v1@r001]
@@ -220,7 +220,7 @@ events:
         version_id: v002
         workflow_id: wf-phase4-proposal-001
         round_id: round-002
-        plugin_version: 0.8.0-preview.1
+        plugin_version: 0.9.0-preview.1
         source_skill: proposal-drafter
         created_by_instance_id: proposal-writer-002
         based_on: [proposal-v1@v001, proposal-revision-plan-v2@rp002]
@@ -235,7 +235,7 @@ events:
         version_id: rr002
         workflow_id: wf-phase4-proposal-001
         round_id: round-002
-        plugin_version: 0.8.0-preview.1
+        plugin_version: 0.9.0-preview.1
         source_skill: proposal-drafter
         created_by_instance_id: proposal-writer-002
         based_on: [proposal-v1@v001, proposal-revision-plan-v2@rp002, proposal-v2@v002]
@@ -250,7 +250,7 @@ events:
         version_id: rd002
         workflow_id: wf-phase4-proposal-001
         round_id: round-002
-        plugin_version: 0.8.0-preview.1
+        plugin_version: 0.9.0-preview.1
         source_skill: proposal-drafter
         created_by_instance_id: proposal-writer-002
         based_on: [proposal-v1@v001, proposal-revision-plan-v2@rp002, proposal-v2@v002]
@@ -295,7 +295,7 @@ events:
         version_id: r002
         workflow_id: wf-phase4-proposal-001
         round_id: round-002
-        plugin_version: 0.8.0-preview.1
+        plugin_version: 0.9.0-preview.1
         source_skill: proposal-evaluator
         created_by_instance_id: proposal-evaluator-002
         based_on: [proposal-context-v1@c001, proposal-evidence-v1@e001, proposal-v2@v002]
@@ -339,7 +339,7 @@ events:
         version_id: pf001
         workflow_id: wf-phase4-proposal-001
         round_id: sap-preflight-001
-        plugin_version: 0.8.0-preview.1
+        plugin_version: 0.9.0-preview.1
         source_skill: methodology-statistics-preflight
         created_by_instance_id: proposal-sap-preflight-001
         based_on: [proposal-context-v1@c001, proposal-evidence-v1@e001, proposal-v2@v002]
@@ -366,7 +366,7 @@ events:
         version_id: s001
         workflow_id: wf-phase4-proposal-001
         round_id: sap-001
-        plugin_version: 0.8.0-preview.1
+        plugin_version: 0.9.0-preview.1
         source_skill: sap-writer
         created_by_instance_id: sap-writer-001
         based_on: [proposal-context-v1@c001, proposal-v2@v002, proposal-sap-preflight-v1@pf001]
@@ -411,7 +411,7 @@ events:
         version_id: sr001
         workflow_id: wf-phase4-proposal-001
         round_id: sap-001
-        plugin_version: 0.8.0-preview.1
+        plugin_version: 0.9.0-preview.1
         source_skill: sap-evaluator
         created_by_instance_id: sap-evaluator-001
         based_on: [proposal-context-v1@c001, proposal-v2@v002, proposal-sap-preflight-v1@pf001, sap-v1@s001]
@@ -465,7 +465,7 @@ events:
         version_id: p001
         workflow_id: wf-phase4-proposal-001
         round_id: panel-001
-        plugin_version: 0.8.0-preview.1
+        plugin_version: 0.9.0-preview.1
         source_skill: proposal-review-panel
         created_by_instance_id: proposal-panel-domain-001
         based_on: [proposal-v2@v002]
@@ -510,7 +510,7 @@ events:
         version_id: p002
         workflow_id: wf-phase4-proposal-001
         round_id: panel-001
-        plugin_version: 0.8.0-preview.1
+        plugin_version: 0.9.0-preview.1
         source_skill: proposal-review-panel
         created_by_instance_id: proposal-panel-methods-001
         based_on: [proposal-v2@v002]
@@ -555,7 +555,7 @@ events:
         version_id: p003
         workflow_id: wf-phase4-proposal-001
         round_id: panel-001
-        plugin_version: 0.8.0-preview.1
+        plugin_version: 0.9.0-preview.1
         source_skill: proposal-review-panel
         created_by_instance_id: proposal-panel-submission-guard-001
         based_on: [proposal-v2@v002]
@@ -604,7 +604,7 @@ events:
         version_id: pkg001
         workflow_id: wf-phase4-proposal-001
         round_id: package-001
-        plugin_version: 0.8.0-preview.1
+        plugin_version: 0.9.0-preview.1
         source_skill: proposal-package-assembler
         created_by_instance_id: proposal-assembler-001
         based_on: [proposal-context-v1@c001, proposal-readiness-v1@rd001, proposal-v2@v002, proposal-eval-v2@r002, proposal-sap-preflight-v1@pf001, sap-v1@s001, sap-eval-v1@sr001, proposal-panel-domain-report@p001, proposal-panel-methods-report@p002, proposal-panel-submission-guard-report@p003, proposal-revision-plan-v2@rp002, proposal-response-v2@rr002, proposal-delta-v2@rd002]

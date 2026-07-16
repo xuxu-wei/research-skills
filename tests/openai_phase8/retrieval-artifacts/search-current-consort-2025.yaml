@@ -1,7 +1,7 @@
 schema_version: 1
 artifact_id: ph8-search-current-consort-2025
 plugin_version: 0.6.0-preview.1
-task_id: 019f506d-01cc-7fa0-9839-db8f494b5ab4
+task_id: private-task-id-redacted
 captured_at: 2026-07-12T06:15:04Z
 route: chatgpt_codex_builtin_search
 question_class: current

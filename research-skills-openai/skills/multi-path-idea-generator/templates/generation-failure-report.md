@@ -1,28 +1,29 @@
-# Generation Failure Report
+# Idea Generation Failure Report
 
-## Reason
+## Status
 
-Generation was not reliable because required context or opportunity information was missing.
+`generation_blocked | direction_route_confirmation_required | new_idea_required | revision_required | layout_migration_required`
 
-## Missing Inputs
+## Requested route and scope
 
-- Research Context Brief:
-- Opportunity Map:
-- User constraints:
-- Evidence limitations:
-- Existing idea pool, if required:
+- Route:
+- Node or proposed direction:
+- Frozen input pointers and digests:
 
-## Why this blocks generation
+## Blocking reason
 
--
+- Missing, conflicting, stale, or unsupported input:
+- Why a complete defensible dossier cannot be written:
+- Partial artifacts created, if any:
 
-## Recommended upstream action
+## Identity and evidence impact
 
-- Return to `research-context-builder`:
-- Return to `research-opportunity-mapper`:
-- Ask user clarification:
-- Other:
+- Identity anchors affected:
+- Evidence or claim-support limitations:
 
-## Evaluation status
+## Next route
 
-No evaluation was performed.
+- Required upstream action or owner decision:
+- Safe continuation entry:
+
+No evaluation, ranking, merge, or source repair was performed.

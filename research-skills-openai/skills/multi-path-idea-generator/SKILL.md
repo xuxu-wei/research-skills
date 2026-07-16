@@ -1,74 +1,77 @@
 ---
 name: multi-path-idea-generator
-description: "Generate a diverse, non-duplicative research-idea set from approved context and opportunity maps; do not evaluate or rank it."
+description: "Generate or revise one focused Idea or a bounded set of evidence-supported directions; do not evaluate or rank."
 ---
 # Multi-Path Idea Generator
 
 ## Role
 
-Generate or revise candidate Ideas from frozen context, opportunity maps, user
-constraints, and assigned generation paths. Do not evaluate, score, rank,
-promote, reject, run methodology review, or write a proposal.
+Write complete Idea dossiers from frozen context, evidence, route, and
+constraints. Do not evaluate, rank, run methods review, or write proposals.
 
 ## Invariants
 
-- Ground every novelty/value claim in supplied evidence; mark unsupported scope
-  `unverified` rather than inventing support.
-- Keep candidates substantively distinct and preserve opportunity/path lineage.
-- Write each Idea as a complete Markdown snapshot in one flat node. A patch,
-  changed-section list, or delta is never the current Idea.
-- Keep revisions in the same node. Identity drift to a different research
-  problem returns `new_idea_required`; never create a child without explicit
-  user authorization.
-- Return every frozen snapshot to the orchestrator for fresh independent
-  preflight/evaluation; never self-review.
+- The complete `idea-dossier-vNNN.md` is the Idea; patches, deltas, maps, and
+  indexes are not. Include evidence chains, Claim-Support, and normal references;
+  never use internal IDs as dossier evidence.
+- Return node/index/ledger metadata and the external SHA-256; the orchestrator
+  is the sole writer of navigation/state metadata.
+- Keep revisions in the same node. Title/audience/editorial repositioning is not
+  identity drift, but it creates a new dossier version. A new primary problem,
+  objective, object, evidence base, or unit of inference returns
+  `new_idea_required`.
+- Return every frozen dossier for fresh dossier-only review; never self-review.
 
 ## Procedure
 
-1. **Validate.** Confirm context, opportunity/evidence limits, constraints,
-   requested paths, and existing nodes. Return a generation failure report when
-   the material cannot support a complete Idea.
-2. **Select paths.** Use assigned paths or recommend a bounded set based on the
-   opportunity type and constraints; the orchestrator retains routing control.
-3. **Generate.** Create a small diverse set. Each snapshot must state the whole
-   current Idea: summary, question/objectives, work packages, hypothesis,
-   significance, impact/innovation, applications, evidence base, methods,
-   required analyses/evidence, feasibility/resources, and risks/stops.
-4. **Control duplicates.** Merge only equivalent candidates at generation time;
-   otherwise keep meaningful variants distinct. Never disguise a title change
-   as a new Idea.
-5. **Persist.** Create/update node pointers and identity anchors, compute each
-   snapshot SHA-256 outside the snapshot, and write an immutable concise
-   candidate-set index without copied prose.
-6. **Handoff.** Return node IDs, snapshot paths/versions/digests, paths,
-   opportunity IDs, uncertainties, and downstream preflight needs. Do not return
-   a verdict.
+1. **Validate.** Confirm inputs, route, nodes, and digests; v1/v2 are read-only.
+2. **Apply route.** For `focused_optimization`, create or revise one dossier. For
+   `bounded_exploration`, create two or three only when each direction has
+   moderate/high support; never fill a quota.
+3. **Write.** Make every claim traceable to a chain output, existing result, or
+   normal citation.
+4. **Position honestly.** Supported title/audience reframing is allowed. Similar
+   work may offer validation, application, integration, resource, or benchmark
+   value; scientific/data/method novelty requires a real increment.
+5. **Control overlap.** A title-only variant is the same Idea/version lineage,
+   not another direction. Keep only substantively different research identities
+   in bounded exploration.
+6. **Persist content.** Write the dossier and separate delta; return proposed
+   node/index/ledger entries and digest for orchestrator persistence.
+7. **Bounded remap.** After one optimization per direction, remap each. Integrate
+   evidence/claim sync in a new dossier; structural change returns
+   `revision_required`.
+8. **Handoff.** Return pointers/digests, route, uncertainty, preflight needs, and
+   `evaluation_needed: true`, never a verdict.
 
-## Outputs and Stops
+## Stops
 
-- Write complete snapshots and the candidate-set handoff template on success.
-- Return `generation_blocked` for missing support, `new_idea_required` for
-  identity drift, or `layout_migration_required` for a legacy project layout.
-- Mark `evaluation_needed: true`, `handoff_to: idea-evaluator`, and
-  `must_be_isolated: true` for every current snapshot.
+Return `generation_blocked` for inadequate support,
+`direction_route_confirmation_required` for unresolved routing,
+`new_idea_required` for identity drift, `revision_required` for structural
+post-remap change, or `layout_migration_required` for v1/v2 layouts.
 
 ## Conditional Resources
 
-- Read `research-idea-orchestrator/references/idea-artifact-lifecycle.md` whenever creating or revising an Idea node or snapshot.
-- Read `research-idea-orchestrator/references/artifact-contracts.md` for shared fields.
-- Read `research-idea-orchestrator/references/handoff-validation.md` before handoff.
-- Read `references/idea-schema.md` for node and candidate-index outputs.
-- Read `references/generation-paths.md` when applying the ten generation paths.
-- Read `references/path-selection-rules.md` when selecting paths.
-- Read `references/novelty-claim-rules.md` when limiting novelty claims.
-- Read `references/duplicate-control-rules.md` when candidates overlap.
+- Read `research-idea-orchestrator/references/idea-artifact-lifecycle.md` for node
+  or version work.
+- Read `research-idea-orchestrator/references/idea-dossier-contract.md` for dossier work.
+- Read `research-idea-orchestrator/references/adaptive-direction-routing.md` for
+  route selection or remapping.
+- Read `research-idea-orchestrator/references/reference-ledger-contract.md` for
+  internal IDs or ledger updates.
+- Use `templates/idea-dossier.md` when producing a Dossier.
+- Read `references/idea-schema.md` for node and index fields.
+- Read `references/generation-paths.md` for an assigned path.
+- Read `references/path-selection-rules.md` when recommending one.
+- Read `references/novelty-claim-rules.md` for novelty claims.
+- Read `references/duplicate-control-rules.md` for overlap checks.
 - Read `references/generation-quality-gates.md` before persistence.
-- Read `references/downstream-handoff-rules.md` before preflight/evaluation.
-- Use `templates/generated-idea-set.md` for the concise candidate-set handoff.
-- Use `templates/generation-failure-report.md` when generation cannot proceed.
+- Read `references/downstream-handoff-rules.md` before return.
+- Use `templates/generation-failure-report.md` on failure.
 
 ## Completion Check
 
-Confirm complete snapshots, whole-Idea summaries, stable nodes/identity, matching
-digests and indexes, distinct paths, evidence limits, no evaluation, and an
-isolated downstream route.
+Confirm route-compliant count, complete dossiers/chains/claims/references,
+stable identity, matching navigation metadata/digest, visible limits, no
+evaluation, and dossier-only downstream review.

@@ -1,74 +1,49 @@
 # Exploration Strategy Rules
 
-总控文件。定义三种 Exploration Level 的参数差异。SKILL.md 的 Route Selection 完成后，按此处规则加载对应策略。
+Use this file after choosing the retrieval surface. The strategy controls search
+shape; it never changes the Search/Deep Research boundary in `SKILL.md` and
+`search-routing-rules.md`.
 
-## Level Overview
+## Choose one `retrieval_mode`
 
-| Level | 简写 | 适用意图 |
-|-------|------|---------|
-| Standard | S | 方向已有轮廓，需要证据验证和机会识别。用户说"自主决定"/"默认"/"你来定"时自动选此。 |
-| Divergent | D | 方向模糊、希望探索更多可能性、寻找被忽视的角度。 |
-| Focused | F | 方向明确、需要严格验证、为 proposal/evaluation 准备 solid evidence。 |
+| Mode | Use when | Retrieval shape | Stop condition |
+|---|---|---|---|
+| `standard` | The topic is defined, but the evidence landscape or opportunity set still needs mapping. | Verify the core literature, major conflicts, and credible adjacent evidence. | The downstream decision has enough verified evidence and remaining gaps are explicit. |
+| `focused` | One bounded question, claim, population, method, or direction needs direct verification. | Prefer directly relevant sources and trace the strongest supporting and opposing evidence. | The bounded question is answered, contradicted, or documented as unresolved. |
+| `divergent` | The topic is broad or ambiguous and several evidence directions must be explored. | Search distinct source classes and justified adjacent fields; preserve speculative leads as such. | Additional directions have low expected decision value or the declared breadth limit is reached. |
 
-## Per-Level Parameter Override
+`retrieval_mode` is independent of `focused_optimization | bounded_exploration`.
+Default to `standard` only when neither focused verification nor divergent
+exploration is justified. Record the reason; do not infer `divergent` merely
+because an Idea workflow may later use bounded exploration.
 
-### Retrieval Routing
+## Surface and depth
 
-| Level | 路由规则文件 |
-|-------|------------|
-| Standard | `references/search-routing-rules.md`（当前行为，不变） |
-| Divergent | `references/divergent-search-routing.md` |
-| Focused | `references/focused-search-routing.md` |
+- Use supplied sources when they satisfy the selected mode.
+- Use Built-in Search for quick, recent, exact, or targeted retrieval.
+- Use Deep Research for multi-stage, multi-direction, multi-source synthesis.
+- If required Deep Research is inactive or unknown, emit the continuation
+  package, return `deep_research_handoff_required`, and stop.
+- Apply `focused-search-routing.md` or `divergent-search-routing.md` only as an
+  overlay on `search-routing-rules.md`.
 
-### Opportunity Type Preference
+## Output discipline
 
-| Level | 允许的类型 |
-|-------|----------|
-| Standard | 全部 core types；exploration types 仅在证据自然支持时出现 |
-| Divergent | core types + exploration types（analogy, cross-domain, tension, trend, reframing, wildcard） |
-| Focused | 仅 core types；exploration types 不出现在 Opportunity Map 中 |
+- Use the same claim `support_status` vocabulary in every mode.
+- Keep Evidence and Opportunity Maps separate.
+- Do not use target counts as quotas. Return only defensible claims and
+  opportunities; an empty or small map is valid.
+- In divergent mode, distinguish direct evidence from analogy, transfer
+  hypotheses, and emerging signals.
+- In focused mode, retain conflicting and negative evidence rather than
+  filtering it out.
 
-详细分类见 `references/opportunity-type-taxonomy.md`。
+## Mode changes
 
-### Confidence Threshold
+Reuse verified material when the scope and freshness still match. Re-run
+retrieval only when the question, evidence requirement, source boundary, or
+freshness requirement changes. A mode change never upgrades an existing claim's
+support status without new verification.
 
-| Level | 纳入标准 | 标注倾向 |
-|-------|---------|---------|
-| Standard | 至少一个来源或清晰逻辑链 | 混合 |
-| Divergent | "plausible and interesting" 即可 | 多数标 `speculative` 或 `low-confidence` |
-| Focused | 需要直接证据支撑 | 多数标 `supported` 或 `likely` |
-
-### Deep Research Continuation Adjustment (Path B)
-
-| Level | 调整 |
-|-------|------|
-| Standard | 使用 `templates/deep-research-prompt-template.md` 默认版本 |
-| Divergent | Phase 1 拓宽检索范围、增加相邻领域来源、降低时效性限制 |
-| Focused | 缩减至单阶段 targeted retrieval、提高时效性要求、增加验证性要求 |
-
-详细规则见 `references/deep-research-prompt-rules.md` 的 Level-specific adjustments 章节。
-
-### Opportunity Count Expectation
-
-| Level | 预期输出 |
-|-------|---------|
-| Standard | 6-12 条 |
-| Divergent | 12-25 条（以 speculative 标注为主） |
-| Focused | 3-8 条（以 supported 标注为主） |
-
-这只是预期参考，不设硬性上限。机会质量优先于数量。
-
-## Mode Transition
-
-在一次 session 内，如用户对输出不满意，允许切换模式：
-
-- 用户："太窄了，换个更发散的模式" → 切换到 Divergent，基于已有 Evidence Map 扩大 opportunity 提取范围，不重新检索
-- 用户："太多了，帮我聚焦" → 切换到 Focused，过滤已有 opportunities 至 core types + 收紧置信度
-
-切换时不重新执行完整的 intake → retrieve 流程。但如果用户要求重新检索，则完整重跑。
-
-## Decision Log
-
-Handoff Notes 中记录：
-- 选择的 Exploration Level（S / D / F）
-- 如用户指定了"自主决定"，记录为 `Standard (auto)`
+Record the selected mode, rationale, surface, scope bounds, stop condition,
+mode changes, and any required follow-up in Handoff Notes.

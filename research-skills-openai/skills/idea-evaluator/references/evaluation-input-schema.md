@@ -1,28 +1,21 @@
 # Evaluation Input Schema
 
-定义 `idea-evaluator` 的最低输入要求。
+Required project input: exactly one current complete
+`dossiers/idea-dossier-vNNN.md`, bound by artifact/Idea ID, version, exact path,
+and SHA-256, plus an orchestrator independence statement.
 
-## Required Inputs
+The dossier itself must contain all 15 sections, identity anchor, normal
+citations/references, complete evidence chains, Claim-Support table, constraints,
+and evidence limitations needed for defensible scoring.
 
-- current complete `idea-snapshot-vNNN.md`, its node ID, version, path, and SHA-256
-- Research Context Brief
-- Evidence Map or explicit evidence limitation
-- Opportunity Map or explicit reason for absence
-- user goal and intended output
-- available data / data source, if relevant
-- endpoint or metric, if relevant
-- generation path and lineage
-- independence statement from orchestrator
+Forbidden project inputs include context, Evidence/Opportunity Maps, preflight,
+reference ledger, node/index, citation URLs, prior dossiers, deltas, must-fix
+lists, reports, scores, decisions, and portfolio context. Do not browse.
 
-## Conditional Inputs
+If the dossier alone is insufficient, return an evaluation-failure report; do
+not request or open another project artifact. If fresh delegation is unavailable,
+return `independent_review_pending` and stop.
 
-- Methodology-Statistics Preflight Report
-- anonymous must-fix list for a revised Idea, only when needed
-- portfolio context for comparison
-- target journal or funding context, if provided
-
-## Input Sufficiency Rule
-
-If missing information prevents defensible scoring, return `evaluation-failure-report.md` rather than guessing.
-
-Every input must be frozen and identified by artifact ID, exact path, version, and digest. A re-evaluator must not read prior snapshots, deltas, reports, scores, or decisions. If fresh delegation is unavailable, return `independent_review_pending` with a continuation brief and stop.
+Assess identity only within the current dossier: frontmatter anchor versus body,
+or whether a proposed repair would replace an anchor. Historical drift remains
+unassessed because prior versions are forbidden.

@@ -1,76 +1,43 @@
-# Research Idea Portfolio（PI 审阅版）
+# Research Idea Portfolio
 
-## 1. Executive Decision Summary
+## Executive navigation
 
-- Final recommendation:
-- Number of final candidate ideas:
-- Stop condition:
-- Recommended next action:
+- Route profile:
+- Current human state:
+- Number of Ideas:
+- Stop/pause reason:
+- Next human action:
 
-## 2. Research Context Summary
+## Idea navigation
 
-| Item | Summary |
-|---|---|
-| Research domain |  |
-| User goal |  |
-| Intended output |  |
-| Available data / evidence base |  |
-| Key constraints |  |
-
-## 3. Evidence / Opportunity Summary
-
-| Opportunity ID | Type | Summary | Evidence confidence | Key limitation |
-|---|---|---|---|---|
-
-## 4. Ranked Candidate Ideas
-
-### Idea 1 — <Title>
+### <Human-readable Idea title>
 
 - Idea ID:
-- Current snapshot / version / SHA-256:
-- Complete one-sentence summary:
-- Research question and objectives:
-- Research content and work packages:
-- Core hypothesis:
-- Scientific significance:
-- Relevance, impact, and innovation:
-- Potential applications:
-- Data, materials, and evidence base:
-- Research methods:
-- Required analyses and evidence:
-- Feasibility, resources, and constraints:
-- Risks, assumptions, uncertainties, and stop conditions:
-- Evidence summary:
-- Evaluation summary:
-- Hard gate status:
-- Main risks / reviewer objections:
-- Proposal handoff status:
-- Target journal optional:
-- Remaining uncertainties:
+- Current dossier / version / SHA-256:
+- Relative dossier link:
+- Evaluation report link:
+- Reference ledger link:
+- Status:
+- Fatal / blocking findings:
+- Dissent:
+- Unresolved issues:
+- Next human action:
 
-## 5. Score and Gate Table
+Do not copy or rewrite dossier prose here.
 
-| Idea ID | Novelty | Feasibility | Impact | Relevance | Clarity | Completion | Overall | Gates | Recommendation |
-|---|---:|---:|---:|---:|---:|---:|---:|---|---|
+## Sealed comparison
 
-## 6. Rejected / Merged / Backup Ideas
-
-| Idea ID | Status | Reason | Possible salvage path |
-|---|---|---|---|
-
-## 7. Lineage Summary
-
-| Idea ID | Parent IDs | Generation paths | Variant type | Key changes | Decision |
+| Idea title | Scores/gates | Decision/status | Fatal/blocking | Dissent | Human action |
 |---|---|---|---|---|---|
 
-Key changes are subordinate metadata; they never replace the complete current Idea above.
+For bounded exploration, preserve orchestrator order and do not rank or select.
 
-## 8. Remaining Uncertainties and PI Decision Points
+## Subordinate lineage and non-qualifying outcomes
 
-| Issue | Impact | Required PI decision/action |
-|---|---|---|
+| Idea title | Current version | Change type | Status | Readable reason |
+|---|---|---|---|---|
 
-## 9. Proposal Handoff Summary
+## Handoff
 
-| Idea ID | Handoff status | Missing conditions or next inputs |
-|---|---|---|
+- Focused Proposal-handoff status, if applicable:
+- Human direction-selection entry, if applicable:

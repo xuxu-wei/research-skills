@@ -915,7 +915,74 @@ def build_review_receipt(
     }
     if "panel" in reviewer_skill:
         receipt["peer_outputs_visible"] = False
+    extension = registry["scenario_eval_contract"].get(
+        "workflow_review_extensions", {}
+    ).get(reviewer_skill)
+    if extension is not None:
+        require(
+            len(input_artifacts) == extension["exact_input_artifact_count"],
+            "review_extension_input_count",
+            f"{case['case_id']}: {reviewer_skill}",
+        )
+        receipt.update(
+            {
+                "reviewed_dossier_digest": input_artifacts[0]["content_digest"],
+                "complete_dossier_confirmed": True,
+                "dossier_only_input_confirmed": True,
+            }
+        )
+        for finding in receipt["findings"]:
+            finding.setdefault("title", finding["summary"])
+            finding.setdefault("dossier_locator", "Expected outputs and falsification criteria")
     return receipt
+
+
+def validate_review_extension(
+    *,
+    payload: Mapping[str, Any],
+    reviewer_skill: str,
+    expected_artifacts: list[dict[str, Any]],
+    registry: dict[str, Any],
+    digest_field: str,
+    error_code: str,
+    label: str,
+) -> None:
+    extension = registry["scenario_eval_contract"].get(
+        "workflow_review_extensions", {}
+    ).get(reviewer_skill)
+    if extension is None:
+        return
+    require(
+        set(extension["required_fields"]) <= set(payload)
+        and len(expected_artifacts) == extension["exact_input_artifact_count"]
+        and all(
+            artifact["artifact_role"]
+            in set(extension["allowed_input_artifact_roles"])
+            for artifact in expected_artifacts
+        )
+        and payload.get("reviewed_dossier_digest")
+        == expected_artifacts[0][digest_field]
+        and payload.get("complete_dossier_confirmed") is True
+        and payload.get("dossier_only_input_confirmed") is True,
+        error_code,
+        label,
+    )
+    findings = payload.get("findings")
+    require(isinstance(findings, list), error_code, label)
+    required_finding_fields = set(extension["finding_required_fields"])
+    require(
+        all(
+            isinstance(finding, Mapping)
+            and required_finding_fields <= set(finding)
+            and all(
+                isinstance(finding[field], str) and bool(finding[field].strip())
+                for field in required_finding_fields
+            )
+            for finding in findings
+        ),
+        error_code,
+        label,
+    )
 
 
 def validate_review_receipt(
@@ -961,6 +1028,15 @@ def validate_review_receipt(
         receipt["files_read"] == [artifact["path"] for artifact in expected_artifacts],
         "files_read_mismatch",
         case["case_id"],
+    )
+    validate_review_extension(
+        payload=receipt,
+        reviewer_skill=expected_skill,
+        expected_artifacts=expected_artifacts,
+        registry=registry,
+        digest_field="content_digest",
+        error_code="review_extension_invalid",
+        label=f"{case['case_id']}: {expected_skill}",
     )
     contract = registry["scenario_eval_contract"]["review_decision_contracts"][
         expected_skill
@@ -1201,6 +1277,93 @@ def workflow_profile(case: dict[str, Any], registry: dict[str, Any]) -> str:
     )
 
 
+def direction_profile_for(
+    workflow: str,
+    registry: dict[str, Any],
+    declared_profile: str | None = None,
+) -> str | None:
+    """Resolve the internal Idea direction profile from registry contracts."""
+
+    if workflow != "idea":
+        require(
+            declared_profile in {None, ""},
+            "direction_profile_unexpected",
+            f"{workflow}: {declared_profile}",
+        )
+        return None
+    machine = registry["workflow_state_machines"][workflow]
+    profiles = machine.get("internal_direction_profiles", {})
+    default_profile = machine.get("routing_contract", {}).get(
+        "clear_supported_direction"
+    )
+    selected = declared_profile or default_profile
+    require(
+        isinstance(profiles, dict)
+        and bool(profiles)
+        and isinstance(selected, str)
+        and selected in profiles,
+        "direction_profile_invalid",
+        f"{workflow}: {selected}",
+    )
+    return selected
+
+
+def workflow_conditions_for(
+    workflow: str,
+    registry: dict[str, Any],
+    declared_conditions: Mapping[str, Any] | None = None,
+    *,
+    default_active: bool,
+) -> dict[str, bool]:
+    """Resolve package conditions declared by the workflow registry."""
+
+    condition_names = {
+        rule["required_when_condition"]
+        for rule in registry["scenario_eval_contract"]["package_input_contracts"][
+            workflow
+        ]["required_inputs"]
+        if isinstance(rule.get("required_when_condition"), str)
+        and bool(rule["required_when_condition"])
+    }
+    declared = dict(declared_conditions or {})
+    conditions: dict[str, bool] = {}
+    for name in sorted(condition_names):
+        value = declared.get(name, default_active)
+        require(
+            isinstance(value, bool),
+            "workflow_condition_invalid",
+            f"{workflow}: {name}={value}",
+        )
+        conditions[name] = value
+    return conditions
+
+
+def workflow_final_state_for(
+    workflow: str,
+    registry: dict[str, Any],
+    direction_profile: str | None,
+) -> str:
+    """Return the base or direction-conditional terminal handoff state."""
+
+    contract = registry["scenario_eval_contract"]
+    expected = contract["workflow_final_states"][workflow]
+    conditional = contract.get("workflow_conditional_final_states", {}).get(
+        workflow, {}
+    )
+    if direction_profile in conditional:
+        expected = conditional[direction_profile]
+    if workflow == "idea":
+        profile_contract = registry["workflow_state_machines"][workflow][
+            "internal_direction_profiles"
+        ][direction_profile]
+        require(
+            profile_contract.get("final_state") == expected,
+            "direction_profile_final_state_mismatch",
+            f"{direction_profile}: {profile_contract.get('final_state')} != {expected}",
+        )
+    return expected
+
+
 def writer_skills_for(case: dict[str, Any], registry: dict[str, Any]) -> set[str]:
     machine = registry["workflow_state_machines"][case["workflow"]]
     candidates = set(machine.get("primary_writer_skills", []))
@@ -1225,36 +1388,410 @@ def writer_skill_for(case: dict[str, Any], registry: dict[str, Any]) -> str | No
     return sorted(candidates)[0] if candidates else None
 
 
-def panel_skill_for(case: dict[str, Any], registry: dict[str, Any]) -> str | None:
-    machine = registry["workflow_state_machines"][case["workflow"]]
-    candidates = [
+def registered_panel_skill_for(
+    workflow: str, registry: dict[str, Any], *, label: str
+) -> str | None:
+    candidates = {
         edge["destination"]
         for edge in registry["workflow_edges"]
-        if edge["workflow"] == case["workflow"] and "panel" in edge["destination"]
+        if edge["workflow"] == workflow and "panel" in edge["destination"]
+    }
+    require(len(candidates) <= 1, "panel_skill_missing", label)
+    return next(iter(candidates), None)
+
+
+def panel_required_for(
+    workflow: str,
+    registry: dict[str, Any],
+    *,
+    direction_profile: str | None,
+    workflow_conditions: Mapping[str, bool],
+) -> bool:
+    machine = registry["workflow_state_machines"][workflow]
+    required = bool(machine.get("post_evaluation_panel_required", True))
+    if workflow == "idea":
+        profile = machine["internal_direction_profiles"][direction_profile]
+        requirement_fields = [
+            value
+            for key, value in profile.items()
+            if key.startswith("adversarial_panel_required_")
+        ]
+        require(
+            len(requirement_fields) == 1
+            and isinstance(requirement_fields[0], bool),
+            "panel_role_contract",
+            str(direction_profile),
+        )
+        required = requirement_fields[0]
+    panel_skill = registered_panel_skill_for(
+        workflow, registry, label=f"{workflow}:panel-requirement"
+    )
+    panel_rules = [
+        rule
+        for rule in registry["scenario_eval_contract"]["package_input_contracts"][
+            workflow
+        ]["required_inputs"]
+        if rule.get("artifact_role") == "panel_report"
+        and (
+            panel_skill is None
+            or rule.get("source_skill") == panel_skill
+        )
     ]
-    if machine.get("post_evaluation_panel_required") is False:
-        require(not candidates, "panel_skill_unexpected", case["case_id"])
+    for rule in panel_rules:
+        condition = rule.get("required_when_condition")
+        if condition is not None:
+            require(
+                condition in workflow_conditions,
+                "workflow_condition_missing",
+                f"{workflow}: {condition}",
+            )
+            required = required and workflow_conditions[condition]
+    return required
+
+
+def panel_skill_for(
+    case: dict[str, Any],
+    registry: dict[str, Any],
+    *,
+    direction_profile: str | None = None,
+    workflow_conditions: Mapping[str, bool] | None = None,
+) -> str | None:
+    machine = registry["workflow_state_machines"][case["workflow"]]
+    selected_profile = direction_profile_for(
+        case["workflow"], registry, direction_profile
+    )
+    selected_conditions = workflow_conditions_for(
+        case["workflow"],
+        registry,
+        workflow_conditions,
+        default_active=True,
+    )
+    candidate = registered_panel_skill_for(
+        case["workflow"], registry, label=case["case_id"]
+    )
+    if not panel_required_for(
+        case["workflow"],
+        registry,
+        direction_profile=selected_profile,
+        workflow_conditions=selected_conditions,
+    ):
+        if machine.get("post_evaluation_panel_required") is False:
+            require(candidate is None, "panel_skill_unexpected", case["case_id"])
         return None
-    require(len(set(candidates)) == 1, "panel_skill_missing", case["case_id"])
-    return candidates[0]
+    require(candidate is not None, "panel_skill_missing", case["case_id"])
+    return candidate
 
 
 def ref_for(artifact: dict[str, Any]) -> str:
     return f"{artifact['artifact_id']}@{artifact['version_id']}"
 
 
-def default_panel_roles(workflow: str, registry: dict[str, Any]) -> tuple[str, list[str]]:
+def default_panel_roles(
+    workflow: str,
+    registry: dict[str, Any],
+    *,
+    direction_profile: str | None = None,
+    workflow_conditions: Mapping[str, bool] | None = None,
+) -> tuple[str, list[str]]:
     panel_contract = registry["scenario_eval_contract"]["panel_contracts"][workflow]
     tier = panel_contract["default_tier"]
     roles = list(panel_contract["tiers"][tier])
-    machine = registry["workflow_state_machines"][workflow]
-    panel_required = machine.get("post_evaluation_panel_required", True)
+    selected_profile = direction_profile_for(workflow, registry, direction_profile)
+    selected_conditions = workflow_conditions_for(
+        workflow, registry, workflow_conditions, default_active=True
+    )
+    panel_required = panel_required_for(
+        workflow,
+        registry,
+        direction_profile=selected_profile,
+        workflow_conditions=selected_conditions,
+    )
     require(
-        len(roles) == len(set(roles)) and (bool(roles) == panel_required),
+        len(roles) == len(set(roles)) and (bool(roles) or not panel_required),
         "panel_role_contract",
         workflow,
     )
-    return tier, roles
+    return tier, roles if panel_required else []
+
+
+def package_rule_count_bounds(
+    rule: dict[str, Any],
+    *,
+    direction_profile: str | None,
+    current_idea_count: int,
+    panel_role_count: int,
+    workflow_conditions: Mapping[str, bool],
+) -> tuple[int, int | None]:
+    """Interpret one declarative package cardinality rule."""
+
+    required_profile = rule.get("required_when_direction_profile")
+    if required_profile is not None and required_profile != direction_profile:
+        return 0, 0
+    required_condition = rule.get("required_when_condition")
+    if required_condition is not None:
+        require(
+            required_condition in workflow_conditions,
+            "workflow_condition_missing",
+            str(required_condition),
+        )
+        if not workflow_conditions[required_condition]:
+            return 0, 0
+    profile_counts = rule.get("count_by_direction_profile", {})
+    if direction_profile in profile_counts:
+        count_contract = profile_counts[direction_profile]
+        if isinstance(count_contract, int) and not isinstance(count_contract, bool):
+            return count_contract, count_contract
+        require(
+            isinstance(count_contract, dict)
+            and isinstance(count_contract.get("minimum"), int)
+            and not isinstance(count_contract.get("minimum"), bool)
+            and isinstance(count_contract.get("maximum"), int)
+            and not isinstance(count_contract.get("maximum"), bool)
+            and 0 <= count_contract["minimum"] <= count_contract["maximum"],
+            "package_count_contract_invalid",
+            str(rule),
+        )
+        return count_contract["minimum"], count_contract["maximum"]
+    if rule.get("count_per_current_idea_node") is not None:
+        per_node = rule["count_per_current_idea_node"]
+        require(
+            isinstance(per_node, int) and not isinstance(per_node, bool) and per_node >= 0,
+            "package_count_contract_invalid",
+            str(rule),
+        )
+        expected = current_idea_count * per_node
+        return expected, expected
+    if rule.get("count_must_equal_current_idea_dossier_count"):
+        return current_idea_count, current_idea_count
+    if rule.get("count_from_panel_roles"):
+        return panel_role_count, panel_role_count
+    if "count" in rule:
+        count = rule["count"]
+        require(
+            isinstance(count, int) and not isinstance(count, bool) and count >= 0,
+            "package_count_contract_invalid",
+            str(rule),
+        )
+        return count, count
+    minimum = rule.get("minimum_count", 1)
+    maximum = rule.get("maximum_count")
+    require(
+        isinstance(minimum, int)
+        and not isinstance(minimum, bool)
+        and minimum >= 0
+        and (
+            maximum is None
+            or (
+                isinstance(maximum, int)
+                and not isinstance(maximum, bool)
+                and maximum >= minimum
+            )
+        ),
+        "package_count_contract_invalid",
+        str(rule),
+    )
+    return minimum, maximum
+
+
+def validate_adaptive_idea_registry_contract(
+    registry: dict[str, Any],
+) -> dict[str, Any]:
+    """Validate the declarative focused/bounded Idea contract as one unit."""
+
+    machine = registry["workflow_state_machines"]["idea"]
+    contract = registry["scenario_eval_contract"]
+    package_rules = {
+        rule["artifact_role"]: rule
+        for rule in contract["package_input_contracts"]["idea"]["required_inputs"]
+    }
+    focused = direction_profile_for("idea", registry, "focused_optimization")
+    bounded = direction_profile_for("idea", registry, "bounded_exploration")
+    focused_candidate = workflow_conditions_for(
+        "idea",
+        registry,
+        {"proposal_handoff_candidate": True},
+        default_active=False,
+    )
+    focused_no_candidate = workflow_conditions_for(
+        "idea",
+        registry,
+        {"proposal_handoff_candidate": False},
+        default_active=False,
+    )
+    require(
+        panel_required_for(
+            "idea",
+            registry,
+            direction_profile=focused,
+            workflow_conditions=focused_candidate,
+        )
+        and not panel_required_for(
+            "idea",
+            registry,
+            direction_profile=focused,
+            workflow_conditions=focused_no_candidate,
+        )
+        and not panel_required_for(
+            "idea",
+            registry,
+            direction_profile=bounded,
+            workflow_conditions=focused_no_candidate,
+        ),
+        "adaptive_idea_panel_contract_invalid",
+        "focused candidate / focused navigation / bounded exploration",
+    )
+    require(
+        workflow_final_state_for("idea", registry, focused)
+        == "human_signoff_required"
+        and workflow_final_state_for("idea", registry, bounded)
+        == "human_direction_selection_required",
+        "adaptive_idea_final_state_contract_invalid",
+        "direction-conditional terminal state",
+    )
+
+    panel_count = len(
+        contract["panel_contracts"]["idea"]["tiers"]
+        [contract["panel_contracts"]["idea"]["default_tier"]]
+    )
+
+    def bounds(
+        role: str,
+        *,
+        profile: str,
+        current_count: int,
+        active_panel_count: int,
+        conditions: Mapping[str, bool],
+    ) -> tuple[int, int | None]:
+        return package_rule_count_bounds(
+            package_rules[role],
+            direction_profile=profile,
+            current_idea_count=current_count,
+            panel_role_count=active_panel_count,
+            workflow_conditions=conditions,
+        )
+
+    require(
+        package_rules["idea_dossier"].get("current_by_idea_index") is True
+        and bounds(
+            "idea_dossier",
+            profile=focused,
+            current_count=1,
+            active_panel_count=panel_count,
+            conditions=focused_candidate,
+        )
+        == (1, 1)
+        and bounds(
+            "reference_ledger",
+            profile=bounded,
+            current_count=2,
+            active_panel_count=0,
+            conditions=focused_no_candidate,
+        )
+        == (2, 2)
+        and bounds(
+            "evaluation_report",
+            profile=bounded,
+            current_count=2,
+            active_panel_count=0,
+            conditions=focused_no_candidate,
+        )
+        == (2, 2)
+        and bounds(
+            "opportunity_map",
+            profile=bounded,
+            current_count=2,
+            active_panel_count=0,
+            conditions=focused_no_candidate,
+        )
+        == (2, 2)
+        and bounds(
+            "panel_report",
+            profile=focused,
+            current_count=1,
+            active_panel_count=panel_count,
+            conditions=focused_candidate,
+        )
+        == (panel_count, panel_count)
+        and bounds(
+            "panel_report",
+            profile=focused,
+            current_count=1,
+            active_panel_count=0,
+            conditions=focused_no_candidate,
+        )
+        == (0, 0)
+        and bounds(
+            "revision_plan",
+            profile=bounded,
+            current_count=2,
+            active_panel_count=0,
+            conditions=focused_no_candidate,
+        )
+        == (2, 3)
+        and bounds(
+            "revision_delta",
+            profile=bounded,
+            current_count=2,
+            active_panel_count=0,
+            conditions=focused_no_candidate,
+        )
+        == (4, 6),
+        "adaptive_idea_package_count_contract_invalid",
+        "focused/bounded package cardinalities",
+    )
+    extension = contract["workflow_review_extensions"]["idea-evaluator"]
+    require(
+        extension["exact_input_artifact_count"] == 1
+        and extension["allowed_input_artifact_roles"] == ["idea_dossier"]
+        and set(extension["required_fields"])
+        == {
+            "reviewed_dossier_digest",
+            "complete_dossier_confirmed",
+            "dossier_only_input_confirmed",
+        }
+        and set(extension["finding_required_fields"])
+        == {"title", "dossier_locator"},
+        "adaptive_idea_review_extension_contract_invalid",
+        "idea-evaluator",
+    )
+    output_roles = contract["runtime_artifact_role_contract"][
+        "actor_output_roles_by_skill"
+    ]
+    require(
+        "proposed_navigation_metadata"
+        in output_roles["multi-path-idea-generator"]
+        and not {
+            "idea_index",
+            "reference_ledger",
+        }.intersection(output_roles["multi-path-idea-generator"])
+        and {"idea_index", "reference_ledger"}
+        <= set(output_roles["research-idea-orchestrator"])
+        and "proposed_navigation_metadata"
+        not in output_roles["research-idea-orchestrator"],
+        "adaptive_idea_metadata_ownership_invalid",
+        "generator proposals / orchestrator authoritative metadata",
+    )
+    dispatch = machine["evaluation_dispatch_by_direction_profile"]
+    handoff = machine["proposal_handoff_contract"]
+    require(
+        dispatch["bounded_exploration"].get(
+            "initial_or_pre_remap_dossier_evaluation_forbidden"
+        )
+        is True
+        and handoff["required_current_evaluation_decision"] == "promote"
+        and handoff["fresh_evaluation_required"] is True
+        and handoff["revise_then_promote_is_not_a_handoff_decision"] is True,
+        "adaptive_idea_evaluation_route_contract_invalid",
+        "bounded dispatch / proposal handoff",
+    )
+    return {
+        "direction_profiles": [focused, bounded],
+        "focused_panel_roles_when_candidate": panel_count,
+        "bounded_revision_delta_bounds": [4, 6],
+        "conditional_final_state": workflow_final_state_for(
+            "idea", registry, bounded
+        ),
+    }
 
 
 def package_rule_matches(
@@ -1262,6 +1799,7 @@ def package_rule_matches(
     rule: dict[str, Any],
     *,
     current_ref: str,
+    current_idea_refs: set[str] | None = None,
 ) -> list[dict[str, Any]]:
     matches = [
         artifact
@@ -1278,8 +1816,24 @@ def package_rule_matches(
     ]
     if rule.get("current_primary"):
         matches = [artifact for artifact in matches if ref_for(artifact) == current_ref]
+    if rule.get("current_by_idea_index"):
+        require(
+            current_idea_refs is not None,
+            "package_current_idea_index_missing",
+            str(rule),
+        )
+        matches = [
+            artifact
+            for artifact in matches
+            if ref_for(artifact) in current_idea_refs
+        ]
     if rule.get("current_primary_lineage"):
-        matches = [artifact for artifact in matches if current_ref in artifact["based_on"]]
+        expected_refs = current_idea_refs or {current_ref}
+        matches = [
+            artifact
+            for artifact in matches
+            if expected_refs.intersection(artifact["based_on"])
+        ]
     if rule.get("selected_artifact_lineage_role"):
         selected_role = rule["selected_artifact_lineage_role"]
         selected_refs = {
@@ -1316,18 +1870,38 @@ def ensure_synthetic_package_inputs(
 ) -> list[dict[str, Any]]:
     contract = registry["scenario_eval_contract"]["package_input_contracts"][case["workflow"]]
     current_ref = ref_for(current_artifact)
+    direction_profile = direction_profile_for(
+        case["workflow"], registry, case.get("direction_profile")
+    )
+    workflow_conditions = workflow_conditions_for(
+        case["workflow"],
+        registry,
+        case.get("workflow_conditions"),
+        default_active=True,
+    )
+    current_idea_refs = {current_ref}
     selected: list[dict[str, Any]] = []
     for rule_index, rule in enumerate(contract["required_inputs"], start=1):
         artifacts = list(runtime["artifacts"].values())
-        matches = package_rule_matches(artifacts, rule, current_ref=current_ref)
-        required_count = (
-            len(panel_roles)
-            if rule.get("count_from_panel_roles")
-            else int(rule.get("count", rule.get("minimum_count", 1)))
+        matches = package_rule_matches(
+            artifacts,
+            rule,
+            current_ref=current_ref,
+            current_idea_refs=current_idea_refs,
         )
-        while len(matches) < required_count:
+        minimum_count, maximum_count = package_rule_count_bounds(
+            rule,
+            direction_profile=direction_profile,
+            current_idea_count=len(current_idea_refs),
+            panel_role_count=len(panel_roles),
+            workflow_conditions=workflow_conditions,
+        )
+        while len(matches) < minimum_count:
             require(
-                not rule.get("current_primary") and not rule.get("count_from_panel_roles"),
+                not rule.get("current_primary")
+                and not rule.get("current_by_idea_index")
+                and not rule.get("count_from_panel_roles")
+                and not rule.get("count_must_equal_current_idea_dossier_count"),
                 "package_required_input_missing",
                 f"{case['case_id']}: {rule}",
             )
@@ -1377,10 +1951,15 @@ def ensure_synthetic_package_inputs(
             )
             runtime["artifacts"][artifact_id] = created
             matches.append(created)
+        require(
+            maximum_count is None or len(matches) <= maximum_count,
+            "package_required_input_count_invalid",
+            f"{case['case_id']}: {rule}",
+        )
         if rule.get("include_all_created") or rule.get("all_panel_instances"):
             chosen = matches
         else:
-            chosen = matches[:required_count]
+            chosen = matches[:minimum_count]
         selected.extend(chosen)
     deduplicated = {ref_for(artifact): artifact for artifact in selected}
     return list(deduplicated.values())
@@ -1398,28 +1977,52 @@ def validate_synthetic_package(
 ) -> None:
     machine = registry["workflow_state_machines"][case["workflow"]]
     contract = registry["scenario_eval_contract"]["package_input_contracts"][case["workflow"]]
-    expected_final_state = registry["scenario_eval_contract"][
-        "workflow_final_states"
-    ][case["workflow"]]
+    direction_profile = direction_profile_for(
+        case["workflow"], registry, case.get("direction_profile")
+    )
+    workflow_conditions = workflow_conditions_for(
+        case["workflow"],
+        registry,
+        case.get("workflow_conditions"),
+        default_active=True,
+    )
+    expected_final_state = workflow_final_state_for(
+        case["workflow"], registry, direction_profile
+    )
     expected_package_role = (
         "research_polisher_selection_dossier"
         if expected_final_state == "human_strategy_selection_required"
         else "final_handoff_package"
     )
     current_ref = ref_for(current_artifact)
+    current_idea_refs = {current_ref}
     artifacts = list(runtime["artifacts"].values())
     for rule in contract["required_inputs"]:
-        matches = package_rule_matches(artifacts, rule, current_ref=current_ref)
-        required_count = (
-            len(panel_roles)
-            if rule.get("count_from_panel_roles")
-            else int(rule.get("count", rule.get("minimum_count", 1)))
+        matches = package_rule_matches(
+            artifacts,
+            rule,
+            current_ref=current_ref,
+            current_idea_refs=current_idea_refs,
+        )
+        minimum_count, maximum_count = package_rule_count_bounds(
+            rule,
+            direction_profile=direction_profile,
+            current_idea_count=len(current_idea_refs),
+            panel_role_count=len(panel_roles),
+            workflow_conditions=workflow_conditions,
         )
         require(
-            len(matches) >= required_count,
+            len(matches) >= minimum_count
+            and (maximum_count is None or len(matches) <= maximum_count),
             "package_required_input_missing",
             f"{case['case_id']}: {rule}",
         )
+        if rule.get("current_by_idea_index"):
+            require(
+                {ref_for(artifact) for artifact in matches} == current_idea_refs,
+                "package_current_idea_set_mismatch",
+                case["case_id"],
+            )
         if rule.get("all_panel_instances"):
             require(len(matches) == len(panel_roles), "package_panel_input_incomplete", case["case_id"])
     require(
@@ -1469,14 +2072,36 @@ def replay_case(
     machine = registry["workflow_state_machines"][case["workflow"]]
     profile_kind = workflow_profile(case, registry)
     is_reviewer_matrix = profile_kind == "reviewer_matrix_assemble_evaluate"
+    direction_profile = direction_profile_for(
+        case["workflow"], registry, case.get("direction_profile")
+    )
+    workflow_conditions = workflow_conditions_for(
+        case["workflow"],
+        registry,
+        case.get("workflow_conditions"),
+        default_active=True,
+    )
+    expected_final_state = workflow_final_state_for(
+        case["workflow"], registry, direction_profile
+    )
     state = "initialized"
     current_artifact = runtime["artifacts"][runtime["primary_artifact_id"]]
     latest_evaluated_version: str | None = None
     evaluator_instances: list[str] = []
     writer_instance = None if is_reviewer_matrix else f"{case['case_id']}-writer-001"
     writer_skill = writer_skill_for(case, registry)
-    panel_skill = panel_skill_for(case, registry)
-    panel_tier, required_panel_roles = default_panel_roles(case["workflow"], registry)
+    panel_skill = panel_skill_for(
+        case,
+        registry,
+        direction_profile=direction_profile,
+        workflow_conditions=workflow_conditions,
+    )
+    panel_tier, required_panel_roles = default_panel_roles(
+        case["workflow"],
+        registry,
+        direction_profile=direction_profile,
+        workflow_conditions=workflow_conditions,
+    )
     skills = {skill["name"]: skill for skill in registry["skills"]}
     evaluator_skill = machine["evaluator_skill"]
     require(skills[evaluator_skill]["requires_independent_subagent"] is True, "review_not_independent", evaluator_skill)
@@ -1931,9 +2556,7 @@ def replay_case(
                 "package_artifact_ref": ref_for(package_artifact),
                 "input_artifact_refs": list(package_artifact["based_on"]),
                 "source_edits_performed": False,
-                "final_state": registry["scenario_eval_contract"][
-                    "workflow_final_states"
-                ][case["workflow"]],
+                "final_state": expected_final_state,
             }
             validate_synthetic_package(
                 case=case,
@@ -2028,15 +2651,15 @@ def replay_case(
     )
     require(
         state
-        != registry["scenario_eval_contract"]["workflow_final_states"][case["workflow"]]
+        != expected_final_state
         or latest_evaluated_version == current_artifact["version_id"],
         "stale_evaluation",
         case["case_id"],
     )
     require(not fatal_findings, "hidden_fatal_finding", case["case_id"])
-    if state == registry["scenario_eval_contract"]["workflow_final_states"][case["workflow"]]:
+    if state == expected_final_state:
         require(bool(evaluator_receipts), "missing_evaluator_receipt", case["case_id"])
-        if machine.get("post_evaluation_panel_required", True):
+        if panel_skill is not None:
             require(bool(panel_receipts), "missing_panel_receipt", case["case_id"])
             require(panel_complete is True, "missing_panel_receipt", case["case_id"])
         else:
@@ -2096,7 +2719,7 @@ def replay_case(
         "final_state": state,
         "mode_scope_completed": profile["mode_scope_completed"],
         "promotion_performed": state
-        == registry["scenario_eval_contract"]["workflow_final_states"][case["workflow"]],
+        == expected_final_state,
         "automatic_external_submission": False,
     }
 
@@ -2347,6 +2970,169 @@ def load_structured_file(path: Path) -> dict[str, Any]:
     return value
 
 
+def current_idea_refs_from_index(
+    *,
+    artifacts: list[dict[str, Any]],
+    artifacts_by_ref: Mapping[str, dict[str, Any]],
+    resolved_artifact_paths: Mapping[str, Path],
+    registry: dict[str, Any],
+    direction_profile: str,
+    label: str,
+) -> set[str]:
+    """Resolve and validate the exact current Idea dossier set."""
+
+    indexes = [
+        artifact for artifact in artifacts if artifact["artifact_role"] == "idea_index"
+    ]
+    require(len(indexes) == 1, "runtime_idea_index_missing", label)
+    index = load_structured_file(resolved_artifact_paths[indexes[0]["path"]])
+    nodes = index.get("current_nodes")
+    require(
+        index.get("schema_version") == 1
+        and index.get("direction_profile") == direction_profile
+        and isinstance(nodes, list)
+        and bool(nodes),
+        "runtime_idea_index_invalid",
+        label,
+    )
+    dispatch_contract = registry["workflow_state_machines"]["idea"][
+        "evaluation_dispatch_by_direction_profile"
+    ][direction_profile]
+    if dispatch_contract.get("initial_or_pre_remap_dossier_evaluation_forbidden"):
+        require(
+            index.get("overall_remap_status") == "complete"
+            and all(node.get("remap_status") == "complete" for node in nodes),
+            "runtime_bounded_evaluator_before_remap",
+            label,
+        )
+    current_refs = [node.get("current_ref") for node in nodes if isinstance(node, dict)]
+    require(
+        len(current_refs) == len(nodes)
+        and len(current_refs) == len(set(current_refs))
+        and all(ref in artifacts_by_ref for ref in current_refs),
+        "runtime_idea_index_invalid",
+        label,
+    )
+    for node, current_ref in zip(nodes, current_refs):
+        dossier = artifacts_by_ref[current_ref]
+        require(
+            dossier["artifact_role"] == "idea_dossier"
+            and node.get("current_digest") == dossier["sha256"],
+            "runtime_idea_index_digest_mismatch",
+            f"{label}: {current_ref}",
+        )
+        if dispatch_contract.get("initial_or_pre_remap_dossier_evaluation_forbidden"):
+            require(
+                dossier.get("change_type") == "evidence_claim_sync",
+                "runtime_bounded_evaluator_nonterminal_dossier",
+                f"{label}: {current_ref}",
+            )
+    count_contract = registry["workflow_state_machines"]["idea"][
+        "internal_direction_profiles"
+    ][direction_profile]["current_dossier_count"]
+    if isinstance(count_contract, int):
+        minimum = maximum = count_contract
+    else:
+        minimum = count_contract["minimum"]
+        maximum = count_contract["maximum"]
+    require(
+        minimum <= len(current_refs) <= maximum,
+        "runtime_idea_direction_count_mismatch",
+        f"{label}: {len(current_refs)}",
+    )
+    return set(current_refs)
+
+
+def bounded_idea_evaluator_negative_self_tests(
+    *, root: Path, registry: dict[str, Any]
+) -> list[dict[str, Any]]:
+    """Reject bounded evaluation before remap or on a nonterminal dossier."""
+
+    evidence = root / "adaptive-idea"
+    evidence.mkdir(parents=True, exist_ok=True)
+    dossier_path = evidence / "dossier-v001.md"
+    dossier_path.write_text(
+        "synthetic bounded dossier\n", encoding="utf-8", newline="\n"
+    )
+    index_path = evidence / "idea-index.json"
+    dossier = {
+        "artifact_id": "bounded-dossier",
+        "version_id": "v001",
+        "artifact_role": "idea_dossier",
+        "path": "adaptive-idea/dossier-v001.md",
+        "sha256": sha256_file(dossier_path),
+        "change_type": "create",
+    }
+    index_artifact = {
+        "artifact_id": "bounded-index",
+        "version_id": "v001",
+        "artifact_role": "idea_index",
+        "path": "adaptive-idea/idea-index.json",
+    }
+    artifacts = [dossier, index_artifact]
+    artifacts_by_ref = {ref_for(dossier): dossier}
+    resolved = {
+        dossier["path"]: dossier_path,
+        index_artifact["path"]: index_path,
+    }
+    valid_index = {
+        "schema_version": 1,
+        "direction_profile": "bounded_exploration",
+        "overall_remap_status": "complete",
+        "current_nodes": [
+            {
+                "node_id": "bounded-node-001",
+                "current_ref": ref_for(dossier),
+                "current_digest": dossier["sha256"],
+                "remap_status": "complete",
+            }
+        ],
+    }
+    cases = [
+        (
+            "bounded_evaluator_before_remap",
+            "runtime_bounded_evaluator_before_remap",
+            {**valid_index, "overall_remap_status": "pending"},
+            "evidence_claim_sync",
+        ),
+        (
+            "bounded_evaluator_bound_to_initial_dossier",
+            "runtime_bounded_evaluator_nonterminal_dossier",
+            valid_index,
+            "create",
+        ),
+    ]
+    results: list[dict[str, Any]] = []
+    for mutation, expected_code, index_document, change_type in cases:
+        dossier["change_type"] = change_type
+        write_json_file(index_path, index_document)
+        try:
+            current_idea_refs_from_index(
+                artifacts=artifacts,
+                artifacts_by_ref=artifacts_by_ref,
+                resolved_artifact_paths=resolved,
+                registry=registry,
+                direction_profile="bounded_exploration",
+                label=mutation,
+            )
+        except ModeViolation as exc:
+            require(
+                exc.code == expected_code,
+                "runtime_negative_wrong_error",
+                f"{mutation}: expected {expected_code}, got {exc.code}",
+            )
+            results.append(
+                {
+                    "mutation": mutation,
+                    "status": "rejected_as_expected",
+                    "error_code": exc.code,
+                }
+            )
+        else:
+            raise ModeViolation("runtime_negative_accepted", mutation)
+    return results
+
+
 def runtime_case_contract(
     schema: dict[str, Any], workflow: str, case_kind: str
 ) -> dict[str, Any]:
@@ -2562,7 +3348,7 @@ def validate_reviewer_unavailable_fault_injection(
 
 
 def validate_runtime_receipt_declaration(
-    receipt: dict[str, Any], schema: dict[str, Any]
+    receipt: dict[str, Any], schema: dict[str, Any], registry: dict[str, Any]
 ) -> dict[str, Any]:
     contract = runtime_case_contract(
         schema, receipt.get("workflow"), receipt.get("case_kind")
@@ -2585,8 +3371,16 @@ def validate_runtime_receipt_declaration(
         "runtime_entry_mode_binding_mismatch",
         str(receipt.get("receipt_id")),
     )
+    direction_profile = direction_profile_for(
+        receipt.get("workflow"), registry, receipt.get("direction_profile")
+    )
+    expected_final_state = (
+        workflow_final_state_for(receipt["workflow"], registry, direction_profile)
+        if receipt.get("case_kind") == "happy"
+        else contract["expected_final_state"]
+    )
     require(
-        receipt.get("expected_final_state") == contract["expected_final_state"],
+        receipt.get("expected_final_state") == expected_final_state,
         "runtime_expected_state_contract_mismatch",
         str(receipt.get("receipt_id")),
     )
@@ -3947,7 +4741,7 @@ def validate_runtime_receipt(
     required = schema["$defs"]["runtime_receipt"]["required"]
     missing = sorted(set(required) - set(receipt))
     require(not missing, "runtime_receipt_schema", f"{receipt.get('receipt_id')}: {missing}")
-    case_contract = validate_runtime_receipt_declaration(receipt, schema)
+    case_contract = validate_runtime_receipt_declaration(receipt, schema, registry)
     require(receipt["status"] == "verified", "runtime_receipt_not_verified", receipt["receipt_id"])
     required_bindings = schema["x-phase7-contract"][
         "verified_receipt_required_bindings"
@@ -4193,15 +4987,51 @@ def validate_runtime_receipt(
     ]
     skill_contracts = {skill["name"]: skill for skill in registry["skills"]}
     machine = registry["workflow_state_machines"][receipt["workflow"]]
+    direction_profile = direction_profile_for(
+        receipt["workflow"],
+        registry,
+        receipt.get("direction_profile")
+        or task_export_document.get("direction_profile"),
+    )
+    condition_contract = workflow_conditions_for(
+        receipt["workflow"], registry, {}, default_active=True
+    )
+    declared_conditions = {
+        name: task_export_document.get(name, receipt.get(name, default_value))
+        for name, default_value in condition_contract.items()
+    }
+    workflow_conditions = workflow_conditions_for(
+        receipt["workflow"],
+        registry,
+        declared_conditions,
+        default_active=True,
+    )
+    if receipt["workflow"] == "idea":
+        require(
+            task_export_document.get("direction_profile", direction_profile)
+            == direction_profile
+            and all(
+                receipt.get(name, value) == value
+                and task_export_document.get(name, value) == value
+                for name, value in workflow_conditions.items()
+            ),
+            "runtime_direction_profile_binding_mismatch",
+            receipt["receipt_id"],
+        )
     runtime_profile = machine.get("workflow_profile", "default")
     expected_evaluator_skill = machine["evaluator_skill"]
     expected_writer_skills = set(machine["primary_writer_skills"])
     expected_panel_skill = panel_skill_for(
         {"workflow": receipt["workflow"], "case_id": receipt["receipt_id"]},
         registry,
+        direction_profile=direction_profile,
+        workflow_conditions=workflow_conditions,
     )
     expected_panel_tier, expected_panel_roles = default_panel_roles(
-        receipt["workflow"], registry
+        receipt["workflow"],
+        registry,
+        direction_profile=direction_profile,
+        workflow_conditions=workflow_conditions,
     )
     strategy_group_contract = (
         registry["scenario_eval_contract"].get("review_group_contracts", {}).get(
@@ -4384,13 +5214,15 @@ def validate_runtime_receipt(
             "runtime_actor_role_contract_invalid",
             f"{receipt['workflow']}: happy roles",
         )
+        effective_happy_roles = [
+            role
+            for role in required_happy_roles
+            if role != "panel" or expected_panel_skill is not None
+        ]
         require(
             all(
                 actors_by_role[role]
-                for role in (
-                    *required_happy_roles,
-                    expected_final_role,
-                )
+                for role in (*effective_happy_roles, expected_final_role)
             ),
             "runtime_happy_actor_role_missing",
             receipt["receipt_id"],
@@ -4400,7 +5232,7 @@ def validate_runtime_receipt(
             "runtime_fresh_evaluator_round_missing",
             receipt["receipt_id"],
         )
-        if machine.get("post_evaluation_panel_required", True):
+        if expected_panel_skill is not None:
             require(
                 set(panel_role_instances) == set(expected_panel_roles)
                 and len(set(panel_role_instances.values())) == len(expected_panel_roles),
@@ -4413,7 +5245,7 @@ def validate_runtime_receipt(
                 "runtime_task_export_actor_contract_mismatch",
                 receipt["receipt_id"],
             )
-        else:
+        elif strategy_group_contract is not None:
             require(
                 not panel_role_instances
                 and set(strategy_role_instances) == set(expected_strategy_roles)
@@ -4426,6 +5258,16 @@ def validate_runtime_receipt(
                 task_export_document.get("strategy_role_instances")
                 == strategy_role_instances,
                 "runtime_task_export_actor_contract_mismatch",
+                receipt["receipt_id"],
+            )
+        else:
+            require(
+                not panel_role_instances
+                and not strategy_role_instances
+                and task_export_document.get("panel_role_instances") in (None, {})
+                and task_export_document.get("strategy_role_instances")
+                in (None, {}),
+                "runtime_panel_role_mismatch",
                 receipt["receipt_id"],
             )
         require(
@@ -4502,6 +5344,17 @@ def validate_runtime_receipt(
         require(artifact_ref not in artifact_refs, "runtime_artifact_ref_reused", artifact_ref)
         artifact_refs.add(artifact_ref)
         require(isinstance(artifact["based_on"], list), "runtime_lineage_invalid", artifact_ref)
+        if receipt["workflow"] == "idea" and artifact["artifact_role"] == "idea_dossier":
+            require(
+                artifact["change_type"]
+                in set(
+                    registry["artifact_completeness_policy"][
+                        "idea_dossier_change_types"
+                    ]
+                ),
+                "runtime_idea_dossier_change_type_invalid",
+                artifact_ref,
+            )
         require(
             artifact["created_by_instance_id"] in set(actor_ids) | {"external-input"},
             "runtime_artifact_actor_missing",
@@ -4646,6 +5499,23 @@ def validate_runtime_receipt(
         require(lineage["evaluated_artifact_ref"] in artifact_refs, "runtime_evaluated_artifact_missing", receipt["receipt_id"])
     artifacts_by_ref = {ref_for(artifact): artifact for artifact in artifacts}
     current_artifact = artifacts_by_ref[lineage["current_artifact_ref"]]
+    current_idea_refs = (
+        current_idea_refs_from_index(
+            artifacts=artifacts,
+            artifacts_by_ref=artifacts_by_ref,
+            resolved_artifact_paths=resolved_artifact_paths,
+            registry=registry,
+            direction_profile=direction_profile,
+            label=receipt["receipt_id"],
+        )
+        if receipt["workflow"] == "idea"
+        else {lineage["current_artifact_ref"]}
+    )
+    require(
+        lineage["current_artifact_ref"] in current_idea_refs,
+        "runtime_current_artifact_missing",
+        receipt["receipt_id"],
+    )
     require(
         current_artifact["artifact_role"] == machine["primary_artifact_type"],
         "runtime_current_primary_role_mismatch",
@@ -4977,6 +5847,15 @@ def validate_runtime_receipt(
         ) = validate_runtime_review_report_findings(
             report, artifact_role_contract, artifact["path"]
         )
+        validate_review_extension(
+            payload=report,
+            reviewer_skill=creator["skill"],
+            expected_artifacts=[artifacts_by_ref[input_ref] for input_ref in input_refs],
+            registry=registry,
+            digest_field="sha256",
+            error_code="runtime_review_extension_invalid",
+            label=artifact["path"],
+        )
         observed_dissent.update(report_dissent)
         observed_fatal.update(report_fatal)
         observed_unresolved_fatal.update(report_unresolved_fatal)
@@ -5035,16 +5914,16 @@ def validate_runtime_receipt(
         )
     if receipt["case_kind"] == "happy":
         require(
-            lineage["current_artifact_ref"] in evaluator_inputs,
+            current_idea_refs <= evaluator_inputs,
             "runtime_current_version_review_missing",
             receipt["receipt_id"],
         )
-        if machine.get("post_evaluation_panel_required", True):
+        if expected_panel_skill is not None:
             require(
-                panel_inputs == {lineage["current_artifact_ref"]}
+                panel_inputs == current_idea_refs
                 and all(
                     review_inputs_by_actor[panel_instance]
-                    == {lineage["current_artifact_ref"]}
+                    == current_idea_refs
                     for panel_instance in panel_role_instances.values()
                 ),
                 "runtime_current_version_review_missing",
@@ -5058,8 +5937,9 @@ def validate_runtime_receipt(
         current_evaluators = {
             actor_id
             for actor_id in actors_by_role["evaluator"]
-            if lineage["current_artifact_ref"]
-            in review_inputs_by_actor.get(actor_id, set())
+            if current_idea_refs.intersection(
+                review_inputs_by_actor.get(actor_id, set())
+            )
         }
         ready_decision_actor_ids = (
             current_evaluators
@@ -5078,6 +5958,31 @@ def validate_runtime_receipt(
             "runtime_ready_review_decision_not_pass",
             receipt["receipt_id"],
         )
+        if receipt["workflow"] == "idea" and workflow_conditions.get(
+            "proposal_handoff_candidate", False
+        ):
+            handoff = machine["proposal_handoff_contract"]
+            current_reports = [
+                record
+                for record in review_reports_by_skill[machine["evaluator_skill"]]
+                if record["input_refs"] <= current_idea_refs
+                and bool(record["input_refs"])
+            ]
+            require(
+                direction_profile in set(handoff["eligible_direction_profiles"])
+                and len(current_reports) == len(current_idea_refs)
+                and all(
+                    record["report"].get("decision")
+                    == handoff["required_current_evaluation_decision"]
+                    and record["artifact"].get("change_type")
+                    == "fresh_independent_evaluation"
+                    and record["report"].get("reviewed_dossier_digest")
+                    == artifacts_by_ref[next(iter(record["input_refs"]))]["sha256"]
+                    for record in current_reports
+                ),
+                "runtime_idea_proposal_handoff_evaluation_invalid",
+                receipt["receipt_id"],
+            )
         for required_skill in case_contract["required_review_skills"]:
             require(
                 bool(review_reports_by_skill.get(required_skill)),
@@ -5115,7 +6020,14 @@ def validate_runtime_receipt(
     require(unresolved_fatal <= fatal, "runtime_fatal_finding_index_invalid", receipt["receipt_id"])
     require(review_state["fatal_findings_visible"] is True, "runtime_fatal_findings_hidden", receipt["receipt_id"])
     require(
-        receipt["final_state"] == case_contract["expected_final_state"],
+        receipt["final_state"]
+        == (
+            workflow_final_state_for(
+                receipt["workflow"], registry, direction_profile
+            )
+            if receipt["case_kind"] == "happy"
+            else case_contract["expected_final_state"]
+        ),
         "runtime_final_state_mismatch",
         receipt["receipt_id"],
     )
@@ -5140,7 +6052,10 @@ def validate_runtime_receipt(
             receipt["receipt_id"],
         )
         require(
-            receipt["final_state"] == case_contract["expected_final_state"],
+            receipt["final_state"]
+            == workflow_final_state_for(
+                receipt["workflow"], registry, direction_profile
+            ),
             "runtime_happy_not_ready",
             receipt["receipt_id"],
         )
@@ -5185,17 +6100,27 @@ def validate_runtime_receipt(
                     package_parent_artifacts,
                     rule,
                     current_ref=lineage["current_artifact_ref"],
+                    current_idea_refs=current_idea_refs,
                 )
-                required_count = (
-                    len(expected_panel_roles)
-                    if rule.get("count_from_panel_roles")
-                    else int(rule.get("count", rule.get("minimum_count", 1)))
+                minimum_count, maximum_count = package_rule_count_bounds(
+                    rule,
+                    direction_profile=direction_profile,
+                    current_idea_count=len(current_idea_refs),
+                    panel_role_count=len(expected_panel_roles),
+                    workflow_conditions=workflow_conditions,
                 )
                 require(
-                    len(matches) >= required_count,
+                    len(matches) >= minimum_count
+                    and (maximum_count is None or len(matches) <= maximum_count),
                     "runtime_package_required_input_missing",
                     f"{receipt['receipt_id']}: {rule}",
                 )
+                if rule.get("current_by_idea_index"):
+                    require(
+                        {ref_for(item) for item in matches} == current_idea_refs,
+                        "runtime_package_current_idea_set_mismatch",
+                        receipt["receipt_id"],
+                    )
                 if rule.get("all_panel_instances"):
                     require(
                         len(matches) == len(expected_panel_roles),
@@ -5207,6 +6132,7 @@ def validate_runtime_receipt(
                         artifacts,
                         rule,
                         current_ref=lineage["current_artifact_ref"],
+                        current_idea_refs=current_idea_refs,
                     )
                     require(
                         {ref_for(item) for item in all_matching} <= package_parent_refs,
@@ -5456,7 +6382,7 @@ def validate_runtime_collection(
         required = schema["$defs"]["runtime_receipt"]["required"]
         missing = sorted(set(required) - set(receipt))
         require(not missing, "runtime_receipt_schema", f"{receipt.get('receipt_id')}: {missing}")
-        validate_runtime_receipt_declaration(receipt, schema)
+        validate_runtime_receipt_declaration(receipt, schema, registry)
         require(
             receipt["status"] in {"pending_live_evidence", "verified"},
             "runtime_receipt_status",
@@ -5742,8 +6668,8 @@ def _build_legacy_runtime_validator_fixture(
     panel_report = evidence / "panel-report.json"
     finding_index = evidence / "finding-index.json"
     final_package = evidence / "final-package.json"
-    primary_v1.write_text("primary v1\n", encoding="utf-8")
-    primary_v2.write_text("primary v2\n", encoding="utf-8")
+    primary_v1.write_text("complete Idea dossier v1\n", encoding="utf-8")
+    primary_v2.write_text("complete Idea dossier v2\n", encoding="utf-8")
     write_json_file(
         evaluator_v1,
         {
@@ -5760,6 +6686,9 @@ def _build_legacy_runtime_validator_fixture(
             "unresolved_fatal_finding_ids": [],
             "prior_scores_visible": False,
             "source_edits_performed": False,
+            "reviewed_dossier_digest": sha256_file(primary_v1),
+            "complete_dossier_confirmed": True,
+            "dossier_only_input_confirmed": True,
         },
     )
     write_json_file(
@@ -5778,6 +6707,9 @@ def _build_legacy_runtime_validator_fixture(
             "unresolved_fatal_finding_ids": [],
             "prior_scores_visible": False,
             "source_edits_performed": False,
+            "reviewed_dossier_digest": sha256_file(primary_v2),
+            "complete_dossier_confirmed": True,
+            "dossier_only_input_confirmed": True,
         },
     )
     write_json_file(
@@ -5891,13 +6823,13 @@ def _build_legacy_runtime_validator_fixture(
                 {
                     "artifact_id": "primary",
                     "version_id": "v001",
-                    "artifact_role": "candidate_idea_set",
+                    "artifact_role": "idea_dossier",
                     "path": "evidence/primary-v1.md",
                     "sha256": sha256_file(primary_v1),
                     "source_skill": "multi-path-idea-generator",
                     "created_by_instance_id": "writer-001",
                     "based_on": [],
-                    "change_type": "initial_generation",
+                    "change_type": "create",
                     "status": "frozen",
                 },
                 {
@@ -5915,13 +6847,13 @@ def _build_legacy_runtime_validator_fixture(
                 {
                     "artifact_id": "primary",
                     "version_id": "v002",
-                    "artifact_role": "candidate_idea_set",
+                    "artifact_role": "idea_dossier",
                     "path": "evidence/primary-v2.md",
                     "sha256": sha256_file(primary_v2),
                     "source_skill": "multi-path-idea-generator",
                     "created_by_instance_id": "writer-001",
                     "based_on": ["primary@v001", "evaluation-v1@v001"],
-                    "change_type": "targeted_revision",
+                    "change_type": "revise",
                     "status": "frozen",
                 },
                 {
@@ -6051,6 +6983,8 @@ def _build_legacy_runtime_validator_fixture(
             "workflow": "idea",
             "entry_mode": "standard",
             "case_kind": "happy",
+            "direction_profile": "focused_optimization",
+            "proposal_handoff_candidate": True,
             "final_state": "human_signoff_required",
             "automatic_external_submission": False,
             "actor_manifest": actor_binding,
@@ -6068,6 +7002,8 @@ def _build_legacy_runtime_validator_fixture(
         "workflow": "idea",
         "entry_mode": "standard",
         "case_kind": "happy",
+        "direction_profile": "focused_optimization",
+        "proposal_handoff_candidate": True,
         "expected_final_state": "human_signoff_required",
         "status": "verified",
         "binding": {
@@ -6277,6 +7213,10 @@ def build_runtime_validator_fixture(
     support_specs = [
         ("context-001", "research-context-builder", "builder", "research-context", "research_context"),
         ("evidence-001", "research-opportunity-mapper", "retrieval", "evidence-map", "evidence_map"),
+        ("orchestrator-001", "research-idea-orchestrator", "orchestrator", "idea-routing-decision", "idea_routing_decision"),
+        ("writer-001", "multi-path-idea-generator", "writer", "proposed-navigation-metadata", "proposed_navigation_metadata"),
+        ("orchestrator-001", "research-idea-orchestrator", "orchestrator", "idea-index", "idea_index"),
+        ("orchestrator-001", "research-idea-orchestrator", "orchestrator", "reference-ledger", "reference_ledger"),
         ("orchestrator-001", "research-idea-orchestrator", "orchestrator", "revision-plan", "revision_plan"),
         ("writer-001", "multi-path-idea-generator", "writer", "revision-delta", "revision_delta"),
     ]
@@ -6293,7 +7233,29 @@ def build_runtime_validator_fixture(
             )
         relative = f"evidence/{stem}.md"
         file_path = root / Path(*PurePosixPath(relative).parts)
-        file_path.write_text(f"synthetic {artifact_role}\n", encoding="utf-8", newline="\n")
+        if artifact_role == "idea_index":
+            write_json_file(
+                file_path,
+                {
+                    "schema_version": 1,
+                    "direction_profile": "focused_optimization",
+                    "current_nodes": [
+                        {
+                            "node_id": "idea-focused-001",
+                            "current_ref": "primary@v002",
+                            "current_digest": sha256_file(
+                                root / "evidence" / "primary-v2.md"
+                            ),
+                        }
+                    ],
+                },
+            )
+        else:
+            file_path.write_text(
+                f"synthetic {artifact_role}\n",
+                encoding="utf-8",
+                newline="\n",
+            )
         new_artifacts.append(
             {
                 "artifact_id": stem,
@@ -6362,6 +7324,9 @@ def build_runtime_validator_fixture(
     package_parent_refs = [
         "research-context@v001",
         "evidence-map@v001",
+        "idea-routing-decision@v001",
+        "idea-index@v001",
+        "reference-ledger@v001",
         "primary@v002",
         "evaluation-v2@v001",
         "panel-report@v001",
@@ -6453,6 +7418,8 @@ def build_runtime_validator_fixture(
                 for index, role in enumerate(panel_roles, start=1)
             },
             "final_package_actor_instance_id": "assembler-001",
+            "direction_profile": "focused_optimization",
+            "proposal_handoff_candidate": True,
         }
     )
     task_export["file_access_attestation"] = {
@@ -6513,6 +7480,8 @@ def build_runtime_control_validator_fixture(
     evaluator_document["findings"] = [
         {
             "id": "no-gain-001",
+            "title": "No incremental gain after the bounded revision",
+            "dossier_locator": "Expected outputs and falsification criteria",
             "severity": "major",
             "blocking": True,
             "resolved": False,
@@ -6611,6 +7580,13 @@ def build_contract_complete_workflow_fixture(
     evidence = root / "evidence"
     evidence.mkdir(parents=True, exist_ok=True)
     machine = registry["workflow_state_machines"][workflow]
+    direction_profile = direction_profile_for(workflow, registry)
+    workflow_conditions = workflow_conditions_for(
+        workflow,
+        registry,
+        None,
+        default_active=True,
+    )
     entry_mode = entry_modes[workflow]
     task_id = f"contract-complete-{workflow}"
     identity = {
@@ -6630,10 +7606,17 @@ def build_contract_complete_workflow_fixture(
     package_contract = registry["scenario_eval_contract"][
         "package_input_contracts"
     ][workflow]
-    panel_tier, panel_roles = default_panel_roles(workflow, registry)
+    panel_tier, panel_roles = default_panel_roles(
+        workflow,
+        registry,
+        direction_profile=direction_profile,
+        workflow_conditions=workflow_conditions,
+    )
     panel_skill = panel_skill_for(
         {"workflow": workflow, "case_id": f"contract-complete-{workflow}"},
         registry,
+        direction_profile=direction_profile,
+        workflow_conditions=workflow_conditions,
     )
     review_group = (
         registry["scenario_eval_contract"]
@@ -6915,6 +7898,24 @@ def build_contract_complete_workflow_fixture(
                     ],
                 }
             )
+        extension = registry["scenario_eval_contract"].get(
+            "workflow_review_extensions", {}
+        ).get(actor["skill"])
+        if extension is not None:
+            require(
+                len(input_refs) == extension["exact_input_artifact_count"],
+                "runtime_fixture_review_extension_invalid",
+                actor_id,
+            )
+            report.update(
+                {
+                    "reviewed_dossier_digest": artifacts_by_ref[input_refs[0]][
+                        "sha256"
+                    ],
+                    "complete_dossier_confirmed": True,
+                    "dossier_only_input_confirmed": True,
+                }
+            )
         return add_artifact(
             artifact_role=artifact_role,
             source_skill=actor["skill"],
@@ -6938,7 +7939,7 @@ def build_contract_complete_workflow_fixture(
             source_skill=primary_skill,
             creator_id=primary_writer_id,
             based_on=[source_ref],
-            change_type="initial_generation",
+            change_type="create" if workflow == "idea" else "initial_generation",
             artifact_id="primary",
             version_id="v001",
         )
@@ -6963,7 +7964,7 @@ def build_contract_complete_workflow_fixture(
             source_skill=primary_skill,
             creator_id=primary_writer_id,
             based_on=[ref_for(primary_v1), ref_for(evaluation_v1)],
-            change_type="targeted_revision",
+            change_type="revise" if workflow == "idea" else "targeted_revision",
             artifact_id="primary",
             version_id="v002",
         )
@@ -7039,6 +8040,7 @@ def build_contract_complete_workflow_fixture(
         )
 
     current_ref = ref_for(primary_v2)
+    current_idea_refs = {current_ref}
     evaluator_two_id = add_actor(
         machine["evaluator_skill"], "evaluator", suffix="round-002"
     )
@@ -7054,6 +8056,15 @@ def build_contract_complete_workflow_fixture(
         artifact_id="evaluation-round-002",
         change_type="fresh_independent_evaluation",
     )
+    if workflow == "idea":
+        add_artifact(
+            artifact_role="proposed_navigation_metadata",
+            source_skill=machine["primary_writer_skills"][0],
+            creator_id=primary_writer_id,
+            based_on=[current_ref],
+            change_type="proposed_navigation_metadata",
+            artifact_id="proposed-navigation-metadata",
+        )
 
     panel_role_instances: dict[str, str] = {}
     panel_artifacts: list[dict[str, Any]] = []
@@ -7078,7 +8089,12 @@ def build_contract_complete_workflow_fixture(
             )
 
     def artifacts_matching_rule(rule: dict[str, Any]) -> list[dict[str, Any]]:
-        return package_rule_matches(artifacts, rule, current_ref=current_ref)
+        return package_rule_matches(
+            artifacts,
+            rule,
+            current_ref=current_ref,
+            current_idea_refs=current_idea_refs,
+        )
 
     def input_refs_for_supporting_review(skill: str, rule: dict[str, Any]) -> list[str]:
         if skill == "article-readiness-triage" and minimal_intake_ref is not None:
@@ -7144,6 +8160,19 @@ def build_contract_complete_workflow_fixture(
             parent_refs = list(strategy_report_refs)
         elif artifact_role not in {"proposal_context", "research_context", "evidence_map"}:
             parent_refs = [current_ref]
+        document = None
+        if workflow == "idea" and artifact_role == "idea_index":
+            document = {
+                "schema_version": 1,
+                "direction_profile": direction_profile,
+                "current_nodes": [
+                    {
+                        "node_id": "idea-current-001",
+                        "current_ref": current_ref,
+                        "current_digest": artifacts_by_ref[current_ref]["sha256"],
+                    }
+                ],
+            }
         return add_artifact(
             artifact_role=artifact_role,
             source_skill=source_skill,
@@ -7155,6 +8184,7 @@ def build_contract_complete_workflow_fixture(
                 if artifact_role == "sap"
                 else f"{normalized_id(source_skill)}-{normalized_id(artifact_role)}"
             ),
+            document=document,
         )
 
     for rule in package_contract["required_inputs"]:
@@ -7166,10 +8196,12 @@ def build_contract_complete_workflow_fixture(
             # The finding index must be assembled from the completed review set,
             # not synthesized as a generic package prerequisite.
             continue
-        required_count = (
-            len(panel_roles)
-            if rule.get("count_from_panel_roles")
-            else int(rule.get("count", rule.get("minimum_count", 1)))
+        required_count, _ = package_rule_count_bounds(
+            rule,
+            direction_profile=direction_profile,
+            current_idea_count=len(current_idea_refs),
+            panel_role_count=len(panel_roles),
+            workflow_conditions=workflow_conditions,
         )
         if required_count == 0:
             continue
@@ -7233,10 +8265,12 @@ def build_contract_complete_workflow_fixture(
     package_parents: list[dict[str, Any]] = []
     for rule in package_contract["required_inputs"]:
         matches = artifacts_matching_rule(rule)
-        required_count = (
-            len(panel_roles)
-            if rule.get("count_from_panel_roles")
-            else int(rule.get("count", rule.get("minimum_count", 1)))
+        required_count, _ = package_rule_count_bounds(
+            rule,
+            direction_profile=direction_profile,
+            current_idea_count=len(current_idea_refs),
+            panel_role_count=len(panel_roles),
+            workflow_conditions=workflow_conditions,
         )
         if rule.get("include_all_created") or rule.get("all_panel_instances"):
             chosen = matches
@@ -7302,7 +8336,7 @@ def build_contract_complete_workflow_fixture(
     elif workflow != "research_polisher":
         finding_index = add_finding_index()
 
-    final_state = registry["scenario_eval_contract"]["workflow_final_states"][workflow]
+    final_state = workflow_final_state_for(workflow, registry, direction_profile)
     final_role = (
         "research_polisher_selection_dossier"
         if workflow == "research_polisher"
@@ -7428,6 +8462,9 @@ def build_contract_complete_workflow_fixture(
         },
         "final_package_actor_instance_id": finalizer_id,
     }
+    if workflow == "idea":
+        task_export["direction_profile"] = direction_profile
+        task_export.update(workflow_conditions)
     if panel_skill is not None:
         task_export.update(
             {
@@ -7449,7 +8486,7 @@ def build_contract_complete_workflow_fixture(
         "path": "evidence/task-export.json",
         "sha256": sha256_file(task_export_path),
     }
-    return {
+    receipt = {
         "receipt_id": f"phase7-contract-complete-{workflow}",
         "workflow": workflow,
         "entry_mode": entry_mode,
@@ -7492,6 +8529,10 @@ def build_contract_complete_workflow_fixture(
         "automatic_external_submission": False,
         "reason": "Contract-complete synthetic validator fixture only.",
     }
+    if workflow == "idea":
+        receipt["direction_profile"] = direction_profile
+        receipt.update(workflow_conditions)
+    return receipt
 
 
 def run_runtime_validator_self_tests(
@@ -7502,6 +8543,7 @@ def run_runtime_validator_self_tests(
     positive_workflow_results: list[dict[str, Any]] = []
     runtime_actor_role_contract(registry, schema)
     runtime_artifact_role_contract(registry)
+    adaptive_idea_contract = validate_adaptive_idea_registry_contract(registry)
     expected_supporting_reviewer_skills = {
         "idea": {"academic-language-assessor", "methodology-statistics-preflight"},
         "proposal": {
@@ -8104,6 +9146,9 @@ def run_runtime_validator_self_tests(
     )
     with tempfile.TemporaryDirectory(prefix="phase7-runtime-validator-") as directory:
         root = Path(directory)
+        results.extend(
+            bounded_idea_evaluator_negative_self_tests(root=root, registry=registry)
+        )
 
         for workflow in registry["workflow_state_machines"]:
             complete_fixture = build_contract_complete_workflow_fixture(
@@ -8116,8 +9161,7 @@ def run_runtime_validator_self_tests(
                 expected_source_commit=fake_commit,
                 root=root,
             )
-            positive_workflow_results.append(
-                {
+            workflow_result = {
                     "workflow": workflow,
                     "status": "passed",
                     "receipt_id": validated_complete["receipt_id"],
@@ -8125,7 +9169,9 @@ def run_runtime_validator_self_tests(
                     "actor_counts": validated_complete["actor_counts"],
                     "artifact_count": validated_complete["artifact_count"],
                 }
-            )
+            if workflow == "idea":
+                workflow_result["adaptive_direction_contract"] = adaptive_idea_contract
+            positive_workflow_results.append(workflow_result)
 
         def expect_runtime_rejection(
             mutated: dict[str, Any], mutation: str, expected_code: str
@@ -9274,7 +10320,7 @@ def run_runtime_validator_self_tests(
             artifact
             for artifact in artifact_document["artifacts"]
             if artifact["created_by_instance_id"] == "supporting-reviewer-001"
-        )["artifact_role"] = "candidate_idea_set"
+        ).update(artifact_role="idea_dossier", change_type="revise")
         write_json_file(artifact_path, artifact_document)
         refresh_linked_bindings(supporting_reviewer_source_write)
         expect_runtime_rejection(
@@ -9700,6 +10746,22 @@ def run_runtime_validator_self_tests(
         )
 
         valid = build_runtime_validator_fixture(root, registry, fake_commit)
+        evaluator_digest_missing = copy.deepcopy(valid)
+        evaluator_v2_path = root / "evidence" / "evaluator-v2.json"
+        evaluator_v2_document = load_structured_file(evaluator_v2_path)
+        evaluator_v2_document.pop("reviewed_dossier_digest")
+        write_json_file(evaluator_v2_path, evaluator_v2_document)
+        refresh_indexed_artifact_binding(
+            evaluator_digest_missing,
+            "evidence/evaluator-v2.json",
+        )
+        expect_runtime_rejection(
+            evaluator_digest_missing,
+            "focused_evaluator_reviewed_dossier_digest_missing",
+            "runtime_review_extension_invalid",
+        )
+
+        valid = build_runtime_validator_fixture(root, registry, fake_commit)
         stale_fresh_evaluator = copy.deepcopy(valid)
         evaluator_v2_path = root / "evidence" / "evaluator-v2.json"
         evaluator_v2_document = load_structured_file(evaluator_v2_path)
@@ -9747,8 +10809,8 @@ def run_runtime_validator_self_tests(
         refresh_linked_bindings(missing_package_input)
         expect_runtime_rejection(
             missing_package_input,
-            "final_package_omits_required_revision_delta",
-            "runtime_package_required_input_missing",
+            "final_package_omits_created_revision_delta",
+            "runtime_package_input_omitted",
         )
 
         valid = build_runtime_validator_fixture(root, registry, fake_commit)
@@ -9761,13 +10823,13 @@ def run_runtime_validator_self_tests(
             {
                 "artifact_id": "primary",
                 "version_id": "v003",
-                "artifact_role": "candidate_idea_set",
+                "artifact_role": "idea_dossier",
                 "path": "evidence/assembler-primary-v3.md",
                 "sha256": sha256_file(extra_path),
                 "source_skill": "idea-portfolio-assembler",
                 "created_by_instance_id": "assembler-001",
                 "based_on": ["primary@v002"],
-                "change_type": "invalid_source_edit",
+                "change_type": "revise",
                 "status": "frozen",
             }
         )

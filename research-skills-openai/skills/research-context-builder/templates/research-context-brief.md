@@ -1,64 +1,36 @@
 # Research Context Brief
 
-## 1. Input Triage
-
-- Schema version: `research-idea.v2`
+- Schema version: `research-idea.v3`
 - Artifact ID:
 - Created round:
-- Input type:
-- User request summary:
-- Context completeness:
+- Input type: `problem`
+- Problem subtype:
+- Proceed status:
 
-## 2. Core Context
+## Core context
 
 | Field | Value |
 |---|---|
-| Research domain |  |
-| User goal |  |
-| Intended output |  |
-| Target audience or reviewer |  |
-| Study object |  |
-| Setting or context |  |
-| Available data |  |
-| Available methods |  |
-| Endpoint / metric status |  |
-| Time constraints |  |
-| Resource constraints |  |
-| Collaboration constraints |  |
-| Risk preference |  |
+| Research domain | |
+| User goal and intended output | |
+| Target audience/reviewer | |
+| Study object and setting | |
+| Available data and methods | |
+| Endpoint/metric status | |
+| Time/resource/collaboration constraints | |
 
-## 3. Evidence Materials Provided
+## Direction clarity
 
-- Status:
-- Material types:
-- Notes:
+- Direction clarity: `clear` / `underdefined` / `ambiguous`
+- Rationale:
+- Materially different interpretations, if any:
 
-## 4. Known Facts
+## Facts, assumptions, and uncertainties
 
-| Fact | Source in user input |
-|---|---|
-
-## 5. Assumptions
-
-| Assumption | Confidence | Impact if wrong | Needs user confirmation |
+| Type | Statement | Confidence/impact | Needs confirmation or resolution |
 |---|---|---|---|
 
-## 6. Uncertainties
+## Downstream needs
 
-| Uncertainty | Downstream impact | Suggested resolution |
-|---|---|---|
-
-## 7. Proceed Status
-
-- Status: `proceed` / `proceed_with_assumptions` / `clarification_stop`
-- Rationale:
-
-## 8. Downstream Needs
-
-| Downstream step | Status | Reason |
-|---|---|---|
-| Evidence / opportunity mapping |  |  |
-| Multi-path idea generation |  |  |
-| Methodology/statistics preflight |  |  |
-| Isolated independent evaluation |  |  |
-| Proposal-orchestrator triage |  |  |
+| Mapping | Direction routing | Dossier generation | Preflight | Independent evaluation | Proposal triage |
+|---|---|---|---|---|---|

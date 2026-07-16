@@ -354,8 +354,78 @@ def main() -> int:
         errors.append("registry fresh reviewers must not see prior artifact versions")
     if review_execution.get("revision_deltas_visible_to_reviewer") is not False:
         errors.append("registry fresh reviewers must not see revision deltas")
-    if artifact_policy.get("idea_schema") != "research-idea.v2":
-        errors.append("registry must use research-idea.v2 complete snapshots")
+    if artifact_policy.get("idea_schema") != "research-idea.v3":
+        errors.append("registry must use research-idea.v3 complete dossiers")
+    if artifact_policy.get("idea_current_artifact") != "complete_markdown_dossier":
+        errors.append("registry must make the complete Markdown dossier authoritative for Idea content")
+    if artifact_policy.get("idea_legacy_schemas") != ["research-idea.v1", "research-idea.v2"]:
+        errors.append("registry must recognize v1/v2 Idea layouts as legacy")
+    if artifact_policy.get("idea_legacy_layout_behavior") != "layout_migration_required_read_only_no_automatic_rewrite":
+        errors.append("registry must keep legacy Idea layouts read-only without automatic migration")
+    idea_chain = artifact_policy.get("idea_evidence_chain_contract", {})
+    if idea_chain.get("required_fields") != [
+        "input",
+        "method_analysis_or_processing",
+        "output",
+        "supported_objective_or_claim",
+        "limitations_and_failure_conditions",
+    ]:
+        errors.append("registry Idea evidence chains must use the complete five-field semi-structured contract")
+    editorial = artifact_policy.get("idea_editorial_repositioning_contract", {})
+    if not (
+        editorial.get("title_audience_and_positioning_changes_allowed") is True
+        and editorial.get("added_work_required_for_supported_repositioning") is False
+        and editorial.get("all_title_and_positioning_claims_must_be_supported_by_implementation") is True
+        and editorial.get("editorial_change_requires_fresh_evaluation") is True
+        and editorial.get("claim_support_states") == ["supported", "qualified", "unsupported"]
+        and editorial.get("similar_work_does_not_automatically_require_new_work") is True
+        and editorial.get("novel_method_data_or_discovery_claim_requires_real_increment") is True
+    ):
+        errors.append("registry Idea editorial-repositioning and claim-support contract is incomplete")
+    marker_policy = artifact_policy.get("idea_internal_marker_policy", {})
+    if not (
+        marker_policy.get("opaque_workflow_markers_forbidden_in_dossier_prose") is True
+        and marker_policy.get("standard_academic_citations_allowed") is True
+        and marker_policy.get("user_visible_internal_markers_require_human_label_and_ledger_resolution") is True
+    ):
+        errors.append("registry Idea internal-marker policy is incomplete")
+    dossier_only = artifact_policy.get("idea_evaluator_project_input_contract", {})
+    expected_idea_forbidden = {
+        "research_context",
+        "evidence_map",
+        "opportunity_map",
+        "preflight_report",
+        "reference_ledger",
+        "prior_dossier",
+        "revision_delta",
+        "anonymous_must_fix_list",
+        "prior_report",
+        "prior_score",
+        "prior_decision",
+    }
+    if not (
+        dossier_only.get("allowed_project_artifacts") == ["current_complete_idea_dossier_and_digest"]
+        and dossier_only.get("exact_project_artifact_count") == 1
+        and set(dossier_only.get("forbidden_project_artifacts", [])) == expected_idea_forbidden
+    ):
+        errors.append("registry Idea evaluator must receive exactly the current complete dossier")
+    idea_machine = state_machines.get("idea", {})
+    if idea_machine.get("primary_artifact_type") != "idea_dossier":
+        errors.append("registry Idea primary artifact must be idea_dossier")
+    idea_profiles = idea_machine.get("internal_direction_profiles", {})
+    focused = idea_profiles.get("focused_optimization", {})
+    bounded = idea_profiles.get("bounded_exploration", {})
+    if focused.get("current_dossier_count") != 1 or focused.get("final_state") != "human_signoff_required":
+        errors.append("registry focused Idea profile must maintain one dossier through human sign-off")
+    if not (
+        bounded.get("current_dossier_count") == {"minimum": 2, "maximum": 3}
+        and bounded.get("optimization_round_limit_per_direction") == 1
+        and bounded.get("evidence_and_opportunity_remap_after_optimization") is True
+        and bounded.get("fresh_evaluator_per_current_dossier_after_remap") is True
+        and bounded.get("structural_change_after_remap") == "revision_required_no_automatic_second_optimization"
+        and bounded.get("final_state") == "human_direction_selection_required"
+    ):
+        errors.append("registry bounded Idea profile must remap, fresh-evaluate, and stop for human selection")
     if artifact_policy.get("article_schema") != "research-article.v6":
         errors.append("registry must use research-article.v6 canonical Markdown")
     if artifact_policy.get("core_identity_drift_behavior") != "new_idea_required_no_automatic_branch":
@@ -797,6 +867,7 @@ def main() -> int:
     phase4_files = [
         REPO / "tests" / "openai_phase4" / "runtime-trace.schema.yaml",
         REPO / "tests" / "openai_phase4" / "idea.yaml",
+        REPO / "tests" / "openai_phase4" / "idea-layout-compatibility.yaml",
         REPO / "tests" / "openai_phase4" / "proposal.yaml",
         REPO / "tests" / "openai_phase4" / "article.yaml",
         REPO / "tests" / "openai_phase4" / "perspective.yaml",
@@ -957,6 +1028,61 @@ def main() -> int:
         errors.append("idea assembler: adversarial blocking findings do not cap handoff")
     if "adversarial_panel_reports" not in idea_inputs:
         errors.append("idea assembler: adversarial panel reports are not required inputs")
+
+    idea_dossier_contract = read(
+        SKILLS / "research-idea-orchestrator" / "references" / "idea-dossier-contract.md"
+    )
+    for marker in (
+        "## Title, summary, audience, and positioning",
+        "## Evidence chains",
+        "## Title and positioning claim-support table",
+        "## References",
+        "**Input:**",
+        "**Method / analysis / processing:**",
+        "**Output:**",
+        "**Supports:**",
+        "**Limits and failure conditions:**",
+        "supported / qualified / unsupported",
+        "Similar prior work does not automatically require new work",
+    ):
+        if marker not in idea_dossier_contract:
+            errors.append(f"Idea dossier contract lacks `{marker}`")
+    idea_routing = read(
+        SKILLS / "research-idea-orchestrator" / "references" / "adaptive-direction-routing.md"
+    )
+    for marker in (
+        "focused_optimization",
+        "bounded_exploration",
+        "at most three",
+        "invent a weak candidate to fill a quota",
+        "exactly one bounded optimization",
+        "human_direction_selection_required",
+        "automatic optimization round",
+    ):
+        if marker not in idea_routing:
+            errors.append(f"Idea adaptive routing contract lacks `{marker}`")
+    idea_ledger = read(
+        SKILLS / "research-idea-orchestrator" / "references" / "reference-ledger-contract.md"
+    )
+    for marker in (
+        "references/reference-ledger.md",
+        "Human-readable label",
+        "Definition artifact",
+        "Original source",
+        "idea-evaluator` must not",
+    ):
+        if marker not in idea_ledger:
+            errors.append(f"Idea reference-ledger contract lacks `{marker}`")
+    idea_evaluator = read(SKILLS / "idea-evaluator" / "SKILL.md")
+    for marker in (
+        "reviewed_dossier_digest",
+        "complete_dossier_confirmed",
+        "dossier_only_input_confirmed",
+        "dossier_locator",
+        "current complete `idea-dossier-vNNN.md`",
+    ):
+        if marker not in idea_evaluator:
+            errors.append(f"idea-evaluator lacks dossier-only marker `{marker}`")
 
     perspective_io = read(SKILLS / "perspective-orchestrator" / "references" / "io-contracts.md")
     perspective_naming = read(

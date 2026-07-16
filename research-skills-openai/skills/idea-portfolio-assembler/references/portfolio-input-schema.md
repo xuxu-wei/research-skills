@@ -1,37 +1,15 @@
 # Portfolio Input Schema
 
-This reference defines the minimum input objects required by `idea-portfolio-assembler`.
+Require route profile; current Idea node, complete dossier, version, path, and
+SHA-256; qualifying dossier-only evaluation; reference ledger; lineage; sealed
+orchestrator decision; and status-relevant fatal/blocking/dissent summaries.
 
-## Required Inputs
+For a focused Proposal-handoff candidate, require a fresh digest-matched
+`promote` decision and `adversarial_panel_reports`
+containing every role report and no unresolved blocking finding. For bounded exploration, require two or
+three current dossiers, one terminal fresh evaluation per dossier, and the
+`human_direction_selection_required` decision.
 
-- `research_context_brief`
-- `evidence_map_summary`
-- `opportunity_map_summary`
-- current complete Idea snapshots, node pointers, and SHA-256 digests
-- `idea_evaluation_reports`
-- `idea_lineage_records`
-- `orchestrator_decisions`
-
-## Conditional Inputs
-
-- `methodology_statistics_preflight_reports`: required when ideas involve endpoint, metric, data source, method, statistics, clinical, observational, prediction, experiment, or benchmark design.
-- `proposal_handoff_checks`: required when the portfolio may recommend handoff to `proposal-orchestrator`.
-- `adversarial_panel_reports`: required for every idea whose proposal handoff status may be `ready` or `conditional`; include all role reports, blocking findings, and dissent.
-- `evidence_limitations`: required when evidence confidence is not high or clinical/guideline alignment is unverified.
-
-## Minimum Material Requirements
-
-Do not assemble a final portfolio unless each candidate idea has:
-
-- idea identifier;
-- title or short label;
-- all twelve complete-snapshot sections;
-- matching current node pointer and SHA-256;
-- evidence / opportunity reference;
-- independent evaluation report that confirms the same digest and complete snapshot;
-- hard gate status;
-- recommendation from `idea-evaluator`;
-- lineage record or parent/source note.
-- a completed adversarial panel report with no unresolved blocking finding when the idea is marked `ready` or `conditional` for proposal handoff.
-
-If the complete snapshot, digest match, preserved identity, or independent evaluation is missing, produce `portfolio-assembly-failure-report`.
+Reject incomplete/stale dossiers, digest mismatch, non-isolated or non-dossier-
+only evaluation, missing ledger/lineage, hidden dissent, or a bounded-exploration
+preselection. Use the assembly-failure report instead of guessing.

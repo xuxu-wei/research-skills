@@ -1,9 +1,9 @@
 # Idea Artifact Lifecycle
 
-Use this contract when creating, revising, reviewing, packaging, or resuming an
-Idea. It is the canonical `research-idea.v2` persistence model.
+Load this contract whenever an Idea is created, revised, reviewed, packaged, or
+resumed. It is the canonical `research-idea.v3` persistence model.
 
-## Node layout
+## Layout
 
 ```text
 research-idea-projects/<project-slug>/
@@ -11,11 +11,11 @@ research-idea-projects/<project-slug>/
   01_context/
   02_evidence/
   03_ideas/
-    idea-tree.yaml
-    candidate-set-vNNN.yaml
+    idea-index-vNNN.yaml
     nodes/<idea-id>/
       node.yaml
-      snapshots/idea-snapshot-vNNN.md
+      dossiers/idea-dossier-vNNN.md
+      references/reference-ledger.md
       revisions/round-NNN/{revision-plan.md,revision-delta.md}
       reviews/{preflight-rNNN.md,evaluation-rNNN.md}
       adversarial/
@@ -25,75 +25,72 @@ research-idea-projects/<project-slug>/
   06_delegates/
 ```
 
-- Keep nodes physically flat. Derive the logical tree from `parent_idea_ids` in
-  `node.yaml`; `idea-tree.yaml` is a generated index, not another Idea body.
-- Keep every Idea-specific artifact inside its node. Context, evidence,
-  candidate-set indexes, portfolios, workflow state, and delegate audit trails
-  remain project-level because they can span several Ideas.
-- A revision writes the next snapshot in the same node. It never creates a
-  child. Only a user-authorized new Idea workflow may create a new node with
-  parent IDs.
-- Treat the legacy round/stage layout as read-only. Return
-  `layout_migration_required`; do not migrate or rewrite it automatically.
+- Keep nodes physically flat. Express an explicitly user-created derivation
+  through `parent_idea_ids`; never create a child during ordinary revision.
+- Keep Idea-specific artifacts in their node. Project context, evidence, index,
+  portfolio, state, and delegate records may span nodes.
+- Treat `research-idea.v1`, `research-idea.v2`, round/stage layouts, and snapshot
+  layouts as read-only. Return `layout_migration_required`; never rewrite or
+  migrate them automatically.
 
-## Complete Markdown snapshot
+## Dossier and index
 
-`snapshots/idea-snapshot-vNNN.md` is the sole authoritative Idea body. Use short
-YAML frontmatter for `schema_version`, `plugin_version`, `artifact_id`,
-`idea_id`, `version_id`, `parent_idea_ids`, `based_on`, `source_skill`,
-`created_round`, `status`, and `frozen`. Store its SHA-256 in `node.yaml`, the
-candidate-set index, and reviewer briefs; never embed a file's own digest in
-that file.
+`dossiers/idea-dossier-vNNN.md` is the sole authoritative Idea body. Follow
+`idea-dossier-contract.md`. Store its SHA-256 in `node.yaml`, the immutable
+`idea-index-vNNN.yaml`, and reviewer briefs; do not embed a file's own digest.
 
-Write these non-empty Markdown sections in this order:
+The index contains only node ID, current dossier ID/version/path/digest,
+lineage, route profile, and status. It must not copy dossier prose.
 
-1. `## One-sentence summary`
-2. `## Research question and objectives`
-3. `## Research content and work packages`
-4. `## Core hypothesis`
-5. `## Scientific significance`
-6. `## Relevance, impact, and innovation`
-7. `## Potential applications`
-8. `## Data, materials, and evidence base`
-9. `## Research methods`
-10. `## Required analyses and evidence`
-11. `## Feasibility, resources, and constraints`
-12. `## Risks, assumptions, uncertainties, and stop conditions`
+The orchestrator is the sole writer of node, index, ledger, and workflow-state
+metadata. Content writers return proposed entries and digests for validation.
 
-The one-sentence summary describes the complete current Idea without depending
-on a parent or delta. Reject comparative-only summaries such as "this version
-adds", "compared with the prior version", or "the revision changes". Keep all
-change descriptions in `revision-delta.md`.
+Every revision writes a complete next dossier plus a separate delta. A patch,
+changed-section list, delta, map, or portfolio is never the current Idea.
 
 ## Node state and identity
 
-Keep `node.yaml` concise: current snapshot ID/version/path/digest, parent IDs,
-lineage, status, qualifying evaluation reference, and an identity anchor with
-the primary research question, primary objective, study object, core data or
-evidence base, and primary unit of inference.
+Keep `node.yaml` concise:
 
-Allow narrower operationalization or clarification inside the same identity.
-Replacing the primary question, objective, study object, evidence basis, or
-unit of inference with a different research problem sets
-`identity_status: drifted` and returns `new_idea_required`. Do not promote,
-revise in place, or create a child automatically.
+```yaml
+schema_version: research-idea.v3
+idea_id:
+current_dossier_id:
+current_version:
+current_path:
+current_digest: "sha256:"
+reference_ledger_path: <idea-node>/references/reference-ledger.md
+parent_idea_ids: []
+lineage_id:
+route_profile: focused_optimization | bounded_exploration
+identity_anchor:
+  primary_research_question:
+  primary_objective:
+  study_object:
+  core_data_or_evidence_base:
+  primary_unit_of_inference:
+identity_status: preserved | drifted
+qualifying_evaluation_ref:
+```
 
-## Complete-artifact gates
+Clarifying or narrowing the same research identity is a revision. Changing only
+the title, target audience, contribution framing, or editorial packaging is not
+identity drift, but it is a substantive dossier change and requires a new
+version plus fresh evaluation. Replacing an identity anchor returns
+`new_idea_required`; do not revise in place or auto-create a child.
 
-- A generator or reviser must emit a complete snapshot plus a separate delta.
-  Reject patches, changed sections, or deltas registered as the current Idea.
-- Bind reviewer briefs to the exact current snapshot ID, version, path, and
-  digest. Initial review may also receive frozen context/evidence and necessary
-  preflight facts.
-- A fresh re-reviewer receives only the current complete snapshot, stable
-  rubric, necessary factual artifacts, and an anonymized must-fix list. It must
-  not read prior snapshots, revision deltas, prior reports, scores, or decisions.
-- A qualifying report records `reviewed_snapshot_digest`,
-  `complete_snapshot_confirmed`, `identity_drift_detected`,
-  `prior_versions_visible: false`, and `revision_delta_visible: false`.
-- The orchestrator may compare sealed rounds and deltas only after the fresh
-  report returns.
-- A portfolio copies or faithfully organizes the qualifying snapshot's full
-  sections, binds its digest and lineage, and keeps change history subordinate.
-  It must not substitute scores, novelty changes, or a revision narrative for
-  the complete Idea.
+## Review and promotion gates
+
+- Bind each reviewer brief to the exact current dossier ID, version, path, and
+  digest.
+- `idea-evaluator` receives exactly that dossier as its only project artifact;
+  it receives no map, ledger, preflight, prior version, delta, must-fix list, or
+  prior report. The dossier must therefore carry all facts and citations needed
+  for evaluation.
+- The orchestrator may compare sealed rounds and deltas only after a fresh
+  evaluation returns.
+- A qualifying report records `reviewed_dossier_digest`,
+  `complete_dossier_confirmed`, and `dossier_only_input_confirmed`.
+- Package by linking the qualifying dossier, not by rewriting it. A digest
+  mismatch, incomplete dossier, identity drift, stale review, or unresolved
+  blocking finding prevents promotion.

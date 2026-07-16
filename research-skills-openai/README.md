@@ -6,14 +6,16 @@ articles, perspectives, research-impact positioning, evidence retrieval, and
 independent review. It is maintained for one owner's research work and is not
 presented as a production-stable, supported, shared, or public distribution.
 
-The source is `deterministic_validated`: the static audits, workflow fixtures,
-reviewer-isolation checks, context budgets, registry, and plugin package pass the
-maintained test suite. Current-version owner-observed runtime checks are still
-in progress, so the plugin is not yet labelled `owner_observed_ready`.
+The maintained deterministic suite covers static audits, workflow fixtures,
+reviewer isolation, context budgets, registry generation, and plugin packaging.
+The `0.9.0-preview.1` Idea-v3 checkpoint passes that suite. The plugin remains
+`in_progress_owner_observation`, not `owner_observed_ready`, until its private
+current-version runtime slots are completed.
 
 The immediate priorities are deliberately small:
 
-1. verify the current GitHub marketplace install, update/reinstall, cache
+1. after owner approval, verify the current GitHub marketplace install,
+   update/reinstall, cache
    identity, and fresh-task discovery on the owner's Codex App;
 2. run one owner-observed happy path for each of the five workflows plus two
    cross-workflow controls; and
@@ -76,12 +78,12 @@ python scripts/codex_plugin_converter.py --mode codex --install --fail-on-invali
 
 The helper preserves the base version, including any prerelease identifier, and
 synchronizes the manifest and workflow registry, for example
-`0.8.0-preview.1` to `0.8.0-preview.1+codex.local-YYYYMMDD-HHMMSS`. Never commit
+`0.9.0-preview.1` to `0.9.0-preview.1+codex.local-YYYYMMDD-HHMMSS`. Never commit
 or push a `+codex.local-*` version to the rolling Preview channel.
 
 ## Inventory and invocation policy
 
-The maintained `0.8.0-preview.1` source contains 49 skill contracts and declares
+The maintained `0.9.0-preview.1` source contains 49 skill contracts and declares
 seven discoverable entry skills. Six currently set
 `allow_implicit_invocation: true`:
 
@@ -102,16 +104,31 @@ orchestrated delegation.
 A local audit on 2026-07-14 confirmed that the GitHub marketplace is registered,
 the plugin is enabled, and Codex held the coherent `0.7.0-preview.2` cache. The
 installation mechanism is therefore implemented. The maintained
-`0.8.0-preview.1` source still requires a marketplace upgrade/reinstall and
-fresh-task discovery before the older cache can count as current-version
-evidence for Phase 7.
+`0.9.0-preview.1` source has passed deterministic acceptance but still requires
+a marketplace upgrade/reinstall and fresh-task discovery before the older cache
+can count as current-version evidence for Phase 7.
 
 ## Artifact format defaults
 
-- Idea uses `research-idea.v2`: one flat node directory per Idea, complete
-  versioned Markdown snapshots, concise YAML indexes, and a logical tree derived
-  from parent IDs. Revisions stay in the same node; identity drift requires a
-  user-started new Idea workflow.
+- Idea uses `research-idea.v3`: each active node owns a complete versioned
+  Markdown Dossier, a concise index, and a human-readable reference ledger.
+  The Dossier contains background, methods, expected outputs, references, and
+  semi-structured evidence chains expressed as input -> method/analysis/
+  processing -> output. It is both the sole project artifact read by the fresh
+  Idea evaluator and the Idea delivered to the owner.
+- Idea direction routing is adaptive. A clear, supported direction receives
+  focused optimization; a vague direction with several supported opportunities
+  explores two or at most three directions for one bounded round before remapping
+  evidence and opportunity. Titles, audiences, and editorial positioning may be
+  changed without mandatory new work when every resulting claim is supported by
+  the actual implementation. A novel method, data, or discovery claim still
+  requires a real increment.
+- Opaque workflow markers do not appear in an Idea Dossier. Historical or
+  internal reports resolve them through the node's reference ledger with a
+  readable label and source locator. When present, the visible v1 run under
+  `../tests/idea-to-proposal/.phase7-8-runs/idea/` is an ignored project test
+  example, not a migration target; no actual v2 project is currently present.
+  v1/v2 layouts remain read-only.
 - Proposal and Article re-evaluators receive only the complete current artifact,
   its digest, stable facts/rubric, and an optional anonymous must-fix list. Prior
   versions, deltas, reports, scores, and decisions remain sealed.
@@ -180,13 +197,19 @@ Use $proposal-orchestrator in [standard | existing_draft | draft_and_external_re
 ### `$research-idea-orchestrator`
 
 ```text
-Use $research-idea-orchestrator in [standard | resume_candidates | portfolio_only] mode. Research direction or problem: [topic]. Population/context: [scope]. Available evidence, funding call, data asset, or candidate paths: [summary/path]. Produce an independently evaluated PI-review idea portfolio.
+Use $research-idea-orchestrator in [standard | resume_candidates | portfolio_only] mode. Research direction or problem: [topic]. Population/context: [scope]. Available evidence, funding call, data asset, or candidate paths: [summary/path]. Build one focused direction or explore at most three evidence-supported directions, and deliver independently evaluated complete Idea Dossiers.
 ```
 
 - Minimum input: a research direction or practical problem and one usable context, evidence, funding, or data cue.
-- Expected output: a self-contained PI-review portfolio built from complete Idea snapshots, with node/tree lineage, digest-bound evaluations, dissent, and handoff status.
-- Stop states: `blocked`, `stopped`, `new_idea_required`, `layout_migration_required`, `independent_review_pending`, or `context_handoff_required`.
-- Resume: paste the continuation brief and provide the missing context, evidence, frozen candidate set, or reviewer capacity.
+- Expected output: one to three self-contained Idea Dossiers with readable
+  references, closed input-method/output evidence chains, digest-bound
+  evaluations, lineage, dissent, and a navigation or comparison handoff.
+- Stop states: `blocked`, `stopped`, `new_idea_required`, `no_defensible_direction`,
+  `direction_route_confirmation_required`, `layout_migration_required`,
+  `independent_review_pending`, or `context_handoff_required`. Bounded exploration
+  ends at `human_direction_selection_required`.
+- Resume: paste the continuation brief and provide the missing context, evidence,
+  current Dossier/index, routing choice, or reviewer capacity.
 
 ### `$research-polisher-orchestrator`
 
@@ -228,7 +251,7 @@ python scripts/test_openai_phase8_corpus.py --check-report
 python scripts/test_validate_openai_personal_readiness.py
 python scripts/validate_openai_personal_readiness.py --check-report
 python scripts/codex_plugin_converter.py --mode codex --fail-on-invalid
-python C:\Users\10149\.codex\skills\.system\plugin-creator\scripts\validate_plugin.py research-skills-openai
+python "$env:USERPROFILE\.codex\skills\.system\plugin-creator\scripts\validate_plugin.py" research-skills-openai
 ```
 
 GitHub Actions runs the portable audits, context budgets, workflow fixtures,
@@ -241,9 +264,13 @@ and an explicit owner confirmation. These receipts support only the personal
 state `owner_observed_ready`; they do not assert external, provider, shared, or
 public attestation.
 
-The current receipt collection is
-`../tests/openai_personal/current-version-owner-observed-receipts.yaml`; the
-derived status is `reports/personal-readiness.json`. Pending observations are a
+The tracked
+`../tests/openai_personal/current-version-owner-observed-receipts.yaml` is only
+an all-pending schema template. Copy it to the ignored local path
+`../tests/article/.phase7-8-runs/local-owner-observed-receipts.yaml` and record
+task IDs, artifact bindings, timestamps, reviewer IDs, URLs, and confirmations
+only in that private copy. Pass it with `--receipts`; never commit it. The public
+derived report contains slot status/counts only. Pending observations remain a
 valid `in_progress_owner_observation` state and do not fail deterministic CI.
 
 The core runtime constraints remain unchanged:

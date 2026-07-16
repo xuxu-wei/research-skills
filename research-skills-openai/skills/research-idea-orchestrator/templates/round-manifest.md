@@ -7,7 +7,7 @@
 - Project directory:
 - User goal:
 - Intended output:
-- Selected strategy:
+- Route profile:
 
 ## Idea ID Namespace
 
@@ -24,7 +24,10 @@
 | Input |  |  |  |
 | Context brief |  |  |  |
 | Evidence packet |  |  |  |
-| Generated idea set |  |  |  |
+| Routing decision |  |  |  |
+| Idea index |  |  |  |
+| Current dossiers |  |  |  |
+| Reference ledgers |  |  |  |
 | Preflight reports |  |  |  |
 | Evaluation reports |  |  |  |
 | Portfolio |  |  |  |
@@ -41,7 +44,6 @@
 | Promoted |  |  |
 | Revise |  |  |
 | Reframe |  |  |
-| Merged |  |  |
 | Rejected |  |  |
 | Backup |  |  |
 

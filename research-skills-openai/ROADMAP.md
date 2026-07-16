@@ -1,8 +1,8 @@
 # Research Skills OpenAI Plugin Roadmap
 
 Status: Personal Experimental/Preview
-Planning baseline: 2026-07-15
-Current version: `0.8.0-preview.1`
+Planning baseline: 2026-07-16
+Current version: `0.9.0-preview.1`
 Current scope: 49 skills, including the four-skill Research Polisher series
 
 ## Product position
@@ -18,14 +18,13 @@ separate. Substantive revisions receive fresh independent evaluation; source
 artifacts remain immutable; lineage and dissent remain visible; and fatal or
 unresolved blocking findings prevent promotion.
 
-The active sequence is:
+The Idea-v3 deterministic checkpoint is complete. The remaining active sequence is:
 
-1. complete the minimal project README and Cover Letter maintenance checkpoint;
-2. finish the current-version local install, update, and fresh-task discovery
-   check;
-3. complete the bounded owner-observed Phase 7 workflow runs;
-4. complete the bounded Phase 8 Search and Deep Research runs; and
-5. consider Phase 10 only after the current personal workflows are useful in
+1. after owner approval, finish the current-version local install, update, and
+   fresh-task discovery check;
+2. complete the bounded owner-observed Phase 7 workflow runs;
+3. complete the bounded Phase 8 Search and Deep Research runs; and
+4. consider Phase 10 only after the current personal workflows are useful in
    real research work.
 
 No additional entry skill is planned while these checks are incomplete.
@@ -44,14 +43,14 @@ No additional entry skill is planned while these checks are incomplete.
 - The 20-case anonymous corpus passes with false-ready zero and 100% compliance
   for fatal/blocking detection, lineage, reviewer isolation, source-edit
   boundaries, and dissent preservation.
-- Context proxies remain at 6,086 descriptions and at or below the historical
-  13,266 maximum; the current largest orchestrator proxy is 13,171.
+- Context proxies use 6,029 description characters and remain below the
+  historical regression gates; the current largest orchestrator proxy is 13,146.
 - Plugin structure, registry generation, GitHub marketplace metadata, and local
   development installation support are implemented.
 - A 2026-07-14 local audit confirmed that `xuxu-research-preview` is registered,
   `research-skills-openai` is enabled, and the coherent installed cache is
-  `0.7.0-preview.2`. Installation is implemented; the working-tree
-  `0.8.0-preview.1` still requires upgrade/reinstall and fresh-task discovery.
+  `0.7.0-preview.2`. Installation and `0.9.0-preview.1` deterministic acceptance
+  are implemented; upgrade/reinstall and fresh-task discovery remain pending.
 - ChatGPT web installation, sharing, discovery, and runtime behavior remain
   unverified and do not block the personal Codex profile.
 
@@ -69,6 +68,9 @@ No additional entry skill is planned while these checks are incomplete.
 
 An owner-observed record supports only personal readiness. It must not be
 described as provider, shared, public, or externally attested evidence.
+Current-version owner task IDs, private input bindings, and confirmations are
+stored only in the ignored local Phase 7-8 receipt file; the tracked receipt
+template remains all-pending and contains no task IDs.
 
 ## Historical completed baseline — Phases 0–6
 
@@ -140,7 +142,7 @@ Completed infrastructure and historical observation:
   `8eb40187df7af45f562ccf39c5b4e3a10167e232`.
 - The installed plugin historically upgraded from `0.5.0-preview.1` to
   `0.5.0-preview.2` and was explicitly reinstalled into the new user cache.
-- Fresh Codex task `019f5379-15ad-7241-948a-14a5ddc0cebc` discovered that
+- A fresh Codex task (private task ID redacted) discovered that
   historical cache and all six entries then present, with no standalone
   `pubmed` skill.
 - Canonical historical evidence remains
@@ -220,17 +222,74 @@ Completed outcomes:
   entries, and one explicit-only entry; deterministic audits and scenario suites
   pass without changing existing workflow states.
 
+## Idea v3 complete-Dossier and adaptive-routing checkpoint
+
+- Priority: P0 blocker before Phase 7–8 resumes
+- Type: Idea artifact, routing, review-isolation, and usability hardening
+- Status: Complete and deterministically validated for `0.9.0-preview.1`
+
+### Deliverables
+
+- Replace the Idea snapshot/candidate-set primary contract with one to three
+  current `idea-dossier-vNNN.md` artifacts plus a concise Idea index, a readable
+  reference ledger, and an explicit routing decision.
+- Make each Dossier independently usable by the owner and by a fresh evaluator:
+  full background, objectives, work modules, methods, key technologies, expected
+  outputs, contribution/impact claims, risks, and references must be present.
+- Describe every major evidence chain as input -> method/analysis/processing ->
+  output, with the supported objective or claim and failure conditions.
+- Route a clear, supported direction to focused optimization. Route a vague
+  direction with several supported opportunities to one bounded exploration
+  round across two or at most three directions, followed by fresh evidence and
+  opportunity mapping and one fresh evaluator per current Dossier.
+- Permit title, audience, and editorial repositioning without mandatory new work
+  when the implementation supports every claim. Require a real increment only
+  for claims of a novel method, new data, or new scientific discovery.
+- Keep detailed schemas, examples, claim-support checks, and routing tables in
+  conditional references so default discovery and orchestrator context do not
+  grow.
+- Treat the visible ignored v1 run under
+  `../tests/idea-to-proposal/.phase7-8-runs/idea/` as a local project test
+  example, not a migration target. No actual v2 project is present; v1/v2
+  layouts remain read-only and are never rewritten automatically.
+
+### Acceptance
+
+- Every current Idea Dossier contains all required sections, resolves normal
+  academic citations locally, contains no opaque workflow-marker dependency, and
+  closes every major input-method/output chain.
+- The owner handoff links the same Dossier path, version, and digest that the
+  evaluator read. Any internal marker shown elsewhere has a readable label and
+  resolves through the node ledger to its defining and original source.
+- `idea-evaluator` reads exactly one current Dossier as its project artifact;
+  context/maps, preflight, ledger, old versions, deltas, must-fix lists, and prior
+  reports or decisions remain invisible.
+- Supported title or audience expansion passes; unsupported causal, universal,
+  clinical-effectiveness, generalizability, or novelty claims fail. A qualified
+  claim passes only when its limitation remains visible.
+- Focused routing yields one current Dossier. Bounded exploration yields two or
+  three, never quota-filling weak directions, performs no evaluation before the
+  remap, and stops at `human_direction_selection_required` after one fresh
+  evaluator per current Dossier.
+- Identity drift, an incomplete evidence chain, stale digest, unsupported title
+  claim, structural second-round exploration change, or missing independent
+  reviewer prevents promotion.
+- Inventory remains 49 skills, 20 reviewers, seven declared entries, six
+  implicit entries, one explicit-only entry, and 17 public entry modes. Context
+  budgets and all maintained deterministic suites remain within their existing
+  gates.
+
 ## Phase 7 — Personal install and workflow readiness
 
 - Priority: P0
 - Type: maintenance and owner-observed runtime validation
-- Status: Paused until the hardening checkpoint passes and the owner resumes it
+- Status: Ready but paused until the owner authorizes current-version runtime work
 
 ### Deliverables
 
 1. Verify the current GitHub marketplace source resolves the intended
    repository, `main` revision, and `research-skills-openai` subdirectory.
-2. Upgrade or explicitly reinstall `0.8.0-preview.1`, restart the Codex App when
+2. Upgrade or explicitly reinstall `0.9.0-preview.1`, restart the Codex App when
    necessary, and inspect the resulting user cache.
 3. Open a fresh Codex task and confirm discovery of 49 skills, seven declared
    entries, six implicit entries, and the permanent explicit-only Research
@@ -285,7 +344,7 @@ and runtime checks.
 
 - Priority: P0 after the Phase 7 install check
 - Type: owner-observed Search and Deep Research validation
-- Status: Paused with Phase 7 until the hardening checkpoint passes
+- Status: Paused until Phase 7 installation/discovery and owner authorization
 
 ### Deliverables
 

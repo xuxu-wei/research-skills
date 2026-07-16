@@ -1,5 +1,5 @@
 schema_version: 5
-plugin_version: "0.8.0-preview.1"
+plugin_version: "0.9.0-preview.1"
 public_entry_policy:
   declared_entries:
     - academic-deep-search
@@ -170,16 +170,16 @@ skills:
     related_skills: ["idea-portfolio-assembler", "methodology-statistics-preflight", "multi-path-idea-generator", "research-context-builder", "research-idea-orchestrator", "research-opportunity-mapper"]
     invocation_policy: "explicit_or_orchestrated"
     requires_independent_subagent: true
-    allowed_input_artifacts: "frozen_artifacts_and_review_brief"
-    output_artifact_type: "review_or_verification_report"
+    allowed_input_artifacts: "one_frozen_complete_idea_dossier_only"
+    output_artifact_type: "idea_evaluation_report"
   - name: "idea-portfolio-assembler"
     package: "research-idea"
     role: "assembler"
     related_skills: ["idea-evaluator", "methodology-statistics-preflight", "multi-path-idea-generator", "research-context-builder", "research-idea-orchestrator", "research-opportunity-mapper"]
     invocation_policy: "explicit_or_orchestrated"
     requires_independent_subagent: false
-    allowed_input_artifacts: "evaluated_artifacts_and_workflow_state"
-    output_artifact_type: "final_handoff_package"
+    allowed_input_artifacts: "evaluated_current_idea_dossiers_index_lineage_findings_and_dissent"
+    output_artifact_type: "pi_navigation_or_comparison_handoff_package"
   - name: "medical-journal-review"
     package: "research"
     role: "reviewer"
@@ -202,8 +202,8 @@ skills:
     related_skills: ["idea-evaluator", "idea-portfolio-assembler", "methodology-statistics-preflight", "research-context-builder", "research-idea-orchestrator", "research-opportunity-mapper"]
     invocation_policy: "explicit_or_orchestrated"
     requires_independent_subagent: false
-    allowed_input_artifacts: "context_and_opportunity_artifacts"
-    output_artifact_type: "candidate_artifact_set"
+    allowed_input_artifacts: "frozen_context_evidence_opportunities_routing_decision_current_dossiers_and_revision_plan"
+    output_artifact_type: "versioned_complete_idea_dossiers_revision_delta_and_proposed_navigation_metadata"
   - name: "perspective-argument-architect"
     package: "research-perspective"
     role: "builder"
@@ -427,46 +427,46 @@ workflow_edges:
     dispatch_mode: "orchestrated"
     trigger: "context_required"
     input_contract: "user_inputs_and_constraints"
-    output_contract: "research_context_brief"
+    output_contract: "research_context_brief_and_direction_clarity_signal"
     failure_route: "clarification_required"
   - workflow: "idea"
     source: "research-idea-orchestrator"
     destination: "research-opportunity-mapper"
     dispatch_mode: "orchestrated"
-    trigger: "evidence_or_opportunity_map_required"
-    input_contract: "context_sources_and_scope"
-    output_contract: "evidence_and_opportunity_maps"
+    trigger: "evidence_opportunity_or_direction_route_required"
+    input_contract: "context_sources_scope_and_current_dossier_when_remapping"
+    output_contract: "evidence_opportunity_maps_and_direction_support_signals"
     failure_route: "evidence_mapping_pending"
   - workflow: "idea"
     source: "research-idea-orchestrator"
     destination: "multi-path-idea-generator"
     dispatch_mode: "orchestrated"
-    trigger: "context_and_opportunity_map_ready_or_revision_authorized"
-    input_contract: "frozen_context_opportunity_current_complete_snapshots_and_revision_plan"
-    output_contract: "versioned_complete_snapshots_candidate_index_and_delta"
+    trigger: "routing_decision_ready_or_revision_authorized"
+    input_contract: "frozen_context_evidence_opportunities_routing_decision_current_dossiers_and_revision_plan"
+    output_contract: "versioned_complete_idea_dossiers_revision_delta_and_proposed_navigation_metadata"
     failure_route: "generation_blocked"
   - workflow: "idea"
     source: "research-idea-orchestrator"
     destination: "methodology-statistics-preflight"
     dispatch_mode: "delegated"
     trigger: "method_or_endpoint_fit_needs_review"
-    input_contract: "frozen_complete_snapshots_and_method_facts"
+    input_contract: "frozen_complete_idea_dossiers_and_method_facts"
     output_contract: "preflight_report"
     failure_route: "independent_review_pending"
   - workflow: "idea"
     source: "research-idea-orchestrator"
     destination: "idea-evaluator"
     dispatch_mode: "delegated"
-    trigger: "candidate_set_frozen_or_revised"
-    input_contract: "one_frozen_complete_snapshot_stable_rubric_and_facts"
+    trigger: "focused_current_dossier_frozen_or_bounded_terminal_dossier_after_single_optimization_remap_and_sync"
+    input_contract: "one_frozen_complete_idea_dossier_only"
     output_contract: "idea_evaluation_report"
     failure_route: "independent_review_pending"
   - workflow: "idea"
     source: "research-idea-orchestrator"
     destination: "idea-adversarial-review-panel"
     dispatch_mode: "delegated"
-    trigger: "proposal_handoff_candidate_exists"
-    input_contract: "one_frozen_promoted_complete_snapshot_and_role_brief"
+    trigger: "focused_direction_proposal_handoff_candidate_exists"
+    input_contract: "one_frozen_promoted_complete_idea_dossier_and_role_brief"
     output_contract: "sealed_individual_adversarial_report"
     failure_route: "independent_review_pending"
   - workflow: "idea"
@@ -481,15 +481,15 @@ workflow_edges:
     source: "research-idea-orchestrator"
     destination: "idea-portfolio-assembler"
     dispatch_mode: "orchestrated"
-    trigger: "evaluation_and_adversarial_reports_sealed"
-    input_contract: "evaluated_complete_snapshots_lineage_and_dissent"
-    output_contract: "pi_review_portfolio"
+    trigger: "qualifying_focused_review_or_bounded_exploration_reviews_sealed"
+    input_contract: "evaluated_current_dossiers_index_lineage_findings_and_dissent"
+    output_contract: "pi_navigation_or_comparison_handoff_package"
     failure_route: "assembly_blocked"
   - workflow: "idea"
     source: "research-idea-orchestrator"
     destination: "proposal-orchestrator"
     dispatch_mode: "handoff"
-    trigger: "proposal_handoff_gate_passed"
+    trigger: "focused_or_human_selected_direction_fresh_promote_and_handoff_gate_passed"
     input_contract: "promoted_idea_package_and_limitations"
     output_contract: "proposal_workflow_state"
     failure_route: "proposal_handoff_blocked"
@@ -978,13 +978,16 @@ workflow_state_policy:
   - pending_review
   - specialist_review_pending
   - independent_review_pending
+  - direction_route_confirmation_required
   - clarification_stop
   - deep_research_handoff_required
   terminal_states:
   - stopped
   - blocked
+  - no_defensible_direction
   - no_defensible_option
   - human_signoff_required
+  - human_direction_selection_required
   - human_strategy_selection_required
   - additional_work_required
   review_unavailable_state: independent_review_pending
@@ -993,6 +996,7 @@ workflow_state_policy:
   wildcard_transition_scope: nonterminal_states_only
   resume_policy:
     independent_review_pending: pending_review
+    direction_route_confirmation_required: preprocessing
     clarification_stop: preprocessing
     deep_research_handoff_required: preprocessing
   version_gate:
@@ -1004,11 +1008,13 @@ workflow_state_policy:
     - panel_pending
     - packaging_pending
     - human_signoff_required
+    - human_direction_selection_required
     - human_strategy_selection_required
   finding_gate:
     fatal_or_blocking_finding_prevents_accept: true
     fatal_or_blocking_finding_prevents_promoted: true
     fatal_or_blocking_finding_prevents_human_signoff: true
+    fatal_or_blocking_finding_prevents_human_direction_selection: true
     fatal_or_blocking_finding_prevents_human_strategy_selection: true
     panel_dissent_must_remain_visible: true
   concurrency_policy:
@@ -1067,6 +1073,13 @@ workflow_state_policy:
     - fresh_evaluation_current
     - no_unresolved_fatal_finding
   - from: pending_review
+    to: packaging_pending
+    trigger: bounded_exploration_reviews_complete
+    requires:
+    - evidence_and_opportunity_remap_complete
+    - fresh_evaluation_complete_for_each_current_dossier
+    - no_unresolved_fatal_finding
+  - from: pending_review
     to: specialist_review_pending
     trigger: specialist_review_requested
     requires:
@@ -1083,6 +1096,19 @@ workflow_state_policy:
     to: human_signoff_required
     trigger: package_verified
   - from: packaging_pending
+    to: human_direction_selection_required
+    trigger: bounded_exploration_comparison_handoff_verified
+    requires:
+    - evidence_and_opportunity_remap_complete
+    - fresh_evaluation_complete_for_each_current_dossier
+    - no_unresolved_fatal_finding
+  - from: human_direction_selection_required
+    to: preprocessing
+    trigger: human_selected_current_dossier
+    requires:
+    - selected_current_dossier_digest_match
+    - direction_profile_switched_to_focused_optimization
+  - from: packaging_pending
     to: human_strategy_selection_required
     trigger: selection_dossier_verified
   - from: human_strategy_selection_required
@@ -1095,6 +1121,9 @@ workflow_state_policy:
     to: independent_review_pending
     trigger: required_reviewer_unavailable
   - from: '*'
+    to: direction_route_confirmation_required
+    trigger: idea_direction_route_is_low_confidence_or_conflicted
+  - from: '*'
     to: clarification_stop
     trigger: required_source_facts_missing_or_inconsistent
   - from: '*'
@@ -1103,6 +1132,9 @@ workflow_state_policy:
   - from: '*'
     to: blocked
     trigger: fatal_or_blocking_finding
+  - from: '*'
+    to: no_defensible_direction
+    trigger: no_supported_current_or_alternative_idea_direction
   - from: '*'
     to: no_defensible_option
     trigger: no_defensible_strategy_remains
@@ -1120,7 +1152,7 @@ workflow_state_machines:
     - multi-path-idea-generator
     primary_artifact_creator_skills:
     - multi-path-idea-generator
-    primary_artifact_type: candidate_idea_set
+    primary_artifact_type: idea_dossier
     entry_modes:
     - standard
     - resume_candidates
@@ -1129,14 +1161,15 @@ workflow_state_machines:
       standard:
       - context_frozen
       - evidence_map_frozen
-      - candidate_set_versioned
+      - routing_decision_frozen
+      - idea_dossier_versioned
       resume_candidates:
       - context_scope_validated
       - evidence_scope_validated
-      - candidate_set_versioned
+      - routing_decision_frozen
+      - idea_dossier_versioned
       portfolio_only:
       - latest_version_independently_evaluated
-      - adversarial_reports_complete
       - dissent_and_fatal_findings_indexed
     scenario_entry_gate_contracts:
       standard:
@@ -1146,9 +1179,12 @@ workflow_state_machines:
         evidence_map_frozen:
           artifact_roles:
           - evidence_map
-        candidate_set_versioned:
+        routing_decision_frozen:
           artifact_roles:
-          - candidate_idea_set
+          - idea_routing_decision
+        idea_dossier_versioned:
+          artifact_roles:
+          - idea_dossier
       resume_candidates:
         context_scope_validated:
           artifact_roles:
@@ -1156,18 +1192,17 @@ workflow_state_machines:
         evidence_scope_validated:
           artifact_roles:
           - evidence_map
-        candidate_set_versioned:
+        routing_decision_frozen:
           artifact_roles:
-          - candidate_idea_set
+          - idea_routing_decision
+        idea_dossier_versioned:
+          artifact_roles:
+          - idea_dossier
       portfolio_only:
         latest_version_independently_evaluated:
           review_skill: idea-evaluator
           input_artifact_roles:
-          - candidate_idea_set
-        adversarial_reports_complete:
-          review_skill: idea-adversarial-review-panel
-          input_artifact_roles:
-          - candidate_idea_set
+          - idea_dossier
         dissent_and_fatal_findings_indexed:
           artifact_roles:
           - review_finding_index
@@ -1176,10 +1211,60 @@ workflow_state_machines:
     - no_unresolved_fatal_finding
     before_packaging:
     - latest_version_independently_evaluated
-    - adversarial_reports_complete
     - dissent_and_fatal_findings_indexed
+    before_packaging_by_direction_profile:
+      focused_optimization:
+      - adversarial_reports_complete_when_proposal_handoff_candidate
+      bounded_exploration:
+      - evidence_and_opportunity_remap_complete
+      - fresh_evaluation_complete_for_each_current_dossier
     non_ready_modes: []
     final_package_skill: idea-portfolio-assembler
+    internal_direction_profiles:
+      focused_optimization:
+        current_dossier_count: 1
+        revision_round_limit: 3
+        adversarial_panel_required_before_handoff: true
+        final_state: human_signoff_required
+      bounded_exploration:
+        current_dossier_count:
+          minimum: 2
+          maximum: 3
+        optimization_round_limit_per_direction: 1
+        evidence_and_opportunity_remap_after_optimization: true
+        fresh_evaluator_per_current_dossier_after_remap: true
+        structural_change_after_remap: revision_required_no_automatic_second_optimization
+        adversarial_panel_required_before_direction_selection: false
+        final_state: human_direction_selection_required
+    routing_contract:
+      decision_artifact_role: idea_routing_decision
+      clear_supported_direction: focused_optimization
+      underdefined_with_two_or_more_supported_directions: bounded_exploration
+      maximum_exploration_directions: 3
+      no_supported_direction: no_defensible_direction
+      low_confidence_or_conflict: direction_route_confirmation_required
+      never_fill_direction_quota_with_unsupported_candidates: true
+    evaluation_dispatch_by_direction_profile:
+      focused_optimization:
+        eligible_artifact: current_frozen_idea_dossier
+        required_preconditions:
+        - current_dossier_digest_bound
+      bounded_exploration:
+        eligible_artifact: terminal_current_idea_dossier_only
+        required_preconditions:
+        - exactly_one_bounded_optimization_complete_for_direction
+        - evidence_and_opportunity_remap_complete_for_direction
+        - post_remap_claim_sync_complete_for_direction
+        - terminal_dossier_digest_bound
+        initial_or_pre_remap_dossier_evaluation_forbidden: true
+    proposal_handoff_contract:
+      eligible_direction_profiles:
+      - focused_optimization
+      required_current_evaluation_decision: promote
+      fresh_evaluation_required: true
+      evaluated_dossier_digest_must_match_current: true
+      revise_then_promote_is_not_a_handoff_decision: true
+      revise_then_promote_requires_revision_and_fresh_re_evaluation: true
   proposal:
     orchestrator: proposal-orchestrator
     evaluator_skill: proposal-evaluator
@@ -1602,6 +1687,18 @@ scenario_eval_contract:
   - decision
   - findings
   - unresolved_issues
+  workflow_review_extensions:
+    idea-evaluator:
+      required_fields:
+      - reviewed_dossier_digest
+      - complete_dossier_confirmed
+      - dossier_only_input_confirmed
+      finding_required_fields:
+      - title
+      - dossier_locator
+      exact_input_artifact_count: 1
+      allowed_input_artifact_roles:
+      - idea_dossier
   runtime_observation_fields:
   - files_read
   - actual_write_paths
@@ -1802,7 +1899,6 @@ scenario_eval_contract:
       - revise_then_promote
       - revise
       - reframe
-      - merge
       - keep_as_backup
       - reject
       pass:
@@ -1811,7 +1907,6 @@ scenario_eval_contract:
       - revise_then_promote
       - revise
       - reframe
-      - merge
       stop:
       - keep_as_backup
       - reject
@@ -2207,7 +2302,11 @@ scenario_eval_contract:
       allowed_roles:
       - research_context
       - evidence_map
-      - candidate_idea_set
+      - opportunity_map
+      - idea_routing_decision
+      - idea_index
+      - idea_dossier
+      - reference_ledger
       - evaluation_report
       - panel_report
       - revision_plan
@@ -2219,28 +2318,73 @@ scenario_eval_contract:
       - artifact_role: evidence_map
         source_skill: research-opportunity-mapper
         count: 1
-      - artifact_role: candidate_idea_set
+        count_by_direction_profile:
+          focused_optimization: 1
+          bounded_exploration:
+            minimum: 2
+            maximum: 3
+      - artifact_role: opportunity_map
+        source_skill: research-opportunity-mapper
+        count_per_current_idea_node: 1
+        required_when_direction_profile: bounded_exploration
+      - artifact_role: idea_routing_decision
+        source_skill: research-idea-orchestrator
+        count: 1
+      - artifact_role: idea_index
+        source_skills:
+        - research-idea-orchestrator
+        - external-input
+        count: 1
+      - artifact_role: idea_dossier
         source_skills:
         - multi-path-idea-generator
         - external-input
-        current_primary: true
-        count: 1
+        current_by_idea_index: true
+        minimum_count: 1
+        maximum_count: 3
+        count_by_direction_profile:
+          focused_optimization: 1
+          bounded_exploration:
+            minimum: 2
+            maximum: 3
+      - artifact_role: reference_ledger
+        source_skills:
+        - research-idea-orchestrator
+        - external-input
+        count_per_current_idea_node: 1
       - artifact_role: evaluation_report
         source_skill: idea-evaluator
         current_primary_lineage: true
-        count: 1
+        count_must_equal_current_idea_dossier_count: true
       - artifact_role: panel_report
         source_skill: idea-adversarial-review-panel
         all_panel_instances: true
         count_from_panel_roles: true
+        required_when_condition: proposal_handoff_candidate
       - artifact_role: revision_plan
         source_skill: research-idea-orchestrator
-        minimum_count: 1
+        minimum_count: 0
+        maximum_count: 3
         include_all_created: true
+        count_by_direction_profile:
+          focused_optimization:
+            minimum: 0
+            maximum: 3
+          bounded_exploration:
+            minimum: 2
+            maximum: 3
       - artifact_role: revision_delta
         source_skill: multi-path-idea-generator
-        minimum_count: 1
+        minimum_count: 0
+        maximum_count: 6
         include_all_created: true
+        count_by_direction_profile:
+          focused_optimization:
+            minimum: 0
+            maximum: 3
+          bounded_exploration:
+            minimum: 4
+            maximum: 6
     proposal:
       allowed_roles:
       - proposal_context
@@ -2620,6 +2764,9 @@ scenario_eval_contract:
       review_input_refs_must_equal_actual_read_artifact_refs: true
     actor_output_roles_by_skill:
       research-idea-orchestrator:
+      - idea_routing_decision
+      - idea_index
+      - reference_ledger
       - revision_plan
       - continuation_brief
       proposal-orchestrator:
@@ -2662,8 +2809,9 @@ scenario_eval_contract:
       - evidence_map
       - literature_grounding_report
       multi-path-idea-generator:
-      - candidate_idea_set
+      - idea_dossier
       - revision_delta
+      - proposed_navigation_metadata
       proposal-drafter:
       - proposal
       - response_to_reviewers
@@ -2787,10 +2935,14 @@ scenario_eval_contract:
           resume_candidates:
           - source_material
           - user_constraints
-          - candidate_idea_set
+          - idea_dossier
+          - idea_index
+          - reference_ledger
           portfolio_only:
           - source_material
-          - candidate_idea_set
+          - idea_dossier
+          - idea_index
+          - reference_ledger
         proposal:
           standard:
           - source_material
@@ -2890,6 +3042,9 @@ scenario_eval_contract:
     article: human_signoff_required
     perspective: human_signoff_required
     research_polisher: human_strategy_selection_required
+  workflow_conditional_final_states:
+    idea:
+      bounded_exploration: human_direction_selection_required
   automatic_external_submission: false
 context_profile_policy:
   measurement_unit: characters
@@ -2926,12 +3081,103 @@ context_profile_policy:
   - isolation_requirements
   - next_route
 artifact_completeness_policy:
-  idea_schema: research-idea.v2
-  idea_current_artifact: complete_markdown_snapshot
+  idea_schema: research-idea.v3
+  idea_current_artifact: complete_markdown_dossier
   idea_node_layout: 03_ideas/nodes/<idea-id>
   idea_tree_mode: flat_nodes_with_parent_ids
-  idea_legacy_layout_behavior: layout_migration_required_read_only
+  idea_dossier_layout: 03_ideas/nodes/<idea-id>/dossiers/idea-dossier-vNNN.md
+  idea_dossier_change_types:
+  - create
+  - revise
+  - evidence_claim_sync
+  - editorial_reposition
+  idea_index_role: idea_index
+  idea_reference_ledger_role: reference_ledger
+  idea_routing_decision_role: idea_routing_decision
+  idea_legacy_schemas:
+  - research-idea.v1
+  - research-idea.v2
+  idea_legacy_layout_behavior: layout_migration_required_read_only_no_automatic_rewrite
   core_identity_drift_behavior: new_idea_required_no_automatic_branch
+  idea_current_dossier_cardinality:
+    focused_optimization: 1
+    bounded_exploration:
+      minimum: 2
+      maximum: 3
+  idea_required_dossier_sections:
+  - title_summary_audience_and_positioning
+  - structured_abstract
+  - background_state_gap_significance_and_rationale
+  - research_question_objectives_and_core_hypotheses
+  - research_content_and_work_modules
+  - data_materials_and_existing_evidence_base
+  - study_design_and_methods
+  - key_technologies_and_implementation_points
+  - semi_structured_evidence_chains
+  - required_analyses_and_evidence
+  - expected_outputs_falsification_criteria_and_interpretation
+  - contribution_innovation_impact_applications_and_closest_work
+  - title_and_positioning_claim_support_table
+  - feasibility_resources_risks_alternatives_and_stop_conditions
+  - references
+  idea_evidence_chain_contract:
+    required_fields:
+    - input
+    - method_analysis_or_processing
+    - output
+    - supported_objective_or_claim
+    - limitations_and_failure_conditions
+    every_major_objective_and_hypothesis_has_output: true
+    every_output_traces_to_input_and_processing: true
+    expected_outputs_must_not_be_presented_as_observed_results: true
+  idea_editorial_repositioning_contract:
+    title_audience_and_positioning_changes_allowed: true
+    added_work_required_for_supported_repositioning: false
+    supported_editorial_repositioning_is_not_identity_drift: true
+    editorial_change_creates_new_dossier_version: true
+    editorial_change_requires_fresh_evaluation: true
+    all_title_and_positioning_claims_must_be_supported_by_implementation: true
+    claim_support_states:
+    - supported
+    - qualified
+    - unsupported
+    contribution_frames:
+    - scientific_discovery
+    - method
+    - validation
+    - replication
+    - application
+    - resource
+    - benchmark
+    - practical
+    - translational
+    - integration
+    - editorial_repositioning
+    qualified_claims_require_visible_qualifiers: true
+    unsupported_claims_forbidden_in_title_summary_and_primary_positioning: true
+    similar_work_does_not_automatically_require_new_work: true
+    novel_method_data_or_discovery_claim_requires_real_increment: true
+  idea_internal_marker_policy:
+    opaque_workflow_markers_forbidden_in_dossier_prose: true
+    standard_academic_citations_allowed: true
+    user_visible_internal_markers_require_human_label_and_ledger_resolution: true
+  idea_evaluator_project_input_contract:
+    allowed_project_artifacts:
+    - current_complete_idea_dossier_and_digest
+    exact_project_artifact_count: 1
+    forbidden_project_artifacts:
+    - research_context
+    - evidence_map
+    - opportunity_map
+    - preflight_report
+    - reference_ledger
+    - prior_dossier
+    - revision_delta
+    - anonymous_must_fix_list
+    - prior_report
+    - prior_score
+    - prior_decision
+    stable_rubric_is_skill_instruction_not_project_artifact: true
   proposal_current_artifact: complete_proposal
   article_schema: research-article.v6
   article_current_artifact: complete_canonical_markdown

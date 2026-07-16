@@ -1,32 +1,20 @@
 # Downstream Handoff Rules
 
-本文件定义生成结果交付给下游技能的要求。
+## Preflight
 
-## To methodology-statistics-preflight
+Pass the current dossier plus role-necessary context/evidence when endpoint,
+data-method fit, analysis feasibility, or clinical/statistical design needs
+independent checking. Any repair returns to the writer and produces a new
+complete dossier.
 
-标记需要 preflight 的情况：
+## Idea evaluator
 
-- endpoint/metric 不够清楚；
-- data source 与 research question 的匹配需要检查；
-- idea 涉及临床、观察性研究、预测模型、因果推断或统计分析；
-- minimal analysis route 可能不成立。
+The orchestrator passes exactly one frozen current dossier, identified by ID,
+version, path, and SHA-256. Do not pass context, maps, evidence limitations,
+ledger, preflight, lineage, prior versions, deltas, must-fix lists, or reports.
+All necessary facts and citations must already be inside the dossier.
 
-## To isolated idea-evaluator
+## Portfolio
 
-Pass current complete snapshot paths, versions, SHA-256 digests, node identity
-anchors, supporting opportunity/evidence limitations, and necessary preflight
-facts. For re-evaluation, never pass a prior snapshot, revision delta, prior
-report, score, or decision.
-
-所有生成的 idea 都必须经 orchestrator 派发给隔离、独立 evaluator。交付内容包括：
-
-- generated idea set；
-- supporting opportunity IDs；
-- evidence limitations；
-- novelty uncertainty；
-- risks / reviewer objections；
-- lineage notes。
-
-## To idea-portfolio-assembler
-
-仅在 evaluator 和 orchestrator 决策后使用。本 skill 不直接向 portfolio assembler 推送 promoted idea。
+Do not promote directly. After qualifying evaluation and any required panel,
+the assembler receives dossier/report/ledger pointers and sealed decisions.

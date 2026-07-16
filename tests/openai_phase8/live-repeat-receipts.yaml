@@ -22,7 +22,7 @@ durable_verification_missing:
   - source_commit_and_plugin_tree_identity
 captured_at: 2026-07-12T12:32:36Z
 plugin_version: 0.6.0-preview.1
-task_id: 019f506d-01cc-7fa0-9839-db8f494b5ab4
+task_id: private-task-id-redacted
 capture_policy:
   raw_transport_envelope_preserved: false
   structured_review_contract_preserved: true
@@ -53,12 +53,12 @@ cases:
           reviewer_skill: proposal-readiness-triage
           reviewer_instance_id: /root/ph8_proposal_repeat_a
           files_read:
-            - E:/BaiduNetdiskWorkspace/Jupyter/my_repos/xuxu-hermes/research-skills/research-skills-openai/skills/proposal-readiness-triage/SKILL.md
-            - E:/BaiduNetdiskWorkspace/Jupyter/my_repos/xuxu-hermes/research-skills/research-skills-openai/skills/proposal-readiness-triage/references/criteria-readiness-triage.md
-            - E:/BaiduNetdiskWorkspace/Jupyter/my_repos/xuxu-hermes/research-skills/research-skills-openai/skills/proposal-readiness-triage/references/criteria-fatal-flaws.md
-            - E:/BaiduNetdiskWorkspace/Jupyter/my_repos/xuxu-hermes/research-skills/research-skills-openai/skills/proposal-readiness-triage/references/schema-readiness-report.md
-            - E:/BaiduNetdiskWorkspace/Jupyter/my_repos/xuxu-hermes/research-skills/research-skills-openai/skills/proposal-readiness-triage/templates/template-readiness-report.md
-            - E:/BaiduNetdiskWorkspace/Jupyter/my_repos/xuxu-hermes/research-skills/tests/openai_phase8/live-repeat-inputs/proposal-fatal.md
+            - research-skills-openai/skills/proposal-readiness-triage/SKILL.md
+            - research-skills-openai/skills/proposal-readiness-triage/references/criteria-readiness-triage.md
+            - research-skills-openai/skills/proposal-readiness-triage/references/criteria-fatal-flaws.md
+            - research-skills-openai/skills/proposal-readiness-triage/references/schema-readiness-report.md
+            - research-skills-openai/skills/proposal-readiness-triage/templates/template-readiness-report.md
+            - tests/openai_phase8/live-repeat-inputs/proposal-fatal.md
           isolation_mode: fresh_subagent
           prior_scores_visible: false
           source_edits_performed: false

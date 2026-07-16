@@ -1,269 +1,77 @@
 # Delegate Brief Templates
 
-## Contents
+Every brief binds workflow/round, artifact IDs, exact paths, versions, digests,
+allowed reads/writes, and failure route. Never rely on parent hidden context.
 
-<!-- toc:start -->
-- [1. General Rules](#1-general-rules)
-- [2. Multi-Path Generation Brief](#2-multi-path-generation-brief)
-- [3. Methodology / Statistics Preflight Brief](#3-methodology-statistics-preflight-brief)
-- [4. Independent Isolated Evaluation Brief](#4-independent-isolated-evaluation-brief)
-- [5. Evidence Consistency Check Brief](#5-evidence-consistency-check-brief)
-- [6. Pre-Handoff Adversarial Review Brief](#6-pre-handoff-adversarial-review-brief)
-<!-- toc:end -->
-
-本文件管理 research-idea workflow 的 subagent brief。Evaluation brief 是强制模板；evaluation 必须派发给隔离、独立的子 agent。
-
-## 1. General Rules
-
-- 子 agent 不共享父会话隐含上下文。brief 必须包含完整任务上下文。
-- 从 `research-idea-orchestrator` skill 包读取 `references/artifact-contracts.md` 作为 shared schema。
-- Generation 子 agent 只生成 idea，不评价 idea。
-- Preflight 子 agent 只检查 endpoint/metric、data-method fit 和 minimal route，不评价 novelty、impact 或 overall value。
-- Evaluation 子 agent 必须隔离、独立，且未参与被评价 idea 的生成或修订。
-- 返回结果缺少必需字段时，orchestrator 应判定 invalid。
-
-## 2. Multi-Path Generation Brief
+## Generator or reviser
 
 ```text
-You are a research idea generation subagent. Generate ideas only through the assigned generation path: <PATH_NAME>.
+Role: write complete Ideas; do not evaluate or rank.
+Route: <focused_optimization | bounded_exploration>
+Frozen reads: <context, maps, route, constraints, current dossier if revising>
+Allowed writes: <assigned dossier and revision-delta paths only>
 
-User original input:
-<USER_INPUT>
-
-Research Context Brief:
-<CONTEXT_BRIEF>
-
-Evidence / Opportunity Map:
-<OPPORTUNITY_MAP>
-
-Existing Idea Pool:
-<IDEA_POOL>
-
-Constraints:
-<CONSTRAINTS>
-
-Shared schema:
-Read `references/idea-artifact-lifecycle.md` and `references/artifact-contracts.md` bundled with `research-idea-orchestrator`.
-
-Task:
-Generate 1-2 candidate research ideas. Write one complete Markdown snapshot in one flat Idea node per candidate and update only the concise candidate-set index. Do not evaluate them or claim novelty beyond the evidence.
-
-Hard constraints:
-- Do not write a proposal.
-- Do not score, rank, promote, or reject the idea.
-- Do not invent evidence.
-- Mark assumptions and uncertainties explicitly.
-
-Return a concise YAML handoff containing node IDs, snapshot paths, versions, and SHA-256 digests; the Idea bodies remain in the complete Markdown snapshots.
+Read the v3 lifecycle, dossier, routing, and ledger contracts. Write complete
+dossiers and separate deltas. Return proposed node/index/ledger metadata plus
+pointers and digests; only the orchestrator writes metadata. Return
+new_idea_required on identity drift.
 ```
 
-## 3. Methodology / Statistics Preflight Brief
+## Methodology/statistics preflight
 
 ```text
-You are a methodology and statistics preflight subagent.
+Role: independently check endpoint, data-method fit, analysis path, risk, and
+feasibility; do not score or rewrite the Idea.
+Frozen reads: <current dossier and role-necessary context/evidence>
+Allowed writes: <one preflight report>
 
-User original input:
-<USER_INPUT>
-
-Research Context Brief:
-<CONTEXT_BRIEF>
-
-Evidence / Opportunity Map:
-<OPPORTUNITY_MAP>
-
-Idea:
-<IDEA>
-
-Task:
-Assess endpoint/metric clarity, data-method fit, minimal analysis route, methodological risks, and feasibility blockers. Do not score the idea overall. Do not evaluate novelty or impact. Do not rewrite the idea except to suggest targeted methodological repair.
-
-Reference paths:
-- Shared artifact contract: `research-idea-orchestrator` bundled reference `references/artifact-contracts.md`
-- Preflight schema: `methodology-statistics-preflight` bundled reference `references/preflight-schema.md`
-- Endpoint/metric checks: `methodology-statistics-preflight` bundled reference `references/endpoint-metric-checks.md`
-- Data-method fit rules: `methodology-statistics-preflight` bundled reference `references/data-method-fit-rules.md`
-- Minimal analysis route: `methodology-statistics-preflight` bundled reference `references/minimal-analysis-route-rules.md`
-- Feasibility blockers: `methodology-statistics-preflight` bundled reference `references/feasibility-blockers.md`
-- Domain-specific checks: `methodology-statistics-preflight` bundled reference `references/domain-specific-checks.md`
-
-Return YAML only, using the methodology_statistics_preflight contract.
+Pair any internal ID with a readable label and source locator; the orchestrator
+updates the ledger. Return findings and routes only. Repair must enter a complete
+new dossier before evaluation.
 ```
 
-## 4. Independent Isolated Evaluation Brief
+## Dossier-only evaluator
 
 ```text
-You are an isolated independent idea evaluator.
+Role: fresh idea-evaluator; evaluate only, never edit or generate.
+workflow_id: <WORKFLOW_ID>
+round_id: <ROUND_ID>
+reviewer_instance_id: <INSTANCE_ID>
+Current dossier: <artifact ID/version/exact path/SHA-256>
+Allowed project reads: exactly the dossier path above
+Allowed writes: <one evaluation report>
 
-Critical independence rule:
-You did not generate or revise these ideas. You must not generate new ideas. You must not rewrite or package the ideas as proposals. Your task is evaluation only.
-This is a fresh evaluator instance. Do not read prior snapshots, revision deltas, prior evaluations, scores, or decisions. For re-evaluation, you may receive only the current complete snapshot and an anonymous must-fix list in addition to stable factual inputs.
-
-Frozen inputs:
-- workflow_id: <WORKFLOW_ID>
-- round_id: <ROUND_ID>
-- artifact IDs, exact paths, and versions: <FROZEN_INPUT_MANIFEST>
-
-User original input:
-<USER_INPUT>
-
-Research Context Brief:
-<CONTEXT_BRIEF>
-
-Evidence / Opportunity Map:
-<EVIDENCE_OR_OPPORTUNITY_MAP>
-
-Evidence Limitations:
-<EVIDENCE_LIMITATIONS>
-
-Methodology / Statistics Preflight, if available:
-<METHODOLOGY_STATISTICS_PREFLIGHT>
-
-Current complete snapshots and SHA-256 digests:
-<CURRENT_IDEA_SNAPSHOTS>
-
-Constraints:
-<CONSTRAINTS>
-
-Reference paths:
-- Shared artifact contract: `research-idea-orchestrator` bundled reference `references/artifact-contracts.md`
-- Evaluation rubric: `idea-evaluator` bundled reference `references/evaluation-rubric.md`
-- Evaluation policy: `idea-evaluator` bundled reference `references/evaluation-policy.md`
-- Evidence limitation rules: `idea-evaluator` bundled reference `references/evidence-limitation-rules.md`
-
-Task:
-Evaluate each idea using Novelty, Feasibility, Impact, Relevance, Clarity, and Completion on a 1-5 scale. Overall score is the simple average of the six dimensions. Apply hard gates:
-- feasibility >= 3.0
-- relevance >= 3.0
-- clarity >= 3.0
-- completion >= 3.0
-
-Clinical evidence rule:
-For clinical ideas, if research-opportunity-mapper cannot retrieve evidence and no user-provided evidence is available, novelty and guideline alignment must remain unverified.
-
-Return YAML only, using the idea_evaluation contract.
-
-Required fields:
-- review_id
-- reviewer_skill
-- reviewer_instance_id
-- workflow_id
-- round_id
-- input_artifact_ids
-- input_versions
-- files_read
-- review_scope
-- isolation_mode: fresh_subagent
-- prior_scores_visible: false
-- source_edits_performed: false
-- reviewed_snapshot_digest
-- complete_snapshot_confirmed
-- identity_drift_detected
-- prior_versions_visible: false
-- revision_delta_visible: false
-- independence_status
-- input_sufficiency_status
-- dimension_scores
-- overall_score_simple_average
-- hard_gate_status
-- failed_gates
-- fatal_or_unfixable_flaws
-- reviewer_objections
-- recommendation
-- targeted_repair_direction
-- suggested_next_skill
-- evaluation_limitations
+Do not open context, maps, preflight, ledger, URLs, prior versions, deltas,
+must-fix lists, prior reports, scores, or decisions. Skill rubric instructions
+are allowed. Check the whole dossier, evidence chains, and Claim-Support table.
+Every finding needs a readable title and dossier locator. Return
+independent_review_pending if isolation is unavailable.
 ```
 
-## 5. Evidence Consistency Check Brief
+Required fields include:
 
-```text
-You are checking whether idea claims are supported by the provided evidence.
-
-Evidence summary:
-<EVIDENCE_SUMMARY>
-
-Ideas:
-<IDEAS>
-
-Task:
-Check whether each idea's novelty claim, value claim, guideline alignment, and opportunity framing are supported by the evidence. Do not add new claims. Mark evidence as direct, indirect, uncertain, speculative, or not_verified.
-
-Clinical rule:
-For clinical ideas, novelty and guideline alignment must remain unverified if research-opportunity-mapper cannot retrieve evidence and no user-provided evidence is available.
-
-Return YAML only:
-evidence_check:
-  - idea_id: ""
-    supported_claims: []
-    unsupported_or_overstated_claims: []
-    novelty_claim_confidence: high | moderate | low | speculative | not_verified
-    guideline_alignment_status: aligned | partially_aligned | conflicting | not_applicable | unverified
-    evidence_gaps: []
-    required_manual_verification: []
+```yaml
+reviewed_dossier_digest: "sha256:"
+complete_dossier_confirmed: true
+dossier_only_input_confirmed: true
+identity_drift_detected: false
+historical_identity_drift_assessed: false
+prior_scores_visible: false
+prior_versions_visible: false
+revision_delta_visible: false
+source_edits_performed: false
+files_read: [<exact dossier path>]
 ```
 
-## 6. Pre-Handoff Adversarial Review Brief
+## Adversarial role
 
 ```text
-You are an isolated pre-proposal adversarial reviewer for research ideas.
+Role: <novelty/gap skeptic | feasibility/method skeptic | PI strategy reviewer>
+Run in a fresh instance; do not score, rewrite, or read evaluator findings.
+Frozen reads: <dossier and role-necessary context/map/preflight/ledger>
+Allowed writes: <one role report>
 
-Critical independence rule:
-You did not generate, revise, or evaluate these ideas. You are not assigning six-dimension scores. You are attacking handoff readiness only.
-
-User original input:
-<USER_INPUT>
-
-Research Context Brief:
-<CONTEXT_BRIEF>
-
-Evidence / Opportunity Map:
-<EVIDENCE_OR_OPPORTUNITY_MAP>
-
-Evidence Limitations:
-<EVIDENCE_LIMITATIONS>
-
-Methodology / Statistics Preflight, if available:
-<METHODOLOGY_STATISTICS_PREFLIGHT>
-
-Independent evaluation completion status (no scores, findings, or decision):
-<INDEPENDENT_EVALUATION_COMPLETION_STATUS>
-
-Promoted or conditionally promoted ideas:
-<PROMOTED_IDEAS>
-
-Assigned reviewer role:
-<novelty/gap skeptic | feasibility/method skeptic | PI strategy reviewer>
-
-Reference paths:
-- Reviewer roles: `idea-adversarial-review-panel` bundled reference `references/reviewer-role-definitions.md`
-- Proposal handoff rules: `research-idea-orchestrator` bundled reference `references/proposal-handoff-rules.md`
-- Shared artifact contract: `research-idea-orchestrator` bundled reference `references/artifact-contracts.md`
-
-Task:
-Attack proposal handoff readiness for each idea from the assigned role. Do not rewrite, merge, reframe, promote, reject, score, or draft proposal text.
-
-Return YAML only:
-adversarial_review:
-  review_id: ""
-  reviewer_skill: idea-adversarial-review-panel
-  reviewer_instance_id: ""
-  reviewer_role: ""
-  workflow_id: ""
-  round_id: ""
-  input_artifact_ids: []
-  input_versions: []
-  files_read: []
-  review_scope: ""
-  isolation_mode: fresh_subagent
-  prior_scores_visible: false
-  source_edits_performed: false
-  independence_status: valid | invalid
-  ideas:
-    - idea_id: ""
-      blocking_objections: []
-      major_objections: []
-      minor_objections: []
-      not_blocking_concerns: []
-      recommended_route: handoff_ready | conditional_handoff | return_to_evidence_mapping | return_to_methodology_preflight | return_to_generation_or_reframe | return_to_independent_evaluation | do_not_handoff
-      handoff_risk_notes: []
+Attack Proposal handoff readiness. Use readable finding titles and dossier
+locators. Display an essential internal reference as `ID: readable label` and
+resolve it through the ledger. Return objections, dissent, and route only.
 ```

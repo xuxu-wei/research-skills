@@ -1,30 +1,15 @@
-# Promoted Idea Package Rules
+# Qualifying Dossier Navigation Rules
 
-Each final candidate idea should be presented as a PI-review package.
+Each Idea entry contains:
 
-## Recommended Fields
+- Idea ID and human-readable title;
+- current dossier path, version, SHA-256, and valid relative link;
+- qualifying evaluation report link;
+- node reference-ledger link;
+- status and sealed score/gate summary;
+- fatal/blocking findings, dissent, and unresolved issues; and
+- next human action or resume route.
 
-- idea id;
-- title;
-- current snapshot path, version, and SHA-256;
-- complete one-sentence summary;
-- target journal optional, when target output is a journal paper;
-- research question, objectives, and work packages;
-- core hypothesis and scientific significance;
-- relevance, impact, innovation, and potential applications;
-- data/material/evidence base, methods, required analyses, and evidence;
-- feasibility/resources/constraints and risks/assumptions/stop conditions;
-- evidence summary;
-- evidence limitations;
-- evaluation summary;
-- hard gate status;
-- main risks or reviewer objections from evaluator;
-- remaining uncertainties;
-- proposal handoff status.
-
-## Boundaries
-
-- Do not invent missing methods, endpoints, data, or claims.
-- Do not write proposal sections.
-- Do not add new reviewer objections beyond the evaluation report; summarize existing ones.
-- Do not let a revision summary, score change, or novelty claim replace the complete Idea.
+Do not copy/rewrite Dossier prose, invent evidence/methods/claims, change
+decisions, add objections, or hide disagreement. An internal ID must appear with
+its readable label and ledger resolution.

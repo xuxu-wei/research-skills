@@ -47,7 +47,6 @@ ORCHESTRATORS = {
 }
 IDEA_NON_BYPASS_GATES = {
     "latest_version_independently_evaluated",
-    "fresh_adversarial_role_instances",
     "dissent_and_fatal_findings_indexed",
     "idea-portfolio-assembler",
 }
@@ -76,7 +75,7 @@ def validate_idea_mode_contract(registry: dict, skill_text: str) -> None:
     require(contract.get("entry_gates") == machine.get("entry_gates"), "idea registry/SKILL entry gates differ")
     require(
         set(contract.get("non_bypass_gates", [])) == IDEA_NON_BYPASS_GATES,
-        "idea SKILL does not preserve evaluation, fresh-panel, finding-index, and assembly gates",
+        "idea SKILL does not preserve evaluation, finding-index, and assembly gates",
     )
     require(
         machine.get("final_package_skill") in contract["non_bypass_gates"],
@@ -87,9 +86,35 @@ def validate_idea_mode_contract(registry: dict, skill_text: str) -> None:
         "idea panel can run without current-version independent evaluation",
     )
     require(
-        {"latest_version_independently_evaluated", "adversarial_reports_complete", "dissent_and_fatal_findings_indexed"}
+        {"latest_version_independently_evaluated", "dissent_and_fatal_findings_indexed"}
         <= set(machine.get("before_packaging", [])),
-        "idea packaging gates omit evaluation, panel completion, or finding indexing",
+        "idea packaging gates omit evaluation or finding indexing",
+    )
+    profile_gates = machine.get("before_packaging_by_direction_profile", {})
+    require(
+        contract.get("entry_gates_by_route") == profile_gates,
+        "idea SKILL route-specific entry gates differ from registry packaging gates",
+    )
+    require(
+        contract.get("non_bypass_gates_by_route") == profile_gates,
+        "idea SKILL route-specific non-bypass gates differ from registry packaging gates",
+    )
+    require(
+        "adversarial_reports_complete_when_proposal_handoff_candidate"
+        in profile_gates.get("focused_optimization", []),
+        "focused Proposal handoff can bypass the adversarial panel",
+    )
+    require(
+        {
+            "evidence_and_opportunity_remap_complete",
+            "fresh_evaluation_complete_for_each_current_dossier",
+        }
+        <= set(profile_gates.get("bounded_exploration", [])),
+        "bounded exploration packaging can bypass remap or terminal evaluation",
+    )
+    require(
+        not any("adversarial" in gate for gate in profile_gates.get("bounded_exploration", [])),
+        "bounded exploration incorrectly requires a preselection panel",
     )
     panel = next(entry for entry in registry["skills"] if entry["name"] == "idea-adversarial-review-panel")
     require(panel.get("requires_independent_subagent") is True, "idea panel roles are not independently delegated")
@@ -108,6 +133,9 @@ def idea_mode_contract_mutation_tests(registry: dict, skill_text: str) -> None:
     mutations = {
         "missing mode": skill_text.replace("  - portfolio_only\n", "", 1),
         "missing gate": skill_text.replace("    - evidence_map_frozen\n", "", 1),
+        "missing bounded route gate": skill_text.replace(
+            "    - evidence_and_opportunity_remap_complete\n", "", 1
+        ),
     }
     for label, mutated in mutations.items():
         require(mutated != skill_text, f"idea contract mutation fixture was ineffective: {label}")
@@ -326,7 +354,7 @@ def main() -> int:
     print("targeted Search smoke: self-attested snapshot validated (non-gating)")
     print("Deep Research inactive smoke: deep_research_handoff_required")
     print("state-machine transition cases: 5/5")
-    print("idea registry/SKILL mutation guards: 2/2")
+    print("idea registry/SKILL mutation guards: 3/3")
     return 0
 
 

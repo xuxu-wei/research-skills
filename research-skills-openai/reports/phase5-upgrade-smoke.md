@@ -9,7 +9,7 @@ Plugin: `research-skills-openai`
 
 1. The previously installed GitHub-marketplace cache was frozen as the baseline:
    - version: `0.5.0-preview.1`
-   - cache: `C:\Users\10149\.codex\plugins\cache\xuxu-research-preview\research-skills-openai\0.5.0-preview.1`
+   - cache: `$CODEX_HOME\plugins\cache\xuxu-research-preview\research-skills-openai\0.5.0-preview.1`
    - discovered skill directories: `45`
    - `skills/pubmed` present: `false`
 2. GitHub `main` was updated to commit `8eb40187df7af45f562ccf39c5b4e3a10167e232`, whose plugin manifest declares `0.5.0-preview.2`.
@@ -21,7 +21,7 @@ Plugin: `research-skills-openai`
    {
      "selectedMarketplaces": ["xuxu-research-preview"],
      "upgradedRoots": [
-       "C:\\Users\\10149\\.codex\\.tmp\\marketplaces\\xuxu-research-preview"
+       "$CODEX_HOME\\.tmp\\marketplaces\\xuxu-research-preview"
      ],
      "errors": []
    }
@@ -37,7 +37,7 @@ Plugin: `research-skills-openai`
      "name": "research-skills-openai",
      "marketplaceName": "xuxu-research-preview",
      "version": "0.5.0-preview.2",
-     "installedPath": "C:\\Users\\10149\\.codex\\plugins\\cache\\xuxu-research-preview\\research-skills-openai\\0.5.0-preview.2",
+     "installedPath": "$CODEX_HOME\\plugins\\cache\\xuxu-research-preview\\research-skills-openai\\0.5.0-preview.2",
      "authPolicy": "ON_INSTALL"
    }
    ```
@@ -51,11 +51,11 @@ Plugin: `research-skills-openai`
    - source and installed skills trees: `330` files each
    - normalized source/cache SHA-256: `2409b09f94a51228ce4e58472a744c5ede0e0be9275def825fac81e2f0f2a45e`
 
-7. A new persistent, read-only Codex task (`019f5379-15ad-7241-948a-14a5ddc0cebc`) rebuilt discovery from user configuration without reading the development repository. Its system-provided catalog returned:
+7. A new persistent, read-only Codex task (private task ID redacted) rebuilt discovery from user configuration without reading the development repository. Its system-provided catalog returned:
 
    ```json
    {
-     "catalog_skill_path": "C:/Users/10149/.codex/plugins/cache/xuxu-research-preview/research-skills-openai/0.5.0-preview.2/skills/academic-deep-search/SKILL.md",
+     "catalog_skill_path": "$CODEX_HOME/plugins/cache/xuxu-research-preview/research-skills-openai/0.5.0-preview.2/skills/academic-deep-search/SKILL.md",
      "visible_entry_skills": [
        "research-skills-openai:academic-deep-search",
        "research-skills-openai:article-orchestrator",

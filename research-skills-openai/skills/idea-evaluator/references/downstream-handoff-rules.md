@@ -1,17 +1,12 @@
 # Downstream Handoff Rules
 
-## To Orchestrator
+Return the sealed report, digest binding, chain/claim checks, scores, gates,
+findings, decision, repairs, and limitations to the orchestrator.
 
-Return evaluation report, hard gate status, failed gates, recommendation, repair direction, and limitations.
+The orchestrator may provide repair directions to the writer only after review
+completion. Do not send a rewritten Idea. Method insufficiency may route to
+preflight, but its findings must be incorporated into a new complete dossier
+before a new fresh evaluator runs.
 
-## To Generator
-
-Only pass targeted repair direction. Do not pass a rewritten idea.
-
-## To Methodology-Statistics Preflight
-
-Send back when endpoint, metric, data source, or minimal analysis route is insufficient.
-
-## To Portfolio Assembler
-
-Pass promoted / backup / rejected status, score table, hard gate status, objections, and remaining uncertainties.
+The assembler receives the sealed report and qualifying dossier pointer after
+the orchestrator validates digest and state.

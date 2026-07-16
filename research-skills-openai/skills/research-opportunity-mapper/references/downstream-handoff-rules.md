@@ -1,37 +1,30 @@
 # Downstream Handoff Rules
 
-Use this file to prepare outputs for downstream skills.
+## Idea orchestrator and dossier writer
 
-## To multi-path-idea-generator
+Return map refs, readable opportunities, claim/source locators, evidence limits,
+per-claim support status, and Idea direction signals. The orchestrator chooses the deterministic route;
+the writer converts relevant evidence into self-contained prose, standard
+citations, evidence chains, and Claim-Support rows in a complete dossier.
 
-Provide opportunity map, opportunity types, recommended generation paths, novelty risk, evidence limitations, and constraints relevant to generation.
+Do not pass Evidence/Opportunity Maps, limitations, or a reference ledger to
+`idea-evaluator`. Evaluation-relevant content must already be in the dossier.
 
-Do not provide scores or promote/reject decisions.
+## Preflight and adversarial panel
 
-## To methodology-statistics-preflight
+Provide role-relevant endpoint/data/method/evidence facts and limitations. If an
+internal ID appears in a visible report, pair it with a readable label and a
+resolvable reference-ledger entry. Preserve each claim's support status; do not
+collapse `weak`, `conflicting`, `single-source`, `unverified`, or
+`access-limited` into generic support.
 
-Provide endpoint or metric concerns, data source concerns, method fit concerns, feasibility concerns, and evidence limitations affecting analysis design.
+## Proposal workflows
 
-## To isolated idea-evaluator
+Provide evidence summary, exact per-claim support statuses, source limits, and
+novelty/gap status as requested by the Proposal role. Do not draft proposal text
+or make evaluator decisions.
 
-Provide evidence summary, claim support status, evidence confidence, novelty verification, guideline alignment when applicable, and evidence limitations.
+## Portfolio assembler
 
-The evaluator must be isolated and independent. The mapper must not score or decide.
-
-## To proposal-context-brief-builder or proposal-orchestrator
-
-Provide evidence summary, Opportunity Map, claim support status, novelty/gap verification, funding-call or guideline alignment when applicable, source limitations, and reuse decision.
-
-If the current input is a raw proposal request without evidence, recommend proposal readiness triage only after the evidence limitations and key opportunity claims are explicit.
-
-Do not draft proposal aims, methods text, or review decisions.
-
-## To proposal-evaluator
-
-Provide evidence summary, supported and unsupported claims, reviewer-facing evidence risks, novelty/gap verification status, and source limitations.
-
-The evaluator must remain independent. The mapper must not decide accept/revise/reject.
-
-## To idea-portfolio-assembler
-
-Provide evidence map reference, opportunity map reference, remaining uncertainties, source limitations, and source verification log when emitted.
+Provide map and ledger links plus remaining uncertainties. The portfolio links
+the qualifying dossier; it does not duplicate map contents or dossier prose.

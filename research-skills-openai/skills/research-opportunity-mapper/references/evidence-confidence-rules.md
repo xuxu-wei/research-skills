@@ -2,6 +2,22 @@
 
 Use this file to assign evidence confidence, novelty verification, and guideline alignment.
 
+## Claim Support Status
+
+Assign exactly one status to each material claim:
+
+- `supported`: directly verified and adequately corroborated.
+- `weak`: indirect, limited, dated, low-quality, or otherwise fragile support.
+- `conflicting`: credible inspected sources materially disagree.
+- `single-source`: only one inspected source supports the claim, regardless of
+  that source's quality.
+- `unverified`: verification has not occurred or inspected evidence does not
+  support the claim.
+- `access-limited`: a required source or supporting passage cannot be inspected.
+
+Support status is not confidence. Record both, preserve opposing evidence, and
+do not upgrade a claim from search-result volume or an inaccessible source.
+
 ## Confidence Labels
 
 ### high

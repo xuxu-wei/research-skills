@@ -1,89 +1,51 @@
 # Loop Control and Stop Rules
 
-本文件定义 idea round、循环控制、score delta、lineage 记录和 early stop 规则。
+Load this reference when recording a round, comparing sealed reviews, or
+deciding whether another writer/evaluator cycle is allowed.
 
-## 1. Default Round Limit
+## Focused optimization
 
-默认最多 3 轮 idea rounds，除非用户明确指定更多或更少。
+- Allow at most three complete writer -> fresh evaluator rounds.
+- Every substantive repair writes the next full dossier version in the same
+  node plus a separate revision delta.
+- Give each evaluator only the current dossier. Compare the new sealed report
+  with earlier sealed reports and the delta only after it returns.
+- Continue only when a specific fix is feasible and likely to improve a
+  blocking dimension. Do not regenerate broadly in response to a narrow defect.
+- Stop early on a qualifying dossier, a fatal flaw, identity drift, owner input
+  that changes the route, or no defensible gain.
 
-一轮包括：
+## Bounded exploration
 
-1. routing；
-2. generation 或 targeted repair；
-3. optional methodology/statistics preflight；
-4. isolated independent evaluation；
-5. decision update；
-6. lineage update。
+For each of two or three route-authorized directions, allow exactly:
 
-## 2. Required Round Log
+1. one complete initial dossier;
+2. one bounded optimization and new complete version;
+3. one direction-specific evidence/opportunity remap;
+4. one evidence-and-claim synchronization version when needed; and
+5. one terminal fresh dossier-only evaluation.
 
-每轮必须记录：
+Remap synchronization cannot add objectives, data, methods, or work packages.
+If structural repair is needed, return `revision_required`. After all terminal
+evaluations, stop at `human_direction_selection_required`; do not optimize a
+second time, select a winner, merge directions, or enter Proposal.
 
-- round number；
-- selected generation or repair paths；
-- new ideas；
-- revised ideas；
-- merged ideas；
-- rejected ideas；
-- backup ideas；
-- score changes；
-- main reasons for score changes；
-- remaining unresolved issues；
-- next decision。
+## Required round record
 
-## 3. Stop Conditions
+Record round and route, input/output dossier pointers and digests, writer and
+reviewer instance IDs, change type, sealed decision, fatal/blocking findings,
+dissent, unresolved issues, and next route. Keep reports and deltas outside the
+dossier.
 
-### accept_stop
+## Stop states
 
-至少 1 个 idea 达到 promote 标准，且没有 fatal gate failure。
+- `human_signoff_required`: focused dossier passed all current gates.
+- `human_direction_selection_required`: bounded exploration reached terminal review.
+- `independent_review_pending`: fresh delegation is unavailable.
+- `new_idea_required`: an identity anchor would change.
+- `no_defensible_direction`: evidence supports no route.
+- `direction_route_confirmation_required`: low, conflicting, or ambiguous route signals.
+- `blocked`: fatal flaw, digest mismatch, stale review, or unresolved blocking finding.
+- `stopped`: round limit or no defensible gain.
 
-### portfolio_stop
-
-已获得 1-3 个质量足够、互相区分明确的候选 idea。
-
-### no_gain_stop
-
-连续一轮修订后核心评分提升 `< 0.2`，且主要缺陷未解决。
-
-### clarification_stop
-
-缺失的用户决策很可能改变：
-
-- 研究方向；
-- endpoint/metric；
-- data source；
-- intended output。
-
-只有在上述情况下才触发 `clarification_stop`。
-
-### reject_stop
-
-所有 idea 均存在不可修复的 feasibility、relevance、data 或 measurement 问题。
-
-### evaluation_failure_stop
-
-隔离独立 evaluation 已重派一次，仍缺少必要字段或违反 independence 规则。
-
-## 4. Clarification Policy
-
-- 可合理假设的信息：继续推进，并在 portfolio 中标注 assumption。
-- 会显著影响 feasibility 或 routing 的信息：最多问 3 个澄清问题。
-- 会改变研究方向、endpoint/metric、data source 或 intended output 的信息：触发 `clarification_stop`。
-
-## 5. Repair Routing
-
-- novelty low -> gap_driven / contrarian_assumption_challenge / method_driven
-- evidence weak -> research-opportunity-mapper
-- feasibility low -> constraint_driven / data_opportunity / methodology-statistics-preflight
-- impact low -> value_need_driven / implementation / translational framing
-- relevance low -> context re-alignment; ask user only if goal is ambiguous
-- clarity low -> measurement_metric_driven / question narrowing / endpoint reconstruction
-- completion low -> schema completion / minimal experiment design
-
-## 6. No Random Regeneration
-
-If evaluation identifies a specific defect, the next round must target that defect. Random broad generation is allowed only when:
-
-- the opportunity map is too broad;
-- no candidate idea meets minimum quality;
-- user explicitly requests divergent brainstorming.
+Never convert any stop state to ready merely because the round limit was reached.

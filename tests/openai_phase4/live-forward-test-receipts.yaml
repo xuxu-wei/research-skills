@@ -42,8 +42,8 @@ historical_comparisons:
 workflows:
   - workflow: idea
     workflow_id: RID-K57-20260712-01
-    orchestrator_instance: codex-cli:019f5310-d177-7872-826f-9cb0619ba50b
-    installed_skill_path: C:/Users/10149/.codex/plugins/cache/xuxu-research-preview/research-skills-openai/0.5.0-preview.1/skills/research-idea-orchestrator/SKILL.md
+    orchestrator_instance: codex-cli:private-task-id-redacted-idea
+    installed_skill_path: $CODEX_HOME/plugins/cache/xuxu-research-preview/research-skills-openai/0.5.0-preview.1/skills/research-idea-orchestrator/SKILL.md
     raw_claimed_state: blocked
     outcome: blocked_at_valid_gate
     final_state: blocked
@@ -82,8 +82,8 @@ workflows:
 
   - workflow: proposal
     workflow_id: TELE-HF90-STD-SAP-001
-    orchestrator_instance: codex-cli:019f5306-0b38-75d0-834b-ca6fec110b57
-    installed_skill_path: C:/Users/10149/.codex/plugins/cache/xuxu-research-preview/research-skills-openai/0.5.0-preview.1/skills/proposal-orchestrator/SKILL.md
+    orchestrator_instance: codex-cli:private-task-id-redacted-proposal
+    installed_skill_path: $CODEX_HOME/plugins/cache/xuxu-research-preview/research-skills-openai/0.5.0-preview.1/skills/proposal-orchestrator/SKILL.md
     raw_claimed_state: human_signoff_required
     outcome: independent_review_pending
     final_state: independent_review_pending
@@ -132,8 +132,8 @@ workflows:
 
   - workflow: article
     workflow_id: wf-telehf90-20260712
-    orchestrator_instance: codex-cli:019f52fa-e3f5-74d2-b1b2-e0e84c20479c
-    installed_skill_path: C:/Users/10149/.codex/plugins/cache/xuxu-research-preview/research-skills-openai/0.5.0-preview.1/skills/article-orchestrator/SKILL.md
+    orchestrator_instance: codex-cli:private-task-id-redacted-article
+    installed_skill_path: $CODEX_HOME/plugins/cache/xuxu-research-preview/research-skills-openai/0.5.0-preview.1/skills/article-orchestrator/SKILL.md
     raw_claimed_state: stopped
     outcome: stopped_at_valid_gate
     final_state: stopped
@@ -158,8 +158,8 @@ workflows:
 
   - workflow: perspective
     workflow_id: PVO-20260712-001
-    orchestrator_instance: codex-cli:019f5302-7acb-7e90-98e7-48b3590b45c3
-    installed_skill_path: C:/Users/10149/.codex/plugins/cache/xuxu-research-preview/research-skills-openai/0.5.0-preview.1/skills/perspective-orchestrator/SKILL.md
+    orchestrator_instance: codex-cli:private-task-id-redacted-perspective
+    installed_skill_path: $CODEX_HOME/plugins/cache/xuxu-research-preview/research-skills-openai/0.5.0-preview.1/skills/perspective-orchestrator/SKILL.md
     raw_claimed_state: human_signoff_required
     raw_readiness: outlet-targeting-only
     outcome: stopped_at_valid_gate

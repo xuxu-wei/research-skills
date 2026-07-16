@@ -1,0 +1,191 @@
+schema_version: 1
+fixture_id: idea-bounded-exploration-two-node-loop
+execution_kind: deterministic_supplemental_replay
+workflow: idea
+workflow_id: wf-phase4-idea-bounded-001
+entry_mode: standard
+direction_profile: bounded_exploration
+routing_decision:
+  artifact_id: idea-routing-bounded-v1
+  version_id: route001
+  path: 05_state/idea-routing-decision-v001.yaml
+  route: bounded_exploration
+  direction_ids: [idea-clinical-validation, idea-method-benchmark]
+  evidence_confidence: moderate
+  based_on: [idea-context-bounded@c001, idea-opportunity-seed@o001]
+nodes:
+  - node_id: idea-clinical-validation
+    direction_id: clinical_validation
+    title: External validation of dynamic models for clinical research evaluation
+    objective: Quantify calibration and transportability in a held-out clinical cohort
+    work_package: Held-out clinical validation
+    input: Frozen clinical cohort, prespecified outcomes, and documented covariates
+    method: Apply the frozen model, quantify calibration and discrimination, and run missingness sensitivity analyses
+    output: Clinical validation estimates with uncertainty
+    qualifier: for research evaluation
+    contribution_frame: validation
+    dossier_versions:
+      - artifact_id: idea-clinical-validation-v1
+        version_id: v001
+        stage: create
+        based_on: [idea-context-bounded@c001, idea-opportunity-seed@o001, idea-routing-bounded-v1@route001]
+      - artifact_id: idea-clinical-validation-v2
+        version_id: v002
+        stage: revise
+        based_on: [idea-clinical-validation-v1@v001, idea-clinical-validation-plan@rp001]
+      - artifact_id: idea-clinical-validation-v3
+        version_id: v003
+        stage: evidence_claim_sync
+        based_on: [idea-clinical-validation-v2@v002, idea-clinical-validation-evidence-remap@er001, idea-clinical-validation-opportunity-remap@or001]
+    revision_plan:
+      artifact_id: idea-clinical-validation-plan
+      version_id: rp001
+      based_on: [idea-clinical-validation-v1@v001]
+    revision_delta:
+      artifact_id: idea-clinical-validation-delta
+      version_id: rd001
+      based_on: [idea-clinical-validation-v1@v001, idea-clinical-validation-plan@rp001, idea-clinical-validation-v2@v002]
+    remap:
+      evidence_artifact_id: idea-clinical-validation-evidence-remap
+      evidence_version_id: er001
+      opportunity_artifact_id: idea-clinical-validation-opportunity-remap
+      opportunity_version_id: or001
+      based_on: [idea-clinical-validation-v2@v002]
+    sync_delta:
+      artifact_id: idea-clinical-validation-sync-delta
+      version_id: sd001
+      based_on: [idea-clinical-validation-v2@v002, idea-clinical-validation-evidence-remap@er001, idea-clinical-validation-opportunity-remap@or001, idea-clinical-validation-v3@v003]
+    evaluation:
+      artifact_id: idea-clinical-validation-evaluation
+      version_id: ev001
+      reviewer_instance_id: idea-evaluator-clinical-001
+      input_ref: idea-clinical-validation-v3@v003
+      finding_id: EVAL-CLINICAL-001
+      finding_title: Preserve the research-use qualifier
+      dossier_locator: Title and positioning claim-support table
+      decision: promote
+    navigation_proposal:
+      artifact_id: idea-clinical-validation-navigation-proposal
+      version_id: np001
+      based_on: [idea-clinical-validation-v3@v003]
+    ledger:
+      artifact_id: idea-clinical-validation-ledger
+      version_id: l001
+      internal_id: EVAL-CLINICAL-001
+      label: Preserve the research-use qualifier
+  - node_id: idea-method-benchmark
+    direction_id: method_benchmark
+    title: Reproducible benchmark of dynamic-state modeling choices
+    objective: Compare prespecified temporal modeling choices under reproducible evaluation
+    work_package: Dynamic-state method benchmark
+    input: Frozen benchmark datasets, prespecified prediction windows, and common evaluation metrics
+    method: Fit each prespecified temporal model under identical splits and compare calibration, robustness, and compute cost
+    output: Reproducible method-benchmark estimates with uncertainty
+    qualifier: under the prespecified benchmark
+    contribution_frame: benchmark
+    dossier_versions:
+      - artifact_id: idea-method-benchmark-v1
+        version_id: v001
+        stage: create
+        based_on: [idea-context-bounded@c001, idea-opportunity-seed@o001, idea-routing-bounded-v1@route001]
+      - artifact_id: idea-method-benchmark-v2
+        version_id: v002
+        stage: revise
+        based_on: [idea-method-benchmark-v1@v001, idea-method-benchmark-plan@rp001]
+      - artifact_id: idea-method-benchmark-v3
+        version_id: v003
+        stage: evidence_claim_sync
+        based_on: [idea-method-benchmark-v2@v002, idea-method-benchmark-evidence-remap@er001, idea-method-benchmark-opportunity-remap@or001]
+    revision_plan:
+      artifact_id: idea-method-benchmark-plan
+      version_id: rp001
+      based_on: [idea-method-benchmark-v1@v001]
+    revision_delta:
+      artifact_id: idea-method-benchmark-delta
+      version_id: rd001
+      based_on: [idea-method-benchmark-v1@v001, idea-method-benchmark-plan@rp001, idea-method-benchmark-v2@v002]
+    remap:
+      evidence_artifact_id: idea-method-benchmark-evidence-remap
+      evidence_version_id: er001
+      opportunity_artifact_id: idea-method-benchmark-opportunity-remap
+      opportunity_version_id: or001
+      based_on: [idea-method-benchmark-v2@v002]
+    sync_delta:
+      artifact_id: idea-method-benchmark-sync-delta
+      version_id: sd001
+      based_on: [idea-method-benchmark-v2@v002, idea-method-benchmark-evidence-remap@er001, idea-method-benchmark-opportunity-remap@or001, idea-method-benchmark-v3@v003]
+    evaluation:
+      artifact_id: idea-method-benchmark-evaluation
+      version_id: ev001
+      reviewer_instance_id: idea-evaluator-benchmark-001
+      input_ref: idea-method-benchmark-v3@v003
+      finding_id: EVAL-BENCHMARK-001
+      finding_title: Keep benchmark scope explicit
+      dossier_locator: Evidence chains > Dynamic-state method benchmark
+      decision: promote
+    navigation_proposal:
+      artifact_id: idea-method-benchmark-navigation-proposal
+      version_id: np001
+      based_on: [idea-method-benchmark-v3@v003]
+    ledger:
+      artifact_id: idea-method-benchmark-ledger
+      version_id: l001
+      internal_id: EVAL-BENCHMARK-001
+      label: Keep benchmark scope explicit
+idea_index:
+  artifact_id: idea-index-bounded-v1
+  version_id: i001
+  path: 03_ideas/idea-index-v001.yaml
+  overall_remap_status: complete
+  current_nodes:
+    - node_id: idea-clinical-validation
+      dossier_id: idea-clinical-validation-v3
+      parent_idea_ids: []
+      lineage_id: lineage-clinical-validation
+      route_profile: bounded_exploration
+      remap_status: complete
+      current_ref: idea-clinical-validation-v3@v003
+      current_digest: computed
+    - node_id: idea-method-benchmark
+      dossier_id: idea-method-benchmark-v3
+      parent_idea_ids: []
+      lineage_id: lineage-method-benchmark
+      route_profile: bounded_exploration
+      remap_status: complete
+      current_ref: idea-method-benchmark-v3@v003
+      current_digest: computed
+package:
+  artifact_id: idea-bounded-comparison-v1
+  version_id: pkg001
+  path: 04_portfolio/research-idea-comparison-v001.md
+  final_state: human_direction_selection_required
+  panel_artifact_refs: []
+  based_on:
+    - idea-context-bounded@c001
+    - idea-routing-bounded-v1@route001
+    - idea-index-bounded-v1@i001
+    - idea-clinical-validation-v3@v003
+    - idea-method-benchmark-v3@v003
+    - idea-clinical-validation-evidence-remap@er001
+    - idea-method-benchmark-evidence-remap@er001
+    - idea-clinical-validation-opportunity-remap@or001
+    - idea-method-benchmark-opportunity-remap@or001
+    - idea-clinical-validation-evaluation@ev001
+    - idea-method-benchmark-evaluation@ev001
+    - idea-clinical-validation-ledger@l001
+    - idea-method-benchmark-ledger@l001
+    - idea-clinical-validation-plan@rp001
+    - idea-method-benchmark-plan@rp001
+    - idea-clinical-validation-delta@rd001
+    - idea-method-benchmark-delta@rd001
+    - idea-clinical-validation-sync-delta@sd001
+    - idea-method-benchmark-sync-delta@sd001
+expected:
+  node_count: 2
+  distinct_evaluator_count: 2
+  optimization_count_per_node: 1
+  revision_delta_count_per_node: 2
+  remap_count_per_node: 1
+  sync_count_per_node: 1
+  panel_count: 0
+  final_state: human_direction_selection_required

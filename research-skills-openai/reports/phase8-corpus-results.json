@@ -255,7 +255,7 @@
       "reviewer_edit_boundary_compliance_percent": 100.0,
       "reviewer_isolation_compliance_percent": 100.0
     },
-    "plugin_version_binding": "0.8.0-preview.1",
+    "plugin_version_binding": "0.9.0-preview.1",
     "research_polisher_domain_coverage": {
       "basic_experimental": 1,
       "clinical_or_observational": 1,
@@ -383,7 +383,7 @@
         "state_agreement": true
       }
     ],
-    "current_plugin_version": "0.8.0-preview.1",
+    "current_plugin_version": "0.9.0-preview.1",
     "declared_preview_review_count": 0,
     "durable_binding_negative_guard_count": 6,
     "durable_binding_negative_guards": [
@@ -526,13 +526,13 @@
       "ephemeral_temp_root_required": true,
       "status": "passed"
     },
-    "task_id": "019f506d-01cc-7fa0-9839-db8f494b5ab4",
+    "task_id": "private-task-id-redacted",
     "unique_reviewer_instance_count": 6,
     "verified_live_gate_status": "pending_provider_verified_execution_evidence",
     "verified_live_review_count": 0
   },
   "phase_status": "in_progress",
-  "plugin_version": "0.8.0-preview.1",
+  "plugin_version": "0.9.0-preview.1",
   "provider_trust": {
     "preview_adapter_contracts": {
       "github_release_asset_preview_v1": {
@@ -1056,7 +1056,7 @@
     "receipt_results": [
       {
         "artifact_digests": [
-          "sha256:945ba3939c5c1ef3dffc8a3625e0ca80a59b542703d865ac1131e9e00c7ff85c"
+          "sha256:4b066abf46937c071ef905f3826d874b4b34d34c500fa79d672ec988edec32d4"
         ],
         "artifact_paths": [
           "tests/openai_phase8/retrieval-artifacts/search-current-consort-2025.yaml"
@@ -1069,11 +1069,11 @@
         "opened_source_count": 2,
         "plugin_version": "0.6.0-preview.1",
         "receipt_id": "ph8-search-current-001",
-        "task_id": "019f506d-01cc-7fa0-9839-db8f494b5ab4"
+        "task_id": "private-task-id-redacted"
       },
       {
         "artifact_digests": [
-          "sha256:c88766d31352f62a0cc03880b32e8e07648630ff1f15d6a5fdb905bd469a0d0b"
+          "sha256:0bb66d778ec97054d12c4c6d7428feb207c24b807852e578afd325dedb2a3078"
         ],
         "artifact_paths": [
           "tests/openai_phase8/retrieval-artifacts/search-exact-ich-e9-r1.yaml"
@@ -1086,11 +1086,11 @@
         "opened_source_count": 2,
         "plugin_version": "0.6.0-preview.1",
         "receipt_id": "ph8-search-exact-001",
-        "task_id": "019f506d-01cc-7fa0-9839-db8f494b5ab4"
+        "task_id": "private-task-id-redacted"
       },
       {
         "artifact_digests": [
-          "sha256:c1ae267a031ecaf14a70356c084f8a6e1b139e842b7082b719d1f285ab59e3fa"
+          "sha256:a3a4df1c2f4bb4e8431a39c3022a8ac38318ec6b8aee7d2ee27cd2206adc3ca6"
         ],
         "artifact_paths": [
           "tests/openai_phase8/retrieval-artifacts/search-narrow-k13.yaml"
@@ -1103,7 +1103,7 @@
         "opened_source_count": 2,
         "plugin_version": "0.6.0-preview.1",
         "receipt_id": "ph8-search-narrow-academic-001",
-        "task_id": "019f506d-01cc-7fa0-9839-db8f494b5ab4"
+        "task_id": "private-task-id-redacted"
       },
       {
         "artifact_digests": [],
@@ -1133,7 +1133,7 @@
       },
       {
         "artifact_digests": [
-          "sha256:18f6523340216d12c49fa2578e2da162f211a5c82f33b89d77ac08521a14609d"
+          "sha256:fd0130ae47d4c2fbdf5a09d98370e320d0afe9281289b9c681981dc0502f73c8"
         ],
         "artifact_paths": [
           "tests/openai_phase8/retrieval-artifacts/deep-research-inactive-continuation.yaml"
@@ -1146,7 +1146,7 @@
         "opened_source_count": 0,
         "plugin_version": "0.6.0-preview.1",
         "receipt_id": "ph8-deep-research-inactive-001",
-        "task_id": "019f506d-01cc-7fa0-9839-db8f494b5ab4"
+        "task_id": "private-task-id-redacted"
       }
     ],
     "repository_authored_files_count_as_verified": false,

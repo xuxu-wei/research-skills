@@ -1,25 +1,15 @@
 # Portfolio Output Schema
 
-This reference defines the output objects for portfolio assembly.
+Include:
 
-## Default Output Sections
+- executive navigation summary and route profile;
+- one entry per Idea with title, current dossier/version/SHA-256, relative
+  dossier link, evaluation link, reference-ledger link, status,
+  fatal/blocking findings, dissent, unresolved issues, and next human action;
+- sealed score/gate/status comparison without rescore;
+- subordinate lineage and rejected/backup summary when applicable; and
+- focused Proposal-handoff status or bounded human-selection state.
 
-- executive decision summary;
-- research context summary;
-- evidence / opportunity map summary;
-- ranked candidate ideas with complete snapshot-derived content and digest binding;
-- score and hard gate table;
-- promoted idea packages;
-- rejected / merged / backup idea summary;
-- lineage summary;
-- remaining uncertainties and PI decision points;
-- proposal handoff summary.
-
-## Conditional Outputs
-
-- `no_promoted_idea_report`: when no idea reaches portfolio-ready status.
-- `portfolio_assembly_failure_report`: when required inputs are missing or evaluation is invalid.
-
-## Formatting Principle
-
-The final output is a self-contained PI-review document. Keep scores, lineage changes, and revision history subordinate to the complete current Idea. Do not output a raw machine schema dump unless explicitly requested.
+The portfolio is navigation, not another Idea body. Do not copy or rewrite
+dossier sections. Use `no_promoted_idea_report` or
+`portfolio_assembly_failure_report` when required.

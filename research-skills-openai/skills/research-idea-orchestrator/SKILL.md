@@ -6,22 +6,25 @@ description: "Orchestrate a topic, evidence, call, problem, or data asset into i
 
 ## Role
 
-Control idea-workflow state, routing, delegation, stop decisions, and proposal handoff. Do not retrieve evidence, generate or revise ideas, run methodology checks, score candidates, or write proposals.
+Control state, routing, delegation, stops, and human handoff. Do not retrieve,
+author/revise Ideas, review methods, score, or draft proposals.
 
 ## Invariants
 
-- Track current pointers and manifests under `05_state/`; keep every Idea-specific artifact in its flat node under `03_ideas/nodes/`.
-- Make every current Idea a complete versioned Markdown snapshot. A patch or delta is never a candidate artifact.
-- Keep generation/revision separate from evaluation. Every changed snapshot requires a fresh `idea-evaluator` against its exact digest.
-- Delegate methodology/statistics preflight, idea evaluation, each adversarial role, and external-facing language assessment to fresh independent subagents.
-- Use registry states: review wait -> `pending_review`; unavailable reviewer -> `independent_review_pending`; fatal -> `blocked`; unfixable/no gain -> `stopped`; verified portfolio -> `human_signoff_required`.
-- Phase delegation is allowed, but each source artifact/version has one writer; never run concurrent source writes.
-- Preserve lineage, fatal findings, unresolved issues, adversarial objections, conflicts, and dissent in the portfolio.
-- Stop at PI review/proposal handoff; do not write the proposal.
+- In `research-idea.v3`, a complete `idea-dossier-vNNN.md` is the sole Idea;
+  deltas, maps, indexes, and portfolios never substitute for it.
+- Keep one writer per version; every substantive or positioning change creates
+  a new dossier version.
+- Delegate preflight, `idea-evaluator`, each adversarial role, and language
+  assessment to fresh independent subagents.
+- Give `idea-evaluator` exactly the current dossier as its only project artifact.
+  It must not read maps, ledger, preflight, history, deltas, must-fix lists, or
+  prior reports.
+- Preserve lineage, limits, fatal/blocking findings, conflicts, and dissent;
+  forbid concurrent writes and inline reviewer fallback.
+- Stop at human review or Proposal handoff; do not draft a proposal.
 
 ## Entry Modes and Gates
-
-Select one mode, record it, and pass its gates before advancing.
 
 <!-- idea-entry-mode-contract:start -->
 ```yaml
@@ -33,66 +36,111 @@ entry_gates:
   standard:
     - context_frozen
     - evidence_map_frozen
-    - candidate_set_versioned
+    - routing_decision_frozen
+    - idea_dossier_versioned
   resume_candidates:
     - context_scope_validated
     - evidence_scope_validated
-    - candidate_set_versioned
+    - routing_decision_frozen
+    - idea_dossier_versioned
   portfolio_only:
     - latest_version_independently_evaluated
-    - adversarial_reports_complete
     - dissent_and_fatal_findings_indexed
+entry_gates_by_route:
+  focused_optimization:
+    - adversarial_reports_complete_when_proposal_handoff_candidate
+  bounded_exploration:
+    - evidence_and_opportunity_remap_complete
+    - fresh_evaluation_complete_for_each_current_dossier
 non_bypass_gates:
   - latest_version_independently_evaluated
-  - fresh_adversarial_role_instances
   - dissent_and_fatal_findings_indexed
   - idea-portfolio-assembler
+non_bypass_gates_by_route:
+  focused_optimization:
+    - adversarial_reports_complete_when_proposal_handoff_candidate
+  bounded_exploration:
+    - evidence_and_opportunity_remap_complete
+    - fresh_evaluation_complete_for_each_current_dossier
 ```
 <!-- idea-entry-mode-contract:end -->
 
-`standard` freezes inputs; `resume_candidates` validates scope; `portfolio_only` requires current evaluated snapshots and complete adversarial findings. Every mode uses fresh reviewers and the assembler; substantive change invalidates review.
+`standard` freezes inputs; resume validates scope/digests; portfolio-only needs
+current dossier reviews. Substantive change invalidates review.
 
 ## Workflow Kernel
 
-1. **Initialize.** Record user goal, target output, constraints, source materials, current artifacts, and unresolved issues.
-2. **Build context.** Route normalized research context to `research-context-builder`.
-3. **Map evidence/opportunity.** Route retrieval, source verification, limitations, and opportunity mapping to `research-opportunity-mapper`; reuse valid maps when scope matches.
-4. **Generate candidates.** Route selected paths to `multi-path-idea-generator`; create one flat node per Idea, write complete snapshots, index their digests, and freeze the set.
-5. **Preflight.** For clinical, observational, predictive, experimental, benchmark, statistical, or unclear endpoint/data/method ideas, delegate `methodology-statistics-preflight` without exposing evaluator output.
-6. **Evaluate.** Delegate a fresh `idea-evaluator` for each current complete snapshot with frozen context, evidence/opportunity artifacts, and applicable preflight facts.
-7. **Revise loop.** Route repair to the owning builder. Write a complete new snapshot version plus a separate delta in the same node. Give a fresh evaluator only that snapshot, stable rubric, necessary facts, and an optional anonymous must-fix list; compare sealed rounds and the delta only after it returns. Identity drift returns `new_idea_required`; never auto-branch. Stop after three rounds or no gain.
-8. **Adversarial handoff review.** Before a `ready` or `conditional` proposal handoff, dispatch the novelty/gap, feasibility/method, and PI-strategy roles of `idea-adversarial-review-panel` concurrently in separate fresh subagents. Keep evaluator and peer reports sealed; aggregate after all return and preserve dissent.
-9. **Resolve objections.** Route blocking evidence, method, framing, or candidate defects to the owning skill plus fresh evaluation; never hand a blocked idea to proposal workflow.
-10. **Assemble portfolio.** Route sealed decisions and reports to `idea-portfolio-assembler`. It aggregates promoted, backup, merged, and rejected candidates without re-scoring or hiding dissent.
-11. **Language QA.** If external-facing portfolio/handoff text needs language assessment, delegate `academic-language-assessor`; language work cannot change scores or statuses.
+1. **Initialize.** Record goal, constraints, sources, issues, schema, and pointers.
+   Treat v1/v2 projects as read-only and return
+   `layout_migration_required`.
+2. **Build context.** Route normalization and direction clarity to
+   `research-context-builder`.
+3. **Map.** Route retrieval, value/confidence, and direction signals to
+   `research-opportunity-mapper`.
+4. **Choose route.** Apply `references/adaptive-direction-routing.md` without
+   scoring. Record an `idea_routing_decision`.
+5. **Write dossiers.** Use one focused node or two/three supported exploration
+   nodes; require complete dossiers, chains, claim tables, metadata, and digests.
+6. **Preflight if needed.** Delegate method-sensitive Ideas. Focused repairs use
+   a new dossier; bounded repairs join its sole optimization. Never expose
+   preflight to the evaluator.
+7. **Focused evaluation.** Only on `focused_optimization`, delegate one fresh
+   `idea-evaluator` for the current dossier, bound to exact ID/version/path/digest.
+8. **Focused loop.** Route findings to the writer; write a complete new dossier
+   plus delta, then use a fresh dossier-only evaluator. Compare sealed reports
+   after return. Keep three-round/no-gain stops; drift returns `new_idea_required`.
+9. **Bounded exploration loop.** Do not evaluate the initial drafts. Apply
+   exactly one bounded optimization per direction, remap each evolved direction,
+   write a complete synchronized dossier, then run one terminal fresh evaluator
+   per dossier. Stop at
+   `human_direction_selection_required`; do not auto-select or enter Proposal.
+10. **Adversarial handoff.** For a focused Proposal candidate, dispatch
+    novelty/gap, feasibility/method, and PI-strategy roles concurrently in fresh
+    instances. Aggregate after all return and retain dissent.
+11. **Assemble.** Link qualifying dossiers, reports, and sealed decisions without
+    copying, rescoring, or choosing a winner.
+12. **Finish.** Language-check navigation only; update the project README on
+    finish/pause/stop and return the human state.
 
-## Delegated Brief and Return Contract
+Delegated returns contain a concise phase summary, artifact pointers, decisions,
+unresolved issues, and `next_route`, not raw traces.
 
-Reviewer briefs bind workflow/round, scope, frozen IDs/versions/paths/digests, allowed files/writes, and failure route. Re-evaluation forbids prior snapshots, deltas, reports, scores, and decisions. Phase summary returns contain only artifact pointers, decisions, unresolved issues, and `next_route`.
+## State and Stop Rules
 
-## Promotion and Stop Rules
-
-- Stop on blocked inputs, fatal flaws, unavailable review, no gain, or blocking objection.
-- Promotion/handoff requires a complete matching snapshot/evaluation digest, preserved identity, visible evidence limits, viable method path, and no blocking finding.
+- Review wait -> `pending_review`; unavailable reviewer ->
+  `independent_review_pending`; fatal -> `blocked`; no defensible direction ->
+  `no_defensible_direction`; no gain -> `stopped`.
+- Focused verified handoff -> `human_signoff_required`; bounded exploration ->
+  `human_direction_selection_required`.
+- A digest mismatch, incomplete dossier/evidence chain, unsupported title claim,
+  stale review, identity drift, or unresolved blocking finding prevents ready.
+- A human-selected direction resumes as focused work; never enter Proposal directly.
 
 ## Conditional Resources
 
-- Read `references/project-readme-contract.md` when finishing, pausing, or stopping.
-- Read `references/idea-artifact-lifecycle.md` whenever creating, revising, reviewing, packaging, resuming, or locating an Idea.
-- Read `references/artifact-naming-and-directory-rules.md` only for compact naming and index rules not covered by the lifecycle contract.
-- Read `references/workflow-manifest.md` for state and round lineage.
-- Use `templates/round-manifest.md` when recording a new workflow round.
-- Read `references/idea-id-and-lineage-rules.md` when assigning, merging, or deriving idea IDs.
-- Read `references/artifact-contracts.md` for cross-skill artifacts.
-- Read `references/evidence-confirmation-and-routing.md` for supplied evidence and mapper scope.
-- Read `references/delegate-brief-templates.md` for generator, preflight, evaluator, or adversarial briefs.
-- Read `references/runtime-delegation.md` when independent dispatch is unavailable or uncertain.
-- Read `references/loop-control-and-stop-rules.md` when revision or no-gain comparison begins.
-- Read `references/evaluation-rubric.md` only when preparing the stable evaluator rubric.
-- Read `references/if10-evaluation-gate.md` only when the user explicitly requests the IF>10 publication-feasibility gate.
-- Read `references/handoff-validation.md` before each cross-skill handoff.
-- Read `references/proposal-handoff-rules.md` before marking any proposal handoff status.
+- Read `references/project-readme-contract.md` on finish/pause/stop.
+- Read `references/idea-artifact-lifecycle.md` for persistence, review, packaging,
+  resume, or location.
+- Read `references/idea-dossier-contract.md` for dossier, chain, or positioning work.
+- Read `references/adaptive-direction-routing.md` after mapping and during remap.
+- Read `references/reference-ledger-contract.md` for internal IDs or navigation.
+- Read `references/artifact-naming-and-directory-rules.md` for names and indexes.
+- Read `references/workflow-manifest.md` and use `templates/round-manifest.md`
+  when recording a round.
+- Use `templates/idea-index.yaml` when freezing an Idea index version.
+- Read `references/idea-id-and-lineage-rules.md` when assigning or deriving IDs.
+- Read `references/artifact-contracts.md` for cross-skill artifact fields.
+- Read `references/evidence-confirmation-and-routing.md` for supplied evidence.
+- Read `references/delegate-brief-templates.md` before delegation.
+- Read `references/runtime-delegation.md` only when dispatch is unavailable.
+- Read `references/loop-control-and-stop-rules.md` for sealed-round comparison.
+- Read `references/evaluation-rubric.md` only when freezing the rubric.
+- Read `references/if10-evaluation-gate.md` only on an explicit IF>10 request.
+- Read `references/handoff-validation.md` before handoff.
+- Read `references/proposal-handoff-rules.md` before Proposal status.
 
 ## Completion Check
 
-Confirm state, complete snapshot/identity, lineage, fresh blind review, dissent, passed gates, and justified handoff.
+Confirm v3 dossier/index/ledger, route, identity, complete chains and claim
+support, matching digest, route-specific fresh reviews, visible dissent, passed
+gates, project README, and justified human state.

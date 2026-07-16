@@ -1,47 +1,43 @@
 # Context Extraction Rules
 
-## Input Type Classification
+Normalize every starting point under one top-level type:
 
-Classify the user's starting point before extraction.
+```yaml
+input_type: problem
+problem_subtype: broad_direction | raw_idea | clinical_problem | practical_problem | data_asset | method_asset | funding_call | literature_material | mixed | unclear
+```
 
-| Input type | Indicators | Primary extraction focus |
-|---|---|---|
-| `broad_direction` | broad field, theme, disease area, technique, or problem space | domain, goal, intended output, constraints, evidence need |
-| `raw_idea` | a proposed study, hypothesis, or project concept | research question, target object, data, method, endpoint/metric clarity |
-| `clinical_problem` | patient care, diagnosis, treatment, prognosis, guideline, implementation issue | population, clinical setting, endpoint, data source, evidence need |
-| `practical_problem` | workflow, operational, engineering, education, or implementation issue | stakeholder, value need, setting, feasible data, metric |
-| `data_asset` | dataset, registry, cohort, EHR, lab data, images, text corpus | data access, variables, population/system, limitations, possible endpoints |
-| `method_asset` | technique, model, assay, algorithm, platform, framework | method maturity, target use case, validation route, data requirement |
-| `funding_call` | grant topic, RFA, sponsor priority, call text | funder goal, eligibility, required deliverable, constraints, review criteria |
-| `literature_material` | review, paper, guideline, report, bibliography | evidence materials provided, topic, unresolved questions, downstream evidence mapping |
-| `mixed_input` | multiple categories present | extract all relevant fields and flag ambiguity |
-| `unclear` | too little information to classify | produce clarification request or insufficiency report |
+`input_type` remains `problem`; `problem_subtype` preserves the useful intake
+distinction.
 
-## Extraction Priorities
+## Subtype focus
 
-Extract in this order:
+| Problem subtype | Primary extraction focus |
+|---|---|
+| `broad_direction` | domain, goal, audience/output, constraints, evidence need |
+| `raw_idea` | question, objective, object, data, method, endpoint/metric |
+| `clinical_problem` | population, setting, decision need, endpoint, data, evidence need |
+| `practical_problem` | stakeholder, setting, value need, feasible data, metric |
+| `data_asset` | access, population/system, variables, provenance, limitations |
+| `method_asset` | maturity, target use, validation route, data requirements |
+| `funding_call` | sponsor goal, eligibility, deliverable, constraints, review criteria |
+| `literature_material` | supplied sources, topic, unresolved questions, mapping need |
+| `mixed` | all applicable fields plus material ambiguities |
+| `unclear` | missing information and the smallest useful clarification |
 
-1. User goal and intended output.
-2. Research domain and study object.
-3. Available data and access status.
+## Extraction order
+
+1. User goal, intended audience, and output.
+2. Research question, object, setting, and intended contribution.
+3. Available data/evidence, access, provenance, and limitations.
 4. Available methods and maturity.
-5. Endpoint/metric constraints.
-6. Time, resource, access, method, and collaboration constraints.
-7. Evidence materials provided.
-8. Known facts, assumptions, and uncertainties.
-9. Downstream needs.
+5. Endpoint or metric status.
+6. Time, resources, access, collaboration, and other binding constraints.
+7. Supplied evidence materials.
+8. Facts, assumptions, uncertainties, and impact if wrong.
+9. Direction clarity and downstream needs.
 
-## Evidence Materials
-
-Only record whether evidence materials exist and what type they are. Do not judge quality, novelty, or guideline alignment. Those tasks belong to `research-opportunity-mapper`.
-
-## Endpoint/Metric Handling
-
-Record endpoint/metric status as:
-
-- `clear`: explicitly defined and aligned with the research object.
-- `partially_clear`: plausible but underspecified.
-- `unclear`: missing, ambiguous, or inconsistent.
-- `not_applicable`: not relevant to the task type.
-
-Do not validate endpoint/metric feasibility. That belongs to `methodology-statistics-preflight`.
+Set endpoint/metric status to `clear`, `partially_clear`, `unclear`, or
+`not_applicable`. Characterize direction clarity as `clear`, `underdefined`, or
+`ambiguous`. Do not judge evidence quality, value, novelty, feasibility,
+publishability, or promotion; route those tasks downstream.

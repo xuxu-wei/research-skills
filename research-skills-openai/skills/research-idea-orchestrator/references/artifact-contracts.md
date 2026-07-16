@@ -3,248 +3,229 @@
 ## Contents
 
 <!-- toc:start -->
-- [Global Rules](#global-rules)
-- [Research Context Brief](#research-context-brief)
-- [Evidence and Opportunity Artifacts](#evidence-and-opportunity-artifacts)
-- [Complete Idea Snapshot](#complete-idea-snapshot)
-- [Methodology-Statistics Preflight](#methodology-statistics-preflight)
-- [Idea Evaluation](#idea-evaluation)
-- [Lineage Record](#lineage-record)
-- [Portfolio Package](#portfolio-package)
+- [Global fields](#global-fields)
+- [Research context](#research-context)
+- [Evidence, opportunity, and route](#evidence-opportunity-and-route)
+- [Idea dossier, node, index, and ledger](#idea-dossier-node-index-and-ledger)
+- [Methodology preflight](#methodology-preflight)
+- [Independent evaluation](#independent-evaluation)
+- [Lineage and portfolio navigation](#lineage-and-portfolio-navigation)
 <!-- toc:end -->
 
-This is the canonical contract for artifacts passed between `research-idea` skills.
+This reference defines shared `research-idea.v3` field names. User-facing prose
+belongs in Markdown; YAML carries pointers, state, and lineage.
 
-## Global Rules
+## Global fields
 
-- Every machine-readable artifact should include `schema_version`, `plugin_version`, `source_skill`, `created_round`, and `artifact_id`. Read `plugin_version` from the plugin manifest/registry at workflow start.
-- Use Markdown for user-facing deliverables and YAML only for agent-to-agent state transfer.
-- Use `unknown`, `unclear`, `not_specified`, or `not_applicable` instead of inventing facts.
-- Use the same identifiers across artifacts: `idea_id`, `opportunity_id`, `evaluation_id`, `preflight_id`, and `lineage_id`.
-- Canonical `idea_id` values must follow `references/idea-id-and-lineage-rules.md`.
-- Store workflow artifacts in the user's project directory, not inside the skill package.
+For every persisted artifact, the workflow artifact index records
+`schema_version`, `plugin_version`, `source_skill`, artifact/version/workflow/
+round IDs, path, digest, `based_on`, and `change_type`. Self-contained artifacts
+repeat fields required by their schema; mutable node/state pointers need not.
+Use `unknown` or `not_applicable` instead of invented facts. Store artifacts in
+the user's project, never in the plugin package.
 
-## Research Context Brief
+## Research context
 
 ```yaml
 research_context_brief:
-  schema_version: "research-idea.v2"
-  artifact_id: "context-001"
-  source_skill: "research-context-builder"
-  created_round: 1
-  input_type: broad_direction | raw_idea | clinical_problem | practical_problem | data_asset | method_asset | funding_call | literature_material | mixed_input | unclear
-  research_domain: ""
-  user_goal: ""
-  intended_output: paper | grant | protocol | pilot_study | long_term_program | internal_decision | unspecified
-  target_audience_or_reviewer: ""
-  study_object: ""
-  setting_or_context: ""
-  available_data:
-    summary: ""
-    access_status: available | likely_available | uncertain | unavailable | not_specified
-    limitations: []
-  available_methods:
-    summary: ""
-    maturity: established | emerging | speculative | not_specified
-  endpoint_or_metric:
-    known_items: []
-    status: clear | partially_clear | unclear | not_applicable
-    notes: ""
-  constraints:
-    time: ""
-    resources: ""
-    collaboration: ""
-  risk_preference: low | medium | high | unspecified
-  evidence_materials_provided:
-    status: yes | no | unclear
-    material_types: []
-    notes: ""
+  schema_version: research-idea.v3
+  artifact_id:
+  input_type: problem
+  problem_subtype: broad_direction | raw_idea | clinical_problem | practical_problem | data_asset | method_asset | funding_call | literature_material | mixed | unclear
+  research_domain:
+  user_goal:
+  intended_output:
+  target_audience_or_reviewer:
+  study_object:
+  setting_or_context:
+  available_data: {summary: "", access_status: not_specified, limitations: []}
+  available_methods: {summary: "", maturity: not_specified}
+  endpoint_or_metric: {known_items: [], status: unclear, notes: ""}
+  constraints: {time: "", resources: "", collaboration: ""}
   known_facts: []
   assumptions: []
   uncertainties: []
+  direction_clarity: clear | underdefined | ambiguous
+  direction_clarity_rationale:
   proceed_status: proceed | proceed_with_assumptions | clarification_stop
-  downstream_needs:
-    evidence_opportunity_mapping: required | optional | not_needed
-    multi_path_idea_generation: required | optional | not_needed
-    methodology_statistics_preflight: required | optional | not_needed
-    isolated_independent_evaluation: required | optional | not_needed
-    proposal_orchestrator_triage: required | optional | not_needed
+  downstream_needs: {}
 ```
 
-## Evidence and Opportunity Artifacts
-
-`research-opportunity-mapper` owns these artifacts. The research-idea workflow consumes their summaries and limitations.
+## Evidence, opportunity, and route
 
 ```yaml
 evidence_packet:
-  schema_version: "research-idea.v2"
-  artifact_id: "evidence-001"
-  source_skill: "research-opportunity-mapper"
-  created_round: 1
+  schema_version: research-idea.v3
+  artifact_id:
   evidence_status: user_provided | auto_retrieved | mixed | skipped | not_verified
-  evidence_map_ref: ""
-  opportunity_map_ref: ""
-  evidence_limitations_ref: ""
-  handoff_notes_ref: ""
-  source_types: []
+  evidence_map_ref:
+  opportunity_map_ref:
+  evidence_limitations_ref:
   core_findings: []
   limitations: []
-  manual_verification_needed: []
 
-opportunity:
-  opportunity_id: "O001"
-  type: gap | value | method | data | metric | failure | theory | benchmark | taxonomy | implementation | other
-  description: ""
-  supporting_evidence_ids: []
-  evidence_confidence: high | moderate | low | speculative | not_verified
-  why_it_matters: ""
-  feasibility_concerns: ""
-  novelty_risk: low | medium | high | unverified
-  guideline_alignment: aligned | partially_aligned | conflicting | not_applicable | unverified
-  recommended_generation_paths: []
+idea_routing_decision:
+  schema_version: research-idea.v3
+  artifact_id:
+  direction_clarity: clear | underdefined | ambiguous
+  current_direction_value: supported | uncertain | unsupported
+  evidence_confidence: high | moderate | low
+  distinct_supported_directions: []
+  route: focused_optimization | bounded_exploration | direction_route_confirmation_required | no_defensible_direction
+  rationale:
 ```
 
-## Complete Idea Snapshot
+Internal evidence/opportunity IDs require a human-readable label and a ledger
+entry. They must not appear as evidence in the dossier.
+
+## Idea dossier, node, index, and ledger
 
 The authoritative body is
-`03_ideas/nodes/<idea-id>/snapshots/idea-snapshot-vNNN.md`. Follow
-`idea-artifact-lifecycle.md`; do not serialize the body a second time in YAML.
+`03_ideas/nodes/<idea-id>/dossiers/idea-dossier-vNNN.md`. Follow
+`idea-artifact-lifecycle.md` and `idea-dossier-contract.md`.
 
 ```yaml
-idea_snapshot_frontmatter:
-  schema_version: "research-idea.v2"
-  plugin_version: ""
-  artifact_id: "idea-I01-001-v001"
-  idea_id: "I01-001"
-  version_id: "v001"
+idea_dossier_frontmatter:
+  schema_version: research-idea.v3
+  plugin_version:
+  artifact_id:
+  workflow_id:
+  idea_id:
+  version_id: v001
   parent_idea_ids: []
   based_on: []
-  source_skill: "multi-path-idea-generator"
+  source_skill: multi-path-idea-generator
   created_round: 1
-  status: draft | promoted | revise | reject | backup | evaluation_failed
+  change_type: create | revise | evidence_claim_sync | editorial_reposition
+  identity_anchor:
+    primary_research_question:
+    primary_objective:
+    study_object:
+    core_data_or_evidence_base:
+    primary_unit_of_inference:
   frozen: true
 
 idea_node:
-  current_snapshot_id: "idea-I01-001-v001"
-  current_version: "v001"
-  current_path: "03_ideas/nodes/I01-001/snapshots/idea-snapshot-v001.md"
+  current_dossier_id:
+  current_version:
+  current_path:
   current_digest: "sha256:"
+  reference_ledger_path: <idea-node>/references/reference-ledger.md
   parent_idea_ids: []
-  lineage_id: "L-I01-001"
+  lineage_id:
+  route_profile: focused_optimization | bounded_exploration
   identity_anchor:
-    primary_research_question: ""
-    primary_objective: ""
-    study_object: ""
-    core_data_or_evidence_base: ""
-    primary_unit_of_inference: ""
+    primary_research_question:
+    primary_objective:
+    study_object:
+    core_data_or_evidence_base:
+    primary_unit_of_inference:
   identity_status: preserved | drifted
-  qualifying_evaluation_ref: ""
+  qualifying_evaluation_ref:
+
+idea_index_entry:
+  idea_id:
+  dossier_id:
+  node_path:
+  dossier_path:
+  dossier_version:
+  dossier_digest: "sha256:"
+  parent_idea_ids: []
+  lineage_id:
+  route_profile: focused_optimization | bounded_exploration
+  remap_status: not_required | required | complete | structural_revision_required
+  status:
 ```
 
-## Methodology-Statistics Preflight
+`reference_ledger` is the node-level Markdown navigation table defined in
+`reference-ledger-contract.md`; it is not reviewer evidence.
+
+## Methodology preflight
 
 ```yaml
 methodology_statistics_preflight:
-  schema_version: "research-idea.v2"
-  preflight_id: "P001"
-  source_skill: "methodology-statistics-preflight"
-  created_round: 1
-  idea_id: "I01-001"
+  schema_version: research-idea.v3
+  preflight_id:
+  idea_id:
+  dossier_ref:
   endpoint_or_metric_status: clear | partially_clear | unclear | invalid | not_applicable
   data_method_fit: strong | acceptable | weak | invalid | not_applicable
   minimal_analysis_route_status: clear | partially_clear | unclear | invalid
-  main_methodological_risks: []
   feasibility_blockers: []
   recommendation: pass | revise_endpoint_or_metric | revise_data_source | revise_method | revise_analysis_route | needs_clarification | blocked | out_of_scope
   repair_directions: []
 ```
 
-## Idea Evaluation
+## Independent evaluation
 
 ```yaml
 idea_evaluation:
-  schema_version: "research-idea.v2"
-  evaluation_id: "E001"
-  source_skill: "idea-evaluator"
-  created_round: 1
-  idea_id: "I01-001"
-  independence_status: valid | invalid
-  evaluator_generation_involvement: none | generated | revised | unknown
-  input_sufficiency_status: sufficient | insufficient
-  reviewed_snapshot_digest: "sha256:"
-  complete_snapshot_confirmed: true | false
-  identity_drift_detected: true | false
+  schema_version: research-idea.v3
+  review_id:
+  reviewer_skill: idea-evaluator
+  reviewer_instance_id:
+  workflow_id:
+  round_id:
+  idea_id:
+  input_artifact_ids: []
+  input_versions: []
+  files_read: []
+  review_scope: complete_idea_dossier
+  isolation_mode: fresh_subagent
+  prior_scores_visible: false
   prior_versions_visible: false
   revision_delta_visible: false
-  dimension_scores:
-    novelty: 0
-    feasibility: 0
-    impact: 0
-    relevance: 0
-    clarity: 0
-    completion: 0
+  source_edits_performed: false
+  reviewed_dossier_digest: "sha256:"
+  complete_dossier_confirmed: true
+  dossier_only_input_confirmed: true
+  identity_drift_detected: false
+  historical_identity_drift_assessed: false
+  evidence_chain_checks: {}
+  claim_support_checks: {}
+  dimension_scores: {}
   overall_score_simple_average: 0
-  hard_gate_status: pass | fail
-  failed_gates: []
-  fatal_or_unfixable_flaws: []
-  reviewer_objections: []
-  recommendation: promote | revise_then_promote | revise | reframe | merge | keep_as_backup | reject
-  targeted_repair_direction: ""
-  suggested_next_skill: ""
-  evaluation_limitations: []
+  hard_gates: {}
+  fatal_flaws: []
+  findings:
+    - title:
+      dossier_locator:
+      severity:
+      rationale:
+  decision: promote | revise_then_promote | revise | reframe | keep_as_backup | reject
+  repair_directions: []
+  limitations: []
+  unresolved_issues: []
 ```
 
-## Lineage Record
+`files_read` lists project artifacts and must contain exactly the current
+dossier path. Skill instructions and rubric references are not project inputs.
+
+## Lineage and portfolio navigation
 
 ```yaml
 idea_lineage_record:
-  schema_version: "research-idea.v2"
-  lineage_id: "L-I01-001"
-  idea_id: "I01-001"
+  schema_version: research-idea.v3
+  lineage_id:
+  idea_id:
   parent_idea_ids: []
-  generation_paths: []
-  variant_type: original | expanded | refined | merged | reframed | salvaged | backup
-  changes_from_parent: []
-  evaluation_delta:
-    previous_overall: null
-    current_overall: null
-    delta: null
-  decision_history:
-    - round: 1
-      decision: draft | promote | revise | reframe | merge | reject | backup
-      reason: ""
+  route_profile: focused_optimization | bounded_exploration
+  change_type: create | revise | evidence_claim_sync | editorial_reposition
+  decision_history: []
+
+portfolio_navigation_entry:
+  idea_id:
+  title:
+  dossier_ref:
+  dossier_version:
+  dossier_digest: "sha256:"
+  evaluation_ref:
+  reference_ledger_ref:
+  status:
+  fatal_or_blocking_findings: []
+  dissent: []
+  unresolved_issues: []
+  next_human_action:
 ```
 
-## Portfolio Package
-
-```yaml
-promoted_idea_package:
-  schema_version: "research-idea.v2"
-  artifact_id: "portfolio-package-001"
-  source_skill: "idea-portfolio-assembler"
-  created_round: 1
-  idea_id: "I01-001"
-  snapshot_ref: "03_ideas/nodes/I01-001/snapshots/idea-snapshot-v001.md"
-  snapshot_digest: "sha256:"
-  title: ""
-  one_sentence_summary: ""
-  research_question: ""
-  research_objectives: []
-  research_content_and_work_packages: []
-  core_hypothesis: ""
-  scientific_significance: ""
-  relevance_impact_and_innovation: ""
-  potential_applications: ""
-  data_materials_and_evidence_base: ""
-  research_methods: ""
-  required_analyses_and_evidence: []
-  feasibility_resources_and_constraints: []
-  risks_assumptions_uncertainties_and_stop_conditions: []
-  evidence_summary: ""
-  evidence_limitations: []
-  evaluation_summary: ""
-  hard_gate_status: pass | fail
-  main_risks_or_reviewer_objections: []
-  proposal_handoff_status: ready | conditional | not_ready
-  remaining_uncertainties: []
-```
+The portfolio links the qualifying dossier and never serializes its body again.

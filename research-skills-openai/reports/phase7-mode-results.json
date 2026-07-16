@@ -984,18 +984,19 @@
   "phase_status": "in_progress_live_and_release_evidence_pending",
   "phase_status_derivation": "complete_preview_attested or complete_provider_verified only when every runtime and release-ledger gate is verified at one evidence level",
   "phase_status_detail": "runtime_and_release_evidence_pending",
-  "plugin_version": "0.8.0-preview.1",
+  "plugin_version": "0.9.0-preview.1",
   "positive_mode_results": [
     {
-      "artifacts_validated": 15,
+      "artifacts_validated": 17,
       "automatic_external_submission": false,
       "case_id": "idea-standard",
       "entry_gate_contract_source": "workflow-registry.yaml",
-      "entry_gate_receipt_count": 3,
+      "entry_gate_receipt_count": 4,
       "entry_gates_verified": [
         "context_frozen",
         "evidence_map_frozen",
-        "candidate_set_versioned"
+        "routing_decision_frozen",
+        "idea_dossier_versioned"
       ],
       "entry_mode": "standard",
       "evaluator_instance_ids": [
@@ -1122,15 +1123,16 @@
       "writer_skill": "multi-path-idea-generator"
     },
     {
-      "artifacts_validated": 15,
+      "artifacts_validated": 17,
       "automatic_external_submission": false,
       "case_id": "idea-resume-candidates",
       "entry_gate_contract_source": "workflow-registry.yaml",
-      "entry_gate_receipt_count": 3,
+      "entry_gate_receipt_count": 4,
       "entry_gates_verified": [
         "context_scope_validated",
         "evidence_scope_validated",
-        "candidate_set_versioned"
+        "routing_decision_frozen",
+        "idea_dossier_versioned"
       ],
       "entry_mode": "resume_candidates",
       "evaluator_instance_ids": [
@@ -1257,14 +1259,13 @@
       "writer_skill": "multi-path-idea-generator"
     },
     {
-      "artifacts_validated": 11,
+      "artifacts_validated": 12,
       "automatic_external_submission": false,
       "case_id": "idea-portfolio-only",
       "entry_gate_contract_source": "workflow-registry.yaml",
-      "entry_gate_receipt_count": 3,
+      "entry_gate_receipt_count": 2,
       "entry_gates_verified": [
         "latest_version_independently_evaluated",
-        "adversarial_reports_complete",
         "dissent_and_fatal_findings_indexed"
       ],
       "entry_mode": "portfolio_only",
@@ -3030,7 +3031,7 @@
   "provider_verified": false,
   "registry_independent_reviewer_count": 20,
   "registry_schema_version": 5,
-  "registry_sha256": "sha256:a3c749cde1d03fbe813cf2a2caf41b2fc802109a77e40134be9c03d5c9438abe",
+  "registry_sha256": "sha256:22d2f8c1d5f81f47f30d2e86f66c4b79a67ebadc3423be9870cd0df8ed9d9bc6",
   "registry_skill_count": 49,
   "registry_workflow_edge_count": 68,
   "release_ledger_sha256": "sha256:ce264209d13d8eaf852bfc1a66030bf2a0db853d89ad3d3f58b6e3fe893b203c",
@@ -3192,7 +3193,19 @@
           "verifier_compositor": 0,
           "writer": 1
         },
-        "artifact_count": 14,
+        "adaptive_direction_contract": {
+          "bounded_revision_delta_bounds": [
+            4,
+            6
+          ],
+          "conditional_final_state": "human_direction_selection_required",
+          "direction_profiles": [
+            "focused_optimization",
+            "bounded_exploration"
+          ],
+          "focused_panel_roles_when_candidate": 3
+        },
+        "artifact_count": 16,
         "final_state": "human_signoff_required",
         "receipt_id": "phase7-contract-complete-idea",
         "status": "passed",
@@ -3590,6 +3603,16 @@
       {
         "error_code": "runtime_artifact_role_contract_invalid",
         "mutation": "polisher_finding_index_uses_generic_role",
+        "status": "rejected_as_expected"
+      },
+      {
+        "error_code": "runtime_bounded_evaluator_before_remap",
+        "mutation": "bounded_evaluator_before_remap",
+        "status": "rejected_as_expected"
+      },
+      {
+        "error_code": "runtime_bounded_evaluator_nonterminal_dossier",
+        "mutation": "bounded_evaluator_bound_to_initial_dossier",
         "status": "rejected_as_expected"
       },
       {
@@ -4033,6 +4056,11 @@
         "status": "rejected_as_expected"
       },
       {
+        "error_code": "runtime_review_extension_invalid",
+        "mutation": "focused_evaluator_reviewed_dossier_digest_missing",
+        "status": "rejected_as_expected"
+      },
+      {
         "error_code": "runtime_review_input_read_mismatch",
         "mutation": "fresh_evaluator_reviews_stale_artifact_version",
         "status": "rejected_as_expected"
@@ -4043,8 +4071,8 @@
         "status": "rejected_as_expected"
       },
       {
-        "error_code": "runtime_package_required_input_missing",
-        "mutation": "final_package_omits_required_revision_delta",
+        "error_code": "runtime_package_input_omitted",
+        "mutation": "final_package_omits_created_revision_delta",
         "status": "rejected_as_expected"
       },
       {
@@ -4110,7 +4138,7 @@
     "negative_guards_rejected": 89,
     "positive_modes_passed": 17,
     "qualifying_reviewer_receipt_negatives_rejected": 55,
-    "registry_entry_gate_contracts_verified": 55,
+    "registry_entry_gate_contracts_verified": 56,
     "registry_entry_mode_contracts_verified": 17,
     "research_polisher_routing_boundaries_verified": 7,
     "research_polisher_takeover_mutations_rejected": 6,
@@ -4119,7 +4147,7 @@
     "runtime_receipts_expected": 10,
     "runtime_receipts_pending": 10,
     "runtime_receipts_verified": 0,
-    "runtime_validator_negative_guards_rejected": 140,
+    "runtime_validator_negative_guards_rejected": 143,
     "stale_evaluator_receipts_rejected": 14,
     "stale_panel_receipts_rejected": 12,
     "strategy_reviewer_group_mutations_rejected": 3,

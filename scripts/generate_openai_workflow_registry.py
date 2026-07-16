@@ -100,6 +100,18 @@ OPENAI_NATIVE_SKILLS = {
 }
 
 SKILL_IO_OVERRIDES = {
+    "multi-path-idea-generator": (
+        "frozen_context_evidence_opportunities_routing_decision_current_dossiers_and_revision_plan",
+        "versioned_complete_idea_dossiers_revision_delta_and_proposed_navigation_metadata",
+    ),
+    "idea-evaluator": (
+        "one_frozen_complete_idea_dossier_only",
+        "idea_evaluation_report",
+    ),
+    "idea-portfolio-assembler": (
+        "evaluated_current_idea_dossiers_index_lineage_findings_and_dissent",
+        "pi_navigation_or_comparison_handoff_package",
+    ),
     "article-cover-letter": (
         "frozen_qualifying_article_or_perspective_outlet_evidence_and_disclosures",
         "versioned_cover_letter_and_mechanical_quality_check",
@@ -131,15 +143,15 @@ RELATED_SKILL_ADDITIONS = {
 # workflow, source, destination, dispatch mode, trigger, input contract,
 # output contract, failure route
 WORKFLOW_EDGES = [
-    ("idea", "research-idea-orchestrator", "research-context-builder", "orchestrated", "context_required", "user_inputs_and_constraints", "research_context_brief", "clarification_required"),
-    ("idea", "research-idea-orchestrator", "research-opportunity-mapper", "orchestrated", "evidence_or_opportunity_map_required", "context_sources_and_scope", "evidence_and_opportunity_maps", "evidence_mapping_pending"),
-    ("idea", "research-idea-orchestrator", "multi-path-idea-generator", "orchestrated", "context_and_opportunity_map_ready_or_revision_authorized", "frozen_context_opportunity_current_complete_snapshots_and_revision_plan", "versioned_complete_snapshots_candidate_index_and_delta", "generation_blocked"),
-    ("idea", "research-idea-orchestrator", "methodology-statistics-preflight", "delegated", "method_or_endpoint_fit_needs_review", "frozen_complete_snapshots_and_method_facts", "preflight_report", "independent_review_pending"),
-    ("idea", "research-idea-orchestrator", "idea-evaluator", "delegated", "candidate_set_frozen_or_revised", "one_frozen_complete_snapshot_stable_rubric_and_facts", "idea_evaluation_report", "independent_review_pending"),
-    ("idea", "research-idea-orchestrator", "idea-adversarial-review-panel", "delegated", "proposal_handoff_candidate_exists", "one_frozen_promoted_complete_snapshot_and_role_brief", "sealed_individual_adversarial_report", "independent_review_pending"),
+    ("idea", "research-idea-orchestrator", "research-context-builder", "orchestrated", "context_required", "user_inputs_and_constraints", "research_context_brief_and_direction_clarity_signal", "clarification_required"),
+    ("idea", "research-idea-orchestrator", "research-opportunity-mapper", "orchestrated", "evidence_opportunity_or_direction_route_required", "context_sources_scope_and_current_dossier_when_remapping", "evidence_opportunity_maps_and_direction_support_signals", "evidence_mapping_pending"),
+    ("idea", "research-idea-orchestrator", "multi-path-idea-generator", "orchestrated", "routing_decision_ready_or_revision_authorized", "frozen_context_evidence_opportunities_routing_decision_current_dossiers_and_revision_plan", "versioned_complete_idea_dossiers_revision_delta_and_proposed_navigation_metadata", "generation_blocked"),
+    ("idea", "research-idea-orchestrator", "methodology-statistics-preflight", "delegated", "method_or_endpoint_fit_needs_review", "frozen_complete_idea_dossiers_and_method_facts", "preflight_report", "independent_review_pending"),
+    ("idea", "research-idea-orchestrator", "idea-evaluator", "delegated", "focused_current_dossier_frozen_or_bounded_terminal_dossier_after_single_optimization_remap_and_sync", "one_frozen_complete_idea_dossier_only", "idea_evaluation_report", "independent_review_pending"),
+    ("idea", "research-idea-orchestrator", "idea-adversarial-review-panel", "delegated", "focused_direction_proposal_handoff_candidate_exists", "one_frozen_promoted_complete_idea_dossier_and_role_brief", "sealed_individual_adversarial_report", "independent_review_pending"),
     ("idea", "research-idea-orchestrator", "academic-language-assessor", "delegated", "external_facing_portfolio_language_check", "frozen_portfolio_text_and_language_scope", "language_assessment_report", "independent_review_pending"),
-    ("idea", "research-idea-orchestrator", "idea-portfolio-assembler", "orchestrated", "evaluation_and_adversarial_reports_sealed", "evaluated_complete_snapshots_lineage_and_dissent", "pi_review_portfolio", "assembly_blocked"),
-    ("idea", "research-idea-orchestrator", "proposal-orchestrator", "handoff", "proposal_handoff_gate_passed", "promoted_idea_package_and_limitations", "proposal_workflow_state", "proposal_handoff_blocked"),
+    ("idea", "research-idea-orchestrator", "idea-portfolio-assembler", "orchestrated", "qualifying_focused_review_or_bounded_exploration_reviews_sealed", "evaluated_current_dossiers_index_lineage_findings_and_dissent", "pi_navigation_or_comparison_handoff_package", "assembly_blocked"),
+    ("idea", "research-idea-orchestrator", "proposal-orchestrator", "handoff", "focused_or_human_selected_direction_fresh_promote_and_handoff_gate_passed", "promoted_idea_package_and_limitations", "proposal_workflow_state", "proposal_handoff_blocked"),
 
     ("proposal", "proposal-orchestrator", "proposal-context-brief-builder", "orchestrated", "context_brief_required", "idea_draft_call_and_constraints", "proposal_context_brief", "clarification_required"),
     ("proposal", "proposal-orchestrator", "research-opportunity-mapper", "orchestrated", "broad_or_stale_evidence_required", "context_sources_and_retrieval_scope", "evidence_and_opportunity_maps", "evidence_mapping_pending"),
@@ -219,14 +231,17 @@ WORKFLOW_STATE_POLICY = {
         "pending_review",
         "specialist_review_pending",
         "independent_review_pending",
+        "direction_route_confirmation_required",
         "clarification_stop",
         "deep_research_handoff_required",
     ],
     "terminal_states": [
         "stopped",
         "blocked",
+        "no_defensible_direction",
         "no_defensible_option",
         "human_signoff_required",
+        "human_direction_selection_required",
         "human_strategy_selection_required",
         "additional_work_required",
     ],
@@ -236,6 +251,7 @@ WORKFLOW_STATE_POLICY = {
     "wildcard_transition_scope": "nonterminal_states_only",
     "resume_policy": {
         "independent_review_pending": "pending_review",
+        "direction_route_confirmation_required": "preprocessing",
         "clarification_stop": "preprocessing",
         "deep_research_handoff_required": "preprocessing",
     },
@@ -248,6 +264,7 @@ WORKFLOW_STATE_POLICY = {
             "panel_pending",
             "packaging_pending",
             "human_signoff_required",
+            "human_direction_selection_required",
             "human_strategy_selection_required",
         ],
     },
@@ -255,6 +272,7 @@ WORKFLOW_STATE_POLICY = {
         "fatal_or_blocking_finding_prevents_accept": True,
         "fatal_or_blocking_finding_prevents_promoted": True,
         "fatal_or_blocking_finding_prevents_human_signoff": True,
+        "fatal_or_blocking_finding_prevents_human_direction_selection": True,
         "fatal_or_blocking_finding_prevents_human_strategy_selection": True,
         "panel_dissent_must_remain_visible": True,
     },
@@ -303,6 +321,16 @@ WORKFLOW_STATE_POLICY = {
         },
         {
             "from": "pending_review",
+            "to": "packaging_pending",
+            "trigger": "bounded_exploration_reviews_complete",
+            "requires": [
+                "evidence_and_opportunity_remap_complete",
+                "fresh_evaluation_complete_for_each_current_dossier",
+                "no_unresolved_fatal_finding",
+            ],
+        },
+        {
+            "from": "pending_review",
             "to": "specialist_review_pending",
             "trigger": "specialist_review_requested",
             "requires": ["bounded_specialist_question", "evaluator_round_available"],
@@ -316,6 +344,25 @@ WORKFLOW_STATE_POLICY = {
         {"from": "packaging_pending", "to": "human_signoff_required", "trigger": "package_verified"},
         {
             "from": "packaging_pending",
+            "to": "human_direction_selection_required",
+            "trigger": "bounded_exploration_comparison_handoff_verified",
+            "requires": [
+                "evidence_and_opportunity_remap_complete",
+                "fresh_evaluation_complete_for_each_current_dossier",
+                "no_unresolved_fatal_finding",
+            ],
+        },
+        {
+            "from": "human_direction_selection_required",
+            "to": "preprocessing",
+            "trigger": "human_selected_current_dossier",
+            "requires": [
+                "selected_current_dossier_digest_match",
+                "direction_profile_switched_to_focused_optimization",
+            ],
+        },
+        {
+            "from": "packaging_pending",
             "to": "human_strategy_selection_required",
             "trigger": "selection_dossier_verified",
         },
@@ -326,9 +373,11 @@ WORKFLOW_STATE_POLICY = {
             "requires": ["current_selection_dossier", "selected_option_is_small_or_moderate_extension"],
         },
         {"from": "*", "to": "independent_review_pending", "trigger": "required_reviewer_unavailable"},
+        {"from": "*", "to": "direction_route_confirmation_required", "trigger": "idea_direction_route_is_low_confidence_or_conflicted"},
         {"from": "*", "to": "clarification_stop", "trigger": "required_source_facts_missing_or_inconsistent"},
         {"from": "*", "to": "deep_research_handoff_required", "trigger": "inactive_deep_research_required"},
         {"from": "*", "to": "blocked", "trigger": "fatal_or_blocking_finding"},
+        {"from": "*", "to": "no_defensible_direction", "trigger": "no_supported_current_or_alternative_idea_direction"},
         {"from": "*", "to": "no_defensible_option", "trigger": "no_defensible_strategy_remains"},
         {"from": "*", "to": "stopped", "trigger": "unfixable_no_gain_or_user_stop"},
         {"from": "independent_review_pending", "to": "pending_review", "trigger": "reviewer_delegation_resumed"},
@@ -341,32 +390,30 @@ WORKFLOW_STATE_MACHINES = {
         "evaluator_skill": "idea-evaluator",
         "primary_writer_skills": ["multi-path-idea-generator"],
         "primary_artifact_creator_skills": ["multi-path-idea-generator"],
-        "primary_artifact_type": "candidate_idea_set",
+        "primary_artifact_type": "idea_dossier",
         "entry_modes": ["standard", "resume_candidates", "portfolio_only"],
         "entry_gates": {
-            "standard": ["context_frozen", "evidence_map_frozen", "candidate_set_versioned"],
-            "resume_candidates": ["context_scope_validated", "evidence_scope_validated", "candidate_set_versioned"],
-            "portfolio_only": ["latest_version_independently_evaluated", "adversarial_reports_complete", "dissent_and_fatal_findings_indexed"],
+            "standard": ["context_frozen", "evidence_map_frozen", "routing_decision_frozen", "idea_dossier_versioned"],
+            "resume_candidates": ["context_scope_validated", "evidence_scope_validated", "routing_decision_frozen", "idea_dossier_versioned"],
+            "portfolio_only": ["latest_version_independently_evaluated", "dissent_and_fatal_findings_indexed"],
         },
         "scenario_entry_gate_contracts": {
             "standard": {
                 "context_frozen": {"artifact_roles": ["research_context"]},
                 "evidence_map_frozen": {"artifact_roles": ["evidence_map"]},
-                "candidate_set_versioned": {"artifact_roles": ["candidate_idea_set"]},
+                "routing_decision_frozen": {"artifact_roles": ["idea_routing_decision"]},
+                "idea_dossier_versioned": {"artifact_roles": ["idea_dossier"]},
             },
             "resume_candidates": {
                 "context_scope_validated": {"artifact_roles": ["research_context"]},
                 "evidence_scope_validated": {"artifact_roles": ["evidence_map"]},
-                "candidate_set_versioned": {"artifact_roles": ["candidate_idea_set"]},
+                "routing_decision_frozen": {"artifact_roles": ["idea_routing_decision"]},
+                "idea_dossier_versioned": {"artifact_roles": ["idea_dossier"]},
             },
             "portfolio_only": {
                 "latest_version_independently_evaluated": {
                     "review_skill": "idea-evaluator",
-                    "input_artifact_roles": ["candidate_idea_set"],
-                },
-                "adversarial_reports_complete": {
-                    "review_skill": "idea-adversarial-review-panel",
-                    "input_artifact_roles": ["candidate_idea_set"],
+                    "input_artifact_roles": ["idea_dossier"],
                 },
                 "dissent_and_fatal_findings_indexed": {
                     "artifact_roles": ["review_finding_index"],
@@ -374,9 +421,66 @@ WORKFLOW_STATE_MACHINES = {
             },
         },
         "before_panel": ["latest_version_independently_evaluated", "no_unresolved_fatal_finding"],
-        "before_packaging": ["latest_version_independently_evaluated", "adversarial_reports_complete", "dissent_and_fatal_findings_indexed"],
+        "before_packaging": ["latest_version_independently_evaluated", "dissent_and_fatal_findings_indexed"],
+        "before_packaging_by_direction_profile": {
+            "focused_optimization": ["adversarial_reports_complete_when_proposal_handoff_candidate"],
+            "bounded_exploration": [
+                "evidence_and_opportunity_remap_complete",
+                "fresh_evaluation_complete_for_each_current_dossier",
+            ],
+        },
         "non_ready_modes": [],
         "final_package_skill": "idea-portfolio-assembler",
+        "internal_direction_profiles": {
+            "focused_optimization": {
+                "current_dossier_count": 1,
+                "revision_round_limit": 3,
+                "adversarial_panel_required_before_handoff": True,
+                "final_state": "human_signoff_required",
+            },
+            "bounded_exploration": {
+                "current_dossier_count": {"minimum": 2, "maximum": 3},
+                "optimization_round_limit_per_direction": 1,
+                "evidence_and_opportunity_remap_after_optimization": True,
+                "fresh_evaluator_per_current_dossier_after_remap": True,
+                "structural_change_after_remap": "revision_required_no_automatic_second_optimization",
+                "adversarial_panel_required_before_direction_selection": False,
+                "final_state": "human_direction_selection_required",
+            },
+        },
+        "routing_contract": {
+            "decision_artifact_role": "idea_routing_decision",
+            "clear_supported_direction": "focused_optimization",
+            "underdefined_with_two_or_more_supported_directions": "bounded_exploration",
+            "maximum_exploration_directions": 3,
+            "no_supported_direction": "no_defensible_direction",
+            "low_confidence_or_conflict": "direction_route_confirmation_required",
+            "never_fill_direction_quota_with_unsupported_candidates": True,
+        },
+        "evaluation_dispatch_by_direction_profile": {
+            "focused_optimization": {
+                "eligible_artifact": "current_frozen_idea_dossier",
+                "required_preconditions": ["current_dossier_digest_bound"],
+            },
+            "bounded_exploration": {
+                "eligible_artifact": "terminal_current_idea_dossier_only",
+                "required_preconditions": [
+                    "exactly_one_bounded_optimization_complete_for_direction",
+                    "evidence_and_opportunity_remap_complete_for_direction",
+                    "post_remap_claim_sync_complete_for_direction",
+                    "terminal_dossier_digest_bound",
+                ],
+                "initial_or_pre_remap_dossier_evaluation_forbidden": True,
+            },
+        },
+        "proposal_handoff_contract": {
+            "eligible_direction_profiles": ["focused_optimization"],
+            "required_current_evaluation_decision": "promote",
+            "fresh_evaluation_required": True,
+            "evaluated_dossier_digest_must_match_current": True,
+            "revise_then_promote_is_not_a_handoff_decision": True,
+            "revise_then_promote_requires_revision_and_fresh_re_evaluation": True,
+        },
     },
     "proposal": {
         "orchestrator": "proposal-orchestrator",
@@ -664,9 +768,9 @@ REVIEW_DECISION_CONTRACTS = {
         "stop": ["blocked", "out_of_scope"],
     },
     "idea-evaluator": {
-        "allowed": ["promote", "revise_then_promote", "revise", "reframe", "merge", "keep_as_backup", "reject"],
+        "allowed": ["promote", "revise_then_promote", "revise", "reframe", "keep_as_backup", "reject"],
         "pass": ["promote"],
-        "revise": ["revise_then_promote", "revise", "reframe", "merge"],
+        "revise": ["revise_then_promote", "revise", "reframe"],
         "stop": ["keep_as_backup", "reject"],
     },
     "idea-adversarial-review-panel": {
@@ -785,15 +889,19 @@ REVIEW_DECISION_CONTRACTS = {
 
 PACKAGE_INPUT_CONTRACTS = {
     "idea": {
-        "allowed_roles": ["research_context", "evidence_map", "candidate_idea_set", "evaluation_report", "panel_report", "revision_plan", "revision_delta"],
+        "allowed_roles": ["research_context", "evidence_map", "opportunity_map", "idea_routing_decision", "idea_index", "idea_dossier", "reference_ledger", "evaluation_report", "panel_report", "revision_plan", "revision_delta"],
         "required_inputs": [
             {"artifact_role": "research_context", "source_skill": "research-context-builder", "count": 1},
-            {"artifact_role": "evidence_map", "source_skill": "research-opportunity-mapper", "count": 1},
-            {"artifact_role": "candidate_idea_set", "source_skills": ["multi-path-idea-generator", "external-input"], "current_primary": True, "count": 1},
-            {"artifact_role": "evaluation_report", "source_skill": "idea-evaluator", "current_primary_lineage": True, "count": 1},
-            {"artifact_role": "panel_report", "source_skill": "idea-adversarial-review-panel", "all_panel_instances": True, "count_from_panel_roles": True},
-            {"artifact_role": "revision_plan", "source_skill": "research-idea-orchestrator", "minimum_count": 1, "include_all_created": True},
-            {"artifact_role": "revision_delta", "source_skill": "multi-path-idea-generator", "minimum_count": 1, "include_all_created": True},
+            {"artifact_role": "evidence_map", "source_skill": "research-opportunity-mapper", "count": 1, "count_by_direction_profile": {"focused_optimization": 1, "bounded_exploration": {"minimum": 2, "maximum": 3}}},
+            {"artifact_role": "opportunity_map", "source_skill": "research-opportunity-mapper", "count_per_current_idea_node": 1, "required_when_direction_profile": "bounded_exploration"},
+            {"artifact_role": "idea_routing_decision", "source_skill": "research-idea-orchestrator", "count": 1},
+            {"artifact_role": "idea_index", "source_skills": ["research-idea-orchestrator", "external-input"], "count": 1},
+            {"artifact_role": "idea_dossier", "source_skills": ["multi-path-idea-generator", "external-input"], "current_by_idea_index": True, "minimum_count": 1, "maximum_count": 3, "count_by_direction_profile": {"focused_optimization": 1, "bounded_exploration": {"minimum": 2, "maximum": 3}}},
+            {"artifact_role": "reference_ledger", "source_skills": ["research-idea-orchestrator", "external-input"], "count_per_current_idea_node": 1},
+            {"artifact_role": "evaluation_report", "source_skill": "idea-evaluator", "current_primary_lineage": True, "count_must_equal_current_idea_dossier_count": True},
+            {"artifact_role": "panel_report", "source_skill": "idea-adversarial-review-panel", "all_panel_instances": True, "count_from_panel_roles": True, "required_when_condition": "proposal_handoff_candidate"},
+            {"artifact_role": "revision_plan", "source_skill": "research-idea-orchestrator", "minimum_count": 0, "maximum_count": 3, "include_all_created": True, "count_by_direction_profile": {"focused_optimization": {"minimum": 0, "maximum": 3}, "bounded_exploration": {"minimum": 2, "maximum": 3}}},
+            {"artifact_role": "revision_delta", "source_skill": "multi-path-idea-generator", "minimum_count": 0, "maximum_count": 6, "include_all_created": True, "count_by_direction_profile": {"focused_optimization": {"minimum": 0, "maximum": 3}, "bounded_exploration": {"minimum": 4, "maximum": 6}}},
         ],
     },
     "proposal": {
@@ -1048,6 +1156,18 @@ SCENARIO_EVAL_CONTRACT = {
         "findings",
         "unresolved_issues",
     ],
+    "workflow_review_extensions": {
+        "idea-evaluator": {
+            "required_fields": [
+                "reviewed_dossier_digest",
+                "complete_dossier_confirmed",
+                "dossier_only_input_confirmed",
+            ],
+            "finding_required_fields": ["title", "dossier_locator"],
+            "exact_input_artifact_count": 1,
+            "allowed_input_artifact_roles": ["idea_dossier"],
+        },
+    },
     "runtime_observation_fields": [
         "files_read",
         "actual_write_paths",
@@ -1354,7 +1474,7 @@ SCENARIO_EVAL_CONTRACT = {
             "review_input_refs_must_equal_actual_read_artifact_refs": True,
         },
         "actor_output_roles_by_skill": {
-            "research-idea-orchestrator": ["revision_plan", "continuation_brief"],
+            "research-idea-orchestrator": ["idea_routing_decision", "idea_index", "reference_ledger", "revision_plan", "continuation_brief"],
             "proposal-orchestrator": ["minimal_workflow_state", "continuation_brief"],
             "article-orchestrator": ["continuation_brief"],
             "perspective-orchestrator": ["continuation_brief"],
@@ -1368,7 +1488,7 @@ SCENARIO_EVAL_CONTRACT = {
             "research-opportunity-mapper": ["evidence_map", "opportunity_map"],
             "academic-deep-search": ["focused_academic_synthesis"],
             "article-literature-grounder": ["evidence_ledger", "evidence_map", "literature_grounding_report"],
-            "multi-path-idea-generator": ["candidate_idea_set", "revision_delta"],
+            "multi-path-idea-generator": ["idea_dossier", "revision_delta", "proposed_navigation_metadata"],
             "proposal-drafter": ["proposal", "response_to_reviewers", "revision_delta"],
             "sap-writer": ["sap"],
             "article-drafter": ["manuscript", "response_to_reviewers", "revision_delta"],
@@ -1434,8 +1554,8 @@ SCENARIO_EVAL_CONTRACT = {
             "allowed_artifact_roles_by_workflow_and_mode": {
                 "idea": {
                     "standard": ["source_material", "user_constraints"],
-                    "resume_candidates": ["source_material", "user_constraints", "candidate_idea_set"],
-                    "portfolio_only": ["source_material", "candidate_idea_set"],
+                    "resume_candidates": ["source_material", "user_constraints", "idea_dossier", "idea_index", "reference_ledger"],
+                    "portfolio_only": ["source_material", "idea_dossier", "idea_index", "reference_ledger"],
                 },
                 "proposal": {
                     "standard": ["source_material", "user_constraints", "call_text", "data_facts"],
@@ -1486,6 +1606,11 @@ SCENARIO_EVAL_CONTRACT = {
         "perspective": "human_signoff_required",
         "research_polisher": "human_strategy_selection_required",
     },
+    "workflow_conditional_final_states": {
+        "idea": {
+            "bounded_exploration": "human_direction_selection_required",
+        },
+    },
     "automatic_external_submission": False,
 }
 
@@ -1528,12 +1653,88 @@ CONTEXT_PROFILE_POLICY = {
 }
 
 ARTIFACT_COMPLETENESS_POLICY = {
-    "idea_schema": "research-idea.v2",
-    "idea_current_artifact": "complete_markdown_snapshot",
+    "idea_schema": "research-idea.v3",
+    "idea_current_artifact": "complete_markdown_dossier",
     "idea_node_layout": "03_ideas/nodes/<idea-id>",
     "idea_tree_mode": "flat_nodes_with_parent_ids",
-    "idea_legacy_layout_behavior": "layout_migration_required_read_only",
+    "idea_dossier_layout": "03_ideas/nodes/<idea-id>/dossiers/idea-dossier-vNNN.md",
+    "idea_dossier_change_types": ["create", "revise", "evidence_claim_sync", "editorial_reposition"],
+    "idea_index_role": "idea_index",
+    "idea_reference_ledger_role": "reference_ledger",
+    "idea_routing_decision_role": "idea_routing_decision",
+    "idea_legacy_schemas": ["research-idea.v1", "research-idea.v2"],
+    "idea_legacy_layout_behavior": "layout_migration_required_read_only_no_automatic_rewrite",
     "core_identity_drift_behavior": "new_idea_required_no_automatic_branch",
+    "idea_current_dossier_cardinality": {
+        "focused_optimization": 1,
+        "bounded_exploration": {"minimum": 2, "maximum": 3},
+    },
+    "idea_required_dossier_sections": [
+        "title_summary_audience_and_positioning",
+        "structured_abstract",
+        "background_state_gap_significance_and_rationale",
+        "research_question_objectives_and_core_hypotheses",
+        "research_content_and_work_modules",
+        "data_materials_and_existing_evidence_base",
+        "study_design_and_methods",
+        "key_technologies_and_implementation_points",
+        "semi_structured_evidence_chains",
+        "required_analyses_and_evidence",
+        "expected_outputs_falsification_criteria_and_interpretation",
+        "contribution_innovation_impact_applications_and_closest_work",
+        "title_and_positioning_claim_support_table",
+        "feasibility_resources_risks_alternatives_and_stop_conditions",
+        "references",
+    ],
+    "idea_evidence_chain_contract": {
+        "required_fields": [
+            "input",
+            "method_analysis_or_processing",
+            "output",
+            "supported_objective_or_claim",
+            "limitations_and_failure_conditions",
+        ],
+        "every_major_objective_and_hypothesis_has_output": True,
+        "every_output_traces_to_input_and_processing": True,
+        "expected_outputs_must_not_be_presented_as_observed_results": True,
+    },
+    "idea_editorial_repositioning_contract": {
+        "title_audience_and_positioning_changes_allowed": True,
+        "added_work_required_for_supported_repositioning": False,
+        "supported_editorial_repositioning_is_not_identity_drift": True,
+        "editorial_change_creates_new_dossier_version": True,
+        "editorial_change_requires_fresh_evaluation": True,
+        "all_title_and_positioning_claims_must_be_supported_by_implementation": True,
+        "claim_support_states": ["supported", "qualified", "unsupported"],
+        "contribution_frames": ["scientific_discovery", "method", "validation", "replication", "application", "resource", "benchmark", "practical", "translational", "integration", "editorial_repositioning"],
+        "qualified_claims_require_visible_qualifiers": True,
+        "unsupported_claims_forbidden_in_title_summary_and_primary_positioning": True,
+        "similar_work_does_not_automatically_require_new_work": True,
+        "novel_method_data_or_discovery_claim_requires_real_increment": True,
+    },
+    "idea_internal_marker_policy": {
+        "opaque_workflow_markers_forbidden_in_dossier_prose": True,
+        "standard_academic_citations_allowed": True,
+        "user_visible_internal_markers_require_human_label_and_ledger_resolution": True,
+    },
+    "idea_evaluator_project_input_contract": {
+        "allowed_project_artifacts": ["current_complete_idea_dossier_and_digest"],
+        "exact_project_artifact_count": 1,
+        "forbidden_project_artifacts": [
+            "research_context",
+            "evidence_map",
+            "opportunity_map",
+            "preflight_report",
+            "reference_ledger",
+            "prior_dossier",
+            "revision_delta",
+            "anonymous_must_fix_list",
+            "prior_report",
+            "prior_score",
+            "prior_decision",
+        ],
+        "stable_rubric_is_skill_instruction_not_project_artifact": True,
+    },
     "proposal_current_artifact": "complete_proposal",
     "article_schema": "research-article.v6",
     "article_current_artifact": "complete_canonical_markdown",

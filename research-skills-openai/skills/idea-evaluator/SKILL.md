@@ -6,29 +6,45 @@ description: "Independently score and gate frozen ideas for novelty, feasibility
 
 ## Role
 
-Evaluate frozen research ideas against context, evidence/opportunity maps, applicable preflight facts, and user constraints. Do not generate, revise, merge, or rewrite ideas; do not write proposals.
+Evaluate one frozen complete Idea dossier. Do not retrieve, generate, revise,
+merge, package, or write proposals.
 
 ## Independent Execution Contract
 
-- Run only in a fresh independent subagent or delegated thread, never in the context that generated or revised the ideas.
-- Require frozen artifact IDs, paths, and versions. Treat all sources as read-only and write only an evaluation/failure report.
-- Do not draft, rewrite, polish, fix, merge, or modify candidates or source files.
-- Do not read parent hidden reasoning, expected conclusions, prior scores/decisions, or other reviewer outputs.
-- Require the current complete snapshot and matching digest. In re-evaluation, read only that snapshot, the stable rubric, necessary facts, and optionally an anonymized must-fix list; never read prior snapshots or revision deltas.
-- Report exact files read, scope, limitations, and reviewer instance ID.
-- If independent execution is unavailable, return `independent_review_pending` with a self-contained continuation brief and stop; never evaluate inline.
+- Run only in a fresh subagent/delegated thread, never where the Idea was
+  generated or revised.
+- Accept one current complete `idea-dossier-vNNN.md`, bound by ID, version, exact path, and
+  SHA-256, as the only project artifact. Treat it read-only and write only an
+  evaluation/failure report.
+- Do not read context, Evidence/Opportunity Maps, preflight, reference ledger,
+  citation URLs, node/index, prior versions, deltas, must-fix lists, prior
+  scores/decisions, other reviewer output, or parent hidden reasoning.
+- Skill rubric instructions are allowed; they are not project artifacts.
+- Do not edit, rewrite, polish, fix, or replace the dossier.
+- Report the exact project `files_read`; it must contain only the dossier path.
+- If fresh delegation is unavailable, return `independent_review_pending` with
+  a continuation brief and stop. Never evaluate inline.
 
 ## Procedure
 
-1. Validate context, candidate identity, evidence/opportunity coverage, constraints, and required methodology/statistics preflight.
-2. Score 1–5 for Novelty, Feasibility, Impact, Relevance, Clarity, and Completion with evidence-linked rationales; compute the simple unweighted mean.
-3. Apply minimum gates of 3.0 for Feasibility, Relevance, Clarity, and Completion.
-4. Check fatal data, method, measurement, relevance, feasibility, and evidence-gap flaws; fatal findings override a high average.
-5. Record likely reviewer objections and targeted repair directions without generating replacement ideas.
-6. Return one of `promote`, `revise_then_promote`, `revise`, `reframe`, `merge`, `keep_as_backup`, or `reject`.
-7. When evidence is insufficient, downgrade or mark the relevant judgment unverified; when method facts are insufficient, route back to preflight.
+1. Validate isolation, digest, v3 frontmatter/identity, 15 sections, references,
+   evidence chains, and Claim-Support table.
+2. Check each evidence chain for sufficient input, valid transformation,
+   relevant output, traceability to an objective/hypothesis, and overall closure.
+3. Check title/audience/positioning support, actual increments, and qualifiers.
+   Supported editorial repositioning alone is not identity drift.
+4. Score Novelty, Feasibility, Impact, Relevance, Clarity, and Completion from
+   1-5 with dossier-located rationales; compute the unweighted mean.
+5. Apply minimum gates of 3.0 for Feasibility, Relevance, Clarity, and
+   Completion. Fatal flaws override a high mean.
+6. Use conservative or unverified judgments when the dossier lacks sufficient
+   evidence. Do not browse or infer facts from memory.
+7. Return one decision: `promote`, `revise_then_promote`, `revise`, `reframe`,
+   `keep_as_backup`, or `reject`. `reframe` stays within the dossier's identity
+   anchor; historical drift is assessed by the orchestrator. Give repair
+   directions, not replacement prose.
 
-## Review Report Contract
+## Report Contract
 
 ```yaml
 review_id:
@@ -36,42 +52,59 @@ reviewer_skill: idea-evaluator
 reviewer_instance_id:
 workflow_id:
 round_id:
+idea_id:
 input_artifact_ids: []
 input_versions: []
 files_read: []
-review_scope: []
+review_scope: complete_idea_dossier
 isolation_mode: fresh_subagent
 prior_scores_visible: false
-source_edits_performed: false
-reviewed_snapshot_digest: "sha256:"
-complete_snapshot_confirmed: true
-identity_drift_detected: false
 prior_versions_visible: false
 revision_delta_visible: false
-decision:
-findings: []
-unresolved_issues: []
+source_edits_performed: false
+reviewed_dossier_digest: "sha256:"
+complete_dossier_confirmed: true
+dossier_only_input_confirmed: true
+identity_drift_detected: false
+historical_identity_drift_assessed: false
+evidence_chain_checks: {}
+claim_support_checks: {}
 dimension_scores: {}
+overall_score_simple_average:
 hard_gates: {}
 fatal_flaws: []
+decision:
+findings:
+  - title:
+    dossier_locator:
+    severity:
+    rationale:
 repair_directions: []
+limitations: []
+unresolved_issues: []
 ```
 
 ## Conditional Resources
 
-- Read `references/evaluation-input-schema.md` when validating minimum frozen inputs.
-- Read `references/evaluation-output-schema.md` when validating report fields and values.
-- Read `references/evaluation-rubric.md` when scoring the six dimensions.
-- Read `references/evaluation-policy.md` when applying averages, gates, fatal-flaw rules, and decisions.
-- Read `references/evidence-limitation-rules.md` when novelty, gap, clinical, or guideline evidence is incomplete.
-- Read `references/evaluator-isolation-policy.md` when validating fresh-instance separation.
-- Read `references/downstream-handoff-rules.md` before returning the report to the orchestrator.
-- Read `research-idea-orchestrator/references/artifact-contracts.md` when validating artifact lineage.
-- Read `research-idea-orchestrator/references/idea-artifact-lifecycle.md` when validating snapshot completeness, digest visibility, or identity preservation.
+- Read `references/evaluation-input-schema.md` when validating inputs.
+- Read `references/evaluator-isolation-policy.md` when validating isolation.
+- Read `research-idea-orchestrator/references/idea-dossier-contract.md` when
+  validating sections, evidence chains, and Claim-Support rows.
+- Read `references/evaluation-rubric.md` when scoring dimensions.
+- Read `references/evaluation-policy.md` when applying gates or decisions.
+- Read `references/evidence-limitation-rules.md` when dossier support is weak.
+- Read `references/evaluation-output-schema.md` before writing the report.
+- Read `references/downstream-handoff-rules.md` before return.
+- Read `research-idea-orchestrator/references/idea-artifact-lifecycle.md` for
+  digest, identity, and version gates.
+- Read `research-idea-orchestrator/references/if10-evaluation-gate.md` only when
+  the brief records the user's explicit high-impact aspiration request.
 - Read `research-idea-orchestrator/references/handoff-validation.md` before handoff.
-- Use `templates/idea-evaluation-report.md` for a completed evaluation.
-- Use `templates/evaluation-failure-report.md` when input or isolation is insufficient.
+- Use `templates/idea-evaluation-report.md` on success.
+- Use `templates/evaluation-failure-report.md` on insufficiency.
 
 ## Completion Check
 
-Confirm six scores and simple average, all gates/fatal flaws, evidence limits, one decision, exact current digest, complete-snapshot and identity checks, forbidden-history blindness, and unchanged sources.
+Confirm one project file, exact digest, complete dossier, closed evidence chains,
+supported title/positioning, six scores/mean/gates, readable located findings,
+one decision, hidden history, fresh isolation, and unchanged sources.

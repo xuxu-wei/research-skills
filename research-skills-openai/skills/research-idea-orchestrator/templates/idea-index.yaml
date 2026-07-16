@@ -1,0 +1,31 @@
+idea_index:
+  schema_version: research-idea.v3
+  plugin_version:
+  artifact_id: idea-index-v001
+  workflow_id:
+  round_id: round-001
+  source_skill: research-idea-orchestrator
+  created_round: 1
+  based_on: []
+  change_type: create
+  frozen: true
+  route_profile: focused_optimization | bounded_exploration
+  ideas:
+    - idea_id: I01-001
+      dossier_id: idea-dossier-I01-001-v001
+      parent_idea_ids: []
+      lineage_id:
+      node_path: 03_ideas/nodes/I01-001/node.yaml
+      dossier_path: 03_ideas/nodes/I01-001/dossiers/idea-dossier-v001.md
+      dossier_version: v001
+      dossier_digest: "sha256:"
+      reference_ledger_path: 03_ideas/nodes/I01-001/references/reference-ledger.md
+      route_profile: focused_optimization | bounded_exploration
+      remap_status: not_required | required | complete | structural_revision_required
+      status: draft
+  overall_remap_status: not_required | required | complete | structural_revision_required
+  downstream_needs:
+    methodology_statistics_preflight: []
+    isolated_independent_evaluation: required
+
+# Do not copy dossier prose into this index.

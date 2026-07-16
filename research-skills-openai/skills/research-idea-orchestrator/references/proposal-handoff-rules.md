@@ -21,7 +21,10 @@ A promoted idea package should include:
 
 Mark an idea as ready for proposal workflow only when:
 
-- an independent `idea-evaluator` recommends `promote` or `revise_then_promote`;
+- its route is `focused_optimization`, including a direction that the user
+  selected from bounded exploration and explicitly resumed as focused work;
+- a fresh independent `idea-evaluator` recommends `promote`; a
+  `revise_then_promote` dossier must first be revised and freshly re-evaluated;
 - no unresolved fatal flaw blocks drafting;
 - evidence limitations are explicit;
 - endpoint/metric and data/method path are clear enough for `proposal-readiness-triage`;
@@ -37,6 +40,7 @@ Do not hand off directly to proposal drafting when:
 - the idea remains too broad and should return to `multi-path-idea-generator` or `idea-evaluator`;
 - adversarial review finds a blocking novelty, feasibility, strategy, or reviewer-defensibility objection;
 - critical user choices would change the research direction.
+- the bounded-exploration directions have not yet received a human selection.
 
 ## Handoff Target
 

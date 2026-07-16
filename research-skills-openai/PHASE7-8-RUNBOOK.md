@@ -4,7 +4,9 @@ Status: active personal-owner procedure
 
 Plugin: `research-skills-openai`
 
-Maintained source version: `0.8.0-preview.1`
+Maintained source version: `0.9.0-preview.1`
+
+Deterministic status: `deterministic_validated`; private owner observation is pending.
 
 This runbook validates the plugin for one owner's research work. It does not
 create a public-release, external-attestation, or provider-verification claim.
@@ -31,7 +33,7 @@ configuration currently contains:
 - plugin `research-skills-openai@xuxu-research-preview`, enabled; and
 - installed cache last observed as `0.7.0-preview.2`.
 
-The maintained source is `0.8.0-preview.1`, but that version has not yet been
+The maintained source is `0.9.0-preview.1`, but that version has not yet been
 owner-observed after marketplace upgrade/reinstall. The older cache does not
 validate the current source; run the upgrade after this version is pushed.
 
@@ -55,7 +57,7 @@ python scripts/test_openai_phase8_corpus.py --check-report
 python scripts/test_validate_openai_personal_readiness.py
 python scripts/validate_openai_personal_readiness.py --check-report
 python scripts/codex_plugin_converter.py --mode codex --fail-on-invalid
-python C:\Users\10149\.codex\skills\.system\plugin-creator\scripts\validate_plugin.py research-skills-openai
+python "$env:USERPROFILE\.codex\skills\.system\plugin-creator\scripts\validate_plugin.py" research-skills-openai
 ```
 
 Required deterministic baseline:
@@ -64,6 +66,8 @@ Required deterministic baseline:
 - seven declared entries and six implicit entries;
 - Research Polisher fixed to explicit-only personal routing;
 - five workflows and 17/17 entry modes;
+- `research-idea.v3` complete Dossiers, adaptive direction routing, readable
+  reference ledgers, and dossier-only Idea evaluator inputs pass their P0 guards;
 - Phase 4: 5/5 workflows and 63 negative guards;
 - Phase 8: 20/20 cases, false-ready zero, and all maintained quality metrics at 100%; and
 - zero plugin-audit errors or warnings.
@@ -96,9 +100,19 @@ version cache. A repository checkout or old task does not count.
 
 ## 5. Owner-observed receipt rules
 
-Use
-`../tests/openai_personal/current-version-owner-observed-receipts.yaml` as the
-current collection. Each completed slot must change from
+Keep the tracked
+`../tests/openai_personal/current-version-owner-observed-receipts.yaml` as an
+all-pending schema template. On first use, create a private ignored copy from
+the repository root:
+
+```powershell
+$privateReceipts = "tests/article/.phase7-8-runs/local-owner-observed-receipts.yaml"
+New-Item -ItemType Directory -Force (Split-Path $privateReceipts) | Out-Null
+Copy-Item tests/openai_personal/current-version-owner-observed-receipts.yaml $privateReceipts
+```
+
+Record observations only in `$privateReceipts`; never stage or commit it. Each
+completed slot must change from
 `pending_owner_observation` to `owner_observed` and record:
 
 - task ID and plugin version;
@@ -110,7 +124,8 @@ current collection. Each completed slot must change from
 - actual outcome matching the slot contract; and
 - explicit owner confirmation.
 
-Do not mark a receipt observed from a prompt, fixture, screenshot, filename, or
+Do not copy task IDs or private bindings back into the tracked template. Do not
+mark a receipt observed from a prompt, fixture, screenshot, filename, or
 repository-authored status alone.
 
 ## 6. Phase 7 workflow slots
@@ -119,7 +134,7 @@ Run one current-version happy path for each workflow:
 
 | Slot | Expected outcome |
 |---|---|
-| Idea | `human_signoff_required` |
+| Idea (clear supported direction / focused profile) | `human_signoff_required` |
 | Proposal | `human_signoff_required` |
 | Article | `human_signoff_required` |
 | Perspective | `human_signoff_required` |
@@ -131,6 +146,8 @@ For each accepted happy path:
 - reviewers read frozen inputs and write only review or verification reports;
 - substantive revisions create a new artifact version;
 - the final evaluator reviews the current version;
+- the Idea evaluator reads exactly one current complete Dossier, and every major
+  Idea evidence chain identifies its input, method/analysis/processing, and output;
 - unresolved findings and dissent remain visible; and
 - no external submission occurs.
 
@@ -199,11 +216,19 @@ python scripts/validate_openai_personal_readiness.py --write-report
 python scripts/validate_openai_personal_readiness.py --check-report
 ```
 
+Those commands use the tracked all-pending template and keep the public report
+free of private bindings. Validate real local progress without rewriting the
+tracked report:
+
+```powershell
+python scripts/validate_openai_personal_readiness.py --receipts $privateReceipts
+```
+
 Pending observations are valid while work remains. To assert final personal
 readiness, run:
 
 ```powershell
-python scripts/validate_openai_personal_readiness.py --require-ready
+python scripts/validate_openai_personal_readiness.py --receipts $privateReceipts --require-ready
 ```
 
 `--require-ready` must fail until the distribution slot, five workflow slots,

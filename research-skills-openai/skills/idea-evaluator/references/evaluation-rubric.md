@@ -1,27 +1,60 @@
-# Evaluation Rubric
+# Idea Evaluation Rubric
 
-六维评价标准。
+Use this canonical rubric for one frozen, complete v3 dossier. Score only the
+dossier; do not browse, retrieve project context, or reconstruct missing facts.
 
-## Novelty
+## Scale
 
-是否存在可辩护的新意，gap claim 是否受 evidence 支持。
+Use integer scores from 1 to 5:
 
-## Feasibility
+- `1`: invalid or critically deficient;
+- `2`: major weaknesses;
+- `3`: defensible but requires repair;
+- `4`: strong and ready for the next gated step;
+- `5`: unusually strong, coherent, and well supported.
 
-在数据、方法、时间和资源约束下是否可执行。
+Compute the unweighted mean of all six dimensions.
 
-## Impact
+## Dimensions
 
-结果是否具有科学、临床、工程、方法学或实践价值。
+- **Novelty:** The stated contribution is distinguishable from closest work and
+  supported by citations and evidence chains. Honest replication, validation,
+  application, translation, integration, resource, or audience value may be
+  strong without a novel method or dataset.
+- **Feasibility:** Inputs, access, methods, resources, dependencies, and stop
+  conditions make every major work package executable.
+- **Impact:** The supported outputs could create meaningful scientific,
+  practical, methodological, translational, or dissemination value. Audience
+  breadth counts only when the implementation supports the positioning claim.
+- **Relevance:** The question, contribution, audience, and output align with the
+  user's stated goal and constraints.
+- **Clarity:** Question, objectives, hypothesis, design, evidence chains,
+  expected outputs, and claim boundaries are precise and mutually consistent.
+- **Completion:** The dossier is self-contained, all 15 sections are substantive,
+  references resolve, evidence chains close, and risks and required work are explicit.
 
-## Relevance
+## Hard gates
 
-是否符合用户目标、研究领域、目标产出和实际约束。
+Feasibility, Relevance, Clarity, and Completion must each be at least `3.0`.
+Any fatal flaw overrides the mean. Fatal examples include an unanswerable
+question, unusable core input, method-question mismatch, unsupported primary
+title/positioning claim, irreparable evidence-chain break, or infeasible
+dependency.
 
-## Clarity
+## Decision anchors
 
-research question、hypothesis、endpoint/metric、data source 和 method route 是否清楚。
+- `promote`: mean >= 4.2 and every gate passes.
+- `revise_then_promote`: mean >= 3.6 and < 4.2, every gate passes, and repairs are bounded.
+- `revise` or `reframe`: mean >= 3.0 and < 3.6, or a fixable gate failure.
+- `keep_as_backup`: mean >= 2.5 and < 3.0 with a defensible non-priority route.
+- `reject`: mean < 2.5 or an unfixable/fatal flaw.
 
-## Completion
+Under dossier-only v3 evaluation, do not choose `merge`: no other Idea is an
+allowed input. If a proposed repair would replace an identity anchor, set
+`identity_drift_detected: true`; the orchestrator returns `new_idea_required`
+and must not auto-fork or merge.
 
-idea 当前是否完整到足以支持下一步 refine、preflight 或 proposal handoff。
+Each score and finding must cite a human-readable dossier heading, table row,
+or evidence-chain title. Do not use internal markers as evidence. Record a
+finding `title`, `dossier_locator`, severity, and rationale, then provide bounded
+repair directions without replacement prose.

@@ -409,7 +409,7 @@ def default_external_evidence(version: str) -> dict[str, Any]:
                 "local": pending(
                     "The bundled canonical validator has not yet been recorded for this tree.",
                     command=(
-                        "python C:/Users/10149/.codex/skills/.system/plugin-creator/"
+                        "python $CODEX_HOME/skills/.system/plugin-creator/"
                         "scripts/validate_plugin.py research-skills-openai"
                     ),
                     validator_source="Codex bundled plugin-creator skill",

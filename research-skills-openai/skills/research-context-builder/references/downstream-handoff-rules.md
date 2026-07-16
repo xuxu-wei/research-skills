@@ -1,56 +1,18 @@
 # Downstream Handoff Rules
 
-## General Rule
+- Require evidence/opportunity mapping when generating or refining an Idea,
+  when novelty/value matters, or when the domain is current or clinical.
+- Require direction routing after mapping. The context builder supplies only
+  clarity; the mapper supplies evidence-grounded value/confidence/directions.
+- Require dossier generation for a new Idea or any substantive revision. Do not
+  preselect one versus multiple directions here.
+- Require methodology/statistics preflight for unclear endpoints, uncertain
+  data-method fit, or clinical, observational, causal, predictive,
+  experimental, benchmark, or statistical work.
+- Require isolated evaluation for any score, gate, readiness, or value decision.
+  It occurs only after the writer has embedded all necessary facts and citations
+  in a complete dossier.
+- Require Proposal triage only when the user requests a proposal and a qualifying
+  focused Idea exists. Bounded exploration must first stop for human selection.
 
-`research-context-builder` does not execute downstream tasks. It marks downstream needs so the orchestrator can route the workflow.
-
-## Evidence / Opportunity Mapping
-
-Mark `evidence_opportunity_mapping: required` when:
-
-- the user asks to generate or refine ideas;
-- novelty, guideline alignment, or evidence grounding matters;
-- literature materials are provided;
-- the task is clinical, biomedical, or rapidly changing;
-- the context includes a broad direction rather than a mature idea.
-
-Mark `optional` when the user only needs context normalization.
-
-## Multi-Path Idea Generation
-
-Mark `multi_path_idea_generation: required` when:
-
-- the user requests new ideas;
-- the input is a broad direction or problem space;
-- existing ideas are too few or too vague.
-
-Mark `optional` when the user provides a concrete raw idea.
-
-## Methodology / Statistics Preflight
-
-Mark `methodology_statistics_preflight: required` when:
-
-- endpoint/metric status is unclear or partially clear;
-- the data source is uncertain;
-- the idea involves clinical, biomedical, observational, causal, predictive, experimental, or statistical analysis;
-- method-data fit is likely to determine feasibility.
-
-## Isolated Independent Evaluation
-
-Mark `isolated_independent_evaluation: required` when:
-
-- the user asks whether an idea is worth pursuing;
-- the user asks for scoring, ranking, triage, promote/reject, reviewer objections, or feasibility judgment;
-- an orchestrator needs a gate decision.
-
-Evaluation must be assigned by the orchestrator to an isolated, independent `idea-evaluator` subagent. The context-building agent must not evaluate.
-
-## Proposal-Orchestrator Triage
-
-Mark `proposal_orchestrator_triage: required` when:
-
-- the user asks to write a proposal, SAP, protocol, or grant;
-- the user provides a promoted idea package;
-- the user wants to determine proposal readiness.
-
-If the idea is raw or vague, route through research-idea workflow before proposal drafting.
+This skill marks needs; the orchestrator owns all routing and state changes.

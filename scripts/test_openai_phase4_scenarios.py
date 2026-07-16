@@ -33,6 +33,24 @@ FIXTURE_NAMES = (
     "perspective.yaml",
     "research-polisher.yaml",
 )
+BOUNDED_IDEA_FIXTURE = "idea-bounded-exploration.yaml"
+IDEA_DOSSIER_SECTIONS = (
+    "Title, summary, audience, and positioning",
+    "Structured abstract",
+    "Background, current state, gap, significance, and rationale",
+    "Research question, objectives, and core hypothesis",
+    "Research content and work packages",
+    "Data, materials, and existing evidence base",
+    "Research design and methods",
+    "Key techniques and implementation",
+    "Evidence chains",
+    "Required analyses and evidence",
+    "Expected outputs, falsification criteria, and interpretations",
+    "Contribution, innovation, impact, application, and closest-work comparison",
+    "Title and positioning claim-support table",
+    "Feasibility, resources, risks, alternatives, and stop conditions",
+    "References",
+)
 LIVE_RECEIPT_PATH = FIXTURE_ROOT / "live-forward-test-receipts.yaml"
 PANEL_SKILLS = {
     "idea": "idea-adversarial-review-panel",
@@ -224,6 +242,37 @@ class ScenarioEngine:
     def artifact_has_role(self, artifact: dict[str, Any], role: str) -> bool:
         return self.canonical_artifact_role(str(artifact.get("artifact_role", ""))) == role
 
+    def direction_profile(self) -> str | None:
+        if self.workflow != "idea":
+            return None
+        return str(self.fixture.get("direction_profile", "focused_optimization"))
+
+    def post_evaluation_panel_required(self) -> bool:
+        if self.workflow != "idea":
+            return self.machine.get("post_evaluation_panel_required", True)
+        profile = self.machine.get("internal_direction_profiles", {}).get(
+            self.direction_profile(), {}
+        )
+        if self.direction_profile() == "bounded_exploration":
+            return bool(profile.get("adversarial_panel_required_before_direction_selection", False))
+        return bool(profile.get("adversarial_panel_required_before_handoff", True))
+
+    def expected_final_state(self) -> str:
+        conditional = self.contract.get("workflow_conditional_final_states", {}).get(
+            self.workflow, {}
+        )
+        profile = self.direction_profile()
+        if profile in conditional:
+            return str(conditional[profile])
+        return str(
+            self.machine.get(
+                "final_state",
+                self.contract.get("workflow_final_states", {}).get(
+                    self.workflow, "human_signoff_required"
+                ),
+            )
+        )
+
     @staticmethod
     def polisher_decision_state(skill_name: str, decision: str) -> str:
         routes = {
@@ -315,7 +364,7 @@ class ScenarioEngine:
             "panel_contract",
             "mandatory panel role missing",
         )
-        panel_required = self.machine.get("post_evaluation_panel_required", True)
+        panel_required = self.post_evaluation_panel_required()
         if not panel_required:
             require(
                 panel["mode"] == "not_applicable"
@@ -498,6 +547,9 @@ class ScenarioEngine:
         artifact["path"] = safe_relative(artifact["path"])
         if self.workflow == "idea":
             self.validate_idea_artifact_path(artifact)
+            if self.canonical_artifact_role(artifact["artifact_role"]) == "idea_dossier":
+                allowed_change_types = set(self.registry["artifact_completeness_policy"]["idea_dossier_change_types"])
+                require(artifact.get("change_type") in allowed_change_types, "idea_dossier_change_type", str(artifact.get("change_type")))
         elif self.workflow == "research_polisher":
             self.validate_polisher_artifact_path(artifact)
         require(artifact["artifact_id"] not in self.artifacts, "duplicate_artifact_id", artifact["artifact_id"])
@@ -727,15 +779,36 @@ class ScenarioEngine:
     def validate_idea_artifact_path(self, artifact: dict[str, Any]) -> None:
         role = self.canonical_artifact_role(artifact["artifact_role"])
         folder_by_role = {
-            "candidate_idea_set": "snapshots",
+            "idea_dossier": "dossiers",
             "evaluation_report": "reviews",
             "revision_plan": "revisions",
             "revision_delta": "revisions",
             "panel_report": "adversarial",
         }
         path = Path(artifact["path"])
+        if role == "idea_index":
+            require(
+                path.parent == Path("03_ideas") and path.name.startswith("idea-index-v"),
+                "idea_artifact_path",
+                artifact["path"],
+            )
+            return
         if role == "final_handoff_package":
             require(path.parts[0] == "04_portfolio", "idea_artifact_path", artifact["path"])
+            return
+        if role == "reference_ledger":
+            require(
+                len(path.parts) == 5
+                and path.parts[:2] == ("03_ideas", "nodes")
+                and path.parts[3] == "references"
+                and path.name == "reference-ledger.md",
+                "idea_artifact_path",
+                artifact["path"],
+            )
+            node_id = path.parts[2]
+            if self.idea_node_id is None:
+                self.idea_node_id = node_id
+            require(node_id == self.idea_node_id, "idea_artifact_path", "Idea artifacts span nodes")
             return
         folder = folder_by_role.get(role)
         if folder is None:
@@ -751,8 +824,8 @@ class ScenarioEngine:
         if self.idea_node_id is None:
             self.idea_node_id = node_id
         require(node_id == self.idea_node_id, "idea_artifact_path", "Idea artifacts span nodes")
-        if role == "candidate_idea_set":
-            require(path.name.startswith("idea-snapshot-v"), "idea_artifact_path", artifact["path"])
+        if role == "idea_dossier":
+            require(path.name.startswith("idea-dossier-v"), "idea_artifact_path", artifact["path"])
 
     def validate_polisher_artifact_path(self, artifact: dict[str, Any]) -> None:
         path = Path(artifact["path"])
@@ -1812,19 +1885,31 @@ class ScenarioEngine:
             self.validate_polisher_evaluation_report(event, report)
 
         if self.workflow == "idea" and destination == self.machine["evaluator_skill"]:
-            snapshots = [
+            dossiers = [
                 self.artifacts[item]
                 for item in event["input_artifact_ids"]
                 if self.artifact_has_role(self.artifacts[item], self.machine["primary_artifact_type"])
             ]
-            require(len(snapshots) == 1, "idea_snapshot_binding", event["event_id"])
-            snapshot = snapshots[0]
-            if report.get("reviewed_snapshot_digest") == "computed":
-                report["reviewed_snapshot_digest"] = snapshot["content_digest"]
+            require(len(dossiers) == 1, "idea_dossier_binding", event["event_id"])
+            dossier = dossiers[0]
+            expected_path = dossier["path"]
             require(
-                report.get("reviewed_snapshot_digest") == snapshot["content_digest"]
-                and report.get("complete_snapshot_confirmed") is True,
-                "idea_snapshot_binding",
+                event["input_artifact_ids"] == [dossier["artifact_id"]]
+                and event["input_versions"] == [dossier["version_id"]]
+                and event["allowed_read_paths"] == [expected_path]
+                and report["input_artifact_ids"] == [dossier["artifact_id"]]
+                and report["input_versions"] == [dossier["version_id"]]
+                and report["files_read"] == [expected_path],
+                "idea_dossier_only_input",
+                event["event_id"],
+            )
+            if report.get("reviewed_dossier_digest") == "computed":
+                report["reviewed_dossier_digest"] = dossier["content_digest"]
+            require(
+                report.get("reviewed_dossier_digest") == dossier["content_digest"]
+                and report.get("complete_dossier_confirmed") is True
+                and report.get("dossier_only_input_confirmed") is True,
+                "idea_dossier_binding",
                 event["event_id"],
             )
             require(
@@ -1832,6 +1917,11 @@ class ScenarioEngine:
                 and report.get("prior_versions_visible") is False
                 and report.get("revision_delta_visible") is False,
                 "forbidden_review_input",
+                event["event_id"],
+            )
+            require(
+                all(finding.get("title") and finding.get("dossier_locator") for finding in report["findings"]),
+                "idea_finding_locator",
                 event["event_id"],
             )
 
@@ -1986,10 +2076,16 @@ class ScenarioEngine:
                     require(self.panel_complete, "panel_gate", "panel patch lacks completed panel")
                     self.transition("packaging_pending", "panel_patch_latest_version_accepted", event["event_id"])
                     self.panel_patch_pending = False
-                elif not self.machine.get("post_evaluation_panel_required", True):
+                elif not self.post_evaluation_panel_required():
+                    trigger = (
+                        "bounded_exploration_reviews_complete"
+                        if self.workflow == "idea"
+                        and self.direction_profile() == "bounded_exploration"
+                        else "latest_strategy_portfolio_accepted"
+                    )
                     self.transition(
                         "packaging_pending",
-                        "latest_strategy_portfolio_accepted",
+                        trigger,
                         event["event_id"],
                     )
                 else:
@@ -2118,7 +2214,7 @@ class ScenarioEngine:
         qualifying = event.get("qualifying_evaluation_version", self.latest_evaluated_version)
         require(qualifying == self.current_primary["version_id"], "stale_evaluation", f"{qualifying} != {self.current_primary['version_id']}")
         require(self.latest_evaluated_version == self.current_primary["version_id"], "stale_evaluation", event["event_id"])
-        if self.machine.get("post_evaluation_panel_required", True):
+        if self.post_evaluation_panel_required():
             require(self.panel_complete, "panel_gate", event["event_id"])
         require(not self.fatal_ids, "fatal_gate_bypassed", event["event_id"])
         require(set(event.get("preserved_dissent_ids", [])) >= self.dissent_ids, "dissent_not_preserved", event["event_id"])
@@ -2140,6 +2236,12 @@ class ScenarioEngine:
             event["event_id"],
         )
         current_ref = f"{self.current_primary['artifact_id']}@{self.current_primary['version_id']}"
+        direction_profile = self.fixture.get("direction_profile", "focused_optimization")
+        current_dossier_count = len([
+            artifact
+            for artifact in input_artifacts
+            if self.canonical_artifact_role(artifact["artifact_role"]) == "idea_dossier"
+        ])
         for requirement in contract["required_inputs"]:
             matches = [
                 artifact
@@ -2155,11 +2257,36 @@ class ScenarioEngine:
                     or artifact["source_skill"] in set(requirement["source_skills"])
                 )
             ]
+            required_profile = requirement.get("required_when_direction_profile")
+            if required_profile and required_profile != direction_profile:
+                require(not matches, "package_input_contract", f"{event['event_id']}: {requirement}")
+                continue
+            profile_counts = requirement.get("count_by_direction_profile", {})
+            if direction_profile in profile_counts:
+                expected = profile_counts[direction_profile]
+                if isinstance(expected, int):
+                    require(len(matches) == expected, "package_input_contract", f"{event['event_id']}: {requirement}")
+                else:
+                    require(
+                        expected["minimum"] <= len(matches) <= expected["maximum"],
+                        "package_input_contract",
+                        f"{event['event_id']}: {requirement}",
+                    )
             if requirement.get("count_from_panel_roles"):
                 expected_count = len(self.fixture["panel"]["required_roles"])
                 require(len(matches) == expected_count, "package_input_contract", f"{event['event_id']}: {requirement}")
             elif "minimum_count" in requirement:
                 require(len(matches) >= requirement["minimum_count"], "package_input_contract", f"{event['event_id']}: {requirement}")
+                if "maximum_count" in requirement:
+                    require(len(matches) <= requirement["maximum_count"], "package_input_contract", f"{event['event_id']}: {requirement}")
+            elif requirement.get("count_per_current_idea_node") is not None:
+                require(
+                    len(matches) == current_dossier_count * requirement["count_per_current_idea_node"],
+                    "package_input_contract",
+                    f"{event['event_id']}: {requirement}",
+                )
+            elif requirement.get("count_must_equal_current_idea_dossier_count"):
+                require(len(matches) == current_dossier_count, "package_input_contract", f"{event['event_id']}: {requirement}")
             else:
                 require(len(matches) == requirement["count"], "package_input_contract", f"{event['event_id']}: {requirement}")
             require(all(artifact["frozen"] is True for artifact in matches), "package_input_contract", event["event_id"])
@@ -2174,8 +2301,17 @@ class ScenarioEngine:
                 require({artifact["artifact_id"] for artifact in matches} == all_created, "package_input_contract", event["event_id"])
             if requirement.get("current_primary"):
                 require(
-                    matches[0]["artifact_id"] == self.current_primary["artifact_id"]
-                    and matches[0]["version_id"] == self.current_primary["version_id"],
+                    any(
+                        artifact["artifact_id"] == self.current_primary["artifact_id"]
+                        and artifact["version_id"] == self.current_primary["version_id"]
+                        for artifact in matches
+                    ),
+                    "package_input_contract",
+                    event["event_id"],
+                )
+            if requirement.get("current_primary_lineage"):
+                require(
+                    any(current_ref in artifact.get("based_on", []) for artifact in matches),
                     "package_input_contract",
                     event["event_id"],
                 )
@@ -2262,11 +2398,15 @@ class ScenarioEngine:
         observation = self.materialize_outputs(event, outputs, None)
         self.validate_package_output_lineage(event, outputs)
         self.writer_instances.add(event["actor_instance_id"])
-        final_state = self.machine.get("final_state", "human_signoff_required")
+        final_state = self.expected_final_state()
         trigger = (
             "selection_dossier_verified"
             if final_state == "human_strategy_selection_required"
-            else "package_verified"
+            else (
+                "bounded_exploration_comparison_handoff_verified"
+                if final_state == "human_direction_selection_required"
+                else "package_verified"
+            )
         )
         self.transition(final_state, trigger, event["event_id"])
         return observation
@@ -2420,7 +2560,7 @@ def mutate_fixture(fixture: dict[str, Any], mutation: str) -> None:
         and any(
             item["artifact_role"]
             in {
-                "candidate_idea_set",
+                "idea_dossier",
                 "proposal",
                 "manuscript",
                 "perspective",
@@ -2599,10 +2739,10 @@ def mutate_fixture(fixture: dict[str, Any], mutation: str) -> None:
         index = event["input_artifact_ids"].index("ideas-v2")
         event["input_artifact_ids"][index] = "ideas-v1"
         event["input_versions"][index] = "v001"
-        event["allowed_read_paths"][index] = "03_ideas/nodes/idea-001/snapshots/idea-snapshot-v001.md"
+        event["allowed_read_paths"][index] = "03_ideas/nodes/idea-001/dossiers/idea-dossier-v001.md"
         event["review_report"]["input_artifact_ids"][index] = "ideas-v1"
         event["review_report"]["input_versions"][index] = "v001"
-        event["review_report"]["files_read"][index] = "03_ideas/nodes/idea-001/snapshots/idea-snapshot-v001.md"
+        event["review_report"]["files_read"][index] = "03_ideas/nodes/idea-001/dossiers/idea-dossier-v001.md"
         event["outputs"][0]["based_on"] = ["ideas-v1@v001"]
     elif mutation == "sap_evaluator_unbound":
         event = next(event for event in reviews if event["destination_skill"] == "sap-evaluator")
@@ -3320,6 +3460,311 @@ def validate_live_forward_test_receipts(registry: dict[str, Any]) -> tuple[list[
     return summaries, counts
 
 
+def render_bounded_idea_dossier(node: dict[str, Any], version: dict[str, Any], plugin_version: str) -> str:
+    title = str(node["title"])
+    objective = str(node["objective"])
+    work_package = str(node["work_package"])
+    chain_output = str(node["output"])
+    content = {
+        IDEA_DOSSIER_SECTIONS[0]: "\n".join((
+            f"- **Title:** {title}",
+            f"- **One-sentence complete-Idea summary:** This complete Idea will {objective.lower()} and keep {node['qualifier']} visible.",
+            "- **Primary audience:** Researchers evaluating reproducible clinical or methodological evidence.",
+            f"- **Positioning and contribution frame:** {node['contribution_frame']}.",
+        )),
+        IDEA_DOSSIER_SECTIONS[1]: "\n".join((
+            "- **Background and gap:** Prior work leaves a bounded validation or benchmark gap.",
+            f"- **Objective and hypothesis:** {objective}; test rather than assume the prespecified hypothesis.",
+            f"- **Approach:** {node['method']}.",
+            f"- **Expected result:** {chain_output}.",
+            f"- **Contribution and impact:** A reproducible {node['contribution_frame']} package for the stated audience.",
+        )),
+        IDEA_DOSSIER_SECTIONS[2]: "Prior work motivates the direction but leaves a bounded validation or comparison gap (Smith et al. 2024).",
+        IDEA_DOSSIER_SECTIONS[3]: f"### Objective: {objective}\n\n### Core hypothesis: the prespecified workflow yields interpretable estimates\nThe hypothesis is tested rather than assumed.",
+        IDEA_DOSSIER_SECTIONS[4]: f"### Work package: {work_package}\nExecute the bounded work package without changing the core question.",
+        IDEA_DOSSIER_SECTIONS[5]: str(node["input"]),
+        IDEA_DOSSIER_SECTIONS[6]: str(node["method"]),
+        IDEA_DOSSIER_SECTIONS[7]: "Versioned preprocessing, prespecified quality control, uncertainty estimation, and reproducible reporting.",
+        IDEA_DOSSIER_SECTIONS[8]: "\n".join((
+            f"### Evidence chain: {work_package}",
+            f"- **Input:** {node['input']}.",
+            f"- **Method / analysis / processing:** {node['method']}.",
+            f"- **Output:** {chain_output}.",
+            f"- **Supports:** Objective: {objective}; Core hypothesis: the prespecified workflow yields interpretable estimates; Work package: {work_package}.",
+            "- **Limits and failure conditions:** Stop or qualify the claim if calibration, robustness, identifiability, or transportability fails.",
+        )),
+        IDEA_DOSSIER_SECTIONS[9]: "Complete the prespecified primary analysis, uncertainty estimates, sensitivity analysis, and evidence-to-claim check.",
+        IDEA_DOSSIER_SECTIONS[10]: "Expected outputs are estimates with uncertainty; failure to meet prespecified criteria falsifies the broad positioning claim.",
+        IDEA_DOSSIER_SECTIONS[11]: "The contribution is a bounded validation or benchmark with an explicit audience and closest-work comparison, not an unsupported discovery claim.",
+        IDEA_DOSSIER_SECTIONS[12]: "\n".join((
+            "| Title or positioning claim | Contribution frame / claim type | Existing implementation that supports it | Supporting evidence-chain output | Literature or existing-result basis | Actual increment, or `none` | Support status | Required qualifier |",
+            "|---|---|---|---|---|---|---|---|",
+            f"| {title} | {node['contribution_frame']} | Research content and work packages > {work_package} | {chain_output}. | Smith et al. (2024) plus the prespecified work package | {chain_output} | supported | {node['qualifier']} |",
+        )),
+        IDEA_DOSSIER_SECTIONS[13]: "Use only frozen assets and prespecified analyses; stop if required variables, sample support, or quality controls are unavailable.",
+        IDEA_DOSSIER_SECTIONS[14]: "Smith J, Lee K. Reproducible validation and benchmarking. Journal of Methods. 2024;1:1-10. https://doi.org/10.1000/example.",
+    }
+    lines = [
+        "---", "schema_version: research-idea.v3", f"plugin_version: {plugin_version}",
+        f"artifact_id: {version['artifact_id']}", f"idea_id: {node['node_id']}",
+        f"version_id: {version['version_id']}", f"change_type: {version['stage']}",
+        "source_skill: multi-path-idea-generator", "created_round: 1", "frozen: true", "---", "",
+        f"# {title}", "",
+    ]
+    for heading in IDEA_DOSSIER_SECTIONS:
+        lines.extend((f"## {heading}", "", content[heading], ""))
+    return "\n".join(lines)
+
+
+def parse_reference_ledger_payload(text: str) -> dict[str, dict[str, str]]:
+    rows = [line.strip() for line in text.splitlines() if line.strip().startswith("|")]
+    require(len(rows) >= 3, "bounded_ledger_payload", "reference ledger table missing")
+    headers = [cell.strip() for cell in rows[0].strip("|").split("|")]
+    expected = ["Internal ID", "Type", "Human-readable label", "Definition artifact", "Original source", "Locator", "Version/status"]
+    require(headers == expected, "bounded_ledger_payload", str(headers))
+    entries: dict[str, dict[str, str]] = {}
+    for row in rows[2:]:
+        cells = [cell.strip() for cell in row.strip("|").split("|")]
+        require(len(cells) == len(expected), "bounded_ledger_payload", row)
+        entry = dict(zip(expected, cells))
+        internal_id = entry["Internal ID"]
+        require(internal_id and internal_id not in entries, "bounded_ledger_payload", internal_id)
+        require(all(entry[field] for field in expected[2:]), "bounded_ledger_payload", internal_id)
+        entries[internal_id] = entry
+    return entries
+
+
+def validate_bounded_idea_fixture(fixture: dict[str, Any], registry: dict[str, Any], workspace: Path) -> dict[str, Any]:
+    profile = fixture.get("direction_profile")
+    require(fixture.get("workflow") == "idea" and profile == "bounded_exploration", "bounded_direction_profile", str(profile))
+    machine = registry["workflow_state_machines"]["idea"]
+    bounds = machine["internal_direction_profiles"][profile]["current_dossier_count"]
+    dispatch_contract = machine["evaluation_dispatch_by_direction_profile"][profile]
+    require(
+        dispatch_contract.get("eligible_artifact") == "terminal_current_idea_dossier_only"
+        and dispatch_contract.get("initial_or_pre_remap_dossier_evaluation_forbidden") is True,
+        "bounded_evaluator_dispatch_contract",
+        str(dispatch_contract),
+    )
+    nodes = fixture.get("nodes", [])
+    require(bounds["minimum"] <= len(nodes) <= bounds["maximum"], "bounded_node_count", str(len(nodes)))
+    node_ids = [str(node.get("node_id", "")) for node in nodes]
+    direction_ids = [str(node.get("direction_id", "")) for node in nodes]
+    require(len(set(node_ids)) == len(nodes) and len(set(direction_ids)) == len(nodes), "bounded_direction_identity", str(node_ids))
+    route = fixture.get("routing_decision", {})
+    require(route.get("route") == profile and route.get("direction_ids") == node_ids, "bounded_route_payload", str(route))
+    require(route.get("evidence_confidence") in {"high", "moderate"}, "bounded_route_payload", "confidence")
+
+    artifacts: dict[str, dict[str, Any]] = {}
+
+    def add(artifact_id: str, version_id: str, role: str, path: str, content: str, based_on: list[str], source_skill: str, node_id: str | None = None) -> dict[str, Any]:
+        ref = f"{artifact_id}@{version_id}"
+        require(ref not in artifacts, "bounded_artifact_ref", ref)
+        require(set(based_on) <= set(artifacts), "bounded_lineage_parent", f"{ref}: {set(based_on) - set(artifacts)}")
+        allowed_roles = registry["scenario_eval_contract"]["runtime_artifact_role_contract"]["actor_output_roles_by_skill"].get(source_skill, [])
+        require(role in allowed_roles, "bounded_artifact_writer_role", f"{source_skill}: {role}")
+        target = workspace / Path(path)
+        target.parent.mkdir(parents=True, exist_ok=True)
+        require(not target.exists(), "bounded_artifact_overwrite", path)
+        target.write_text(content, encoding="utf-8", newline="\n")
+        artifact = {
+            "artifact_id": artifact_id, "version_id": version_id, "artifact_role": role,
+            "path": Path(path).as_posix(), "sha256": sha256_file(target), "based_on": list(based_on),
+            "source_skill": source_skill, "node_id": node_id,
+        }
+        artifacts[ref] = artifact
+        return artifact
+
+    add("idea-context-bounded", "c001", "research_context", "01_context/research-context-v001.md", "Multiple credible directions remain.\n", [], "research-context-builder")
+    add("idea-opportunity-seed", "o001", "opportunity_map", "02_evidence/opportunity-seed-v001.yaml", "credible_directions: 2\n", [], "research-opportunity-mapper")
+    route_artifact = add(route["artifact_id"], route["version_id"], "idea_routing_decision", route["path"], yaml.safe_dump(route, sort_keys=False, allow_unicode=True), list(route["based_on"]), "research-idea-orchestrator")
+
+    current_dossiers: dict[str, dict[str, Any]] = {}
+    evaluations: dict[str, dict[str, Any]] = {}
+    ledgers: dict[str, dict[str, Any]] = {}
+    navigation_proposals: dict[str, dict[str, Any]] = {}
+    revision_plans: dict[str, dict[str, Any]] = {}
+    revision_deltas: list[dict[str, Any]] = []
+    evaluator_ids: list[str] = []
+    remap_refs: set[str] = set()
+    for node in nodes:
+        node_id = str(node["node_id"])
+        versions = node.get("dossier_versions", [])
+        require([item.get("stage") for item in versions] == ["create", "revise", "evidence_claim_sync"], "bounded_version_stages", node_id)
+        created: list[dict[str, Any]] = []
+        v1 = versions[0]
+        created.append(add(v1["artifact_id"], v1["version_id"], "idea_dossier", f"03_ideas/nodes/{node_id}/dossiers/idea-dossier-v001.md", render_bounded_idea_dossier(node, v1, registry["plugin_version"]), list(v1["based_on"]), "multi-path-idea-generator", node_id))
+        plan = node["revision_plan"]
+        revision_plans[node_id] = add(plan["artifact_id"], plan["version_id"], "revision_plan", f"03_ideas/nodes/{node_id}/revisions/round-001/revision-plan.md", f"One bounded optimization for {node_id}.\n", list(plan["based_on"]), "research-idea-orchestrator", node_id)
+        v2 = versions[1]
+        created.append(add(v2["artifact_id"], v2["version_id"], "idea_dossier", f"03_ideas/nodes/{node_id}/dossiers/idea-dossier-v002.md", render_bounded_idea_dossier(node, v2, registry["plugin_version"]), list(v2["based_on"]), "multi-path-idea-generator", node_id))
+        delta = node["revision_delta"]
+        revision_deltas.append(add(delta["artifact_id"], delta["version_id"], "revision_delta", f"03_ideas/nodes/{node_id}/revisions/round-001/revision-delta.md", "One bounded optimization; no second optimization.\n", list(delta["based_on"]), "multi-path-idea-generator", node_id))
+        remap = node["remap"]
+        evidence = add(remap["evidence_artifact_id"], remap["evidence_version_id"], "evidence_map", f"02_evidence/{node_id}-evidence-remap-v001.yaml", f"node_id: {node_id}\nclaims_checked: true\n", list(remap["based_on"]), "research-opportunity-mapper", node_id)
+        opportunity = add(remap["opportunity_artifact_id"], remap["opportunity_version_id"], "opportunity_map", f"02_evidence/{node_id}-opportunity-remap-v001.yaml", f"node_id: {node_id}\nclosest_work_checked: true\n", list(remap["based_on"]), "research-opportunity-mapper", node_id)
+        remap_refs.update({f"{evidence['artifact_id']}@{evidence['version_id']}", f"{opportunity['artifact_id']}@{opportunity['version_id']}"})
+        v3 = versions[2]
+        dossier = add(v3["artifact_id"], v3["version_id"], "idea_dossier", f"03_ideas/nodes/{node_id}/dossiers/idea-dossier-v003.md", render_bounded_idea_dossier(node, v3, registry["plugin_version"]), list(v3["based_on"]), "multi-path-idea-generator", node_id)
+        required_remaps = {f"{evidence['artifact_id']}@{evidence['version_id']}", f"{opportunity['artifact_id']}@{opportunity['version_id']}"}
+        require(required_remaps <= set(dossier["based_on"]), "bounded_sync_lineage", node_id)
+        sync_delta = node["sync_delta"]
+        expected_sync_delta_lineage = {
+            f"{v2['artifact_id']}@{v2['version_id']}",
+            f"{evidence['artifact_id']}@{evidence['version_id']}",
+            f"{opportunity['artifact_id']}@{opportunity['version_id']}",
+            f"{dossier['artifact_id']}@{dossier['version_id']}",
+        }
+        require(
+            expected_sync_delta_lineage <= set(sync_delta.get("based_on", [])),
+            "bounded_sync_delta_lineage",
+            node_id,
+        )
+        revision_deltas.append(add(
+            sync_delta["artifact_id"], sync_delta["version_id"], "revision_delta",
+            f"03_ideas/nodes/{node_id}/revisions/round-002/revision-delta.md",
+            "Evidence/opportunity remap synchronized into the terminal dossier.\n",
+            list(sync_delta["based_on"]), "multi-path-idea-generator", node_id,
+        ))
+        dossier_text = (workspace / dossier["path"]).read_text(encoding="utf-8")
+        require(all(f"## {heading}" in dossier_text for heading in IDEA_DOSSIER_SECTIONS), "bounded_dossier_payload", node_id)
+        require(len(re.findall(r"^# (?!#).+$", dossier_text, re.M)) == 1 and "\nstatus:" not in dossier_text, "bounded_dossier_payload", node_id)
+        for field in ("Title", "One-sentence complete-Idea summary", "Primary audience", "Positioning and contribution frame", "Background and gap", "Objective and hypothesis", "Approach", "Expected result", "Contribution and impact"):
+            require(f"- **{field}:**" in dossier_text, "bounded_dossier_payload", f"{node_id}: {field}")
+        require(
+            "| Title or positioning claim | Contribution frame / claim type | Existing implementation that supports it | Supporting evidence-chain output | Literature or existing-result basis | Actual increment, or `none` | Support status | Required qualifier |"
+            in dossier_text,
+            "bounded_claim_support_table",
+            node_id,
+        )
+        current_dossiers[node_id] = dossier
+
+        proposal = node["navigation_proposal"]
+        navigation_proposals[node_id] = add(
+            proposal["artifact_id"], proposal["version_id"], "proposed_navigation_metadata",
+            f"05_state/{node_id}-proposed-navigation-metadata-v001.yaml",
+            yaml.safe_dump({"node_id": node_id, "current_ref": f"{dossier['artifact_id']}@{dossier['version_id']}", "route_profile": profile}, sort_keys=False),
+            list(proposal["based_on"]), "multi-path-idea-generator", node_id,
+        )
+
+        review = node["evaluation"]
+        current_ref = f"{dossier['artifact_id']}@{dossier['version_id']}"
+        require(review.get("input_ref") == current_ref, "bounded_evaluator_input", node_id)
+        files_read = review.get("files_read", [dossier["path"]])
+        require(files_read == [dossier["path"]], "bounded_evaluator_dossier_only", node_id)
+        evaluator_ids.append(str(review["reviewer_instance_id"]))
+        before = sha256_file(workspace / dossier["path"])
+        report = {
+            "reviewer_instance_id": review["reviewer_instance_id"], "isolation_mode": "fresh_subagent",
+            "input_artifact_refs": [current_ref], "files_read": files_read,
+            "reviewed_dossier_digest": dossier["sha256"], "complete_dossier_confirmed": True,
+            "dossier_only_input_confirmed": True, "prior_scores_visible": False, "source_edits_performed": False,
+            "decision": review["decision"], "unresolved_issues": [],
+            "findings": [{"id": review["finding_id"], "title": review["finding_title"], "dossier_locator": review["dossier_locator"], "severity": "minor", "blocking": False, "resolved": False, "dissent": True}],
+        }
+        evaluation = add(review["artifact_id"], review["version_id"], "evaluation_report", f"03_ideas/nodes/{node_id}/reviews/evaluation-r001.json", json.dumps(report, indent=2, ensure_ascii=False) + "\n", [current_ref], "idea-evaluator", node_id)
+        require(before == sha256_file(workspace / dossier["path"]), "bounded_reviewer_modified_source", node_id)
+        evaluations[node_id] = evaluation
+
+        ledger = node["ledger"]
+        ledger_text = "\n".join((
+            "| Internal ID | Type | Human-readable label | Definition artifact | Original source | Locator | Version/status |",
+            "|---|---|---|---|---|---|---|",
+            f"| {ledger['internal_id']} | finding | {ledger['label']} | ../reviews/evaluation-r001.json | ../dossiers/idea-dossier-v003.md | {review['dossier_locator']} | current |", "",
+        ))
+        ledger_artifact = add(ledger["artifact_id"], ledger["version_id"], "reference_ledger", f"03_ideas/nodes/{node_id}/references/reference-ledger.md", ledger_text, [current_ref, f"{evaluation['artifact_id']}@{evaluation['version_id']}"], "research-idea-orchestrator", node_id)
+        ledger_entries = parse_reference_ledger_payload(ledger_text)
+        require(review["finding_id"] in ledger_entries and ledger_entries[review["finding_id"]]["Human-readable label"] == review["finding_title"], "bounded_ledger_resolution", node_id)
+        ledgers[node_id] = ledger_artifact
+
+    require(len(set(evaluator_ids)) == len(nodes), "bounded_evaluator_instance_reuse", str(evaluator_ids))
+    require(
+        len(revision_deltas) == 2 * len(nodes),
+        "bounded_revision_delta_count",
+        str(len(revision_deltas)),
+    )
+    index = fixture["idea_index"]
+    require(index.get("overall_remap_status") == "complete", "bounded_index_remap_status", str(index.get("overall_remap_status")))
+    index_entries = index.get("current_nodes", [])
+    require({entry.get("node_id") for entry in index_entries} == set(node_ids), "bounded_index_nodes", str(index_entries))
+    resolved_entries = []
+    for entry in index_entries:
+        dossier = current_dossiers[str(entry["node_id"])]
+        current_ref = f"{dossier['artifact_id']}@{dossier['version_id']}"
+        require(
+            entry.get("current_ref") == current_ref
+            and entry.get("dossier_id") == dossier["artifact_id"]
+            and isinstance(entry.get("parent_idea_ids"), list)
+            and bool(entry.get("lineage_id"))
+            and entry.get("route_profile") == profile,
+            "bounded_index_current_ref",
+            str(entry),
+        )
+        require(entry.get("remap_status") == "complete", "bounded_index_remap_status", str(entry))
+        require(entry.get("current_digest") == "computed", "bounded_index_digest_marker", str(entry))
+        resolved_entries.append({**entry, "current_digest": dossier["sha256"], "current_path": dossier["path"]})
+    index_artifact = add(
+        index["artifact_id"], index["version_id"], "idea_index", index["path"],
+        yaml.safe_dump({"schema_version": 1, "direction_profile": profile, "overall_remap_status": index["overall_remap_status"], "current_nodes": resolved_entries}, sort_keys=False, allow_unicode=True),
+        [f"{item['artifact_id']}@{item['version_id']}" for item in current_dossiers.values()]
+        + [f"{item['artifact_id']}@{item['version_id']}" for item in navigation_proposals.values()],
+        "research-idea-orchestrator",
+    )
+    parsed_index = load_yaml(workspace / index_artifact["path"])
+    require(parsed_index.get("overall_remap_status") == "complete", "bounded_index_remap_status", "aggregate")
+    require(all(entry["current_digest"] == current_dossiers[entry["node_id"]]["sha256"] for entry in parsed_index["current_nodes"]), "bounded_index_digest", "digest mismatch")
+
+    package = fixture["package"]
+    final_state = registry["scenario_eval_contract"]["workflow_conditional_final_states"]["idea"][profile]
+    require(package.get("final_state") == final_state == fixture["expected"]["final_state"], "bounded_conditional_final_state", str(package.get("final_state")))
+    require(package.get("panel_artifact_refs") == [], "bounded_panel_forbidden", str(package.get("panel_artifact_refs")))
+    required_refs = {
+        "idea-context-bounded@c001",
+        f"{route_artifact['artifact_id']}@{route_artifact['version_id']}", f"{index_artifact['artifact_id']}@{index_artifact['version_id']}",
+        *[f"{item['artifact_id']}@{item['version_id']}" for item in current_dossiers.values()],
+        *[f"{item['artifact_id']}@{item['version_id']}" for item in evaluations.values()],
+        *[f"{item['artifact_id']}@{item['version_id']}" for item in ledgers.values()],
+        *[f"{item['artifact_id']}@{item['version_id']}" for item in revision_plans.values()],
+        *[f"{item['artifact_id']}@{item['version_id']}" for item in revision_deltas],
+        *remap_refs,
+    }
+    require(required_refs <= set(package.get("based_on", [])), "bounded_package_lineage", str(required_refs - set(package.get("based_on", []))))
+    require({"evidence_and_opportunity_remap_complete", "fresh_evaluation_complete_for_each_current_dossier"} <= set(machine["before_packaging_by_direction_profile"][profile]), "bounded_profile_gates", profile)
+    require(any(item.get("from") == "pending_review" and item.get("to") == "packaging_pending" and item.get("trigger") == "bounded_exploration_reviews_complete" for item in registry["workflow_state_policy"]["lifecycle_transitions"]), "bounded_lifecycle_transition", profile)
+    add(package["artifact_id"], package["version_id"], "final_handoff_package", package["path"], "# Direction comparison\n\nHuman direction selection is required.\n", list(package["based_on"]), "idea-portfolio-assembler")
+    return {"fixture_id": fixture["fixture_id"], "direction_profile": profile, "node_count": len(nodes), "current_dossier_refs": sorted(f"{item['artifact_id']}@{item['version_id']}" for item in current_dossiers.values()), "evaluator_instances": sorted(evaluator_ids), "panel_count": 0, "final_state": final_state, "artifact_count": len(artifacts), "status": "passed"}
+
+
+def validate_bounded_idea_negative_guards(fixture: dict[str, Any], registry: dict[str, Any]) -> list[dict[str, str]]:
+    cases = [
+        ("route-profile-mismatch", "bounded_route_payload", lambda value: value["routing_decision"].update(route="focused_optimization")),
+        ("legacy-dossier-change-type", "bounded_version_stages", lambda value: value["nodes"][0]["dossier_versions"][0].update(stage="initial")),
+        ("duplicate-evaluator-instance", "bounded_evaluator_instance_reuse", lambda value: value["nodes"][1]["evaluation"].update(reviewer_instance_id=value["nodes"][0]["evaluation"]["reviewer_instance_id"])),
+        ("stale-index-current-ref", "bounded_index_current_ref", lambda value: value["idea_index"]["current_nodes"][0].update(current_ref="idea-clinical-validation-v2@v002")),
+        ("missing-node-remap-status", "bounded_index_remap_status", lambda value: value["idea_index"]["current_nodes"][0].pop("remap_status")),
+        ("evaluator-reads-remap", "bounded_evaluator_dossier_only", lambda value: value["nodes"][0]["evaluation"].update(files_read=["03_ideas/nodes/idea-clinical-validation/dossiers/idea-dossier-v003.md", "02_evidence/idea-clinical-validation-evidence-remap-v001.yaml"])),
+        ("evaluator-reads-initial-draft", "bounded_evaluator_input", lambda value: value["nodes"][0]["evaluation"].update(input_ref="idea-clinical-validation-v1@v001")),
+        ("sync-drops-opportunity-remap", "bounded_sync_lineage", lambda value: value["nodes"][0]["dossier_versions"][2]["based_on"].pop()),
+        ("sync-delta-drops-terminal-dossier", "bounded_sync_delta_lineage", lambda value: value["nodes"][0]["sync_delta"]["based_on"].pop()),
+        ("bounded-enters-ordinary-signoff", "bounded_conditional_final_state", lambda value: value["package"].update(final_state="human_signoff_required")),
+        ("bounded-adds-panel", "bounded_panel_forbidden", lambda value: value["package"]["panel_artifact_refs"].append("panel@p001")),
+        ("ledger-label-does-not-resolve", "bounded_ledger_resolution", lambda value: value["nodes"][0]["ledger"].update(label="Wrong human-readable label")),
+    ]
+    results = []
+    for name, expected, mutate in cases:
+        candidate = copy.deepcopy(fixture)
+        mutate(candidate)
+        try:
+            with tempfile.TemporaryDirectory(prefix=f"openai-phase4-bounded-negative-{name}-") as temp:
+                validate_bounded_idea_fixture(candidate, registry, Path(temp))
+        except ScenarioViolation as exc:
+            require(exc.code == expected, "bounded_negative_wrong_error", f"{name}: {exc.code}")
+            results.append({"case_id": name, "status": "rejected_as_expected", "error_code": exc.code})
+        else:
+            raise ScenarioViolation("bounded_negative_accepted", name)
+    return results
+
+
 def run_all() -> dict[str, Any]:
     registry = load_yaml(PLUGIN / "workflow-registry.yaml")
     schema = load_yaml(SCHEMA_PATH)
@@ -3328,6 +3773,15 @@ def run_all() -> dict[str, Any]:
         fixture = load_yaml(FIXTURE_ROOT / name)
         with tempfile.TemporaryDirectory(prefix=f"openai-phase4-{fixture['workflow']}-") as temp:
             scenario_results.append(ScenarioEngine(fixture, registry, schema, Path(temp)).run())
+
+    bounded_fixture = load_yaml(FIXTURE_ROOT / BOUNDED_IDEA_FIXTURE)
+    with tempfile.TemporaryDirectory(prefix="openai-phase4-idea-bounded-") as temp:
+        bounded_idea_result = validate_bounded_idea_fixture(
+            bounded_fixture, registry, Path(temp)
+        )
+    bounded_idea_negative_results = validate_bounded_idea_negative_guards(
+        bounded_fixture, registry
+    )
 
     guard_spec = load_yaml(FIXTURE_ROOT / "guard-cases.yaml")
     polisher_guard_case_ids = {
@@ -3367,6 +3821,8 @@ def run_all() -> dict[str, Any]:
         "registry_schema_version": registry["schema_version"],
         "execution_scope": "deterministic_replay_plus_separate_live_receipts",
         "scenario_results": scenario_results,
+        "bounded_idea_result": bounded_idea_result,
+        "bounded_idea_negative_results": bounded_idea_negative_results,
         "negative_guard_results": guard_results,
         "live_identity_negative_guard_results": live_identity_guard_results,
         "finding_route_results": validate_finding_route_cases(),
@@ -3375,6 +3831,10 @@ def run_all() -> dict[str, Any]:
         "retrieval_receipts": validate_retrieval_receipts(),
         "summary": {
             "workflows_passed": len(scenario_results),
+            "bounded_idea_profiles_passed": 1,
+            "bounded_idea_negative_guards_rejected": len(
+                bounded_idea_negative_results
+            ),
             "negative_guards_rejected": len(guard_results),
             "research_polisher_component_guards_rejected": sum(
                 item["case_id"] in polisher_guard_case_ids for item in guard_results
@@ -3416,6 +3876,11 @@ def main() -> int:
     print("Phase 4 scenario evaluations passed")
     print(
         f"workflows: {result['summary']['workflows_passed']}/{len(FIXTURE_NAMES)}"
+    )
+    print(
+        "Idea bounded profile: "
+        f"{result['summary']['bounded_idea_profiles_passed']}/1; "
+        f"negative guards={result['summary']['bounded_idea_negative_guards_rejected']}"
     )
     print(f"negative guards: {result['summary']['negative_guards_rejected']}/{len(result['negative_guard_results'])}")
     print(

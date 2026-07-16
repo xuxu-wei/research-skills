@@ -39,4 +39,6 @@ Treat a delegated output as invalid when it:
 - ignores hard gates;
 - cannot be traced to an input brief.
 
-Retry invalid evaluation once in a new fresh subagent with a stricter brief. If it fails again, stop with `evaluation_failure_stop`.
+Retry invalid evaluation once in a new fresh subagent with a stricter brief. If
+it fails again, stop with workflow state `blocked` and failure route
+`evaluation_failure_stop`.

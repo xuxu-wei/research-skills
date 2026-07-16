@@ -3,7 +3,7 @@ evidence_class: current_task_self_attested_routing_snapshot
 verification_level: self_attested_current_task_snapshot
 portable_platform_execution_export_available: false
 plugin_version: 0.6.0-preview.1
-task_id: 019f506d-01cc-7fa0-9839-db8f494b5ab4
+task_id: private-task-id-redacted
 captured_at: 2026-07-12T11:33:45Z
 execution_contract:
   isolation_mode: fresh_subagent

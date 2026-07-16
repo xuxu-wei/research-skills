@@ -4,7 +4,7 @@
   "external_evidence_schema": "tests/openai_phase7/release-evidence.schema.yaml",
   "evidence_policy": "Derived fields come from the current tree. External evidence is preserved only for an unchanged version, manifest, registry/schema, license, provenance, skill-tree digest, validation-contract tree, and marketplace source. Accepted external records store only immutable GitHub Release/run/asset locators and digests, and require a registered verifier to live re-query those external assets. Shared bundle validation proves integrity only and never determines gate eligibility. preview_attested is explicitly not verified or provider_verified. provider_verified is unavailable until a separately registered authenticated provider adapter exists. Repository files, status text, screenshots, and manual notes never suffice. Unobserved evidence remains pending.",
   "release": {
-    "version": "0.7.0-preview.2",
+    "version": "0.9.0-preview.1",
     "external_evidence_trust": {
       "adapter_status": "unavailable",
       "adapter_id": null,
@@ -20,20 +20,20 @@
     "installable_skill_tree": {
       "root": "skills/",
       "algorithm": "sha256_sorted_posix_relative_path_nul_crlf_normalized_bytes_nul",
-      "file_count": 344,
-      "sha256": "2a709b1d9d1f9484112fffb0b0c50b749316c32a29718711b1ca47692c091416"
+      "file_count": 353,
+      "sha256": "1e20cb48f8bd1329d16231996da0bae3cc541c6eb226f49e8a14e652bf1d465b"
     },
     "installable_contracts": {
-      "manifest_sha256": "5a01636cdd1622927932592e66253016d11d878ca7496c41d6ab982a1cd6d839",
-      "registry_sha256": "fca5969feb43b726ea7b7c31b7ff00cab43b42393230090cfe3c87eed02b9d26",
+      "manifest_sha256": "6a3a7b28f9d704cac669529880c65e0cc959bb761b0d5a25aa3c8ee4d62b3b85",
+      "registry_sha256": "22d2f8c1d5f81f47f30d2e86f66c4b79a67ebadc3423be9870cd0df8ed9d9bc6",
       "registry_schema_version": 5,
       "license_sha256": "0200f93cb786f526f23f9a901367dda528e65c3d8c3d9a1c92bcedb3fe5cba1a",
-      "provenance_sha256": "7e8fe72c8aee7818703e2bbea189d0dde642980e54830928e2fc5ef61c2ee0e9"
+      "provenance_sha256": "a2c109740c56e44bd98da97e793b8ef2417934f20013ff6afcbcf77b575cb6de"
     },
     "validation_contract_tree": {
       "algorithm": "sha256_sorted_repository_relative_path_nul_crlf_normalized_bytes_nul",
-      "file_count": 146,
-      "sha256": "fced05569765d7725b5b43d796a6c56fc95d0a51f623b026f20ae9e7ff4cad9d",
+      "file_count": 150,
+      "sha256": "621b1326ee5cdbca97f29b65931ca54fe1fe5e4deb47fb90da6e4975a3eb7b6c",
       "mutable_runtime_evidence_excluded": [
         "tests/openai_phase7/current-version-runtime-receipts.yaml",
         "tests/openai_phase8/live-repeat-receipts.yaml",
@@ -57,7 +57,7 @@
       "canonical_plugin_validator": {
         "local": {
           "status": "pending",
-          "command": "python C:/Users/10149/.codex/skills/.system/plugin-creator/scripts/validate_plugin.py research-skills-openai",
+          "command": "python $CODEX_HOME/skills/.system/plugin-creator/scripts/validate_plugin.py research-skills-openai",
           "validator_source": "Codex bundled plugin-creator skill",
           "result": null,
           "verified_on": null,
@@ -155,7 +155,7 @@
       },
       "rollback": {
         "status": "pending",
-        "from_version": "0.7.0-preview.2",
+        "from_version": "0.9.0-preview.1",
         "to_version": null,
         "target_commit": null,
         "restored_cache_path": null,

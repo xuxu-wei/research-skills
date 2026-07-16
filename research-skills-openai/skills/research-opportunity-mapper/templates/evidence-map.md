@@ -23,8 +23,11 @@ Use only when evidence was reused, retrieval failed, access was limited, or audi
 
 ## Key Claims
 
-| Claim ID | Claim | Type | Supporting evidence | Opposing evidence | Confidence | Novelty verification | Guideline alignment | Limitations |
-|---|---|---|---|---|---|---|---|---|
+| Claim ID | Human-readable label and claim | Type | Support status | Supporting source and locator | Opposing evidence | Confidence | Novelty verification | Guideline alignment | Limitations |
+|---|---|---|---|---|---|---|---|---|---|
+
+Use only `supported`, `weak`, `conflicting`, `single-source`, `unverified`, or
+`access-limited` for Support status. Keep Confidence as a separate judgment.
 
 ## Contradictions
 
