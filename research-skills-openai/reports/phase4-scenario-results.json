@@ -115,7 +115,7 @@
       "current_plugin_version": "0.9.0-preview.1",
       "current_receipt_schema_sha256": null,
       "current_registry_schema_version": 5,
-      "current_skills_tree_sha256": "116a4447a8f48d5215036fce7eef8f9fe7e5f20f798d3f5cd5e4a5561069ec68",
+      "current_skills_tree_sha256": "1e20cb48f8bd1329d16231996da0bae3cc541c6eb226f49e8a14e652bf1d465b",
       "current_workflow_registry_sha256": "22d2f8c1d5f81f47f30d2e86f66c4b79a67ebadc3423be9870cd0df8ed9d9bc6",
       "evaluator_instances": [
         "/root/evaluator_r1",
@@ -159,7 +159,7 @@
       "current_plugin_version": "0.9.0-preview.1",
       "current_receipt_schema_sha256": null,
       "current_registry_schema_version": 5,
-      "current_skills_tree_sha256": "116a4447a8f48d5215036fce7eef8f9fe7e5f20f798d3f5cd5e4a5561069ec68",
+      "current_skills_tree_sha256": "1e20cb48f8bd1329d16231996da0bae3cc541c6eb226f49e8a14e652bf1d465b",
       "current_workflow_registry_sha256": "22d2f8c1d5f81f47f30d2e86f66c4b79a67ebadc3423be9870cd0df8ed9d9bc6",
       "evaluator_instances": [
         "/root/proposal_eval_v1",
@@ -204,7 +204,7 @@
       "current_plugin_version": "0.9.0-preview.1",
       "current_receipt_schema_sha256": null,
       "current_registry_schema_version": 5,
-      "current_skills_tree_sha256": "116a4447a8f48d5215036fce7eef8f9fe7e5f20f798d3f5cd5e4a5561069ec68",
+      "current_skills_tree_sha256": "1e20cb48f8bd1329d16231996da0bae3cc541c6eb226f49e8a14e652bf1d465b",
       "current_workflow_registry_sha256": "22d2f8c1d5f81f47f30d2e86f66c4b79a67ebadc3423be9870cd0df8ed9d9bc6",
       "evaluator_instances": [
         "article-evaluator-telehf90-v001-7f3c",
@@ -244,7 +244,7 @@
       "current_plugin_version": "0.9.0-preview.1",
       "current_receipt_schema_sha256": null,
       "current_registry_schema_version": 5,
-      "current_skills_tree_sha256": "116a4447a8f48d5215036fce7eef8f9fe7e5f20f798d3f5cd5e4a5561069ec68",
+      "current_skills_tree_sha256": "1e20cb48f8bd1329d16231996da0bae3cc541c6eb226f49e8a14e652bf1d465b",
       "current_workflow_registry_sha256": "22d2f8c1d5f81f47f30d2e86f66c4b79a67ebadc3423be9870cd0df8ed9d9bc6",
       "evaluator_instances": [
         "/root/evaluator_v001",

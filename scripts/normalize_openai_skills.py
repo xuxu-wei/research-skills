@@ -30,6 +30,7 @@ PUBLIC_ENTRY_SKILLS = {
 }
 
 DISPLAY_NAMES = {
+    "article-cover-letter": "Journal Cover Letter",
     "research-polisher-orchestrator": "Research Polisher",
 }
 
@@ -39,7 +40,7 @@ DESCRIPTIONS = {
     "article-architect": "Design a pre-drafting manuscript blueprint, claim-evidence structure, displays, supplements, results skeleton, and risk plan.",
     "article-claim-auditor": "Independently audit frozen manuscript claims against evidence; report unsupported inference, overclaiming, and wording mismatch.",
     "article-context-builder": "Normalize study materials into an article context brief before readiness review, architecture, or drafting; expose missing inputs.",
-    "article-cover-letter": "Draft a journal cover letter and quality check from frozen evaluated materials without altering source artifacts.",
+    "article-cover-letter": "Draft a source-bound Cover Letter and mechanical check for a qualifying Article or Perspective.",
     "article-drafter": "Draft or revise a versioned manuscript and supplements from approved context, blueprint, evidence, audits, and revision instructions.",
     "article-evaluator": "Independently evaluate a frozen manuscript against scientific, evidence-claim, reporting, language, and submission-readiness gates.",
     "article-frontmatter-drafter": "Draft versioned abstract, titles, key points, highlights, and related frontmatter from an evaluated manuscript and blueprint.",
@@ -52,10 +53,10 @@ DESCRIPTIONS = {
     "article-submission-compositor": "Independently verify and assemble a frozen article and qualifying reviews into a package for human sign-off.",
     "idea-adversarial-review-panel": "Independently challenge a frozen promoted idea in one assigned novelty, feasibility, or strategy role before proposal handoff.",
     "idea-evaluator": "Independently score and gate frozen ideas for novelty, feasibility, impact, relevance, clarity, and completion.",
-    "idea-portfolio-assembler": "Assemble evaluated ideas into a PI-review portfolio with ranking, lineage, limitations, dissent, and handoff status.",
-    "medical-journal-review": "Independently review frozen medical research artifacts for editorial fit, methods, statistics, and claims.",
+    "idea-portfolio-assembler": "Assemble evaluated ideas into a PI-review portfolio with lineage, limitations, dissent, and handoff status.",
+    "medical-journal-review": "Independently review research rigor, journal fit, and supportable publication probability.",
     "methodology-statistics-preflight": "Independently preflight a frozen research plan for endpoint, data-method, and feasibility problems.",
-    "multi-path-idea-generator": "Generate a diverse, non-duplicative research-idea set from approved context and opportunity maps; do not evaluate or rank it.",
+    "multi-path-idea-generator": "Generate or revise one focused Idea or a bounded set of evidence-supported directions; do not evaluate or rank.",
     "perspective-argument-architect": "Design a contestable Perspective argument chain, contribution, narrative, paragraph plan, and claim mapping before prose drafting.",
     "perspective-claim-evidence-curator": "Build and maintain Perspective claim, evidence, contrary-evidence, citation-risk, and approved-change artifacts before drafting.",
     "perspective-drafter": "Draft or revise a versioned Perspective from approved argument and claim artifacts, keeping reviewer responses separate.",
@@ -91,7 +92,7 @@ SHORT_DESCRIPTIONS = {
     "article-architect": "Design manuscript structure, displays, and claim strategy",
     "article-claim-auditor": "Independently audit manuscript claims against evidence",
     "article-context-builder": "Normalize study materials into an article context brief.",
-    "article-cover-letter": "Draft journal cover letters from approved materials",
+    "article-cover-letter": "Draft Article or Perspective journal cover letters",
     "article-drafter": "Draft and revise versioned manuscripts and supplements",
     "article-evaluator": "Independently evaluate manuscript quality and readiness",
     "article-frontmatter-drafter": "Draft titles, abstracts, highlights, and key points",
@@ -105,9 +106,9 @@ SHORT_DESCRIPTIONS = {
     "idea-adversarial-review-panel": "Independently challenge promoted ideas by assigned role",
     "idea-evaluator": "Independently evaluate and gate frozen research ideas",
     "idea-portfolio-assembler": "Assemble evaluated ideas into ranked PI-review portfolios",
-    "medical-journal-review": "Independently review medical research for rigor and fit",
+    "medical-journal-review": "Review rigor, journal fit, and publication odds",
     "methodology-statistics-preflight": "Independently preflight research methods and statistics",
-    "multi-path-idea-generator": "Generate diverse research ideas without evaluating them",
+    "multi-path-idea-generator": "Generate focused or bounded research Idea dossiers",
     "perspective-argument-architect": "Design Perspective arguments and claim structures",
     "perspective-claim-evidence-curator": "Curate Perspective claims, evidence, and citation risks",
     "perspective-drafter": "Draft and revise versioned Perspective manuscripts",
@@ -242,6 +243,8 @@ def source_implicit_policy(skill_md: Path, registry_policies: dict[str, bool]) -
 
 def normalize_skill(skill_md: Path, registry_policies: dict[str, bool]) -> None:
     text = skill_md.read_text(encoding="utf-8-sig")
+    frontmatter_end = text.find("\n---", 4)
+    preserve_blank_after_frontmatter = text[frontmatter_end + 4 :].startswith("\n\n")
     frontmatter, body = split_frontmatter(text)
     name_block = field_block(frontmatter, "name")
     description_block = field_block(frontmatter, "description")
@@ -258,9 +261,13 @@ def normalize_skill(skill_md: Path, registry_policies: dict[str, bool]) -> None:
         f"name: {name}",
         f"description: {yaml_quote(description)}",
         "---",
-        "",
     ]
-    skill_md.write_text("\n".join(normalized_frontmatter) + body.rstrip() + "\n", encoding="utf-8", newline="\n")
+    separator = "\n\n" if preserve_blank_after_frontmatter else "\n"
+    skill_md.write_text(
+        "\n".join(normalized_frontmatter) + separator + body.rstrip() + "\n",
+        encoding="utf-8",
+        newline="\n",
+    )
 
     agent_dir = skill_md.parent / "agents"
     agent_dir.mkdir(exist_ok=True)

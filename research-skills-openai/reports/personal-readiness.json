@@ -1,12 +1,6 @@
 {
   "claims": {
-    "automatic_external_submission": false,
-    "owner_observed_is_external_attestation": false,
-    "owner_observed_is_provider_verified": false
-  },
-  "deferred_profiles": {
-    "preview_attested": "out_of_scope_nonblocking",
-    "provider_verified": "out_of_scope_nonblocking"
+    "automatic_external_submission": false
   },
   "deterministic_baseline": {
     "declared_entry_count": 7,

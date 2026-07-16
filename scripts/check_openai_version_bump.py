@@ -13,12 +13,30 @@ from openai_release_utils import is_installable_behavior_path, validate_version_
 
 REPO = Path(__file__).resolve().parents[1]
 MANIFEST = "research-skills-openai/.codex-plugin/plugin.json"
+HISTORICAL_NON_INSTALLABLE_DOCUMENTATION_PATHS = frozenset(
+    {
+        "research-skills-openai/PHASE7-8-RUNBOOK.md",
+        "research-skills-openai/PREVIEW-EVIDENCE-CAPTURE.md",
+        "research-skills-openai/PROVENANCE.yaml",
+    }
+)
+
+
 def git(*args: str) -> str:
     return subprocess.check_output(["git", *args], cwd=REPO, text=True, encoding="utf-8").strip()
 
 
 def manifest_version(text: str) -> str:
     return str(json.loads(text)["version"])
+
+
+def paths_for_version_validation(changed_paths: list[str]) -> list[str]:
+    """Exclude retired documentation artifacts from installable-change checks."""
+    return [
+        path
+        for path in changed_paths
+        if Path(path).as_posix() not in HISTORICAL_NON_INSTALLABLE_DOCUMENTATION_PATHS
+    ]
 
 
 def main() -> int:
@@ -49,11 +67,12 @@ def main() -> int:
         print(f"Version-bump check failed to inspect base {base}: {exc}")
         return 1
 
-    behavior_changed = any(is_installable_behavior_path(path) for path in changed)
+    version_checked_paths = paths_for_version_validation(changed)
+    behavior_changed = any(is_installable_behavior_path(path) for path in version_checked_paths)
     current_manifest = (REPO / MANIFEST).read_text(encoding="utf-8")
     old_version = manifest_version(old_manifest)
     new_version = manifest_version(current_manifest)
-    errors = validate_version_transition(old_version, new_version, changed)
+    errors = validate_version_transition(old_version, new_version, version_checked_paths)
     if errors:
         for error in errors:
             print(f"Version-bump check failed: {error}")

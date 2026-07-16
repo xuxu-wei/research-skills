@@ -59,6 +59,19 @@ OPENAI_NATIVE_SKILLS = {
     "research-polisher-plan-assembler",
     "research-polisher-strategy-reviewer",
 }
+DELETED_PERSONAL_PROFILE_ASSETS = {
+    "PHASE7-8-RUNBOOK.md",
+    "PREVIEW-EVIDENCE-CAPTURE.md",
+    "PROVENANCE.yaml",
+    "release-ledger.json",
+}
+DELETED_ASSET_REFERENCE_ALLOWLIST = {
+    "scripts/test_openai_release_contract.py": {
+        "PHASE7-8-RUNBOOK.md",
+        "PREVIEW-EVIDENCE-CAPTURE.md",
+        "PROVENANCE.yaml",
+    },
+}
 
 FORBIDDEN_RESIDUES = {
     "delegate_task": re.compile(r"\bdelegate_task\b"),
@@ -453,6 +466,20 @@ def main() -> int:
             f"missing={sorted(OPENAI_NATIVE_SKILLS - native_registry_names)} "
             f"extra={sorted(native_registry_names - OPENAI_NATIVE_SKILLS)}"
         )
+    plugin_license = PLUGIN / "LICENSE"
+    root_license = REPO / "LICENSE"
+    if not plugin_license.exists() or not root_license.exists():
+        errors.append("plugin and repository LICENSE files must both exist")
+    elif plugin_license.read_bytes().replace(b"\r\n", b"\n") != root_license.read_bytes().replace(b"\r\n", b"\n"):
+        errors.append("plugin LICENSE differs from the repository MIT license")
+    for entry in entries:
+        name = entry.get("name", "")
+        package = entry.get("package", "")
+        if name in OPENAI_NATIVE_SKILLS:
+            continue
+        source_dir = REPO / "research-skills" / str(package) / str(name)
+        if not source_dir.is_dir():
+            errors.append(f"{name}: Hermes source directory is missing for package `{package}`")
     if "pubmed" in names or (SKILLS / "pubmed").exists():
         errors.append("standalone OpenAI pubmed skill must remain removed")
     reviewers = [entry for entry in entries if entry.get("requires_independent_subagent") is True]
@@ -1289,6 +1316,24 @@ def main() -> int:
     plugin_readme = read(PLUGIN / "README.md")
     if "\\`" in plugin_readme:
         errors.append("plugin README contains escaped Markdown code delimiters")
+    documentation_contracts = {
+        REPO / "AGENTS.md",
+        PLUGIN / "AGENTS.md",
+        PLUGIN / "README.md",
+        PLUGIN / "ROADMAP.md",
+        REPO / ".github" / "workflows" / "openai-plugin-preview.yml",
+        REPO / "scripts" / "openai_release_utils.py",
+        REPO / "scripts" / "test_openai_release_contract.py",
+    }
+    for path in documentation_contracts:
+        if not path.exists():
+            errors.append(f"missing maintained personal-profile file: {relative(path)}")
+            continue
+        text = read(path)
+        allowed_deleted_references = DELETED_ASSET_REFERENCE_ALLOWLIST.get(relative(path), set())
+        for deleted in DELETED_PERSONAL_PROFILE_ASSETS:
+            if deleted in text and deleted not in allowed_deleted_references:
+                errors.append(f"{relative(path)}: references deleted asset `{deleted}`")
 
     print("OpenAI research plugin audit")
     print(f"skills: {len(skill_files)}")

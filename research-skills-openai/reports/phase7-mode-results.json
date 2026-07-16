@@ -1,4162 +1,662 @@
 {
-  "active_acceptance_profile": "personal-owner",
-  "completion_gates": {
-    "accepted_external_evidence_adapter": {
-      "reason": "No accepted live-requery Preview or authenticated provider adapter is configured.",
-      "status": "pending"
-    },
-    "accepted_platform_capture_adapter": {
-      "reason": "No accepted Preview or provider-verified evidence adapter is configured.",
-      "status": "pending",
-      "verification_level": null
-    },
-    "canonical_plugin_validator_ci": {
-      "reason": "Canonical plugin validator CI is not verified on the release commit.",
-      "status": "pending"
-    },
-    "explicit_reinstall": {
-      "reason": "Explicit reinstall receipt is not verified for the release identity.",
-      "status": "pending"
-    },
-    "five_current_version_live_happy_paths": {
-      "reason": "0/5 durable unconfigured happy receipts verified.",
-      "status": "pending",
-      "verification_level": null
-    },
-    "five_current_version_valid_control_paths": {
-      "reason": "0/5 durable unconfigured control receipts verified.",
-      "status": "pending",
-      "verification_level": null
-    },
-    "fresh_task_discovery": {
-      "reason": "Fresh-task discovery is not verified for the installed release.",
-      "status": "pending"
-    },
-    "immutable_previous_artifact_rollback": {
-      "reason": "Rollback is not verified against one immutable previous release.",
-      "status": "pending"
-    },
-    "main_branch_required_check_protection": {
-      "reason": "Main branch protection with the required Preview check is not verified.",
-      "status": "pending"
-    },
-    "marketplace_resolved_commit": {
-      "reason": "Marketplace source revision is not bound to the release commit.",
-      "status": "pending"
-    },
-    "marketplace_upgrade": {
-      "reason": "Marketplace upgrade receipt is not verified for the release identity.",
-      "status": "pending"
-    },
-    "release_source_commit": {
-      "reason": "Immutable current-version source commit is not verified.",
-      "status": "pending"
-    },
-    "repository_preview_ci": {
-      "reason": "Successful repository Preview CI is not bound to the release commit.",
-      "status": "pending"
-    }
-  },
-  "contract_source": "research-skills-openai/workflow-registry.yaml",
-  "counts_as_preview_acceptance": false,
-  "deferred_preview_status": "in_progress_live_and_release_evidence_pending",
-  "deterministic_replay_notice": "These fixtures drive deterministic contract replays with synthetic evidence. They do not represent a live model, Search, Deep Research, Codex task, or ChatGPT task run, and they provide no live-runtime evidence.",
-  "discovery_contract": {
-    "explicit_callable_entries": 7,
-    "implicit_prompt_entries": 6,
-    "installed_skill_count": 49,
-    "release_stage": "A"
-  },
-  "evidence_class": "synthetic_contract_evidence_only",
+  "errors": [],
   "execution_kind": "deterministic_replay",
-  "execution_scope": "registry-derived entry-gate and lifecycle contract replay using synthetic artifacts, synthetic reviewer receipts, and negative mutation guards",
-  "fixture_sha256": "sha256:6565d8d762be0e98d5aa34f3bde51318d1ffaadfb2312b4ad9ef663ac23264ec",
-  "live_model_execution": false,
+  "false_ready_detector_self_test": {
+    "detected_false_ready_count": 1,
+    "injected_probe_count": 1,
+    "status": "passed"
+  },
+  "live_runtime_evidence": false,
+  "mode_results": [
+    {
+      "case_id": "idea-standard",
+      "entry_mode": "standard",
+      "expected_final_state": "human_signoff_required",
+      "observed_final_state": "human_signoff_required",
+      "promotion_decision": "promoted",
+      "status": "passed",
+      "workflow": "idea"
+    },
+    {
+      "case_id": "idea-resume-candidates",
+      "entry_mode": "resume_candidates",
+      "expected_final_state": "human_signoff_required",
+      "observed_final_state": "human_signoff_required",
+      "promotion_decision": "promoted",
+      "status": "passed",
+      "workflow": "idea"
+    },
+    {
+      "case_id": "idea-portfolio-only",
+      "entry_mode": "portfolio_only",
+      "expected_final_state": "human_signoff_required",
+      "observed_final_state": "human_signoff_required",
+      "promotion_decision": "promoted",
+      "status": "passed",
+      "workflow": "idea"
+    },
+    {
+      "case_id": "proposal-standard",
+      "entry_mode": "standard",
+      "expected_final_state": "human_signoff_required",
+      "observed_final_state": "human_signoff_required",
+      "promotion_decision": "promoted",
+      "status": "passed",
+      "workflow": "proposal"
+    },
+    {
+      "case_id": "proposal-existing-draft",
+      "entry_mode": "existing_draft",
+      "expected_final_state": "human_signoff_required",
+      "observed_final_state": "human_signoff_required",
+      "promotion_decision": "promoted",
+      "status": "passed",
+      "workflow": "proposal"
+    },
+    {
+      "case_id": "proposal-draft-and-external-review",
+      "entry_mode": "draft_and_external_review",
+      "expected_final_state": "human_signoff_required",
+      "observed_final_state": "human_signoff_required",
+      "promotion_decision": "promoted",
+      "status": "passed",
+      "workflow": "proposal"
+    },
+    {
+      "case_id": "proposal-package-only",
+      "entry_mode": "package_only",
+      "expected_final_state": "human_signoff_required",
+      "observed_final_state": "human_signoff_required",
+      "promotion_decision": "promoted",
+      "status": "passed",
+      "workflow": "proposal"
+    },
+    {
+      "case_id": "article-standard",
+      "entry_mode": "standard",
+      "expected_final_state": "human_signoff_required",
+      "observed_final_state": "human_signoff_required",
+      "promotion_decision": "promoted",
+      "status": "passed",
+      "workflow": "article"
+    },
+    {
+      "case_id": "article-fast-track-draft",
+      "entry_mode": "fast_track_draft",
+      "expected_final_state": "human_signoff_required",
+      "observed_final_state": "human_signoff_required",
+      "promotion_decision": "promoted",
+      "status": "passed",
+      "workflow": "article"
+    },
+    {
+      "case_id": "article-fast-track-draft-and-evaluation",
+      "entry_mode": "fast_track_draft_and_evaluation",
+      "expected_final_state": "human_signoff_required",
+      "observed_final_state": "human_signoff_required",
+      "promotion_decision": "promoted",
+      "status": "passed",
+      "workflow": "article"
+    },
+    {
+      "case_id": "article-blueprint-only",
+      "entry_mode": "blueprint_only",
+      "expected_final_state": "stopped",
+      "observed_final_state": "stopped",
+      "promotion_decision": "completed_non_ready",
+      "status": "passed",
+      "workflow": "article"
+    },
+    {
+      "case_id": "article-section-specific",
+      "entry_mode": "section_specific",
+      "expected_final_state": "stopped",
+      "observed_final_state": "stopped",
+      "promotion_decision": "completed_non_ready",
+      "status": "passed",
+      "workflow": "article"
+    },
+    {
+      "case_id": "article-submission-only",
+      "entry_mode": "submission_only",
+      "expected_final_state": "human_signoff_required",
+      "observed_final_state": "human_signoff_required",
+      "promotion_decision": "promoted",
+      "status": "passed",
+      "workflow": "article"
+    },
+    {
+      "case_id": "perspective-lite",
+      "entry_mode": "lite",
+      "expected_final_state": "stopped",
+      "observed_final_state": "stopped",
+      "promotion_decision": "completed_non_ready",
+      "status": "passed",
+      "workflow": "perspective"
+    },
+    {
+      "case_id": "perspective-standard",
+      "entry_mode": "standard",
+      "expected_final_state": "stopped",
+      "observed_final_state": "stopped",
+      "promotion_decision": "completed_non_ready",
+      "status": "passed",
+      "workflow": "perspective"
+    },
+    {
+      "case_id": "perspective-full",
+      "entry_mode": "full",
+      "expected_final_state": "human_signoff_required",
+      "observed_final_state": "human_signoff_required",
+      "promotion_decision": "promoted",
+      "status": "passed",
+      "workflow": "perspective"
+    },
+    {
+      "case_id": "research-polisher-standard",
+      "entry_mode": "standard",
+      "expected_final_state": "human_strategy_selection_required",
+      "observed_final_state": "human_strategy_selection_required",
+      "promotion_decision": "promoted",
+      "status": "passed",
+      "workflow": "research_polisher"
+    }
+  ],
   "negative_guard_results": [
     {
       "case_id": "idea-standard",
       "entry_mode": "standard",
-      "error_code": "missing_entry_gate_receipt",
-      "guard_scope": "entry_gate_receipt_or_artifact_lineage",
+      "failed_checks": [
+        "missing_entry_gate_receipt"
+      ],
       "mutation": "gate_bypass",
-      "mutation_id": "idea-standard-gate-bypass",
+      "observed_state": "promotion_blocked",
+      "ready_state_reached": false,
+      "requested_state": "human_signoff_required",
       "status": "rejected_as_expected",
       "workflow": "idea"
     },
     {
       "case_id": "idea-standard",
       "entry_mode": "standard",
-      "error_code": "stale_gate_input",
-      "guard_scope": "entry_gate_receipt_or_artifact_lineage",
+      "failed_checks": [
+        "stale_gate_input"
+      ],
       "mutation": "stale_input",
-      "mutation_id": "idea-standard-stale-input",
+      "observed_state": "promotion_blocked",
+      "ready_state_reached": false,
+      "requested_state": "human_signoff_required",
       "status": "rejected_as_expected",
       "workflow": "idea"
     },
     {
       "case_id": "idea-resume-candidates",
       "entry_mode": "resume_candidates",
-      "error_code": "missing_entry_gate_receipt",
-      "guard_scope": "entry_gate_receipt_or_artifact_lineage",
+      "failed_checks": [
+        "missing_entry_gate_receipt"
+      ],
       "mutation": "gate_bypass",
-      "mutation_id": "idea-resume-candidates-gate-bypass",
+      "observed_state": "promotion_blocked",
+      "ready_state_reached": false,
+      "requested_state": "human_signoff_required",
       "status": "rejected_as_expected",
       "workflow": "idea"
     },
     {
       "case_id": "idea-resume-candidates",
       "entry_mode": "resume_candidates",
-      "error_code": "invalid_lineage",
-      "guard_scope": "entry_gate_receipt_or_artifact_lineage",
+      "failed_checks": [
+        "invalid_lineage"
+      ],
       "mutation": "invalid_lineage",
-      "mutation_id": "idea-resume-candidates-invalid-lineage",
+      "observed_state": "promotion_blocked",
+      "ready_state_reached": false,
+      "requested_state": "human_signoff_required",
       "status": "rejected_as_expected",
       "workflow": "idea"
     },
     {
       "case_id": "idea-portfolio-only",
       "entry_mode": "portfolio_only",
-      "error_code": "missing_entry_gate_receipt",
-      "guard_scope": "entry_gate_receipt_or_artifact_lineage",
+      "failed_checks": [
+        "missing_entry_gate_receipt"
+      ],
       "mutation": "gate_bypass",
-      "mutation_id": "idea-portfolio-only-gate-bypass",
+      "observed_state": "promotion_blocked",
+      "ready_state_reached": false,
+      "requested_state": "human_signoff_required",
       "status": "rejected_as_expected",
       "workflow": "idea"
     },
     {
       "case_id": "idea-portfolio-only",
       "entry_mode": "portfolio_only",
-      "error_code": "stale_gate_input",
-      "guard_scope": "entry_gate_receipt_or_artifact_lineage",
+      "failed_checks": [
+        "stale_gate_input"
+      ],
       "mutation": "stale_input",
-      "mutation_id": "idea-portfolio-only-stale-input",
+      "observed_state": "promotion_blocked",
+      "ready_state_reached": false,
+      "requested_state": "human_signoff_required",
       "status": "rejected_as_expected",
       "workflow": "idea"
     },
     {
       "case_id": "proposal-standard",
       "entry_mode": "standard",
-      "error_code": "missing_entry_gate_receipt",
-      "guard_scope": "entry_gate_receipt_or_artifact_lineage",
+      "failed_checks": [
+        "missing_entry_gate_receipt"
+      ],
       "mutation": "gate_bypass",
-      "mutation_id": "proposal-standard-gate-bypass",
+      "observed_state": "promotion_blocked",
+      "ready_state_reached": false,
+      "requested_state": "human_signoff_required",
       "status": "rejected_as_expected",
       "workflow": "proposal"
     },
     {
       "case_id": "proposal-standard",
       "entry_mode": "standard",
-      "error_code": "invalid_lineage",
-      "guard_scope": "entry_gate_receipt_or_artifact_lineage",
+      "failed_checks": [
+        "invalid_lineage"
+      ],
       "mutation": "invalid_lineage",
-      "mutation_id": "proposal-standard-invalid-lineage",
+      "observed_state": "promotion_blocked",
+      "ready_state_reached": false,
+      "requested_state": "human_signoff_required",
       "status": "rejected_as_expected",
       "workflow": "proposal"
     },
     {
       "case_id": "proposal-existing-draft",
       "entry_mode": "existing_draft",
-      "error_code": "missing_entry_gate_receipt",
-      "guard_scope": "entry_gate_receipt_or_artifact_lineage",
+      "failed_checks": [
+        "missing_entry_gate_receipt"
+      ],
       "mutation": "gate_bypass",
-      "mutation_id": "proposal-existing-draft-gate-bypass",
+      "observed_state": "promotion_blocked",
+      "ready_state_reached": false,
+      "requested_state": "human_signoff_required",
       "status": "rejected_as_expected",
       "workflow": "proposal"
     },
     {
       "case_id": "proposal-existing-draft",
       "entry_mode": "existing_draft",
-      "error_code": "stale_gate_input",
-      "guard_scope": "entry_gate_receipt_or_artifact_lineage",
+      "failed_checks": [
+        "stale_gate_input"
+      ],
       "mutation": "stale_input",
-      "mutation_id": "proposal-existing-draft-stale-input",
+      "observed_state": "promotion_blocked",
+      "ready_state_reached": false,
+      "requested_state": "human_signoff_required",
       "status": "rejected_as_expected",
       "workflow": "proposal"
     },
     {
       "case_id": "proposal-draft-and-external-review",
       "entry_mode": "draft_and_external_review",
-      "error_code": "missing_entry_gate_receipt",
-      "guard_scope": "entry_gate_receipt_or_artifact_lineage",
+      "failed_checks": [
+        "missing_entry_gate_receipt"
+      ],
       "mutation": "gate_bypass",
-      "mutation_id": "proposal-draft-and-external-review-gate-bypass",
+      "observed_state": "promotion_blocked",
+      "ready_state_reached": false,
+      "requested_state": "human_signoff_required",
       "status": "rejected_as_expected",
       "workflow": "proposal"
     },
     {
       "case_id": "proposal-draft-and-external-review",
       "entry_mode": "draft_and_external_review",
-      "error_code": "invalid_lineage",
-      "guard_scope": "entry_gate_receipt_or_artifact_lineage",
+      "failed_checks": [
+        "invalid_lineage"
+      ],
       "mutation": "invalid_lineage",
-      "mutation_id": "proposal-draft-and-external-review-invalid-lineage",
+      "observed_state": "promotion_blocked",
+      "ready_state_reached": false,
+      "requested_state": "human_signoff_required",
       "status": "rejected_as_expected",
       "workflow": "proposal"
     },
     {
       "case_id": "proposal-package-only",
       "entry_mode": "package_only",
-      "error_code": "missing_entry_gate_receipt",
-      "guard_scope": "entry_gate_receipt_or_artifact_lineage",
+      "failed_checks": [
+        "missing_entry_gate_receipt"
+      ],
       "mutation": "gate_bypass",
-      "mutation_id": "proposal-package-only-gate-bypass",
+      "observed_state": "promotion_blocked",
+      "ready_state_reached": false,
+      "requested_state": "human_signoff_required",
       "status": "rejected_as_expected",
       "workflow": "proposal"
     },
     {
       "case_id": "proposal-package-only",
       "entry_mode": "package_only",
-      "error_code": "stale_gate_input",
-      "guard_scope": "entry_gate_receipt_or_artifact_lineage",
+      "failed_checks": [
+        "stale_gate_input"
+      ],
       "mutation": "stale_input",
-      "mutation_id": "proposal-package-only-stale-input",
+      "observed_state": "promotion_blocked",
+      "ready_state_reached": false,
+      "requested_state": "human_signoff_required",
       "status": "rejected_as_expected",
       "workflow": "proposal"
     },
     {
       "case_id": "article-standard",
       "entry_mode": "standard",
-      "error_code": "missing_entry_gate_receipt",
-      "guard_scope": "entry_gate_receipt_or_artifact_lineage",
+      "failed_checks": [
+        "missing_entry_gate_receipt"
+      ],
       "mutation": "gate_bypass",
-      "mutation_id": "article-standard-gate-bypass",
+      "observed_state": "promotion_blocked",
+      "ready_state_reached": false,
+      "requested_state": "human_signoff_required",
       "status": "rejected_as_expected",
       "workflow": "article"
     },
     {
       "case_id": "article-standard",
       "entry_mode": "standard",
-      "error_code": "invalid_lineage",
-      "guard_scope": "entry_gate_receipt_or_artifact_lineage",
+      "failed_checks": [
+        "invalid_lineage"
+      ],
       "mutation": "invalid_lineage",
-      "mutation_id": "article-standard-invalid-lineage",
+      "observed_state": "promotion_blocked",
+      "ready_state_reached": false,
+      "requested_state": "human_signoff_required",
       "status": "rejected_as_expected",
       "workflow": "article"
     },
     {
       "case_id": "article-fast-track-draft",
       "entry_mode": "fast_track_draft",
-      "error_code": "missing_entry_gate_receipt",
-      "guard_scope": "entry_gate_receipt_or_artifact_lineage",
+      "failed_checks": [
+        "missing_entry_gate_receipt"
+      ],
       "mutation": "gate_bypass",
-      "mutation_id": "article-fast-track-draft-gate-bypass",
+      "observed_state": "promotion_blocked",
+      "ready_state_reached": false,
+      "requested_state": "human_signoff_required",
       "status": "rejected_as_expected",
       "workflow": "article"
     },
     {
       "case_id": "article-fast-track-draft",
       "entry_mode": "fast_track_draft",
-      "error_code": "stale_gate_input",
-      "guard_scope": "entry_gate_receipt_or_artifact_lineage",
+      "failed_checks": [
+        "stale_gate_input"
+      ],
       "mutation": "stale_input",
-      "mutation_id": "article-fast-track-draft-stale-input",
+      "observed_state": "promotion_blocked",
+      "ready_state_reached": false,
+      "requested_state": "human_signoff_required",
       "status": "rejected_as_expected",
       "workflow": "article"
     },
     {
       "case_id": "article-fast-track-draft-and-evaluation",
       "entry_mode": "fast_track_draft_and_evaluation",
-      "error_code": "missing_entry_gate_receipt",
-      "guard_scope": "entry_gate_receipt_or_artifact_lineage",
+      "failed_checks": [
+        "missing_entry_gate_receipt"
+      ],
       "mutation": "gate_bypass",
-      "mutation_id": "article-fast-track-draft-and-evaluation-gate-bypass",
+      "observed_state": "promotion_blocked",
+      "ready_state_reached": false,
+      "requested_state": "human_signoff_required",
       "status": "rejected_as_expected",
       "workflow": "article"
     },
     {
       "case_id": "article-fast-track-draft-and-evaluation",
       "entry_mode": "fast_track_draft_and_evaluation",
-      "error_code": "invalid_lineage",
-      "guard_scope": "entry_gate_receipt_or_artifact_lineage",
+      "failed_checks": [
+        "invalid_lineage"
+      ],
       "mutation": "invalid_lineage",
-      "mutation_id": "article-fast-track-draft-and-evaluation-invalid-lineage",
+      "observed_state": "promotion_blocked",
+      "ready_state_reached": false,
+      "requested_state": "human_signoff_required",
       "status": "rejected_as_expected",
       "workflow": "article"
     },
     {
       "case_id": "article-blueprint-only",
       "entry_mode": "blueprint_only",
-      "error_code": "missing_entry_gate_receipt",
-      "guard_scope": "entry_gate_receipt_or_artifact_lineage",
+      "failed_checks": [
+        "missing_entry_gate_receipt",
+        "mode_is_non_ready"
+      ],
       "mutation": "gate_bypass",
-      "mutation_id": "article-blueprint-only-gate-bypass",
+      "observed_state": "promotion_blocked",
+      "ready_state_reached": false,
+      "requested_state": "human_signoff_required",
       "status": "rejected_as_expected",
       "workflow": "article"
     },
     {
       "case_id": "article-blueprint-only",
       "entry_mode": "blueprint_only",
-      "error_code": "stale_gate_input",
-      "guard_scope": "entry_gate_receipt_or_artifact_lineage",
+      "failed_checks": [
+        "stale_gate_input",
+        "mode_is_non_ready"
+      ],
       "mutation": "stale_input",
-      "mutation_id": "article-blueprint-only-stale-input",
+      "observed_state": "promotion_blocked",
+      "ready_state_reached": false,
+      "requested_state": "human_signoff_required",
       "status": "rejected_as_expected",
       "workflow": "article"
     },
     {
       "case_id": "article-section-specific",
       "entry_mode": "section_specific",
-      "error_code": "missing_entry_gate_receipt",
-      "guard_scope": "entry_gate_receipt_or_artifact_lineage",
+      "failed_checks": [
+        "missing_entry_gate_receipt",
+        "mode_is_non_ready"
+      ],
       "mutation": "gate_bypass",
-      "mutation_id": "article-section-specific-gate-bypass",
+      "observed_state": "promotion_blocked",
+      "ready_state_reached": false,
+      "requested_state": "human_signoff_required",
       "status": "rejected_as_expected",
       "workflow": "article"
     },
     {
       "case_id": "article-section-specific",
       "entry_mode": "section_specific",
-      "error_code": "invalid_lineage",
-      "guard_scope": "entry_gate_receipt_or_artifact_lineage",
+      "failed_checks": [
+        "invalid_lineage",
+        "mode_is_non_ready"
+      ],
       "mutation": "invalid_lineage",
-      "mutation_id": "article-section-specific-invalid-lineage",
+      "observed_state": "promotion_blocked",
+      "ready_state_reached": false,
+      "requested_state": "human_signoff_required",
       "status": "rejected_as_expected",
       "workflow": "article"
     },
     {
       "case_id": "article-submission-only",
       "entry_mode": "submission_only",
-      "error_code": "missing_entry_gate_receipt",
-      "guard_scope": "entry_gate_receipt_or_artifact_lineage",
+      "failed_checks": [
+        "missing_entry_gate_receipt"
+      ],
       "mutation": "gate_bypass",
-      "mutation_id": "article-submission-only-gate-bypass",
+      "observed_state": "promotion_blocked",
+      "ready_state_reached": false,
+      "requested_state": "human_signoff_required",
       "status": "rejected_as_expected",
       "workflow": "article"
     },
     {
       "case_id": "article-submission-only",
       "entry_mode": "submission_only",
-      "error_code": "stale_gate_input",
-      "guard_scope": "entry_gate_receipt_or_artifact_lineage",
+      "failed_checks": [
+        "stale_gate_input"
+      ],
       "mutation": "stale_input",
-      "mutation_id": "article-submission-only-stale-input",
+      "observed_state": "promotion_blocked",
+      "ready_state_reached": false,
+      "requested_state": "human_signoff_required",
       "status": "rejected_as_expected",
       "workflow": "article"
     },
     {
       "case_id": "perspective-lite",
       "entry_mode": "lite",
-      "error_code": "missing_entry_gate_receipt",
-      "guard_scope": "entry_gate_receipt_or_artifact_lineage",
+      "failed_checks": [
+        "missing_entry_gate_receipt",
+        "mode_is_non_ready"
+      ],
       "mutation": "gate_bypass",
-      "mutation_id": "perspective-lite-gate-bypass",
+      "observed_state": "promotion_blocked",
+      "ready_state_reached": false,
+      "requested_state": "human_signoff_required",
       "status": "rejected_as_expected",
       "workflow": "perspective"
     },
     {
       "case_id": "perspective-lite",
       "entry_mode": "lite",
-      "error_code": "invalid_lineage",
-      "guard_scope": "entry_gate_receipt_or_artifact_lineage",
+      "failed_checks": [
+        "invalid_lineage",
+        "mode_is_non_ready"
+      ],
       "mutation": "invalid_lineage",
-      "mutation_id": "perspective-lite-invalid-lineage",
+      "observed_state": "promotion_blocked",
+      "ready_state_reached": false,
+      "requested_state": "human_signoff_required",
       "status": "rejected_as_expected",
       "workflow": "perspective"
     },
     {
       "case_id": "perspective-standard",
       "entry_mode": "standard",
-      "error_code": "missing_entry_gate_receipt",
-      "guard_scope": "entry_gate_receipt_or_artifact_lineage",
+      "failed_checks": [
+        "missing_entry_gate_receipt",
+        "mode_is_non_ready"
+      ],
       "mutation": "gate_bypass",
-      "mutation_id": "perspective-standard-gate-bypass",
+      "observed_state": "promotion_blocked",
+      "ready_state_reached": false,
+      "requested_state": "human_signoff_required",
       "status": "rejected_as_expected",
       "workflow": "perspective"
     },
     {
       "case_id": "perspective-standard",
       "entry_mode": "standard",
-      "error_code": "stale_gate_input",
-      "guard_scope": "entry_gate_receipt_or_artifact_lineage",
+      "failed_checks": [
+        "stale_gate_input",
+        "mode_is_non_ready"
+      ],
       "mutation": "stale_input",
-      "mutation_id": "perspective-standard-stale-input",
+      "observed_state": "promotion_blocked",
+      "ready_state_reached": false,
+      "requested_state": "human_signoff_required",
       "status": "rejected_as_expected",
       "workflow": "perspective"
     },
     {
       "case_id": "perspective-full",
       "entry_mode": "full",
-      "error_code": "missing_entry_gate_receipt",
-      "guard_scope": "entry_gate_receipt_or_artifact_lineage",
+      "failed_checks": [
+        "missing_entry_gate_receipt"
+      ],
       "mutation": "gate_bypass",
-      "mutation_id": "perspective-full-gate-bypass",
+      "observed_state": "promotion_blocked",
+      "ready_state_reached": false,
+      "requested_state": "human_signoff_required",
       "status": "rejected_as_expected",
       "workflow": "perspective"
     },
     {
       "case_id": "perspective-full",
       "entry_mode": "full",
-      "error_code": "invalid_lineage",
-      "guard_scope": "entry_gate_receipt_or_artifact_lineage",
+      "failed_checks": [
+        "invalid_lineage"
+      ],
       "mutation": "invalid_lineage",
-      "mutation_id": "perspective-full-invalid-lineage",
+      "observed_state": "promotion_blocked",
+      "ready_state_reached": false,
+      "requested_state": "human_signoff_required",
       "status": "rejected_as_expected",
       "workflow": "perspective"
     },
     {
       "case_id": "research-polisher-standard",
       "entry_mode": "standard",
-      "error_code": "missing_entry_gate_receipt",
-      "guard_scope": "entry_gate_receipt_or_artifact_lineage",
+      "failed_checks": [
+        "missing_entry_gate_receipt"
+      ],
       "mutation": "gate_bypass",
-      "mutation_id": "research-polisher-standard-gate-bypass",
+      "observed_state": "promotion_blocked",
+      "ready_state_reached": false,
+      "requested_state": "human_strategy_selection_required",
       "status": "rejected_as_expected",
       "workflow": "research_polisher"
     },
     {
       "case_id": "research-polisher-standard",
       "entry_mode": "standard",
-      "error_code": "stale_gate_input",
-      "guard_scope": "entry_gate_receipt_or_artifact_lineage",
+      "failed_checks": [
+        "stale_gate_input"
+      ],
       "mutation": "stale_input",
-      "mutation_id": "research-polisher-standard-stale-input",
-      "status": "rejected_as_expected",
-      "workflow": "research_polisher"
-    },
-    {
-      "case_id": "idea-standard",
-      "entry_mode": "standard",
-      "error_code": "missing_evaluator_receipt",
-      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
-      "mutation": "missing_evaluator_receipt",
-      "mutation_id": "idea-standard-missing-evaluator-receipt",
-      "status": "rejected_as_expected",
-      "workflow": "idea"
-    },
-    {
-      "case_id": "idea-standard",
-      "entry_mode": "standard",
-      "error_code": "stale_evaluator_receipt",
-      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
-      "mutation": "stale_evaluator_receipt",
-      "mutation_id": "idea-standard-stale-evaluator-receipt",
-      "status": "rejected_as_expected",
-      "workflow": "idea"
-    },
-    {
-      "case_id": "idea-resume-candidates",
-      "entry_mode": "resume_candidates",
-      "error_code": "missing_evaluator_receipt",
-      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
-      "mutation": "missing_evaluator_receipt",
-      "mutation_id": "idea-resume-candidates-missing-evaluator-receipt",
-      "status": "rejected_as_expected",
-      "workflow": "idea"
-    },
-    {
-      "case_id": "idea-resume-candidates",
-      "entry_mode": "resume_candidates",
-      "error_code": "stale_evaluator_receipt",
-      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
-      "mutation": "stale_evaluator_receipt",
-      "mutation_id": "idea-resume-candidates-stale-evaluator-receipt",
-      "status": "rejected_as_expected",
-      "workflow": "idea"
-    },
-    {
-      "case_id": "idea-portfolio-only",
-      "entry_mode": "portfolio_only",
-      "error_code": "missing_evaluator_receipt",
-      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
-      "mutation": "missing_evaluator_receipt",
-      "mutation_id": "idea-portfolio-only-missing-evaluator-receipt",
-      "status": "rejected_as_expected",
-      "workflow": "idea"
-    },
-    {
-      "case_id": "idea-portfolio-only",
-      "entry_mode": "portfolio_only",
-      "error_code": "stale_evaluator_receipt",
-      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
-      "mutation": "stale_evaluator_receipt",
-      "mutation_id": "idea-portfolio-only-stale-evaluator-receipt",
-      "status": "rejected_as_expected",
-      "workflow": "idea"
-    },
-    {
-      "case_id": "proposal-standard",
-      "entry_mode": "standard",
-      "error_code": "missing_evaluator_receipt",
-      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
-      "mutation": "missing_evaluator_receipt",
-      "mutation_id": "proposal-standard-missing-evaluator-receipt",
-      "status": "rejected_as_expected",
-      "workflow": "proposal"
-    },
-    {
-      "case_id": "proposal-standard",
-      "entry_mode": "standard",
-      "error_code": "stale_evaluator_receipt",
-      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
-      "mutation": "stale_evaluator_receipt",
-      "mutation_id": "proposal-standard-stale-evaluator-receipt",
-      "status": "rejected_as_expected",
-      "workflow": "proposal"
-    },
-    {
-      "case_id": "proposal-existing-draft",
-      "entry_mode": "existing_draft",
-      "error_code": "missing_evaluator_receipt",
-      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
-      "mutation": "missing_evaluator_receipt",
-      "mutation_id": "proposal-existing-draft-missing-evaluator-receipt",
-      "status": "rejected_as_expected",
-      "workflow": "proposal"
-    },
-    {
-      "case_id": "proposal-existing-draft",
-      "entry_mode": "existing_draft",
-      "error_code": "stale_evaluator_receipt",
-      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
-      "mutation": "stale_evaluator_receipt",
-      "mutation_id": "proposal-existing-draft-stale-evaluator-receipt",
-      "status": "rejected_as_expected",
-      "workflow": "proposal"
-    },
-    {
-      "case_id": "proposal-draft-and-external-review",
-      "entry_mode": "draft_and_external_review",
-      "error_code": "missing_evaluator_receipt",
-      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
-      "mutation": "missing_evaluator_receipt",
-      "mutation_id": "proposal-draft-and-external-review-missing-evaluator-receipt",
-      "status": "rejected_as_expected",
-      "workflow": "proposal"
-    },
-    {
-      "case_id": "proposal-draft-and-external-review",
-      "entry_mode": "draft_and_external_review",
-      "error_code": "stale_evaluator_receipt",
-      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
-      "mutation": "stale_evaluator_receipt",
-      "mutation_id": "proposal-draft-and-external-review-stale-evaluator-receipt",
-      "status": "rejected_as_expected",
-      "workflow": "proposal"
-    },
-    {
-      "case_id": "proposal-package-only",
-      "entry_mode": "package_only",
-      "error_code": "missing_evaluator_receipt",
-      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
-      "mutation": "missing_evaluator_receipt",
-      "mutation_id": "proposal-package-only-missing-evaluator-receipt",
-      "status": "rejected_as_expected",
-      "workflow": "proposal"
-    },
-    {
-      "case_id": "proposal-package-only",
-      "entry_mode": "package_only",
-      "error_code": "stale_evaluator_receipt",
-      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
-      "mutation": "stale_evaluator_receipt",
-      "mutation_id": "proposal-package-only-stale-evaluator-receipt",
-      "status": "rejected_as_expected",
-      "workflow": "proposal"
-    },
-    {
-      "case_id": "article-standard",
-      "entry_mode": "standard",
-      "error_code": "missing_evaluator_receipt",
-      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
-      "mutation": "missing_evaluator_receipt",
-      "mutation_id": "article-standard-missing-evaluator-receipt",
-      "status": "rejected_as_expected",
-      "workflow": "article"
-    },
-    {
-      "case_id": "article-standard",
-      "entry_mode": "standard",
-      "error_code": "stale_evaluator_receipt",
-      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
-      "mutation": "stale_evaluator_receipt",
-      "mutation_id": "article-standard-stale-evaluator-receipt",
-      "status": "rejected_as_expected",
-      "workflow": "article"
-    },
-    {
-      "case_id": "article-fast-track-draft",
-      "entry_mode": "fast_track_draft",
-      "error_code": "missing_evaluator_receipt",
-      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
-      "mutation": "missing_evaluator_receipt",
-      "mutation_id": "article-fast-track-draft-missing-evaluator-receipt",
-      "status": "rejected_as_expected",
-      "workflow": "article"
-    },
-    {
-      "case_id": "article-fast-track-draft",
-      "entry_mode": "fast_track_draft",
-      "error_code": "stale_evaluator_receipt",
-      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
-      "mutation": "stale_evaluator_receipt",
-      "mutation_id": "article-fast-track-draft-stale-evaluator-receipt",
-      "status": "rejected_as_expected",
-      "workflow": "article"
-    },
-    {
-      "case_id": "article-fast-track-draft-and-evaluation",
-      "entry_mode": "fast_track_draft_and_evaluation",
-      "error_code": "missing_evaluator_receipt",
-      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
-      "mutation": "missing_evaluator_receipt",
-      "mutation_id": "article-fast-track-draft-and-evaluation-missing-evaluator-receipt",
-      "status": "rejected_as_expected",
-      "workflow": "article"
-    },
-    {
-      "case_id": "article-fast-track-draft-and-evaluation",
-      "entry_mode": "fast_track_draft_and_evaluation",
-      "error_code": "stale_evaluator_receipt",
-      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
-      "mutation": "stale_evaluator_receipt",
-      "mutation_id": "article-fast-track-draft-and-evaluation-stale-evaluator-receipt",
-      "status": "rejected_as_expected",
-      "workflow": "article"
-    },
-    {
-      "case_id": "article-submission-only",
-      "entry_mode": "submission_only",
-      "error_code": "missing_evaluator_receipt",
-      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
-      "mutation": "missing_evaluator_receipt",
-      "mutation_id": "article-submission-only-missing-evaluator-receipt",
-      "status": "rejected_as_expected",
-      "workflow": "article"
-    },
-    {
-      "case_id": "article-submission-only",
-      "entry_mode": "submission_only",
-      "error_code": "stale_evaluator_receipt",
-      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
-      "mutation": "stale_evaluator_receipt",
-      "mutation_id": "article-submission-only-stale-evaluator-receipt",
-      "status": "rejected_as_expected",
-      "workflow": "article"
-    },
-    {
-      "case_id": "perspective-standard",
-      "entry_mode": "standard",
-      "error_code": "missing_evaluator_receipt",
-      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
-      "mutation": "missing_evaluator_receipt",
-      "mutation_id": "perspective-standard-missing-evaluator-receipt",
-      "status": "rejected_as_expected",
-      "workflow": "perspective"
-    },
-    {
-      "case_id": "perspective-standard",
-      "entry_mode": "standard",
-      "error_code": "stale_evaluator_receipt",
-      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
-      "mutation": "stale_evaluator_receipt",
-      "mutation_id": "perspective-standard-stale-evaluator-receipt",
-      "status": "rejected_as_expected",
-      "workflow": "perspective"
-    },
-    {
-      "case_id": "perspective-full",
-      "entry_mode": "full",
-      "error_code": "missing_evaluator_receipt",
-      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
-      "mutation": "missing_evaluator_receipt",
-      "mutation_id": "perspective-full-missing-evaluator-receipt",
-      "status": "rejected_as_expected",
-      "workflow": "perspective"
-    },
-    {
-      "case_id": "perspective-full",
-      "entry_mode": "full",
-      "error_code": "stale_evaluator_receipt",
-      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
-      "mutation": "stale_evaluator_receipt",
-      "mutation_id": "perspective-full-stale-evaluator-receipt",
-      "status": "rejected_as_expected",
-      "workflow": "perspective"
-    },
-    {
-      "case_id": "research-polisher-standard",
-      "entry_mode": "standard",
-      "error_code": "missing_evaluator_receipt",
-      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
-      "mutation": "missing_evaluator_receipt",
-      "mutation_id": "research-polisher-standard-missing-evaluator-receipt",
-      "status": "rejected_as_expected",
-      "workflow": "research_polisher"
-    },
-    {
-      "case_id": "research-polisher-standard",
-      "entry_mode": "standard",
-      "error_code": "stale_evaluator_receipt",
-      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
-      "mutation": "stale_evaluator_receipt",
-      "mutation_id": "research-polisher-standard-stale-evaluator-receipt",
-      "status": "rejected_as_expected",
-      "workflow": "research_polisher"
-    },
-    {
-      "case_id": "idea-standard",
-      "entry_mode": "standard",
-      "error_code": "missing_panel_receipt",
-      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
-      "mutation": "missing_panel_receipt",
-      "mutation_id": "idea-standard-missing-panel-receipt",
-      "status": "rejected_as_expected",
-      "workflow": "idea"
-    },
-    {
-      "case_id": "idea-standard",
-      "entry_mode": "standard",
-      "error_code": "stale_panel_receipt",
-      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
-      "mutation": "stale_panel_receipt",
-      "mutation_id": "idea-standard-stale-panel-receipt",
-      "status": "rejected_as_expected",
-      "workflow": "idea"
-    },
-    {
-      "case_id": "idea-resume-candidates",
-      "entry_mode": "resume_candidates",
-      "error_code": "missing_panel_receipt",
-      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
-      "mutation": "missing_panel_receipt",
-      "mutation_id": "idea-resume-candidates-missing-panel-receipt",
-      "status": "rejected_as_expected",
-      "workflow": "idea"
-    },
-    {
-      "case_id": "idea-resume-candidates",
-      "entry_mode": "resume_candidates",
-      "error_code": "stale_panel_receipt",
-      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
-      "mutation": "stale_panel_receipt",
-      "mutation_id": "idea-resume-candidates-stale-panel-receipt",
-      "status": "rejected_as_expected",
-      "workflow": "idea"
-    },
-    {
-      "case_id": "idea-portfolio-only",
-      "entry_mode": "portfolio_only",
-      "error_code": "missing_panel_receipt",
-      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
-      "mutation": "missing_panel_receipt",
-      "mutation_id": "idea-portfolio-only-missing-panel-receipt",
-      "status": "rejected_as_expected",
-      "workflow": "idea"
-    },
-    {
-      "case_id": "idea-portfolio-only",
-      "entry_mode": "portfolio_only",
-      "error_code": "stale_panel_receipt",
-      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
-      "mutation": "stale_panel_receipt",
-      "mutation_id": "idea-portfolio-only-stale-panel-receipt",
-      "status": "rejected_as_expected",
-      "workflow": "idea"
-    },
-    {
-      "case_id": "proposal-standard",
-      "entry_mode": "standard",
-      "error_code": "missing_panel_receipt",
-      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
-      "mutation": "missing_panel_receipt",
-      "mutation_id": "proposal-standard-missing-panel-receipt",
-      "status": "rejected_as_expected",
-      "workflow": "proposal"
-    },
-    {
-      "case_id": "proposal-standard",
-      "entry_mode": "standard",
-      "error_code": "stale_panel_receipt",
-      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
-      "mutation": "stale_panel_receipt",
-      "mutation_id": "proposal-standard-stale-panel-receipt",
-      "status": "rejected_as_expected",
-      "workflow": "proposal"
-    },
-    {
-      "case_id": "proposal-existing-draft",
-      "entry_mode": "existing_draft",
-      "error_code": "missing_panel_receipt",
-      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
-      "mutation": "missing_panel_receipt",
-      "mutation_id": "proposal-existing-draft-missing-panel-receipt",
-      "status": "rejected_as_expected",
-      "workflow": "proposal"
-    },
-    {
-      "case_id": "proposal-existing-draft",
-      "entry_mode": "existing_draft",
-      "error_code": "stale_panel_receipt",
-      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
-      "mutation": "stale_panel_receipt",
-      "mutation_id": "proposal-existing-draft-stale-panel-receipt",
-      "status": "rejected_as_expected",
-      "workflow": "proposal"
-    },
-    {
-      "case_id": "proposal-draft-and-external-review",
-      "entry_mode": "draft_and_external_review",
-      "error_code": "missing_panel_receipt",
-      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
-      "mutation": "missing_panel_receipt",
-      "mutation_id": "proposal-draft-and-external-review-missing-panel-receipt",
-      "status": "rejected_as_expected",
-      "workflow": "proposal"
-    },
-    {
-      "case_id": "proposal-draft-and-external-review",
-      "entry_mode": "draft_and_external_review",
-      "error_code": "stale_panel_receipt",
-      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
-      "mutation": "stale_panel_receipt",
-      "mutation_id": "proposal-draft-and-external-review-stale-panel-receipt",
-      "status": "rejected_as_expected",
-      "workflow": "proposal"
-    },
-    {
-      "case_id": "proposal-package-only",
-      "entry_mode": "package_only",
-      "error_code": "missing_panel_receipt",
-      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
-      "mutation": "missing_panel_receipt",
-      "mutation_id": "proposal-package-only-missing-panel-receipt",
-      "status": "rejected_as_expected",
-      "workflow": "proposal"
-    },
-    {
-      "case_id": "proposal-package-only",
-      "entry_mode": "package_only",
-      "error_code": "stale_panel_receipt",
-      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
-      "mutation": "stale_panel_receipt",
-      "mutation_id": "proposal-package-only-stale-panel-receipt",
-      "status": "rejected_as_expected",
-      "workflow": "proposal"
-    },
-    {
-      "case_id": "article-standard",
-      "entry_mode": "standard",
-      "error_code": "missing_panel_receipt",
-      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
-      "mutation": "missing_panel_receipt",
-      "mutation_id": "article-standard-missing-panel-receipt",
-      "status": "rejected_as_expected",
-      "workflow": "article"
-    },
-    {
-      "case_id": "article-standard",
-      "entry_mode": "standard",
-      "error_code": "stale_panel_receipt",
-      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
-      "mutation": "stale_panel_receipt",
-      "mutation_id": "article-standard-stale-panel-receipt",
-      "status": "rejected_as_expected",
-      "workflow": "article"
-    },
-    {
-      "case_id": "article-fast-track-draft",
-      "entry_mode": "fast_track_draft",
-      "error_code": "missing_panel_receipt",
-      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
-      "mutation": "missing_panel_receipt",
-      "mutation_id": "article-fast-track-draft-missing-panel-receipt",
-      "status": "rejected_as_expected",
-      "workflow": "article"
-    },
-    {
-      "case_id": "article-fast-track-draft",
-      "entry_mode": "fast_track_draft",
-      "error_code": "stale_panel_receipt",
-      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
-      "mutation": "stale_panel_receipt",
-      "mutation_id": "article-fast-track-draft-stale-panel-receipt",
-      "status": "rejected_as_expected",
-      "workflow": "article"
-    },
-    {
-      "case_id": "article-fast-track-draft-and-evaluation",
-      "entry_mode": "fast_track_draft_and_evaluation",
-      "error_code": "missing_panel_receipt",
-      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
-      "mutation": "missing_panel_receipt",
-      "mutation_id": "article-fast-track-draft-and-evaluation-missing-panel-receipt",
-      "status": "rejected_as_expected",
-      "workflow": "article"
-    },
-    {
-      "case_id": "article-fast-track-draft-and-evaluation",
-      "entry_mode": "fast_track_draft_and_evaluation",
-      "error_code": "stale_panel_receipt",
-      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
-      "mutation": "stale_panel_receipt",
-      "mutation_id": "article-fast-track-draft-and-evaluation-stale-panel-receipt",
-      "status": "rejected_as_expected",
-      "workflow": "article"
-    },
-    {
-      "case_id": "article-submission-only",
-      "entry_mode": "submission_only",
-      "error_code": "missing_panel_receipt",
-      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
-      "mutation": "missing_panel_receipt",
-      "mutation_id": "article-submission-only-missing-panel-receipt",
-      "status": "rejected_as_expected",
-      "workflow": "article"
-    },
-    {
-      "case_id": "article-submission-only",
-      "entry_mode": "submission_only",
-      "error_code": "stale_panel_receipt",
-      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
-      "mutation": "stale_panel_receipt",
-      "mutation_id": "article-submission-only-stale-panel-receipt",
-      "status": "rejected_as_expected",
-      "workflow": "article"
-    },
-    {
-      "case_id": "perspective-full",
-      "entry_mode": "full",
-      "error_code": "missing_panel_receipt",
-      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
-      "mutation": "missing_panel_receipt",
-      "mutation_id": "perspective-full-missing-panel-receipt",
-      "status": "rejected_as_expected",
-      "workflow": "perspective"
-    },
-    {
-      "case_id": "perspective-full",
-      "entry_mode": "full",
-      "error_code": "stale_panel_receipt",
-      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
-      "mutation": "stale_panel_receipt",
-      "mutation_id": "perspective-full-stale-panel-receipt",
-      "status": "rejected_as_expected",
-      "workflow": "perspective"
-    },
-    {
-      "case_id": "research-polisher-standard",
-      "entry_mode": "standard",
-      "error_code": "missing_strategy_reviewer_receipt",
-      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
-      "mutation": "missing_strategy_reviewer_receipt",
-      "mutation_id": "research-polisher-standard-missing-strategy-reviewer-receipt",
-      "status": "rejected_as_expected",
-      "workflow": "research_polisher"
-    },
-    {
-      "case_id": "research-polisher-standard",
-      "entry_mode": "standard",
-      "error_code": "stale_strategy_reviewer_receipt",
-      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
-      "mutation": "stale_strategy_reviewer_receipt",
-      "mutation_id": "research-polisher-standard-stale-strategy-reviewer-receipt",
-      "status": "rejected_as_expected",
-      "workflow": "research_polisher"
-    },
-    {
-      "case_id": "research-polisher-standard",
-      "entry_mode": "standard",
-      "error_code": "strategy_review_group_contract",
-      "guard_scope": "lifecycle_qualifying_reviewer_receipt",
-      "mutation": "duplicate_strategy_reviewer_instance",
-      "mutation_id": "research-polisher-standard-duplicate-strategy-reviewer-instance",
+      "observed_state": "promotion_blocked",
+      "ready_state_reached": false,
+      "requested_state": "human_strategy_selection_required",
       "status": "rejected_as_expected",
       "workflow": "research_polisher"
     }
   ],
-  "pending_gates": [
-    "accepted_platform_capture_adapter",
-    "five_current_version_live_happy_paths",
-    "five_current_version_valid_control_paths",
-    "accepted_external_evidence_adapter",
-    "release_source_commit",
-    "repository_preview_ci",
-    "canonical_plugin_validator_ci",
-    "marketplace_resolved_commit",
-    "marketplace_upgrade",
-    "explicit_reinstall",
-    "fresh_task_discovery",
-    "immutable_previous_artifact_rollback",
-    "main_branch_required_check_protection"
-  ],
-  "personal_profile_status": "in_progress_owner_observation",
-  "personal_readiness_report": "research-skills-openai/reports/personal-readiness.json",
-  "phase_status": "in_progress_live_and_release_evidence_pending",
-  "phase_status_derivation": "complete_preview_attested or complete_provider_verified only when every runtime and release-ledger gate is verified at one evidence level",
-  "phase_status_detail": "runtime_and_release_evidence_pending",
   "plugin_version": "0.9.0-preview.1",
-  "positive_mode_results": [
-    {
-      "artifacts_validated": 17,
-      "automatic_external_submission": false,
-      "case_id": "idea-standard",
-      "entry_gate_contract_source": "workflow-registry.yaml",
-      "entry_gate_receipt_count": 4,
-      "entry_gates_verified": [
-        "context_frozen",
-        "evidence_map_frozen",
-        "routing_decision_frozen",
-        "idea_dossier_versioned"
-      ],
-      "entry_mode": "standard",
-      "evaluator_instance_ids": [
-        "idea-standard-evaluator-001",
-        "idea-standard-evaluator-002"
-      ],
-      "evaluator_skill": "idea-evaluator",
-      "execution_kind": "deterministic_replay",
-      "final_state": "human_signoff_required",
-      "live_model_execution": false,
-      "mode_scope_completed": true,
-      "panel_dissent_preservation_contract_checked": true,
-      "panel_skill": "idea-adversarial-review-panel",
-      "path_profile": "full_delivery",
-      "primary_artifact_creator_instance_id": "idea-standard-writer-001",
-      "primary_artifact_creator_skill": "multi-path-idea-generator",
-      "primary_versions": [
-        "v001",
-        "v001",
-        "v002"
-      ],
-      "promotion_performed": true,
-      "reviewer_receipts_are_synthetic": true,
-      "strategy_reviewer_skill": null,
-      "synthetic_control_receipts": [],
-      "synthetic_evaluator_receipt_ids": [
-        "idea-standard-evaluator-001-review",
-        "idea-standard-evaluator-002-review"
-      ],
-      "synthetic_generation_receipt_ids": [
-        "idea-standard-versioned-artifact-created"
-      ],
-      "synthetic_package_receipt_ids": [
-        "idea-standard-package-verification"
-      ],
-      "synthetic_panel_receipt_ids": [
-        "idea-standard-panel-001-review",
-        "idea-standard-panel-002-review",
-        "idea-standard-panel-003-review"
-      ],
-      "synthetic_panel_role_instances": {
-        "feasibility-method": "idea-standard-panel-002",
-        "novelty-gap": "idea-standard-panel-001",
-        "pi-strategy": "idea-standard-panel-003"
-      },
-      "synthetic_strategy_reviewer_receipt_ids": [],
-      "synthetic_strategy_role_instances": {},
-      "transition_receipts": [
-        {
-          "current_primary_version": "v001",
-          "from": "initialized",
-          "qualifying_review_id": null,
-          "sequence": 1,
-          "to": "preprocessing",
-          "trigger": "entry_gate_passed"
-        },
-        {
-          "current_primary_version": "v001",
-          "from": "preprocessing",
-          "qualifying_review_id": null,
-          "sequence": 2,
-          "to": "artifact_frozen",
-          "trigger": "versioned_artifact_created"
-        },
-        {
-          "current_primary_version": "v001",
-          "from": "artifact_frozen",
-          "qualifying_review_id": null,
-          "sequence": 3,
-          "to": "pending_review",
-          "trigger": "independent_review_dispatched"
-        },
-        {
-          "current_primary_version": "v001",
-          "from": "pending_review",
-          "qualifying_review_id": "idea-standard-evaluator-001-review",
-          "sequence": 4,
-          "to": "revision_required",
-          "trigger": "fixable_revision_requested"
-        },
-        {
-          "current_primary_version": "v002",
-          "from": "revision_required",
-          "qualifying_review_id": null,
-          "sequence": 5,
-          "to": "artifact_frozen",
-          "trigger": "new_version_created"
-        },
-        {
-          "current_primary_version": "v002",
-          "from": "artifact_frozen",
-          "qualifying_review_id": null,
-          "sequence": 6,
-          "to": "pending_review",
-          "trigger": "independent_review_dispatched"
-        },
-        {
-          "current_primary_version": "v002",
-          "from": "pending_review",
-          "qualifying_review_id": "idea-standard-evaluator-002-review",
-          "sequence": 7,
-          "to": "panel_pending",
-          "trigger": "latest_version_accepted"
-        },
-        {
-          "current_primary_version": "v002",
-          "from": "panel_pending",
-          "qualifying_review_id": "idea-standard-complete-panel",
-          "sequence": 8,
-          "to": "packaging_pending",
-          "trigger": "panel_gate_passed"
-        },
-        {
-          "current_primary_version": "v002",
-          "from": "packaging_pending",
-          "qualifying_review_id": null,
-          "sequence": 9,
-          "to": "human_signoff_required",
-          "trigger": "package_verified"
-        }
-      ],
-      "workflow": "idea",
-      "writer_instance_id": "idea-standard-writer-001",
-      "writer_skill": "multi-path-idea-generator"
-    },
-    {
-      "artifacts_validated": 17,
-      "automatic_external_submission": false,
-      "case_id": "idea-resume-candidates",
-      "entry_gate_contract_source": "workflow-registry.yaml",
-      "entry_gate_receipt_count": 4,
-      "entry_gates_verified": [
-        "context_scope_validated",
-        "evidence_scope_validated",
-        "routing_decision_frozen",
-        "idea_dossier_versioned"
-      ],
-      "entry_mode": "resume_candidates",
-      "evaluator_instance_ids": [
-        "idea-resume-candidates-evaluator-001",
-        "idea-resume-candidates-evaluator-002"
-      ],
-      "evaluator_skill": "idea-evaluator",
-      "execution_kind": "deterministic_replay",
-      "final_state": "human_signoff_required",
-      "live_model_execution": false,
-      "mode_scope_completed": true,
-      "panel_dissent_preservation_contract_checked": true,
-      "panel_skill": "idea-adversarial-review-panel",
-      "path_profile": "full_delivery",
-      "primary_artifact_creator_instance_id": "idea-resume-candidates-writer-001",
-      "primary_artifact_creator_skill": "multi-path-idea-generator",
-      "primary_versions": [
-        "v001",
-        "v001",
-        "v002"
-      ],
-      "promotion_performed": true,
-      "reviewer_receipts_are_synthetic": true,
-      "strategy_reviewer_skill": null,
-      "synthetic_control_receipts": [],
-      "synthetic_evaluator_receipt_ids": [
-        "idea-resume-candidates-evaluator-001-review",
-        "idea-resume-candidates-evaluator-002-review"
-      ],
-      "synthetic_generation_receipt_ids": [
-        "idea-resume-candidates-versioned-artifact-created"
-      ],
-      "synthetic_package_receipt_ids": [
-        "idea-resume-candidates-package-verification"
-      ],
-      "synthetic_panel_receipt_ids": [
-        "idea-resume-candidates-panel-001-review",
-        "idea-resume-candidates-panel-002-review",
-        "idea-resume-candidates-panel-003-review"
-      ],
-      "synthetic_panel_role_instances": {
-        "feasibility-method": "idea-resume-candidates-panel-002",
-        "novelty-gap": "idea-resume-candidates-panel-001",
-        "pi-strategy": "idea-resume-candidates-panel-003"
-      },
-      "synthetic_strategy_reviewer_receipt_ids": [],
-      "synthetic_strategy_role_instances": {},
-      "transition_receipts": [
-        {
-          "current_primary_version": "v001",
-          "from": "initialized",
-          "qualifying_review_id": null,
-          "sequence": 1,
-          "to": "preprocessing",
-          "trigger": "entry_gate_passed"
-        },
-        {
-          "current_primary_version": "v001",
-          "from": "preprocessing",
-          "qualifying_review_id": null,
-          "sequence": 2,
-          "to": "artifact_frozen",
-          "trigger": "versioned_artifact_created"
-        },
-        {
-          "current_primary_version": "v001",
-          "from": "artifact_frozen",
-          "qualifying_review_id": null,
-          "sequence": 3,
-          "to": "pending_review",
-          "trigger": "independent_review_dispatched"
-        },
-        {
-          "current_primary_version": "v001",
-          "from": "pending_review",
-          "qualifying_review_id": "idea-resume-candidates-evaluator-001-review",
-          "sequence": 4,
-          "to": "revision_required",
-          "trigger": "fixable_revision_requested"
-        },
-        {
-          "current_primary_version": "v002",
-          "from": "revision_required",
-          "qualifying_review_id": null,
-          "sequence": 5,
-          "to": "artifact_frozen",
-          "trigger": "new_version_created"
-        },
-        {
-          "current_primary_version": "v002",
-          "from": "artifact_frozen",
-          "qualifying_review_id": null,
-          "sequence": 6,
-          "to": "pending_review",
-          "trigger": "independent_review_dispatched"
-        },
-        {
-          "current_primary_version": "v002",
-          "from": "pending_review",
-          "qualifying_review_id": "idea-resume-candidates-evaluator-002-review",
-          "sequence": 7,
-          "to": "panel_pending",
-          "trigger": "latest_version_accepted"
-        },
-        {
-          "current_primary_version": "v002",
-          "from": "panel_pending",
-          "qualifying_review_id": "idea-resume-candidates-complete-panel",
-          "sequence": 8,
-          "to": "packaging_pending",
-          "trigger": "panel_gate_passed"
-        },
-        {
-          "current_primary_version": "v002",
-          "from": "packaging_pending",
-          "qualifying_review_id": null,
-          "sequence": 9,
-          "to": "human_signoff_required",
-          "trigger": "package_verified"
-        }
-      ],
-      "workflow": "idea",
-      "writer_instance_id": "idea-resume-candidates-writer-001",
-      "writer_skill": "multi-path-idea-generator"
-    },
-    {
-      "artifacts_validated": 12,
-      "automatic_external_submission": false,
-      "case_id": "idea-portfolio-only",
-      "entry_gate_contract_source": "workflow-registry.yaml",
-      "entry_gate_receipt_count": 2,
-      "entry_gates_verified": [
-        "latest_version_independently_evaluated",
-        "dissent_and_fatal_findings_indexed"
-      ],
-      "entry_mode": "portfolio_only",
-      "evaluator_instance_ids": [
-        "idea-portfolio-only-evaluator-001"
-      ],
-      "evaluator_skill": "idea-evaluator",
-      "execution_kind": "deterministic_replay",
-      "final_state": "human_signoff_required",
-      "live_model_execution": false,
-      "mode_scope_completed": true,
-      "panel_dissent_preservation_contract_checked": true,
-      "panel_skill": "idea-adversarial-review-panel",
-      "path_profile": "evaluated_package",
-      "primary_artifact_creator_instance_id": "idea-portfolio-only-writer-001",
-      "primary_artifact_creator_skill": "multi-path-idea-generator",
-      "primary_versions": [
-        "v001"
-      ],
-      "promotion_performed": true,
-      "reviewer_receipts_are_synthetic": true,
-      "strategy_reviewer_skill": null,
-      "synthetic_control_receipts": [],
-      "synthetic_evaluator_receipt_ids": [
-        "idea-portfolio-only-evaluator-001-review"
-      ],
-      "synthetic_generation_receipt_ids": [
-        "idea-portfolio-only-versioned-artifact-created"
-      ],
-      "synthetic_package_receipt_ids": [
-        "idea-portfolio-only-package-verification"
-      ],
-      "synthetic_panel_receipt_ids": [
-        "idea-portfolio-only-panel-001-review",
-        "idea-portfolio-only-panel-002-review",
-        "idea-portfolio-only-panel-003-review"
-      ],
-      "synthetic_panel_role_instances": {
-        "feasibility-method": "idea-portfolio-only-panel-002",
-        "novelty-gap": "idea-portfolio-only-panel-001",
-        "pi-strategy": "idea-portfolio-only-panel-003"
-      },
-      "synthetic_strategy_reviewer_receipt_ids": [],
-      "synthetic_strategy_role_instances": {},
-      "transition_receipts": [
-        {
-          "current_primary_version": "v001",
-          "from": "initialized",
-          "qualifying_review_id": null,
-          "sequence": 1,
-          "to": "preprocessing",
-          "trigger": "entry_gate_passed"
-        },
-        {
-          "current_primary_version": "v001",
-          "from": "preprocessing",
-          "qualifying_review_id": null,
-          "sequence": 2,
-          "to": "artifact_frozen",
-          "trigger": "versioned_artifact_created"
-        },
-        {
-          "current_primary_version": "v001",
-          "from": "artifact_frozen",
-          "qualifying_review_id": null,
-          "sequence": 3,
-          "to": "pending_review",
-          "trigger": "independent_review_dispatched"
-        },
-        {
-          "current_primary_version": "v001",
-          "from": "pending_review",
-          "qualifying_review_id": "idea-portfolio-only-evaluator-001-review",
-          "sequence": 4,
-          "to": "panel_pending",
-          "trigger": "latest_version_accepted"
-        },
-        {
-          "current_primary_version": "v001",
-          "from": "panel_pending",
-          "qualifying_review_id": "idea-portfolio-only-complete-panel",
-          "sequence": 5,
-          "to": "packaging_pending",
-          "trigger": "panel_gate_passed"
-        },
-        {
-          "current_primary_version": "v001",
-          "from": "packaging_pending",
-          "qualifying_review_id": null,
-          "sequence": 6,
-          "to": "human_signoff_required",
-          "trigger": "package_verified"
-        }
-      ],
-      "workflow": "idea",
-      "writer_instance_id": "idea-portfolio-only-writer-001",
-      "writer_skill": "multi-path-idea-generator"
-    },
-    {
-      "artifacts_validated": 21,
-      "automatic_external_submission": false,
-      "case_id": "proposal-standard",
-      "entry_gate_contract_source": "workflow-registry.yaml",
-      "entry_gate_receipt_count": 3,
-      "entry_gates_verified": [
-        "context_frozen",
-        "readiness_passed",
-        "proposal_versioned"
-      ],
-      "entry_mode": "standard",
-      "evaluator_instance_ids": [
-        "proposal-standard-evaluator-001",
-        "proposal-standard-evaluator-002"
-      ],
-      "evaluator_skill": "proposal-evaluator",
-      "execution_kind": "deterministic_replay",
-      "final_state": "human_signoff_required",
-      "live_model_execution": false,
-      "mode_scope_completed": true,
-      "panel_dissent_preservation_contract_checked": true,
-      "panel_skill": "proposal-review-panel",
-      "path_profile": "full_delivery",
-      "primary_artifact_creator_instance_id": "proposal-standard-writer-001",
-      "primary_artifact_creator_skill": "proposal-drafter",
-      "primary_versions": [
-        "v001",
-        "v001",
-        "v002"
-      ],
-      "promotion_performed": true,
-      "reviewer_receipts_are_synthetic": true,
-      "strategy_reviewer_skill": null,
-      "synthetic_control_receipts": [],
-      "synthetic_evaluator_receipt_ids": [
-        "proposal-standard-evaluator-001-review",
-        "proposal-standard-evaluator-002-review"
-      ],
-      "synthetic_generation_receipt_ids": [
-        "proposal-standard-versioned-artifact-created"
-      ],
-      "synthetic_package_receipt_ids": [
-        "proposal-standard-package-verification"
-      ],
-      "synthetic_panel_receipt_ids": [
-        "proposal-standard-panel-001-review",
-        "proposal-standard-panel-002-review",
-        "proposal-standard-panel-003-review",
-        "proposal-standard-panel-004-review",
-        "proposal-standard-panel-005-review"
-      ],
-      "synthetic_panel_role_instances": {
-        "broad-field": "proposal-standard-panel-001",
-        "domain": "proposal-standard-panel-002",
-        "methodology-statistics": "proposal-standard-panel-003",
-        "skeptical": "proposal-standard-panel-004",
-        "submission-guard": "proposal-standard-panel-005"
-      },
-      "synthetic_strategy_reviewer_receipt_ids": [],
-      "synthetic_strategy_role_instances": {},
-      "transition_receipts": [
-        {
-          "current_primary_version": "v001",
-          "from": "initialized",
-          "qualifying_review_id": null,
-          "sequence": 1,
-          "to": "preprocessing",
-          "trigger": "entry_gate_passed"
-        },
-        {
-          "current_primary_version": "v001",
-          "from": "preprocessing",
-          "qualifying_review_id": null,
-          "sequence": 2,
-          "to": "artifact_frozen",
-          "trigger": "versioned_artifact_created"
-        },
-        {
-          "current_primary_version": "v001",
-          "from": "artifact_frozen",
-          "qualifying_review_id": null,
-          "sequence": 3,
-          "to": "pending_review",
-          "trigger": "independent_review_dispatched"
-        },
-        {
-          "current_primary_version": "v001",
-          "from": "pending_review",
-          "qualifying_review_id": "proposal-standard-evaluator-001-review",
-          "sequence": 4,
-          "to": "revision_required",
-          "trigger": "fixable_revision_requested"
-        },
-        {
-          "current_primary_version": "v002",
-          "from": "revision_required",
-          "qualifying_review_id": null,
-          "sequence": 5,
-          "to": "artifact_frozen",
-          "trigger": "new_version_created"
-        },
-        {
-          "current_primary_version": "v002",
-          "from": "artifact_frozen",
-          "qualifying_review_id": null,
-          "sequence": 6,
-          "to": "pending_review",
-          "trigger": "independent_review_dispatched"
-        },
-        {
-          "current_primary_version": "v002",
-          "from": "pending_review",
-          "qualifying_review_id": "proposal-standard-evaluator-002-review",
-          "sequence": 7,
-          "to": "panel_pending",
-          "trigger": "latest_version_accepted"
-        },
-        {
-          "current_primary_version": "v002",
-          "from": "panel_pending",
-          "qualifying_review_id": "proposal-standard-complete-panel",
-          "sequence": 8,
-          "to": "packaging_pending",
-          "trigger": "panel_gate_passed"
-        },
-        {
-          "current_primary_version": "v002",
-          "from": "packaging_pending",
-          "qualifying_review_id": null,
-          "sequence": 9,
-          "to": "human_signoff_required",
-          "trigger": "package_verified"
-        }
-      ],
-      "workflow": "proposal",
-      "writer_instance_id": "proposal-standard-writer-001",
-      "writer_skill": "proposal-drafter"
-    },
-    {
-      "artifacts_validated": 20,
-      "automatic_external_submission": false,
-      "case_id": "proposal-existing-draft",
-      "entry_gate_contract_source": "workflow-registry.yaml",
-      "entry_gate_receipt_count": 3,
-      "entry_gates_verified": [
-        "minimal_state_created",
-        "scope_limitations_recorded",
-        "proposal_versioned"
-      ],
-      "entry_mode": "existing_draft",
-      "evaluator_instance_ids": [
-        "proposal-existing-draft-evaluator-001",
-        "proposal-existing-draft-evaluator-002"
-      ],
-      "evaluator_skill": "proposal-evaluator",
-      "execution_kind": "deterministic_replay",
-      "final_state": "human_signoff_required",
-      "live_model_execution": false,
-      "mode_scope_completed": true,
-      "panel_dissent_preservation_contract_checked": true,
-      "panel_skill": "proposal-review-panel",
-      "path_profile": "full_delivery",
-      "primary_artifact_creator_instance_id": "proposal-existing-draft-writer-001",
-      "primary_artifact_creator_skill": "proposal-drafter",
-      "primary_versions": [
-        "v001",
-        "v002"
-      ],
-      "promotion_performed": true,
-      "reviewer_receipts_are_synthetic": true,
-      "strategy_reviewer_skill": null,
-      "synthetic_control_receipts": [],
-      "synthetic_evaluator_receipt_ids": [
-        "proposal-existing-draft-evaluator-001-review",
-        "proposal-existing-draft-evaluator-002-review"
-      ],
-      "synthetic_generation_receipt_ids": [
-        "proposal-existing-draft-versioned-artifact-created"
-      ],
-      "synthetic_package_receipt_ids": [
-        "proposal-existing-draft-package-verification"
-      ],
-      "synthetic_panel_receipt_ids": [
-        "proposal-existing-draft-panel-001-review",
-        "proposal-existing-draft-panel-002-review",
-        "proposal-existing-draft-panel-003-review",
-        "proposal-existing-draft-panel-004-review",
-        "proposal-existing-draft-panel-005-review"
-      ],
-      "synthetic_panel_role_instances": {
-        "broad-field": "proposal-existing-draft-panel-001",
-        "domain": "proposal-existing-draft-panel-002",
-        "methodology-statistics": "proposal-existing-draft-panel-003",
-        "skeptical": "proposal-existing-draft-panel-004",
-        "submission-guard": "proposal-existing-draft-panel-005"
-      },
-      "synthetic_strategy_reviewer_receipt_ids": [],
-      "synthetic_strategy_role_instances": {},
-      "transition_receipts": [
-        {
-          "current_primary_version": "v001",
-          "from": "initialized",
-          "qualifying_review_id": null,
-          "sequence": 1,
-          "to": "preprocessing",
-          "trigger": "entry_gate_passed"
-        },
-        {
-          "current_primary_version": "v001",
-          "from": "preprocessing",
-          "qualifying_review_id": null,
-          "sequence": 2,
-          "to": "artifact_frozen",
-          "trigger": "versioned_artifact_created"
-        },
-        {
-          "current_primary_version": "v001",
-          "from": "artifact_frozen",
-          "qualifying_review_id": null,
-          "sequence": 3,
-          "to": "pending_review",
-          "trigger": "independent_review_dispatched"
-        },
-        {
-          "current_primary_version": "v001",
-          "from": "pending_review",
-          "qualifying_review_id": "proposal-existing-draft-evaluator-001-review",
-          "sequence": 4,
-          "to": "revision_required",
-          "trigger": "fixable_revision_requested"
-        },
-        {
-          "current_primary_version": "v002",
-          "from": "revision_required",
-          "qualifying_review_id": null,
-          "sequence": 5,
-          "to": "artifact_frozen",
-          "trigger": "new_version_created"
-        },
-        {
-          "current_primary_version": "v002",
-          "from": "artifact_frozen",
-          "qualifying_review_id": null,
-          "sequence": 6,
-          "to": "pending_review",
-          "trigger": "independent_review_dispatched"
-        },
-        {
-          "current_primary_version": "v002",
-          "from": "pending_review",
-          "qualifying_review_id": "proposal-existing-draft-evaluator-002-review",
-          "sequence": 7,
-          "to": "panel_pending",
-          "trigger": "latest_version_accepted"
-        },
-        {
-          "current_primary_version": "v002",
-          "from": "panel_pending",
-          "qualifying_review_id": "proposal-existing-draft-complete-panel",
-          "sequence": 8,
-          "to": "packaging_pending",
-          "trigger": "panel_gate_passed"
-        },
-        {
-          "current_primary_version": "v002",
-          "from": "packaging_pending",
-          "qualifying_review_id": null,
-          "sequence": 9,
-          "to": "human_signoff_required",
-          "trigger": "package_verified"
-        }
-      ],
-      "workflow": "proposal",
-      "writer_instance_id": "proposal-existing-draft-writer-001",
-      "writer_skill": "proposal-drafter"
-    },
-    {
-      "artifacts_validated": 19,
-      "automatic_external_submission": false,
-      "case_id": "proposal-draft-and-external-review",
-      "entry_gate_contract_source": "workflow-registry.yaml",
-      "entry_gate_receipt_count": 3,
-      "entry_gates_verified": [
-        "minimal_state_created",
-        "proposal_versioned",
-        "external_review_qualified_or_fresh_evaluation_required"
-      ],
-      "entry_mode": "draft_and_external_review",
-      "evaluator_instance_ids": [
-        "proposal-draft-and-external-review-evaluator-001",
-        "proposal-draft-and-external-review-evaluator-002"
-      ],
-      "evaluator_skill": "proposal-evaluator",
-      "execution_kind": "deterministic_replay",
-      "final_state": "human_signoff_required",
-      "live_model_execution": false,
-      "mode_scope_completed": true,
-      "panel_dissent_preservation_contract_checked": true,
-      "panel_skill": "proposal-review-panel",
-      "path_profile": "full_delivery",
-      "primary_artifact_creator_instance_id": "proposal-draft-and-external-review-writer-001",
-      "primary_artifact_creator_skill": "proposal-drafter",
-      "primary_versions": [
-        "v001",
-        "v002"
-      ],
-      "promotion_performed": true,
-      "reviewer_receipts_are_synthetic": true,
-      "strategy_reviewer_skill": null,
-      "synthetic_control_receipts": [],
-      "synthetic_evaluator_receipt_ids": [
-        "proposal-draft-and-external-review-evaluator-001-review",
-        "proposal-draft-and-external-review-evaluator-002-review"
-      ],
-      "synthetic_generation_receipt_ids": [
-        "proposal-draft-and-external-review-versioned-artifact-created"
-      ],
-      "synthetic_package_receipt_ids": [
-        "proposal-draft-and-external-review-package-verification"
-      ],
-      "synthetic_panel_receipt_ids": [
-        "proposal-draft-and-external-review-panel-001-review",
-        "proposal-draft-and-external-review-panel-002-review",
-        "proposal-draft-and-external-review-panel-003-review",
-        "proposal-draft-and-external-review-panel-004-review",
-        "proposal-draft-and-external-review-panel-005-review"
-      ],
-      "synthetic_panel_role_instances": {
-        "broad-field": "proposal-draft-and-external-review-panel-001",
-        "domain": "proposal-draft-and-external-review-panel-002",
-        "methodology-statistics": "proposal-draft-and-external-review-panel-003",
-        "skeptical": "proposal-draft-and-external-review-panel-004",
-        "submission-guard": "proposal-draft-and-external-review-panel-005"
-      },
-      "synthetic_strategy_reviewer_receipt_ids": [],
-      "synthetic_strategy_role_instances": {},
-      "transition_receipts": [
-        {
-          "current_primary_version": "v001",
-          "from": "initialized",
-          "qualifying_review_id": null,
-          "sequence": 1,
-          "to": "preprocessing",
-          "trigger": "entry_gate_passed"
-        },
-        {
-          "current_primary_version": "v001",
-          "from": "preprocessing",
-          "qualifying_review_id": null,
-          "sequence": 2,
-          "to": "artifact_frozen",
-          "trigger": "versioned_artifact_created"
-        },
-        {
-          "current_primary_version": "v001",
-          "from": "artifact_frozen",
-          "qualifying_review_id": null,
-          "sequence": 3,
-          "to": "pending_review",
-          "trigger": "independent_review_dispatched"
-        },
-        {
-          "current_primary_version": "v001",
-          "from": "pending_review",
-          "qualifying_review_id": "proposal-draft-and-external-review-evaluator-001-review",
-          "sequence": 4,
-          "to": "revision_required",
-          "trigger": "fixable_revision_requested"
-        },
-        {
-          "current_primary_version": "v002",
-          "from": "revision_required",
-          "qualifying_review_id": null,
-          "sequence": 5,
-          "to": "artifact_frozen",
-          "trigger": "new_version_created"
-        },
-        {
-          "current_primary_version": "v002",
-          "from": "artifact_frozen",
-          "qualifying_review_id": null,
-          "sequence": 6,
-          "to": "pending_review",
-          "trigger": "independent_review_dispatched"
-        },
-        {
-          "current_primary_version": "v002",
-          "from": "pending_review",
-          "qualifying_review_id": "proposal-draft-and-external-review-evaluator-002-review",
-          "sequence": 7,
-          "to": "panel_pending",
-          "trigger": "latest_version_accepted"
-        },
-        {
-          "current_primary_version": "v002",
-          "from": "panel_pending",
-          "qualifying_review_id": "proposal-draft-and-external-review-complete-panel",
-          "sequence": 8,
-          "to": "packaging_pending",
-          "trigger": "panel_gate_passed"
-        },
-        {
-          "current_primary_version": "v002",
-          "from": "packaging_pending",
-          "qualifying_review_id": null,
-          "sequence": 9,
-          "to": "human_signoff_required",
-          "trigger": "package_verified"
-        }
-      ],
-      "workflow": "proposal",
-      "writer_instance_id": "proposal-draft-and-external-review-writer-001",
-      "writer_skill": "proposal-drafter"
-    },
-    {
-      "artifacts_validated": 17,
-      "automatic_external_submission": false,
-      "case_id": "proposal-package-only",
-      "entry_gate_contract_source": "workflow-registry.yaml",
-      "entry_gate_receipt_count": 3,
-      "entry_gates_verified": [
-        "latest_version_independently_evaluated",
-        "required_panel_reports_complete",
-        "dissent_and_fatal_findings_indexed"
-      ],
-      "entry_mode": "package_only",
-      "evaluator_instance_ids": [
-        "proposal-package-only-evaluator-001"
-      ],
-      "evaluator_skill": "proposal-evaluator",
-      "execution_kind": "deterministic_replay",
-      "final_state": "human_signoff_required",
-      "live_model_execution": false,
-      "mode_scope_completed": true,
-      "panel_dissent_preservation_contract_checked": true,
-      "panel_skill": "proposal-review-panel",
-      "path_profile": "evaluated_package",
-      "primary_artifact_creator_instance_id": "proposal-package-only-writer-001",
-      "primary_artifact_creator_skill": "proposal-drafter",
-      "primary_versions": [
-        "v001"
-      ],
-      "promotion_performed": true,
-      "reviewer_receipts_are_synthetic": true,
-      "strategy_reviewer_skill": null,
-      "synthetic_control_receipts": [],
-      "synthetic_evaluator_receipt_ids": [
-        "proposal-package-only-evaluator-001-review"
-      ],
-      "synthetic_generation_receipt_ids": [
-        "proposal-package-only-versioned-artifact-created"
-      ],
-      "synthetic_package_receipt_ids": [
-        "proposal-package-only-package-verification"
-      ],
-      "synthetic_panel_receipt_ids": [
-        "proposal-package-only-panel-001-review",
-        "proposal-package-only-panel-002-review",
-        "proposal-package-only-panel-003-review",
-        "proposal-package-only-panel-004-review",
-        "proposal-package-only-panel-005-review"
-      ],
-      "synthetic_panel_role_instances": {
-        "broad-field": "proposal-package-only-panel-001",
-        "domain": "proposal-package-only-panel-002",
-        "methodology-statistics": "proposal-package-only-panel-003",
-        "skeptical": "proposal-package-only-panel-004",
-        "submission-guard": "proposal-package-only-panel-005"
-      },
-      "synthetic_strategy_reviewer_receipt_ids": [],
-      "synthetic_strategy_role_instances": {},
-      "transition_receipts": [
-        {
-          "current_primary_version": "v001",
-          "from": "initialized",
-          "qualifying_review_id": null,
-          "sequence": 1,
-          "to": "preprocessing",
-          "trigger": "entry_gate_passed"
-        },
-        {
-          "current_primary_version": "v001",
-          "from": "preprocessing",
-          "qualifying_review_id": null,
-          "sequence": 2,
-          "to": "artifact_frozen",
-          "trigger": "versioned_artifact_created"
-        },
-        {
-          "current_primary_version": "v001",
-          "from": "artifact_frozen",
-          "qualifying_review_id": null,
-          "sequence": 3,
-          "to": "pending_review",
-          "trigger": "independent_review_dispatched"
-        },
-        {
-          "current_primary_version": "v001",
-          "from": "pending_review",
-          "qualifying_review_id": "proposal-package-only-evaluator-001-review",
-          "sequence": 4,
-          "to": "panel_pending",
-          "trigger": "latest_version_accepted"
-        },
-        {
-          "current_primary_version": "v001",
-          "from": "panel_pending",
-          "qualifying_review_id": "proposal-package-only-complete-panel",
-          "sequence": 5,
-          "to": "packaging_pending",
-          "trigger": "panel_gate_passed"
-        },
-        {
-          "current_primary_version": "v001",
-          "from": "packaging_pending",
-          "qualifying_review_id": null,
-          "sequence": 6,
-          "to": "human_signoff_required",
-          "trigger": "package_verified"
-        }
-      ],
-      "workflow": "proposal",
-      "writer_instance_id": "proposal-package-only-writer-001",
-      "writer_skill": "proposal-drafter"
-    },
-    {
-      "artifacts_validated": 28,
-      "automatic_external_submission": false,
-      "case_id": "article-standard",
-      "entry_gate_contract_source": "workflow-registry.yaml",
-      "entry_gate_receipt_count": 5,
-      "entry_gates_verified": [
-        "readiness_passed",
-        "context_frozen",
-        "methods_gate_passed",
-        "manuscript_versioned",
-        "claim_audit_passed"
-      ],
-      "entry_mode": "standard",
-      "evaluator_instance_ids": [
-        "article-standard-evaluator-001",
-        "article-standard-evaluator-002"
-      ],
-      "evaluator_skill": "article-evaluator",
-      "execution_kind": "deterministic_replay",
-      "final_state": "human_signoff_required",
-      "live_model_execution": false,
-      "mode_scope_completed": true,
-      "panel_dissent_preservation_contract_checked": true,
-      "panel_skill": "article-review-panel",
-      "path_profile": "full_delivery",
-      "primary_artifact_creator_instance_id": "article-standard-writer-001",
-      "primary_artifact_creator_skill": "article-drafter",
-      "primary_versions": [
-        "v001",
-        "v001",
-        "v002"
-      ],
-      "promotion_performed": true,
-      "reviewer_receipts_are_synthetic": true,
-      "strategy_reviewer_skill": null,
-      "synthetic_control_receipts": [],
-      "synthetic_evaluator_receipt_ids": [
-        "article-standard-evaluator-001-review",
-        "article-standard-evaluator-002-review"
-      ],
-      "synthetic_generation_receipt_ids": [
-        "article-standard-versioned-artifact-created"
-      ],
-      "synthetic_package_receipt_ids": [
-        "article-standard-package-verification"
-      ],
-      "synthetic_panel_receipt_ids": [
-        "article-standard-panel-001-review",
-        "article-standard-panel-002-review",
-        "article-standard-panel-003-review"
-      ],
-      "synthetic_panel_role_instances": {
-        "evidence-claim": "article-standard-panel-002",
-        "methodology-statistics": "article-standard-panel-001",
-        "submission-guard": "article-standard-panel-003"
-      },
-      "synthetic_strategy_reviewer_receipt_ids": [],
-      "synthetic_strategy_role_instances": {},
-      "transition_receipts": [
-        {
-          "current_primary_version": "v001",
-          "from": "initialized",
-          "qualifying_review_id": null,
-          "sequence": 1,
-          "to": "preprocessing",
-          "trigger": "entry_gate_passed"
-        },
-        {
-          "current_primary_version": "v001",
-          "from": "preprocessing",
-          "qualifying_review_id": null,
-          "sequence": 2,
-          "to": "artifact_frozen",
-          "trigger": "versioned_artifact_created"
-        },
-        {
-          "current_primary_version": "v001",
-          "from": "artifact_frozen",
-          "qualifying_review_id": null,
-          "sequence": 3,
-          "to": "pending_review",
-          "trigger": "independent_review_dispatched"
-        },
-        {
-          "current_primary_version": "v001",
-          "from": "pending_review",
-          "qualifying_review_id": "article-standard-evaluator-001-review",
-          "sequence": 4,
-          "to": "revision_required",
-          "trigger": "fixable_revision_requested"
-        },
-        {
-          "current_primary_version": "v002",
-          "from": "revision_required",
-          "qualifying_review_id": null,
-          "sequence": 5,
-          "to": "artifact_frozen",
-          "trigger": "new_version_created"
-        },
-        {
-          "current_primary_version": "v002",
-          "from": "artifact_frozen",
-          "qualifying_review_id": null,
-          "sequence": 6,
-          "to": "pending_review",
-          "trigger": "independent_review_dispatched"
-        },
-        {
-          "current_primary_version": "v002",
-          "from": "pending_review",
-          "qualifying_review_id": "article-standard-evaluator-002-review",
-          "sequence": 7,
-          "to": "panel_pending",
-          "trigger": "latest_version_accepted"
-        },
-        {
-          "current_primary_version": "v002",
-          "from": "panel_pending",
-          "qualifying_review_id": "article-standard-complete-panel",
-          "sequence": 8,
-          "to": "packaging_pending",
-          "trigger": "panel_gate_passed"
-        },
-        {
-          "current_primary_version": "v002",
-          "from": "packaging_pending",
-          "qualifying_review_id": null,
-          "sequence": 9,
-          "to": "human_signoff_required",
-          "trigger": "package_verified"
-        }
-      ],
-      "workflow": "article",
-      "writer_instance_id": "article-standard-writer-001",
-      "writer_skill": "article-drafter"
-    },
-    {
-      "artifacts_validated": 28,
-      "automatic_external_submission": false,
-      "case_id": "article-fast-track-draft",
-      "entry_gate_contract_source": "workflow-registry.yaml",
-      "entry_gate_receipt_count": 4,
-      "entry_gates_verified": [
-        "readiness_passed",
-        "minimal_backfill_validated",
-        "manuscript_versioned",
-        "claim_audit_passed"
-      ],
-      "entry_mode": "fast_track_draft",
-      "evaluator_instance_ids": [
-        "article-fast-track-draft-evaluator-001",
-        "article-fast-track-draft-evaluator-002"
-      ],
-      "evaluator_skill": "article-evaluator",
-      "execution_kind": "deterministic_replay",
-      "final_state": "human_signoff_required",
-      "live_model_execution": false,
-      "mode_scope_completed": true,
-      "panel_dissent_preservation_contract_checked": true,
-      "panel_skill": "article-review-panel",
-      "path_profile": "full_delivery",
-      "primary_artifact_creator_instance_id": "article-fast-track-draft-writer-001",
-      "primary_artifact_creator_skill": "article-drafter",
-      "primary_versions": [
-        "v001",
-        "v001",
-        "v002"
-      ],
-      "promotion_performed": true,
-      "reviewer_receipts_are_synthetic": true,
-      "strategy_reviewer_skill": null,
-      "synthetic_control_receipts": [],
-      "synthetic_evaluator_receipt_ids": [
-        "article-fast-track-draft-evaluator-001-review",
-        "article-fast-track-draft-evaluator-002-review"
-      ],
-      "synthetic_generation_receipt_ids": [
-        "article-fast-track-draft-versioned-artifact-created"
-      ],
-      "synthetic_package_receipt_ids": [
-        "article-fast-track-draft-package-verification"
-      ],
-      "synthetic_panel_receipt_ids": [
-        "article-fast-track-draft-panel-001-review",
-        "article-fast-track-draft-panel-002-review",
-        "article-fast-track-draft-panel-003-review"
-      ],
-      "synthetic_panel_role_instances": {
-        "evidence-claim": "article-fast-track-draft-panel-002",
-        "methodology-statistics": "article-fast-track-draft-panel-001",
-        "submission-guard": "article-fast-track-draft-panel-003"
-      },
-      "synthetic_strategy_reviewer_receipt_ids": [],
-      "synthetic_strategy_role_instances": {},
-      "transition_receipts": [
-        {
-          "current_primary_version": "v001",
-          "from": "initialized",
-          "qualifying_review_id": null,
-          "sequence": 1,
-          "to": "preprocessing",
-          "trigger": "entry_gate_passed"
-        },
-        {
-          "current_primary_version": "v001",
-          "from": "preprocessing",
-          "qualifying_review_id": null,
-          "sequence": 2,
-          "to": "artifact_frozen",
-          "trigger": "versioned_artifact_created"
-        },
-        {
-          "current_primary_version": "v001",
-          "from": "artifact_frozen",
-          "qualifying_review_id": null,
-          "sequence": 3,
-          "to": "pending_review",
-          "trigger": "independent_review_dispatched"
-        },
-        {
-          "current_primary_version": "v001",
-          "from": "pending_review",
-          "qualifying_review_id": "article-fast-track-draft-evaluator-001-review",
-          "sequence": 4,
-          "to": "revision_required",
-          "trigger": "fixable_revision_requested"
-        },
-        {
-          "current_primary_version": "v002",
-          "from": "revision_required",
-          "qualifying_review_id": null,
-          "sequence": 5,
-          "to": "artifact_frozen",
-          "trigger": "new_version_created"
-        },
-        {
-          "current_primary_version": "v002",
-          "from": "artifact_frozen",
-          "qualifying_review_id": null,
-          "sequence": 6,
-          "to": "pending_review",
-          "trigger": "independent_review_dispatched"
-        },
-        {
-          "current_primary_version": "v002",
-          "from": "pending_review",
-          "qualifying_review_id": "article-fast-track-draft-evaluator-002-review",
-          "sequence": 7,
-          "to": "panel_pending",
-          "trigger": "latest_version_accepted"
-        },
-        {
-          "current_primary_version": "v002",
-          "from": "panel_pending",
-          "qualifying_review_id": "article-fast-track-draft-complete-panel",
-          "sequence": 8,
-          "to": "packaging_pending",
-          "trigger": "panel_gate_passed"
-        },
-        {
-          "current_primary_version": "v002",
-          "from": "packaging_pending",
-          "qualifying_review_id": null,
-          "sequence": 9,
-          "to": "human_signoff_required",
-          "trigger": "package_verified"
-        }
-      ],
-      "workflow": "article",
-      "writer_instance_id": "article-fast-track-draft-writer-001",
-      "writer_skill": "article-drafter"
-    },
-    {
-      "artifacts_validated": 23,
-      "automatic_external_submission": false,
-      "case_id": "article-fast-track-draft-and-evaluation",
-      "entry_gate_contract_source": "workflow-registry.yaml",
-      "entry_gate_receipt_count": 3,
-      "entry_gates_verified": [
-        "readiness_passed",
-        "manuscript_versioned",
-        "external_review_qualified_or_fresh_evaluation_required"
-      ],
-      "entry_mode": "fast_track_draft_and_evaluation",
-      "evaluator_instance_ids": [
-        "article-fast-track-draft-and-evaluation-evaluator-001",
-        "article-fast-track-draft-and-evaluation-evaluator-002"
-      ],
-      "evaluator_skill": "article-evaluator",
-      "execution_kind": "deterministic_replay",
-      "final_state": "human_signoff_required",
-      "live_model_execution": false,
-      "mode_scope_completed": true,
-      "panel_dissent_preservation_contract_checked": true,
-      "panel_skill": "article-review-panel",
-      "path_profile": "full_delivery",
-      "primary_artifact_creator_instance_id": "article-fast-track-draft-and-evaluation-writer-001",
-      "primary_artifact_creator_skill": "article-drafter",
-      "primary_versions": [
-        "v001",
-        "v001",
-        "v002"
-      ],
-      "promotion_performed": true,
-      "reviewer_receipts_are_synthetic": true,
-      "strategy_reviewer_skill": null,
-      "synthetic_control_receipts": [],
-      "synthetic_evaluator_receipt_ids": [
-        "article-fast-track-draft-and-evaluation-evaluator-001-review",
-        "article-fast-track-draft-and-evaluation-evaluator-002-review"
-      ],
-      "synthetic_generation_receipt_ids": [
-        "article-fast-track-draft-and-evaluation-versioned-artifact-created"
-      ],
-      "synthetic_package_receipt_ids": [
-        "article-fast-track-draft-and-evaluation-package-verification"
-      ],
-      "synthetic_panel_receipt_ids": [
-        "article-fast-track-draft-and-evaluation-panel-001-review",
-        "article-fast-track-draft-and-evaluation-panel-002-review",
-        "article-fast-track-draft-and-evaluation-panel-003-review"
-      ],
-      "synthetic_panel_role_instances": {
-        "evidence-claim": "article-fast-track-draft-and-evaluation-panel-002",
-        "methodology-statistics": "article-fast-track-draft-and-evaluation-panel-001",
-        "submission-guard": "article-fast-track-draft-and-evaluation-panel-003"
-      },
-      "synthetic_strategy_reviewer_receipt_ids": [],
-      "synthetic_strategy_role_instances": {},
-      "transition_receipts": [
-        {
-          "current_primary_version": "v001",
-          "from": "initialized",
-          "qualifying_review_id": null,
-          "sequence": 1,
-          "to": "preprocessing",
-          "trigger": "entry_gate_passed"
-        },
-        {
-          "current_primary_version": "v001",
-          "from": "preprocessing",
-          "qualifying_review_id": null,
-          "sequence": 2,
-          "to": "artifact_frozen",
-          "trigger": "versioned_artifact_created"
-        },
-        {
-          "current_primary_version": "v001",
-          "from": "artifact_frozen",
-          "qualifying_review_id": null,
-          "sequence": 3,
-          "to": "pending_review",
-          "trigger": "independent_review_dispatched"
-        },
-        {
-          "current_primary_version": "v001",
-          "from": "pending_review",
-          "qualifying_review_id": "article-fast-track-draft-and-evaluation-evaluator-001-review",
-          "sequence": 4,
-          "to": "revision_required",
-          "trigger": "fixable_revision_requested"
-        },
-        {
-          "current_primary_version": "v002",
-          "from": "revision_required",
-          "qualifying_review_id": null,
-          "sequence": 5,
-          "to": "artifact_frozen",
-          "trigger": "new_version_created"
-        },
-        {
-          "current_primary_version": "v002",
-          "from": "artifact_frozen",
-          "qualifying_review_id": null,
-          "sequence": 6,
-          "to": "pending_review",
-          "trigger": "independent_review_dispatched"
-        },
-        {
-          "current_primary_version": "v002",
-          "from": "pending_review",
-          "qualifying_review_id": "article-fast-track-draft-and-evaluation-evaluator-002-review",
-          "sequence": 7,
-          "to": "panel_pending",
-          "trigger": "latest_version_accepted"
-        },
-        {
-          "current_primary_version": "v002",
-          "from": "panel_pending",
-          "qualifying_review_id": "article-fast-track-draft-and-evaluation-complete-panel",
-          "sequence": 8,
-          "to": "packaging_pending",
-          "trigger": "panel_gate_passed"
-        },
-        {
-          "current_primary_version": "v002",
-          "from": "packaging_pending",
-          "qualifying_review_id": null,
-          "sequence": 9,
-          "to": "human_signoff_required",
-          "trigger": "package_verified"
-        }
-      ],
-      "workflow": "article",
-      "writer_instance_id": "article-fast-track-draft-and-evaluation-writer-001",
-      "writer_skill": "article-drafter"
-    },
-    {
-      "artifacts_validated": 6,
-      "automatic_external_submission": false,
-      "case_id": "article-blueprint-only",
-      "entry_gate_contract_source": "workflow-registry.yaml",
-      "entry_gate_receipt_count": 3,
-      "entry_gates_verified": [
-        "readiness_passed",
-        "context_frozen",
-        "methods_gate_passed"
-      ],
-      "entry_mode": "blueprint_only",
-      "evaluator_instance_ids": [],
-      "evaluator_skill": "article-evaluator",
-      "execution_kind": "deterministic_replay",
-      "final_state": "stopped",
-      "live_model_execution": false,
-      "mode_scope_completed": true,
-      "panel_dissent_preservation_contract_checked": false,
-      "panel_skill": "article-review-panel",
-      "path_profile": "scoped_non_ready_delivery",
-      "primary_artifact_creator_instance_id": "article-blueprint-only-writer-001",
-      "primary_artifact_creator_skill": "article-drafter",
-      "primary_versions": [
-        "v001",
-        "v001"
-      ],
-      "promotion_performed": false,
-      "reviewer_receipts_are_synthetic": true,
-      "strategy_reviewer_skill": null,
-      "synthetic_control_receipts": [
-        {
-          "continuation_artifact_ref": "article-blueprint-only-continuation-brief@v001",
-          "finding": "mode_scope_completed_or_no_gain",
-          "gate": "unfixable_no_gain_or_user_stop",
-          "receipt_id": "article-blueprint-only-valid-stop",
-          "route": "human_review_or_explicit_resume"
-        }
-      ],
-      "synthetic_evaluator_receipt_ids": [],
-      "synthetic_generation_receipt_ids": [
-        "article-blueprint-only-versioned-artifact-created"
-      ],
-      "synthetic_package_receipt_ids": [],
-      "synthetic_panel_receipt_ids": [],
-      "synthetic_panel_role_instances": {},
-      "synthetic_strategy_reviewer_receipt_ids": [],
-      "synthetic_strategy_role_instances": {},
-      "transition_receipts": [
-        {
-          "current_primary_version": "v001",
-          "from": "initialized",
-          "qualifying_review_id": null,
-          "sequence": 1,
-          "to": "preprocessing",
-          "trigger": "entry_gate_passed"
-        },
-        {
-          "current_primary_version": "v001",
-          "from": "preprocessing",
-          "qualifying_review_id": null,
-          "sequence": 2,
-          "to": "artifact_frozen",
-          "trigger": "versioned_artifact_created"
-        },
-        {
-          "current_primary_version": "v001",
-          "from": "artifact_frozen",
-          "qualifying_review_id": null,
-          "sequence": 3,
-          "to": "stopped",
-          "trigger": "unfixable_no_gain_or_user_stop"
-        }
-      ],
-      "workflow": "article",
-      "writer_instance_id": "article-blueprint-only-writer-001",
-      "writer_skill": "article-drafter"
-    },
-    {
-      "artifacts_validated": 5,
-      "automatic_external_submission": false,
-      "case_id": "article-section-specific",
-      "entry_gate_contract_source": "workflow-registry.yaml",
-      "entry_gate_receipt_count": 2,
-      "entry_gates_verified": [
-        "scoped_intake_frozen",
-        "minimal_context_frozen"
-      ],
-      "entry_mode": "section_specific",
-      "evaluator_instance_ids": [],
-      "evaluator_skill": "article-evaluator",
-      "execution_kind": "deterministic_replay",
-      "final_state": "stopped",
-      "live_model_execution": false,
-      "mode_scope_completed": true,
-      "panel_dissent_preservation_contract_checked": false,
-      "panel_skill": "article-review-panel",
-      "path_profile": "scoped_non_ready_delivery",
-      "primary_artifact_creator_instance_id": "article-section-specific-writer-001",
-      "primary_artifact_creator_skill": "article-drafter",
-      "primary_versions": [
-        "v001",
-        "v001"
-      ],
-      "promotion_performed": false,
-      "reviewer_receipts_are_synthetic": true,
-      "strategy_reviewer_skill": null,
-      "synthetic_control_receipts": [
-        {
-          "continuation_artifact_ref": "article-section-specific-continuation-brief@v001",
-          "finding": "mode_scope_completed_or_no_gain",
-          "gate": "unfixable_no_gain_or_user_stop",
-          "receipt_id": "article-section-specific-valid-stop",
-          "route": "human_review_or_explicit_resume"
-        }
-      ],
-      "synthetic_evaluator_receipt_ids": [],
-      "synthetic_generation_receipt_ids": [
-        "article-section-specific-versioned-artifact-created"
-      ],
-      "synthetic_package_receipt_ids": [],
-      "synthetic_panel_receipt_ids": [],
-      "synthetic_panel_role_instances": {},
-      "synthetic_strategy_reviewer_receipt_ids": [],
-      "synthetic_strategy_role_instances": {},
-      "transition_receipts": [
-        {
-          "current_primary_version": "v001",
-          "from": "initialized",
-          "qualifying_review_id": null,
-          "sequence": 1,
-          "to": "preprocessing",
-          "trigger": "entry_gate_passed"
-        },
-        {
-          "current_primary_version": "v001",
-          "from": "preprocessing",
-          "qualifying_review_id": null,
-          "sequence": 2,
-          "to": "artifact_frozen",
-          "trigger": "versioned_artifact_created"
-        },
-        {
-          "current_primary_version": "v001",
-          "from": "artifact_frozen",
-          "qualifying_review_id": null,
-          "sequence": 3,
-          "to": "stopped",
-          "trigger": "unfixable_no_gain_or_user_stop"
-        }
-      ],
-      "workflow": "article",
-      "writer_instance_id": "article-section-specific-writer-001",
-      "writer_skill": "article-drafter"
-    },
-    {
-      "artifacts_validated": 20,
-      "automatic_external_submission": false,
-      "case_id": "article-submission-only",
-      "entry_gate_contract_source": "workflow-registry.yaml",
-      "entry_gate_receipt_count": 3,
-      "entry_gates_verified": [
-        "submission_scope_readiness_passed",
-        "manuscript_versioned",
-        "latest_version_independently_evaluated"
-      ],
-      "entry_mode": "submission_only",
-      "evaluator_instance_ids": [
-        "article-submission-only-evaluator-001"
-      ],
-      "evaluator_skill": "article-evaluator",
-      "execution_kind": "deterministic_replay",
-      "final_state": "human_signoff_required",
-      "live_model_execution": false,
-      "mode_scope_completed": true,
-      "panel_dissent_preservation_contract_checked": true,
-      "panel_skill": "article-review-panel",
-      "path_profile": "evaluated_package",
-      "primary_artifact_creator_instance_id": "article-submission-only-writer-001",
-      "primary_artifact_creator_skill": "article-drafter",
-      "primary_versions": [
-        "v001"
-      ],
-      "promotion_performed": true,
-      "reviewer_receipts_are_synthetic": true,
-      "strategy_reviewer_skill": null,
-      "synthetic_control_receipts": [],
-      "synthetic_evaluator_receipt_ids": [
-        "article-submission-only-evaluator-001-review"
-      ],
-      "synthetic_generation_receipt_ids": [
-        "article-submission-only-versioned-artifact-created"
-      ],
-      "synthetic_package_receipt_ids": [
-        "article-submission-only-package-verification"
-      ],
-      "synthetic_panel_receipt_ids": [
-        "article-submission-only-panel-001-review",
-        "article-submission-only-panel-002-review",
-        "article-submission-only-panel-003-review"
-      ],
-      "synthetic_panel_role_instances": {
-        "evidence-claim": "article-submission-only-panel-002",
-        "methodology-statistics": "article-submission-only-panel-001",
-        "submission-guard": "article-submission-only-panel-003"
-      },
-      "synthetic_strategy_reviewer_receipt_ids": [],
-      "synthetic_strategy_role_instances": {},
-      "transition_receipts": [
-        {
-          "current_primary_version": "v001",
-          "from": "initialized",
-          "qualifying_review_id": null,
-          "sequence": 1,
-          "to": "preprocessing",
-          "trigger": "entry_gate_passed"
-        },
-        {
-          "current_primary_version": "v001",
-          "from": "preprocessing",
-          "qualifying_review_id": null,
-          "sequence": 2,
-          "to": "artifact_frozen",
-          "trigger": "versioned_artifact_created"
-        },
-        {
-          "current_primary_version": "v001",
-          "from": "artifact_frozen",
-          "qualifying_review_id": null,
-          "sequence": 3,
-          "to": "pending_review",
-          "trigger": "independent_review_dispatched"
-        },
-        {
-          "current_primary_version": "v001",
-          "from": "pending_review",
-          "qualifying_review_id": "article-submission-only-evaluator-001-review",
-          "sequence": 4,
-          "to": "panel_pending",
-          "trigger": "latest_version_accepted"
-        },
-        {
-          "current_primary_version": "v001",
-          "from": "panel_pending",
-          "qualifying_review_id": "article-submission-only-complete-panel",
-          "sequence": 5,
-          "to": "packaging_pending",
-          "trigger": "panel_gate_passed"
-        },
-        {
-          "current_primary_version": "v001",
-          "from": "packaging_pending",
-          "qualifying_review_id": null,
-          "sequence": 6,
-          "to": "human_signoff_required",
-          "trigger": "package_verified"
-        }
-      ],
-      "workflow": "article",
-      "writer_instance_id": "article-submission-only-writer-001",
-      "writer_skill": "article-drafter"
-    },
-    {
-      "artifacts_validated": 7,
-      "automatic_external_submission": false,
-      "case_id": "perspective-lite",
-      "entry_gate_contract_source": "workflow-registry.yaml",
-      "entry_gate_receipt_count": 3,
-      "entry_gates_verified": [
-        "input_brief_frozen",
-        "provisional_claims_frozen",
-        "argument_architecture_frozen"
-      ],
-      "entry_mode": "lite",
-      "evaluator_instance_ids": [],
-      "evaluator_skill": "perspective-evaluator",
-      "execution_kind": "deterministic_replay",
-      "final_state": "stopped",
-      "live_model_execution": false,
-      "mode_scope_completed": true,
-      "panel_dissent_preservation_contract_checked": false,
-      "panel_skill": "perspective-review-panel",
-      "path_profile": "scoped_non_ready_delivery",
-      "primary_artifact_creator_instance_id": "perspective-lite-writer-001",
-      "primary_artifact_creator_skill": "perspective-drafter",
-      "primary_versions": [
-        "v001",
-        "v001"
-      ],
-      "promotion_performed": false,
-      "reviewer_receipts_are_synthetic": true,
-      "strategy_reviewer_skill": null,
-      "synthetic_control_receipts": [
-        {
-          "continuation_artifact_ref": "perspective-lite-continuation-brief@v001",
-          "finding": "mode_scope_completed_or_no_gain",
-          "gate": "unfixable_no_gain_or_user_stop",
-          "receipt_id": "perspective-lite-valid-stop",
-          "route": "human_review_or_explicit_resume"
-        }
-      ],
-      "synthetic_evaluator_receipt_ids": [],
-      "synthetic_generation_receipt_ids": [
-        "perspective-lite-versioned-artifact-created"
-      ],
-      "synthetic_package_receipt_ids": [],
-      "synthetic_panel_receipt_ids": [],
-      "synthetic_panel_role_instances": {},
-      "synthetic_strategy_reviewer_receipt_ids": [],
-      "synthetic_strategy_role_instances": {},
-      "transition_receipts": [
-        {
-          "current_primary_version": "v001",
-          "from": "initialized",
-          "qualifying_review_id": null,
-          "sequence": 1,
-          "to": "preprocessing",
-          "trigger": "entry_gate_passed"
-        },
-        {
-          "current_primary_version": "v001",
-          "from": "preprocessing",
-          "qualifying_review_id": null,
-          "sequence": 2,
-          "to": "artifact_frozen",
-          "trigger": "versioned_artifact_created"
-        },
-        {
-          "current_primary_version": "v001",
-          "from": "artifact_frozen",
-          "qualifying_review_id": null,
-          "sequence": 3,
-          "to": "stopped",
-          "trigger": "unfixable_no_gain_or_user_stop"
-        }
-      ],
-      "workflow": "perspective",
-      "writer_instance_id": "perspective-lite-writer-001",
-      "writer_skill": "perspective-drafter"
-    },
-    {
-      "artifacts_validated": 11,
-      "automatic_external_submission": false,
-      "case_id": "perspective-standard",
-      "entry_gate_contract_source": "workflow-registry.yaml",
-      "entry_gate_receipt_count": 4,
-      "entry_gates_verified": [
-        "input_brief_frozen",
-        "claim_evidence_artifacts_frozen",
-        "argument_architecture_frozen",
-        "perspective_versioned"
-      ],
-      "entry_mode": "standard",
-      "evaluator_instance_ids": [
-        "perspective-standard-evaluator-001",
-        "perspective-standard-evaluator-002"
-      ],
-      "evaluator_skill": "perspective-evaluator",
-      "execution_kind": "deterministic_replay",
-      "final_state": "stopped",
-      "live_model_execution": false,
-      "mode_scope_completed": true,
-      "panel_dissent_preservation_contract_checked": false,
-      "panel_skill": "perspective-review-panel",
-      "path_profile": "evaluated_scoped_non_ready_delivery",
-      "primary_artifact_creator_instance_id": "perspective-standard-writer-001",
-      "primary_artifact_creator_skill": "perspective-drafter",
-      "primary_versions": [
-        "v001",
-        "v001",
-        "v002"
-      ],
-      "promotion_performed": false,
-      "reviewer_receipts_are_synthetic": true,
-      "strategy_reviewer_skill": null,
-      "synthetic_control_receipts": [
-        {
-          "continuation_artifact_ref": "perspective-standard-continuation-brief@v001",
-          "finding": "mode_scope_completed_or_no_gain",
-          "gate": "unfixable_no_gain_or_user_stop",
-          "receipt_id": "perspective-standard-valid-stop",
-          "route": "human_review_or_explicit_resume"
-        }
-      ],
-      "synthetic_evaluator_receipt_ids": [
-        "perspective-standard-evaluator-001-review",
-        "perspective-standard-evaluator-002-review"
-      ],
-      "synthetic_generation_receipt_ids": [
-        "perspective-standard-versioned-artifact-created"
-      ],
-      "synthetic_package_receipt_ids": [],
-      "synthetic_panel_receipt_ids": [],
-      "synthetic_panel_role_instances": {},
-      "synthetic_strategy_reviewer_receipt_ids": [],
-      "synthetic_strategy_role_instances": {},
-      "transition_receipts": [
-        {
-          "current_primary_version": "v001",
-          "from": "initialized",
-          "qualifying_review_id": null,
-          "sequence": 1,
-          "to": "preprocessing",
-          "trigger": "entry_gate_passed"
-        },
-        {
-          "current_primary_version": "v001",
-          "from": "preprocessing",
-          "qualifying_review_id": null,
-          "sequence": 2,
-          "to": "artifact_frozen",
-          "trigger": "versioned_artifact_created"
-        },
-        {
-          "current_primary_version": "v001",
-          "from": "artifact_frozen",
-          "qualifying_review_id": null,
-          "sequence": 3,
-          "to": "pending_review",
-          "trigger": "independent_review_dispatched"
-        },
-        {
-          "current_primary_version": "v001",
-          "from": "pending_review",
-          "qualifying_review_id": "perspective-standard-evaluator-001-review",
-          "sequence": 4,
-          "to": "revision_required",
-          "trigger": "fixable_revision_requested"
-        },
-        {
-          "current_primary_version": "v002",
-          "from": "revision_required",
-          "qualifying_review_id": null,
-          "sequence": 5,
-          "to": "artifact_frozen",
-          "trigger": "new_version_created"
-        },
-        {
-          "current_primary_version": "v002",
-          "from": "artifact_frozen",
-          "qualifying_review_id": null,
-          "sequence": 6,
-          "to": "pending_review",
-          "trigger": "independent_review_dispatched"
-        },
-        {
-          "current_primary_version": "v002",
-          "from": "pending_review",
-          "qualifying_review_id": "perspective-standard-evaluator-002-review",
-          "sequence": 7,
-          "to": "panel_pending",
-          "trigger": "latest_version_accepted"
-        },
-        {
-          "current_primary_version": "v002",
-          "from": "panel_pending",
-          "qualifying_review_id": null,
-          "sequence": 8,
-          "to": "stopped",
-          "trigger": "unfixable_no_gain_or_user_stop"
-        }
-      ],
-      "workflow": "perspective",
-      "writer_instance_id": "perspective-standard-writer-001",
-      "writer_skill": "perspective-drafter"
-    },
-    {
-      "artifacts_validated": 21,
-      "automatic_external_submission": false,
-      "case_id": "perspective-full",
-      "entry_gate_contract_source": "workflow-registry.yaml",
-      "entry_gate_receipt_count": 4,
-      "entry_gates_verified": [
-        "input_brief_frozen",
-        "claim_evidence_artifacts_frozen",
-        "argument_architecture_frozen",
-        "perspective_versioned"
-      ],
-      "entry_mode": "full",
-      "evaluator_instance_ids": [
-        "perspective-full-evaluator-001",
-        "perspective-full-evaluator-002"
-      ],
-      "evaluator_skill": "perspective-evaluator",
-      "execution_kind": "deterministic_replay",
-      "final_state": "human_signoff_required",
-      "live_model_execution": false,
-      "mode_scope_completed": true,
-      "panel_dissent_preservation_contract_checked": true,
-      "panel_skill": "perspective-review-panel",
-      "path_profile": "full_delivery",
-      "primary_artifact_creator_instance_id": "perspective-full-writer-001",
-      "primary_artifact_creator_skill": "perspective-drafter",
-      "primary_versions": [
-        "v001",
-        "v001",
-        "v002"
-      ],
-      "promotion_performed": true,
-      "reviewer_receipts_are_synthetic": true,
-      "strategy_reviewer_skill": null,
-      "synthetic_control_receipts": [],
-      "synthetic_evaluator_receipt_ids": [
-        "perspective-full-evaluator-001-review",
-        "perspective-full-evaluator-002-review"
-      ],
-      "synthetic_generation_receipt_ids": [
-        "perspective-full-versioned-artifact-created"
-      ],
-      "synthetic_package_receipt_ids": [
-        "perspective-full-package-verification"
-      ],
-      "synthetic_panel_receipt_ids": [
-        "perspective-full-panel-001-review",
-        "perspective-full-panel-002-review",
-        "perspective-full-panel-003-review"
-      ],
-      "synthetic_panel_role_instances": {
-        "counter-position": "perspective-full-panel-001",
-        "evidence": "perspective-full-panel-002",
-        "narrative": "perspective-full-panel-003"
-      },
-      "synthetic_strategy_reviewer_receipt_ids": [],
-      "synthetic_strategy_role_instances": {},
-      "transition_receipts": [
-        {
-          "current_primary_version": "v001",
-          "from": "initialized",
-          "qualifying_review_id": null,
-          "sequence": 1,
-          "to": "preprocessing",
-          "trigger": "entry_gate_passed"
-        },
-        {
-          "current_primary_version": "v001",
-          "from": "preprocessing",
-          "qualifying_review_id": null,
-          "sequence": 2,
-          "to": "artifact_frozen",
-          "trigger": "versioned_artifact_created"
-        },
-        {
-          "current_primary_version": "v001",
-          "from": "artifact_frozen",
-          "qualifying_review_id": null,
-          "sequence": 3,
-          "to": "pending_review",
-          "trigger": "independent_review_dispatched"
-        },
-        {
-          "current_primary_version": "v001",
-          "from": "pending_review",
-          "qualifying_review_id": "perspective-full-evaluator-001-review",
-          "sequence": 4,
-          "to": "revision_required",
-          "trigger": "fixable_revision_requested"
-        },
-        {
-          "current_primary_version": "v002",
-          "from": "revision_required",
-          "qualifying_review_id": null,
-          "sequence": 5,
-          "to": "artifact_frozen",
-          "trigger": "new_version_created"
-        },
-        {
-          "current_primary_version": "v002",
-          "from": "artifact_frozen",
-          "qualifying_review_id": null,
-          "sequence": 6,
-          "to": "pending_review",
-          "trigger": "independent_review_dispatched"
-        },
-        {
-          "current_primary_version": "v002",
-          "from": "pending_review",
-          "qualifying_review_id": "perspective-full-evaluator-002-review",
-          "sequence": 7,
-          "to": "panel_pending",
-          "trigger": "latest_version_accepted"
-        },
-        {
-          "current_primary_version": "v002",
-          "from": "panel_pending",
-          "qualifying_review_id": "perspective-full-complete-panel",
-          "sequence": 8,
-          "to": "packaging_pending",
-          "trigger": "panel_gate_passed"
-        },
-        {
-          "current_primary_version": "v002",
-          "from": "packaging_pending",
-          "qualifying_review_id": null,
-          "sequence": 9,
-          "to": "human_signoff_required",
-          "trigger": "package_verified"
-        }
-      ],
-      "workflow": "perspective",
-      "writer_instance_id": "perspective-full-writer-001",
-      "writer_skill": "perspective-drafter"
-    },
-    {
-      "artifacts_validated": 17,
-      "automatic_external_submission": false,
-      "case_id": "research-polisher-standard",
-      "entry_gate_contract_source": "workflow-registry.yaml",
-      "entry_gate_receipt_count": 3,
-      "entry_gates_verified": [
-        "dossier_frozen",
-        "strategy_matrix_complete",
-        "candidate_portfolio_versioned"
-      ],
-      "entry_mode": "standard",
-      "evaluator_instance_ids": [
-        "research-polisher-standard-evaluator-001",
-        "research-polisher-standard-evaluator-002"
-      ],
-      "evaluator_skill": "research-polisher-methodology-publishability-reviewer",
-      "execution_kind": "deterministic_replay",
-      "final_state": "human_strategy_selection_required",
-      "live_model_execution": false,
-      "mode_scope_completed": true,
-      "panel_dissent_preservation_contract_checked": false,
-      "panel_skill": null,
-      "path_profile": "research_polisher_delivery",
-      "primary_artifact_creator_instance_id": "research-polisher-standard-assembler-001",
-      "primary_artifact_creator_skill": "research-polisher-plan-assembler",
-      "primary_versions": [
-        "v001",
-        "v001",
-        "v002"
-      ],
-      "promotion_performed": true,
-      "reviewer_receipts_are_synthetic": true,
-      "strategy_reviewer_skill": "research-polisher-strategy-reviewer",
-      "synthetic_control_receipts": [],
-      "synthetic_evaluator_receipt_ids": [
-        "research-polisher-standard-evaluator-001-review",
-        "research-polisher-standard-evaluator-002-review"
-      ],
-      "synthetic_generation_receipt_ids": [
-        "research-polisher-standard-versioned-artifact-created"
-      ],
-      "synthetic_package_receipt_ids": [
-        "research-polisher-standard-package-verification"
-      ],
-      "synthetic_panel_receipt_ids": [],
-      "synthetic_panel_role_instances": {},
-      "synthetic_strategy_reviewer_receipt_ids": [
-        "research-polisher-standard-strategy-001-review",
-        "research-polisher-standard-strategy-002-review",
-        "research-polisher-standard-strategy-003-review"
-      ],
-      "synthetic_strategy_role_instances": {
-        "dissemination_editorial": "research-polisher-standard-strategy-003",
-        "practical_value": "research-polisher-standard-strategy-002",
-        "scientific_significance": "research-polisher-standard-strategy-001"
-      },
-      "transition_receipts": [
-        {
-          "current_primary_version": "v001",
-          "from": "initialized",
-          "qualifying_review_id": null,
-          "sequence": 1,
-          "to": "preprocessing",
-          "trigger": "entry_gate_passed"
-        },
-        {
-          "current_primary_version": "v001",
-          "from": "preprocessing",
-          "qualifying_review_id": null,
-          "sequence": 2,
-          "to": "artifact_frozen",
-          "trigger": "versioned_artifact_created"
-        },
-        {
-          "current_primary_version": "v001",
-          "from": "artifact_frozen",
-          "qualifying_review_id": null,
-          "sequence": 3,
-          "to": "pending_review",
-          "trigger": "independent_review_dispatched"
-        },
-        {
-          "current_primary_version": "v001",
-          "from": "pending_review",
-          "qualifying_review_id": "research-polisher-standard-evaluator-001-review",
-          "sequence": 4,
-          "to": "revision_required",
-          "trigger": "fixable_revision_requested"
-        },
-        {
-          "current_primary_version": "v002",
-          "from": "revision_required",
-          "qualifying_review_id": null,
-          "sequence": 5,
-          "to": "artifact_frozen",
-          "trigger": "new_version_created"
-        },
-        {
-          "current_primary_version": "v002",
-          "from": "artifact_frozen",
-          "qualifying_review_id": null,
-          "sequence": 6,
-          "to": "pending_review",
-          "trigger": "independent_review_dispatched"
-        },
-        {
-          "current_primary_version": "v002",
-          "from": "pending_review",
-          "qualifying_review_id": "research-polisher-standard-evaluator-002-review",
-          "sequence": 7,
-          "to": "packaging_pending",
-          "trigger": "latest_strategy_portfolio_accepted"
-        },
-        {
-          "current_primary_version": "v002",
-          "from": "packaging_pending",
-          "qualifying_review_id": null,
-          "sequence": 8,
-          "to": "human_strategy_selection_required",
-          "trigger": "selection_dossier_verified"
-        }
-      ],
-      "workflow": "research_polisher",
-      "writer_instance_id": null,
-      "writer_skill": null
-    }
-  ],
-  "provider_verified": false,
-  "registry_independent_reviewer_count": 20,
-  "registry_schema_version": 5,
-  "registry_sha256": "sha256:22d2f8c1d5f81f47f30d2e86f66c4b79a67ebadc3423be9870cd0df8ed9d9bc6",
-  "registry_skill_count": 49,
-  "registry_workflow_edge_count": 68,
-  "release_ledger_sha256": "sha256:ce264209d13d8eaf852bfc1a66030bf2a0db853d89ad3d3f58b6e3fe893b203c",
-  "repository_contract_digest_policy": "sha256_crlf_normalized_to_lf",
-  "research_polisher_routing_boundary_results": [
+  "profile": "personal-owner",
+  "research_polisher_routing_results": [
     {
       "case_id": "polisher-route-completed-study-impact",
-      "observed_route": "research-polisher-orchestrator",
-      "request_class": "completed_research_impact_strategy",
-      "status": "routed_as_expected"
-    },
-    {
-      "case_id": "polisher-reject-language-polish",
-      "observed_route": "article-orchestrator",
-      "request_class": "language_polish",
-      "status": "routed_as_expected"
-    },
-    {
-      "case_id": "polisher-reject-ordinary-drafting",
-      "observed_route": "article-orchestrator",
-      "request_class": "ordinary_drafting",
-      "status": "routed_as_expected"
-    },
-    {
-      "case_id": "polisher-reject-new-idea-generation",
-      "observed_route": "research-idea-orchestrator",
-      "request_class": "new_idea_generation",
-      "status": "routed_as_expected"
-    },
-    {
-      "case_id": "polisher-reject-general-literature-search",
-      "observed_route": "research-opportunity-mapper",
-      "request_class": "general_literature_search",
-      "status": "routed_as_expected"
-    },
-    {
-      "case_id": "polisher-reject-bounded-paper-question",
-      "observed_route": "academic-deep-search",
-      "request_class": "bounded_academic_question",
-      "status": "routed_as_expected"
-    },
-    {
-      "case_id": "polisher-reject-new-proposal",
-      "observed_route": "proposal-orchestrator",
-      "request_class": "new_proposal",
-      "status": "routed_as_expected"
-    }
-  ],
-  "research_polisher_routing_boundary_sha256": "sha256:6d99386e83fda2192864cc6cd2c749afdb8e9eb982bdb6642c161e7b62eb978f",
-  "research_polisher_routing_negative_guards": [
-    {
-      "case_id": "polisher-reject-language-polish",
-      "mutation": "force_research_polisher_takeover",
-      "status": "rejected_as_expected"
-    },
-    {
-      "case_id": "polisher-reject-ordinary-drafting",
-      "mutation": "force_research_polisher_takeover",
-      "status": "rejected_as_expected"
-    },
-    {
-      "case_id": "polisher-reject-new-idea-generation",
-      "mutation": "force_research_polisher_takeover",
-      "status": "rejected_as_expected"
-    },
-    {
-      "case_id": "polisher-reject-general-literature-search",
-      "mutation": "force_research_polisher_takeover",
-      "status": "rejected_as_expected"
-    },
-    {
-      "case_id": "polisher-reject-bounded-paper-question",
-      "mutation": "force_research_polisher_takeover",
-      "status": "rejected_as_expected"
-    },
-    {
-      "case_id": "polisher-reject-new-proposal",
-      "mutation": "force_research_polisher_takeover",
-      "status": "rejected_as_expected"
-    }
-  ],
-  "runtime_evidence_file_digest_policy": "sha256_raw_file_bytes",
-  "runtime_receipt_collection_sha256": "sha256:ea8e41fe214f4cd89e5eb197995e4942bd9c9880405940383144f19639ce90d6",
-  "runtime_receipt_schema_sha256": "sha256:32b85f716e4adac7d9a4cf235157bde1f42913008b906b84692ce4b6a7609dbc",
-  "runtime_receipts": {
-    "collection_path": "tests/openai_phase7/current-version-runtime-receipts.yaml",
-    "completion_reachability_self_test": {
-      "capability_negative_guards": [
-        {
-          "error_code": "synthetic_gate_capability_invalid",
-          "mutation": "bare_boolean_gate_override",
-          "status": "rejected_as_expected"
-        },
-        {
-          "error_code": "live_release_callback_missing",
-          "mutation": "source_controlled_adapter_claim_without_live_callback",
-          "status": "rejected_as_expected"
-        },
-        {
-          "error_code": "live_runtime_session_missing",
-          "mutation": "source_controlled_runtime_adapter_without_live_session",
-          "status": "rejected_as_expected"
-        },
-        {
-          "error_code": "synthetic_attestation_capability_invalid",
-          "mutation": "forged_attestation_capability",
-          "status": "rejected_as_expected"
-        }
-      ],
-      "counts_as_runtime_evidence": false,
-      "discovery_count_mutations": [
-        {
-          "mutation": "wrong_installed_skill_count",
-          "status": "rejected_as_expected"
-        },
-        {
-          "mutation": "wrong_explicit_callable_entries",
-          "status": "rejected_as_expected"
-        },
-        {
-          "mutation": "wrong_implicit_prompt_entries",
-          "status": "rejected_as_expected"
-        }
-      ],
-      "evidence_kind": "synthetic_gate_logic_self_test_only",
-      "status": "passed",
-      "verification_levels": {
-        "preview_attested": {
-          "attestation_scope": "phase7_synthetic_reachability_self_test_only",
-          "counts_as_runtime_evidence": false,
-          "derived_phase_status": "complete_preview_attested",
-          "provider_verified": false,
-          "validated_evidence_id": "phase7-preview_attested-self-test",
-          "verified_gate_count": 13
-        },
-        "provider_verified": {
-          "attestation_scope": "phase7_synthetic_reachability_self_test_only",
-          "counts_as_runtime_evidence": false,
-          "derived_phase_status": "complete_provider_verified",
-          "provider_verified": true,
-          "validated_evidence_id": "phase7-provider_verified-self-test",
-          "verified_gate_count": 13
-        }
-      }
-    },
-    "contract_complete_positive_fixtures": [
-      {
-        "actor_counts": {
-          "assembler": 1,
-          "builder": 1,
-          "controller": 0,
-          "evaluator": 2,
-          "orchestrator": 1,
-          "panel": 3,
-          "retrieval": 1,
-          "strategy_reviewer": 0,
-          "supporting_reviewer": 0,
-          "supporting_writer": 0,
-          "verifier_compositor": 0,
-          "writer": 1
-        },
-        "adaptive_direction_contract": {
-          "bounded_revision_delta_bounds": [
-            4,
-            6
-          ],
-          "conditional_final_state": "human_direction_selection_required",
-          "direction_profiles": [
-            "focused_optimization",
-            "bounded_exploration"
-          ],
-          "focused_panel_roles_when_candidate": 3
-        },
-        "artifact_count": 16,
-        "final_state": "human_signoff_required",
-        "receipt_id": "phase7-contract-complete-idea",
-        "status": "passed",
-        "workflow": "idea"
-      },
-      {
-        "actor_counts": {
-          "assembler": 1,
-          "builder": 1,
-          "controller": 1,
-          "evaluator": 2,
-          "orchestrator": 1,
-          "panel": 5,
-          "retrieval": 0,
-          "strategy_reviewer": 0,
-          "supporting_reviewer": 3,
-          "supporting_writer": 1,
-          "verifier_compositor": 0,
-          "writer": 1
-        },
-        "artifact_count": 20,
-        "final_state": "human_signoff_required",
-        "receipt_id": "phase7-contract-complete-proposal",
-        "status": "passed",
-        "workflow": "proposal"
-      },
-      {
-        "actor_counts": {
-          "assembler": 0,
-          "builder": 3,
-          "controller": 1,
-          "evaluator": 2,
-          "orchestrator": 1,
-          "panel": 3,
-          "retrieval": 0,
-          "strategy_reviewer": 0,
-          "supporting_reviewer": 3,
-          "supporting_writer": 1,
-          "verifier_compositor": 1,
-          "writer": 1
-        },
-        "artifact_count": 25,
-        "final_state": "human_signoff_required",
-        "receipt_id": "phase7-contract-complete-article",
-        "status": "passed",
-        "workflow": "article"
-      },
-      {
-        "actor_counts": {
-          "assembler": 0,
-          "builder": 2,
-          "controller": 0,
-          "evaluator": 2,
-          "orchestrator": 1,
-          "panel": 3,
-          "retrieval": 0,
-          "strategy_reviewer": 0,
-          "supporting_reviewer": 0,
-          "supporting_writer": 0,
-          "verifier_compositor": 1,
-          "writer": 1
-        },
-        "artifact_count": 20,
-        "final_state": "human_signoff_required",
-        "receipt_id": "phase7-contract-complete-perspective",
-        "status": "passed",
-        "workflow": "perspective"
-      },
-      {
-        "actor_counts": {
-          "assembler": 1,
-          "builder": 1,
-          "controller": 0,
-          "evaluator": 2,
-          "orchestrator": 1,
-          "panel": 0,
-          "retrieval": 1,
-          "strategy_reviewer": 3,
-          "supporting_reviewer": 0,
-          "supporting_writer": 0,
-          "verifier_compositor": 0,
-          "writer": 0
-        },
-        "artifact_count": 13,
-        "final_state": "human_strategy_selection_required",
-        "receipt_id": "phase7-contract-complete-research_polisher",
-        "status": "passed",
-        "workflow": "research_polisher"
-      }
-    ],
-    "expected_receipt_count": 10,
-    "expected_workflow_case_matrix": "5 workflows x {happy, control}",
-    "live_evidence_claimed": false,
-    "pending_receipt_count": 10,
-    "platform_trust": {
-      "accepted_verification_level": null,
-      "adapter_id": null,
-      "adapter_status": "unavailable",
-      "completion_gate_verified": false,
-      "provider_authenticated": false,
-      "reason": "No provider-authenticated Codex/ChatGPT task-export verifier is available; repository-authored files and hashes cannot establish platform origin.",
-      "repository_files_alone_count_as_platform_authenticity": false,
-      "supported_authenticated_adapter_ids": [],
-      "supported_preview_attestation_adapter_ids": [
-        "github_release_asset_preview_v1"
-      ],
-      "verification_level": null
-    },
-    "results": [
-      {
-        "case_kind": "happy",
-        "reason": "Awaiting a durable current-version fresh-task export.",
-        "receipt_id": "phase7-idea-happy",
-        "status": "pending_live_evidence",
-        "workflow": "idea"
-      },
-      {
-        "case_kind": "control",
-        "reason": "Awaiting a durable current-version valid-stop control export.",
-        "receipt_id": "phase7-idea-control",
-        "status": "pending_live_evidence",
-        "workflow": "idea"
-      },
-      {
-        "case_kind": "happy",
-        "reason": "Awaiting a durable current-version fresh-task export.",
-        "receipt_id": "phase7-proposal-happy",
-        "status": "pending_live_evidence",
-        "workflow": "proposal"
-      },
-      {
-        "case_kind": "control",
-        "reason": "Awaiting a durable current-version valid-block control export.",
-        "receipt_id": "phase7-proposal-control",
-        "status": "pending_live_evidence",
-        "workflow": "proposal"
-      },
-      {
-        "case_kind": "happy",
-        "reason": "Awaiting a durable current-version fresh-task export.",
-        "receipt_id": "phase7-article-happy",
-        "status": "pending_live_evidence",
-        "workflow": "article"
-      },
-      {
-        "case_kind": "control",
-        "reason": "Awaiting a durable current-version source-fatal control export.",
-        "receipt_id": "phase7-article-control",
-        "status": "pending_live_evidence",
-        "workflow": "article"
-      },
-      {
-        "case_kind": "happy",
-        "reason": "Awaiting a durable current-version fresh-task export.",
-        "receipt_id": "phase7-perspective-happy",
-        "status": "pending_live_evidence",
-        "workflow": "perspective"
-      },
-      {
-        "case_kind": "control",
-        "reason": "Awaiting a durable current-version valid-stop control export.",
-        "receipt_id": "phase7-perspective-control",
-        "status": "pending_live_evidence",
-        "workflow": "perspective"
-      },
-      {
-        "case_kind": "happy",
-        "reason": "Awaiting a durable current-version fresh-task strategy-selection export.",
-        "receipt_id": "phase7-research-polisher-happy",
-        "status": "pending_live_evidence",
-        "workflow": "research_polisher"
-      },
-      {
-        "case_kind": "control",
-        "reason": "Awaiting a durable current-version no-defensible-option control export.",
-        "receipt_id": "phase7-research-polisher-control",
-        "status": "pending_live_evidence",
-        "workflow": "research_polisher"
-      }
-    ],
-    "reviewer_unavailable_fault_injection": {
-      "counts_as_live_control": false,
-      "derived_state": "independent_review_pending",
-      "fault": "reviewer_unavailable",
-      "route": "resume_in_fresh_delegated_task",
       "status": "passed"
     },
-    "schema_path": "tests/openai_phase7/runtime-receipts.schema.yaml",
-    "validator_negative_guards": [
-      {
-        "error_code": "runtime_polisher_strategy_matrix_incomplete",
-        "mutation": "polisher_strategy_report_missing_tier",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_polisher_reposition_smuggles_new_work",
-        "mutation": "polisher_reposition_smuggles_new_analysis",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_polisher_extension_feasibility_invalid",
-        "mutation": "polisher_low_feasibility_marked_proposed",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_polisher_strategy_option_schema",
-        "mutation": "polisher_strategy_option_missing_required_field",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_polisher_candidate_portfolio_strategy_lineage",
-        "mutation": "polisher_generic_review_substitutes_strategy_report",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_actor_output_role_mismatch",
-        "mutation": "polisher_strategist_writes_generic_review_report",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_polisher_assembler_strategy_report_not_read",
-        "mutation": "polisher_assembler_does_not_read_all_strategy_reports",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_sap_writer_artifact_missing",
-        "mutation": "proposal_package_missing_sap_writer_artifact",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_sap_evaluation_lineage_mismatch",
-        "mutation": "proposal_package_missing_sap_evaluator",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_sap_writer_actor_mismatch",
-        "mutation": "proposal_sap_not_created_by_supporting_writer",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_sap_evaluator_actor_mismatch",
-        "mutation": "proposal_sap_evaluator_not_fresh",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_sap_package_stale_selection",
-        "mutation": "proposal_package_selects_stale_sap",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_sap_evaluation_lineage_mismatch",
-        "mutation": "proposal_sap_evaluator_reviews_stale_version",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_external_input_impersonation",
-        "mutation": "external_input_impersonates_sap_writer",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_external_input_impersonation",
-        "mutation": "external_input_impersonates_sap_evaluator",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_external_input_impersonation",
-        "mutation": "external_input_impersonates_readiness_reviewer",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_external_input_impersonation",
-        "mutation": "external_input_impersonates_article_auditor",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_external_input_impersonation",
-        "mutation": "external_input_impersonates_revision_delta",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_reviewer_oracle_visible",
-        "mutation": "blind_reviewer_reads_result_oracle",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_false_ready",
-        "mutation": "verifier_fatal_finding_false_ready",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_control_required_independent_gate_missing",
-        "mutation": "idea_control_missing_required_independent_gate",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_control_finding_provenance_mismatch",
-        "mutation": "idea_control_finding_uses_non_stop_decision",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_control_finding_semantics_mismatch",
-        "mutation": "idea_nonblocking_control_finding",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_control_finding_semantics_mismatch",
-        "mutation": "idea_resolved_control_finding",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_control_required_independent_gate_missing",
-        "mutation": "proposal_control_missing_required_independent_gate",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_control_finding_provenance_mismatch",
-        "mutation": "proposal_control_finding_uses_non_stop_decision",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_control_finding_semantics_mismatch",
-        "mutation": "proposal_nonblocking_control_finding",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_control_finding_semantics_mismatch",
-        "mutation": "proposal_resolved_control_finding",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_control_required_independent_gate_missing",
-        "mutation": "article_control_missing_required_independent_gate",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_control_finding_provenance_mismatch",
-        "mutation": "article_control_finding_uses_non_stop_decision",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_control_finding_semantics_mismatch",
-        "mutation": "article_nonblocking_control_finding",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_control_finding_semantics_mismatch",
-        "mutation": "article_resolved_control_finding",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_control_required_independent_gate_missing",
-        "mutation": "perspective_control_missing_required_independent_gate",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_control_finding_provenance_mismatch",
-        "mutation": "perspective_control_finding_uses_non_stop_decision",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_control_finding_semantics_mismatch",
-        "mutation": "perspective_nonblocking_control_finding",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_control_finding_semantics_mismatch",
-        "mutation": "perspective_resolved_control_finding",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_control_required_independent_gate_missing",
-        "mutation": "research_polisher_control_missing_required_independent_gate",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_control_finding_provenance_mismatch",
-        "mutation": "research_polisher_control_finding_uses_non_stop_decision",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_control_finding_semantics_mismatch",
-        "mutation": "research_polisher_nonblocking_control_finding",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_control_finding_semantics_mismatch",
-        "mutation": "research_polisher_resolved_control_finding",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_artifact_role_contract_invalid",
-        "mutation": "polisher_assembler_output_role_omitted",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_artifact_role_contract_invalid",
-        "mutation": "polisher_finding_index_uses_generic_role",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_bounded_evaluator_before_remap",
-        "mutation": "bounded_evaluator_before_remap",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_bounded_evaluator_nonterminal_dossier",
-        "mutation": "bounded_evaluator_bound_to_initial_dossier",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_ready_review_decision_not_pass",
-        "mutation": "ready_article_with_nonpass_supporting_reviewer",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_ready_review_decision_not_pass",
-        "mutation": "ready_article_with_pass_decision_and_unresolved_blocking_finding",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_reviewer_multiple_reports",
-        "mutation": "same_reviewer_instance_emits_multiple_reports",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_review_input_read_mismatch",
-        "mutation": "panel_claims_current_input_but_reads_stale_file",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_reviewer_modified_input",
-        "mutation": "perspective_compositor_reads_its_own_internal_output",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_compositor_creation_order_mismatch",
-        "mutation": "perspective_compositor_internal_outputs_out_of_order",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_compositor_internal_dependency_mismatch",
-        "mutation": "perspective_compositor_internal_dependencies_omitted",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_evidence_authenticated_attestation_missing",
-        "mutation": "integrity_only_result_promoted_without_attestation",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_external_attestation_capability_not_serializable",
-        "mutation": "serialize_external_runtime_attestation_capability",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_external_attestation_schema_invalid",
-        "mutation": "external_attestation_wrong_schema",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_external_attestation_source_identity_mismatch",
-        "mutation": "external_attestation_wrong_source_identity",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_external_attestation_integrity_binding_mismatch",
-        "mutation": "external_attestation_wrong_evidence_id",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_external_attestation_integrity_binding_mismatch",
-        "mutation": "external_attestation_wrong_raw_digest",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_external_attestation_integrity_binding_mismatch",
-        "mutation": "external_attestation_wrong_envelope_digest",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_external_attestation_integrity_binding_mismatch",
-        "mutation": "external_attestation_wrong_verifier_report_digest",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_external_attestation_integrity_binding_mismatch",
-        "mutation": "external_attestation_wrong_index_digest",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_external_attestation_live_requery_invalid",
-        "mutation": "external_attestation_wrong_adapter",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_external_attestation_live_requery_invalid",
-        "mutation": "external_attestation_without_live_requery",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_external_attestation_gate_invalid",
-        "mutation": "external_attestation_gate_not_eligible",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_external_attestation_preview_provider_confusion",
-        "mutation": "preview_attestation_claims_provider_authentication",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_external_attestation_request_binding_mismatch",
-        "mutation": "external_attestation_request_evidence_id_mismatch",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_external_attestation_adapter_not_allowlisted",
-        "mutation": "provider_attestation_without_provider_adapter",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_evidence_attestation_type_invalid",
-        "mutation": "bare_boolean_runtime_attestation",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_evidence_attestation_type_invalid",
-        "mutation": "serialized_runtime_attestation_object",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_evidence_attestation_type_invalid",
-        "mutation": "forged_runtime_attestation_capability",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_evidence_attestation_type_invalid",
-        "mutation": "collection_accepts_bare_boolean_attestation",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_evidence_authenticated_attestation_missing",
-        "mutation": "collection_accepts_integrity_only_result",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "non_substantive_evidence_only",
-        "mutation": "single_screenshot_without_raw_export",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_expected_state_contract_mismatch",
-        "mutation": "idea_control_mutable_expected_final_state",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_control_input_condition_mismatch",
-        "mutation": "idea_control_mutable_input_condition",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_control_gate_mismatch",
-        "mutation": "idea_control_mutable_gate",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_control_route_mismatch",
-        "mutation": "idea_control_mutable_route",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_expected_state_contract_mismatch",
-        "mutation": "proposal_control_mutable_expected_final_state",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_control_input_condition_mismatch",
-        "mutation": "proposal_control_mutable_input_condition",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_control_gate_mismatch",
-        "mutation": "proposal_control_mutable_gate",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_control_route_mismatch",
-        "mutation": "proposal_control_mutable_route",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_expected_state_contract_mismatch",
-        "mutation": "article_control_mutable_expected_final_state",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_control_input_condition_mismatch",
-        "mutation": "article_control_mutable_input_condition",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_control_gate_mismatch",
-        "mutation": "article_control_mutable_gate",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_control_route_mismatch",
-        "mutation": "article_control_mutable_route",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_expected_state_contract_mismatch",
-        "mutation": "perspective_control_mutable_expected_final_state",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_control_input_condition_mismatch",
-        "mutation": "perspective_control_mutable_input_condition",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_control_gate_mismatch",
-        "mutation": "perspective_control_mutable_gate",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_control_route_mismatch",
-        "mutation": "perspective_control_mutable_route",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_expected_state_contract_mismatch",
-        "mutation": "research_polisher_control_mutable_expected_final_state",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_control_input_condition_mismatch",
-        "mutation": "research_polisher_control_mutable_input_condition",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_control_gate_mismatch",
-        "mutation": "research_polisher_control_mutable_gate",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_control_route_mismatch",
-        "mutation": "research_polisher_control_mutable_route",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_verified_label_only",
-        "mutation": "label_only_verified_status",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_binding_missing",
-        "mutation": "missing_durable_actor_manifest_binding",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_bound_file_digest_mismatch",
-        "mutation": "task_export_digest_mismatch",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_entry_mode_binding_mismatch",
-        "mutation": "receipt_and_task_slot_entry_mode_mismatch",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_task_export_identity_mismatch",
-        "mutation": "task_export_content_identity_mismatch",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_review_state_mismatch",
-        "mutation": "supporting_reviewer_finding_omitted_from_review_state",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_review_state_mismatch",
-        "mutation": "review_artifact_dissent_hidden",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_ready_review_decision_not_pass",
-        "mutation": "review_artifact_fatal_hidden_false_ready",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_reviewer_report_isolation_mismatch",
-        "mutation": "supporting_reviewer_report_missing_fresh_isolation",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_reviewer_isolation_mismatch",
-        "mutation": "evaluator_actor_not_fresh_subagent",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_reviewer_isolation_mismatch",
-        "mutation": "panel_actor_not_fresh_subagent",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_reviewer_report_isolation_mismatch",
-        "mutation": "evaluator_report_missing_fresh_isolation",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_reviewer_report_isolation_mismatch",
-        "mutation": "panel_report_not_fresh_subagent",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_ready_review_decision_not_pass",
-        "mutation": "ready_state_with_reject_decision_and_empty_fatal_ids",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_review_decision_unknown",
-        "mutation": "reviewer_uses_unknown_decision_value",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_review_finding_derivation_mismatch",
-        "mutation": "fatal_finding_object_omitted_from_id_arrays",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_review_finding_derivation_mismatch",
-        "mutation": "dissent_finding_object_omitted_from_id_arrays",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_reviewer_wrote_source_artifact",
-        "mutation": "supporting_reviewer_writes_source_artifact",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_write_artifact_mismatch",
-        "mutation": "panel_writes_primary_input",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_actor_skill_missing",
-        "mutation": "unregistered_evaluator_actor_skill",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_actor_role_unknown",
-        "mutation": "unknown_actor_role",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_actor_role_registry_mismatch",
-        "mutation": "actor_role_disagrees_with_skill_registry_role",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_supporting_reviewer_edge_mismatch",
-        "mutation": "supporting_reviewer_not_on_workflow_edge",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_reviewer_isolation_mismatch",
-        "mutation": "supporting_reviewer_not_fresh_subagent",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_reviewer_isolation_mismatch",
-        "mutation": "supporting_reviewer_missing_round_id",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_supporting_writer_edge_mismatch",
-        "mutation": "supporting_writer_not_on_conditional_drafter_edge",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_orchestrator_skill_mismatch",
-        "mutation": "orchestrator_skill_from_another_workflow",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_writer_skill_mismatch",
-        "mutation": "writer_skill_from_another_workflow",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_actor_edge_provenance_mismatch",
-        "mutation": "cross_workflow_builder_actor",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_actor_edge_provenance_mismatch",
-        "mutation": "cross_workflow_retrieval_actor",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_actor_edge_provenance_mismatch",
-        "mutation": "cross_workflow_controller_actor",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_actor_output_role_mismatch",
-        "mutation": "primary_writer_emits_unrelated_output_role",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_external_input_impersonation",
-        "mutation": "standard_mode_current_primary_is_external",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_panel_role_mismatch",
-        "mutation": "missing_registry_panel_role",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_current_version_review_missing",
-        "mutation": "one_panel_role_reviews_stale_primary_version",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_panel_peer_output_visible",
-        "mutation": "panel_role_reads_peer_output",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_supporting_reviewer_prior_review_visible",
-        "mutation": "supporting_reviewer_reads_prior_review_output",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_evaluator_prior_review_visible",
-        "mutation": "fresh_evaluator_reads_supporting_reviewer_output",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_evaluator_prior_review_visible",
-        "mutation": "fresh_evaluator_reads_prior_evaluator_output",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_prior_scores_visible",
-        "mutation": "fresh_evaluator_prior_scores_visible",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_review_extension_invalid",
-        "mutation": "focused_evaluator_reviewed_dossier_digest_missing",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_review_input_read_mismatch",
-        "mutation": "fresh_evaluator_reviews_stale_artifact_version",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_path_not_canonical_posix",
-        "mutation": "windows_backslash_runtime_path",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_package_input_omitted",
-        "mutation": "final_package_omits_created_revision_delta",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_assembler_wrote_source_artifact",
-        "mutation": "assembler_writes_new_primary",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_final_package_creator_mismatch",
-        "mutation": "final_package_created_by_writer",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_happy_control_evidence_present",
-        "mutation": "happy_receipt_carries_control_evidence",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_control_route_mismatch",
-        "mutation": "control_receipt_without_route",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_control_finding_provenance_mismatch",
-        "mutation": "control_finding_not_bound_to_required_report",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_control_continuation_type_mismatch",
-        "mutation": "control_continuation_wrong_artifact_type",
-        "status": "rejected_as_expected"
-      },
-      {
-        "error_code": "runtime_platform_trust_unavailable",
-        "mutation": "repository_authored_export_without_platform_trust_adapter",
-        "status": "rejected_as_expected"
-      }
-    ],
-    "verified_receipt_count": 0
-  },
-  "schema_version": 3,
-  "state_advance_order": "validate_qualifying_receipt_then_validate_registry_prerequisites_then_commit_derived_state_then_execute_transition",
+    {
+      "case_id": "polisher-reject-language-polish",
+      "status": "passed"
+    },
+    {
+      "case_id": "polisher-reject-ordinary-drafting",
+      "status": "passed"
+    },
+    {
+      "case_id": "polisher-reject-new-idea-generation",
+      "status": "passed"
+    },
+    {
+      "case_id": "polisher-reject-general-literature-search",
+      "status": "passed"
+    },
+    {
+      "case_id": "polisher-reject-bounded-paper-question",
+      "status": "passed"
+    },
+    {
+      "case_id": "polisher-reject-new-proposal",
+      "status": "passed"
+    }
+  ],
+  "schema_version": 2,
   "summary": {
-    "additional_stale_or_lineage_guards_rejected": 17,
-    "automatic_external_submission": false,
-    "completion_gates_pending": 13,
-    "completion_gates_verified": 0,
+    "declared_entry_count": 7,
     "declared_entry_modes": 17,
-    "declared_workflows": 5,
-    "entry_gate_negative_guards_rejected": 34,
-    "explicit_callable_entries": 7,
     "false_ready_count": 0,
-    "fixture_declared_entry_gate_lists": 0,
-    "human_signoff_required_modes": 12,
-    "human_strategy_selection_required_modes": 1,
-    "implicit_prompt_entries": 6,
+    "implicit_entry_count": 6,
+    "independent_reviewer_count": 20,
     "installed_skill_count": 49,
-    "live_model_runs_claimed": 0,
-    "missing_evaluator_receipts_rejected": 14,
-    "missing_panel_receipts_rejected": 12,
-    "mode_scoped_stopped_modes": 4,
-    "mode_specific_gate_bypasses_rejected": 17,
-    "negative_guards_rejected": 89,
+    "negative_guards_rejected": 34,
+    "personal_status": "in_progress_owner_observation",
     "positive_modes_passed": 17,
-    "qualifying_reviewer_receipt_negatives_rejected": 55,
-    "registry_entry_gate_contracts_verified": 56,
-    "registry_entry_mode_contracts_verified": 17,
-    "research_polisher_routing_boundaries_verified": 7,
-    "research_polisher_takeover_mutations_rejected": 6,
-    "reviewer_unavailable_fault_injections_verified": 1,
-    "runtime_contract_complete_workflows_verified": 5,
-    "runtime_receipts_expected": 10,
-    "runtime_receipts_pending": 10,
-    "runtime_receipts_verified": 0,
-    "runtime_validator_negative_guards_rejected": 143,
-    "stale_evaluator_receipts_rejected": 14,
-    "stale_panel_receipts_rejected": 12,
-    "strategy_reviewer_group_mutations_rejected": 3,
-    "synthetic_control_receipts_validated": 4,
-    "synthetic_evaluator_receipts_validated": 25,
-    "synthetic_generation_receipts_validated": 17,
-    "synthetic_package_receipts_validated": 13,
-    "synthetic_panel_receipts_validated": 44,
-    "synthetic_strategy_reviewer_receipts_validated": 3
-  },
-  "verification_level": null
+    "runtime_contract_complete_workflows_verified": 5
+  }
 }

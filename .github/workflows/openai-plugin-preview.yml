@@ -6,6 +6,10 @@ on:
   pull_request:
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   actions: read
   contents: read
@@ -33,17 +37,24 @@ jobs:
           python scripts/normalize_openai_references.py
           python scripts/generate_openai_workflow_registry.py
           python scripts/sync_openai_fixture_versions.py
-      - name: Run plugin audits and scenario evaluations
+      - name: Run structure and documentation audits
         run: |
           python scripts/audit_openai_research_plugin.py
           python scripts/audit_openai_research_proposal.py
           python scripts/audit_openai_research_perspective.py
+          python scripts/test_openai_roadmap_contract.py
           python scripts/test_openai_release_contract.py
+      - name: Run workflow contract evaluations
+        run: |
           python scripts/test_openai_phase2_phase3.py
           python scripts/test_openai_phase4_scenarios.py --check-report
           python scripts/test_openai_phase6_context.py
+      - name: Run artifact delivery validations
+        run: |
           python scripts/test_openai_artifact_completeness.py
           python scripts/test_openai_article_docx_contract.py
+      - name: Run personal readiness validations
+        run: |
           python scripts/test_openai_phase7_modes.py --check-report
           python scripts/test_openai_phase8_corpus.py --check-report
           python scripts/test_validate_openai_personal_readiness.py

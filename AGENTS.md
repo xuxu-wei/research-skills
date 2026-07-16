@@ -1,12 +1,12 @@
 # AGENTS.md
 
-## Top-level action principles
+## 顶层操作原则
 
-- Read the nearest applicable `AGENTS.md` before changing files; nested instructions override this file within their subtree.
-- Preserve the two maintained profiles: Hermes sources under `research-skills/` and the OpenAI plugin under `research-skills-openai/`. Do not copy platform-specific metadata or runtime syntax between them.
-- Use `skill-creator` before creating or substantially rewriting a skill, and use `plugin-creator` for plugin structure, marketplace, or installation changes.
-- Keep changes scoped, preserve unrelated user work, and do not modify external or third-party skills unless the request explicitly includes them.
-- Maintain single responsibility, progressive disclosure, independent evaluation, artifact lineage, visible dissent, and explicit stop conditions.
-- Treat generators, evaluators, reviewers, and assemblers as separate roles. A changed substantive artifact must receive a fresh independent evaluation before promotion or final handoff.
-- Update generated registries, manifests, documentation, and validation expectations together with source changes.
-- Run the relevant repository and plugin audits before handoff; fix all errors and report remaining warnings.
+- 修改文件前读取距离目标文件最近的 `AGENTS.md`；子目录规则在其范围内覆盖本文件。
+- 同时维护两种配置：`research-skills/` 下的 Hermes 源与 `research-skills-openai/` 下的 OpenAI 插件。不得在两者之间复制平台专属元数据或运行时语法。
+- 新建或大幅改写 Skill 前使用 `skill-creator`；涉及插件结构、Marketplace 或安装流程时使用 `plugin-creator`。
+- 限定变更范围，保留无关用户工作；除非请求明确包含，否则不得修改外部或第三方 Skill。
+- 维持单一职责、渐进披露、独立评估、产物血缘、可见异议和明确停止条件。
+- 生成器、评估器、Reviewer 与汇编器必须保持角色分离。实质性产物发生变化后，必须由新的独立实例重新评估，才能晋级或最终交付。
+- 源文件、生成的 Registry、Manifest、文档和验证预期必须同步更新。
+- 交付前运行适用的仓库与插件审计；修复所有错误，并报告仍然存在的警告。

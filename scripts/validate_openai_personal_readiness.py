@@ -326,13 +326,7 @@ def build_report(receipts_path: Path = RECEIPTS) -> tuple[dict[str, Any], list[s
         "personal_status": observation["status"],
         "deterministic_baseline": deterministic,
         "owner_observation": observation,
-        "deferred_profiles": {
-            "preview_attested": "out_of_scope_nonblocking",
-            "provider_verified": "out_of_scope_nonblocking",
-        },
         "claims": {
-            "owner_observed_is_external_attestation": False,
-            "owner_observed_is_provider_verified": False,
             "automatic_external_submission": False,
         },
         "errors": errors,

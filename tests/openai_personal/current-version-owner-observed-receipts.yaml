@@ -22,7 +22,7 @@ distribution:
     started_at: null
     completed_at: null
     owner_confirmed: false
-  notes: Deterministic acceptance for 0.9.0-preview.1 is complete; the installed GitHub cache was last observed at 0.7.0-preview.2, so upgrade/reinstall and fresh-task discovery remain pending.
+  notes: Deterministic acceptance for 0.9.0-preview.1 is complete, and App/CLI diagnostics confirmed the coherent current-version cache and discovery; the formal distribution slot remains pending until its complete binding and owner confirmation are recorded.
 
 workflow_runs:
   - slot_id: personal-idea-happy

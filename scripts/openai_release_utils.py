@@ -16,8 +16,6 @@ MARKETPLACE_PATH = ".agents/plugins/marketplace.json"
 PLUGIN_ROOT_PREFIX = "research-skills-openai/"
 NON_INSTALLABLE_DOCUMENTATION_PATHS = {
     "research-skills-openai/AGENTS.md",
-    "research-skills-openai/PHASE7-8-RUNBOOK.md",
-    "research-skills-openai/PREVIEW-EVIDENCE-CAPTURE.md",
     "research-skills-openai/README.md",
     "research-skills-openai/ROADMAP.md",
 }

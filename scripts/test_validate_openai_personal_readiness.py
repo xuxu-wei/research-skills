@@ -85,8 +85,8 @@ def main() -> int:
     assert not report_errors, report_errors
     assert report["deterministic_status"] == "deterministic_validated"
     assert report["personal_status"] == "in_progress_owner_observation"
-    assert report["claims"]["owner_observed_is_external_attestation"] is False
-    assert report["claims"]["owner_observed_is_provider_verified"] is False
+    assert report["claims"] == {"automatic_external_submission": False}
+    assert "deferred_profiles" not in report
 
     print("Personal readiness validator tests passed: 4 scenarios")
     return 0

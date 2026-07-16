@@ -1,484 +1,256 @@
-# Research Skills OpenAI Plugin Roadmap
-
-Status: Personal Experimental/Preview
-Planning baseline: 2026-07-16
-Current version: `0.9.0-preview.1`
-Current scope: 49 skills, including the four-skill Research Polisher series
-
-## Product position
-
-`research-skills-openai` is an owner-operated research workflow plugin for one
-person's ChatGPT/Codex research work. The active roadmap optimizes reliable
-personal use, reproducible artifacts, independent evaluation, and practical
-installation/update behavior. It does not target production support, team or
-public distribution, or automatic submission to an external platform.
-
-The maintained architecture keeps generators, reviewers, and assemblers
-separate. Substantive revisions receive fresh independent evaluation; source
-artifacts remain immutable; lineage and dissent remain visible; and fatal or
-unresolved blocking findings prevent promotion.
-
-The Idea-v3 deterministic checkpoint is complete. The remaining active sequence is:
-
-1. after owner approval, finish the current-version local install, update, and
-   fresh-task discovery check;
-2. complete the bounded owner-observed Phase 7 workflow runs;
-3. complete the bounded Phase 8 Search and Deep Research runs; and
-4. consider Phase 10 only after the current personal workflows are useful in
-   real research work.
-
-No additional entry skill is planned while these checks are incomplete.
-
-## Current baseline
-
-- 49 registered skills and 68 workflow edges.
-- Five workflow entry points: Idea, Proposal, Article, Perspective, and Research
-  Polisher.
-- Twenty reviewer-class skills require fresh independent subagents.
-- Seven declared entry skills are discoverable. Six permit implicit invocation;
-  Research Polisher is permanently explicit-only under the current personal
-  routing policy.
-- Seventeen declared entry modes pass deterministic replay and their associated
-  bypass, stale-input, and lineage guards.
-- The 20-case anonymous corpus passes with false-ready zero and 100% compliance
-  for fatal/blocking detection, lineage, reviewer isolation, source-edit
-  boundaries, and dissent preservation.
-- Context proxies use 6,029 description characters and remain below the
-  historical regression gates; the current largest orchestrator proxy is 13,146.
-- Plugin structure, registry generation, GitHub marketplace metadata, and local
-  development installation support are implemented.
-- A 2026-07-14 local audit confirmed that `xuxu-research-preview` is registered,
-  `research-skills-openai` is enabled, and the coherent installed cache is
-  `0.7.0-preview.2`. Installation and `0.9.0-preview.1` deterministic acceptance
-  are implemented; upgrade/reinstall and fresh-task discovery remain pending.
-- ChatGPT web installation, sharing, discovery, and runtime behavior remain
-  unverified and do not block the personal Codex profile.
-
-## Personal acceptance states
-
-- `deterministic_validated`: maintained static audits, registry/package checks,
-  context limits, fixtures, and scenario tests pass.
-- `owner_observed`: one real owner-run task is bound to the plugin version, task
-  ID, frozen inputs, output artifacts, versions, SHA-256 digests, timestamps,
-  reviewer instances where applicable, and explicit owner confirmation.
-- `owner_observed_ready`: all required Phase 7 and Phase 8 personal checks have
-  valid `owner_observed` records and no unresolved personal blocking finding.
-- `in_progress_owner_observation`: deterministic validation passes but one or
-  more required owner-observed checks are still missing or unresolved.
-
-An owner-observed record supports only personal readiness. It must not be
-described as provider, shared, public, or externally attested evidence.
-Current-version owner task IDs, private input bindings, and confirmations are
-stored only in the ignored local Phase 7-8 receipt file; the tracked receipt
-template remains all-pending and contains no task IDs.
-
-## Historical completed baseline — Phases 0–6
-
-Phases 0 through 6 were completed on 2026-07-12. Their original skill counts and
-receipts are historical snapshots; later Research Polisher expansion increased
-the maintained inventory to 49 skills and seven declared entries.
-
-### Phase 0 — Reference and registry closure
-
-Completed outcomes:
-
-- Recursive Markdown, resource, template, script, and cross-skill references
-  close without dangling dependencies.
-- Every orchestrator-to-reviewer edge is delegated.
-- Registry, manifest, and discovered skill inventory agree.
-
-### Phase 1 — Context reduction
-
-Completed outcomes:
-
-- Oversized procedures were split or compressed without removing workflow
-  gates.
-- Public discovery descriptions and orchestrator context fit the maintained
-  context budgets.
-- Reviewer isolation, state transitions, and artifact schemas remained intact.
-
-### Phase 2 — Native Search and Deep Research
-
-Completed outcomes:
-
-- Built-in Search is the default for quick, recent, exact, and narrow retrieval.
-- Deep Research is used for multi-stage, multi-direction, or multi-source
-  synthesis.
-- Inactive Deep Research produces a self-contained continuation package and
-  pauses at `deep_research_handoff_required`.
-- `academic-deep-search` is limited to a sufficiently specific question
-  answerable from two to five closely read papers.
-
-### Phase 3 — Workflow state-machine closure
-
-Completed outcomes:
-
-- Idea, Proposal, Article, and Perspective workflows close generation,
-  independent evaluation, revision, fresh evaluation or panel review, and
-  human handoff.
-- Assemblers and compositors preserve unresolved findings and do not silently
-  repair source content.
-- Reviewer unavailability stops at `independent_review_pending` rather than
-  falling back to inline self-review.
-
-### Phase 4 — Scenario evals and continuous validation
-
-Completed outcomes:
-
-- All five current workflows pass deterministic end-to-end scenarios.
-- The maintained suite passes 63 negative guards, including 24 Research
-  Polisher matrix, tier, isolation, assembler, stale-evaluation, and false-ready
-  guards.
-- Every changed substantive artifact requires a new version and fresh reviewer
-  instance before promotion.
-
-### Phase 5 — GitHub marketplace installation and updates
-
-Completed infrastructure and historical observation:
-
-- Plugin-level SemVer, rolling GitHub `main`, marketplace `git-subdir`, CI, and
-  explicit upgrade/reinstall procedures are implemented.
-- Historical GitHub Actions run `29171766061` succeeded for commit
-  `8eb40187df7af45f562ccf39c5b4e3a10167e232`.
-- The installed plugin historically upgraded from `0.5.0-preview.1` to
-  `0.5.0-preview.2` and was explicitly reinstalled into the new user cache.
-- A fresh Codex task (private task ID redacted) discovered that
-  historical cache and all six entries then present, with no standalone
-  `pubmed` skill.
-- Canonical historical evidence remains
-  `reports/phase5-upgrade-smoke.md`.
-
-This phase established that installation machinery works; Phase 7 checks the
-current source and owner environment.
-
-### Phase 6 — Maintenance headroom and validator portability
-
-Completed outcomes:
-
-- Validators derive versions and inventories instead of embedding the current
-  version or skill count.
-- Lower, equal, malformed, and local-cachebuster release versions are rejected
-  where a release SemVer increase is required.
-- Quickstarts, registry, manifest, Preview label, and human-signoff boundaries
-  are checked for consistency.
-- ChatGPT web behavior is not inferred from Codex evidence.
-
-## Artifact completeness and DOCX delivery hardening
-
-- Priority: P0 blocker before Phase 7–8 resumes
-- Type: deterministic source and artifact-contract maintenance
-- Status: Complete in source for `0.7.0-preview.3`; awaiting owner confirmation before Phase 7 resumes
-
-### Deliverables
-
-- Adopt `research-idea.v2` complete Markdown snapshots, flat per-Idea nodes,
-  logical parent-ID trees, digest-bound reviews, and complete PI portfolios.
-- Make Proposal/SAP/Article fresh re-evaluation current-artifact-only; keep old
-  versions, deltas, reports, scores, and decisions sealed from reviewers.
-- Adopt `research-article.v6` with Markdown authority, preferred DOCX delivery,
-  display-asset manifests, native tables/figures, parity checks, and render QA.
-- Keep all descriptions and modified default-loaded SKILL bodies within the
-  `9f64ad3` regression baselines through conditional references.
-
-### Acceptance
-
-- Delta-only Ideas, comparative-only summaries, partial proposals/manuscripts,
-  identity drift, stale digests, or reviewer history access are rejected.
-- A synthetic complete Article produces a native-table/embedded-figure DOCX
-  whose content, captions, callouts, manifest, and page renders pass QA.
-- All deterministic audits and Phase 4/6/7/8 fixtures pass at the new version.
-- No local plugin reinstall, live owner-observed task, commit, push, or Phase
-  7–8 acceptance credit occurs during this checkpoint.
-
-## Project README and Cover Letter maintenance
-
-- Priority: P0 maintenance before Phase 7–8 resumes
-- Type: navigation, editorial handoff, and deterministic contract maintenance
-- Status: Complete in source for `0.8.0-preview.1`; awaiting current-version install and owner observation
-
-### Deliverables
-
-- Require all five full-workflow orchestrators to update one minimal project-root
-  README before normal delivery, pause, or stop; keep it outside reviewer inputs.
-- Support versioned Article and Perspective Cover Letters through the existing
-  `article-cover-letter` writer and Perspective final-copy route.
-- Keep the Cover Letter quality check mechanical and free of a self-promotion
-  decision.
-- Add scoped publication-probability estimates only to an existing fresh
-  `medical-journal-review` report, with Search-backed benchmarks when available,
-  explicit uncertainty, and no extra reviewer round, artifact, state, or gate.
-
-### Acceptance
-
-- Five orchestrators use the same six-part README contract, valid relative links,
-  authoritative state, and a next human action; reviewer `files_read` excludes it.
-- Article and Perspective letters are versioned and source-bound; a Perspective
-  final copy is text-identical, and stale source/outlet changes invalidate old
-  letters and reviews.
-- Probability cases cover full-artifact, cover-letter-only, heuristic, and
-  `not_estimable` scopes; stage and overall estimates are coherent and cannot
-  override fatal, blocking, stale-input, or reviewer-isolation gates.
-- Counts remain 49 skills, 20 reviewers, seven declared entries, six implicit
-  entries, and one explicit-only entry; deterministic audits and scenario suites
-  pass without changing existing workflow states.
-
-## Idea v3 complete-Dossier and adaptive-routing checkpoint
-
-- Priority: P0 blocker before Phase 7–8 resumes
-- Type: Idea artifact, routing, review-isolation, and usability hardening
-- Status: Complete and deterministically validated for `0.9.0-preview.1`
-
-### Deliverables
-
-- Replace the Idea snapshot/candidate-set primary contract with one to three
-  current `idea-dossier-vNNN.md` artifacts plus a concise Idea index, a readable
-  reference ledger, and an explicit routing decision.
-- Make each Dossier independently usable by the owner and by a fresh evaluator:
-  full background, objectives, work modules, methods, key technologies, expected
-  outputs, contribution/impact claims, risks, and references must be present.
-- Describe every major evidence chain as input -> method/analysis/processing ->
-  output, with the supported objective or claim and failure conditions.
-- Route a clear, supported direction to focused optimization. Route a vague
-  direction with several supported opportunities to one bounded exploration
-  round across two or at most three directions, followed by fresh evidence and
-  opportunity mapping and one fresh evaluator per current Dossier.
-- Permit title, audience, and editorial repositioning without mandatory new work
-  when the implementation supports every claim. Require a real increment only
-  for claims of a novel method, new data, or new scientific discovery.
-- Keep detailed schemas, examples, claim-support checks, and routing tables in
-  conditional references so default discovery and orchestrator context do not
-  grow.
-- Treat the visible ignored v1 run under
-  `../tests/idea-to-proposal/.phase7-8-runs/idea/` as a local project test
-  example, not a migration target. No actual v2 project is present; v1/v2
-  layouts remain read-only and are never rewritten automatically.
-
-### Acceptance
-
-- Every current Idea Dossier contains all required sections, resolves normal
-  academic citations locally, contains no opaque workflow-marker dependency, and
-  closes every major input-method/output chain.
-- The owner handoff links the same Dossier path, version, and digest that the
-  evaluator read. Any internal marker shown elsewhere has a readable label and
-  resolves through the node ledger to its defining and original source.
-- `idea-evaluator` reads exactly one current Dossier as its project artifact;
-  context/maps, preflight, ledger, old versions, deltas, must-fix lists, and prior
-  reports or decisions remain invisible.
-- Supported title or audience expansion passes; unsupported causal, universal,
-  clinical-effectiveness, generalizability, or novelty claims fail. A qualified
-  claim passes only when its limitation remains visible.
-- Focused routing yields one current Dossier. Bounded exploration yields two or
-  three, never quota-filling weak directions, performs no evaluation before the
-  remap, and stops at `human_direction_selection_required` after one fresh
-  evaluator per current Dossier.
-- Identity drift, an incomplete evidence chain, stale digest, unsupported title
-  claim, structural second-round exploration change, or missing independent
-  reviewer prevents promotion.
-- Inventory remains 49 skills, 20 reviewers, seven declared entries, six
-  implicit entries, one explicit-only entry, and 17 public entry modes. Context
-  budgets and all maintained deterministic suites remain within their existing
-  gates.
-
-## Phase 7 — Personal install and workflow readiness
-
-- Priority: P0
-- Type: maintenance and owner-observed runtime validation
-- Status: Ready but paused until the owner authorizes current-version runtime work
-
-### Deliverables
-
-1. Verify the current GitHub marketplace source resolves the intended
-   repository, `main` revision, and `research-skills-openai` subdirectory.
-2. Upgrade or explicitly reinstall `0.9.0-preview.1`, restart the Codex App when
-   necessary, and inspect the resulting user cache.
-3. Open a fresh Codex task and confirm discovery of 49 skills, seven declared
-   entries, six implicit entries, and the permanent explicit-only Research
-   Polisher entry.
-4. Run one current-version owner-observed happy path for each workflow:
-   - Idea;
-   - Proposal;
-   - Article;
-   - Perspective; and
-   - Research Polisher.
-5. Run two cross-workflow controls:
-   - reviewer delegation is unavailable and the workflow stops at
-     `independent_review_pending`; and
-   - a fatal or unresolved blocking finding prevents every ready or successful
-     handoff state.
-6. Record task and artifact bindings without requiring rollback, branch
-   protection, immutable Releases, a provider adapter, or an external witness.
-
-### Acceptance
-
-- The GitHub marketplace can be upgraded or reinstalled using the documented
-  procedure, and a fresh task loads one coherent current-version cache.
-- The installed manifest and registry version agree, and the installed cache
-  contains the complete declared skill tree and license.
-- Fresh-task discovery reports exactly 49 skills, seven declared entries, and
-  six implicit entries; no deleted `pubmed` skill is present.
-- Research Polisher is explicitly callable but does not take over language
-  polishing, ordinary drafting, new-idea generation, or general literature
-  search.
-- All five happy paths reach their workflow-declared human handoff:
-  `human_signoff_required` or `human_strategy_selection_required`.
-- Generator/drafter and reviewer instance identities differ. Reviewers write
-  only reports and do not edit the frozen source artifact.
-- Artifact lineage, input/output versions and digests, unresolved findings, and
-  dissent are complete for every accepted run.
-- Both controls reach their expected stop behavior; false-ready is zero.
-- Each accepted run is recorded as `owner_observed`, not as external or provider
-  verification.
-
-### Verification already available
-
-- Deterministic Phase 7 replay passes all 17 entry modes.
-- Mode-specific bypass and stale/lineage mutations are rejected.
-- The synthetic closed loop validates workflow-specific writers, panels,
-  package boundaries, and continuation routes.
-- Plugin provenance and the bundled MIT license have zero unresolved entries.
-
-These deterministic results do not replace the current owner-observed install
-and runtime checks.
-
-## Phase 8 — Personal native research loop
-
-- Priority: P0 after the Phase 7 install check
-- Type: owner-observed Search and Deep Research validation
-- Status: Paused until Phase 7 installation/discovery and owner authorization
-
-### Deliverables
-
-1. Preserve the existing 20-case anonymous regression corpus and its bounded
-   fresh-review repeat set.
-2. Run three current-version built-in Search cases:
-   - a current or recently changed question;
-   - an exact fact or source lookup; and
-   - a narrow academic question.
-3. Run one inactive-Deep-Research control that emits a self-contained
-   continuation package and stops at `deep_research_handoff_required`.
-4. Run one complete user-started Deep Research cycle:
-   handoff, user start, completion, mapper return, and workflow resume.
-5. Bind material claims to opened sources and bind mapper return and resume to
-   the same evidence artifacts and digests.
-
-### Acceptance
-
-- The corpus remains 20/20 with fatal/blocking detection at 100%, false-ready
-  zero, and lineage, isolation, source-edit boundary, and dissent preservation
-  at 100%.
-- Each Search case records the task, query purpose, opened source URLs or stable
-  identifiers, material claim mappings, output artifact, version, digest, and
-  owner confirmation.
-- Search uses suitable primary or authoritative sources and makes access limits
-  and disagreement visible.
-- The inactive control pauses without simulating Deep Research inline and
-  produces a sufficient continuation package.
-- The completed cycle records the unique pending edge and resumes that edge
-  exactly once. Mapper return and resume bind the same evidence artifacts.
-- All five retrieval observations are current-version `owner_observed` records.
-
-### Verification already available
-
-- The anonymous synthetic corpus contains four outcome classes for each of the
-  five workflows and passes the maintained quality and governance metrics.
-- Historical Search, reviewer, and inactive-Deep-Research snapshots remain
-  useful regression inputs but do not count as current owner observations.
-- The Deep Research contract already defines handoff, completion, mapper-return,
-  artifact-binding, and single-edge-resume invariants.
-
-## Phase 9 — Research Polisher
-
-- Priority: included in Phase 7 personal acceptance
-- Type: owner-approved personal workflow
-- Status: Source implemented; owner-observed happy path pending
-
-Research Polisher is the seventh declared entry and remains permanently
-explicit-only. Its trigger is completed or substantially completed research and
-excludes copyediting, language polishing, ordinary drafting, new-idea
-generation, and general literature-search requests.
-
-Implemented workflow:
-
-1. freeze a `research_polisher_dossier` with source identities, versions,
-   digests, design, methods, existing data/results, claims, audience, and
-   resource ceilings;
-2. dispatch three mutually blind strategy reviewers for scientific
-   significance, practical value, and dissemination/editorial positioning;
-3. require each reviewer to cover `reposition_only`, `small_extension`, and
-   `moderate_extension`, or return `no_defensible_option`;
-4. assemble an anonymous 3-by-3 portfolio without scoring, ranking, selecting,
-   or inventing a hybrid option;
-5. run a fresh methodology/publishability reviewer; and
-6. allow at most one targeted strategy revision and fresh re-evaluation before
-   producing an unweighted Pareto view for human selection.
-
-Maintained acceptance:
-
-- `reposition_only` contains no new data, experiment, validation, or analysis.
-- Extension strategies record assets, dependencies, feasibility basis, risks,
-  and stop conditions; unsupported feasibility is rejected.
-- Strategist and final-reviewer instances are distinct, source artifacts remain
-  unchanged, and the assembler preserves provenance, conflicts, and dissent.
-- A source-level fatal finding, stale evaluation, missing reviewer, or changed
-  input digest prevents `human_strategy_selection_required`.
-- The component suite covers clinical/observational, basic science,
-  computational/engineering, and qualitative or mixed-methods cases.
-
-The remaining Phase 9 task is its one current-version owner-observed happy path
-inside Phase 7. It is not waiting for a public-release gate and will not become
-implicit automatically.
-
-## Phase 10 — Resume packages and workspace doctor
-
-- Priority: P1 candidate after personal runtime validation
-- Type: bounded workflow infrastructure
-- Status: Candidate; not part of the current implementation
-
-Potential scope:
-
-- one portable continuation-package schema for
-  `independent_review_pending`, `deep_research_handoff_required`, and
-  `context_handoff_required`;
-- exact single-edge resume in a fresh task after plugin/schema and artifact
-  digest checks; and
-- a read-only workspace doctor for stale evaluations, digest mismatches,
-  dangling lineage, hidden dissent, and reviewer write-scope violations.
-
-Phase 10 starts only after Phase 7–8 personal use is satisfactory or real owner
-work exposes a repeated continuation problem. It adds no declared entry and is
-not implemented in the current documentation change.
-
-## Current completion decision
-
-The plugin remains `in_progress_owner_observation` while any required Phase 7
-or Phase 8 record is missing. It becomes `owner_observed_ready` only when all of
-the following are complete:
-
-- current-version install/update/reinstall and fresh-task discovery;
-- five workflow happy paths;
-- two cross-workflow controls;
-- three Search cases;
-- one inactive-Deep-Research control; and
-- one complete Deep Research handoff-return-resume cycle.
-
-No status string or synthetic fixture substitutes for those owner observations.
-Conversely, shared/public release infrastructure is not required for this
-personal state.
-
-## Outside the active personal roadmap
-
-The following work is intentionally not planned or required now:
-
-- target-journal, target-outlet, or funder-requirements adapters;
-- a fixed journal, funder, or outlet catalog;
-- shared/public distribution hardening, public plugin-directory submission, or
-  a production/stable channel;
-- immutable external attestation releases, public-release governance, or a
-  provider-authenticated evidence adapter;
-- an eighth declared entry or additional implicit router;
-- a restored standalone PubMed skill;
-- automatic external submission or automatic human-signoff decisions; and
-- Apps SDK/MCP work without a concrete personal authenticated-data need.
-
-These items require a new explicit owner decision before they return to the
-active roadmap.
+# Research Skills OpenAI 路线图
+
+## 文档元数据
+
+| 字段 | 当前值 |
+|---|---|
+| 文档状态 | Personal Experimental/Preview |
+| 规划基线 | 2026-07-16 |
+| 当前插件版本 | `0.9.0-preview.1` |
+| 当前范围 | 49 个 Skill、20 个独立 Reviewer、5 个完整工作流 |
+| 发现面 | 7 个声明入口、6 个隐式入口、1 个 explicit-only 入口 |
+| 当前验收状态 | `in_progress_owner_observation`，`0/13` 个 owner-observed 槽位完成 |
+
+## 产品定位
+
+`research-skills-openai` 是供单一所有者在 ChatGPT Work 和 Codex 中使用的研究工作流插件。当前路线只优化个人使用的可靠性、可复现产物、独立评估、清晰血缘和人工决策，不承诺生产支持、团队分发或自动外部提交。
+
+所有完整工作流都必须保持角色分离：Generator 和 Drafter 不自评，Reviewer 针对冻结的只读输入在新实例中运行，Assembler 不静默修复源产物。实质性修订必须生成新版本并接受新的独立评估；Fatal 或未解决的 Blocking finding 会阻止晋级。
+
+## 当前状态
+
+- 当前源码为 `0.9.0-preview.1`，包含 49 个 Skill 和 68 条工作流边。
+- 五个完整工作流为 Idea、Proposal、Article、Perspective 和 Research Polisher。
+- 七个声明入口中，六个允许隐式调用；Research Polisher 永久保持 explicit-only。
+- 17 个 entry mode 已通过确定性回放；Phase 4 的五个工作流和 63 个负向守卫通过。
+- Phase 8 的 20-case 匿名语料全部通过，false-ready 为 0，Fatal/Blocking 检出、血缘、Reviewer 隔离、写入边界和异议保留均为 100%。
+- GitHub Marketplace 安装机制已经实现；所有者环境已在 Codex App 和新的 Codex CLI 任务中诊断确认 `0.9.0-preview.1` 安装缓存与当前版本发现。正式 `personal-distribution-current` owner receipt 尚未记录，因此该槽位仍未完成。
+- 确定性验证不等于真实运行验收。当前 13 个 owner-observed 槽位全部待完成，因此状态保持 `in_progress_owner_observation`。
+
+## 阶段总览
+
+| Phase | 名称 | 状态 | 当前结论 |
+|---:|---|---|---|
+| 0 | 引用与 Registry 闭合 | 已完成 | 依赖、入口和 Registry 一致 |
+| 1 | Context 精简 | 已完成 | 发现描述和默认上下文受控 |
+| 2 | Search 与 Deep Research 路由 | 已完成 | 原生检索路由和停止条件已定义 |
+| 3 | 工作流状态机闭合 | 已完成 | 五个工作流具备独立评估闭环 |
+| 4 | 场景评估与持续验证 | 已完成 | 5/5 工作流和 63 个负向守卫通过 |
+| 5 | GitHub Marketplace 安装与更新 | 已完成 | 安装机制有效，当前版本运行验证待 Phase 7 完成 |
+| 6 | 维护性与当前版本强化 | 已完成 | Artifact、DOCX、README、Cover Letter 和 Idea v3 完成 |
+| 7 | 个人安装与工作流就绪 | 进行中 | 当前版本安装发现已诊断确认；正式分发 receipt、五个 happy path 和两个控制待完成 |
+| 8 | 个人原生研究闭环 | 进行中 | 三个 Search 和两个 Deep Research 槽位待完成 |
+
+## Phase 0：引用与 Registry 闭合
+
+- 状态：`已完成`
+- 优先级：`历史基线`
+- 目标：关闭插件内引用、资源、入口和工作流边的结构性缺口。
+
+### 已完成
+
+- Markdown、Reference、Template、Script 和跨 Skill 引用均可解析。
+- Orchestrator 到 Reviewer 的边均要求委派执行。
+- Registry、Manifest 和 Skill 库存保持一致。
+
+### 待完成
+
+- 无。
+
+### 完成条件
+
+- 插件审计不报告悬空引用、缺失资源或未声明入口。
+
+## Phase 1：Context 精简
+
+- 状态：`已完成`
+- 优先级：`历史基线`
+- 目标：降低发现和默认加载成本，同时保留工作流门禁。
+
+### 已完成
+
+- 超长流程被压缩或移入条件引用。
+- 入口描述和 Orchestrator Context 保持在维护预算内。
+- Reviewer 隔离、状态转换和 Artifact Schema 未因精简而削弱。
+
+### 待完成
+
+- 无；已有超限文件作为维护性技术债，在后续触及时继续缩减。
+
+### 完成条件
+
+- Context 测量不超过当前回归阈值，且插件审计无新增超限错误。
+
+## Phase 2：Search 与 Deep Research 路由
+
+- 状态：`已完成`
+- 优先级：`历史基线`
+- 目标：建立内置 Search、Deep Research 和学术精读之间的明确分工。
+
+### 已完成
+
+- 快速、近期、精确和窄范围检索默认使用内置 Search。
+- 多阶段、多方向或多来源综合使用 Deep Research。
+- Deep Research 不可用时返回自包含 handoff，并停在 `deep_research_handoff_required`。
+- `academic-deep-search` 仅处理适合精读 2–5 篇论文的具体问题；广泛问题交给 `research-opportunity-mapper`。
+
+### 待完成
+
+- 无源码工作；真实 Search 和 Deep Research 运行观察属于 Phase 8。
+
+### 完成条件
+
+- 路由、停止状态、Artifact 绑定和单边恢复契约通过确定性测试。
+
+## Phase 3：工作流状态机闭合
+
+- 状态：`已完成`
+- 优先级：`历史基线`
+- 目标：使完整工作流从输入规范化闭合到人工审阅包。
+
+### 已完成
+
+- Idea、Proposal、Article、Perspective 和 Research Polisher 均具备生成、独立评估、修订、复评和人工交付路径。
+- Assembler 保留未解决 Finding 和异议，不静默修复源内容。
+- Reviewer 不可用时停在 `independent_review_pending`，不退化为内联自评。
+
+### 待完成
+
+- 无源码工作；真实运行结果由 Phase 7 验证。
+
+### 完成条件
+
+- 每个工作流都具备正常人工交付状态、Fatal 停止状态和 Reviewer 不可用停止状态。
+
+## Phase 4：场景评估与持续验证
+
+- 状态：`已完成`
+- 优先级：`历史基线`
+- 目标：用确定性场景覆盖正常路径和关键失败路径。
+
+### 已完成
+
+- 五个工作流的端到端确定性场景全部通过。
+- 63 个负向守卫覆盖绕过门禁、陈旧输入、无效血缘、缺失 Reviewer、Assembler 越权和 false-ready。
+- 每个实质性新版本都必须绑定新的 Reviewer 实例后才能晋级。
+
+### 待完成
+
+- 无；场景与 Skill 契约变更时同步更新。
+
+### 完成条件
+
+- Phase 4 报告保持 5/5 工作流通过、63 个负向守卫通过。
+
+## Phase 5：GitHub Marketplace 安装与更新
+
+- 状态：`已完成`
+- 优先级：`历史基线`
+- 目标：建立个人 Preview 的 Marketplace 安装、更新和本地开发流程。
+
+### 已完成
+
+- Manifest 与 Registry 使用同步 SemVer。
+- GitHub `main`、Marketplace `git-subdir`、更新/重装命令和本地 cachebuster 流程已经实现。
+- 历史安装已证明 Marketplace 注册、升级和新任务发现机制可工作。
+
+### 待完成
+
+- `0.9.0-preview.1` 的安装缓存与新任务发现已完成诊断确认；正式 owner-observed 记录属于 Phase 7，不重复记为本阶段开发工作。
+
+### 完成条件
+
+- 安装机制、SemVer 规则和插件包验证持续通过。
+
+## Phase 6：维护性与当前版本强化
+
+- 状态：`已完成`
+- 优先级：`P0 已关闭`
+- 目标：提高 Artifact 完整性、交付可用性、验证器可移植性和 Idea 工作流质量。
+
+### 已完成
+
+- 验证器自动推导版本和库存，并拒绝无效版本转换。
+- Proposal、SAP 和 Article 的新评估只读取当前冻结产物；旧版本、Delta、分数和决策保持隔离。
+- Article 以完整 Markdown 为审计源，DOCX 为优先交付格式，并支持原生表格、Figure、Parity 和 Render QA。
+- 五个完整工作流维护项目根 README；Article 和 Perspective 支持版本化 Cover Letter。
+- Idea 使用 `research-idea.v3` 完整 Dossier、可读 Reference Ledger、闭合 evidence chain 和自适应方向路由。
+- 当前版本保持 49 个 Skill、20 个 Reviewer、7 个声明入口、6 个隐式入口和 17 个 entry mode。
+
+### 待完成
+
+- 无源码工作；这些能力的当前版本真实使用纳入 Phase 7。
+
+### 完成条件
+
+- Artifact completeness、Article DOCX、Context、Phase 4、Phase 7 和 Phase 8 确定性测试全部通过。
+
+## Phase 7：个人安装与工作流就绪
+
+- 状态：`进行中`
+- 优先级：`P0`
+- 目标：证明当前版本在所有者 Codex 环境中能够安装、发现并完成五个工作流的受控人工交付。
+
+### 已完成
+
+- 17 个 entry mode 的确定性回放全部通过，入口绕过和陈旧输入守卫有效。
+- 五个工作流的状态、角色隔离、版本血缘和停止条件已经实现。
+- Research Polisher 已实现为第五个工作流和第七个声明入口，并永久保持 explicit-only。
+- Research Polisher 冻结研究 Dossier，由科学意义、实际价值和传播定位三个互盲角色分别提出 `reposition_only`、`small_extension` 和 `moderate_extension` 策略，再由独立方法学/可发表性 Reviewer 评估，最终停在人工策略选择。
+
+### 待完成
+
+- 完成 `personal-distribution-current`：把已诊断确认的 `0.9.0-preview.1` 安装、App/CLI 发现、49 个 Skill、7 个声明入口和6 个隐式入口绑定到正式 owner receipt。
+- 完成五个 happy path：Idea、Proposal、Article、Perspective 和 `personal-research-polisher-happy`。
+- 完成两个控制：Reviewer 不可用时停在 `independent_review_pending`；Fatal 或未解决 Blocking finding 不得产生 ready 状态。
+- Research Polisher 必须验证显式正向调用，同时不接管语言润色、普通写作、新 Idea 或一般文献检索。
+
+### 完成条件
+
+- 安装发现槽位、五个工作流槽位和两个控制槽位均记录为当前版本 `owner_observed`。
+- Accepted run 必须绑定任务、源码身份、Artifact、版本、Digest、Reviewer 实例、时间戳、结果和所有者确认。
+- 五个 happy path 分别到达 `human_signoff_required` 或 `human_strategy_selection_required`，false-ready 为 0。
+
+## Phase 8：个人原生研究闭环
+
+- 状态：`进行中`
+- 优先级：`P0`
+- 目标：证明当前版本能够正确使用内置 Search，并完成 Deep Research 的停止与返回闭环。
+
+### 已完成
+
+- 20-case 匿名语料覆盖五个工作流的 happy、fixable、fatal/pending 和 no-gain 结果。
+- Fatal/Blocking 检出、Major finding 检出、血缘、Reviewer 隔离、写入边界和异议保留均为 100%，false-ready 为 0。
+- 三个风险分层的合成 repeat case 保持独立 Reviewer 和一致结果。
+
+### 待完成
+
+- 完成 `personal-search-current`、`personal-search-exact` 和 `personal-search-narrow-academic`。
+- 完成 `personal-deep-research-inactive`，确认不在当前任务中模拟 Deep Research，并生成自包含 handoff。
+- 完成 `personal-deep-research-complete`，绑定 handoff、用户启动、完成、Mapper return 和原工作流单边恢复。
+
+### 完成条件
+
+- 三个 Search 和两个 Deep Research 槽位均记录为当前版本 `owner_observed`。
+- Search 的 Material claim 绑定已打开的权威来源；Deep Research return 与恢复绑定同一 Evidence Artifact 和 Digest。
+
+## 当前完成判定
+
+插件当前为 `deterministic_validated` 和 `in_progress_owner_observation`。只有以下 13 个槽位全部完成后，才能进入 `owner_observed_ready`：
+
+- 1 个当前版本安装与新任务发现槽位；
+- 5 个工作流 happy path；
+- 2 个跨工作流控制；
+- 3 个 Search 槽位；
+- 1 个 Deep Research inactive 控制；
+- 1 个完整 Deep Research handoff-return-resume 循环。
+
+Fixture、状态文本、文件名或仓库内手写记录不能替代 owner-observed 证据。
+
+## 非目标
+
+- 团队或公共分发加固、稳定生产渠道和插件目录提交；
+- 固定期刊、Outlet 或 Funder 目录及专用 Adapter；
+- 新增第八个声明入口或恢复独立 PubMed Skill；
+- 自动外部提交或自动替代人类签字；
+- 没有明确个人认证数据需求时引入 Apps SDK 或 MCP。

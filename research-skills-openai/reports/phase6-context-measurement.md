@@ -20,12 +20,14 @@ policy:
 - `research-opportunity-mapper`
 - `research-polisher-orchestrator`
 
-A 2026-07-14 local audit confirmed that marketplace
-`xuxu-research-preview` is registered, the plugin is enabled, and the installed
-cache is `0.7.0-preview.2`. The retained routing snapshot is bound to
-`0.6.0-preview.1` and six entries. Neither observation proves that the maintained
-`0.9.0-preview.1` source has been installed or discovered; that check requires a
-marketplace upgrade/reinstall after push and a new Codex task.
+A 2026-07-16 current-environment diagnostic confirmed that marketplace
+`xuxu-research-preview` is registered, the plugin is enabled with the coherent
+`0.9.0-preview.1` cache, and the current version is discoverable in Codex App
+and a fresh Codex CLI task. This diagnostic is not the formal owner-observed
+distribution record; `personal-distribution-current` remains pending until its
+task/source identity, artifact digest, timestamps, outcome, and owner
+confirmation are captured. The retained historical routing snapshot remains
+bound to `0.6.0-preview.1` and six entries.
 
 ## Character proxies
 
@@ -66,13 +68,14 @@ copy-paste quickstart per current declared entry.
 `tests/openai_phase6/quickstart-routing-receipts.yaml` preserves six isolated
 `0.6.0-preview.1` routing observations and their original SHA-256 bindings. They
 are historical evidence and are not rewritten to match current source files or
-the seventh entry. The current static quickstart set is 7/7; current-version
-fresh-subagent routing evidence is 0/7 pending a real rerun.
+the seventh entry. The current static quickstart set is 7/7. The current App/CLI
+diagnostic is recorded separately from this retained snapshot and does not
+replace the still-pending formal distribution receipt.
 
 ## Interpretation and limits
 
 - Source package: 49 skills; policy declares seven entries, six currently implicit-active.
-- Runtime catalog observation for `0.9.0-preview.1`: pending.
+- Runtime catalog loading for `0.9.0-preview.1`: diagnostically confirmed in App and a fresh CLI task; formal owner receipt pending.
 - Non-implicit source skills: 43 (the explicit-only Research Polisher entry plus 42 private roles); no claim is made that they load initially.
 - This is character-based headroom, not model-token accounting.
 - Source presence, hashes, or a repository-authored routing snapshot cannot

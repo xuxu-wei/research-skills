@@ -14,9 +14,8 @@ current-version runtime slots are completed.
 
 The immediate priorities are deliberately small:
 
-1. after owner approval, verify the current GitHub marketplace install,
-   update/reinstall, cache
-   identity, and fresh-task discovery on the owner's Codex App;
+1. bind the already diagnosed current-version install, cache identity, and
+   fresh-task discovery to the formal owner-observed distribution receipt;
 2. run one owner-observed happy path for each of the five workflows plus two
    cross-workflow controls; and
 3. exercise three built-in Search cases, one inactive-Deep-Research control,
@@ -24,8 +23,7 @@ The immediate priorities are deliberately small:
 
 Research Polisher is already implemented as the seventh declared entry and is
 permanently explicit-only under the current personal routing policy. See
-[ROADMAP.md](ROADMAP.md) for sequencing and
-[PHASE7-8-RUNBOOK.md](PHASE7-8-RUNBOOK.md) for the personal acceptance checklist.
+[ROADMAP.md](ROADMAP.md) for sequencing and the current acceptance state.
 ChatGPT web installation, sharing, and discovery have not been verified and are
 not required for the current personal Codex profile.
 
@@ -62,6 +60,36 @@ cache path, restart the App and open another new task before judging discovery.
 
 For every installable behavior change, update the plugin SemVer in
 `.codex-plugin/plugin.json` and keep `workflow-registry.yaml` synchronized.
+
+After reinstall, restart the Codex App if it still reports the previous cache,
+then open a new task. Record the Marketplace revision, installed cache path,
+Manifest version, and Registry digest, and confirm 49 skills, seven declared
+entries, six implicit entries, and no standalone `pubmed` skill. Only a new task
+using one coherent current-version cache completes the personal distribution
+slot.
+
+## Personal acceptance
+
+The personal acceptance profile contains 13 owner-observed slots:
+
+| Group | Required observations |
+|---|---:|
+| Current-version install and fresh-task discovery | 1 |
+| Idea, Proposal, Article, Perspective, and Research Polisher happy paths | 5 |
+| Reviewer-unavailable and fatal-finding controls | 2 |
+| Current, exact, and narrow-academic Search cases | 3 |
+| Inactive Deep Research control | 1 |
+| Complete Deep Research handoff-return-resume cycle | 1 |
+
+The five workflow happy paths must finish at `human_signoff_required` or, for
+Research Polisher, `human_strategy_selection_required`. Reviewer unavailability
+must stop at `independent_review_pending`; a fatal or unresolved blocking
+finding must never produce a ready state.
+
+Each observed slot records the task ID, plugin version, source identity,
+artifact paths and SHA-256 digests, timestamps, reviewer instance IDs when
+applicable, Search URLs when applicable, actual outcome, and explicit owner
+confirmation.
 
 ## Local development cachebuster
 
@@ -101,12 +129,14 @@ generation, or general literature-search requests. The other 42 private roles
 also set the policy to `false` and remain available for explicit or
 orchestrated delegation.
 
-A local audit on 2026-07-14 confirmed that the GitHub marketplace is registered,
-the plugin is enabled, and Codex held the coherent `0.7.0-preview.2` cache. The
-installation mechanism is therefore implemented. The maintained
-`0.9.0-preview.1` source has passed deterministic acceptance but still requires
-a marketplace upgrade/reinstall and fresh-task discovery before the older cache
-can count as current-version evidence for Phase 7.
+A current-environment diagnostic on 2026-07-16 confirmed that the GitHub
+marketplace is registered, the plugin is enabled with the coherent
+`0.9.0-preview.1` cache, and the current version is discoverable in both Codex
+App and a fresh Codex CLI task. The installation mechanism and current-version
+loading are therefore diagnostically confirmed. The formal
+`personal-distribution-current` slot remains pending until its task/source
+identity, artifact digest, timestamps, outcome, and owner confirmation are
+captured in the private receipt.
 
 ## Artifact format defaults
 
@@ -239,6 +269,7 @@ Use $research-opportunity-mapper for this broad evidence question: [question]. D
 python scripts/audit_openai_research_plugin.py
 python scripts/audit_openai_research_proposal.py
 python scripts/audit_openai_research_perspective.py
+python scripts/test_openai_roadmap_contract.py
 python scripts/test_openai_release_contract.py
 python scripts/sync_openai_fixture_versions.py
 python scripts/test_openai_artifact_completeness.py
@@ -269,9 +300,28 @@ The tracked
 an all-pending schema template. Copy it to the ignored local path
 `../tests/article/.phase7-8-runs/local-owner-observed-receipts.yaml` and record
 task IDs, artifact bindings, timestamps, reviewer IDs, URLs, and confirmations
-only in that private copy. Pass it with `--receipts`; never commit it. The public
-derived report contains slot status/counts only. Pending observations remain a
+only in that private copy. Pass it with `--receipts`; never commit it:
+
+```powershell
+$privateReceipts = "tests/article/.phase7-8-runs/local-owner-observed-receipts.yaml"
+New-Item -ItemType Directory -Force (Split-Path $privateReceipts) | Out-Null
+Copy-Item tests/openai_personal/current-version-owner-observed-receipts.yaml $privateReceipts
+```
+
+The tracked derived report contains slot status/counts only. Pending observations remain a
 valid `in_progress_owner_observation` state and do not fail deterministic CI.
+
+Validate local progress without rewriting the tracked report:
+
+```powershell
+python scripts/validate_openai_personal_readiness.py --receipts $privateReceipts
+```
+
+Assert final personal readiness only after every slot is observed:
+
+```powershell
+python scripts/validate_openai_personal_readiness.py --receipts $privateReceipts --require-ready
+```
 
 The core runtime constraints remain unchanged:
 
