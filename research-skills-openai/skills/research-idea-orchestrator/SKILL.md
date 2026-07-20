@@ -84,7 +84,7 @@ current reviews. A substantive change invalidates them.
 4. **Preflight and revise science.** When methods are material, put required
    repairs in a new complete dossier. Record an accepted bounded working
    assumption once in section 14; never give preflight to the evaluator.
-5. **Establish editorial readiness.** Run fresh `idea-narrative-assessor` and
+5. **Establish editorial readiness.** Run fresh `research-narrative-assessor` and
    `academic-language-assessor` instances in parallel. Normalize their included
    actions into one validated writer brief, repair from it and the protected
    register, then require preservation and fresh reassessment.

@@ -11,5 +11,7 @@ Before declaring readiness, scan for:
 - orphan paragraphs
 - generic-profile submission overclaim
 - title or abstract promising more than manuscript supports
+- repeated full exposition of one counterargument/boundary family outside its single authority location
+- a pointer to a limitation/counterargument location where an immediately necessary local boundary should be self-contained
 
 Substantive findings must trigger a return route, not a compositor rewrite.

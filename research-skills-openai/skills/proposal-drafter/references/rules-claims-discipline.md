@@ -16,6 +16,7 @@
 
 - 必须与可用数据、方法、资源和时间限制一致。
 - 数据、样本、平台或协作条件未确认时，应写为待确认。
+- 所有已接受的条件性方法假设只在 `Assumptions, feasibility, and risks` 权威位置记录一次，不在方法段和其他限制段重复。
 
 ### Impact Claims
 
@@ -29,4 +30,8 @@
 
 ## Uncertainty Handling
 
-不确定内容应进入 unresolved issues 或 limitations，而不是被删除或包装成确定结论。
+未解决事项进入工作流状态或写作交接产物，而不是被删除、包装成确定结论，或作为 reader-facing `Unresolved Issues` 章节写入 proposal。
+
+Proposal 正文只保留一个 `Assumptions, feasibility, and risks` 权威位置。其他章节仅在边界直接推进当前推理且省略会歪曲紧邻设计选择时保留该边界，并在原地陈述，不使用跨章节提示。
+
+语言或叙事润色只能改善表达、披露顺序与术语可达性；不得据此提高 novelty、feasibility 或 impact 主张的强度。

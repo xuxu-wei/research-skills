@@ -12,13 +12,20 @@ Task: audit whether claims are supported by the evidence matrix and contrary evi
 
 Allowed focus: unsupported claims, citation mismatch, overclaiming, missing boundary conditions.
 
-## Narrative & Anti-pattern Reviewer
+## Optional Target-Reader / Outlet Simulation
 
-Task: evaluate reader experience and genre discipline without seeing the argument skeleton.
+Trigger: uncertain reader baseline, a concrete outlet simulation that would change routing, or an explicit user request.
 
-Allowed focus: coherence, mini-review drift, opening, title/abstract fit, anti-patterns.
+Task: simulate one named reader or editor's on-page understanding without seeing the argument skeleton, scientific reviewer outputs, or readiness history.
 
-All reviewers must state whether their recommendations would change under a wider or narrower target outlet.
+Allowed focus: comprehension breaks, concept burden, likely misreadings, title/abstract expectations, and outlet-sensitive reactions.
+
+Output boundary: locatable observations only. Do not issue narrative readiness, language readiness, publication readiness, or a duplicate evaluator decision. Route full narrative assessment to `research-narrative-assessor`.
+
+Required and conditional scientific reviewers state whether their recommendations
+would change under a wider or narrower target outlet. The optional simulation states
+how its observations would change, without issuing a recommendation or readiness
+decision.
 
 ## Conditional Reviewers
 
@@ -40,10 +47,4 @@ Task: audit clinical plausibility, endpoint relevance, practice-facing implicati
 
 Allowed focus: real-world clinical importance, patient/clinician relevance, guideline interpretation risks, actionability.
 
-### Outlet-Fit Editor Reviewer
-
-Trigger: concrete target journal, outlet, article type, or commissioned format.
-
-Task: audit fit with outlet audience, article type, stance strength, structure, word/reference constraints, and likely editor objections.
-
-Allowed focus: genre fit, editor-facing hook, title/abstract fit, target outlet scope, stance calibration.
+Legacy `narrative_reviewer` and `outlet_fit_editor_reviewer` labels are read-compatible aliases for `target_reader_outlet_simulation`; do not dispatch both.

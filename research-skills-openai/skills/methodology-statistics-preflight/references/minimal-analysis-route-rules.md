@@ -27,7 +27,12 @@ Do not require a full SAP or full protocol. Preflight does not need:
 
 ## Pass Standard
 
-Preflight can pass if there is a credible minimal route with remaining details that can reasonably be resolved by a downstream writer, evaluator, statistician, or domain expert.
+Preflight can pass when a credible minimal route is fully specified at preflight
+resolution. If a remaining detail is needed to execute that route, conditional pass is
+allowed only through `proceed_with_assumptions` with a specific bounded assumption
+explicitly accepted in the report and designated for one occurrence in the downstream
+artifact's authoritative `Assumptions` location. Do not delegate an unspecified choice
+to a writer, evaluator, statistician, or domain expert.
 
 ## Failure Standard
 

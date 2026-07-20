@@ -24,8 +24,9 @@ Determine whether study design and analysis support the intended primary inferen
 3. When outputs permit, audit primary analysis choice, assumptions, multiplicity, sensitivity analyses, subgroup prespecification, and internal consistency.
 4. Distinguish writing-fixable reporting gaps from analysis/design defects that writing cannot repair.
 5. Record findings with category, severity, description, writing-fixability, manuscript implication, and recommended author clarification, reanalysis, detailing, sensitivity analysis, limitation, or statistician review.
-6. Return `pass`, `conditionally_pass_with_author_verification`, `requires_methods_clarification`, `requires_reanalysis`, or `methodologically_blocked`.
-7. Permit drafting only for the first three states with visible flags. Stop for reanalysis or methodological block.
+6. Use `conditionally_pass_with_author_verification` only when the unresolved detail can be represented by one specific, bounded working assumption and proceeding under that assumption does not choose among scientifically different analyses, conceal a core unknown, or strengthen the intended claim. Record the assumption, what would falsify it, the consequence if false, and the required later verification.
+7. Return `pass`, `conditionally_pass_with_author_verification`, `requires_methods_clarification`, `requires_reanalysis`, or `methodologically_blocked`.
+8. Permit drafting for `pass` and a valid conditional pass. The writer proceeds as though the bounded assumption holds and records it once in the article's authoritative Assumptions location as a research risk; do not repeat it across sections. A clarification state requires resolution before scientific drafting. Stop for reanalysis or methodological block.
 
 ## Review Report Contract
 
@@ -48,6 +49,7 @@ unresolved_issues: []
 audit_scope: {}
 design_audit: {}
 statistical_audit: {}
+working_assumptions: []
 ```
 
 ## Conditional Resources
@@ -60,4 +62,4 @@ statistical_audit: {}
 
 ## Completion Check
 
-Confirm explicit audit scope, every applicable design/statistical check, writing-fixability per finding, status-consistent route, visible uncertainty, exact files read, and unchanged sources.
+Confirm explicit audit scope, every applicable design/statistical check, writing-fixability per finding, a complete bounded working-assumption record for every conditional pass, status-consistent route, visible uncertainty, exact files read, and unchanged sources.

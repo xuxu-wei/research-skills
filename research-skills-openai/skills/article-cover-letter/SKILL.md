@@ -31,7 +31,6 @@ inputs:
   required:
     - workflow_profile
     - qualifying_main_artifact_ref
-    - qualifying_main_artifact_digest
     - contribution_statement_or_core_argument
     - target_journal_or_outlet
   optional:
@@ -71,7 +70,7 @@ The writer never edits its source artifact and never writes an independent revie
 
 ### 1. Validate the frozen basis
 
-Confirm the source ID, version, path, digest, qualifying decision, target outlet, and profile. If the source is stale, incomplete, or not qualifying, stop with `cover_letter_blocked` and list the missing basis.
+Confirm the source artifact ID, version, exact path, complete artifact-index entry, unique current pointer, qualifying decision, target outlet, and profile. If the source is stale, incomplete, ambiguous, or not qualifying, stop with `cover_letter_blocked` and list the missing basis. Legacy digest fields may be read but are not copied, computed, compared, or required.
 
 ### 2. Build the editorial case
 
@@ -101,7 +100,7 @@ cover_letter_quality_check:
   workflow_profile: article | perspective
   source_artifact_id:
   source_version:
-  source_digest:
+  source_path:
   target_outlet:
   word_count:
   structure_complete: true | false
@@ -117,13 +116,13 @@ This check reports observable completeness only. Return both frozen artifacts to
 
 ## Versioning and Staleness
 
-- A changed qualifying main artifact, digest, target outlet, or core contribution makes the letter and its review stale.
+- A changed qualifying main artifact ID, version, current path, target outlet, or core contribution makes the letter and its review stale.
 - Any content change creates the next `vNNN` pair; never overwrite an older frozen pair.
 - A Perspective final compositor may faithfully copy the frozen letter to `08_final/cover-letter.md`; all content changes must return here as a new version.
 
 ## Completion Check
 
-Confirm profile and paths agree, the source is qualifying and digest-bound, problem/delta/fit are present, claims and outlet facts are traceable, disclosures are accurate or visibly unresolved, the letter is not an abstract copy, and the quality check contains no promotion decision.
+Confirm profile and paths agree, the source has one complete indexed current identity, problem/delta/fit are present, claims and outlet facts are traceable, disclosures are accurate or visibly unresolved, the letter is not an abstract copy, and the quality check contains no promotion decision.
 
 ## Conditional Resources
 

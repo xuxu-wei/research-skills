@@ -28,20 +28,20 @@ If the minimum information is missing, return clarification needs or failure; do
 
 ## Workflow
 
-1. **Confirm scope**：ensure the task is methodology/statistics preflight, not writing or full evaluation.
-2. **Check minimum information**：question/object, endpoint/metric, data route, and method/design/analysis route.
-3. **Assess endpoint/metric**：clarity, measurability, alignment with question, and support by data/conditions.
-4. **Assess data-method fit**：whether data, variables, labels, measurements, sample, timing, or controls can support the method.
-5. **Assess minimal analysis route**：whether at least one executable route exists without expanding into a full SAP.
-6. **Apply domain checks selectively**：clinical/observational, prediction/ML, experiment, benchmark, methods study, qualitative/mixed methods.
-7. **Identify blockers and repairs**：state blockers, repair directions, and downstream handoff.
+1. **Confirm scope**: ensure the task is methodology/statistics preflight, not writing or full evaluation.
+2. **Check minimum information**: question/object, endpoint/metric, data route, and method/design/analysis route.
+3. **Assess endpoint/metric**: clarity, measurability, alignment with question, and support by data/conditions.
+4. **Assess data-method fit**: whether data, variables, labels, measurements, sample, timing, or controls can support the method.
+5. **Assess minimal analysis route**: whether at least one executable route exists without expanding into a full SAP.
+6. **Apply domain checks selectively**: clinical/observational, prediction/ML, experiment, benchmark, methods study, qualitative/mixed methods.
+7. **Identify blockers and repairs**: state blockers, repair directions, and downstream handoff.
 
 ## Outputs
 
 Before writing the output, classify each actionable uncertainty as a
-`required_repair`, `working_assumption`, or `nonblocking_advice`. For Idea
-workflows, apply `references/working-assumption-rules.md` and assign a separate
-Idea handoff decision.
+`required_repair`, `working_assumption`, or `nonblocking_advice`. Apply
+`references/working-assumption-rules.md` whenever any workflow might proceed under an
+unconfirmed detail, and assign a generic handoff decision.
 
 Default output: **Methodology-Statistics Preflight Report** with:
 
@@ -53,10 +53,16 @@ Default output: **Methodology-Statistics Preflight Report** with:
 - repair directions;
 - downstream handoff.
 
-For Idea inputs, also report `idea_handoff_decision` as `proceed`,
-`proceed_with_assumptions`, or `clarification_stop`, plus structured working
-assumptions when applicable. This does not replace the general preflight
-decision used by other workflows.
+Every completed report also gives `handoff_decision` as `proceed`,
+`proceed_with_assumptions`, or `clarification_stop`. This does not replace the
+general preflight decision.
+
+`proceed_with_assumptions` is valid only when the report explicitly and conditionally
+accepts each specific bounded working assumption. Each assumption must be plausible,
+verifiable at a named point, and non-identity-changing if false. The downstream writer
+records it once in the artifact's authoritative `Assumptions` location and nowhere
+else. Generic language such as "details will be resolved later" cannot support a
+conditional pass.
 
 Allowed decisions: `pass`, `revise_endpoint_or_metric`, `revise_data_source`, `revise_method`, `revise_analysis_route`, `needs_clarification`, `blocked`, `out_of_scope`.
 
@@ -99,27 +105,28 @@ unresolved_issues:
 
 ## Delegation Rules
 
-本 skill 本身应由 `research-idea-orchestrator` 或 `proposal-orchestrator`
-显式派发到新的独立子代理执行。
+This skill must be explicitly delegated by the requesting upstream orchestrator to a
+fresh independent subagent.
 
-执行期间不得再调用 idea-evaluator、proposal-drafter、sap-writer 或其他 evaluator 共同判断。
+Do not call a downstream evaluator, drafter, or writer to co-decide the preflight.
 
-子 agent 必须接收完整任务上下文（idea、context brief、evidence/opportunity map、
-endpoint/metric、data route、method）——不得依赖父会话隐含上下文。
+The subagent must receive the complete frozen task context: current artifact, relevant
+context and evidence, endpoint or metric, data route, method, and intended handoff. It
+must not rely on hidden parent context.
 
-若发现需要修订，应返回 preflight report，由 orchestrator 决定是否进入 revision loop。
+If revision is needed, return the preflight report so the orchestrator can choose the next route.
 
 ## References
 
-- Read `references/working-assumption-rules.md` for Idea findings that might
+- Read `references/working-assumption-rules.md` for any finding that might
   proceed under an explicit, testable assumption.
 
-- Read `references/preflight-schema.md` when its named guidance or contract applies: ：定义 preflight report 的结构字段、评估维度和输出格式。
-- Read `references/endpoint-metric-checks.md` when its named guidance or contract applies: ：规范 endpoint、outcome 和 metric 的清晰度、可测量性和与 study design 对齐的检查规则。
-- Read `references/data-method-fit-rules.md` when its named guidance or contract applies: ：定义数据特征与统计/实验方法匹配度的检查规则。
-- Read `references/minimal-analysis-route-rules.md` when its named guidance or contract applies: ：定义在资源或数据受限条件下最小可行分析路径的评估规则。
-- Read `references/feasibility-blockers.md` when its named guidance or contract applies: ：定义样本量、数据可得性和资源等维度的可行性阻断检查。
-- Read `references/domain-specific-checks.md` when its named guidance or contract applies: ：按领域（临床、ML/工程、观察性研究、benchmark 等）分类的专项检查规则。
-- Read `references/downstream-handoff-rules.md` when its named guidance or contract applies: ：定义 preflight report 如何交给下游 skill 及 handoff 材料要求。
-- Use `templates/template-methodology-statistics-preflight-report.md` when producing its named artifact: ：Methodology-Statistics Preflight Report 的输出模板。
-- Use `templates/template-preflight-failure-report.md` when producing its named artifact: ：preflight 检查失败时的输出报告模板。
+- Read `references/preflight-schema.md` for the report fields and decision contract.
+- Read `references/endpoint-metric-checks.md` for endpoint and metric checks.
+- Read `references/data-method-fit-rules.md` for data-method compatibility checks.
+- Read `references/minimal-analysis-route-rules.md` for the minimum viable route boundary.
+- Read `references/feasibility-blockers.md` for feasibility blocking conditions.
+- Read `references/domain-specific-checks.md` for selectively applied domain checks.
+- Read `references/downstream-handoff-rules.md` for routing and handoff requirements.
+- Use `templates/template-methodology-statistics-preflight-report.md` for a completed report.
+- Use `templates/template-preflight-failure-report.md` when useful preflight cannot be completed.

@@ -2,7 +2,7 @@
 
 ## Independence
 
-Each selected reviewer role runs in a distinct fresh independent subagent or delegated thread. Every reviewer receives only the frozen proposal file/version, its role brief, review scope, user goal, and allowed review scenario. Reviewers share no mutable state and cannot see one another's scores, comments, or recommendations.
+Each selected reviewer role runs in a distinct fresh independent subagent or delegated thread. Every reviewer receives only the frozen proposal logical identity, its role brief, review scope, user goal, and allowed verified review scenario. Reviewers share no mutable state and cannot see one another's scores, comments, recommendations, evaluator outputs, editorial/journal-review artifacts, or hidden rationale. Logical identity and index completeness replace digest requirements.
 
 ## Concurrent execution
 

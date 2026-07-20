@@ -117,15 +117,15 @@ Primary concerns:
 - unresolved methodological risks.
 
 ### submission-guard reviewer
-Evaluates the clarity, consistency, and anti-sedimentation health of the proposal's core claim across revisions, and performs pre-submission archival cleanup.
+Evaluates the clarity, consistency, and anti-sedimentation health of the proposal's core claim and reports locatable pre-submission cleanup findings. It never edits or cleans the proposal; the orchestrator routes accepted changes through the refinement controller and drafter.
 
 Primary concerns:
-- core claim clarity: can the primary claim be stated in one sentence without nested conditionals?
-- caveat accumulation: has revision added hedging layers that obscure the claim?
+- core claim clarity: can the target reader identify the claim, its evidence boundary, and its design consequence without backtracking?
+- qualification function: do caveats clarify applicability, or obscure the claim and duplicate the authoritative assumptions/feasibility/risks location?
 - reviewer-response sedimentation: does the body contain language that reads as reply to criticism?
 - self-hedging: does the proposal acknowledge a gap between promises and deliverability, then paper over it?
 - claim-drift: has the central claim shifted substantively without acknowledgment?
-- archival cleanup: narrative clinical scenes, Socratic rhetorical questions, explanatory term dictionaries, version markers — all flagged for removal.
+- archival cleanup: identify version/process residue for a separate writer to remove; flag narrative devices, questions, or term aids only when they do not advance the target reader's reasoning or violate the binding genre.
 
 ### practicing-clinician reviewer
 Evaluates from the perspective of a doctor who currently treats patients — clinical importance, endpoint relevance, narrative credibility, and actionability.

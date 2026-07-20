@@ -1,14 +1,14 @@
 {
   "ok": true,
-  "expected_skill_count": 50,
-  "plugin_version": "0.10.0",
-  "registry_schema_version": 5,
+  "expected_skill_count": 51,
+  "plugin_version": "0.11.0",
+  "registry_schema_version": 6,
   "plugin": {
     "plugin": "research-skills-openai",
-    "plugin_version": "0.10.0",
+    "plugin_version": "0.11.0",
     "ok": true,
     "errors": [],
-    "skill_count": 50,
+    "skill_count": 51,
     "skills": {
       "academic-deep-search": "academic-deep-search",
       "academic-language-assessor": "academic-language-assessor",
@@ -52,6 +52,7 @@
       "proposal-review-panel": "proposal-review-panel",
       "research-context-builder": "research-context-builder",
       "research-idea-orchestrator": "research-idea-orchestrator",
+      "research-narrative-assessor": "research-narrative-assessor",
       "research-opportunity-mapper": "research-opportunity-mapper",
       "research-polisher-methodology-publishability-reviewer": "research-polisher-methodology-publishability-reviewer",
       "research-polisher-orchestrator": "research-polisher-orchestrator",

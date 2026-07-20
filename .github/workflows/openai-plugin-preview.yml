@@ -36,7 +36,6 @@ jobs:
           python scripts/normalize_openai_skills.py
           python scripts/normalize_openai_references.py
           python scripts/generate_openai_workflow_registry.py
-          python scripts/sync_openai_fixture_versions.py
       - name: Run structure and documentation audits
         run: |
           python scripts/audit_openai_research_plugin.py
@@ -44,21 +43,17 @@ jobs:
           python scripts/audit_openai_research_perspective.py
           python scripts/test_openai_roadmap_contract.py
           python scripts/test_openai_release_contract.py
-      - name: Run workflow contract evaluations
+      - name: Run current workflow contract evaluations
         run: |
-          python scripts/test_openai_phase2_phase3.py
-          python scripts/test_openai_phase4_scenarios.py --check-report
-          python scripts/test_openai_phase6_context.py
+          python scripts/test_openai_cross_workflow_narrative_contract.py
+          python research-skills-openai/skills/research-narrative-assessor/scripts/test_validate_narrative_outputs.py
+          python research-skills-openai/skills/academic-language-assessor/scripts/test_validate_language_assessment.py
+          python research-skills-openai/skills/academic-language-assessor/scripts/test_scan_idea_language_candidates.py
+          python research-skills-openai/skills/academic-language-assessor/scripts/test_diff_reader_facing_short_forms.py
       - name: Run artifact delivery validations
         run: |
-          python scripts/test_openai_artifact_completeness.py
           python scripts/test_openai_article_docx_contract.py
-      - name: Run personal readiness validations
-        run: |
-          python scripts/test_openai_phase7_modes.py --check-report
-          python scripts/test_openai_phase8_corpus.py --check-report
-          python scripts/test_validate_openai_personal_readiness.py
-          python scripts/validate_openai_personal_readiness.py --check-report
+          python scripts/test_openai_plugin_dev.py
       - name: Run canonical OpenAI plugin validator
         env:
           OPENAI_CODEX_VALIDATOR_COMMIT: 4ebc61c0f8df9852e709ff4b477b750fc816a69b

@@ -16,11 +16,13 @@ Recommended order:
 3. Proposal file information
 4. Readiness and evaluation status
 5. Revision history
-6. Proposal review summary
-7. Optional SAP materials
-8. Unresolved issues and risks
-9. Next human review steps
-10. Included materials list
+6. Editorial preservation and fresh reassessment, if applicable
+7. Score-free journal candidate and fresh medical-journal review, if applicable
+8. Proposal review summary
+9. Optional SAP materials
+10. Unresolved issues and risks
+11. Next human review steps
+12. Included materials list
 
 ## Prohibited Actions
 - Rewriting the proposal.
@@ -28,3 +30,4 @@ Recommended order:
 - Removing fatal flaws or unresolved issues.
 - Merging reviewer disagreement into false consensus.
 - Adding SAP materials unless requested or required by the user's target output.
+- Letting narrative/language polish or journal fit overwrite proposal evaluator scores or scientific findings.

@@ -16,16 +16,24 @@ Use this pattern for every evaluator, triage, auditor, assessor, panel reviewer,
 | Reviewer skill | Explicit caller | Frozen inputs | Prohibited work |
 |---|---|---|---|
 | `proposal-readiness-triage` | `proposal-orchestrator` | idea/package, context brief, evidence artifacts, goal, constraints, target output | drafting, SAP writing, panel review |
-| `proposal-evaluator` | `proposal-orchestrator` | complete current proposal/digest, context, evidence, goal, constraints; optional anonymous must-fix list | prior proposal/delta/report, drafting, revising, panel review |
-| `sap-evaluator` | `proposal-orchestrator` | complete current SAP/digest, proposal/context, anonymous methods facts, endpoint/data facts; optional anonymous must-fix list | preflight report, prior SAP/delta/report, writing, proposal evaluation, panel review |
+| `proposal-drafter` planning instance | `proposal-orchestrator` | context/reader contract, evidence, source intent, binding constraints, target plan ref | proposal prose, evaluation, continuing as writer |
+| `proposal-drafter` full writer | `proposal-orchestrator` | frozen content plan, context/reader contract, evidence/facts, binding constraints, target proposal ref | planning, evaluation, self-certification |
+| `proposal-evaluator` | `proposal-orchestrator` | one complete current proposal, stable rubric, minimal call/factual inputs; optional anonymous must-fix list only before final evaluation | old proposal, context/readiness, repair/delta/editorial/prior evaluation artifacts, drafting, revising, panel review |
+| `research-narrative-assessor` | `proposal-orchestrator` | current proposal and frozen reader handoff | scientific evaluation, language repair, raw peer-review history, source edits |
+| `academic-language-assessor` | `proposal-orchestrator` | current proposal and frozen reader handoff | scientific/narrative evaluation, raw peer-review history, source edits |
+| `proposal-drafter` editorial writer | `proposal-refinement-controller` | normalized editorial repair brief, current proposal, protected register | raw assessor/evaluator/readiness reports, old proposals, scientific changes, self-evaluation |
+| `medical-journal-review` | `proposal-orchestrator` | final proposal and score-free journal candidate brief containing the verified journal facts | evaluator scores/findings/decision, readiness/repair/editorial/panel history, separate hidden facts, source edits |
+| `sap-evaluator` | `proposal-orchestrator` | complete current SAP, proposal/context, anonymous methods facts, endpoint/data facts; optional anonymous must-fix list | preflight report, prior SAP/delta/report, writing, proposal evaluation, panel review |
 | `proposal-review-panel` | `proposal-orchestrator` | frozen proposal version, mode, tier, review scenario | drafting, revising, source cleanup |
 
 ## Re-evaluation isolation
 
 - Start a new evaluator instance after every revision.
 - Do not expose the prior score, overall rationale, or decision.
-- Provide only the current complete frozen artifact and digest, stable rubric, necessary facts, and an optional anonymized must-fix list.
+- Provide only the current complete frozen artifact, stable rubric, necessary facts, and an optional anonymized must-fix list before final evaluation.
 - Do not provide a prior version, revision delta, prior report, score, rationale, or decision.
+- For final proposal evaluation, also prohibit context/readiness, content plan, repair brief, action execution, preservation, and narrative/language artifacts; do not provide an anonymized must-fix list.
+- Use logical artifact identity and complete index records. Do not require or generate digests; tolerate legacy digest fields as inert metadata.
 - The orchestrator compares completed reports and decides whether the workflow improved, reached a gate, or should stop.
 
 ## Panel concurrency
@@ -34,6 +42,20 @@ Use this pattern for every evaluator, triage, auditor, assessor, panel reviewer,
 - Start all selected reviewers concurrently with the same frozen proposal version and role-specific briefs.
 - Do not share reviewer outputs before all individual reports are complete.
 - Wait for every selected reviewer, then aggregate while preserving dissent, minority objections, and fatal flaws.
+
+## Editorial parallelism and repair
+
+- Start narrative and language assessors concurrently on the same frozen proposal and reader handoff.
+- Neither assessor sees the other output or scientific review history.
+- Normalize included actions only after both return.
+- Give one writer only the normalized brief, current proposal, and protected register.
+- Validate all included actions before freeze, then use fresh instances for preservation and narrative/language reassessment.
+
+## Journal route
+
+- Create a score-free journal candidate brief only after final scientific evaluation, using the final proposal and verified current journal facts.
+- A fresh medical-journal reviewer receives no evaluator, readiness, repair, editorial, or panel outputs.
+- Journal findings remain separate from evaluator scoring and cannot upgrade or rewrite it.
 
 ## Audit checklist
 

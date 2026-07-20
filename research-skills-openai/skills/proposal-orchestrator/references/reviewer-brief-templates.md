@@ -170,10 +170,10 @@ You are an isolated submission-guard reviewer subagent.
 Role: Evaluate core thesis clarity, consistency, reviewer-response sedimentation, caveat accumulation, and pre-submission cleanup needs.
 
 Primary concerns:
-- Can the primary claim be stated in one sentence without nested conditionals?
-- Are caveat layers accumulating beyond two layers?
+- Is the primary claim unambiguous, stable, and traceable to the question, aims, and design?
+- Do qualifications clarify applicability, or do they accumulate in ways that obscure the claim or duplicate the authoritative assumptions/feasibility/risks location?
 - Does proposal body contain reviewer-response language or version markers?
-- Are narrative clinical scenes, rhetorical question headings, or explanatory term dictionaries present in formal proposal body?
+- Do narrative devices, rhetorical questions, definitions, or term aids advance the target reader's reasoning, or do they displace decision-relevant argument?
 
 Proposal file: {{proposal_file_path}}
 Proposal version: {{proposal_version}}
@@ -185,7 +185,7 @@ Forbidden context: {{forbidden_context}}
 Independence rules: {{reviewer_independence_rules}}
 
 Output an individual reviewer report following the template.
-Explicitly answer: "Is the core thesis clearer or blurrier than a clean first draft would be?"
+Explicitly answer: "Can the target reader identify the core claim, its evidence boundary, and its design consequence without backtracking or relying on review-process context?"
 ```
 
 ### Practicing-Clinician Reviewer
@@ -222,7 +222,9 @@ Output an individual reviewer report following the template.
 - Replace every `{{...}}` placeholder before dispatch.
 - Preserve all schema/rubric/template paths.
 - Assign readiness, proposal evaluation, SAP evaluation, and each re-evaluation to a fresh independent subagent or delegated thread.
-- For re-evaluation, use a new evaluator instance with only the complete current artifact/digest, stable facts/rubric, and optional anonymous must-fix list. Exclude prior versions, deltas, reports, scores, rationale, and decisions.
+- For non-final re-evaluation, use a new evaluator instance with only the complete current artifact, stable facts/rubric, and optional anonymous must-fix list. Exclude prior versions, context/readiness, repair/delta/editorial artifacts, reports, scores, rationale, and decisions.
+- For final evaluation, provide only the final proposal, stable rubric/gates, and minimal call/factual inputs; do not provide an anonymous must-fix list.
+- Use logical identity and index completeness; do not require or add SHA/digest fields.
 - Start one fresh independent subagent or delegated thread per panel reviewer role concurrently, then wait for all reports before aggregation.
 - Default panel: `standard_panel` with 5 reviewers including skeptical and submission-guard.
 - Lightweight panel: 3 reviewers including domain expert, methodology/statistics, and submission-guard.

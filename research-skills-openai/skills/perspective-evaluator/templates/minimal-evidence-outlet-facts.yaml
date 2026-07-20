@@ -1,0 +1,58 @@
+schema_version: perspective-minimal-evidence-outlet-facts.v1
+bundle_id: "<bundle-id>"
+workflow_id: "<workflow-id>"
+round_id: "<round-id>"
+perspective: {artifact_id: "<artifact-id>", version: "<version>", path: "<path>"}
+prepared_by_skill: "perspective-orchestrator"
+contains_scores_findings_decisions_or_repairs: false
+declared_readers:
+  audience: "<audience>"
+  assumed_prior_knowledge: ["<bounded prior knowledge>"]
+  knowledge_to_introduce: ["<knowledge the text must supply>"]
+  intended_reader_shift: "<what the reader should understand, prioritize, or question>"
+  terminology_disclosure_order:
+    - concept: "<reader-critical concept>"
+      depends_on: []
+      introduce_before_or_at: "<paragraph or reasoning function>"
+outlet_facts:
+  outlet: "<outlet or generic profile>"
+  article_type: "<Perspective | Viewpoint | Commentary>"
+  profile_source: "<user-provided | generic | retrieved-guidelines>"
+  guideline_url: null
+  last_checked_date: null
+  word_limit: null
+  reference_limit: null
+  required_elements: []
+evidence_facts:
+  - evidence_id: "E1"
+    binding_id: "B1"
+    readable_label: "<label>"
+    source_intent: "<background_context | direct_claim_support | premise_support | contrary_evidence | boundary_condition | method_example | illustrative_only>"
+    source_identity: "<DOI, PMID, URL, or user-material reference>"
+    source_locator: "<page, section, table, figure, or passage>"
+    verified_proposition: "<bounded proposition>"
+    evidence_strength: "<strong | moderate | weak | conceptual | illustrative>"
+    evidence_directness: "<direct | adjacent | indirect | analogical | illustrative_only>"
+    allowed_claim_strength: "<maximum supportable claim strength>"
+    allowed_use: "<bounded use>"
+    forbidden_use: "<unsupported extrapolation>"
+    verification_status: "<verified | unresolved>"
+    contrary_or_boundary_facts: []
+discourse_facts:
+  status: "<verified_bounded | incomplete | unavailable>"
+  verification_scope: "<bounded search/source scope or reason unavailable>"
+  last_checked_date: null
+  items:
+    - discourse_fact_id: "D1"
+      source_identity: "<DOI, URL, or user-material reference>"
+      source_locator: "<page, section, or passage>"
+      verified_proposition: "<what the discourse already establishes>"
+      relation_to_perspective: "<supports_difference | narrows_difference | contrary | boundary>"
+excluded_material:
+  - input_brief
+  - argument_skeleton
+  - paragraph_map
+  - claim_ledger_and_matrix
+  - readiness_and_workflow_state
+  - repair_brief_conformance_preservation_and_delta
+  - prior_reviews_scores_findings_and_decisions

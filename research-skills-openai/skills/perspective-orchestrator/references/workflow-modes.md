@@ -29,6 +29,6 @@ Standard can end with:
 
 ## Full
 
-Use for target-outlet preparation or submission-readiness review. Required route: complete STEP 1 through STEP 9.
+Use for target-outlet preparation or submission-readiness review. Required route: complete STEP 1 through STEP 12, including the editorial quality cycle and blind final evaluation. STEP 11 specialist review is conditional but its applicability decision is always recorded.
 
 Full mode requires a non-generic target outlet for `Ready for human review and sign-off: yes`. Generic profiles may only produce `outlet-targeting-only`.

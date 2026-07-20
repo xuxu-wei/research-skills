@@ -16,7 +16,7 @@ Idea evaluation.
 Freeze the current dossier by `{artifact_id, version, path}`. Dispatch two fresh
 reviewers in parallel:
 
-- `idea-narrative-assessor`: current dossier, target-reader profile, reader
+- `research-narrative-assessor`: current dossier, target-reader profile, reader
   prior-knowledge handoff, and its own skill references only;
 - `academic-language-assessor`: the complete current dossier, target language,
   discipline, and the same reader handoff.
@@ -158,7 +158,7 @@ preservation never requires a full branch tree or limitation family to recur.
 
 ## Preservation review
 
-Run `idea-narrative-assessor` in its separate preservation mode with only the
+Run `research-narrative-assessor` in its separate preservation mode with only the
 old dossier, new dossier, protected-content register, and revision delta.
 Allowed decisions are:
 

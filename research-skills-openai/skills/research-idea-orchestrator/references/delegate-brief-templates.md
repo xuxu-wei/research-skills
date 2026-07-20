@@ -130,7 +130,7 @@ publication_probability_assessment: null
 ## Parallel editorial readiness reviewers
 
 ```text
-Role: <fresh idea-narrative-assessor | fresh academic-language-assessor>.
+Role: <fresh research-narrative-assessor | fresh academic-language-assessor>.
 Current dossier: <artifact ID/version/exact path>
 Reader handoff: <target-reader profile and prior-knowledge fields>
 Allowed project reads: exactly the current dossier and reader handoff
@@ -223,7 +223,7 @@ decision.
 ## Content-preservation reviewer
 
 ```text
-Role: fresh idea-narrative-assessor in preservation mode; compare only.
+Role: fresh research-narrative-assessor in preservation mode; compare only.
 Frozen reads: <old dossier, new dossier, protected register, revision delta>
 Allowed writes: <one content-preservation report>
 

@@ -22,8 +22,9 @@ Execute exactly one assigned manuscript-review role and return one sealed indivi
 
 - Mode defaults to `blind_external_simulation`.
 - Lightweight tier: methodology/statistics, evidence-claim, submission guard.
-- Standard tier: lightweight roles plus clinical/domain significance and clarity/language.
+- Standard tier: lightweight roles plus clinical/domain significance.
 - Full tier: standard roles plus internal diagnostic methodology and evidence-retrieval completeness.
+- An outlet-reader simulation is optional only when the selected journal reaches a materially different readership. It tests that outlet-specific interpretation and must not duplicate the completed narrative/language readiness review.
 - Dispatch selected roles concurrently against the same frozen manuscript; reviewers cannot see one another.
 - The submission guard is mandatory in every tier.
 
@@ -58,7 +59,7 @@ unresolved_issues: []
 
 Aggregate only after all required sealed reports return. Preserve reviewer IDs, conflicts, minority findings, and dissent. A methodology fatal flaw caps recommendation at `not_ready`; fatal overclaim requires revision; a submission-guard block prevents ready-for-signoff packaging. Never average away a recommendation separated by two or more levels.
 
-Allowed aggregate levels are `strong_support`, `support_with_minor_revision`, `support_after_major_revision`, `revise_and_resubmit`, `not_ready`, and `reject_or_redesign`. Any prose change after panel creates a new version and requires fresh evaluation before delivery.
+Allowed aggregate levels are `strong_support`, `support_with_minor_revision`, `support_after_major_revision`, `revise_and_resubmit`, `not_ready`, and `reject_or_redesign`. Any prose change after panel creates a new version and requires content preservation, fresh narrative/language readiness, and fresh evaluation before delivery.
 
 ## Conditional Resources
 

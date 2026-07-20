@@ -1,0 +1,6 @@
+interface:
+  display_name: "Research Narrative Assessor"
+  short_description: "Assess research narratives and plan YAML repairs"
+  default_prompt: "Use $research-narrative-assessor for this task and follow its workflow and output contract."
+policy:
+  allow_implicit_invocation: false

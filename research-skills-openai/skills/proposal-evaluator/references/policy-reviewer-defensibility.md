@@ -12,7 +12,7 @@ Evaluate whether the proposal can withstand critical review by domain, methodolo
 - The feasibility analysis is concrete, not merely assertive.
 - The innovation claim is specific and proportionate.
 - The timeline and expected outputs are credible.
-- The proposal acknowledges major risks or limitations.
+- The proposal records assumptions, feasibility, and major risks in one authoritative location; a local boundary appears elsewhere only when it is necessary for the immediately connected reasoning.
 
 ## Output Expectations
 

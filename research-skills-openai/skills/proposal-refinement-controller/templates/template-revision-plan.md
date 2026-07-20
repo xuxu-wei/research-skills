@@ -8,35 +8,28 @@
 - Controller:
 - Date:
 
-## Summary of Evaluation Decision
+## Revision Authority
 
 - Evaluator decision:
-- Weighted score:
-- Main rationale:
-- Revision priorities count (P1: N, P2: M):
+- Sealed evaluation reference:
+- Revision scope:
 
-## Priority 1 — Would Strengthen Before Submission
+## Must-Fix Actions
 
 Each item annotated with: [tag], 入文策略, 修改方式, 目标位置, 修改内容, 理由.
 
-### P1-1 [tag] short-title
+### [action-id] [tag] short-title
 - 入文策略: 入正文 / 仅入回应 / 不处理
 - 修改方式: 追加 / 替换 / 浓缩 / 删减 / 重新定位
 - 目标位置: §X.Y.Z
 - 修改内容: [具体内容描述]
 - 理由: [为什么这条修订值得做]
 
-### P1-2 ...
-### P1-3 ...
-### P1-4 ...
-### P1-5 ...
+Repeat only for actual must-fix actions.
 
-## Priority 2 — Would Strengthen in Polish Pass
+## Should-Fix and Optional Actions
 
-### P2-6 ...
-### P2-7 ...
-### P2-8 ...
-### P2-9 ...
+Record only actions that have a distinct function and locator.
 
 ## 不入正文的项目
 
@@ -44,23 +37,23 @@ Each item annotated with: [tag], 入文策略, 修改方式, 目标位置, 修�
 |---|------|---------|
 | Px-N | ... | 仅入回应/不处理/说明 |
 
-## 修订统计
+## 修订边界
 
 | 指标 | 值 |
 |------|---|
-| 入正文修改 | N条 |
-| 仅入回应 | N条 |
-| 不处理 | N条 |
-| 预计篇幅变化 | <5%（均为局部追加/替换，无结构性重写） |
-| Caveat budget 影响 | 描述 |
+| 入正文修改 | 按 action ID 列出 |
+| 仅入回应 | 按 action ID 列出 |
+| 不处理 | 按 action ID 列出并说明理由 |
+| 预计结构/篇幅影响 | 按修复功能和 binding constraints 描述，不使用统一比例 |
+| 对权威假设、可行性与风险位置的影响 | 描述 |
 
 ## Instructions to proposal-drafter / direct execution notes
 
 - Maintain proposal file lineage.
-- Address P1 items first.
+- Address must-fix actions before should-fix or optional actions.
 - Do not invent facts, data, endpoints, or evidence.
 - Record unresolved issues.
-- For direct execution: use `patch` tool with precise old_string/new_string matching; verify each edit before proceeding to next.
+- Verify each action at its target and confirm the resulting complete proposal before handoff.
 
 ## Expected Output
 

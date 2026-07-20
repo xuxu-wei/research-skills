@@ -1,81 +1,110 @@
 ---
 name: perspective-orchestrator
-description: "Orchestrate a Perspective, Viewpoint, or Commentary from thesis and evidence through review, revision, panel, and human delivery."
+description: "Orchestrate Perspective planning, review, reader readiness, and delivery."
 ---
 # perspective-orchestrator
 
-## Role
+## Role and Gates
 
-Control Perspective workflow state, routing, delegation, stop decisions, and final handoff. Do not edit the claim ledger, draft/revise prose, score artifacts, or repair source text during final composition.
+Control state/routing; never write prose, score work, edit the ledger, or repair a
+package. Keep state/logs in `09_state/`: review waits use `pending_review`, unavailable
+independent review uses `independent_review_pending`, fatal work is `blocked`, and
+unfixable/no-gain work is `stopped`.
 
-## Invariants
+- The curator alone writes the ledger; every text change creates a draft/map version
+  and needs fresh qualifying evaluation.
+- Use one writer per source version; never allow concurrent source writes. Reviewer
+  work runs in fresh independent subagents.
+- Register `{artifact_id, version, path}` plus complete index membership. Legacy
+  digests are read-only and never gates.
+- Preserve unresolved issues, conflicts, fatal findings, and dissent. Never submit.
 
-- Track state and decisions under `09_state/`.
-- Keep `01_claims/claim-ledger.md` read-only except for writes by `perspective-claim-evidence-curator`; other roles submit change requests.
-- Store drafts as `04_drafts/perspective-vNNN.md`; every saved change creates a version and lineage record.
-- Delegate evaluator, every panel role, language assessor, medical journal reviewer, and final compositor/verifier to fresh independent subagents.
-- Use registry states: review wait -> `pending_review`; unavailable reviewer -> `independent_review_pending`; fatal -> `blocked`; unfixable/no gain -> `stopped`; verified package -> `human_signoff_required`.
-- Phase delegation is allowed, but each source artifact/version has one writer; never run concurrent source writes.
-- A changed draft cannot reach panel, final composition, or a ready state until a new `perspective-evaluator` instance evaluates the frozen new version without prior scores or decisions.
-- Preserve fatal findings, unresolved issues, conflicts, and dissent in the final artifact index and report.
-- Stop at human sign-off; do not submit externally.
+Select mode with `references/workflow-modes.md`. Lite performs provisional claims/evidence
+preprocessing and cannot claim readiness; full reaches STEP 12.
 
-## Modes
+## Core Route
 
-| Mode | Route and output |
-|---|---|
-| `lite` | Input -> provisional claims/evidence -> architecture -> early feasibility; no full retrieval or ready status |
-| `standard` | Input -> claims/evidence -> architecture -> draft -> evaluation -> one revision loop by default |
-| `full` | Standard plus panel, language QA, final independent composition/verification |
-
-## Workflow Kernel
-
-1. **Initialize.** Create layout, state, decision log, mode, goal, target, pointers, and unresolved issues.
-2. **Build input.** Route input normalization and outlet profile to `perspective-input-builder`; ask only for blocking thesis choices.
-3. **Curate claims and evidence.** Route ledger, claim-evidence matrix, discourse baseline, contrary evidence, citation risks, and limits to `perspective-claim-evidence-curator`; route broad evidence to `research-opportunity-mapper` in standard/full mode.
-4. **Architect.** Route the argument chain and paragraph plan to `perspective-argument-architect`; approved claim changes return to the curator.
-5. **Draft.** Route frozen architecture and claim artifacts to `perspective-drafter`; require a new version plus paragraph map and prohibit unregistered claims.
-6. **Evaluate.** Delegate a fresh `perspective-evaluator`. Route `accept` forward; route revision, argument/evidence rebuild, thesis redesign, or outlet retargeting to the owning upstream role; stop on `reject_not_salvageable`.
-7. **Revise and re-evaluate.** Save the new version, plan, response, and delta in `06_revisions/round-NNN/`; give a fresh evaluator only the latest draft, stable rubric, necessary facts, and optional anonymous must-fix list. Seal prior drafts/deltas. Compare sealed rounds here; stop on no gain or round limit.
-8. **Panel.** Dispatch counter-position, evidence, and narrative roles of `perspective-review-panel` concurrently in fresh subagents; add conditional roles only when triggered. Hide evaluator and peer reports; aggregate after all return and preserve dissent.
-9. **Resolve panel route.** Strong support proceeds; major/substantive changes return to revision and fresh evaluation; not-ready returns upstream; unfixable redesign/rejection stops.
+1. **Input.** Initialize state/layout; use `perspective-input-builder` for brief/outlet.
+2. **Curate.** Use `perspective-claim-evidence-curator` for ledger, bindings, discourse,
+   contrary evidence, citation risks, and limits; standard/full may add broad mapping.
+3. **Architect.** Use `perspective-argument-architect`; freeze the complete embedded
+   reader-handoff payload and copy it, not the manifest/skeleton, into later briefs.
+4. **Draft/check.** Use `perspective-drafter`. Require a registered draft/map, then
+   fail-closed plan/ledger/Binding/terminology/authority/map checks outside evaluation.
+5. **Evaluate/revise.** A fresh `perspective-evaluator` routes non-accept work upstream.
+   Changed versions get fresh evaluation without prior scores/decisions.
+6. **Panel.** In full mode, run counter-position and evidence roles in parallel. An
+   optional target-reader/outlet simulation is advisory only. Hide peer/evaluator
+   reports and preserve dissent.
+7. **Route.** Support enters STEP 9; minor edits use STEP 8.5; substantive work returns
+   upstream and gets fresh evaluation; unfixable redesign/rejection stops.
 
 ### STEP 8.5: Panel Minor Revision Patch
 
-Route minor/editorial must-fix items through controller/drafter, save a new draft/map/delta, and use a fresh evaluator without prior scores. Proceed only after `accept`; substantive changes use major revision and no changed draft goes directly to the compositor.
+Save the bounded patch/map/delta and require a fresh evaluator. No changed draft goes directly to the compositor.
 
-### STEP 9: Final Compositor
+### STEP 9: Editorial Quality Cycle
 
-1. If requested, route frozen qualifying inputs to `article-cover-letter`; freeze its versioned pair under `08_cover-letter/`.
-2. At the existing medical-review point, use one fresh `medical-journal-review` for biomedical review or requested publication probability; its same report holds any estimate.
-3. Run fresh language assessment; saved changes require a new version and evaluation.
-4. Give frozen sources, optional letter, and review to a fresh compositor; it may copy/verify only and cannot recalculate probability.
-5. Write the final manuscript, optional identical letter, logs, and reports under `08_final/`.
+After scientific/panel closure: freeze the accepted Perspective, writer, reader
+handoff, and protected register; run fresh `research-narrative-assessor`
+(`perspective` profile) and `academic-language-assessor` instances in parallel,
+mutually isolated from review/history. The
+controller creates one YAML brief; the same writer receives only source, brief, and
+register. Then run fail-closed conformance, fresh content preservation, and fresh
+parallel reassessments with minimal handoffs. Missing writer yields
+`editorial_repair_pending`; any scientific change restarts scientific revision. Final
+evaluation requires conformance, `scientific_content_preserved`, `narrative_ready`,
+and `submission_ready`.
 
-## Delegated Brief and Return Contract
+### STEP 10: Final Evaluator
 
-Every reviewer brief records workflow/round, skill/scope, frozen IDs/versions/paths, allowed files, output path, prohibited reads/writes, and failure route. Reports use standard review identity, files-read, isolation, prior-score, source-edit, decision, finding, and unresolved-issue fields. Subtasks return only a concise phase summary with artifact pointers, versions, decisions, unresolved issues, and `next_route`.
+Delegate a fresh final `perspective-evaluator`. Its exact project whitelist is the
+final frozen Perspective plus one clean minimal evidence/outlet facts bundle; its only
+installed evaluation resources are the stable rubric and anti-pattern checklist. It
+must never receive the brief, skeleton, map, ledger/matrix, readiness/state, repair,
+delta, conformance/preservation output, narrative/language report, artifact index,
+panel/prior review, score, finding, gate, or decision.
 
-## Promotion and Stop Rules
+### STEP 11: Outlet and Medical Review
 
-- Stop on blocking input/readiness gaps, insufficient evidence, unfixable fatal flaw, exhausted caveat budget, no-gain revision, incomplete independent review, or panel redesign/rejection.
-- Any unresolved fatal finding prevents `accept`, `promoted`, and ready-for-signoff states.
-- The latest final draft version must match the latest qualifying evaluator report.
+Create concrete journal matching from official facts, outside evaluator
+scoring. If requested, freeze the `article-cover-letter` pair under `08_cover-letter/`
+before medical review. For biomedical/clinical work or an explicit medical or
+publication probability request, run a fresh
+`medical-journal-review` on only the final Perspective, clean outlet facts/brief, and
+optional current letter—never evaluator, panel, repair, readiness, score, finding,
+gate, or decision material. Any later text/letter change makes applicable review
+stale.
+
+### STEP 12: Final Compositor
+
+Give frozen qualifying sources, the read-only index, a score-free final-evaluation
+receipt, optional letter, and applicable specialist report to a fresh compositor. It
+copies/verifies only, writes under `08_final/`, and returns `packaging_pending` with
+proposed index entries. The orchestrator registers and verifies them; only then set
+`human_signoff_required` for a concrete qualifying outlet or
+`outlet_targeting_only` for a generic profile.
+
+## Promotion Boundary
+
+Delegates return a concise phase summary with artifact pointers and `next_route`.
+Never promote a fatal finding; final draft identity/version must match the blind final
+evaluation after conformance, preservation, and reassessment.
 
 ## Conditional Resources
 
-- For any finish/pause/stop, apply `research-idea-orchestrator/references/project-readme-contract.md`.
-- Read `references/workflow-modes.md` when selecting lite, standard, or full mode.
-- Read `references/workflow-manifest-schema.md` for workflow state.
-- Read `references/decision-log-schema.md` for overrides, user decisions, or accepted risks.
-- Read `references/artifact-naming-and-directory-rules.md` for paths, versions, or the index.
-- Read `references/io-contracts.md` when validating a component handoff.
-- Read `references/delegate-brief-templates.md` for evaluator, panel, assessor, or compositor briefs.
-- Read `references/loop-control-rules.md` for revision or no-gain decisions.
-- Read `references/panel-decision-routing.md` for panel aggregation and routing.
-- Read `references/generic-outlet-profiles.md` only when the user has not selected an outlet.
-- Read `references/anti-patterns.md` during final workflow verification.
+- Read `../research-idea-orchestrator/references/project-readme-contract.md` when finishing, pausing, or stopping.
+- Read `references/workflow-modes.md` when selecting mode; read `references/workflow-manifest-schema.md` when updating state.
+- Read `references/decision-log-schema.md` for decisions; read `references/artifact-naming-and-directory-rules.md` for identity/index.
+- Read `references/io-contracts.md` for handoffs; read `references/delegate-brief-templates.md` before delegation.
+- Read `references/loop-control-rules.md` for revision/stop; read `references/panel-decision-routing.md` before panel aggregation.
+- Before STEP 9, read `../perspective-refinement-controller/references/editorial-repair-contract.md`.
+- Before STEP 11, read `references/journal-matching-and-medical-review.md`; use `templates/candidate-journal-match-brief.yaml` for every journal brief.
+- Before evaluation, use `templates/pre-evaluation-conformance.yaml` outside the evaluator package.
+- Read `references/generic-outlet-profiles.md` when no outlet is selected; read `references/anti-patterns.md` for the final scan.
 
 ## Completion Check
 
-Confirm state/log consistency, curator-only ledger writes, blind fresh review, version/evaluator pairing, panel/dissent, status caps, and human-only handoff.
+Confirm state/log, ledger ownership, version/preservation gates, same-writer repair,
+blind final evaluation, dissent, specialist isolation, identity/index completeness,
+status caps, and human-only handoff.

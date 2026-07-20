@@ -24,15 +24,16 @@ This file defines the required structure for a Methodology-Statistics Preflight 
 - `repair_directions`: practical, minimal repair actions.
 - `handoff_recommendation`: recommended next workflow or skill.
 - `limitations`: uncertainty and missing information affecting the preflight.
-
-For `input_type: idea`, also require:
-
-- `idea_handoff_decision`: `proceed`, `proceed_with_assumptions`, or
-  `clarification_stop`;
+- `handoff_decision`: `proceed`, `proceed_with_assumptions`, or
+  `clarification_stop` for every input type;
 - `finding_class` on every actionable finding: `required_repair`,
   `working_assumption`, or `nonblocking_advice`;
 - `working_assumptions`: an empty list unless the handoff is
   `proceed_with_assumptions`; each item follows `working-assumption-rules.md`.
+
+`proceed_with_assumptions` requires at least one specific accepted working assumption.
+Each must be recorded once in the downstream artifact's authoritative `Assumptions`
+location. Generic unresolved-detail language is invalid.
 
 ## Status Values
 

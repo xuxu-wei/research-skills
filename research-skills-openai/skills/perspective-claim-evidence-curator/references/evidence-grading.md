@@ -18,11 +18,11 @@
 
 | Level | Label | Definition | Example |
 |-------|-------|------------|---------|
-| D | direct | Evidence directly supports the claim | RCT shows intervention reduces mortality → supports "intervention saves lives" |
-| A | adjacent | Evidence supports a closely related claim; reasonable extrapolation | Adult RCT → supports adolescent use |
-| ID | indirect | Evidence supports a premise or component, not the full claim | Mechanistic study → supports clinical efficacy claim |
-| AN | analogical | Evidence from an analogous domain or context | Oncology evidence → supports cardiovascular strategy |
-| IO | illustrative_only | Purely illustrative; carries no evidentiary weight | Single case → "this shows that..." |
+| D | direct | Evidence directly supports the claim | A prespecified measure directly tests the bounded proposition |
+| A | adjacent | Evidence supports a closely related claim; reasonable extrapolation | Evidence from one defined population is extended to a related population |
+| ID | indirect | Evidence supports a premise or component, not the full claim | A component-level finding is used to support a system-level effect |
+| AN | analogical | Evidence from an analogous domain or context | Evidence from context A is used to support a strategy in context B |
+| IO | illustrative_only | Purely illustrative; carries no evidentiary weight | One example is used to imply a general pattern |
 
 ## Combined Matrix
 
@@ -51,17 +51,17 @@ Evidence strength × directness → Allowed claim strength:
 ## Example
 
 ```
-C3: "中药复方 X 降低脓毒症 28 天死亡率"
-  Evidence E2: 单中心 RCT, n=300, 阴性结果 p=0.03
-  Strength: Moderate (单中心, 未复现)
-  Directness: Direct (直接测量了28天死亡率)
+C3: "方案 X 改善预先指定的主要结果"
+  Evidence E2: 一项直接检验该结果、但尚未由独立研究复现的研究
+  Strength: Moderate (直接研究, 尚未独立复现)
+  Directness: Direct (直接测量了预先指定的主要结局)
   → Allowed claim strength: moderate
   → Overclaim risk: Low
 
-C7: "该证据架构适用于所有中医药临床评价"
-  Evidence E5: 已在3个复方中应用
+C7: "该证据架构适用于所有研究场景"
+  Evidence E5: 仅在少数已定义场景中应用
   Strength: Moderate
-  Directness: Indirect (3个案例 → 全领域推广)
+  Directness: Indirect (少数场景 → 全领域推广)
   → Allowed claim strength: weak
   → Overclaim risk: High → 弱化措辞或增加边界条件
 ```

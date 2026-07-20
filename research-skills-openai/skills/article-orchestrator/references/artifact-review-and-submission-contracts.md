@@ -14,7 +14,7 @@
 
 ```yaml
 article_evaluation:
-  schema_version: "research-article.v6"
+  schema_version: "research-article.v7"
   artifact_id: "eval-001"
   evaluation_id: "eval-001"
   review_id: "eval-001"
@@ -31,8 +31,9 @@ article_evaluation:
   prior_versions_visible: false
   revision_delta_visible: false
   source_edits_performed: false
-  reviewed_artifact_digest: "sha256:"
   complete_artifact_confirmed: true
+  artifact_index_membership_confirmed: true
+  current_pointer_confirmed: true
   identity_drift_detected: false
   source_skill: "article-evaluator"
   draft_ref: "06_drafts/manuscript-v001.md"
@@ -76,7 +77,7 @@ article_evaluation:
 
 ```yaml
 revision_plan:
-  schema_version: "research-article.v6"
+  schema_version: "research-article.v7"
   artifact_id: "revision-plan-r001"
   source_skill: "article-refinement-controller"
   round: 1
@@ -96,7 +97,7 @@ revision_plan:
       claim_ids: []
 
 response_to_reviewers:
-  schema_version: "research-article.v6"
+  schema_version: "research-article.v7"
   artifact_id: "response-to-reviewers-r001"
   source_skill: "article-refinement-controller"
   round: 1
@@ -113,7 +114,7 @@ response_to_reviewers:
   new_issues_introduced: []
 
 revision_delta:
-  schema_version: "research-article.v6"
+  schema_version: "research-article.v7"
   artifact_id: "revision-delta-r001"
   source_skill: "article-refinement-controller"
   round: 1
@@ -137,7 +138,7 @@ revision_delta:
 
 ```yaml
 panel_report:
-  schema_version: "research-article.v6"
+  schema_version: "research-article.v7"
   artifact_id: "panel-001"
   panel_id: "panel-001"
   source_skill: "article-orchestrator"
@@ -172,14 +173,13 @@ panel_report:
 
 ```yaml
 cover_letter:
-  schema_version: "research-article.v6"
+  schema_version: "research-article.v7"
   artifact_id: "cover-letter-001"
   version_id: "v001"
   source_skill: "article-cover-letter"
   workflow_profile: article
   source_artifact_id: ""
   source_version: ""
-  source_digest: "sha256:"
   target_journal: ""
   manuscript_title: ""
   status: draft | final | blocked
@@ -206,7 +206,7 @@ cover_letter:
 
 ```yaml
 submission_package:
-  schema_version: "research-article.v6"
+  schema_version: "research-article.v7"
   artifact_id: "package-001"
   package_id: "package-001"
   review_id: "submission-verification-001"
@@ -234,9 +234,15 @@ submission_package:
     journal_instructions_verified: verified | user_supplied_only | not_checked
     ethics_declarations_complete: complete | incomplete | not_applicable
   canonical_markdown_ref: "06_drafts/manuscript-v001.md"
-  canonical_content_digest: "sha256:"
+  canonical_artifact_ref:
+    artifact_id: ""
+    version: ""
+    path: "06_drafts/manuscript-v001.md"
   docx_ref: "12_package/manuscript-v001.docx"
-  docx_content_digest: "sha256:"
+  docx_artifact_ref:
+    artifact_id: ""
+    version: ""
+    path: "12_package/manuscript-v001.docx"
   display_manifest_ref: "04_blueprint/display-asset-manifest.yaml"
   docx_sync_status: synchronized | content_drift | not_generated
   render_qa_status: passed | docx_visual_qa_pending | failed | not_generated

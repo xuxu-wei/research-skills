@@ -1,6 +1,6 @@
 ---
 name: article-evaluator
-description: "Independently evaluate a frozen manuscript against scientific, evidence-claim, reporting, language, and submission-readiness gates."
+description: "Independently evaluate only the final reader-ready article bundle with a stable rubric."
 ---
 # article-evaluator
 
@@ -11,11 +11,11 @@ Evaluate a frozen manuscript holistically with a stable seven-dimension rubric a
 ## Independent Execution Contract
 
 - Run only in a fresh independent subagent or delegated thread, never in generator, drafter, revision, or orchestrator context.
-- Require frozen manuscript, blueprint, and context IDs, paths, and versions. Treat all sources as read-only.
+- Require the frozen final manuscript, final frontmatter, current referenced displays, and their artifact IDs, paths, and versions. Treat all sources as read-only.
 - Write only `08_evaluations/evaluation-vNNN.md`. Do not edit, draft, rewrite, polish, repair, or fix source artifacts.
 - Do not read parent hidden reasoning, expected conclusions, prior evaluation scores/decisions, audit reports, panel reports, revision records, or other reviewer outputs.
-- Apply the language rubric directly; the separately delegated language assessor remains sealed from this evaluator.
-- Require a complete frozen manuscript, current display assets, identity anchor, and matching digest. In re-evaluation, read only those current artifacts, the stable rubric, necessary facts, and optionally an anonymized must-fix list; never read prior manuscripts or deltas.
+- Apply the stable language/register dimension directly; the separately delegated narrative and language assessors remain sealed from this evaluator.
+- Require a complete frozen post-readiness reader bundle and current display assets. Read only those current artifacts, the stable rubric, and minimal factual or outlet constraints; never read prior manuscripts, planning/blueprint files, context briefs, audits, readiness reports, protected registers, repair briefs, deltas, panel outputs, or prior evaluations. Do not accept an anonymized must-fix list in the final production evaluation because it would leak prior reviewer judgment.
 - Report exact files read, scope, limitations, and reviewer instance ID.
 - If independent execution is unavailable, return `independent_review_pending` with a self-contained continuation brief and stop; never review inline.
 
@@ -28,7 +28,7 @@ Reviewer sub-delegation is disabled: `may_call: []`.
 3. Apply non-compensatory scientific-validity gates: methods support the primary claim, primary evidence exists, and no fatal scientific flaw remains.
 4. Apply evidence-claim gates: primary claim has evidence and no unfixable fatal overclaim remains.
 5. Apply language/register gates for systematic grammar density, terminology, tense/voice, and pervasive informal register.
-6. Scan genre/rhetoric failures such as unjustified observational causality, narrative Results, didactic questions, promotional wording, tone mismatch, colloquial register, and undefined abbreviations.
+6. Assess the order in which a target reader can understand the article: Introduction background -> current state -> gap -> significance -> rationale/objective; progressive disclosure; section-function consistency; terminology burden; title/abstract/question/contribution alignment; and whether avoidable backtracking is required. Also scan genre/rhetoric failures such as unjustified observational causality, narrative Results, promotional wording, tone mismatch, colloquial register, and undefined abbreviations.
 7. Audit supplementary completeness, evidence burial, orphan/missing items, journal limits, and data/code availability statements.
 8. Record locatable issues with severity, dimension, `must_fix | should_fix | optional`, and `enter_manuscript | response_only | decline` strategy.
 9. Return `accept`, `revise`, or `reject`. Fixable gate failures route to revision; unfixable scientific or core-evidence failures route to reject. Do not derive `stop_no_gain`; the orchestrator compares sealed rounds.
@@ -50,8 +50,9 @@ prior_scores_visible: false
 prior_versions_visible: false
 revision_delta_visible: false
 source_edits_performed: false
-reviewed_artifact_digest: "sha256:"
 complete_artifact_confirmed: true
+artifact_index_membership_confirmed: true
+current_pointer_confirmed: true
 identity_drift_detected: false
 decision: accept | revise | reject
 findings: []
@@ -71,4 +72,4 @@ supplementary_audit: {}
 
 ## Completion Check
 
-Confirm seven dimensions, all gates, current displays, complete-artifact/digest/identity checks, forbidden-history blindness, locatable findings, one consistent decision, and unchanged sources.
+Confirm seven dimensions, all gates, current displays, complete-artifact/logical-identity/index checks, exact `files_read` compliance, forbidden-history blindness, locatable findings, one consistent decision, and unchanged sources. Editorial fluency alone must not increase Scientific Validity, Evidence-Claim Alignment, Journal Fit, or Contribution Significance.

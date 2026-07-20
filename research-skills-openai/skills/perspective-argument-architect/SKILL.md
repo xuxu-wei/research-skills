@@ -1,6 +1,6 @@
 ---
 name: perspective-argument-architect
-description: "Design a contestable Perspective argument chain, contribution, narrative, paragraph plan, and claim mapping before prose drafting."
+description: "Plan a reader-facing Perspective argument, paragraphs, handoffs, and claims."
 ---
 # perspective-argument-architect
 
@@ -17,6 +17,10 @@ description: "Design a contestable Perspective argument chain, contribution, nar
 - 每步标注至少一种可争议约束（五选一）
 - 每个主要 section 须声明论证功能
 - 不得依赖纯 illustrative 证据支撑论证步骤（除非显式标注 `[illustrative only]`）
+- 保留 Input Brief 的 declared readers、prior knowledge 和 intended shift，并把它们落实为可追踪的 reader-reasoning handoff
+- 核心概念必须按依赖关系排序，在读者需要使用概念前完成首次解释；不创建独立术语裁决
+- 每个 Evidence ID 只能按 curator 核验的 source intent、允许命题、强度和 locator 使用；需要改变用途时提交 change request
+- 每个不同的反方或边界家族指定一个权威阐释位置；其他位置原则上省略，只有紧邻推理会因省略而失真时才保留自包含的局部边界，且不得用指针代替
 - 不直接修改 claim-ledger——如有变更需求，提交 change request
 
 ## I/O Contract
@@ -73,6 +77,8 @@ Escalation Route:
 
 从 Input Brief 提取核心判断，进一步精炼为一句话 thesis。
 
+同时冻结 reader entry contract：目标读者、可假定的先验知识、不能假定的知识、预期认识转变。若这些信息互相冲突，返回 input-builder。
+
 ### 2. Anchor Contribution Type
 
 从 6 种类型中确定主导类型并声明次要类型：
@@ -99,6 +105,7 @@ Escalation Route:
 - Argument function: [这一步推进了什么？]
 - Claim ID: [C{N}]
 - Evidence: [E{N}] — Evidence strength: [...] Directness: [...]
+- Source binding: [Binding ID] — Intended function: [...] Allowed proposition: [...] Locator: [...]
 - Contestability constraint (至少一种):
   - Falsifiable condition: [什么证据会推翻？] 或
   - Debatable point: [强反方如何质疑？] 或
@@ -123,27 +130,31 @@ Escalation Route:
 
 预期的最强反对意见及处理策略——不 strawman。
 
+为每个科学上不同的反方或边界分配 `family_id` 和唯一 authority location。不要把不同家族压缩为一个通用 limitations 段，也不要在其他位置放置“见限制部分”一类指针。
+
 ### 8. State Implications and Boundaries
 
 如果观点成立意味着什么？适用边界在哪里？
+
+### 8.5. Bind Reader Reasoning and Terminology Order
+
+- 将 `field tension -> thesis -> ordered argument steps -> strongest counterarguments/boundaries -> implications` 的每个功能绑定到具体 step 或 section。
+- 列出只对目标读者构成理解门槛的核心概念、依赖关系、首次解释位置和允许简称。
+- 检查每个 source binding 的 intended function、允许命题、claim strength 与 locator；不得用来源声望替代命题绑定。
 
 ### 9. Submit Claim Change Requests (if needed)
 
 如发现 claim-ledger 需要变更 → 提交 change request 至 `01_claims/change-requests/`。
 
+## Execution Order
+
+- 先只读 Input Brief 与 claim ledger，立即建立 `03_skeletons/02-argument-skeleton.md`，写入 thesis、reader entry contract、3–5 个带 Claim ID 的步骤标题和 unresolved questions；在读取完整 matrix 或 evidence bundle 前必须先保存这一检查点。
+- 同一 architect 一次只补全一个 argument step：按该步的 Claim ID/Binding ID 定向读取 matrix、discourse 与 limitations，写回后再处理下一步。
+- 最后补全叙述策略、反方/边界权威位置、reader handoff 和术语披露顺序。若合并读取被截断，改用按 Claim ID/Binding ID 的定向读取；不得把全部输入重新装入内存后才首次写入，也不得拆给多个 architect。完成后按 I/O contract 验证整份 skeleton。
+
 ## Contestability Constraints (五选一)
 
-替代僵硬的可证伪条件，适用于不同类型 Perspective：
-
-| 约束类型 | 定义 | 适用 |
-|---------|------|------|
-| 可证伪条件 | 什么证据会推翻该主张 | 经验性、机制性主张 |
-| 可争议点 | 强反方会如何质疑 | 概念性、框架性主张 |
-| 边界条件 | 什么情境下不成立 | 所有类型 |
-| 替代解释 | 更简单/保守的解释 | 因果推断类 |
-| 实施限制 | 实践约束是什么 | 转化性、政策类 |
-
-每步至少选一种，多选鼓励。
+按主张类型选择可证伪条件、可争议点、边界条件、替代解释或实施限制；每步至少一种。完整定义见对应 reference。
 
 ## Pitfalls
 
@@ -151,10 +162,13 @@ Escalation Route:
 - **伪论点**：某步看起来像论证实为知识展示
 - **strawman**：反方观点不是最强版本
 - **框架代论证**：对仗结构先行，证据后填
+- **读者基线漂移**：一段按专科读者写，下一段又从基础概念重新教学
+- **来源改作他用**：同一引文从背景线索被无声升级为核心因果或效果证据
+- **限制重复或指针化**：同一反方在多处完整复述，或用“见后文限制”代替必要的局部边界
 
 ## References
 
 - Read `references/contribution-types.md` when its named guidance or contract applies.
 - Read `references/tension-taxonomy.md` when its named guidance or contract applies.
 - Read `references/argument-chain-template.md` when its named guidance or contract applies.
-- Read `references/contestability-constraints.md` when its named guidance or contract applies.
+- Read `references/contestability-constraints.md` before Procedure Step 4.

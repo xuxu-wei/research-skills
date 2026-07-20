@@ -1,0 +1,31 @@
+schema: proposal-content-plan.v1
+artifact_id:
+version_id:
+workflow_id:
+round_id:
+source_skill: proposal-drafter
+planner_instance_id:
+path: 04_drafts/proposal-content-plan-vNNN.yaml
+based_on: []
+target_proposal_path: 04_drafts/proposal-vNNN.md
+target_reader_profile:
+reader_prior_knowledge: []
+terms_requiring_definition: []
+gap_type:
+reader_reasoning_chain: []
+binding_constraints: []
+source_intent_coverage: []
+authoritative_assumptions_feasibility_risks_section:
+sections:
+  - section_id:
+    heading:
+    rhetorical_function:
+    reader_entry_state:
+    required_content: []
+    evidence_bindings: []
+    source_intents_served: []
+    binding_constraints_served: []
+    terms_defined_here: []
+    reader_handoff:
+unresolved_inputs: []
+completion_rule: "Every required source intent and binding constraint is assigned, the reader chain is continuous, and each section has a distinct rhetorical function and reader handoff."

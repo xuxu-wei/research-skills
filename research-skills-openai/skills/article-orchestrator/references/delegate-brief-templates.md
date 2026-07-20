@@ -60,7 +60,8 @@ Every brief must include:
 Assess whether this research has the minimum conditions to enter the manuscript writing system. Gate only — do NOT build context, draft, or evaluate.
 
 ## Input Files
-- Minimal Intake Summary (inline)
+- Frozen Minimal Intake Summary
+- Every readiness-relevant path declared in its complete material inventory
 
 ## Required Output
 - 01_readiness/readiness-report.md
@@ -69,6 +70,8 @@ Assess whether this research has the minimum conditions to enter the manuscript 
 - Do NOT normalize input (that is context-builder's job)
 - Do NOT retrieve literature
 - Do NOT audit methods in detail (that is methods-auditor's job)
+- Do NOT treat absent raw data/code as absent results when a supplied technical report, table, figure, or executed output establishes the primary result
+- Do NOT discard compatible assets merely because another file is the declared semantic authority
 
 ## Decision Framework
 - ready: can proceed to context building
@@ -162,14 +165,10 @@ Evaluate the manuscript independently across seven dimensions with non-compensat
 
 ## Input Files
 - 06_drafts/manuscript-vNNN.md
+- 11_frontmatter/frontmatter-vNNN.md
 - 06_drafts/supplementary-vNNN.md (if applicable)
-- 04_blueprint/article-blueprint.md
 - 04_blueprint/display-asset-manifest.yaml and current available assets
-- 02_context/article-context-brief.md
-- 03_literature/literature-grounding-report.md
-- Stable rubric and necessary factual artifacts
-- Current manuscript SHA-256
-- Anonymized must-fix list (only when fix verification is required)
+- Stable rubric and minimal factual or outlet constraints needed to interpret the final artifact
 
 ## Context
 - User goal: [goal]
@@ -186,9 +185,10 @@ Evaluate the manuscript independently across seven dimensions with non-compensat
 - Do NOT lower standards to push the workflow forward
 - Do NOT read any prior evaluation report, score, or decision
 - Do NOT read any prior manuscript or revision delta
+- Do NOT read context briefs, blueprints/plans, audits, narrative/language reports, repair plans/briefs, protected-content registers, preservation reports, panel reports, or anonymous must-fix lists
 
 ## Sub-Delegation
-- None. The orchestrator runs `academic-language-assessor` separately and does not expose either sealed report to the other reviewer.
+- None. The orchestrator completed sealed narrative/language readiness before this evaluation and exposes none of those reports.
 
 ## Decision Labels
 - accept: ready for panel or compositor
@@ -261,7 +261,7 @@ You are the methodology/statistics reviewer. In internal diagnostic mode, you ha
 Assemble faithful package copies, including the primary DOCX when document tooling is available, and verify the final frozen artifact set. Do not modify any source artifact.
 
 ## Input Files
-- Frozen artifact IDs, versions, paths, and digests for the complete final manuscript, display-asset manifest/assets, supplementary materials, frontmatter, cover letter, audits, evaluations, panel report, revision history, and journal adapter
+- Frozen artifact IDs, versions, and paths for the complete final manuscript, display-asset manifest/assets, supplementary materials, frontmatter, cover letter, audits, evaluations, panel report, revision history, and journal adapter
 
 ## Required Output
 - 12_package/submission-package.md

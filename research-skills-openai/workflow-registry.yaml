@@ -1,5 +1,5 @@
-schema_version: 5
-plugin_version: "0.10.0"
+schema_version: 6
+plugin_version: "0.11.0"
 public_entry_policy:
   declared_entries:
     - academic-deep-search
@@ -39,7 +39,7 @@ skills:
   - name: "academic-language-assessor"
     package: "research"
     role: "reviewer"
-    related_skills: ["article-drafter", "article-evaluator", "article-orchestrator", "article-refinement-controller", "idea-narrative-assessor", "perspective-drafter", "perspective-evaluator", "perspective-refinement-controller", "proposal-drafter", "proposal-evaluator", "proposal-refinement-controller", "research-idea-orchestrator"]
+    related_skills: ["article-drafter", "article-evaluator", "article-orchestrator", "article-refinement-controller", "idea-narrative-assessor", "perspective-drafter", "perspective-evaluator", "perspective-orchestrator", "perspective-refinement-controller", "proposal-drafter", "proposal-evaluator", "proposal-orchestrator", "proposal-refinement-controller", "research-idea-orchestrator", "research-narrative-assessor"]
     invocation_policy: "explicit_or_orchestrated"
     requires_independent_subagent: true
     allowed_input_artifacts: "frozen_artifacts_and_review_brief"
@@ -119,7 +119,7 @@ skills:
   - name: "article-orchestrator"
     package: "research-article"
     role: "orchestrator"
-    related_skills: ["academic-language-assessor", "article-architect", "article-claim-auditor", "article-context-builder", "article-cover-letter", "article-drafter", "article-evaluator", "article-frontmatter-drafter", "article-literature-grounder", "article-methods-statistics-auditor", "article-readiness-triage", "article-refinement-controller", "article-review-panel", "article-submission-compositor", "methodology-statistics-preflight", "research-opportunity-mapper"]
+    related_skills: ["academic-language-assessor", "article-architect", "article-claim-auditor", "article-context-builder", "article-cover-letter", "article-drafter", "article-evaluator", "article-frontmatter-drafter", "article-literature-grounder", "article-methods-statistics-auditor", "article-readiness-triage", "article-refinement-controller", "article-review-panel", "article-submission-compositor", "medical-journal-review", "methodology-statistics-preflight", "research-narrative-assessor", "research-opportunity-mapper"]
     invocation_policy: "implicit"
     requires_independent_subagent: false
     allowed_input_artifacts: "user_inputs_and_existing_workflow_artifacts"
@@ -263,7 +263,7 @@ skills:
   - name: "perspective-orchestrator"
     package: "research-perspective"
     role: "orchestrator"
-    related_skills: ["academic-language-assessor", "article-cover-letter", "perspective-argument-architect", "perspective-claim-evidence-curator", "perspective-drafter", "perspective-evaluator", "perspective-final-compositor", "perspective-input-builder", "perspective-refinement-controller", "perspective-review-panel", "research-opportunity-mapper"]
+    related_skills: ["academic-language-assessor", "medical-journal-review", "perspective-argument-architect", "perspective-claim-evidence-curator", "perspective-drafter", "perspective-evaluator", "perspective-final-compositor", "perspective-input-builder", "perspective-refinement-controller", "perspective-review-panel", "research-narrative-assessor", "research-opportunity-mapper"]
     invocation_policy: "implicit"
     requires_independent_subagent: false
     allowed_input_artifacts: "user_inputs_and_existing_workflow_artifacts"
@@ -311,7 +311,7 @@ skills:
   - name: "proposal-orchestrator"
     package: "research-proposal"
     role: "orchestrator"
-    related_skills: ["academic-language-assessor", "methodology-statistics-preflight", "proposal-context-brief-builder", "proposal-drafter", "proposal-evaluator", "proposal-package-assembler", "proposal-readiness-triage", "proposal-refinement-controller", "proposal-review-panel", "research-opportunity-mapper", "sap-evaluator", "sap-refinement-controller", "sap-writer"]
+    related_skills: ["academic-language-assessor", "medical-journal-review", "methodology-statistics-preflight", "proposal-context-brief-builder", "proposal-drafter", "proposal-evaluator", "proposal-package-assembler", "proposal-readiness-triage", "proposal-refinement-controller", "proposal-review-panel", "research-narrative-assessor", "research-opportunity-mapper", "sap-evaluator", "sap-refinement-controller", "sap-writer"]
     invocation_policy: "implicit"
     requires_independent_subagent: false
     allowed_input_artifacts: "user_inputs_and_existing_workflow_artifacts"
@@ -359,11 +359,19 @@ skills:
   - name: "research-idea-orchestrator"
     package: "research-idea"
     role: "orchestrator"
-    related_skills: ["academic-language-assessor", "idea-adversarial-review-panel", "idea-evaluator", "idea-narrative-assessor", "idea-portfolio-assembler", "medical-journal-review", "methodology-statistics-preflight", "multi-path-idea-generator", "proposal-orchestrator", "research-context-builder", "research-opportunity-mapper"]
+    related_skills: ["academic-language-assessor", "idea-adversarial-review-panel", "idea-evaluator", "idea-narrative-assessor", "idea-portfolio-assembler", "medical-journal-review", "methodology-statistics-preflight", "multi-path-idea-generator", "proposal-orchestrator", "research-context-builder", "research-narrative-assessor", "research-opportunity-mapper"]
     invocation_policy: "implicit"
     requires_independent_subagent: false
     allowed_input_artifacts: "user_inputs_and_existing_workflow_artifacts"
     output_artifact_type: "workflow_state_and_final_handoff"
+  - name: "research-narrative-assessor"
+    package: "research"
+    role: "reviewer"
+    related_skills: ["academic-language-assessor", "article-drafter", "article-orchestrator", "perspective-drafter", "perspective-orchestrator", "proposal-drafter", "proposal-orchestrator", "research-idea-orchestrator"]
+    invocation_policy: "explicit_or_orchestrated"
+    requires_independent_subagent: true
+    allowed_input_artifacts: "one_frozen_current_artifact_or_reader_bundle_and_reader_handoff_or_preservation_comparison_bundle"
+    output_artifact_type: "narrative_assessment_and_yaml_repair_plan_or_content_preservation_report"
   - name: "research-opportunity-mapper"
     package: "research"
     role: "retrieval"
@@ -463,10 +471,10 @@ workflow_edges:
     failure_route: "independent_review_pending"
   - workflow: "idea"
     source: "research-idea-orchestrator"
-    destination: "idea-narrative-assessor"
+    destination: "research-narrative-assessor"
     dispatch_mode: "delegated"
     trigger: "scientific_revision_frozen_or_editorial_repair_completed"
-    input_contract: "one_current_idea_dossier_and_reader_handoff_or_old_new_register_delta"
+    input_contract: "one_current_idea_dossier_and_reader_handoff_or_preservation_comparison_bundle"
     output_contract: "narrative_assessment_and_yaml_repair_plan_or_content_preservation_report"
     failure_route: "independent_review_pending"
   - workflow: "idea"
@@ -552,43 +560,35 @@ workflow_edges:
   - workflow: "proposal"
     source: "proposal-orchestrator"
     destination: "proposal-drafter"
-    dispatch_mode: "orchestrated"
-    trigger: "readiness_passed_or_targeted_revision_authorized"
-    input_contract: "approved_context_evidence_structure_or_revision_plan"
-    output_contract: "versioned_proposal"
-    failure_route: "drafting_blocked"
+    dispatch_mode: "delegated"
+    trigger: "content_plan_required"
+    input_contract: "frozen_context_evidence_reader_handoff_and_constraints"
+    output_contract: "proposal_content_plan_yaml"
+    failure_route: "independent_review_pending"
   - workflow: "proposal"
     source: "proposal-orchestrator"
-    destination: "proposal-evaluator"
-    dispatch_mode: "delegated"
-    trigger: "proposal_version_frozen"
-    input_contract: "frozen_proposal_stable_rubric_and_facts"
-    output_contract: "proposal_evaluation_report"
-    failure_route: "independent_review_pending"
+    destination: "proposal-drafter"
+    dispatch_mode: "orchestrated"
+    trigger: "content_plan_frozen_or_targeted_revision_authorized"
+    input_contract: "approved_context_evidence_content_plan_or_revision_plan_or_editorial_brief"
+    output_contract: "versioned_complete_proposal_and_action_conformance"
+    failure_route: "drafting_blocked"
   - workflow: "proposal"
     source: "proposal-orchestrator"
     destination: "proposal-refinement-controller"
     dispatch_mode: "orchestrated"
-    trigger: "evaluation_or_panel_requests_fixable_revision"
-    input_contract: "sealed_findings_current_version_and_history"
+    trigger: "scientific_review_panel_or_editorial_readiness_requests_fixable_revision"
+    input_contract: "sealed_scientific_findings_or_single_editorial_brief_current_version_and_history"
     output_contract: "revision_handoff"
     failure_route: "revision_blocked"
   - workflow: "proposal"
     source: "proposal-refinement-controller"
     destination: "proposal-drafter"
     dispatch_mode: "orchestrated"
-    trigger: "revision_plan_frozen"
-    input_contract: "current_proposal_and_targeted_revision_plan"
-    output_contract: "new_proposal_version_and_delta"
+    trigger: "revision_plan_or_editorial_brief_frozen"
+    input_contract: "current_proposal_targeted_plan_or_editorial_brief_and_protected_register"
+    output_contract: "new_complete_proposal_version_delta_and_action_conformance"
     failure_route: "drafting_blocked"
-  - workflow: "proposal"
-    source: "proposal-refinement-controller"
-    destination: "proposal-evaluator"
-    dispatch_mode: "delegated"
-    trigger: "revised_proposal_version_frozen"
-    input_contract: "latest_proposal_stable_rubric_facts_and_optional_anonymous_issues"
-    output_contract: "fresh_proposal_evaluation_report"
-    failure_route: "independent_review_pending"
   - workflow: "proposal"
     source: "proposal-orchestrator"
     destination: "sap-writer"
@@ -631,19 +631,43 @@ workflow_edges:
     failure_route: "independent_review_pending"
   - workflow: "proposal"
     source: "proposal-orchestrator"
-    destination: "proposal-review-panel"
+    destination: "research-narrative-assessor"
     dispatch_mode: "delegated"
-    trigger: "proposal_evaluation_passed_or_early_mock_explicit"
-    input_contract: "frozen_proposal_and_one_role_brief"
-    output_contract: "sealed_individual_panel_report"
+    trigger: "scientific_revision_frozen_or_editorial_repair_completed"
+    input_contract: "one_current_proposal_and_reader_handoff_or_preservation_comparison_bundle"
+    output_contract: "narrative_assessment_and_yaml_repair_plan_or_content_preservation_report"
     failure_route: "independent_review_pending"
   - workflow: "proposal"
     source: "proposal-orchestrator"
     destination: "academic-language-assessor"
     dispatch_mode: "delegated"
-    trigger: "final_proposal_language_check"
-    input_contract: "frozen_proposal_and_language_scope"
+    trigger: "scientific_revision_frozen_or_editorial_repair_completed"
+    input_contract: "complete_current_proposal_language_scope_and_reader_handoff"
     output_contract: "language_assessment_report"
+    failure_route: "independent_review_pending"
+  - workflow: "proposal"
+    source: "proposal-orchestrator"
+    destination: "proposal-evaluator"
+    dispatch_mode: "delegated"
+    trigger: "current_proposal_frozen_after_fresh_narrative_language_readiness_and_preservation"
+    input_contract: "one_final_proposal_stable_rubric_minimal_call_and_factual_inputs"
+    output_contract: "proposal_evaluation_report"
+    failure_route: "independent_review_pending"
+  - workflow: "proposal"
+    source: "proposal-orchestrator"
+    destination: "proposal-review-panel"
+    dispatch_mode: "delegated"
+    trigger: "final_proposal_evaluation_passed_or_early_mock_explicit"
+    input_contract: "frozen_final_proposal_and_one_role_brief"
+    output_contract: "sealed_individual_panel_report"
+    failure_route: "independent_review_pending"
+  - workflow: "proposal"
+    source: "proposal-orchestrator"
+    destination: "medical-journal-review"
+    dispatch_mode: "delegated"
+    trigger: "final_proposal_evaluation_complete_and_journal_matching_requested_or_applicable"
+    input_contract: "final_proposal_and_score_free_verified_journal_candidate_brief"
+    output_contract: "medical_journal_review_report"
     failure_route: "independent_review_pending"
   - workflow: "proposal"
     source: "proposal-orchestrator"
@@ -657,8 +681,8 @@ workflow_edges:
     source: "article-orchestrator"
     destination: "article-readiness-triage"
     dispatch_mode: "delegated"
-    trigger: "minimal_intake_frozen"
-    input_contract: "frozen_minimal_intake_and_entry_scope"
+    trigger: "complete_material_inventory_and_minimal_intake_frozen"
+    input_contract: "frozen_minimal_intake_complete_material_inventory_semantic_authority_and_entry_scope"
     output_contract: "article_readiness_report"
     failure_route: "independent_review_pending"
   - workflow: "article"
@@ -727,60 +751,60 @@ workflow_edges:
     failure_route: "independent_review_pending"
   - workflow: "article"
     source: "article-orchestrator"
-    destination: "article-evaluator"
-    dispatch_mode: "delegated"
-    trigger: "manuscript_version_frozen_or_revised"
-    input_contract: "frozen_manuscript_stable_rubric_and_facts"
-    output_contract: "article_evaluation_report"
-    failure_route: "independent_review_pending"
-  - workflow: "article"
-    source: "article-orchestrator"
-    destination: "academic-language-assessor"
-    dispatch_mode: "delegated"
-    trigger: "language_check_required"
-    input_contract: "frozen_manuscript_and_language_scope"
-    output_contract: "language_assessment_report"
-    failure_route: "independent_review_pending"
-  - workflow: "article"
-    source: "article-orchestrator"
     destination: "article-refinement-controller"
     dispatch_mode: "orchestrated"
-    trigger: "audit_evaluation_or_panel_requests_fixable_revision"
-    input_contract: "sealed_findings_current_version_and_history"
+    trigger: "scientific_audit_panel_or_editorial_readiness_requests_fixable_revision"
+    input_contract: "sealed_scientific_findings_or_single_editorial_brief_current_version_and_history"
     output_contract: "revision_handoff"
     failure_route: "revision_blocked"
   - workflow: "article"
     source: "article-refinement-controller"
     destination: "article-drafter"
     dispatch_mode: "orchestrated"
-    trigger: "revision_plan_frozen"
-    input_contract: "current_manuscript_and_targeted_plan"
-    output_contract: "new_manuscript_version_and_delta"
+    trigger: "revision_plan_or_body_editorial_brief_frozen"
+    input_contract: "current_manuscript_targeted_plan_or_editorial_brief_and_protected_register"
+    output_contract: "new_complete_manuscript_version_delta_and_action_conformance"
     failure_route: "drafting_blocked"
   - workflow: "article"
-    source: "article-refinement-controller"
+    source: "article-orchestrator"
+    destination: "article-frontmatter-drafter"
+    dispatch_mode: "orchestrated"
+    trigger: "scientifically_current_manuscript_or_frontmatter_editorial_brief_ready"
+    input_contract: "current_manuscript_section_plan_journal_adapter_or_frontmatter_editorial_brief_and_protected_register"
+    output_contract: "versioned_complete_frontmatter_and_action_conformance"
+    failure_route: "frontmatter_blocked"
+  - workflow: "article"
+    source: "article-orchestrator"
+    destination: "research-narrative-assessor"
+    dispatch_mode: "delegated"
+    trigger: "reader_bundle_frozen_or_editorial_repair_completed"
+    input_contract: "current_manuscript_frontmatter_reader_bundle_and_reader_handoff_or_preservation_comparison_bundle"
+    output_contract: "narrative_assessment_and_yaml_repair_plan_or_content_preservation_report"
+    failure_route: "independent_review_pending"
+  - workflow: "article"
+    source: "article-orchestrator"
+    destination: "academic-language-assessor"
+    dispatch_mode: "delegated"
+    trigger: "reader_bundle_frozen_or_editorial_repair_completed"
+    input_contract: "complete_current_manuscript_frontmatter_language_scope_and_reader_handoff"
+    output_contract: "language_assessment_report"
+    failure_route: "independent_review_pending"
+  - workflow: "article"
+    source: "article-orchestrator"
     destination: "article-evaluator"
     dispatch_mode: "delegated"
-    trigger: "revised_manuscript_version_frozen"
-    input_contract: "latest_manuscript_stable_rubric_facts_and_optional_anonymous_issues"
-    output_contract: "fresh_article_evaluation_report"
+    trigger: "reader_bundle_frozen_after_fresh_narrative_language_readiness_and_preservation"
+    input_contract: "final_manuscript_frontmatter_current_displays_stable_rubric_and_minimal_factual_or_outlet_constraints"
+    output_contract: "article_evaluation_report"
     failure_route: "independent_review_pending"
   - workflow: "article"
     source: "article-orchestrator"
     destination: "article-review-panel"
     dispatch_mode: "delegated"
-    trigger: "article_evaluation_passed_or_mock_review_explicit"
-    input_contract: "frozen_manuscript_and_one_role_brief"
+    trigger: "final_article_evaluation_passed_or_mock_review_explicit"
+    input_contract: "frozen_final_reader_bundle_and_one_role_brief"
     output_contract: "sealed_individual_panel_report"
     failure_route: "independent_review_pending"
-  - workflow: "article"
-    source: "article-orchestrator"
-    destination: "article-frontmatter-drafter"
-    dispatch_mode: "orchestrated"
-    trigger: "evaluated_manuscript_ready_for_delivery"
-    input_contract: "frozen_manuscript_blueprint_and_journal_adapter"
-    output_contract: "versioned_frontmatter"
-    failure_route: "frontmatter_blocked"
   - workflow: "article"
     source: "article-orchestrator"
     destination: "article-cover-letter"
@@ -793,8 +817,8 @@ workflow_edges:
     source: "article-orchestrator"
     destination: "medical-journal-review"
     dispatch_mode: "delegated"
-    trigger: "biomedical_review_or_publication_probability_requested"
-    input_contract: "frozen_cover_letter_target_outlet_and_declared_scope"
+    trigger: "final_evaluation_complete_and_biomedical_review_or_journal_matching_requested"
+    input_contract: "final_article_score_free_verified_journal_candidate_brief_and_optional_cover_letter_without_evaluator_material"
     output_contract: "medical_journal_review_report"
     failure_route: "independent_review_pending"
   - workflow: "article"
@@ -841,48 +865,56 @@ workflow_edges:
     source: "perspective-orchestrator"
     destination: "perspective-drafter"
     dispatch_mode: "orchestrated"
-    trigger: "argument_architecture_ready_or_revision_plan_frozen"
-    input_contract: "approved_architecture_claims_and_revision_plan"
-    output_contract: "versioned_perspective_and_paragraph_map"
+    trigger: "argument_architecture_ready_revision_plan_or_editorial_brief_frozen"
+    input_contract: "approved_architecture_claims_revision_plan_or_editorial_brief_and_protected_register"
+    output_contract: "versioned_complete_perspective_paragraph_map_delta_and_action_conformance"
     failure_route: "drafting_blocked"
-  - workflow: "perspective"
-    source: "perspective-orchestrator"
-    destination: "perspective-evaluator"
-    dispatch_mode: "delegated"
-    trigger: "perspective_version_frozen_or_revised"
-    input_contract: "frozen_perspective_stable_rubric_and_facts"
-    output_contract: "perspective_evaluation_report"
-    failure_route: "independent_review_pending"
   - workflow: "perspective"
     source: "perspective-orchestrator"
     destination: "perspective-refinement-controller"
     dispatch_mode: "orchestrated"
-    trigger: "evaluation_or_panel_requests_fixable_revision"
-    input_contract: "sealed_findings_current_version_and_history"
+    trigger: "scientific_panel_or_editorial_readiness_requests_fixable_revision"
+    input_contract: "sealed_scientific_findings_or_single_editorial_brief_current_version_and_history"
     output_contract: "revision_handoff"
     failure_route: "revision_blocked"
   - workflow: "perspective"
     source: "perspective-refinement-controller"
     destination: "perspective-drafter"
     dispatch_mode: "orchestrated"
-    trigger: "revision_plan_frozen"
-    input_contract: "current_perspective_and_targeted_plan"
-    output_contract: "new_perspective_version_and_delta"
+    trigger: "revision_plan_or_editorial_brief_frozen"
+    input_contract: "current_perspective_targeted_plan_or_editorial_brief_and_protected_register"
+    output_contract: "new_complete_perspective_version_delta_and_action_conformance"
     failure_route: "drafting_blocked"
   - workflow: "perspective"
-    source: "perspective-refinement-controller"
+    source: "perspective-orchestrator"
+    destination: "research-narrative-assessor"
+    dispatch_mode: "delegated"
+    trigger: "scientific_evaluation_and_applicable_panel_route_closed_or_editorial_repair_completed"
+    input_contract: "one_current_perspective_and_reader_handoff_or_preservation_comparison_bundle"
+    output_contract: "narrative_assessment_and_yaml_repair_plan_or_content_preservation_report"
+    failure_route: "independent_review_pending"
+  - workflow: "perspective"
+    source: "perspective-orchestrator"
+    destination: "academic-language-assessor"
+    dispatch_mode: "delegated"
+    trigger: "scientific_evaluation_and_applicable_panel_route_closed_or_editorial_repair_completed"
+    input_contract: "complete_current_perspective_language_scope_and_reader_handoff"
+    output_contract: "language_assessment_report"
+    failure_route: "independent_review_pending"
+  - workflow: "perspective"
+    source: "perspective-orchestrator"
     destination: "perspective-evaluator"
     dispatch_mode: "delegated"
-    trigger: "revised_perspective_version_frozen"
-    input_contract: "latest_perspective_stable_rubric_facts_and_optional_anonymous_issues"
-    output_contract: "fresh_perspective_evaluation_report"
+    trigger: "current_perspective_frozen_for_scientific_evaluation_or_post_editorial_final_evaluation"
+    input_contract: "stage_specific_scientific_package_or_one_final_perspective_stable_rubric_and_minimal_evidence_outlet_facts"
+    output_contract: "scientific_or_final_perspective_evaluation_report"
     failure_route: "independent_review_pending"
   - workflow: "perspective"
     source: "perspective-orchestrator"
     destination: "perspective-review-panel"
     dispatch_mode: "delegated"
-    trigger: "perspective_evaluation_passed"
-    input_contract: "frozen_perspective_and_one_role_brief"
+    trigger: "scientific_perspective_evaluation_passed_before_editorial_cycle"
+    input_contract: "frozen_scientifically_qualified_perspective_and_one_role_brief"
     output_contract: "sealed_individual_panel_report"
     failure_route: "independent_review_pending"
   - workflow: "perspective"
@@ -897,17 +929,9 @@ workflow_edges:
     source: "perspective-orchestrator"
     destination: "medical-journal-review"
     dispatch_mode: "delegated"
-    trigger: "biomedical_review_or_publication_probability_requested"
-    input_contract: "frozen_perspective_optional_cover_letter_target_outlet_and_declared_scope"
+    trigger: "final_evaluation_complete_and_biomedical_review_or_journal_matching_requested"
+    input_contract: "final_perspective_score_free_verified_journal_candidate_brief_and_optional_cover_letter_without_evaluator_material"
     output_contract: "medical_journal_review_report"
-    failure_route: "independent_review_pending"
-  - workflow: "perspective"
-    source: "perspective-orchestrator"
-    destination: "academic-language-assessor"
-    dispatch_mode: "delegated"
-    trigger: "final_perspective_language_check"
-    input_contract: "frozen_perspective_and_language_scope"
-    output_contract: "language_assessment_report"
     failure_route: "independent_review_pending"
   - workflow: "perspective"
     source: "perspective-orchestrator"
@@ -1063,10 +1087,10 @@ workflow_state_policy:
     trigger: versioned_artifact_created
   - from: artifact_frozen
     to: editorial_review_pending
-    trigger: idea_editorial_readiness_dispatched
+    trigger: workflow_editorial_readiness_dispatched
   - from: editorial_review_pending
     to: editorial_revision_required
-    trigger: idea_editorial_revision_requested
+    trigger: workflow_editorial_revision_requested
   - from: editorial_revision_required
     to: editorial_revision_required
     trigger: editorial_scope_violation_requires_writer_repair
@@ -1074,14 +1098,17 @@ workflow_state_policy:
     to: revision_required
     trigger: scientific_change_declared
   - from: editorial_revision_required
-    to: new_idea_required
+    to: blocked
     trigger: identity_drift_detected
+  - from: editorial_revision_required
+    to: new_idea_required
+    trigger: idea_identity_drift_detected
   - from: editorial_revision_required
     to: artifact_frozen
     trigger: preserved_editorial_version_created
   - from: editorial_review_pending
     to: artifact_frozen
-    trigger: idea_editorial_readiness_passed
+    trigger: workflow_editorial_readiness_passed
   - from: artifact_frozen
     to: pending_review
     trigger: independent_review_dispatched
@@ -1416,6 +1443,7 @@ workflow_state_machines:
       standard:
       - context_frozen
       - readiness_passed
+      - proposal_content_plan_frozen
       - proposal_versioned
       existing_draft:
       - minimal_state_created
@@ -1426,8 +1454,10 @@ workflow_state_machines:
       - proposal_versioned
       - external_review_qualified_or_fresh_evaluation_required
       package_only:
+      - latest_version_editorially_ready
       - latest_version_independently_evaluated
       - required_panel_reports_complete
+      - biomedical_journal_review_complete_or_not_applicable
       - dissent_and_fatal_findings_indexed
     scenario_entry_gate_contracts:
       standard:
@@ -1439,6 +1469,9 @@ workflow_state_machines:
           input_artifact_roles:
           - proposal_context
           - evidence_map
+        proposal_content_plan_frozen:
+          artifact_roles:
+          - proposal_content_plan
         proposal_versioned:
           artifact_roles:
           - proposal
@@ -1464,6 +1497,10 @@ workflow_state_machines:
           input_artifact_roles:
           - proposal
       package_only:
+        latest_version_editorially_ready:
+          artifact_roles:
+          - narrative_assessment
+          - language_assessment_report
         latest_version_independently_evaluated:
           review_skill: proposal-evaluator
           input_artifact_roles:
@@ -1472,15 +1509,24 @@ workflow_state_machines:
           review_skill: proposal-review-panel
           input_artifact_roles:
           - proposal
+        biomedical_journal_review_complete_or_not_applicable:
+          conditional_artifact_roles:
+          - candidate_journal_match_brief
+          - medical_journal_review_report
+          required_when: current_proposal_biomedical_or_clinical
+          not_applicable_when: current_proposal_not_biomedical_or_clinical
         dissent_and_fatal_findings_indexed:
           artifact_roles:
           - review_finding_index
     before_panel:
+    - current_proposal_editorial_readiness_complete
     - latest_version_independently_evaluated
     - no_unresolved_fatal_finding
     before_packaging:
+    - current_proposal_editorial_readiness_complete
     - latest_version_independently_evaluated
     - required_panel_reports_complete_or_not_applicable
+    - biomedical_journal_review_complete_or_not_applicable
     - dissent_and_fatal_findings_indexed
     non_ready_modes: []
     final_package_skill: proposal-package-assembler
@@ -1532,6 +1578,8 @@ workflow_state_machines:
           review_skill: article-readiness-triage
           input_artifact_roles:
           - minimal_intake
+          - complete_material_inventory
+          - semantic_authority_record
         context_frozen:
           artifact_roles:
           - article_context
@@ -1556,6 +1604,8 @@ workflow_state_machines:
           review_skill: article-readiness-triage
           input_artifact_roles:
           - minimal_intake
+          - complete_material_inventory
+          - semantic_authority_record
         minimal_backfill_validated:
           review_skill: article-methods-statistics-auditor
           input_artifact_roles:
@@ -1577,6 +1627,8 @@ workflow_state_machines:
           review_skill: article-readiness-triage
           input_artifact_roles:
           - minimal_intake
+          - complete_material_inventory
+          - semantic_authority_record
         manuscript_versioned:
           artifact_roles:
           - manuscript
@@ -1589,6 +1641,8 @@ workflow_state_machines:
           review_skill: article-readiness-triage
           input_artifact_roles:
           - minimal_intake
+          - complete_material_inventory
+          - semantic_authority_record
         context_frozen:
           artifact_roles:
           - article_context
@@ -1609,6 +1663,8 @@ workflow_state_machines:
           review_skill: article-readiness-triage
           input_artifact_roles:
           - minimal_intake
+          - complete_material_inventory
+          - semantic_authority_record
           - manuscript
         manuscript_versioned:
           artifact_roles:
@@ -1618,12 +1674,15 @@ workflow_state_machines:
           input_artifact_roles:
           - manuscript
     before_panel:
+    - current_reader_bundle_editorial_readiness_complete
     - latest_version_independently_evaluated
     - claim_audit_passed
     - no_unresolved_fatal_finding
     before_packaging:
+    - current_reader_bundle_editorial_readiness_complete
     - latest_version_independently_evaluated
     - required_panel_reports_complete_or_not_applicable
+    - biomedical_journal_review_complete_or_not_applicable
     - dissent_and_fatal_findings_indexed
     non_ready_modes:
     - blueprint_only
@@ -1699,12 +1758,48 @@ workflow_state_machines:
           artifact_roles:
           - perspective
     before_panel:
-    - latest_version_independently_evaluated
+    - current_perspective_scientific_evaluation_complete
     - no_unresolved_fatal_finding
     before_packaging:
-    - latest_version_independently_evaluated
+    - current_perspective_editorial_readiness_complete
+    - final_perspective_evaluation_complete
     - panel_reports_complete
+    - biomedical_journal_review_complete_or_not_applicable
     - dissent_and_fatal_findings_indexed
+    evaluation_stage_contract:
+      scientific:
+        dispatch_before: panel
+        required_input_roles:
+        - perspective
+        - argument_architecture
+        - paragraph_map
+        - claim_ledger
+        - claim_evidence_matrix
+        - perspective_input_brief
+        - target_outlet_profile
+        - existing_discourse_baseline
+        prior_scores_or_decisions_visible: false
+      final:
+        dispatch_after:
+        - applicable_panel_route_closed
+        - editorial_readiness_complete
+        - content_preservation_complete
+        required_input_roles:
+        - perspective
+        - minimal_evidence_outlet_facts
+        forbidden_input_roles:
+        - perspective_input_brief
+        - argument_architecture
+        - paragraph_map
+        - claim_ledger
+        - claim_evidence_matrix
+        - repair_brief
+        - content_preservation_report
+        - narrative_assessment
+        - language_assessment_report
+        - prior_evaluation
+        - panel_report
+        prior_scores_or_decisions_visible: false
     non_ready_modes:
     - lite
     - standard
@@ -1772,7 +1867,7 @@ workflow_state_machines:
     final_package_skill: research-polisher-plan-assembler
     final_state: human_strategy_selection_required
 scenario_eval_contract:
-  fixture_schema_version: 2
+  fixture_schema_version: 3
   required_workflows:
   - idea
   - proposal
@@ -1791,8 +1886,9 @@ scenario_eval_contract:
   - change_type
   - path
   - status
-  - content_digest
   - frozen
+  legacy_optional_lineage_fields:
+  - content_digest
   required_dispatch_fields:
   - event_id
   - source_skill
@@ -1976,6 +2072,41 @@ scenario_eval_contract:
   reviewer_instance_must_differ_from_artifact_writer: true
   panel_role_instance_mapping_must_be_one_to_one: true
   review_decision_contracts:
+    research-narrative-assessor:
+      allowed:
+      - narrative_ready
+      - minor_narrative_revision
+      - major_narrative_revision
+      - clarification_required
+      - independent_review_pending
+      - scientific_content_preserved
+      - editorial_scope_violation
+      - identity_drift_detected
+      - scientific_change_declared
+      pass:
+      - narrative_ready
+      - minor_narrative_revision
+      - scientific_content_preserved
+      revise:
+      - major_narrative_revision
+      - editorial_scope_violation
+      stop:
+      - clarification_required
+      - independent_review_pending
+      - identity_drift_detected
+      - scientific_change_declared
+      mode_specific_decisions:
+        narrative:
+        - narrative_ready
+        - minor_narrative_revision
+        - major_narrative_revision
+        - clarification_required
+        - independent_review_pending
+        preservation:
+        - scientific_content_preserved
+        - editorial_scope_violation
+        - identity_drift_detected
+        - scientific_change_declared
     idea-narrative-assessor:
       allowed:
       - narrative_ready
@@ -2182,8 +2313,8 @@ scenario_eval_contract:
       pass:
       - pass
       - conditionally_pass_with_author_verification
+      revise:
       - requires_methods_clarification
-      revise: []
       stop:
       - requires_reanalysis
       - methodologically_blocked
@@ -2538,7 +2669,7 @@ scenario_eval_contract:
         - external-input
         count_per_current_idea_node: 1
       - artifact_role: narrative_assessment
-        source_skill: idea-narrative-assessor
+        source_skill: research-narrative-assessor
         current_primary_lineage: true
         count_must_equal_current_idea_dossier_count: true
       - artifact_role: language_assessment_report
@@ -2546,7 +2677,7 @@ scenario_eval_contract:
         current_primary_lineage: true
         count_must_equal_current_idea_dossier_count: true
       - artifact_role: content_preservation_report
-        source_skill: idea-narrative-assessor
+        source_skill: research-narrative-assessor
         current_primary_lineage: true
         required_when_condition: editorial_repair_occurred
         count_per_editorially_repaired_current_dossier: 1
@@ -2590,7 +2721,7 @@ scenario_eval_contract:
             minimum: 2
             maximum: 3
       - artifact_role: narrative_repair_plan
-        source_skill: idea-narrative-assessor
+        source_skill: research-narrative-assessor
         minimum_count: 0
         include_all_created: true
       - artifact_role: protected_content_register
@@ -2617,11 +2748,20 @@ scenario_eval_contract:
       allowed_roles:
       - proposal_context
       - readiness_report
+      - proposal_content_plan
       - proposal
+      - protected_content_register
+      - narrative_assessment
+      - narrative_repair_plan
+      - language_assessment_report
+      - editorial_repair_writer_brief
+      - content_preservation_report
       - evaluation_report
       - preflight_report
       - sap
       - panel_report
+      - candidate_journal_match_brief
+      - medical_journal_review_report
       - revision_plan
       - response_to_reviewers
       - revision_delta
@@ -2632,11 +2772,28 @@ scenario_eval_contract:
       - artifact_role: readiness_report
         source_skill: proposal-readiness-triage
         count: 1
+      - artifact_role: proposal_content_plan
+        source_skill: proposal-drafter
+        count: 1
+        fresh_planner_required: true
       - artifact_role: proposal
         source_skills:
         - proposal-drafter
         - external-input
         current_primary: true
+        count: 1
+      - artifact_role: narrative_assessment
+        source_skill: research-narrative-assessor
+        current_primary_lineage: true
+        count: 1
+      - artifact_role: language_assessment_report
+        source_skill: academic-language-assessor
+        current_primary_lineage: true
+        count: 1
+      - artifact_role: content_preservation_report
+        source_skill: research-narrative-assessor
+        current_primary_lineage: true
+        required_when_condition: editorial_repair_occurred
         count: 1
       - artifact_role: evaluation_report
         source_skill: proposal-evaluator
@@ -2660,6 +2817,11 @@ scenario_eval_contract:
         source_skill: proposal-review-panel
         all_panel_instances: true
         count_from_panel_roles: true
+      - artifact_role: medical_journal_review_report
+        source_skill: medical-journal-review
+        required_when_condition: journal_matching_requested_or_biomedical_candidate_route
+        fresh_review_required: true
+        evaluator_report_visible: false
       - artifact_role: revision_plan
         source_skill: proposal-refinement-controller
         minimum_count: 1
@@ -2679,11 +2841,18 @@ scenario_eval_contract:
       - claim_evidence_matrix
       - evidence_ledger
       - readiness_report
+      - protected_content_register
+      - narrative_assessment
+      - narrative_repair_plan
+      - language_assessment_report
+      - editorial_repair_writer_brief
+      - content_preservation_report
       - evaluation_report
       - audit_report
       - panel_report
       - journal_adapter
       - frontmatter
+      - candidate_journal_match_brief
       - cover_letter
       - quality_check
       - medical_journal_review_report
@@ -2709,6 +2878,19 @@ scenario_eval_contract:
       - artifact_role: readiness_report
         source_skill: article-readiness-triage
         count: 1
+      - artifact_role: narrative_assessment
+        source_skill: research-narrative-assessor
+        current_primary_lineage: true
+        count: 1
+      - artifact_role: language_assessment_report
+        source_skill: academic-language-assessor
+        current_primary_lineage: true
+        count: 1
+      - artifact_role: content_preservation_report
+        source_skill: research-narrative-assessor
+        current_primary_lineage: true
+        required_when_condition: editorial_repair_occurred
+        count: 1
       - artifact_role: evaluation_report
         source_skill: article-evaluator
         current_primary_lineage: true
@@ -2729,6 +2911,7 @@ scenario_eval_contract:
         count: 1
       - artifact_role: frontmatter
         source_skill: article-frontmatter-drafter
+        current_primary_lineage: true
         count: 1
       - artifact_role: cover_letter
         source_skill: article-cover-letter
@@ -2758,8 +2941,15 @@ scenario_eval_contract:
       - citation_risk_log
       - contrary_evidence_log
       - reference_list
+      - protected_content_register
+      - narrative_assessment
+      - narrative_repair_plan
+      - language_assessment_report
+      - editorial_repair_writer_brief
+      - content_preservation_report
       - evaluation_report
       - panel_report
+      - candidate_journal_match_brief
       - cover_letter
       - quality_check
       - medical_journal_review_report
@@ -2788,6 +2978,19 @@ scenario_eval_contract:
         count: 1
       - artifact_role: reference_list
         source_skill: perspective-claim-evidence-curator
+        count: 1
+      - artifact_role: narrative_assessment
+        source_skill: research-narrative-assessor
+        current_primary_lineage: true
+        count: 1
+      - artifact_role: language_assessment_report
+        source_skill: academic-language-assessor
+        current_primary_lineage: true
+        count: 1
+      - artifact_role: content_preservation_report
+        source_skill: research-narrative-assessor
+        current_primary_lineage: true
+        required_when_condition: editorial_repair_occurred
         count: 1
       - artifact_role: evaluation_report
         source_skill: perspective-evaluator
@@ -3077,7 +3280,7 @@ scenario_eval_contract:
       - revision_plan
       academic-language-assessor:
       - language_assessment_report
-      idea-narrative-assessor:
+      research-narrative-assessor:
       - narrative_assessment
       - narrative_repair_plan
       - content_preservation_report
@@ -3459,7 +3662,7 @@ artifact_completeness_policy:
   idea_editorial_readiness_contract:
     runs_after_scientific_revision_before_evaluation: true
     parallel_reviewers:
-    - idea-narrative-assessor
+    - research-narrative-assessor
     - academic-language-assessor
     editorially_eligible_narrative_decisions:
     - narrative_ready
@@ -3550,29 +3753,174 @@ artifact_completeness_policy:
       - same_writer_instance_succeeds_in_deterministic_bounded_section_view
       - no_better_supported_alternative_attribution
   proposal_current_artifact: complete_proposal
-  article_schema: research-article.v6
+  proposal_content_plan_role: proposal_content_plan
+  proposal_content_plan_required_before_new_full_draft: true
+  proposal_reader_bundle:
+  - current_complete_proposal
+  article_schema: research-article.v7
   article_current_artifact: complete_canonical_markdown
+  article_entry_material_contract:
+    complete_inventory_required: true
+    semantic_authority_must_be_explicit: true
+    compatible_supporting_assets_retained: true
+    filename_or_version_whitelist_must_not_hide_supplied_material: true
+  article_reader_bundle:
+  - current_complete_manuscript
+  - current_frontmatter
+  - current_required_displays
+  perspective_current_artifact: complete_perspective
+  perspective_content_plan_role: argument_architecture_and_paragraph_map
+  perspective_reader_bundle:
+  - current_complete_perspective
   fresh_re_evaluation:
-    scope: non_idea_workflows
+    scope: all_complete_workflows
     allowed:
-    - current_complete_artifact_and_digest
+    - current_complete_final_artifact_or_reader_bundle
     - stable_rubric
-    - necessary_facts
-    - anonymous_must_fix_list
+    - minimal_necessary_facts_or_outlet_constraints
     forbidden:
     - prior_artifact
+    - planning_or_context_artifact
+    - scientific_audit
+    - narrative_or_language_report
+    - repair_plan_or_brief
+    - protected_content_register
+    - content_preservation_report
     - revision_delta
+    - anonymous_must_fix_list
     - prior_report
     - prior_score
     - prior_decision
     orchestrator_compares_sealed_rounds_after_return: true
+cross_workflow_editorial_readiness_policy:
+  schema_version: 1
+  workflows:
+  - idea
+  - proposal
+  - perspective
+  - article
+  macro_reviewer: research-narrative-assessor
+  meso_micro_reviewer: academic-language-assessor
+  reviewers_run_in_parallel_on_same_frozen_reader_artifact_or_bundle: true
+  reviewer_role_separation:
+    research-narrative-assessor:
+    - reader_reasoning_chain
+    - section_function
+    - progressive_disclosure
+    - cross_section_repetition
+    - positive_claim_and_caveat_balance
+    - title_summary_question_contribution_alignment
+    academic-language-assessor:
+    - sentence_and_paragraph_language
+    - terminology_accessibility_and_consistency
+    - bilingual_term_drift
+    - unnatural_metaphor
+    - internal_workflow_language_leakage
+  terminology_policy:
+    separate_terminology_skill_or_artifact_forbidden: true
+    reviewer: academic-language-assessor
+    focused_verification_trigger: a_core_term_is_uncertain_misleading_or_inaccessible_to_target_readers
+    core_term_roles:
+    - title
+    - summary_or_abstract
+    - question
+    - objective
+    - contribution
+    - study_object
+    - measurement
+    - inference
+    - design
+    - interpretation
+    choice_priority:
+    - domain_standard
+    - cross_disciplinary_standard
+    - domain_comprehensible_plain_term
+    - necessary_coined_term
+    single_paper_is_insufficient_to_establish_standard_usage: true
+    problem_output_requires:
+    - exact_locator
+    - exact_replacement_or_rewrite
+    - first_use_definition_when_needed
+    - supporting_evidence
+  limitation_policy:
+    one_complete_authoritative_location_per_document_or_distinct_argument_family: true
+    omit_elsewhere: true
+    cross_reference_or_pointer_elsewhere_forbidden: true
+    exception: repeat_only_when_the_limitation_itself_is_needed_to_advance_the_immediate_reasoning_and_omission_would_distort_it
+    narrative_continuity_has_priority_over_defensive_repetition: true
+  repair_interface:
+    raw_assessment_reports_visible_to_writer: false
+    single_writer_brief_format: yaml
+    writer_brief_built_by_orchestrator: true
+    writer_reads:
+    - current_complete_artifact_or_bundle
+    - editorial_repair_writer_brief
+    - protected_content_register
+    writer_uses_same_owner_for_bounded_section_passes: true
+    multiple_fragment_writers_forbidden: true
+    one_final_complete_artifact_required: true
+    action_conformance_receipt_required: true
+  conditional_methodology_policy:
+    conditional_pass_requires_specific_bounded_assumption: true
+    writer_proceeds_under_passed_assumption: true
+    assumption_recorded_once_in_contract_designated_assumptions_location: true
+    assumption_is_visible_as_research_progression_risk: true
+    unbounded_or_outcome_changing_uncertainty_cannot_conditionally_pass: true
+  preservation:
+    protected_content_register_required_before_editorial_repair: true
+    fresh_independent_preservation_review_required_after_repair: true
+    only_scientific_content_preserved_may_continue: true
+    scientific_change_must_return_to_scientific_review: true
+  fresh_readiness:
+    fresh_narrative_and_language_reassessment_required_after_repair: true
+    all_blocking_findings_must_close_before_final_evaluation: true
+  final_evaluator_isolation:
+    allowed:
+    - current_final_reader_artifact_or_bundle
+    - stable_skill_rubric
+    - minimal_necessary_facts_or_outlet_constraints
+    forbidden:
+    - older_draft
+    - planning_or_context_artifact
+    - scientific_audit
+    - narrative_or_language_report
+    - repair_plan_or_writer_brief
+    - protected_content_register
+    - content_preservation_report
+    - revision_delta
+    - prior_evaluation_or_decision
+    exact_files_read_must_be_reported: true
+    binding_fields:
+    - artifact_id
+    - version
+    - exact_path
+    sha_or_content_digest_required: false
+  logical_integrity:
+    required:
+    - artifact_id
+    - version
+    - exact_path
+    - frozen_state
+    - complete_artifact_index
+    - unique_current_pointer
+    sha_or_content_digest_forbidden_in_new_llm_facing_artifacts: true
+    legacy_digest_fields: readable_but_ignored
+  context_attention_diagnosis:
+    context_length_is_not_assumed_from_one_miss: true
+    requires_same_writer_full_context_miss_and_bounded_view_success: true
+    requires_input_assessor_and_brief_failures_excluded_first: true
+  simple_case_behavior:
+    short_five_function_chain_allowed: true
+    no_problem_returns_ready_without_repair: true
+    terminology_verification_only_when_triggered: true
+    long_term_table_or_repair_plan_not_forced: true
 article_docx_delivery_policy:
   content_authority: canonical_markdown
   primary_user_delivery_when_capable: docx
   display_manifest: 04_blueprint/display-asset-manifest.yaml
   faithful_format_transform_only: true
   required_ready_gates:
-  - qualifying_markdown_digest_match
+  - qualifying_markdown_logical_identity_and_current_pointer_match
   - required_display_assets_complete
   - docx_content_parity_passed
   - full_page_render_qa_passed

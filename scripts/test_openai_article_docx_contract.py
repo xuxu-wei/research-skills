@@ -4,7 +4,6 @@
 from __future__ import annotations
 
 import argparse
-import hashlib
 import json
 import shutil
 import subprocess
@@ -31,10 +30,6 @@ SECTIONS = {
     "Discussion": "The result demonstrates DOCX content and display integration only.",
 }
 TABLE = [["Group", "Estimate", "95% CI"], ["A", "1.20", "1.05 to 1.37"], ["B", "0.95", "0.82 to 1.10"]]
-
-
-def sha256(path: Path) -> str:
-    return "sha256:" + hashlib.sha256(path.read_bytes()).hexdigest()
 
 
 def require(value: bool, label: str) -> None:
@@ -208,21 +203,31 @@ def structural_checks(markdown: Path, docx_path: Path, table_source: Path, figur
         require("<a:blip" in document_xml and "descr=\"Bar chart" in document_xml, "embedded figure and alt text")
         require(any(name.startswith("word/media/") for name in package.namelist()), "figure media part")
     manifest = {
-        "schema_version": "research-article.v6",
-        "canonical_markdown_ref": markdown.name,
-        "canonical_content_digest": sha256(markdown),
-        "docx_ref": docx_path.name,
-        "docx_content_digest": sha256(docx_path),
+        "schema_version": "research-article.v7",
+        "bundle_id": "article-bundle-synthetic",
+        "version": "v001",
+        "canonical_markdown_ref": {"artifact_id": "manuscript-synthetic", "version": "v001", "path": markdown.name},
+        "docx_ref": {"artifact_id": "docx-synthetic", "version": "v001", "path": docx_path.name},
+        "current_pointer": {"artifact_id": "manuscript-synthetic", "version": "v001", "path": markdown.name},
+        "artifact_index": [
+            {"artifact_id": "manuscript-synthetic", "version": "v001", "path": markdown.name, "frozen": True, "current": True},
+            {"artifact_id": "docx-synthetic", "version": "v001", "path": docx_path.name, "frozen": True, "current": False},
+            {"artifact_id": "table-1-synthetic", "version": "v001", "path": table_source.name, "frozen": True, "current": False},
+            {"artifact_id": "figure-1-synthetic", "version": "v001", "path": figure.name, "frozen": True, "current": False},
+        ],
         "docx_sync_status": "synchronized",
         "render_qa_status": "not_generated",
         "display_items": [
-            {"display_id": "Table 1", "type": "table", "source_path": table_source.name, "source_digest": sha256(table_source), "placement": "main", "caption": "Synthetic estimates.", "callout": "Table 1", "availability": "available", "docx_embedding_status": "embedded"},
-            {"display_id": "Figure 1", "type": "figure", "source_path": figure.name, "source_digest": sha256(figure), "placement": "main", "caption": "Synthetic effect estimates for format verification.", "callout": "Figure 1", "availability": "available", "alt_text": "Bar chart of synthetic estimates for Groups A and B", "docx_embedding_status": "embedded"},
+            {"display_id": "Table 1", "type": "table", "source_ref": {"artifact_id": "table-1-synthetic", "version": "v001", "path": table_source.name}, "placement": "main", "caption": "Synthetic estimates.", "callout": "Table 1", "availability": "available", "docx_embedding_status": "embedded"},
+            {"display_id": "Figure 1", "type": "figure", "source_ref": {"artifact_id": "figure-1-synthetic", "version": "v001", "path": figure.name}, "placement": "main", "caption": "Synthetic effect estimates for format verification.", "callout": "Figure 1", "availability": "available", "alt_text": "Bar chart of synthetic estimates for Groups A and B", "docx_embedding_status": "embedded"},
         ],
     }
     manifest_path.write_text(yaml.safe_dump(manifest, sort_keys=False), encoding="utf-8", newline="\n")
+    require(len([item for item in manifest["artifact_index"] if item["current"]]) == 1, "unique current pointer")
+    require(all(Path(item["path"]).name in {markdown.name, docx_path.name, table_source.name, figure.name} for item in manifest["artifact_index"]), "complete artifact index")
+    require("digest" not in yaml.safe_dump(manifest).lower() and "sha256" not in yaml.safe_dump(manifest).lower(), "no persisted hashes")
     require("Table 1" in read_text(markdown) and "Figure 1" in read_text(markdown), "Markdown callouts")
-    return 10
+    return 13
 
 
 def read_text(path: Path) -> str:

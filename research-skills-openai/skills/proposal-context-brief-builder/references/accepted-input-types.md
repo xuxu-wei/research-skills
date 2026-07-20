@@ -27,6 +27,7 @@ A call for proposals, award description, review criterion, or institutional fund
 Handling:
 - Extract target scope, eligibility, required output, deadlines, review priorities, and required sections.
 - Distinguish sponsor requirements from the user's research idea.
+- Register each mandatory instruction in `binding_constraints` and map every supplied call section in `source_intent_coverage`.
 
 ## Clinical or Practical Problem
 
@@ -76,3 +77,4 @@ Handling:
 - Assign multiple input types when appropriate.
 - Do not force a single category.
 - Preserve conflicts and uncertainties for triage.
+- Preserve which source supplied each intent or constraint; do not merge conflicting requirements into an invented compromise.

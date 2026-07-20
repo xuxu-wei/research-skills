@@ -14,3 +14,5 @@ Use this shared list when drafting, evaluating, reviewing, and finalizing.
 10. Absolute language unsupported by the claim ledger.
 11. Outlet mismatch hidden by style polish.
 12. Generic-profile readiness overstated as submission readiness.
+13. Counterargument/boundary authority duplication across sections.
+14. A limitation pointer replaces a necessary self-contained local boundary.

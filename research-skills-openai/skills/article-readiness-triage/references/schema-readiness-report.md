@@ -11,8 +11,10 @@ Use the canonical `article_readiness_report` schema in `article-orchestrator/ref
 - `nonblocking_gaps`: gaps that can be handled during writing with assumptions or author confirmation.
 - `target_journal_realism`: realism label plus rationale.
 - `recommended_route`: next workflow route.
+- `material_inventory_coverage`: every declared readiness-relevant file marked `read`, `excluded_with_reason`, or `unreadable`.
+- `semantic_authority_applied`: the authority artifact and the exact conflicts it governs, without excluding compatible result assets.
 
 ## Gate Rules
 
-- Missing primary results, undefined study design, or no research question must return `not_ready`.
+- Missing primary results, undefined study design, or no research question must return `not_ready`. "Missing primary results" means no supplied executed result artifact can support the primary result; it does not mean raw data or independent re-execution is unavailable.
 - `conditionally_ready` requires at least one explicit mitigation in `nonblocking_gaps`.

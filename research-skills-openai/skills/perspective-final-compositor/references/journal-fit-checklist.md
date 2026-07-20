@@ -10,3 +10,5 @@ Check against `target-outlet-profile.md`.
 - Structure matches outlet norms without hiding argument gaps.
 - If profile source is `generic`, readiness must be `outlet-targeting-only`.
 - If guideline source is missing or unverified, readiness cannot be `yes`.
+- Concrete journal facts use current official URLs and checked dates and remain separate from evaluator scores or findings.
+- A generic profile or unscored candidate list is not represented as a confirmed concrete journal match.

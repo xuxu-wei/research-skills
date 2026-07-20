@@ -40,6 +40,7 @@
   09_revisions/                         # Revision rounds
     round-001/
     round-002/
+    editorial/round-001/                # protected register, readiness reports, YAML repair plan/brief, preservation
   10_panel/                             # Panel Report + reviewer briefs
   11_frontmatter/                       # Abstract, Key Points, Title, Highlights
   11_cover-letter/                      # Cover letter and cover-letter-only reviews
@@ -55,7 +56,7 @@
 - Do not skip numbers even if a step is skipped in a given entry mode.
 - `13_state/` is always last among numbered directories.
 - `14_delegates/` stores subagent input/output packages for auditability.
-- Manuscript drafts live only in `06_drafts/`; reviewer responses, revision plans, revision deltas, and language change logs live only in `09_revisions/round-NNN/`; submission package files live only in `12_package/`.
+- Manuscript drafts live only in `06_drafts/`; scientific reviewer responses, revision plans, and deltas live in `09_revisions/round-NNN/`; editorial readiness/repair/preservation artifacts live in `09_revisions/editorial/round-NNN/`; submission package files live only in `12_package/`.
 
 ## Cross-Package Version Fields
 
@@ -74,9 +75,10 @@ change_type
 status
 source_skill
 created_by_instance_id
-content_digest
 frozen
 ```
+
+Do not add a SHA-256 or content-digest field to new LLM-facing records. Identity and integrity are established by artifact ID, version, exact path, frozen state, complete index membership, and a unique current pointer. Legacy digest columns may be read and ignored.
 
 ## File Naming Conventions
 
@@ -122,11 +124,16 @@ Use `response-to-reviewers-rNNN.md` everywhere. Do not use a singular response f
 ### Language Assessment Reports
 
 ```
-08_evaluations/language-assessment-v001.md
-08_evaluations/language-assessment-v002.md
+09_revisions/editorial/round-001/language-assessment-r001.md
+09_revisions/editorial/round-001/language-assessment-r002.md
+09_revisions/editorial/round-001/narrative-assessment-r001.md
+09_revisions/editorial/round-001/narrative-repair-plan-r001.yaml
+09_revisions/editorial/round-001/protected-content-register.yaml
+09_revisions/editorial/round-001/editorial-repair-brief-r001.yaml
+09_revisions/editorial/round-001/content-preservation-r001.md
 ```
 
-Run `academic-language-assessor` for English, Chinese, or bilingual manuscript text during evaluation and after any language polishing pass. If a changed manuscript is saved after language polishing, create the next manuscript version and record `change_type: language_only`.
+Run `research-narrative-assessor` and `academic-language-assessor` in parallel before final evaluation and again after any editorial repair. If a changed manuscript is saved, create the next complete manuscript/frontmatter version and record `change_type: editorial_only` unless a scientific change is separately declared.
 
 ### Panel Reports
 
@@ -138,6 +145,8 @@ Run `academic-language-assessor` for English, Chinese, or bilingual manuscript t
 ### Frontmatter
 
 ```
+11_frontmatter/frontmatter-v001.md
+11_frontmatter/frontmatter-v002.md
 11_frontmatter/abstract.md
 11_frontmatter/key-points.md
 11_frontmatter/title-options.md
@@ -187,6 +196,7 @@ Run `academic-language-assessor` for English, Chinese, or bilingual manuscript t
 ### Overwrite Prohibition
 
 - Prior manuscript versions must **never** be overwritten or deleted.
+- Prior frontmatter versions must **never** be overwritten or deleted; split frontmatter files are projections of the current canonical `frontmatter-vNNN.md`.
 - A DOCX is derived from the same-version canonical Markdown. It never replaces the current Markdown pointer or authorizes source edits.
 - `13_state/workflow-state.yaml` is the single authoritative pointer to the current version.
 - When a new version is created, the previous version's path is recorded in revision history.

@@ -1,6 +1,6 @@
 ---
 name: article-frontmatter-drafter
-description: "Draft versioned abstract, titles, key points, highlights, and related frontmatter from an evaluated manuscript and blueprint."
+description: "Draft versioned titles, abstract, key points, and highlights before final reader-readiness review."
 ---
 # article-frontmatter-drafter
 
@@ -17,6 +17,8 @@ This skill does NOT modify the manuscript body, introduce new claims not in the 
 - Title must be accurate, not promotional. Avoid "Novel," "First," and "Unique" unless definitively supported.
 - Key points must be standalone; a reader should understand the study's contribution from them.
 - Follow journal-specific frontmatter requirements from the journal adapter.
+- Create provisional frontmatter before editorial readiness and final article evaluation. A saved repair creates a new complete frontmatter version.
+- Do not repeat the article's limitations account in frontmatter. Include a qualification only when it is necessary to interpret the primary result in that sentence and omission would materially mislead the reader.
 - Do not write or edit `11_cover-letter/**`.
 
 ## I/O Contract
@@ -26,8 +28,8 @@ io_contract:
   allowed_inputs:
     - manuscript_draft
     - article_blueprint (contribution_statement, journal_adapter)
-    - evaluation_report (optional, for addressing evaluator frontmatter feedback)
-    - panel_report (optional, for addressing reviewer frontmatter feedback)
+    - editorial_repair_brief (optional, frontmatter actions only)
+    - protected_content_register (required in editorial repair mode)
   required_outputs:
     - abstract
     - key_points
@@ -38,8 +40,7 @@ io_contract:
   may_read:
     - "06_drafts/**"
     - "04_blueprint/**"
-    - "08_evaluations/**"
-    - "10_panel/**"
+    - "09_revisions/**/editorial-repair-brief-rNNN.yaml"
   may_write:
     - "11_frontmatter/**"
   must_not_write:
@@ -61,7 +62,7 @@ io_contract:
 
 ### Step 1: Load and Cross-Check
 
-Load the manuscript, blueprint, and journal adapter. Verify contribution statement, article type, journal abstract requirements, and all claims referenced by frontmatter.
+Load the current complete manuscript, section-content plan, contribution statement, and journal adapter. In repair mode, load only the normalized editorial brief and protected register in addition; never read raw narrative/language reports, revision deltas, panel reports, or evaluations. Verify every frontmatter claim against the manuscript.
 
 ### Step 2: Draft Abstract
 
@@ -89,7 +90,7 @@ Rules:
 
 ### Step 3: Draft Key Points
 
-Produce journal-compliant key points covering what was known, what this study adds, the key methodological or evidence strength, implications, and an important limitation when relevant.
+Produce journal-compliant key points covering what was known, what this study adds, the key methodological or evidence strength, and implications. Add a qualification only under the non-misleading exception above.
 
 ### Step 4: Draft Titles
 
@@ -107,7 +108,7 @@ Draft highlights and graphical abstract text only when required or useful for th
 
 ## Output
 
-Write to `11_frontmatter/`:
+Write a complete versioned bundle to `11_frontmatter/frontmatter-vNNN.md`, with any journal-required split files treated as faithful projections of that canonical bundle:
 
 - `abstract.md`
 - `key-points.md`
@@ -115,6 +116,8 @@ Write to `11_frontmatter/`:
 - `running-title.md`
 - `highlights.md`
 - `graphical-abstract-text.md` (if applicable)
+
+In repair mode, return an action-conformance table for every assigned frontmatter action and preserve the previous version unchanged.
 
 ## Stop Conditions
 
@@ -136,6 +139,8 @@ Write to `11_frontmatter/`:
 - Key points are standalone readable.
 - Title alternatives represent distinct strategies.
 - No claims introduced in frontmatter absent from manuscript.
+- Title, abstract, key points, primary question, primary result, and contribution agree without requiring the reader to consult later sections for a core definition.
+- Every assigned repair action is executed or explicitly returned as blocked; no raw assessor or evaluator report was read.
 - Running title and highlights are within journal limits.
 - No `11_cover-letter/**` artifact was created or modified.
 

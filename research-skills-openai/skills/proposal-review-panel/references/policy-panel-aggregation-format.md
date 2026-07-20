@@ -30,7 +30,7 @@ Items related to end-user pathway, software usability, stakeholder engagement, a
 **MF-N. Short title**
 (Source reviewers + Severity)
 
-Description of the issue (1-2 sentences).
+Brief functional description of the issue, its consequence, and why it is actionable.
 
 **Fix**: Concrete action + location in proposal where it should be applied.
 ```
@@ -44,7 +44,7 @@ When multiple reviewers raise the same issue in different language:
 
 ## Must-Fix vs Optional
 
-- Must-Fix: flagged by ≥2 reviewers, OR by skeptical reviewer, OR by methodology reviewer with HIGH severity, OR by any reviewer with CRITICAL/FATAL severity.
-- Optional: flagged by 1 reviewer with moderate/low severity and not endorsed by others.
+- Must-Fix: any credible finding that threatens answerability, scientific validity, feasibility, binding requirements, or reviewer defensibility. A single well-supported severe finding is sufficient; reviewer counts do not determine severity.
+- Optional: a preference or local improvement whose omission does not threaten the proposal's logic, validity, feasibility, or binding requirements.
 
 Any credible FATAL/blocking item sets `supportive_recommendation_allowed: false`. It cannot be deduplicated, averaged, or relabeled into a minor issue.

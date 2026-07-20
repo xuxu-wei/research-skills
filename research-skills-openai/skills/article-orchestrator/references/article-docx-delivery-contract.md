@@ -17,7 +17,7 @@ with DOCX-capable ChatGPT/Codex document tooling.
 
 ## Display asset manifest
 
-For each display record its ID, `table | figure`, source path and SHA-256,
+For each display record its ID, version, `table | figure`, exact source path,
 `main | supplement`, intended order/location, caption, manuscript callout,
 availability (`available | missing_source_asset | pending_confirmation`), image
 alt text when applicable, DOCX embedding status, and render status.
@@ -41,12 +41,19 @@ DOCX. Compare them with the frozen Markdown and display manifest. Record:
 
 ```yaml
 canonical_markdown_ref: ""
-canonical_content_digest: "sha256:"
+canonical_artifact_id: ""
+canonical_version: ""
 docx_ref: ""
-docx_content_digest: "sha256:"
+docx_artifact_id: ""
+docx_version: ""
 display_manifest_ref: "04_blueprint/display-asset-manifest.yaml"
 docx_sync_status: synchronized | content_drift | not_generated
 render_qa_status: passed | docx_visual_qa_pending | failed | not_generated
+semantic_parity_checks:
+  headings: passed | failed
+  body_text: passed | failed
+  table_cells: passed | failed
+  captions_and_callouts: passed | failed
 ```
 
 `content_drift` invalidates the DOCX and routes back to faithful composition;

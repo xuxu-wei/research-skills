@@ -1,14 +1,12 @@
 ---
 name: article-context-builder
-description: "Normalize study materials into an article context brief before readiness review, architecture, or drafting; expose missing inputs."
+description: "Inventory study materials and normalize authority, reader needs, and constraints."
 ---
 # article-context-builder
 
 ## Purpose
 
-Transform raw, unstructured research inputs into a standardized context brief that every downstream skill can consume. Classify the study type and article type, then select the appropriate reporting standard. Gate the output before handing off.
-
-This skill does NOT judge readiness (that is `article-readiness-triage`'s job), retrieve literature, design architecture, or draft content.
+After independent readiness triage, normalize the complete material inventory into a downstream context brief, classify study/article type, select reporting standards, and gate the handoff. Do not rejudge readiness, retrieve literature, design architecture, or draft content.
 
 ## Core Rules
 
@@ -19,6 +17,8 @@ This skill does NOT judge readiness (that is `article-readiness-triage`'s job), 
 - Journal-specific requirements override default reporting standards.
 - For hybrid designs, select one primary standard plus auxiliary standards.
 - Gate honestly: `clarification_stop` is a valid outcome, not a failure.
+- Preserve the user's source-authority declaration separately from the material inventory. A sole semantic authority resolves conflicting meanings or version labels; it does not make compatible results, tables, figures, code, or technical reports disappear.
+- Model the intended readers before drafting. Do not assume equal expertise across clinical, statistical, methodological, and domain audiences.
 
 ## I/O Contract
 
@@ -78,6 +78,22 @@ context_brief:
     data_completeness: user_provided_sufficient | user_provided_partial | user_provided_minimal
     available_materials: []
     missing_materials: []
+    complete_material_inventory: []
+    semantic_authority:
+      artifact_id: ""
+      version: ""
+      path: ""
+      governs: []
+      compatible_assets_retained: []
+  reader_context:
+    target_reader_profile: []
+    reader_prior_knowledge: []
+    knowledge_asymmetries: []
+    terms_requiring_definition: []
+    reader_reasoning_chain: []
+    source_intent_coverage: []
+    binding_constraints: []
+    gap_type: knowledge | evidence | method | implementation | mixed | not_applicable
   source_confidence: high | medium | low   # how reliably fields were extracted
 ```
 
@@ -149,6 +165,8 @@ Write `02_context/context-brief.md` containing the full context brief YAML plus 
 - Reporting standard mapping includes rationale
 - Gate outcome is explicit with documented assumptions
 - Missing materials are listed, not silently ignored
+- Every supplied file is either included in `complete_material_inventory` or explicitly excluded with a reason; semantic-authority rules do not exclude compatible evidence assets
+- The target-reader profile states expected prior knowledge, expertise asymmetries, term-definition needs, and the reasoning chain the article must support
 - Source confidence is assessed
 
 ## References

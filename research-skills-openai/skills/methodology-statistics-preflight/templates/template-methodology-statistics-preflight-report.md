@@ -27,7 +27,7 @@ unresolved_issues: []
 
 - Decision:
 - Decision rationale:
-- Idea handoff decision, when input type is `idea`:
+- Handoff decision: `proceed` / `proceed_with_assumptions` / `clarification_stop`
 
 Allowed decisions: `pass`, `revise_endpoint_or_metric`, `revise_data_source`, `revise_method`, `revise_analysis_route`, `needs_clarification`, `blocked`, `out_of_scope`.
 
@@ -73,7 +73,11 @@ Allowed decisions: `pass`, `revise_endpoint_or_metric`, `revise_data_source`, `r
 |---|---|---|
 |  |  |  |
 
-### Working assumptions for Idea handoff
+### Working assumptions for conditional handoff
+
+Leave this table empty unless `handoff_decision: proceed_with_assumptions`. Every row
+states one specific assumption accepted by this report and must be recorded once in the
+downstream artifact's authoritative `Assumptions` location.
 
 | assumption_id | unconfirmed_detail | working_assumption | basis_for_planning | impact_if_false | verification_needed | verification_point | affected_design_component |
 |---|---|---|---|---|---|---|---|

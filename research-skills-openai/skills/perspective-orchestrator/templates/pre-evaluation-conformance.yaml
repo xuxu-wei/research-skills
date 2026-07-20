@@ -1,0 +1,21 @@
+schema_version: perspective-pre-evaluation-conformance.v1
+check_id: "<check-id>"
+workflow_id: "<workflow-id>"
+round_id: "<round-id>"
+perspective: {artifact_id: "<artifact-id>", version: "<version>", path: "<path>"}
+argument_skeleton: {artifact_id: "<artifact-id>", version: "<version>", path: "<path>"}
+paragraph_map: {artifact_id: "<artifact-id>", version: "<version>", path: "<path>"}
+claim_ledger: {artifact_id: "<artifact-id>", version: "<version>", path: "<path>"}
+claim_evidence_matrix: {artifact_id: "<artifact-id>", version: "<version>", path: "<path>"}
+checks:
+  every_paragraph_mapped: false
+  every_claim_id_registered: false
+  every_evidence_use_has_binding_id: false
+  every_binding_matches_allowed_source_intent: false
+  argument_steps_covered: false
+  terminology_order_conformant: false
+  counterargument_boundary_authorities_complete: false
+  no_unregistered_claims: false
+decision: "fail"
+violations: []
+evaluator_package_includes_this_check: false

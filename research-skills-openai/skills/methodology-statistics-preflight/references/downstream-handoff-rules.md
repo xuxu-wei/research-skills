@@ -15,7 +15,7 @@ Use this file to decide where the preflight report should go next.
 
 ## Suggested Skill Handoffs
 
-- Idea-level quality judgment → `idea-evaluator`.
+- Scientific quality judgment → the artifact's independent evaluator.
 - Proposal readiness or drafting → `proposal-orchestrator` or `proposal-drafter`.
 - Proposal quality evaluation → `proposal-evaluator`.
 - SAP writing → `sap-writer`, only after preflight passes.
@@ -27,9 +27,9 @@ Use this file to decide where the preflight report should go next.
 
 The agent performing this preflight should not also perform the downstream evaluator role for the same artifact. Evaluation and review tasks must remain isolated.
 
-## Idea-specific handoff
+## Generic handoff
 
-For an Idea, preserve the general preflight decision above and add:
+For every artifact, preserve the general preflight decision above and add:
 
 - `proceed`: no required methodological repair remains;
 - `proceed_with_assumptions`: a minimal viable route exists and the scientific
@@ -37,7 +37,8 @@ For an Idea, preserve the general preflight decision above and add:
 - `clarification_stop`: an unresolved detail crosses the boundary in
   `working-assumption-rules.md` and must not be guessed.
 
-The writer records each accepted working assumption once in the dossier's
-authoritative assumptions section. It remains a research risk, not an
-established fact. A false assumption that would invalidate the core route must
-not be handed off as `proceed_with_assumptions`.
+The writer records each accepted working assumption once in the artifact's
+authoritative `Assumptions` location. It remains a research risk, not an established
+fact. Do not repeat it elsewhere or replace it with generic unresolved-detail language.
+A false assumption that would invalidate the core route must not be handed off as
+`proceed_with_assumptions`.

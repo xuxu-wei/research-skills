@@ -1,0 +1,27 @@
+schema: proposal-editorial-action-execution.v1
+artifact_id:
+version_id:
+workflow_id:
+round_id:
+editorial_repair_brief_path:
+source_proposal_ref:
+  artifact_id:
+  version:
+  path:
+target_proposal_ref:
+  artifact_id:
+  version:
+  path:
+writer_instance_id:
+complete_target_confirmed: true
+actions:
+  - action_id:
+    status: executed | blocked
+    resulting_locator:
+    execution_evidence:
+    protected_item_ids_checked: []
+    block_reason:
+all_included_actions_accounted_for: true
+dependencies_satisfied: true
+scientific_change_declared: false
+ready_to_freeze: false

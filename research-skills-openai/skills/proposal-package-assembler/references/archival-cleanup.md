@@ -1,80 +1,77 @@
 # Archival Cleanup (Proposal Pre-Packaging)
 
-## When to use
+## Scope and ownership
 
-When a thesis-integrity reviewer report identifies artifacts that must be removed from a proposal before submission — reviewer-response marks, version tags, rhetorical question headings, explanatory reader guides, internal process references. This is the final step between refinement-complete and package-assembly.
+Use this guide when a submission-guard report identifies proposal-body residue before packaging. The package assembler may summarize the findings but never performs cleanup. The orchestrator routes accepted actions through `proposal-refinement-controller` and one `proposal-drafter` writer.
 
-The cleanup is **subtractive only**: no new content, no substantive claim changes, no additions. It produces the "submission-clean" version.
+Cleanup removes or functionally rewrites process residue without changing scientific meaning, methods, endpoints, evidence strength, novelty/impact claim strength, feasibility, or risk posture. Every saved change creates a new complete proposal version and must pass the normal action-validation, preservation, reassessment, and final-evaluation gates.
+
+## Classify findings by function
+
+Process residue should be removed when present:
+
+- reviewer-response marks such as “回应 Review Panel”；
+- version tags or version metadata inside the proposal body;
+- internal workflow, panel-count, or revision-process references that carry no scientific meaning;
+- stale cross-references created by an accepted removal or relocation.
+
+The following forms require functional review, not automatic deletion or conversion:
+
+- rhetorical questions or question-form headings;
+- explanatory reader guides;
+- terminology mappings or standalone definition aids;
+- clinical or implementation scenarios.
+
+Keep one of these forms when a binding format requires it or when it materially advances the target reader’s reasoning with less burden than a direct alternative. Otherwise condense, relocate, or replace it. Record the local function and observable acceptance criterion for every action.
 
 ## Workflow
 
-### 1. Read the thesis-integrity report
+### 1. Bind source and target
 
-The report provides an itemized list of artifacts organized by category:
-- **Reviewer response marks**: "(回应Review Panel MF-1)", "(回应转化评审人)", etc.
-- **Version tags**: "V3新增", "V6升级", "V9更新", "V3修正——"
-- **Version metadata lines**: "Proposal Version: vX.X | Proposal File: ..."
-- **Internal process references**: "已在v6-v7两轮内部Panel测试中验证有效", "8人panel共识" in non-substantive positions
-- **Rhetorical question headings**: "**为什么选择TSQN？**" → should be declarative
-- **Explanatory reader guides**: "本节阅读指南", "阅读指南：概念翻译表" blocks
-- **Terminology dictionaries as standalone body sections**: full tables in §1.2
+Record the source proposal’s `{artifact_id, version, path}`, the submission-guard finding IDs, protected-content register, and a new target proposal identity. Never overwrite the frozen source.
 
-### 2. Plan patch order: top-to-bottom
+### 2. Plan changes in document order
 
-Always work from top to bottom of the document to avoid line-number drift confusing later patches. Group patches by section (§1 → §3 → §5 → Unresolved Issues → Appendix).
+Group actions by actual proposal section so locators remain reviewable. Include the authoritative `Assumptions, feasibility, and risks` location when affected. Do not create or expect a reader-facing `Unresolved Issues` section.
 
-### 3. Apply patches with verification after each
+Each action should name its finding ID, locator, operation, protected meaning, intended reader effect, and acceptance criterion. A process-residue removal may be subtractive; a functional rewrite may replace wording but cannot make a substantive scientific choice.
 
-Use `skill_manage action=patch` for precise find-and-replace. Key rules:
-- `old_string` must be unique — include surrounding context (1-2 lines) if needed
-- Check diff output after each patch to confirm correctness
-- For structural deletions (e.g., removing a 33-line table), replace the entire block with the replacement text in one patch
+### 3. Route editing through the writer contract
 
-### 4. Critical: stale cross-reference check
+Give the writer only the normalized repair brief, current complete proposal, and protected-content register. Use the OpenAI/Codex file-editing mechanism available to the task—`apply_patch` for repository edits—and inspect the resulting diff after each bounded group of changes. Do not invoke operations that are absent from the current OpenAI/Codex runtime, and do not create the next version with an unregistered shell copy.
 
-After removing or relocating content, search for references that now point to dead targets:
+One writer may make sequential section passes, but it owns one complete target proposal. Record every executed or blocked action in the editorial action-execution artifact.
 
-```
-search_files pattern="§1\.2.*概念翻译|概念翻译表.*§1\.2|返回.*§1.2.*概念"
-search_files pattern="概念翻译"
-```
+### 4. Check cross-references
 
-Common stale references after archival cleanup:
-- §3.1.5 referring to "§1.2节开头的概念翻译表" after the table was removed from §1.2
-- §2.4 cross-referencing the old appendix title
-- Reading guides telling readers to "返回§1.2节开头的概念翻译表"
+After removing or relocating material, search the complete target for references to old headings, tables, sections, or process labels. Use repository text search (`rg -n` when available) against the target proposal and inspect every match; do not rely on remembered line numbers.
 
-### 5. Zero-residue verification
+Typical checks include references to a removed terminology table, an old appendix title, a former section number, or a reader guide that points backward to deleted content.
 
-After all patches, run exhaustive searches for remaining artifacts:
+### 5. Verify residue and functional exceptions
 
-```
-search_files pattern="回应Review|回应.*Panel|回应.*评审人|回应Unresolved"
-search_files pattern="v[0-9]新增|V[0-9]升级|V[0-9]更新|V[0-9]修正"
-search_files pattern="Proposal Version|Proposal File"
-search_files pattern="为什么.*？|本节阅读指南|阅读指南：概念|嵌入论文Table"
-```
+Verify that identified reviewer-response marks, version metadata, and non-substantive process references are absent. Search both Chinese and English variants where applicable.
 
-All counts must be zero for archival cleanup to be complete.
+Separately inspect remaining questions, reader guides, terminology aids, and scenarios. Their count need not be zero. Each retained instance must have a documented reader or binding-format function and must not displace decision-relevant argument, break progressive disclosure, or duplicate the authoritative assumptions/feasibility/risks location.
 
-### 6. Produce next version and revision delta
+Confirm that:
 
-```bash
-cp proposal-v{N}.md proposal-v{N+1}.md
-```
+- every included action is executed or explicitly blocked;
+- no stale cross-reference remains;
+- the target is a complete proposal;
+- protected meanings and claim strength are unchanged;
+- no version or review-process metadata was reintroduced into the body.
 
-Changelog format (`06_revisions/round-NNN/revision-delta-rNNN.md`):
-- Version header with cleanup source (thesis-integrity report)
-- Summary of operations (subtractive only, no substantive changes)
-- Category A: reviewer marks removed (count + table of locations/operations)
-- Category B: rhetorical question rewrites (before/after table)
-- Category C: explanatory section handling (table of operations)
-- Line count delta
-- Explicit list of items NOT executed (out-of-scope recommendations)
+Only then freeze the target and run fresh preservation, narrative reassessment, language reassessment, and final scientific evaluation as required by the orchestrator.
+
+### 6. Record lineage
+
+Create the next registered proposal version through the normal drafter/refinement route. Write a revision delta that records the source and target logical identities, finding/action IDs, operations, blocked items, protected-content result, and whether any functional form was retained with justification. Do not use line-count change or residue counts as evidence of quality.
 
 ## Pitfalls
 
-- **Stale cross-references**: The most common bug. When you remove §1.2's concept table, §3.1.5's reference to "§1.2节开头的概念翻译表" goes stale. Always run the cross-reference check after removing content.
-- **Incomplete search strings**: Use both Chinese and English patterns. "回应Review" catches most but "回应.*8人" catches panel-consensus references.
-- **Version metadata reintroduction**: Don't add "Proposal Version: v10.0" back into the cleaned proposal — the filename is the version identifier. The proposal body stays metadata-free.
-- **Over-cleaning**: "8人panel共识" in substantive challenge severity descriptions (e.g., `**挑战1（项目级——8人panel共识）**`) is substantive, not just a process reference. Only remove it when it's in a non-substantive position (e.g., "**高（升级为项目级——8人panel共识）**" in the severity column of a risk table, where the parenthetical is pure process metadata).
+- **Stale cross-references:** a removed definition aid can leave later sections pointing to a dead target.
+- **Over-cleaning:** a question, scenario, or terminology aid may be necessary for the stated reader or binding genre; judge its function rather than its form.
+- **Under-cleaning:** version labels and reviewer-response language can survive in captions, tables, or risk descriptions.
+- **Scientific drift:** a “cleanup” that changes a method, endpoint, assumption, feasibility claim, risk, or contribution belongs in scientific revision and restarts scientific review.
+- **Unregistered copies:** every saved target must have a new logical identity, complete artifact-index row, and lineage to the frozen source.

@@ -46,5 +46,5 @@ Briefly summarize what changed and why.
 
 - independent re-evaluation
 - user clarification
-- stop_no_gain
+- orchestrator cross-round comparison
 - reject

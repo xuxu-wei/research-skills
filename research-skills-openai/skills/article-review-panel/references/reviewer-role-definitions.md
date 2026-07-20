@@ -6,7 +6,8 @@
 - Evidence-Claim Alignment Reviewer: claim support, overclaim, boundaries.
 - Clinical / Domain Significance Reviewer: relevance, contribution, audience fit.
 - Submission-Guard Reviewer: journal fit, reporting checklist, required files.
-- Clarity & Language Reviewer: structure, readability, academic register.
+
+The standard panel does not repeat the narrative/language readiness assessment. An optional Outlet-Reader Reviewer may be added only for a materially different journal audience and receives a narrowly scoped audience-fit question.
 
 ## Full Panel Additions
 

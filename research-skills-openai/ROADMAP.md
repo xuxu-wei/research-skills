@@ -5,12 +5,11 @@
 | 字段 | 当前值 |
 |---|---|
 | 文档状态 | Personal Experimental/Preview |
-| 规划基线 | 2026-07-18 |
-| 当前插件版本 | `0.10.0` |
-| 当前范围 | 50 个 Skill、21 个独立 Reviewer、5 个完整工作流 |
+| 规划基线 | 2026-07-20 |
+| 当前插件版本 | `0.11.0` |
+| 当前范围 | 51 个 Skill、22 个独立 Reviewer、5 个完整工作流 |
 | 发现面 | 7 个声明入口、6 个隐式入口、1 个 explicit-only 入口 |
-| 当前路线图状态 | 个人使用基线已接受，Phase 7–8 已完成 |
-| 严格复验状态 | `in_progress_owner_observation`，`0/13` 个 owner-observed 槽位完成（可选） |
+| 当前路线图状态 | Phase 0–9 均已完成；已完成 Phase 只作为历史记录，不自动复验 |
 
 ## 产品定位
 
@@ -22,14 +21,13 @@
 
 ## 当前状态
 
-- 当前源码为 `0.10.0`，包含 50 个 Skill 和 70 条工作流边。
+- 当前源码为 `0.11.0`，包含 51 个 Skill、22 个独立 Reviewer 和 72 条工作流边。
 - 五个完整工作流为 Idea、Proposal、Article、Perspective 和 Research Polisher。
 - 七个声明入口中，六个允许隐式调用；Research Polisher 永久保持 explicit-only。
-- 17 个 entry mode 已通过确定性回放；Phase 4 的五个工作流和 63 个负向守卫通过。
-- Phase 8 的 20-case 匿名语料全部通过，false-ready 为 0，Fatal/Blocking 检出、血缘、Reviewer 隔离、写入边界和异议保留均为 100%。
+- 旧版确定性回放和匿名语料结论保留在各自已完成 Phase 中；它们不是 `0.11.0` 的重复执行清单。
 - GitHub Marketplace 安装、缓存发现和路由机制已经诊断；所有者接受其作为当前个人使用基线，但不将此表述扩展为严格全量工作流已验证。
-- Phase 7 已关闭。Phase 8 按所有者决定默认视为已完成，完整 Search/Deep Research 原生闭环仅在所有者明确要求时复验。
-- 严格 13 槽位档案仍真实保持 `in_progress_owner_observation` 和 `0/13`；它是可选复验工具，不再是路线图门槛，也不代表已完成严格全量验证。
+- Phase 7 和 Phase 8 已关闭；完整 Search/Deep Research 原生闭环仅在所有者明确要求时复验。
+- `0.10.0` 的四条原始测试基线已经先于源码改动冻结；`0.11.0` 只运行本次改造直接需要的静态、单元、fixture 和 fresh-agent forward tests。
 
 ## 阶段总览
 
@@ -44,6 +42,7 @@
 | 6 | 维护性与当前版本强化 | 已完成 | Artifact、DOCX、README、Cover Letter 和 Idea v3 完成 |
 | 7 | 个人安装与工作流就绪 | 已完成 | 所有者确认安装、发现和当前工作流可顺利运行 |
 | 8 | 个人原生研究闭环 | 已完成 | 当前能力已获所有者接受；完整原生闭环转为按需复验 |
+| 9 | 跨工作流人类可读性 | 已完成 | 共享叙事评估、语言/术语边界、writer repair、内容保真和 evaluator 隔离完成当前分支验收 |
 
 ## Phase 0：引用与 Registry 闭合
 
@@ -239,24 +238,94 @@
 - 路线图完成以确定性基线和所有者对个人运行能力的接受为准；不声称三个 Search 和两个 Deep Research 槽位已经完成严格 owner-observed 全量验证。
 - 若按需重开严格复验，Search 的 Material claim 必须绑定已打开的权威来源，Deep Research return 与恢复必须绑定同一 Evidence Artifact 和 Digest。
 
+## Phase 9：跨工作流人类可读性
+
+- 状态：`已完成`
+- 优先级：`P0 已关闭`
+- 目标：在不削弱科学审计、内容保真和独立评估的前提下，让 Idea、Proposal、Perspective 和 Article 的最终交付对象先形成读者可理解的论证，再进入最终评价。
+
+### 已完成
+
+- 四条 `0.10.0` 原始测试基线在源码修改前冻结；公共叙事角色、语言/术语边界、三条写作工作流适配、内容保真和 evaluator 隔离合同均进入 `0.11.0`。
+- Idea 与 Proposal 的 current fixtures 在证据边界生成 reader-aware continuation 并真实停止；Article 完整发现给定材料、应用所有者指定的单一语义权威，并在独立方法审核处停止，均未越权生成下游文稿或评价。
+- Perspective 当前测试先关闭 input-builder 和 argument-architect 的无产物缺陷，再由一个 writer 完成科学版本链。renewed panel 在科学问题尚未关闭时真实停止；另一个 fresh writer 在无 follow-up、无 replacement 条件下用早期双文件检查点和逐 section 写入完成稿件，并通过 8/8 conformance。
+- 当前静态验证为 51 个 Skill、22 个独立 Reviewer、72 条工作流边、Registry schema v6，全部 32 个新增或修改 Skill 通过 `quick_validate.py`；插件级审计为 0 error、0 warning。
+- Local 开发通道通过安装、版本核验和 fresh-task 发现；原始 `tests/test-*` fixtures 保持 74/74 文件且内容变更为 0。生成运行目录不作为 release 资产。
+
+### 当前设计
+
+- 新增一个公共 `research-narrative-assessor`，负责宏观论证链、章节功能、渐进披露、重复、正向主张与必要限定的平衡，以及标题—摘要—问题—贡献的一致性。原 `idea-narrative-assessor` 仅保留兼容，不再是生产 Idea 路由。
+- `academic-language-assessor` 保持独立角色，负责句段语言、读者可理解的术语选择、中英文漂移、不自然隐喻和内部工作语言泄漏。只有核心术语不确定、误导或目标读者难以理解时才做聚焦核验；不新增术语 Skill、状态或常规术语表。
+- 两个 Reviewer 对同一冻结稿并行运行。Orchestrator 将两路 finding 去重、消解冲突并规范化为一个 YAML writer brief；writer 不读取原始报告。
+- 每份文稿只设一个完整 limitation 权威位置，其他位置不提及，也不使用“见限制部分”式指针；仅当 limitation 本身推进当前推理且省略会造成歪曲时才例外出现。
+- Editorial repair 前冻结 protected-content register；修订后由 fresh preservation reviewer 核验。只有 `scientific_content_preserved` 可进入 fresh narrative/language reassessment 和 final evaluator。
+- Final evaluator 只读取最终当前稿或合同定义的读者 bundle、稳定 rubric 与最小必要事实/期刊约束；不读取旧稿、计划、科学审计、readiness 报告、repair brief、protected register、delta 或 prior evaluation。
+- 新产物使用可读的 artifact ID、版本、准确路径、冻结状态、完整索引和唯一当前指针；不把 SHA/Digest 写入 LLM-facing 合同。旧 Digest 字段可读取但忽略。
+- Proposal 在 prose 前由 fresh planner 产出完整 section-content plan，再交给不同 writer 实例。Perspective 复用已有 argument architect 和 paragraph map。Article 先发现全部给定材料，明确一个语义权威并保留与其兼容的支持材料，再形成完整 section-content blueprint。
+- 无法立即确认但可在一个具体、有界且可证伪假设下通过的方法学意见，writer 按该已通过假设继续，并仅在合同指定的 Assumptions 权威位置记录一次研究推进风险。不能被有界化或可能改变主要结论的问题不得条件通过。
+- Writer 可由同一实例按章节做有界 pass，但始终保有完整源文档并交付一个完整新版本；不得拆给多个片段 writer。只有排除输入、assessor 和 brief 问题后，同一 writer 出现“完整上下文漏执行而有界视图成功”的配对结果，才归因为 context attention。
+
+### 验收标准
+
+#### 共用
+
+- 51 个 Skill、22 个独立 Reviewer、Manifest/Registry `0.11.0` 和 Registry schema v6 一致；每个新增或修改 Skill 均通过 `quick_validate.py`。
+- Forward-test 验收按实际可达分支判断：若原始 fixture 在证据、readiness、方法学或独立评审边界正确暂停，完整 continuation/state/index、准确的停止理由以及没有越权生成下游产物即为该 fixture 的通过条件；不得为覆盖 writer、evaluator 或 DOCX 分支而虚构证据或放宽科学门槛。未到达分支的合同由当前静态/unit/fixture tests 与既有已完成证据覆盖，不因此重跑已关闭 Phase。
+- 简单单方法研究可用简短内容完成各自论证功能；没有问题时直接 ready；没有核心术语疑问时不做术语核验，也不强制长术语表或复杂 repair plan。
+- 每个 major narrative/language finding 均映射到 YAML writer brief 中一个可定位、可执行、有验收测试的 action；fresh writer 无需猜测位置、目标功能、替换术语、保留内容或完成标准。
+- Writer action conformance、内容保真、fresh readiness 和 final evaluator `files_read` 隔离均通过；只改善表达不得单独升级 novelty、feasibility、impact 或 scientific strength。
+- 轻微、局部、未影响科学内容、readiness、决定或广泛输出的问题只写入 `tests/readability-workflow-test-report.md`，不另起修复或复现循环。
+
+#### Idea
+
+- 既有问题稿能识别缺失的意义链、由防御性限定取代科学 gap、术语前置、内部工作语言泄漏和跨章节 limitation 重复，并生成可独立执行的 YAML repair plan。
+- 一轮集中修订关闭全部 major finding，protected content 不漂移，最终 fresh evaluator 只读取当前完整 dossier。
+
+#### Proposal
+
+- Context 明确目标评审者知识基线、source intent、binding constraints、gap type 和读者推理 handoff；新写 proposal 在 prose 前存在完整且冻结的 section-content plan，并由另一 writer 实例执行。
+- Significance、现状、未解决问题、项目 rationale、aims 和 approach 连续；评审防御不得抢占立项主线。Assumptions、feasibility 和 risks 使用合同指定的权威位置。
+- Editorial repair 经单一 YAML brief、action conformance、内容保真和 fresh reassessment；最终 evaluator 只读最终 proposal 与最小 call/factual inputs。
+
+#### Perspective
+
+- Argument architecture 和 paragraph map 明确目标读者、主张推进、反方观点落点、每段功能和 handoff；证据保留与叙述结构不互相替代。
+- 每一类 distinct counterargument/boundary 只有一个推进论证的权威位置；不得把 caveat 清单或审计语言当作文章主线。
+- 进入 editorial 分支时，readiness、内容保真和 evaluator 隔离必须通过；可选目标读者/期刊模拟只输出 observations，不与 narrative/language reviewer 重复评分。当前 fixture 在 renewed scientific panel 停止，因此验收的是完整停止血缘、保留异议以及不存在 editorial/final/journal 产物。
+
+#### Article
+
+- 入口对所有给定文件建立完整 material inventory；文件名或版本白名单不能隐藏用户已提供的可追溯技术报告、结果或显示材料。一个来源被指定为语义权威时，与其兼容的其他材料仍参与写作和核验。
+- 只有 readiness 和方法学审核允许科学撰写时，Introduction 才完成 background→current state→gap→significance→rationale/objective；Methods 依设计逻辑组织；Results 先报告 primary answer；Discussion 先回答研究问题再解释意义。
+- 进入撰写分支时，标题、摘要、key points 与完整 manuscript 在 final readiness 前共同冻结并检查；最终 evaluator 只读取该 reader bundle，不读取 blueprint、audit、repair 或 prior evaluation。
+- 进入交付分支时，DOCX 与 canonical Markdown 语义一致，表格为原生 Word 表格、图像可用且全文逐页 render QA 通过。若方法审核要求澄清、重分析或停止，则验收没有 manuscript、evaluator、journal 或 DOCX 产物，并提供可执行的恢复路径；不得用示例正文伪造 DOCX 验收。
+- 当前保密 Article fixture 以所有者指定的单一 SAP 文件为语义权威；其他位置的 SAP 版本标记均不参与语义裁决。准确文件名只保留在不发布的测试输入和运行记录中，该规则不得写入通用 Skill 合同。
+
+### 开发环境与测试顺序
+
+1. 暂时禁用 Git 安装通道，只启用 Local 插件。
+2. 每次 Skill 修改后运行 `python scripts/openai_plugin_dev.py install-local` 和 `verify --channel local --expected-version 0.11.0`，然后新建 Codex task；已有 task 不热加载 Skill。
+3. 原始 fixtures 始终只读。基线输出位于 `tests/0.10.0-{workflow}/`，当前测试输出位于 `tests/0.11.0-{workflow}/`。
+4. 先运行本次改动的静态/单元测试，再用 fresh agents 从原始 fixtures 运行四条 forward tests。测试者不接收预期缺陷或答案；验收者可在完成后对照 owner oracle。
+5. 通过后只提交插件源码、当前验证脚本、报告和版本元数据；保密 fixtures、生成稿和测试输出不得提交或推送。
+6. 提交并推送 GitHub 后，禁用 Local、升级并启用 Git 插件，运行 Git channel verify，再用新 task 做安装版本 smoke test。
+
+### 待完成
+
+- 无。已完成 Phase 不因后续版本变化自动重跑；只有所有者明确重开时才重新验收。
+
+### 完成条件
+
+- 上述共用与四条工作流验收标准全部有当前版本证据；无 Critical/Major 未解决项。
+- Git commit、`v0.11.0` tag、GitHub push 和 Git 通道 fresh-task 发现均成功；机密测试例和测试产物不在提交中。
+
 ## 当前完成判定
 
-插件当前保持 `deterministic_validated`，个人使用基线已由所有者接受，Phase 7–8 在路线图中均已关闭。严格 receipt 验证器仍真实报告 `in_progress_owner_observation` 和 `0/13`；该状态不再阻塞后续个人开发。
-
-以下 13 个槽位保留为可选的严格全量复验档案，而不是活动路线图门槛：
-
-- 1 个当前版本安装与新任务发现槽位；
-- 5 个工作流 happy path；
-- 2 个跨工作流控制；
-- 3 个 Search 槽位；
-- 1 个 Deep Research inactive 控制；
-- 1 个完整 Deep Research handoff-return-resume 循环。
-
-除非所有者明确要求，不得自动启动、恢复或调度上述槽位。若重新要求 `owner_observed_ready`，Fixture、状态文本、文件名或仓库内手写记录仍不能替代 owner-observed 证据。
+`0.10.0` 基线已冻结；`0.11.0` 已用当前四条原始 fixture 的可达分支、fresh-agent 产物、隔离合同、索引完整性、Local 安装发现和无下游越权证据完成验收。Phase 0–9 均为已关闭历史，只有所有者明确重开时才能复验；后续版本不得把历史完成条件当作自动重复执行清单。
 
 ### 后续优先事项
 
-- `P0`：把已在 Idea 中验证的 narrative readiness 抽象为Proposal、 Article、Perspective 等工作流可复用的公共模块。当前版本不改动这些工作流。
+- `P0 已关闭`：公共 `research-narrative-assessor` 与 Idea、Proposal、Perspective、Article 的当前可达分支验收已完成；泛化错误模式继续作为诊断边界维护，不固化为措辞或领域阈值。
 - `P2`：仅在 OpenAI 插件的职责边界、合同和验收负担稳定后，将改造后的插件同步到 Hermes 源；不得直接复制 OpenAI 平台元数据或运行时语法。
 
 ## 非目标

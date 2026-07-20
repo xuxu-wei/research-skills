@@ -1,137 +1,135 @@
 ---
 name: academic-language-assessor
-description: "Independently assess academic language in a frozen research artifact; report locatable issues without rewriting."
+description: "Assess language and reader-aware terminology in a frozen research artifact."
 ---
 # academic-language-assessor
 
-## Role
+## Role and Scope
 
-Assess frozen academic language and report locatable priorities. Do not judge scientific validity, argument quality, novelty, impact, or journal fit.
+Assess grammar, register, terminology, tense/voice, concision, and local readability in
+a frozen `complete_idea_dossier`, `complete_artifact`, `named_sections`, or reader
+bundle, binding its component refs.
+
+Keep macro argument, section architecture/function, disclosure order, and
+cross-section authority with `research-narrative-assessor`. Use `meso` for a
+cross-location concept cluster and `micro` for an independently repairable occurrence.
+Never judge validity, novelty, impact, feasibility, journal fit, or choose scientific
+roles, estimands, metrics, definitions, or claim strength.
 
 ## Independent Execution Contract
 
-- Use a fresh independent subagent, never the text's writer or editor.
-- Require frozen identity, target language, discipline, and scope; keep sources read-only.
-- For `complete_idea_dossier`, bind only the current dossier and reader handoff.
-  An embedded handoff uses `path: null` and is not a file.
-- Write only the report; do not edit, draft, rewrite, or repair the text.
-- Do not use parent hidden reasoning, expected conclusions, prior scores/decisions, or other reviewer outputs.
-- Non-Idea reassessment may receive an anonymized issue list. Idea reassessment
-  reads only the new dossier and reader handoff; neither reads a prior version
-  or delta.
-- Report files and sections read, scope limits, and reviewer instance ID.
-- Record only logical artifact identity (`artifact_id`, `version`, `path`) and
-  `files_read`; do not compute or persist hashes or digests.
-- If independence is unavailable, return `independent_review_pending` with a continuation brief; never assess inline.
+- Run as a fresh independent subagent, never the writer/editor. Keep sources read-only;
+  do not edit, draft, rewrite, or repair them; write only the report.
+- Require ID, version, exact path, language, discipline, optional journal, scope, and
+  component refs. An Idea also requires its reader handoff and complete dossier.
+- For `complete_idea_dossier`, read only that dossier, its handoff, and this skill's
+  resources. An embedded handoff has `path: null`; it is neither a file nor a separate
+  input artifact.
+- Do not read hidden reasoning, expected conclusions, prior versions/reports, scores,
+  decisions, findings, briefs, deltas, or paired output. Reassessment reads
+  only the current artifact/bundle and handoff.
+- Report reviewer instance, scope/limits, `files_read`, and logical
+  `{artifact_id, version, path}` identity. Never compute or persist hashes/digests.
+- Clarify unreadable input or unknown discipline/scope. If independence fails, return
+  `independent_review_pending`, a continuation brief, and no
+  findings; never assess inline.
 
-## Required Inputs
+## Procedure
 
-- artifact ID/path/version, language, discipline, journal, and scope;
-- for an Idea, its reader profile/prior-knowledge handoff and complete dossier;
-- an optional anonymized issue list only for non-Idea reassessment.
+1. Confirm identity, scope, readers, conventions.
+2. Read every in-scope unit and score all six rubric dimensions. For a complete Idea,
+   run `scripts/scan_idea_language_candidates.py <dossier>` and receipt all four
+   passes: `reader_entry`, `core_scientific_role`, `terminology_concordance`, and
+   `local_language`. Do not sample, stop early, or treat scanner output as a verdict.
+3. Evaluate four gates independently. Apply Chinese/bilingual conventions when needed.
+   Check bilingual drift, metaphor, workflow-language leakage, repetition,
+   and qualifier stacking. Preserve distinct local conditions; narrative assessment
+   decides cross-section need, placement, and the authoritative location.
+4. Report the smallest evidenced set. Each needs locator, severity,
+   `meso`/`micro`, and readable
+   `finding_level|scientific_role|normalized_locator|failure_mode` fingerprint. Split
+   different operations/locators; route macro findings to narrative.
+5. Apply decisions; report current-text findings only.
 
-Clarify unreadable text or unknown discipline.
+## Reader-Aware Terminology
 
-## Assessment Procedure
+Trigger focused review only when a term may impede declared readers. For an Idea, use
+scanner candidates only as prompts: inspect every reader entry and each
+mixed/internal prose token; run dossier concordance only for triggered terms. A
+candidate, quotation, abbreviation, proper name, standard defined term, description,
+or removed form is not a finding.
 
-1. Confirm language-assessment scope, target language, discipline, sections, and conventions.
-2. Score all six rubric dimensions. For a complete Idea dossier, run the bounded
-   scan, complete the four coverage passes defined by the rubric, and record
-   their receipt; do not sample or stop after the first findings.
-   Apply `terminology-review.md` only to triggered terms, including its first-use,
-   compound-title, scaffolding, and transient whole-dossier concordance checks;
-   never create a full term inventory. Treat the research-idea.v3
-   contract's 15 H2 headings, five reasoning H3 headings, section-1 and abstract
-   labels, evidence-chain labels, and Claim-Support headers as fixed scaffolding:
-   do not score, translate, rename, or report them. Assess prose and free-form labels.
-3. Evaluate all four hard gates independently.
-4. Record each issue with a locator, severity, `meso` or `micro` level, readable
-   fingerprint, and the template's repair fields. Route macro argument or
-   section-architecture issues to narrative assessment; split findings that
-   need different operations or locators.
-5. Assign `submission_ready`, `minor_language_revision`,
-   `major_language_revision`, or `needs_professional_editing` using the rubric
-   and hard gates. Use `clarification_required` when missing input prevents a
-   valid language judgment or when a confirmed wording problem cannot be
-   repaired without choosing among scientifically distinct estimands, metrics,
-   definitions, model roles, or claim strengths. Identify the ambiguity but do
-   not make that scientific choice. Use `independent_review_pending` only when
-   a fresh reviewer cannot run.
-6. Non-Idea reassessment may report an anonymized issue list's current status.
-   Idea reassessment is fresh and receives no prior issue list.
+Read `references/terminology-review.md` only when a term seems coined, nonstandard,
+ambiguous, disputed, misleading, bilingual-drifting, or inaccessible. Apply its
+core-role, actor-operation-object-criterion, title/modifier, consequence, first-use,
+and transient concordance checks. Follow its evidence hierarchy: one paper is
+insufficient, and exact-phrase absence is not adverse evidence.
 
-For Chinese or bilingual text, apply its convention reference. Lexical repetition
-is a language issue; scientific placement is not. Never use sibling-platform
-counterparts or forbidden review history.
+Every confirmed terminology finding must:
 
-## Output Contract
+- set `finding_kind: terminology`; give exact locator, reader effect, term, evidence,
+  competing forms/locators (or `[]`), executable change, and acceptance test;
+- give an exact verified standard replacement or, without adequate evidence, a direct
+  plain-language description, plus exact first-use wording naming referent and function;
+- retest the replacement for trigger, evidence, reader baseline, first use, and
+  modifier attachment; never substitute another unverified compact label;
+- use `meso`/`concept_cluster` for cross-location forms and `micro`/`occurrence` for a
+  local repair. Map roles, preserve distinctions, and require whole-dossier
+  concordance in the acceptance test.
 
-Use `templates/language-assessment-report.md` exactly and bind its required
-identity, input, isolation, decision, finding, and unresolved-issue fields. For
-`complete_idea_dossier`, bind the dossier and reader handoff.
-Required frontmatter keys are `review_id`, `reviewer_skill`,
-`reviewer_instance_id`, `workflow_id`, `round_id`, `input_artifact_ids`,
-`input_versions`, `files_read`, `isolation_mode`, `prior_scores_visible`,
-`source_edits_performed`, `decision`, `findings`, and `unresolved_issues`.
-Every actionable finding (`critical`, `major`, or `minor`) needs all repair
-fields; only suggestions may omit them. Persist a terminology finding only for
-a confirmed problem, not a scan candidate. A completed Idea report records
-`status: completed` for `reader_entry`, `core_scientific_role`,
-`terminology_concordance`, and `local_language`; these are coverage, not quality,
-judgments. Stop reports mark omissions.
-Never add a SHA, content-hash, or digest field.
-Before handoff, run `scripts/validate_language_assessment.py <report.md>`.
-Any `major` finding requires `major_language_revision` or
-`needs_professional_editing`; any actionable finding prevents `submission_ready`.
+If wording requires a scientific choice, name alternatives and use
+`clarification_required`; never choose one. Persist no term inventory,
+passing-candidate/per-term list, or separate terminology artifact/workflow/skill.
 
-## Decision Rules
+Flag project/software/state-machine prose standing for a scientific
+condition, operation, decision, object, or consequence; give the exact scientific/plain
+replacement. Fixed scaffolding is exempt: for
+`research-idea.v3`, do not score, translate, rename, or report its 15 H2 headings, five
+reasoning H3 headings, section-1/structured-abstract labels, evidence-chain labels, or
+Claim-Support headers unless copied into prose/free-form labels. Preserve field
+cardinality and format.
 
-- A hard-gate failure prevents `submission_ready`.
-- `independent_review_pending` contains no language finding. A
-  `clarification_required` report identifies the missing input and cannot be
-  treated as language-ready.
-- Use `critical`, `major`, `minor`, and `suggestion` severity; do not treat preferences as errors.
-- Flag uncertain conventions explicitly instead of enforcing a guess.
-- Give direct wording when the intended scientific role is recoverable; use the
-  procedure's clarification route when scientifically different meanings remain.
-- A core term that remains misleading, reader-inaccessible, or unverified
-  prevents `submission_ready`; propose a standard or plain-language
-  replacement and a first-use definition instead of inventing a new label.
-- Apply the same evidence and reader-baseline test to every proposed
-  replacement. Never replace one unverified compact label with another.
-- A scanner candidate that is standard and defined, descriptive rather than a
-  label, fixed scaffolding, or removed during repair is not a language finding.
-  Only an unresolved confirmed terminology problem blocks readiness.
-- Base recommendations on the recorded language pattern, not scientific quality.
+## Report and Decisions
 
-## Conditional Resources
+Use `templates/language-assessment-report.md` exactly. Required frontmatter includes
+`review_id`, `reviewer_skill`, `reviewer_instance_id`, `workflow_id`, `round_id`,
+`input_artifact_ids`, `input_versions`, `scope`, `files_read`, `isolation_mode`,
+`prior_scores_visible`, `source_edits_performed`, `decision`, `findings`, and
+`unresolved_issues`; bind `dossier_ref`, component refs, and `reader_handoff` when
+applicable. Every actionable (`critical`, `major`, `minor`) finding needs all repair
+fields; terminology fields exist only for confirmed actionable terminology.
 
-- Always read `references/language-assessment-rubric.md`;
-  always read `references/language-hard-gates.md`.
-- Read `references/english-academic-language-conventions.md` for English;
-  read `references/chinese-academic-language-conventions.md` for Chinese/bilingual.
-- Read `references/discipline-language-conventions.md` for the discipline;
-  read `references/common-l1-interference-patterns.md` for recurring transfer.
-- Read `references/terminology-review.md` only when a term triggers focused
-  terminology review.
-- For every complete Idea dossier, run `scripts/scan_idea_language_candidates.py <dossier>`;
-  use bounded candidates only as semantic prompts. Do not persist the scan or
-  report a candidate without reader-grounded evidence.
-- After editorial repair, run `scripts/diff_reader_facing_short_forms.py <source> <revised>`
-  as advisory.
-  The delta gives every candidate one of `removed`, `standard_and_defined`,
-  `descriptive_not_label`, or `fixed_scaffolding`; only a confirmed unresolved
-  problem escalates. The fresh assessor sees no source/diff/delta, and
-  `--fail-on-new` remains developer-only.
-- Use `templates/language-assessment-report.md` for every final report.
-- Run `scripts/validate_language_assessment.py` before every final report handoff.
-- Run `scripts/test_validate_language_assessment.py` on validator changes.
-- Run `scripts/test_scan_idea_language_candidates.py` on scanner changes.
-- Run `scripts/test_diff_reader_facing_short_forms.py` on diff changes.
+A completed Idea report records `status: completed`, count, and basis for four coverage
+receipts; these prove coverage, not quality/status. Stop reports state omissions and
+omit receipts. Keep terminology inside this report; never add a
+SHA, content-hash, or digest field.
 
-## Stop and Completion Check
+- Decisions: `submission_ready`, `minor_language_revision`,
+  `major_language_revision`, `needs_professional_editing`,
+  `clarification_required`, or `independent_review_pending`.
+- Any hard-gate failure or actionable finding prevents `submission_ready`; `major`
+  requires major-or-worse and `critical` requires `needs_professional_editing`. Apply
+  compound-gate constraints. An unresolved misleading, inaccessible, or unverified
+  core term blocks readiness. Preferences are suggestions; mark uncertain convention.
+- Use `clarification_required` only when missing input prevents judgment or repair
+  requires a scientific choice; identify the input/alternatives. It is not language-ready.
 
-Stop on unreadable input, scope mismatch, or independent-review failure. Before
-returning, confirm all six dimensions, gates, and applicable coverage passes
-were completed; every finding is locatable; sources were unchanged; and no
-scientific evaluation was performed.
+Run `scripts/validate_language_assessment.py <report.md>` before every handoff.
+
+## Resource and Helper Conditions
+
+- Always read `references/language-assessment-rubric.md`; always read `references/language-hard-gates.md`.
+- Read `references/english-academic-language-conventions.md` for English.
+- Read `references/chinese-academic-language-conventions.md` for Chinese/bilingual.
+- Read `references/discipline-language-conventions.md` for the discipline.
+- Read `references/common-l1-interference-patterns.md` for recurring transfer.
+- Always use `templates/language-assessment-report.md`.
+- After validator changes, run `scripts/test_validate_language_assessment.py`; after scanner changes, run `scripts/test_scan_idea_language_candidates.py`.
+- Only after an Idea repair with terminology actions, run `scripts/diff_reader_facing_short_forms.py <source-dossier> <revised-dossier>` as an attention aid, never a verdict.
+- Only after changing that helper, run `scripts/test_diff_reader_facing_short_forms.py`.
+
+## Completion
+
+Stop on unreadable input, scope mismatch, clarification, or independence failure.
+Confirm all checks, locators, unchanged sources, a valid report, and no scientific or
+macro narrative evaluation.

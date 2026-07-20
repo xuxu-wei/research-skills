@@ -12,7 +12,7 @@
 
 ```yaml
 workflow_state:
-  schema_version: "research-article.v6"
+  schema_version: "research-article.v7"
   workflow_id: ""
   plugin_version: ""
   project_slug: ""
@@ -46,7 +46,6 @@ workflow_state:
       audit_status: ""
       draft_path: ""
       draft_version: 0
-      draft_content_digest: ""
       draft_identity_status: preserved | drifted | unknown
       draft_status: ""
       supplementary_path: ""
@@ -55,14 +54,20 @@ workflow_state:
       evaluation_report_path: ""
       evaluation_id: ""
       language_assessment_path: ""
+      narrative_assessment_path: ""
+      narrative_repair_plan_path: ""
+      protected_content_register_path: ""
+      editorial_repair_brief_path: ""
+      content_preservation_path: ""
+      editorial_readiness_status: not_started | editorial_review_pending | narrative_ready | minor_narrative_revision | editorial_revision_required | independent_review_pending
       panel_report_path: ""
       frontmatter_path: ""
+      frontmatter_version: 0
       cover_letter_path: ""
       cover_letter_review_path: ""
       package_path: ""
       package_status: ""
       docx_path: ""
-      docx_content_digest: ""
       docx_sync_status: synchronized | content_drift | not_generated
       render_qa_status: passed | docx_visual_qa_pending | failed | not_generated
     registry:
@@ -74,7 +79,7 @@ workflow_state:
         created_step: 0
         status: not_started | draft | final | superseded | blocked | missing
         based_on: []
-        change_type: initial | substantive | language_only | formatting_only | backfill | assembly | audit
+        change_type: initial | substantive | editorial_only | scientific_change_declared | formatting_only | backfill | assembly | audit
   revision:
     round: 0
     max_rounds: 2
@@ -105,7 +110,11 @@ workflow_state:
     journal_instructions_verified: verified | user_supplied_only | not_checked
     ethics_declarations_status: not_started | complete | incomplete | not_applicable
     complete_manuscript_confirmed: false
-    qualifying_digest_match: false
+    qualifying_logical_identity_match: false
+    artifact_index_complete: false
+    current_pointer_unique: false
+    content_preservation_passed: false
+    editorial_readiness_passed: false
     required_display_assets_complete: false
     docx_parity_passed: false
     docx_render_qa_passed: false
@@ -122,20 +131,20 @@ workflow_state:
     reference_accuracy_verified: false
     corresponding_author_confirmed: false
     unresolved_issues_acknowledged: false
-  workflow_status: initialized | preprocessing | artifact_frozen | pending_review | independent_review_pending | revision_required | panel_pending | packaging_pending | docx_generation_pending | docx_visual_qa_pending | blocked | stopped | human_signoff_required
+  workflow_status: initialized | preprocessing | artifact_frozen | pending_review | editorial_review_pending | editorial_revision_required | independent_review_pending | revision_required | panel_pending | packaging_pending | docx_generation_pending | docx_visual_qa_pending | blocked | stopped | human_signoff_required
 ```
 
 ## Field Rules
 
-Every article artifact uses the canonical runtime record: `artifact_id`, `version_id`, `workflow_id`, `round_id`, `plugin_version`, `source_skill`, `created_by_instance_id`, `path`, `based_on`, `change_type`, `status`, `frozen`, and `content_digest`. Draft-specific `draft_version` is a pointer to `version_id`, not an alternate lineage record.
+Every article artifact uses the canonical runtime record: `artifact_id`, `version_id`, `workflow_id`, `round_id`, `plugin_version`, `source_skill`, `created_by_instance_id`, `path`, `based_on`, `change_type`, `status`, and `frozen`. New producers do not write content hashes. Draft-specific `draft_version` is a pointer to `version_id`, not an alternate lineage record.
 
 - `project_slug`: kebab-case, derived from study topic or user-provided name.
-- `current_step`: integer matching the step number in the standard workflow (0-14).
+- `current_step`: integer matching the step number in the standard workflow (0-15).
 - `artifacts.current`: latest pointers only; all historical versions live in `artifacts.registry`.
 - `artifacts.registry`: append-only artifact inventory mirrored in `13_state/artifact-index.md`.
 - Artifact paths are relative to the project root. Use `""` for not-yet-created; use `null` for intentionally skipped.
 - `revision.history`: append-only list of revision round summaries.
-- `verification.true_isolated_evaluation_completed`: required before `human_signoff_required`; the qualifying evaluator must have read the exact complete current draft digest.
+- `verification.true_isolated_evaluation_completed`: required before `human_signoff_required`; the qualifying evaluator must have read the exact current manuscript/frontmatter artifact IDs, versions, and paths registered by the unique current pointers.
 - DOCX-capable workflows also require complete display assets, Markdown/DOCX parity, and passed full-page render QA before `human_signoff_required`.
 - `scope_limitations`: required when permitted non-review steps are skipped or backfilled with low confidence. Missing reviewer-class execution sets `independent_review_pending` and stops the workflow.
 - `unresolved_issues`: issues that block submission, carried forward across steps. Never silently dropped.

@@ -24,9 +24,9 @@ Read only declared frozen files from `06_drafts/**`, `11_frontmatter/**`, `11_co
 
 ## Procedure
 
-1. **Validate provenance.** Confirm the latest manuscript version matches the latest qualifying evaluation and the state/index current pointer. Treat unresolvable mismatches as blocking; recoverable mismatches cap status at `ready_for_author_check`.
+1. **Validate provenance.** Confirm the latest manuscript/frontmatter artifact IDs, versions, and paths match the latest qualifying evaluation and the state/index current pointers. Verify complete index membership and uniqueness. Treat unresolvable mismatches as blocking; recoverable mismatches cap status at `ready_for_author_check`.
 2. **Inventory artifacts.** Record artifact ID, type, path, version, and `present | missing | incomplete` in the package manifest.
-3. **Assemble copies.** Bind the complete canonical Markdown digest. When document tooling is available, generate the primary user-facing DOCX, embed native tables and available figures from the display manifest, and never alter source wording or data.
+3. **Assemble copies.** Bind the complete canonical Markdown artifact identity. When document tooling is available, generate the primary user-facing DOCX, embed native tables and available figures from the display manifest, and never alter source wording or data.
 4. **Map reporting checklist.** Record standard item, manuscript location, and `addressed | partially_addressed | not_addressed | not_applicable`.
 5. **Verify package parity.** Compare normalized DOCX headings, body, table cells, and captions with the frozen Markdown/manifest; verify display numbering, callouts, supplements, and result consistency.
 6. **Render DOCX.** Render every page to PNG, inspect at 100%, fix formatting-only defects, and re-render. Content drift routes back to faithful composition; required missing assets or unavailable render QA cap status below human sign-off.
@@ -52,8 +52,14 @@ review_scope: []
 isolation_mode: fresh_subagent
 prior_scores_visible: false
 source_edits_performed: false
-canonical_content_digest: "sha256:"
-docx_content_digest: "sha256:"
+canonical_artifact_ref:
+  artifact_id:
+  version:
+  path:
+docx_artifact_ref:
+  artifact_id:
+  version:
+  path:
 docx_sync_status: synchronized | content_drift | not_generated
 render_qa_status: passed | docx_visual_qa_pending | failed | not_generated
 decision:
@@ -108,4 +114,4 @@ Write the verified `manuscript-vNNN.docx`, `submission-package.md`, `package-man
 
 ## Completion Check
 
-Confirm canonical/evaluated digest equality, DOCX parity/render pass, display assets, manifest completeness, unchanged carried probability when present, visible dissent/fatal findings, justified caps, unchanged sources, and a final state that still requires human review.
+Confirm canonical/evaluated logical identity and index-pointer equality, DOCX semantic parity/render pass, display assets, manifest completeness, unchanged carried probability when present, visible dissent/fatal findings, justified caps, unchanged sources, and a final state that still requires human review.

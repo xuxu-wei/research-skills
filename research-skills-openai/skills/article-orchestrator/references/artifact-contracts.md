@@ -8,7 +8,6 @@
 - [Article Readiness Report](#article-readiness-report)
 - [Article Context Brief](#article-context-brief)
 - [Literature Grounding Report](#literature-grounding-report)
-- [Article Blueprint](#article-blueprint)
 - [Methods Audit Report](#methods-audit-report)
 - [Manuscript Draft](#manuscript-draft)
 - [Claim Audit Report](#claim-audit-report)
@@ -23,6 +22,7 @@ Canonical schemas for artifacts passed between `research-article` skills.
 - Use `unknown`, `unclear`, `not_specified`, or `not_applicable` instead of inventing facts.
 - Store workflow artifacts in the user's project directory, not inside the skill package.
 - Artifact IDs follow `<type>-<NNN>` or the round-specific pattern documented in `artifact-naming-and-directory-rules.md`.
+- LLM-facing provenance uses `{artifact_id, version, path}`, complete index membership, and a unique current pointer. Do not require or store SHA-256/content digests. Legacy v6 digest fields may be read and ignored during migration; v7 producers do not write them.
 - Every readiness, audit, evaluation, panel-reviewer, panel-aggregate, and submission-verification report includes the standard independent-review fields: `review_id`, `reviewer_skill`, `reviewer_instance_id`, `workflow_id`, `round_id`, `input_artifact_ids`, `input_versions`, `files_read`, `review_scope`, `isolation_mode: fresh_subagent`, `prior_scores_visible: false`, `source_edits_performed: false`, `decision`, `findings`, and `unresolved_issues`.
 - If independent execution is unavailable, emit `independent_review_pending` plus a continuation brief instead of a report decision.
 
@@ -39,6 +39,18 @@ minimal_intake_summary:
     statistical_outputs: true | false
     methods_description: true | false
     references: true | false
+  complete_material_inventory:
+    - artifact_id: ""
+      version: ""
+      path: ""
+      material_role: semantic_authority | protocol | technical_report | result_output | table | figure | code | references | other
+      readiness_relevant: true | false
+  semantic_authority:
+    artifact_id: ""
+    version: ""
+    path: ""
+    governs: []
+    compatible_assets_retained: []
   stated_target_journal: ""
   obvious_missing_items: []
 ```
@@ -47,7 +59,7 @@ minimal_intake_summary:
 
 ```yaml
 article_readiness_report:
-  schema_version: "research-article.v6"
+  schema_version: "research-article.v7"
   artifact_id: "readiness-001"
   source_skill: "article-readiness-triage"
   review_id: "review-001"
@@ -70,6 +82,8 @@ article_readiness_report:
     methods_details: true | false
     figures_tables: true | false
     references: true | false
+  material_inventory_coverage: []
+  semantic_authority_applied: {}
   blocking_gaps: []
   nonblocking_gaps: []
   target_journal_realism:
@@ -83,7 +97,7 @@ article_readiness_report:
 
 ```yaml
 article_context_brief:
-  schema_version: "research-article.v6"
+  schema_version: "research-article.v7"
   artifact_id: "context-001"
   source_skill: "article-context-builder"
   study_design:
@@ -119,6 +133,8 @@ article_context_brief:
     data_types: []
     data_completeness: complete | partially_complete | with_missing | unknown
     known_limitations: []
+    complete_material_inventory: []
+    semantic_authority: {}
   results_summary:
     primary_findings: []
     secondary_findings: []
@@ -132,6 +148,15 @@ article_context_brief:
     protocol_or_sap: ""
   assumptions: []
   uncertainties: []
+  reader_context:
+    target_reader_profile: []
+    reader_prior_knowledge: []
+    knowledge_asymmetries: []
+    terms_requiring_definition: []
+    reader_reasoning_chain: []
+    source_intent_coverage: []
+    binding_constraints: []
+    gap_type: knowledge | evidence | method | implementation | mixed | not_applicable
   proceed_status: proceed | proceed_with_assumptions | clarification_stop
 ```
 
@@ -139,7 +164,7 @@ article_context_brief:
 
 ```yaml
 literature_grounding_report:
-  schema_version: "research-article.v6"
+  schema_version: "research-article.v7"
   artifact_id: "lit-ground-001"
   source_skill: "article-literature-grounder"
   search_protocol:
@@ -167,59 +192,11 @@ literature_grounding_report:
   grounding_confidence: high | medium | low
 ```
 
-## Article Blueprint
-
-```yaml
-article_blueprint:
-  schema_version: "research-article.v6"
-  artifact_id: "blueprint-001"
-  source_skill: "article-architect"
-  contribution:
-    type: evidence | method | data | theory | refutation | replication | synthesis | other
-    statement: ""
-    one_sentence_takeaway: ""
-  study_type_confirmation:
-    type: ""
-    subtype: ""
-    reporting_standard: ""
-  core_question_and_answer:
-    research_question: ""
-    main_answer: ""
-    answer_strength: definitive | strong | moderate | suggestive | exploratory
-  manuscript_identity_anchor:
-    central_question: ""
-    primary_contribution: ""
-    main_answer: ""
-    study_object: ""
-    core_evidence_basis: ""
-  claim_evidence_matrix: []
-  evidence_provenance_ledger_ref: "04_blueprint/evidence-provenance-ledger.md"
-  evidence_display_plan: []
-  display_asset_manifest_ref: "04_blueprint/display-asset-manifest.yaml"
-  supplementary_index:
-    items: []
-    journal_limits:
-      max_supplementary_items: 0
-      max_supplementary_files: 0
-      supplementary_file_format: ""
-      data_availability_policy: ""
-      code_availability_policy: ""
-  results_skeleton:
-    organization_mode: norm_driven | argument_driven | hybrid | artifact_driven | theory_driven | evidence_synthesis_driven
-    sections: []
-  journal_adapter:
-    target_journal: ""
-    source_checked_date: ""
-    source_documents: []
-    confidence: high | medium | low
-  reviewer_risk_preview: []
-```
-
 ## Methods Audit Report
 
 ```yaml
 methods_audit_report:
-  schema_version: "research-article.v6"
+  schema_version: "research-article.v7"
   artifact_id: "methods-audit-001"
   source_skill: "article-methods-statistics-auditor"
   review_id: "review-002"
@@ -240,6 +217,13 @@ methods_audit_report:
     limitations: []
   findings: []
   unfixable_by_writing: []
+  working_assumptions:
+    - assumption_id: ""
+      bounded_assumption: ""
+      falsifier: ""
+      consequence_if_false: ""
+      verification_required: ""
+      authoritative_manuscript_location: ""
   recommendation: proceed_to_drafting | fix_methods_text | requires_reanalysis | requires_data_collection | stop
 ```
 
@@ -247,7 +231,7 @@ methods_audit_report:
 
 ```yaml
 manuscript_draft:
-  schema_version: "research-article.v6"
+  schema_version: "research-article.v7"
   artifact_id: "manuscript-v001"
   source_skill: "article-drafter"
   version: 1
@@ -266,13 +250,13 @@ manuscript_draft:
   drafting_assumptions: []
 ```
 
-Register the canonical Markdown SHA-256 in workflow state. A current manuscript must contain complete Introduction, Methods, Results, and Discussion sections; a revision delta or changed-section extract is never a manuscript version.
+Register the canonical Markdown artifact ID, version, path, index membership, and unique current pointer in workflow state. A current manuscript must contain complete Introduction, Methods, Results, and Discussion sections; a revision delta or changed-section extract is never a manuscript version.
 
 ## Claim Audit Report
 
 ```yaml
 claim_audit_report:
-  schema_version: "research-article.v6"
+  schema_version: "research-article.v7"
   artifact_id: "claim-audit-001"
   source_skill: "article-claim-auditor"
   review_id: "review-003"

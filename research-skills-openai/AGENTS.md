@@ -25,11 +25,11 @@
 
 ## 产物与人工边界
 
-- 源产物保持不可变；修订、Review 报告和 Delta 分开保存，并包含完整血缘。Idea 的 LLM-facing 合同使用 `{artifact_id, version, path}` 逻辑引用，不要求 SHA/Digest；确定性测试可在内部使用哈希观测不可变性。
+- 源产物保持不可变；修订、Review 报告和 Delta 分开保存，并包含完整血缘。所有工作流的 LLM-facing 合同使用 `{artifact_id, version, exact_path}`、冻结状态、完整索引与唯一当前指针，不写入 SHA/Digest；旧字段可读取但忽略。确定性开发工具可在内存中比较内容，但不得把哈希保存进工作流接口。
 - Fatal 或未解决的 Blocking finding 会阻止晋级和 ready 状态。
 - 工作流止于供人类审阅和签字的材料，不向期刊、基金方、仓库或其他外部平台提交。
 - 确定性 Fixture 只能建立 `deterministic_validated`，不能证明真实运行完成。
-- 只有当前版本任务绑定了源码身份、产物、Reviewer 身份（如适用）、时间戳、结果和所有者确认后，才能记录为 `owner_observed`。源码、安装、CLI、运行日志及非 Idea 工作流继续绑定 Digest；Idea 产物和 Review 仅绑定逻辑身份、完整索引与当前指针，不要求 Digest。
+- 只有当前版本任务绑定了源码身份、产物逻辑身份、Reviewer 身份（如适用）、时间戳、结果和所有者确认后，才能记录为 `owner_observed`。索引完整性与当前指针必须核验；不要求把 Digest 写入人类或 LLM 审阅的记录。
 
 ## Skill 与发现纪律
 
@@ -53,8 +53,7 @@
 
 - `workflow-registry.yaml`：库存、角色、边、模式和调用策略。
 - `README.md`：安装、更新、Quickstart、产物默认值、个人验收操作和验证命令。
-- `ROADMAP.md`：当前基线、Phase 0–8、验收状态和非目标。
-- `tests/openai_personal/owner-observed-receipts.schema.yaml`：13 个个人运行验收槽位的机器契约。
+- `ROADMAP.md`：过去与现在的记录及未来规划。已完成 Phase 是历史快照，即使后续版本使其不再适用也不得自动重跑；只有所有者明确重新开启时才能复验。
 - 目标 `SKILL.md` 及其显式链接的引用：工作流局部流程、Schema、Rubric、Template 和资源加载条件。
 - 根目录 `AGENTS.md`：仓库级配置隔离、Authoring 工具、审计要求以及 Hermes/OpenAI 边界。
 
@@ -66,18 +65,13 @@ python scripts/audit_openai_research_proposal.py
 python scripts/audit_openai_research_perspective.py
 python scripts/test_openai_roadmap_contract.py
 python scripts/test_openai_release_contract.py
-python scripts/sync_openai_fixture_versions.py
-python scripts/test_openai_artifact_completeness.py
+python scripts/test_openai_cross_workflow_narrative_contract.py
 python scripts/test_openai_article_docx_contract.py
-python scripts/test_openai_phase6_context.py
-python scripts/test_openai_phase2_phase3.py
-python scripts/test_openai_phase4_scenarios.py --check-report
-python scripts/test_openai_phase7_modes.py --check-report
-python scripts/test_openai_phase8_corpus.py --check-report
-python scripts/test_validate_openai_personal_readiness.py
-python scripts/validate_openai_personal_readiness.py --check-report
+python scripts/test_openai_plugin_dev.py
 python scripts/codex_plugin_converter.py --mode codex --fail-on-invalid
 python "$env:USERPROFILE\.codex\skills\.system\plugin-creator\scripts\validate_plugin.py" research-skills-openai
 ```
+
+此外，对每个新增或修改的 Skill 运行 `skill-creator/scripts/quick_validate.py`。上述清单只覆盖当前改动；ROADMAP 中已完成的历史 Phase 验证不得因版本升级而重复执行。
 
 修改共享 Hermes 工作流契约或源文件时，还必须运行 `python scripts/audit_research_workflows.py`。

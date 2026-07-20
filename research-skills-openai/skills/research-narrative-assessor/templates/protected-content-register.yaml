@@ -1,0 +1,63 @@
+schema_version: research-protected-content-register.v1
+register_id: "<register-id>"
+register_version: "<version>"
+profile: "<idea | proposal | perspective | article>"
+source_artifact: {artifact_id: "<artifact-id>", version: "<version>", path: "<path>"}
+identity_anchors:
+  - anchor_id: ID-001
+    kind: "<question | objective | thesis | study_object | scope | evidence_base | primary_inference | main_claim>"
+    value: "<copy source-present meaning>"
+    source_locator: "<heading and content anchor>"
+category_coverage:
+  - category: identity_and_question
+    source_status: source_present
+    protected_item_ids: [PCR-001]
+    not_applicable_reason: null
+  - category: object_scope_and_boundaries
+    source_status: source_present
+    protected_item_ids: [PCR-002]
+    not_applicable_reason: null
+  - category: inputs_and_resources
+    source_status: source_absent
+    protected_item_ids: []
+    not_applicable_reason: "<why absent>"
+  - category: design_analysis_and_inference
+    source_status: source_present
+    protected_item_ids: [PCR-003]
+    not_applicable_reason: null
+  - category: claims_and_evidence_status
+    source_status: source_present
+    protected_item_ids: [PCR-004]
+    not_applicable_reason: null
+  - category: assumptions_limitations_and_counterarguments
+    source_status: source_absent
+    protected_item_ids: []
+    not_applicable_reason: "<why absent>"
+  - category: unsupported_claim_classes
+    source_status: source_absent
+    protected_item_ids: []
+    not_applicable_reason: "<why absent>"
+  - category: source_intent_and_binding_constraints
+    source_status: source_present
+    protected_item_ids: [PCR-005]
+    not_applicable_reason: null
+protected_items:
+  - protected_id: PCR-001
+    category: identity_and_question
+    source_locator: "<heading and content anchor>"
+    family_id: null
+    protected_content: "<enumerated source-present meaning>"
+    required_disposition: retained_same_meaning
+  - protected_id: PCR-005
+    category: source_intent_and_binding_constraints
+    source_locator: "<source-intent or binding-constraint locator>"
+    family_id: null
+    protected_content: "<source-present intent or constraint>"
+    required_disposition: retained_same_meaning
+permitted_editorial_operations: [replace, define, move, split, merge, delete, reorder, add_bridge, consolidate]
+prohibited_changes:
+  - change_identity_question_thesis_object_or_scope
+  - add_unreviewed_scientific_content
+  - change_claim_strength_or_evidence_status
+  - weaken_assumption_limitation_or_counterargument
+  - present_planned_work_as_completed

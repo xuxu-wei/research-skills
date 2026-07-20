@@ -11,8 +11,9 @@ Chinese academic polishing should make text **简洁、清晰、明确**. The as
 - Delete redundant setup phrases such as "值得注意的是", "在一定程度上", "从某种意义上说" when they do not change the claim.
 - Delete unnecessary metaphors, literary imagery, emotional descriptors, and decorative analogies.
 - Delete stacked modifiers that make the noun phrase heavy without adding testable meaning.
-- For non-Idea artifacts, delete repeated defensive caveats when one precise
-  limitation is enough. For an Idea dossier, apply the placement rule below.
+- Flag repeated defensive caveats as a wording pattern and recommend consolidation,
+  but do not choose their scientific authority location. Narrative assessment owns
+  cross-section placement for every workflow profile.
 - Delete vague self-protective language such as "可能在某些方面具有一定的潜在价值" unless each qualifier is needed.
 - Delete unsupported promotional claims such as "重大突破", "显著提升", "深刻揭示", "填补空白" unless the evidence and design support that strength.
 
@@ -22,10 +23,10 @@ when it is framed as an aim, while replacing wording that asserts achieved
 quality, prestige, impact, or acceptance without evidence. Do not let a tone edit
 silently weaken the artifact's declared deliverable.
 
-For an Idea dossier, these are wording checks only. Report near-verbatim or
+For every workflow artifact, these are wording checks only. Report near-verbatim or
 stacked caveats, but do not choose which reasoning location keeps or deletes a
-complete limitation; narrative assessment owns that placement, and the
-orchestrator resolves the final action in the approved writer brief.
+complete limitation; narrative assessment owns that placement, and the orchestrator
+resolves the final action in the approved writer brief.
 
 ## Clarity Checks
 

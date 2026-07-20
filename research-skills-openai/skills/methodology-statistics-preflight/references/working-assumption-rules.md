@@ -1,4 +1,4 @@
-# Working Assumption Rules for Idea Handoff
+# Working Assumption Rules
 
 Use a `working_assumption` only when all of the following are true:
 
@@ -37,8 +37,9 @@ verification_point:
 affected_design_component:
 ```
 
-The downstream scientific writer may complete the plan as if the stated
-assumption holds, while recording it once in the dossier's authoritative
-assumptions section as a research risk. The writer must not repeat it across
-the summary, background, methods, or contribution sections and must not phrase
-it as verified evidence.
+The downstream scientific writer may complete the plan as if the stated assumption
+holds only after the preflight report has explicitly accepted it. Record it once in
+the artifact's authoritative `Assumptions` location as a research risk. Do not repeat
+it in summaries, background, methods, contributions, arguments, or conclusions, and
+do not phrase it as verified evidence. If the artifact contract has no authoritative
+`Assumptions` location, the upstream orchestrator must designate one before handoff.

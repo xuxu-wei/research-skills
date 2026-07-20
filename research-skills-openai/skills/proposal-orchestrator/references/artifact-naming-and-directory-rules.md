@@ -6,12 +6,15 @@
 - [Project Root](#project-root)
 - [Directory Layout](#directory-layout)
 - [Cross-Package Version Fields](#cross-package-version-fields)
+- [Planning and Reader Naming](#planning-and-reader-naming)
 - [Proposal Version Naming](#proposal-version-naming)
 - [Revision Round Naming](#revision-round-naming)
 - [Language QA Naming](#language-qa-naming)
+- [Editorial Repair Naming](#editorial-repair-naming)
 - [Evaluation Naming](#evaluation-naming)
 - [SAP Naming](#sap-naming)
 - [Panel Naming](#panel-naming)
+- [Journal Matching and Review Naming](#journal-matching-and-review-naming)
 - [Final Package Naming](#final-package-naming)
 - [Artifact Index](#artifact-index)
 <!-- toc:end -->
@@ -35,8 +38,8 @@ The user may provide another writable project directory. Do not store workflow a
 01_context/     # proposal context brief
 02_evidence/    # evidence and opportunity materials
 03_readiness/   # readiness triage
-04_drafts/      # proposal-vNNN.md and current pointer notes
-05_evaluations/ # proposal and language evaluation reports
+04_drafts/      # proposal-content-plan-vNNN.yaml, proposal-vNNN.md, and current pointer notes
+05_evaluations/ # scientific, narrative, language, preservation, and reassessment reports
 06_revisions/   # revision rounds, reviewer responses, deltas
 07_sap/         # SAP drafts, evaluations, SAP revision rounds
 08_panel/       # panel reports and reviewer briefs
@@ -71,9 +74,21 @@ status
 plugin_version
 source_skill
 created_by_instance_id
-content_digest
 frozen
 ```
+
+Do not require or generate SHA/digest fields in LLM-facing artifacts. Legacy rows or state records that already contain digest fields remain readable and may be preserved unchanged, but current identity uses `artifact_id`, `version_id`, and `current_artifact_path` with complete index coverage.
+
+Role-specific contracts that use the shorter field `version` serialize the same value as canonical `version_id`; the values must match. They are not separate version axes.
+
+## Planning and Reader Naming
+
+```text
+04_drafts/proposal-content-plan-v001.yaml
+01_context/proposal-reader-handoff-v001.yaml
+```
+
+The planning instance writes only the content plan. Its `planner_instance_id` must differ from the `writer_instance_id` that creates a new full proposal. The reader handoff is a frozen minimal projection of reader, gap, terminology, reasoning-chain, and binding-constraint fields; it is not a review report.
 
 ## Proposal Version Naming
 
@@ -115,7 +130,7 @@ The updated proposal remains in `04_drafts/proposal-vNNN.md`; the round director
 
 ## Language QA Naming
 
-Language assessment and language-only revision records are separate artifacts. Run `academic-language-assessor` for English, Chinese, or bilingual proposal text before final packaging and after any language polishing pass:
+Language assessment and language-only revision records are separate artifacts. After scientific/method eligibility, run a fresh `academic-language-assessor` in parallel with a fresh `research-narrative-assessor`; after any editorial change, use different fresh instances for reassessment before final evaluation and packaging:
 
 ```text
 05_evaluations/language-assessment-v001.md
@@ -124,6 +139,23 @@ Language assessment and language-only revision records are separate artifacts. R
 
 Language polishing must not embed reviewer-response language in the proposal body.
 If a changed proposal file is saved after language polishing, create the next proposal version and record `change_type: language_only` in `10_state/workflow-state.yaml`.
+
+## Editorial Repair Naming
+
+Run narrative and language assessment in parallel after scientific/method eligibility:
+
+```text
+05_evaluations/proposal-vNNN-narrative-assessment-rNNN.md
+05_evaluations/proposal-vNNN-language-assessment-rNNN.md
+06_revisions/round-NNN/protected-content-register-rNNN.yaml
+06_revisions/round-NNN/editorial-repair-brief-rNNN.yaml
+06_revisions/round-NNN/editorial-action-execution-rNNN.yaml
+05_evaluations/proposal-vNNN-content-preservation-rNNN.md
+05_evaluations/proposal-vNNN-narrative-reassessment-rNNN.md
+05_evaluations/proposal-vNNN-language-reassessment-rNNN.md
+```
+
+The writer receives only the repair brief, source proposal, and protected register. The repaired proposal remains `04_drafts/proposal-vNNN.md` and is frozen only after all included actions are accounted for.
 
 ## Evaluation Naming
 
@@ -167,6 +199,17 @@ Rules:
 - `panel_reviewed_proposal_version` must equal the proposal version in panel filenames.
 - If the proposal changes after panel review, the panel result applies only to the reviewed version.
 
+## Journal Matching and Review Naming
+
+After final scientific evaluation:
+
+```text
+08_panel/journal-candidate-brief-vNNN.yaml
+08_panel/proposal-vNNN-medical-journal-review.md
+```
+
+The candidate brief is score-free and derives only from the final proposal and verified current journal facts. The fresh medical-journal reviewer cannot read evaluator scores/findings, readiness reports, repair history, editorial reports, or panel outputs.
+
 ## Final Package Naming
 
 Final package files live in `09_package/`:
@@ -176,15 +219,17 @@ Final package files live in `09_package/`:
 09_package/final-artifact-index.md
 ```
 
-If the package is partial or blocked, the package status must state `partial`, `blocked`, `minor_revision_pending`, or `major_revision_required`.
+Package status must be one of `human_signoff_required`, `independent_review_pending`, `partial`, `blocked`, `minor_revision_pending`, or `major_revision_required`, derived mechanically from valid upstream artifacts and unresolved issues.
 
 ## Artifact Index
 
 `10_state/artifact-index.md` should contain one row per artifact:
 
 ```text
-| artifact_id | role | version | path | source_skill | created_step | based_on | status |
+| artifact_id | role | version_id | workflow_id | round_id | revision_round | current_artifact_path | source_skill | created_step | created_by_instance_id | based_on | change_type | status | plugin_version | frozen |
 ```
+
+An index is complete only when every artifact has every column, `version_id` and `current_artifact_path` agree with any role-specific `version` and `path` aliases, and `frozen` is an explicit boolean. Fields that do not apply, such as an initial artifact's `round_id`, `revision_round`, or `based_on`, use explicit `null` or an empty list rather than disappearing. This full row is also the schema of the mirrored registry in `workflow-state.yaml`.
 
 Required statuses:
 

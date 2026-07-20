@@ -8,6 +8,7 @@ input_artifact_ids: []
 input_versions: []
 scope: <complete_idea_dossier | complete_artifact | named_sections>
 dossier_ref: {artifact_id: "", version: "", path: ""}
+input_component_refs: []
 reader_handoff: {artifact_id: embedded-reader-handoff, version: embedded, path: null}
 files_read: []
 isolation_mode: fresh_subagent
@@ -55,9 +56,9 @@ required. A file-backed handoff must occur in `files_read`; an embedded handoff
 uses `path: null` and is not added as a fictitious file or input artifact.
 Validate this file with `scripts/validate_language_assessment.py` before handoff.
 For a completed `complete_idea_dossier` assessment, all four coverage receipts
-use `status: completed`; this records coverage rather than language quality. Use
-bounded counts and a concise basis; do not list every term or create a
-persistent terminology inventory.
+use `status: completed`; this records coverage rather than language quality or a
+per-term status. Use bounded counts and a concise basis. Never create a terminology
+inventory, per-term status list, separate artifact, or separate skill.
 Omit `coverage_receipt` from a clarification or independence stop report.
 
 **Assessment ID**: lang-001
@@ -157,12 +158,9 @@ body may use this compact human-readable index without restating the action:
 |---|---|---|---|---|
 |  |  |  |  | yes |
 
-When no actionable terminology finding exists, state `none`; do not list
-acceptable quoted or parenthetical forms, abbreviations, proper names, or other
-scanner candidates, and do not generate an exhaustive term register. Any
-post-repair candidate dispositions belong only in the existing revision delta
-as `removed`, `standard_and_defined`, `descriptive_not_label`, or
-`fixed_scaffolding`; the fresh assessor does not read or copy that delta.
+When no actionable terminology finding exists, state `none`; do not list acceptable
+quoted or parenthetical forms, abbreviations, proper names, or other scanner candidates,
+and do not generate inventories, dispositions, or per-term statuses.
 
 For a core-concept coherence or internal-vocabulary finding, list every observed
 competing form and its locator in the finding. The acceptance test must name the
@@ -202,15 +200,9 @@ attach unambiguously to the intended semantic heads.
 
 ## Re-Assessment Status (if applicable)
 
-For non-Idea reassessment, use only the optional anonymous issue list; do not
-compare prior scores, decisions, text versions, or revision deltas. Idea
-reassessment receives no prior issue list and is a fresh full-dossier reading.
-
-| Check | Current assessment |
-|--------|--------------------|
-| Listed issues no longer present | {{count and issue IDs}} |
-| Listed issues still present | {{count and issue IDs}} |
-| New current-text issues | {{count and issue IDs}} |
+Reassessment is a fresh complete reading of the current artifact and reader handoff.
+Do not compare prior scores, decisions, issue lists, text versions, repair briefs, or
+revision deltas. Report only current-text findings and the current decision.
 
 ---
 

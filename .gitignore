@@ -33,4 +33,10 @@ skills-openai-plugin/
 # Owner-only Phase 7-8 research inputs and compressed backup
 /tests/article/
 /tests/idea-to-proposal/
+/tests/idea-test-0.9.0-preview.1/
 /tests/test-examples.rar
+
+# Confidential workflow fixtures and generated versioned runs
+/tests/test-*/
+/tests/0.10.0-*/
+/tests/0.11.0-*/

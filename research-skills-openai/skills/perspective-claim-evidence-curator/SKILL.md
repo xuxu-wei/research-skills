@@ -16,6 +16,9 @@ description: "Build and maintain Perspective claim, evidence, contrary-evidence,
 - 每条 claim 必须标注 allowed claim strength 和 overclaim risk
 - Lite Mode：仅做 provisional claim-ledger，不启动检索，缺失证据标注 gap
 - 每条 reference 必须记录来源标识（DOI/PMID/URL/用户材料）、支持的 Claim ID、支持句、引用风险；无法验证来源时标注 `unverified`
+- 每次来源使用必须有唯一 Binding ID，记录 source intent、允许支撑的具体命题、原文 locator、允许的 claim strength 和禁止外推；同一来源支持不同命题时建立不同 binding
+- Input Brief 中的 source intent 只是 provisional intake；只有 curator 可以把它核验为可供 architect/drafter 使用的 binding
+- LLM-facing 来源与产物只使用逻辑身份、路径、版本、来源标识和 locator；不得要求或生成 SHA、content hash 或 digest
 - 调用外部检索工具时，使用环境中已注册 skill 或 orchestrator 批准的替代路径
 
 ## I/O Contract
@@ -82,7 +85,9 @@ Escalation Route:
 
 ### 3. Match Evidence to Claims
 
-为每条 claim 匹配证据。每条记录须结构化标注：Claim ID, Evidence ID, Evidence strength, Evidence directness, Allowed claim strength, Overclaim risk, Citation risk, Contrary evidence, Boundary condition.
+为每条 claim 匹配证据。每条记录须结构化标注：Claim ID, Evidence ID, Binding ID, Source intent, Bound proposition, Original-source locator, Evidence strength, Evidence directness, Allowed claim strength, Forbidden use, Overclaim risk, Citation risk, Contrary evidence, Boundary condition, Verification status.
+
+`source intent` 仅可取：`background_context | direct_claim_support | premise_support | contrary_evidence | boundary_condition | method_example | illustrative_only`。不得把 `background_context`、`method_example` 或 `illustrative_only` 无声升级为核心主张证据。
 
 ### 4. Evidence Strength Grading (二维)
 
@@ -114,7 +119,7 @@ Escalation Route:
 
 ### 8. Build Reference List
 
-→ `reference-list.md`：完整引用、来源标识（DOI/PMID/URL/用户材料）、用于哪个 claim、支持哪个具体论述、检索/验证日期、风险。
+→ `reference-list.md`：完整引用、来源标识（DOI/PMID/URL/用户材料）、Binding ID、source intent、用于哪个 claim、允许支持的具体论述、原文 locator、禁止外推、检索/验证日期、风险。
 
 ### 9. Trigger Retrieval (Standard/Full Mode)
 
@@ -132,6 +137,7 @@ Escalation Route:
 - 强证据错配：强 evidence strength + 低 directness = 高危
 - claim-ledger 膨大：不是越多越好
 - 未标注 directness
+- 来源有引用但没有命题绑定，或同一 binding 被改作不同用途
 
 ## References
 

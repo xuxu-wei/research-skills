@@ -43,10 +43,14 @@ Assess whether successful completion would have meaningful scientific, clinical,
 Assess whether the proposal matches the user goal, intended output, field context, funding or institutional requirements, and practical constraints.
 
 ### Clarity
-Assess whether the research question, aims, study object, variables, endpoints, methods, and expected outputs are clearly stated and internally consistent.
+Assess whether the research question, aims, study object, variables, endpoints, methods, and expected outputs are clearly stated and internally consistent. Trace the reader's route through problem, current knowledge, gap, significance, and design rationale. Check progressive disclosure, whether each section performs a discernible function and hands the reader forward, whether needed terms are defined before use, and whether terminology burden causes backtracking. Missing significance or a broken gap-to-rationale transition fails the Clarity gate regardless of sentence-level polish.
 
 ### Completion
-Assess whether the proposal contains the required sections, sufficient background, aims, methods, feasibility analysis, innovation, work plan, expected outputs, limitations, and references or evidence notes.
+Assess whether the proposal satisfies the binding target structure and contains sufficient background, aims, methods, innovation, work plan, expected outputs, evidence notes, and one authoritative `Assumptions, feasibility, and risks` location. Do not reward duplicated limitations; outside the authoritative location, a boundary belongs only where it directly advances immediate logic and omission would distort the connected design choice.
+
+## Dimension Separation
+
+Improved wording, transitions, disclosure order, or terminology can improve Clarity. It cannot raise Novelty, Feasibility, or Impact unless the current proposal contains new or materially stronger substantive support for that dimension. Do not infer substantive improvement from polished prose.
 
 ## Weighted Overall
 

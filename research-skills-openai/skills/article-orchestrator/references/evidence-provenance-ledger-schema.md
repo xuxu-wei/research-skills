@@ -16,7 +16,7 @@ The EPL supports three levels of granularity. MVP (v0.1.0) targets Level 1.
 
 ```yaml
 evidence_provenance_ledger:
-  schema_version: "research-article.v6"
+  schema_version: "research-article.v7"
   granularity: claim_level
   entries:
     - evidence_id: "E001"

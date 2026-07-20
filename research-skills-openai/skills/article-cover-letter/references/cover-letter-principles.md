@@ -11,7 +11,7 @@ Answer these questions:
 - Is the innovation incremental or 0-to-1?
 - Why does this delta fit the target journal's readers?
 - What credibility signals or disclosures should the editor know?
-- What evidence boundaries prevent overclaiming?
+- Does one immediately relevant evidence boundary need to be stated to prevent an otherwise misleading editorial claim?
 
 ## Structure
 
@@ -20,7 +20,9 @@ Default one-page structure:
 1. Submission statement and problem positioning.
 2. Contribution delta and innovation type.
 3. Journal fit and readership value.
-4. Credibility, limitations, and disclosures.
+4. Credibility and disclosures.
+
+The manuscript's designated limitations section remains the complete authority. Do not repeat limitations in the letter. State a boundary only when it is necessary to make the adjacent contribution claim non-misleading, and state it once without importing the full limitations list.
 
 Target 350-500 English words unless journal instructions differ.
 
@@ -58,4 +60,4 @@ Include editor-relevant facts when available: preprint, related manuscripts, pri
 - Listing methods and results without the editorial delta.
 - Unsupported "first", "novel", "groundbreaking", or "paradigm-shifting" claims.
 - Generic "suitable for your prestigious journal" phrasing.
-- Omitting limitations or required disclosures.
+- Omitting required disclosures or a boundary needed to keep an adjacent claim accurate.

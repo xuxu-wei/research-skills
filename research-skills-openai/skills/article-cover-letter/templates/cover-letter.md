@@ -10,7 +10,7 @@ We are pleased to submit "[Manuscript Title]" for consideration as a [Article Ty
 
 [Journal fit: In 2-4 sentences, explain why this delta is specifically relevant to the journal's readership and editorial scope.]
 
-[Credibility and disclosures: In 1 paragraph, include relevant prior work continuity, evidence boundaries, preprint/related manuscripts, ethics approval, conflicts, data/code availability, author approval, reviewer suggestions/exclusions if applicable, and confirmation that the manuscript is not under consideration elsewhere.]
+[Credibility and disclosures: In 1 paragraph, include relevant prior work continuity, preprint/related manuscripts, ethics approval, conflicts, data/code availability, author approval, reviewer suggestions/exclusions if applicable, and confirmation that the manuscript is not under consideration elsewhere. Add one evidence boundary only if it is needed to keep an adjacent contribution claim accurate; do not reproduce the manuscript's limitations.]
 
 Sincerely,
 

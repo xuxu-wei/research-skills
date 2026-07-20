@@ -13,20 +13,20 @@ The proposal must pass all hard gates before the evaluator may return `accept`.
 ### Gate Interpretation
 
 ### Clarity Gate
-The proposal must state a reviewable research question or objective, define the research object, and align aims, methods, and expected outputs.
+The proposal must state a reviewable research question or objective, define the research object, and align aims, methods, and expected outputs. The reader must be able to follow problem → current knowledge → gap → significance → design rationale with progressive disclosure and manageable terminology. Missing significance or a broken gap-to-rationale transition is a gate failure.
 
 ### Feasibility Gate
 The proposal must describe a plausible execution path given available or required data, methods, resources, timeline, and operational constraints.
 
 ### Completion Gate
-The proposal must contain enough content for evaluator and reviewer assessment. Missing sections may fail this gate if they block reviewability.
+The proposal must contain enough content for evaluator and reviewer assessment, satisfy binding source requirements, and maintain one authoritative `Assumptions, feasibility, and risks` location. Missing required functions may fail this gate when they block reviewability; section labels and counts alone do not establish completion.
 
 ### Genre Fit Gate
-The proposal must not contain any of the following: (a) narrative clinical scenes ("一位医生在查房时…"), (b) tutorial-style rhetorical questions ("为什么是X？因为…"), (c) review-response residue ("vX新增""回应Review Panel"等 version markers), (d) explanatory paragraphs added for comprehension rather than argument (terminology glossaries, concept translation tables as standalone body sections). Any single violation → FAIL. Evaluator must record the specific location of each violation.
+The proposal must use a persuasive research-proposal genre appropriate to its target reader and binding format. Review-response residue or version-process metadata in the body is a failure. Narrative devices, rhetorical questions, definitions, glossaries, or explanatory material are defects only when they displace decision-relevant argument, obscure section function, or add reader burden without advancing the reasoning chain. Record the location and functional harm; do not fail genre fit from a universal sentence-form rule.
 
 ## Gate Failure Handling
 
 - If a gate fails but the issue is repairable, decision should normally be `revise`.
 - If a gate fails due to an unrecoverable contradiction or missing foundation, decision should be `reject`.
-- If re-evaluation shows no substantive progress on a failed gate, decision may be `stop_no_gain`.
-- Genre Fit gate failures are always repairable (textual fixes) and should route to `revise` with specific location annotations.
+- The evaluator still returns only `accept`, `revise`, or `reject`. Only the orchestrator may derive `stop_no_gain` after independently comparing sealed round reports; never expose those reports to the evaluator.
+- Genre Fit failures route to `revise` when the function can be repaired without changing scientific content; a genre problem that reveals a missing rationale or substantive choice follows the corresponding scientific route.

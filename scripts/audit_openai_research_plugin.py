@@ -21,7 +21,7 @@ REGISTRY = PLUGIN / "workflow-registry.yaml"
 MANIFEST = PLUGIN / ".codex-plugin" / "plugin.json"
 MARKETPLACE = REPO / ".agents" / "plugins" / "marketplace.json"
 
-EXPECTED_REVIEWERS = 21
+EXPECTED_REVIEWERS = 22
 RESEARCH_POLISHER_ENTRY = "research-polisher-orchestrator"
 EXPECTED_PUBLIC_ENTRY_SKILLS = {
     "academic-deep-search",
@@ -55,6 +55,7 @@ EXPECTED_WORKFLOWS = {
 }
 OPENAI_NATIVE_SKILL_PACKAGES = {
     "idea-narrative-assessor": "research-idea",
+    "research-narrative-assessor": "research",
     "research-polisher-methodology-publishability-reviewer": "research-polisher",
     "research-polisher-orchestrator": "research-polisher",
     "research-polisher-plan-assembler": "research-polisher",
@@ -114,6 +115,7 @@ FINAL_SUBMISSION_SKILLS = {
 
 PRE_SUBMISSION_POLICY_SCAN_SKILLS = {
     "academic-language-assessor",
+    "research-narrative-assessor",
     "article-claim-auditor",
     "article-context-builder",
     "article-drafter",
@@ -348,14 +350,15 @@ def main() -> int:
         registry_data = yaml.safe_load(registry_text) or {}
         entries = registry_data.get("skills", [])
         edges = registry_data.get("workflow_edges", [])
-        if registry_data.get("schema_version") != 5:
-            errors.append("registry schema_version must be 5 for workflow, scenario-eval, package, revision, and context-profile auditability")
+        if registry_data.get("schema_version") != 6:
+            errors.append("registry schema_version must be 6 for workflow, scenario-eval, package, revision, context-profile, and cross-workflow editorial-readiness auditability")
         state_policy = registry_data.get("workflow_state_policy", {})
         state_machines = registry_data.get("workflow_state_machines", {})
         scenario_contract = registry_data.get("scenario_eval_contract", {})
         context_policy = registry_data.get("context_profile_policy", {})
         review_execution = registry_data.get("review_execution", {})
         artifact_policy = registry_data.get("artifact_completeness_policy", {})
+        editorial_readiness_policy = registry_data.get("cross_workflow_editorial_readiness_policy", {})
         docx_policy = registry_data.get("article_docx_delivery_policy", {})
     if not REGISTRY.exists():
         edges = []
@@ -365,6 +368,7 @@ def main() -> int:
         context_policy = {}
         review_execution = {}
         artifact_policy = {}
+        editorial_readiness_policy = {}
         docx_policy = {}
 
     if review_execution.get("prior_versions_visible_to_reviewer") is not False:
@@ -432,7 +436,7 @@ def main() -> int:
     if not (
         readiness.get("runs_after_scientific_revision_before_evaluation") is True
         and readiness.get("parallel_reviewers")
-        == ["idea-narrative-assessor", "academic-language-assessor"]
+        == ["research-narrative-assessor", "academic-language-assessor"]
         and readiness.get("editorially_eligible_narrative_decisions")
         == ["narrative_ready", "minor_narrative_revision"]
         and readiness.get("editorially_eligible_language_decisions")
@@ -470,8 +474,8 @@ def main() -> int:
         and bounded.get("final_state") == "human_direction_selection_required"
     ):
         errors.append("registry bounded Idea profile must remap, fresh-evaluate, and stop for human selection")
-    if artifact_policy.get("article_schema") != "research-article.v6":
-        errors.append("registry must use research-article.v6 canonical Markdown")
+    if artifact_policy.get("article_schema") != "research-article.v7":
+        errors.append("registry must use research-article.v7 canonical Markdown")
     if artifact_policy.get("core_identity_drift_behavior") != "new_idea_required_no_automatic_branch":
         errors.append("registry Idea identity drift must stop without automatic branching")
     if docx_policy.get("content_authority") != "canonical_markdown":
@@ -480,6 +484,55 @@ def main() -> int:
         errors.append("registry Article preferred capable delivery must be DOCX")
     if set(docx_policy.get("fallback_states", [])) != {"docx_generation_pending", "docx_visual_qa_pending"}:
         errors.append("registry Article DOCX fallback states are incomplete")
+    if not (
+        editorial_readiness_policy.get("workflows") == ["idea", "proposal", "perspective", "article"]
+        and editorial_readiness_policy.get("macro_reviewer") == "research-narrative-assessor"
+        and editorial_readiness_policy.get("meso_micro_reviewer") == "academic-language-assessor"
+        and editorial_readiness_policy.get("reviewers_run_in_parallel_on_same_frozen_reader_artifact_or_bundle") is True
+    ):
+        errors.append("registry cross-workflow narrative/language role boundary is incomplete")
+    repair_interface = editorial_readiness_policy.get("repair_interface", {})
+    if not (
+        repair_interface.get("raw_assessment_reports_visible_to_writer") is False
+        and repair_interface.get("single_writer_brief_format") == "yaml"
+        and repair_interface.get("writer_uses_same_owner_for_bounded_section_passes") is True
+        and repair_interface.get("multiple_fragment_writers_forbidden") is True
+        and repair_interface.get("action_conformance_receipt_required") is True
+    ):
+        errors.append("registry shared editorial writer interface is incomplete")
+    limitation_policy = editorial_readiness_policy.get("limitation_policy", {})
+    if not (
+        limitation_policy.get("one_complete_authoritative_location_per_document_or_distinct_argument_family") is True
+        and limitation_policy.get("omit_elsewhere") is True
+        and limitation_policy.get("cross_reference_or_pointer_elsewhere_forbidden") is True
+        and limitation_policy.get("narrative_continuity_has_priority_over_defensive_repetition") is True
+    ):
+        errors.append("registry shared limitation-authority policy is incomplete")
+    logical_integrity = editorial_readiness_policy.get("logical_integrity", {})
+    if not (
+        logical_integrity.get("sha_or_content_digest_forbidden_in_new_llm_facing_artifacts") is True
+        and logical_integrity.get("legacy_digest_fields") == "readable_but_ignored"
+        and set(logical_integrity.get("required", []))
+        == {"artifact_id", "version", "exact_path", "frozen_state", "complete_artifact_index", "unique_current_pointer"}
+    ):
+        errors.append("registry logical lineage must avoid new LLM-facing hashes while retaining index integrity")
+    final_isolation = editorial_readiness_policy.get("final_evaluator_isolation", {})
+    if not (
+        final_isolation.get("exact_files_read_must_be_reported") is True
+        and final_isolation.get("sha_or_content_digest_required") is False
+        and final_isolation.get("binding_fields") == ["artifact_id", "version", "exact_path"]
+        and "narrative_or_language_report" in final_isolation.get("forbidden", [])
+        and "repair_plan_or_writer_brief" in final_isolation.get("forbidden", [])
+    ):
+        errors.append("registry final evaluator isolation contract is incomplete")
+    article_entry = artifact_policy.get("article_entry_material_contract", {})
+    if not (
+        article_entry.get("complete_inventory_required") is True
+        and article_entry.get("semantic_authority_must_be_explicit") is True
+        and article_entry.get("compatible_supporting_assets_retained") is True
+        and article_entry.get("filename_or_version_whitelist_must_not_hide_supplied_material") is True
+    ):
+        errors.append("registry Article entry must inventory all supplied materials before readiness")
 
     registry_names = {entry.get("name", "") for entry in entries}
     if registry_names != set(names):
@@ -602,7 +655,7 @@ def main() -> int:
         "output_contract",
         "failure_route",
     }
-    edge_pairs: set[tuple[str, str, str]] = set()
+    edge_pairs: set[tuple[str, str, str, str]] = set()
     reviewer_names = {entry["name"] for entry in reviewers}
     for index, edge in enumerate(edges, start=1):
         missing = sorted(edge_fields - set(edge))
@@ -611,7 +664,7 @@ def main() -> int:
             continue
         source = edge["source"]
         destination = edge["destination"]
-        key = (edge["workflow"], source, destination)
+        key = (edge["workflow"], source, destination, edge["trigger"])
         if key in edge_pairs:
             errors.append(f"registry edge duplicated: {key}")
         edge_pairs.add(key)
@@ -740,9 +793,18 @@ def main() -> int:
                     errors.append(f"{workflow} state machine: strategy assembly gate missing {gate}")
             if "candidate_portfolio_versioned" not in machine.get("before_evaluation", []):
                 errors.append(f"{workflow} state machine: evaluation lacks a versioned portfolio gate")
+        elif workflow == "perspective":
+            if "current_perspective_scientific_evaluation_complete" not in machine.get("before_panel", []):
+                errors.append("perspective state machine: panel lacks scientific current-version evaluation gate")
+            stage_contract = machine.get("evaluation_stage_contract", {})
+            if stage_contract.get("scientific", {}).get("dispatch_before") != "panel":
+                errors.append("perspective state machine: scientific evaluation must precede panel")
         elif "latest_version_independently_evaluated" not in machine.get("before_panel", []):
             errors.append(f"{workflow} state machine: panel lacks current-version evaluation gate")
-        if "latest_version_independently_evaluated" not in machine.get("before_packaging", []):
+        if workflow == "perspective":
+            if "final_perspective_evaluation_complete" not in machine.get("before_packaging", []):
+                errors.append("perspective state machine: packaging lacks final current-version evaluation gate")
+        elif "latest_version_independently_evaluated" not in machine.get("before_packaging", []):
             errors.append(f"{workflow} state machine: packaging lacks current-version evaluation gate")
         if "dissent_and_fatal_findings_indexed" not in machine.get("before_packaging", []):
             errors.append(f"{workflow} state machine: packaging does not preserve dissent/fatal findings")
@@ -759,13 +821,14 @@ def main() -> int:
         "change_type",
         "path",
         "status",
-        "content_digest",
         "frozen",
     }
     if set(scenario_contract.get("required_workflows", [])) != EXPECTED_WORKFLOWS:
         errors.append("scenario eval contract must cover exactly five workflows")
     if set(scenario_contract.get("required_lineage_fields", [])) != canonical_lineage:
         errors.append("scenario eval contract canonical lineage fields are incomplete")
+    if scenario_contract.get("legacy_optional_lineage_fields") != ["content_digest"]:
+        errors.append("scenario eval contract must read but not require the legacy content digest")
     required_dispatch = set(scenario_contract.get("required_dispatch_fields", []))
     for field in ("actor_instance_id", "allowed_read_paths", "allowed_write_paths", "input_artifact_ids", "input_versions"):
         if field not in required_dispatch:
@@ -920,27 +983,6 @@ def main() -> int:
         errors.append("context profile policy must define standard_32k and degraded_16k")
     elif profiles["standard_32k"].get("total_character_budget") != 32000 or profiles["degraded_16k"].get("total_character_budget") != 16000:
         errors.append("context profile character budgets are incorrect")
-
-    phase4_files = [
-        REPO / "tests" / "openai_phase4" / "runtime-trace.schema.yaml",
-        REPO / "tests" / "openai_phase4" / "idea.yaml",
-        REPO / "tests" / "openai_phase4" / "idea-layout-compatibility.yaml",
-        REPO / "tests" / "openai_phase4" / "proposal.yaml",
-        REPO / "tests" / "openai_phase4" / "article.yaml",
-        REPO / "tests" / "openai_phase4" / "perspective.yaml",
-        REPO / "tests" / "openai_phase4" / "guard-cases.yaml",
-        REPO / "tests" / "openai_phase4" / "retrieval-receipts.yaml",
-        REPO / "tests" / "openai_phase4" / "finding-route-cases.yaml",
-        REPO / "tests" / "openai_phase4" / "live-forward-test-receipts.yaml",
-        REPO / "tests" / "openai_phase4" / "live-raw" / "idea-valid-gate-stop.md",
-        REPO / "tests" / "openai_phase4" / "live-raw" / "proposal-human-signoff.md",
-        REPO / "tests" / "openai_phase4" / "live-raw" / "article-valid-gate-stop.md",
-        REPO / "tests" / "openai_phase4" / "live-raw" / "perspective-human-signoff.md",
-        REPO / "scripts" / "test_openai_phase4_scenarios.py",
-    ]
-    for path in phase4_files:
-        if not path.is_file():
-            errors.append(f"missing Phase 4 validation asset: {relative(path)}")
 
     errors.extend(recursive_reference_errors())
 

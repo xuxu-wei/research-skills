@@ -15,12 +15,14 @@ This skill summarizes and organizes existing artifacts. It does not rewrite prop
 Usually supplied by `proposal-orchestrator`:
 
 - workflow state following `proposal-orchestrator/references/workflow-state-schema.md`;
-- complete current `proposal_file_path`, `proposal_version`, and SHA-256;
+- complete current proposal logical identity: `artifact_id`, `proposal_file_path`, and `proposal_version`;
 - proposal context brief, if available;
 - readiness report, if available;
 - latest proposal evaluation report;
 - revision history and delta reports, if any;
 - proposal review panel summary and reviewer dissent, if any;
+- editorial readiness, action-execution, preservation, and reassessment records, if editorial repair occurred;
+- score-free journal candidate brief and fresh medical-journal review, if the journal route occurred;
 - submission-clean proposal path, only if already produced by drafter/refinement;
 - unresolved issues and user-confirmation-needed items;
 - user goal, target output, and format/funding requirements;
@@ -33,11 +35,12 @@ If final proposal path, latest evaluation report, or workflow state is missing, 
 1. Confirm package scope: proposal only, proposal + review, proposal + SAP, or proposal + SAP + review.
 2. Verify required inputs: workflow state, proposal path/version, latest evaluation, unresolved issue status.
 3. Preserve lineage: record initial, revised, panel-reviewed, submission-clean, and final versions when available.
-4. Summarize existing reports: readiness, latest evaluation, revision status, panel recommendation, skeptical objections, submission-guard findings, and conflicts.
+4. Summarize existing reports: readiness, latest evaluation, revision status, editorial action execution/preservation/fresh reassessment, score-free journal matching, fresh medical-journal review, panel recommendation, skeptical objections, submission-guard findings, and conflicts, when present.
 5. Add optional SAP section only when SAP branch was requested.
 6. List unresolved issues: blocking issues, major risks, minor issues, reviewer dissent, user confirmation, human expert review.
-7. Require the package proposal digest to equal the latest qualifying evaluation digest. Then derive status mechanically from valid reviews and unresolved issues; a mismatch or partial proposal blocks ready. Do not create a quality judgment.
-8. Recommend next human review steps based only on existing artifacts.
+7. Verify that any editorial repair has complete action execution, successful content preservation, and fresh narrative/language reassessment, and that any journal route binds the same final proposal without evaluator-score leakage.
+8. Require the package proposal `{artifact_id, version, path}` to equal the logical proposal reference recorded by the latest qualifying evaluation and require complete artifact-index entries. A mismatch, incomplete index, or partial proposal blocks ready. Legacy digest fields may be preserved but are never required or compared. Then derive status mechanically from valid reviews and unresolved issues; do not create a quality judgment.
+9. Recommend next human review steps based only on existing artifacts.
 
 ## Submission-Clean Boundary
 
@@ -57,6 +60,8 @@ Default output: **Final Proposal Package** with:
 - readiness and latest evaluation summary;
 - revision history summary;
 - proposal review panel summary, if any;
+- editorial preservation/readiness summary, if applicable;
+- journal candidate and medical-journal-review summary, if applicable;
 - submission-clean status, if any;
 - unresolved issues and risks;
 - next human review steps;
@@ -75,6 +80,7 @@ Partial output is allowed when materials are missing; state missing pieces and l
 - Any unresolved credible fatal or blocking finding mechanically caps package status at `blocked`; never emit a ready, minor-pending, or promoted status.
 - Missing required independent review yields `independent_review_pending`, not a ready package.
 - Do not emit `human_signoff_required` when latest changed proposal/SAP versions lack required independent evaluation.
+- Do not infer scientific quality from narrative/language polish or journal fit, and do not let journal findings rewrite evaluator scores.
 
 ## References
 

@@ -1,0 +1,29 @@
+schema_version: perspective-editorial-conformance-check.v1
+check_id: "<check-id>"
+workflow_id: "<workflow-id>"
+round_id: "<round-id>"
+source_perspective: {artifact_id: "<artifact-id>", version: "<version>", path: "<path>"}
+revised_perspective: {artifact_id: "<artifact-id>", version: "<version>", path: "<path>"}
+repair_brief: {artifact_id: "<artifact-id>", version: "<version>", path: "<path>"}
+writer_delta: {artifact_id: "<artifact-id>", version: "<version>", path: "<path>"}
+writer_identity_match: false
+action_coverage:
+  expected_action_ids: []
+  disposed_action_ids: []
+  missing_action_ids: []
+  duplicate_action_ids: []
+undeclared_operations: []
+dependency_graph_acyclic: false
+acceptance_tests:
+  - action_id: "EDR-001"
+    status: "pass"
+    basis: "<deterministic observable>"
+mapping_checks:
+  claim_ids_complete: false
+  source_binding_ids_complete: false
+  terminology_order_conformant: false
+  counterargument_boundary_authorities_complete: false
+  paragraph_map_complete: false
+scientific_change_declared: false
+decision: "fail"
+failures: []

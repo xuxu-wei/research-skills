@@ -1,0 +1,38 @@
+schema: proposal-editorial-repair-brief.v1
+artifact_id:
+version_id:
+workflow_id:
+round_id:
+source_skill: proposal-refinement-controller
+path: 06_revisions/round-NNN/editorial-repair-brief-rNNN.yaml
+source_proposal_ref:
+  artifact_id:
+  version:
+  path:
+target_proposal_ref:
+  artifact_id:
+  version:
+  path:
+protected_content_register_path:
+writer_allowed_inputs:
+  - this_brief
+  - source_proposal
+  - protected_content_register
+writer_forbidden_inputs:
+  - raw_narrative_report
+  - raw_language_report
+  - readiness_or_evaluator_reports
+  - prior_proposals
+  - revision_deltas
+single_writer_complete_target: true
+included_actions:
+  - action_id:
+    source_assessor_type: narrative | academic_language
+    source_finding_id:
+    target_locator:
+    operation: reorder | move | merge | split | condense | delete | clarify | define | replace_wording
+    intended_reader_effect:
+    protected_item_ids: []
+    dependency_ids: []
+    acceptance_criterion:
+completion_rule: "Every included action is executed or explicitly blocked, protected meanings remain unchanged, and one complete target proposal is returned."

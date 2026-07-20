@@ -1,104 +1,52 @@
 ---
 name: proposal-orchestrator
-description: "Orchestrate an idea, call, data opportunity, or draft through proposal review, revision, optional SAP, panel, and human handoff."
+description: "Orchestrate proposal planning, review, reader readiness, and handoff."
 ---
 # proposal-orchestrator
 
 ## Role
 
-Control proposal workflow state, routing, delegation, stop decisions, and final handoff. Do not retrieve evidence, draft or revise proposal/SAP text, score artifacts, or repair source files during assembly.
+Control state, routing, delegation, stops, and handoff. Do not retrieve evidence, write/revise proposal or SAP prose, score artifacts, or repair sources during assembly.
 
 ## Invariants
 
-- Track current pointers in `10_state/workflow-state.yaml` and inventory in `10_state/artifact-index.md`.
-- Freeze every delegated input with artifact ID, path, version, and scope limitation.
-- Never overwrite `04_drafts/proposal-vNNN.md`; every saved substantive or language-only change creates a new version and lineage record.
-- Delegate readiness triage, methodology/statistics preflight, proposal/SAP evaluation, every panel role, and language assessment to fresh independent subagents.
-- Use registry states: review wait -> `pending_review`; unavailable reviewer -> `independent_review_pending`; fatal -> `blocked`; unfixable/no gain -> `stopped`; verified package -> `human_signoff_required`.
-- Phase delegation is allowed, but each source artifact/version has one writer; never run concurrent writes to the same source.
-- A changed proposal cannot reach panel or packaging until a new `proposal-evaluator` instance evaluates the frozen new version without prior scores or decisions.
-- Preserve fatal findings, unresolved issues, conflicts, and panel dissent through final assembly.
-- Stop at human sign-off; do not submit externally.
+- Maintain `10_state/workflow-state.yaml` and complete `10_state/artifact-index.md` rows. Bind inputs by logical ID/version/path/scope; require no LLM-facing digest and tolerate legacy digest metadata.
+- Never overwrite a frozen proposal. Each substantive, structural, editorial, language, or formatting save creates a complete new version and lineage.
+- Use fresh independent instances for readiness, methods/statistics preflight, evaluation, narrative/language assessment, preservation/reassessment, medical-journal review, SAP evaluation, and panel roles. Unavailable independence returns `independent_review_pending`; never self-review inline.
+- A new full proposal uses a fresh planning-only drafter and a different fresh writer. One writer owns each proposal/SAP version; concurrent source writes are forbidden.
+- Keep one authoritative `Assumptions, feasibility, and risks` location. Record conditional method assumptions once there. Allow a local limitation only when omission distorts adjacent logic, without a pointer.
+- A changed proposal needs fresh evaluation of that exact complete version before journal review, panel, packaging, or sign-off. Preserve fatal findings, unresolved issues, conflicts, and dissent; never submit externally.
 
-## Entry Routing
+## Entry Routes
 
-| Mode | Required route |
-|---|---|
-| `standard` | Context -> evidence gate -> readiness -> draft -> evaluation loop -> optional SAP -> panel -> package |
-| `existing_draft` | Minimal state -> scope-gap record -> evaluation or targeted drafting -> normal downstream gates |
-| `draft_and_external_review` | Minimal state -> validate external review provenance -> revision/panel, or fresh evaluation when provenance is insufficient |
-| `package_only` | Validate frozen versions and qualifying independent reports -> package; never infer missing readiness |
+`standard` uses the full workflow. `existing_draft` records minimal state/scope before evaluation or targeted drafting. `draft_and_external_review` validates provenance or requires fresh evaluation. `package_only` validates frozen versions and reports. Skips stay `null` with `evaluation_scope_limitation`.
 
-Skipped artifacts remain `null` with `evaluation_scope_limitation`; do not silently backfill or hide them.
+## Workflow
 
-## Workflow Kernel
+1. **Normalize and triage.** Record mode, goal, output, constraints, SAP request, issues, and pointers. Build missing context; route stale/conflicting/gap/call evidence to `research-opportunity-mapper`. Fresh `proposal-readiness-triage` continues on `ready_for_proposal`, asks only blockers on `needs_clarification`, follows idea/method routes, and stops on `not_proposalizable_yet`.
+2. **Plan, then write.** A fresh `proposal-drafter` in `planning_only` mode writes only concise `04_drafts/proposal-content-plan-vNNN.yaml`, covering reader chain, source intents, binding constraints, and each section's `rhetorical_function` and `reader_handoff`. Freeze it and stop that instance. A different fresh drafter writes one complete `04_drafts/proposal-vNNN.md`.
+3. **Repair science/methods.** A fresh evaluator returns `accept | revise | reject`. Revision uses a controller plan and a drafter's complete new proposal plus separate response/delta. Complete methods and SAP (`sap-writer` → fresh `sap-evaluator` → `sap-refinement-controller`) before editorial freeze; scientific change restarts this step.
+4. **Freeze reader/protected content.** After scientific/method eligibility, freeze a reader handoff containing only target reader, prior knowledge, definition needs, reasoning chain, gap type, and binding constraints. Freeze a protected register from the eligible proposal, including absent categories.
+5. **Assess and normalize.** Fresh `research-narrative-assessor` and `academic-language-assessor` instances run concurrently with only that proposal and reader handoff. They see no scientific/readiness/method report, prior proposal, delta, repair/workflow history, peer or paired output, and cannot change scientific merit/claim strength. The orchestrator normalizes included actions into one `editorial-repair-brief-rNNN.yaml` with provenance, locators, dependencies, protections, and acceptance criteria; exclude scientific choices/conflicts.
+6. **Repair editorial actions.** One drafter receives only that brief, current complete proposal, and protected register—never raw assessor/reviewer reports. Bounded section passes use the same writer and one complete target.
+7. **Validate and reassess.** Before freeze, every action needs evidence or an explicit block; omissions return to the same writer. After freeze, fresh instances perform preservation and narrative/language reassessment. Preservation failure/scientific drift returns to step 3; editorial defects start a bounded new round.
+8. **Run blind final evaluation.** A fresh evaluator receives only the revised final proposal, stable rubric/gates, and minimal call/factual inputs. Prohibit old drafts, context/readiness, plan, repair/action/delta/protected artifacts, preservation/editorial reports, prior evaluations/scores/findings/rationale/decisions, and anonymous must-fix lists.
+9. **Match/review journals.** Only after `final_scientific` acceptance, build a score-free `journal-candidate-brief-vNNN.yaml` from the final proposal and verified current journal facts. A fresh `medical-journal-review` sees only final proposal and brief—no evaluator/readiness/repair/editorial/panel outputs. Journal findings never alter evaluator scores.
+10. **Optional panel and package.** When selected, run fresh panel roles concurrently on the same final proposal; otherwise record `panel_mode: none`, `panel_tier: none`, and `panel_summary_path: null`. Blind roles see only proposal, goal/output, verified scenario, role, and scope—never history or peers. Aggregate with dissent. Substantive fixes repeat from step 3. `proposal-package-assembler` receives matched frozen artifacts and never rewrites, rescores, or hides issues.
 
-1. **Initialize.** Record entry mode, user goal, target output, current artifact pointers, SAP request, constraints, and unresolved issues.
-2. **Normalize.** Route to `proposal-context-brief-builder` unless a valid frozen brief already matches scope.
-3. **Map evidence.** Route broad, stale, conflicting, novelty/gap, guideline, clinical, or funding-call evidence to `research-opportunity-mapper`; reuse a valid map when scope matches.
-4. **Triage.** Delegate `proposal-readiness-triage`. Continue on `ready_for_proposal`; ask only blocking questions on `needs_clarification`; route to idea refinement or independent methodology preflight when requested; stop on `not_proposalizable_yet`.
-5. **Draft.** Route initial or targeted proposal writing to `proposal-drafter`.
-6. **Evaluate.** Delegate a fresh `proposal-evaluator`. Route `accept` forward, `revise` to revision, and `reject` to stop. Do not treat evaluator output as a drafting instruction without a revision plan.
-7. **Revise and re-evaluate.** Route findings through `proposal-refinement-controller`; `proposal-drafter` writes a complete new proposal plus separate revision artifacts. Give a fresh evaluator only the latest proposal, its digest, stable rubric, necessary facts, and optionally an anonymized must-fix list. Never expose the prior proposal, delta, report, score, or decision; compare sealed rounds and the delta only here.
-8. **Run optional SAP.** Only when explicitly requested or required by the target output: delegate `methodology-statistics-preflight`, route writing to `sap-writer`, delegate `sap-evaluator`, and route fixable findings through `sap-refinement-controller` plus a fresh SAP evaluator.
-9. **Panel.** Treat `proposal-review-panel` as a role contract. Dispatch one fresh subagent per selected role concurrently against the same frozen proposal. Blind reviewers receive neither context/evaluation/delta/unresolved-issue files nor peer outputs. Aggregate only after all required roles return and preserve dissent.
-10. **Resolve panel route.** A credible fatal/blocking finding overrides supportive labels. Substantive fixes return to revision and fresh evaluation; unfixable findings stop. If panel requires SAP, run the SAP branch before assembly.
-11. **Language QA.** Delegate `academic-language-assessor` against the frozen final proposal. Any saved polishing change creates a new version and requires fresh proposal evaluation.
-12. **Assemble.** Route frozen evaluated artifacts to `proposal-package-assembler`. It aggregates only and must not rewrite, clean, re-score, or hide unresolved issues.
+## States, Stops, and Returns
 
-## Delegated Brief and Return Contract
+Use `pending_review` while waiting, `independent_review_pending` when unavailable, `blocked` for fatal blockage, `stopped` for unfixable/no-gain work, and `human_signoff_required` after verified packaging. Only the orchestrator derives `stop_no_gain`. Stop on failed readiness, blocking facts/evidence, fatal flaw, SAP/data/endpoint mismatch, or no gain. Package identity must match the latest qualifying final evaluation and complete index row.
 
-Every reviewer brief includes workflow/round IDs, reviewer skill and scope, frozen artifact IDs/versions/paths, allowed files, output path, prohibited reads/writes, and failure route. Every review report includes:
+Return only a concise phase summary and artifact pointers, including status, decisions, unresolved issues, and next route.
 
-```yaml
-review_id:
-reviewer_skill:
-reviewer_instance_id:
-workflow_id:
-round_id:
-input_artifact_ids: []
-input_versions: []
-files_read: []
-isolation_mode: fresh_subagent
-prior_scores_visible: false
-source_edits_performed: false
-decision:
-findings: []
-unresolved_issues: []
-```
+## Required Resources
 
-Subtasks return only a concise phase summary plus artifact pointers:
-
-```yaml
-phase_summary:
-  phase:
-  status:
-  artifact_ids: []
-  artifact_paths: []
-  versions: []
-  decisions: []
-  unresolved_issues: []
-  next_route:
-```
-
-## Promotion and Stop Rules
-
-- Stop on failed readiness, blocking user facts, blocked evidence, unfixable fatal flaw, SAP/data/endpoint mismatch, no-gain revision, or incomplete independent review.
-- Any unresolved fatal finding prevents `accept`, `promoted`, and ready-for-signoff states.
-- `support_with_minor_revision` may be packaged only as revision-pending unless the change is completed and freshly evaluated.
-- A major panel change never routes directly to a ready package.
-- The latest packaged proposal version must match the latest qualifying evaluator report.
-
-## Conditional Resources
-
-- For any finish/pause/stop, apply `research-idea-orchestrator/references/project-readme-contract.md`.
-- Read `references/workflow-state-schema.md` when creating or validating workflow state.
-- Read `references/artifact-naming-and-directory-rules.md` when creating paths, versions, or the artifact index.
-- Read `references/delegate-brief-templates.md` for readiness, proposal evaluation, SAP evaluation, and common panel inputs.
-- Read `references/reviewer-brief-templates.md` only when dispatching role-specific panel reviewers.
-- Read `references/delegation-rules-pattern.md` when selecting isolation and dispatch behavior.
-- Read `references/proposal-writing-methodology.md` only when the drafter needs long-form proposal methodology guidance.
+- Read `references/workflow-state-schema.md` and `references/artifact-naming-and-directory-rules.md` when creating or checking state, lineage, paths, identity, or index rows.
+- Before delegation, read `references/delegate-brief-templates.md` and `references/delegation-rules-pattern.md`; also read `references/editorial-and-journal-routing.md` for editorial/journal work or `references/reviewer-brief-templates.md` for panel roles.
+- Read `references/proposal-writing-methodology.md` only when long drafting guidance is needed. Apply `research-idea-orchestrator/references/project-readme-contract.md` to any finish/pause/stop.
+- Use `templates/template-proposal-reader-handoff.yaml` and `templates/template-journal-candidate-brief.yaml` when creating those artifacts.
 
 ## Completion Check
 
-Confirm state, complete proposal, blind fresh review, SAP/panel/dissent, justified package, and human-only handoff.
+Confirm every invariant, exact-version review, preserved issues/dissent, matched packaging, and human-only handoff.

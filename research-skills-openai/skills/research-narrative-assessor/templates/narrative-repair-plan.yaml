@@ -1,0 +1,29 @@
+schema_version: research-narrative-repair-plan.v1
+plan_id: "<plan-id>"
+assessment_id: "<assessment-id>"
+profile: "<idea | proposal | perspective | article>"
+source_artifact:
+  artifact_id: "<artifact-id>"
+  version: "<version>"
+  path: "<path>"
+decision: major_narrative_revision
+clarifications_required: []
+actions:
+  - action_id: NRP-001
+    addresses_findings: [NAR-001]
+    priority: major
+    artifact_locator:
+      section_heading: "<heading>"
+      subsection_heading: null
+      content_anchor: "<recognizable paragraph, table, or function>"
+    counterargument_or_boundary_family: null
+    operation: consolidate
+    current_problem: "<specific current problem>"
+    target_state: "<specific reader-facing result>"
+    required_content_or_function: "<content or rhetorical function required>"
+    verified_term_replacement: null
+    content_to_preserve: ["<scientific content that must remain>"]
+    content_to_remove_or_move: ["<duplicate, misplaced, or obsolete content>"]
+    destination_if_moved: null
+    dependencies: []
+    acceptance_test: "<observable completion test>"

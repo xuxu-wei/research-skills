@@ -1,0 +1,30 @@
+schema: proposal-journal-candidate-brief.v1
+artifact_id:
+version_id:
+workflow_id:
+round_id:
+source_skill: proposal-orchestrator
+path: 08_panel/journal-candidate-brief-vNNN.yaml
+proposal_ref:
+  artifact_id:
+  version:
+  path:
+generated_from_evaluator_output: false
+score_free: true
+candidate_journals:
+  - journal_name:
+    article_type:
+    audience_and_scope_fit:
+    verified_current_requirements: []
+    source_urls: []
+    verified_on:
+    proposal_fit_rationale:
+    mismatches_or_risks: []
+    unresolved_facts: []
+excluded_inputs:
+  - evaluator_scores
+  - evaluator_findings
+  - evaluator_decision
+  - readiness_report
+  - repair_and_delta_artifacts
+  - panel_outputs

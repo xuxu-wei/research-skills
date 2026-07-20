@@ -13,4 +13,4 @@ Match claim strength to evidence strength.
 Rules:
 - Do not use absolute language for claims with indirect, analogical, or illustrative evidence.
 - Do not bury the core thesis under caveats; narrow the thesis instead.
-- If a sentence requires more than two caveats, flag caveat budget risk.
+- If qualifications obscure the sentence's core claim or repeat an authoritative boundary, flag caveat-creep risk; do not use a universal count threshold.

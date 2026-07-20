@@ -1,0 +1,53 @@
+schema_version: perspective-editorial-repair-brief.v1
+brief_id: "<brief-id>"
+workflow_id: "<workflow-id>"
+round_id: "<round-id>"
+source_perspective: {artifact_id: "<artifact-id>", version: "<version>", path: "<path>"}
+required_writer_instance_id: "<writer-instance-id>"
+reader_handoff:
+  artifact_id: "<artifact-id>"
+  version: "<version>"
+  path: null
+  payload:
+    declared_readers: ["<reader group>"]
+    assumed_prior_knowledge: ["<bounded prior knowledge>"]
+    knowledge_to_introduce: ["<knowledge the text must supply>"]
+    intended_reader_shift: "<intended shift>"
+    terminology_disclosure_order:
+      - concept: "<reader-critical concept>"
+        depends_on: []
+        introduce_before_or_at: "<paragraph or reasoning function>"
+    reasoning_route:
+      tension: "<reader function>"
+      core_judgment: "<reader function>"
+      argument: "<reader function>"
+      counterposition_or_boundary: "<reader function>"
+      implication: "<reader function>"
+protected_content_register: {artifact_id: "<artifact-id>", version: "<version>", path: "<path>"}
+source_assessments:
+  narrative: {artifact_id: "<artifact-id>", version: "<version>", path: "<path>"}
+  language: {artifact_id: "<artifact-id>", version: "<version>", path: "<path>"}
+scientific_change_required: false
+blocking_conflicts: []
+actions:
+  - action_id: "EDR-001"
+    source_finding_ids: ["<finding-id>"]
+    source_kind: "narrative"
+    priority: "major"
+    artifact_locator: {section_heading: "<heading>", content_anchor: "<anchor>"}
+    operation: "consolidate"
+    current_problem: "<bounded current problem>"
+    target_state: "<observable reader-facing state>"
+    required_content_or_function: "<required function or verified wording>"
+    content_to_preserve: ["<protected content>"]
+    counterargument_or_boundary_family: null
+    authority_location: null
+    dependencies: []
+    acceptance_test: "<observable test>"
+allowed_operations: [replace, define, move, split, merge, delete, reorder, add_bridge, consolidate]
+writer_inputs_exclude:
+  - raw_narrative_assessment
+  - raw_language_assessment
+  - evaluator_and_panel_reports
+  - prior_scores_findings_and_decisions
+  - prior_drafts_and_deltas

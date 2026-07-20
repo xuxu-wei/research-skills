@@ -72,4 +72,4 @@
 使用 Generic Profile 时:
 - Outlet-fit 评分标注为 `provisional`
 - Final-compositor 不得声明 `ready for human sign-off`，只声明 `ready for outlet targeting`
-- Panel Narrative Reviewer 使用 Generic Profile 判断基本可读性
+- Optional target-reader/outlet simulation 仅在触发时使用 Generic Profile 作为 provisional 场景；正式 narrative readiness 由独立 `research-narrative-assessor` 判断

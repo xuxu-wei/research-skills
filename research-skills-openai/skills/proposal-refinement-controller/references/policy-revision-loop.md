@@ -6,8 +6,9 @@ Control proposal revision after an independent `proposal-evaluator` returns `rev
 
 ## Default Limit
 
-- Default maximum: 2 revision rounds.
+- Default maximum: 2 scientific revision rounds.
 - Additional rounds require explicit orchestrator approval and a clear reason.
+- Editorial repair uses a separate `editorial_round` counter with the same default ceiling. Continue only when remaining actions are specific, executable without scientific change, and likely to improve fresh reassessment.
 
 ## Revision Priority Order
 
@@ -33,4 +34,4 @@ After each revision and re-evaluation:
 - `accept`: pass gate and return to orchestrator.
 - `revise`: continue only if remaining defects are specific and likely fixable.
 - `reject`: stop if fatal flaw is not repairable.
-- `stop_no_gain`: stop if revision did not materially improve the proposal.
+- `stop_no_gain`: orchestrator-only route derived after comparing sealed reports; it is never an evaluator decision or input hint.

@@ -1,0 +1,28 @@
+schema_version: perspective-journal-candidate-brief.v1
+brief_id: "<brief-id>"
+workflow_id: "<workflow-id>"
+round_id: "<round-id>"
+perspective: {artifact_id: "<artifact-id>", version: "<version>", path: "<path>"}
+matching_scope: "<confirmed-target | candidate-search>"
+prepared_from_final_perspective_and_official_outlet_sources: true
+contains_evaluator_panel_or_repair_material: false
+scores_ranks_and_publication_probability_present: false
+candidates:
+  - journal: "<journal>"
+    article_type: "<Perspective | Viewpoint | Commentary | other>"
+    official_scope_url: "<url>"
+    official_author_guidelines_url: "<url>"
+    last_checked_date: "<YYYY-MM-DD>"
+    audience: "<audience>"
+    word_limit: null
+    reference_limit: null
+    abstract_requirement: null
+    figure_or_box_requirement: null
+    eligibility_or_invitation_rule: null
+    fit_rationale: "<source-grounded, unscored rationale>"
+    uncertainties: []
+excluded_material:
+  - evaluator_scores_findings_gates_and_decisions
+  - panel_reports_and_decisions
+  - narrative_and_language_assessments
+  - repair_briefs_deltas_and_readiness_reports

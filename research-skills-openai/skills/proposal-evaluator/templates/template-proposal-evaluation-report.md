@@ -8,12 +8,19 @@
 - Workflow ID:
 - Round ID:
 - Input artifact IDs and versions:
+- Reviewed proposal artifact ID:
+- Reviewed proposal version:
+- Reviewed proposal path:
 - Files read:
 - Review scope:
+- Evaluation stage: initial_scientific / scientific_reassessment / final_scientific
 - Isolation mode: `fresh_subagent`
 - Prior scores visible: `false`
 - Prior versions visible: `false`
 - Revision delta visible: `false`
+- Readiness report visible: `false`
+- Repair artifacts visible: `false`
+- Prior evaluation visible: `false`
 - Source edits performed: `false`
 
 ## 1. Evaluation Metadata
@@ -22,7 +29,6 @@
 - Evaluation type: initial / re-evaluation
 - Proposal file path:
 - Proposal version:
-- Reviewed proposal SHA-256:
 - Complete proposal confirmed: true / false
 - Evaluator role:
 
@@ -91,6 +97,8 @@ Use only for revised proposals.
 - New defects in the current complete proposal:
 
 Do not compare a prior proposal, revision delta, prior score, or prior decision.
+
+For `final_scientific`, do not use an anonymous must-fix list; assess only the revised final proposal under the stable rubric and minimal allowed call/factual inputs.
 
 ## 11. Unresolved Issues
 

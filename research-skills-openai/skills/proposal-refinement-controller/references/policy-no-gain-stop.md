@@ -4,6 +4,8 @@
 
 Prevent repeated revision loops that consume context without improving proposal quality.
 
+Only the orchestrator applies this policy after fresh reports are sealed. Evaluators see only their allowed current-artifact inputs and return `accept`, `revise`, or `reject`; they never receive prior-round evidence or a no-gain hint.
+
 ## Trigger Conditions
 
 Trigger `stop_no_gain` when one or more apply:

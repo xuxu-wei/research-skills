@@ -1,9 +1,9 @@
 # Focused Terminology Review
 
-Use this reference only after ordinary reading identifies a term that may
-impede the stated target reader. This is a focused check inside the Language
-Assessment Report, not a separate workflow, artifact, or full terminology
-inventory.
+Use this reference only after ordinary reading identifies a term that may impede the
+stated target reader. This focused check remains inside the Language Assessment Report.
+Never create a terminology inventory, per-term status list, separate artifact,
+separate workflow, or separate skill.
 
 ## Contents
 
@@ -61,13 +61,8 @@ the same contextual check to any named result or output that controls a
 scientific interpretation; its wording must identify what result, criterion,
 or consequence it displays.
 
-After editorial repair, the separate short-form diff is advisory. The writer
-records one of `removed`, `standard_and_defined`, `descriptive_not_label`, or
-`fixed_scaffolding` for each diff candidate in the existing revision delta.
-Candidate presence alone is not a failure. Only a candidate that remains a
-confirmed unresolved terminology problem becomes an actionable finding and
-blocks readiness. Do not copy resolved dispositions into the fresh Language
-Assessment Report, create a term register, or persist the full candidate list.
+Candidate presence alone is not a failure. Only a confirmed terminology problem
+becomes an actionable finding. Do not persist passing candidates or dispositions.
 
 Verify only a term that appears coined, nonstandard, ambiguous, disputed,
 inconsistent across languages, or inaccessible at the supplied reader
@@ -174,10 +169,10 @@ consistent. Avoid coined terms in titles; if indispensable in a summary,
 explain them in the same sentence.
 
 For a confirmed actionable problem, set `finding_kind: terminology` and report
-the exact locator, reader baseline,
-problem, term or phrase, recommended verified form or plain description,
-first-use definition, evidence basis, every observed competing form and
-locator (an explicit empty list when none exist), and an acceptance test. Do not judge the
+the exact locator, reader baseline, problem, term or phrase, exact recommended
+verified form or direct plain description, exact first-use wording, evidence basis,
+every observed competing form and locator (an explicit empty list when none exist),
+the required change, and an acceptance test. Do not judge the
 underlying scientific method, novelty, impact, feasibility, or argument.
 
 Use one `meso`/`concept_cluster` finding when the same scientific role or a
@@ -236,6 +231,6 @@ the design, return the exact clarification needed.
   observed competing forms and locators; checking only the first occurrence is
   insufficient. In the same pass, replace project-management or software
   metaphors with the scientific condition, operation, or consequence they stand
-  for. This is an in-memory completion check, not a term register or new artifact.
-  Persist only actionable terminology findings; do not record every acceptable
+  for. This is an in-memory completion check only. Persist only actionable
+  terminology findings; do not record every acceptable
   compact form merely to prove it was seen.

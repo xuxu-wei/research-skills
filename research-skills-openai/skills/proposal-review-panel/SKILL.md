@@ -11,9 +11,9 @@ Execute exactly one assigned proposal-review role and return one sealed individu
 ## Independent Execution Contract
 
 - Run each selected reviewer role in a different fresh independent subagent or delegated thread; never run in the context that generated, drafted, or revised the proposal.
-- Require frozen input artifact IDs, paths, versions, review mode, role, and scope. Treat all source artifacts as read-only.
+- Require frozen logical input artifact IDs, paths, versions, review mode, role, and scope. Treat all source artifacts as read-only; do not require or compute hashes/digests.
 - Write only the assigned individual review report. Do not edit, draft, rewrite, polish, repair, or fix the proposal or SAP.
-- Do not read parent hidden reasoning, expected conclusions, prior evaluator/reviewer outputs, or another panel member's work.
+- Do not read parent hidden reasoning, expected conclusions, context/readiness reports, evaluator outputs, repair/delta/editorial artifacts, medical-journal-review outputs, or another panel member's work.
 - Report exact files read, review scope, limitations, and reviewer instance ID.
 - If any required role cannot run independently, return `independent_review_pending` with a self-contained continuation brief and stop; never fall back to inline review or emit a panel recommendation.
 
@@ -21,7 +21,7 @@ Every individual report includes `review_id`, `reviewer_skill`, `reviewer_instan
 
 ## Modes and Inputs
 
-- `blind_mock_review` is default. Read only frozen proposal, version, user goal/target output, funding call/review scenario, assigned role, and scope. Do not read context brief, prior evaluation, revision delta, unresolved-issue list, or peer reports.
+- `blind_mock_review` is default. Read only frozen proposal logical identity, user goal/target output, verified funding call or review scenario, assigned role, and scope. Do not read context brief, readiness/evaluation reports, revision or editorial artifacts, journal-review findings, unresolved-issue list, or peer reports.
 - `context_aware_internal_review` is allowed only when explicitly selected. Label it internal advisory review and list every extra background file read.
 - SAP review is allowed only when explicitly requested and a frozen SAP version is supplied.
 
@@ -71,4 +71,4 @@ After every selected role returns, the orchestrator—not this reviewer instance
 
 ## Completion Check
 
-Confirm one role/one instance, frozen read-only inputs, no forbidden reports read, locatable findings, explicit fatal status, complete provenance, unchanged sources, and no fabricated consensus.
+Confirm one role/one instance, logically frozen read-only inputs, no forbidden reports read, locatable findings, explicit fatal status, complete provenance, unchanged sources, no digest requirement, and no fabricated consensus.

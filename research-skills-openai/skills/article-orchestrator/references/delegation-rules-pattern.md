@@ -6,7 +6,7 @@ Standard isolation and delegation pattern for research-article evaluators, audit
 
 Build skills (context-builder, architect, drafter, frontmatter-drafter, cover-letter) run **inline** in the orchestrator session.
 
-Evaluate/audit skills (readiness-triage, methods-auditor, claim-auditor, evaluator, every review-panel role, submission compositor/verifier) run only in fresh independent subagents or delegated threads. The orchestrator creates panel roles directly and aggregates only after all sealed reports return. Biomedical cover-letter-only review is a narrow independent task for `medical-journal-review`; that reviewer receives only the frozen cover letter and returns the apparent article tier from that letter alone.
+Evaluate/audit skills (readiness-triage, methods-auditor, claim-auditor, narrative assessor, language assessor, content-preservation checker, evaluator, every review-panel role, medical-journal-review, submission compositor/verifier) run only in fresh independent subagents or delegated threads. Narrative and language readiness run in parallel against the same reader bundle; the orchestrator normalizes their included actions before any writer sees them. The orchestrator creates panel roles directly and aggregates only after all sealed reports return. A journal-fit reviewer receives the final article and a score-free verified candidate brief, never evaluator scores or findings.
 
 ## Isolation Requirements
 
@@ -14,7 +14,7 @@ Evaluate/audit skills (readiness-triage, methods-auditor, claim-auditor, evaluat
 2. **Explicit brief only**: The delegate brief (from `references/delegate-brief-templates.md`) is the sole source of task instructions.
 3. **Frozen artifacts**: Every reviewer receives artifact IDs, paths, and versions. Reviewers treat source artifacts as read-only and must not switch versions mid-review.
 4. **Blind separation**: Review panel members in `blind_external_simulation` mode receive only the manuscript and their role description. No context brief, evaluation reports, blueprint, or other reviewer outputs.
-5. **Fresh re-evaluation**: A re-evaluator receives no prior scores or decisions. The orchestrator compares sealed reports after the fresh evaluator returns.
+5. **Fresh final evaluation**: The evaluator runs only after editorial readiness/preservation. It receives no prior scores, decisions, plans, reports, deltas, audits, or assessor outputs. The orchestrator compares sealed scientific rounds only after the fresh evaluator returns.
 6. **No inline fallback**: If a fresh independent context is unavailable, return `independent_review_pending` with a continuation brief and stop.
 
 ## Subagent Inputs
@@ -25,7 +25,7 @@ Each isolated subagent receives:
 - User goal and target journal (required)
 - Scope limitations (if applicable)
 - Stable rubric and necessary factual artifacts (required for evaluation)
-- An anonymized must-fix list only when fix verification is required; never prior versions, deltas, reports, scores, or decisions
+- No prior versions, plans, deltas, reports, scores, decisions, expected findings, or writer-facing repair brief in final evaluator inputs
 
 ## Subagent Prohibitions
 
@@ -44,7 +44,7 @@ For a review panel, create one fresh independent subagent or delegated thread pe
 
 ## When Independent Delegation Is Unavailable
 
-Build skills may continue in the orchestrator context. Reviewer-class work must not. For readiness triage, methods audit, claim audit, evaluation, language assessment, panel review, or final compositor/verification:
+Build skills may continue in the orchestrator context. Reviewer-class work must not. For readiness triage, methods audit, claim audit, narrative/language readiness, content preservation, final evaluation, panel review, journal review, or final compositor/verification:
 
 1. Set the relevant workflow step to `independent_review_pending`.
 2. Save a self-contained continuation brief with the frozen input identities, paths, scope, rubric, output path, and prohibited actions.
@@ -63,6 +63,12 @@ Subagent input briefs and output reports are saved in `14_delegates/` for audita
   methods-audit-output.md
   claim-audit-brief.md
   claim-audit-output.md
+  narrative-assessment-brief.md
+  narrative-assessment-output.md
+  language-assessment-brief.md
+  language-assessment-output.md
+  content-preservation-brief.md
+  content-preservation-output.md
   evaluation-brief.md
   evaluation-output.md
   submission-compositor-brief.md

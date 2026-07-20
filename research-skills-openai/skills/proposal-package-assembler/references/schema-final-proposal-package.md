@@ -7,6 +7,10 @@ Use this file as a structural checklist, not as executable code.
 - package_scope
 - final_proposal_file_path
 - final_proposal_version
+- final_proposal_artifact_id
+- qualifying_evaluation_proposal_ref
+- logical_identity_match
+- artifact_index_complete
 - package_summary
 - included_materials
 - readiness_status_summary
@@ -23,6 +27,9 @@ Use this file as a structural checklist, not as executable code.
 - skeptical_objections
 - optional_sap_section
 - missing_inputs
+- editorial_readiness_summary
+- journal_candidate_brief_path
+- medical_journal_review_summary
 
 ## Optional SAP Section Fields
 - sap_file_path

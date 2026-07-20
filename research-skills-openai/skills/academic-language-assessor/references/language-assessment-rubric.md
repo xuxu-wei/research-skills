@@ -43,8 +43,8 @@ Scoring anchors for the six assessment dimensions. Each dimension scored 1–10.
 For Idea dossiers, this dimension also covers whether core terms are standard
 or natural in the relevant domain, comprehensible at the stated reader
 baseline, defined at first use, and stable across languages. Consistency alone
-does not rescue a consistently nonstandard or misleading term. Do not require a
-long terminology inventory when no problem is present. Assess a composite
+does not rescue a consistently nonstandard or misleading term. Never create a
+terminology inventory, per-term status list, or separate terminology artifact. Assess a composite
 phrase by its semantic head and any genuinely ambiguous component, not by
 whether the exact complete phrase occurs in a source. Required machine
 frontmatter and contract-fixed labels are outside this score unless their
@@ -138,8 +138,9 @@ its language criteria:
 - `local_language`: assess every in-scope reader-facing unit for grammar,
   register, tense, local clarity, and local redundancy.
 
-Record only counts and a concise basis in `coverage_receipt`; never persist the
-temporary role list or a complete term inventory. Classify language findings as
+Record only counts and a concise basis in `coverage_receipt`; this completion receipt
+is not a per-term status output. Never persist the temporary role list, a term
+inventory, or passing candidate dispositions. Classify language findings as
 `meso` when one concept cluster spans multiple reader-facing occurrences or
 roles, and `micro` when one localized expression can be repaired independently.
 Route macro argument, section-function, or disclosure-order problems to the

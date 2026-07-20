@@ -1,0 +1,23 @@
+schema: proposal-protected-content-register.v1
+artifact_id:
+version_id:
+workflow_id:
+round_id:
+source_proposal_ref:
+  artifact_id:
+  version:
+  path:
+reader_handoff_ref:
+  artifact_id:
+  version:
+  path:
+protected_items:
+  - item_id:
+    category: research_question | significance_and_gap | aim | method | conditional_method_assumption | feasibility | risk | novelty_or_impact_claim | deliverable | binding_source_intent
+    status: source_present | source_absent
+    locator:
+    protected_meaning:
+    allowed_editorial_change:
+    prohibited_change:
+authoritative_assumptions_feasibility_risks_locator:
+category_coverage: []

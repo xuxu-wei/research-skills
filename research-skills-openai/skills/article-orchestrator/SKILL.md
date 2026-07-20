@@ -1,6 +1,6 @@
 ---
 name: article-orchestrator
-description: "Orchestrate full, fast-track, blueprint-only, section-specific, or submission-only article workflows through review and human handoff."
+description: "Orchestrate article discovery, planning, review, reader readiness, and handoff."
 ---
 # article-orchestrator
 
@@ -10,48 +10,81 @@ Control article routing, state, delegation, stops, and handoff. Do not retrieve 
 
 ## Invariants
 
-- Track current pointers under `13_state/`; freeze delegated IDs, paths, versions, digests, scope, and read/write limits.
-- Keep every Markdown manuscript complete, identity-bound, immutable, and separately versioned from revisions/deltas.
-- Delegate every reviewer/verifier role to a fresh independent subagent; one writer owns each source version and concurrent source writes are forbidden. A changed manuscript requires a fresh evaluator before panel or package.
-- Map review wait to `pending_review`, unavailable review to `independent_review_pending`, fatal findings to `blocked`, and no gain to `stopped`; preserve dissent and unresolved issues.
+- Bind artifacts by ID, version, exact path, frozen state, complete index, and one current
+  pointer under `13_state/`; new LLM-facing artifacts do not store hashes.
+- Keep each Markdown manuscript complete, immutable, and separately versioned from its
+  delta. One writer owns a source version; concurrent source writes are forbidden;
+  reviewers/verifiers are fresh and read-only.
+- Freeze the current manuscript, provisional frontmatter, and needed displays as the
+  reader bundle before editorial readiness and final evaluation.
+- Preserve dissent and unresolved issues. A changed reader artifact requires fresh
+  preservation/readiness and evaluation before panel or package.
 - Stop at verified human sign-off; never submit externally.
 
 ## Entry Routing
 
 | Mode | Required route |
 |---|---|
-| `standard` | Intake -> triage -> context -> grounding -> blueprint -> methods audit -> draft -> claim audit -> evaluation loop -> panel -> delivery |
-| `fast_track_draft` | Intake -> readiness triage -> minimal backfill -> claim audit/evaluation |
-| `fast_track_draft_and_evaluation` | Intake -> triage -> validate review provenance -> refinement/panel or fresh evaluation |
+| `standard` | Complete intake through blueprint, audits, drafting, readiness, final evaluation, panel, and delivery |
+| `fast_track_draft` | Independent readiness triage, minimal backfill, claim audit, reader bundle, readiness, and final evaluation |
+| `fast_track_draft_and_evaluation` | Triage and validate the existing draft, repair when needed, then readiness and fresh final evaluation |
 | `blueprint_only` | Intake through methods audit, then stop for user review |
-| `section_specific` | Scoped intake -> minimal context -> drafter; never emit manuscript-ready or submission-ready status |
-| `submission_only` | Intake -> submission triage -> current evaluation gate -> delivery; stale review returns to claim audit/evaluation |
+| `section_specific` | Scoped intake and drafting only; never emit manuscript/submission readiness |
+| `submission_only` | Submission triage, current-review gate, and verified delivery |
 
 Mark fast-track backfill `confidence: low` and `scope_limitation: fast_track_backfill`.
 
 ## Workflow Kernel
 
-1. **Initialize.** Create state, layout, index, mode, goal, target, current step, pointers, and unresolved issues.
-2. **Triage.** Delegate `article-readiness-triage`. Continue only on `ready` or `conditionally_ready`; stop on `not_ready` or `wrong_article_type`.
-3. **Normalize.** Route to `article-context-builder`; stop when blocking clarification is required.
-4. **Ground.** Route literature to `article-literature-grounder`; it may call `research-opportunity-mapper` for missing, stale, or conflicting evidence.
-5. **Architect.** Route blueprint, claims, provenance, displays, supplements, results skeleton, and journal adapter to `article-architect`.
-6. **Audit methods.** Delegate `methodology-statistics-preflight` when quick feasibility screening is needed, then delegate `article-methods-statistics-auditor`. Stop on `requires_reanalysis` or `methodologically_blocked`.
-7. **Draft.** Route Methods -> Results -> Introduction -> Discussion and supplementary organization to `article-drafter`.
-8. **Audit claims.** Delegate `article-claim-auditor`. Route fixable repairs through controller/drafter, then use a fresh auditor; stop on fatal overclaims.
-9. **Evaluate.** In parallel, delegate a fresh `article-evaluator` and optional `academic-language-assessor`; keep reports sealed. Route `accept`, `revise`, or `reject`.
-10. **Revise and re-evaluate.** Controller/drafter writes a complete new manuscript plus separate revision artifacts. Give a fresh evaluator only the latest manuscript/digest, current display assets, stable rubric, necessary facts, and optional anonymous must-fix list. Never expose prior manuscripts, deltas, reports, scores, or decisions; compare sealed rounds and the delta only here.
-11. **Panel.** Dispatch one fresh `article-review-panel` subagent per role against the same frozen version; hide evaluator and peer outputs. Aggregate after all return and preserve dissent. Fatal methods findings cap at `not_ready`.
-12. **Resolve panel route.** Major or substantive changes return to revision and fresh evaluation. Minor changes that alter prose also create a new version and require fresh evaluation. Unfixable `reject_or_redesign` stops.
-13. **Prepare delivery.** Route frontmatter and Cover Letter to their writers. At the existing medical-review point, one fresh `medical-journal-review` may add scoped probability to its same report.
-14. **Verify package.** Delegate `article-submission-compositor` against frozen sources. When DOCX-capable document tooling exists, require a synchronized DOCX with native tables, embedded figures, parity checks, and page-render QA. It may format and verify only; it must not repair source content.
+1. **Initialize and inventory.** Create state/index/pointers and inventory every supplied
+   file. Freeze any user-declared semantic authority, but retain compatible result,
+   display, code, and reporting assets.
+2. **Triage.** Give the complete inventory to a fresh independent `article-readiness-triage`; continue only
+   on `ready` or `conditionally_ready`.
+3. **Normalize.** `article-context-builder` freezes reader baseline, reasoning handoff,
+   source intent, constraints, and missing facts; unresolved blocking facts stop.
+4. **Ground.** `article-literature-grounder` handles literature and may use
+   `research-opportunity-mapper` for missing, stale, or conflicting evidence.
+5. **Architect.** `article-architect` creates the full section-content plan, reader
+   handoffs, claims/provenance, displays, supplements, results skeleton, and adapter.
+6. **Audit methods.** Use the shared preflight when needed and a fresh
+   `article-methods-statistics-auditor`; reanalysis or a method block stops.
+7. **Draft.** `article-drafter` writes Methods, Results, Introduction, Discussion, and
+   supplements from the frozen plan.
+8. **Audit science.** A fresh `article-claim-auditor` checks the complete draft.
+   Controller/drafter handle fixable scientific changes before fresh re-audit; editorial
+   reviewers never settle scientific disputes.
+9. **Complete the reader bundle.** `article-frontmatter-drafter` creates versioned
+   provisional titles, abstract, and key points; freeze these with manuscript/displays.
+10. **Assess readiness.** Freeze the protected register, then run fresh
+    `research-narrative-assessor` and `academic-language-assessor` in parallel on the
+    same bundle. Seal both raw reports from writers and the final evaluator.
+11. **Repair once.** Normalize included actions into one YAML writer brief. The body
+    and frontmatter owners execute their respective actions without raw reports;
+    bounded passes retain the same owner and end in one complete bundle. Require action
+    conformance, fresh preservation, and fresh narrative/language reassessment.
+12. **Evaluate the delivery object.** A fresh `article-evaluator` reads only the final
+    current bundle, stable rubric, and minimal factual/outlet constraints. All drafts,
+    plans, audits, readiness/repair artifacts, deltas, panels, and prior evaluations are
+    forbidden.
+13. **Panel.** Run isolated `article-review-panel` roles on the same version and retain
+    dissent. Any prose change returns through preservation, readiness, and evaluation.
+14. **Match journals.** Build a score-free candidate brief from final scientific scope,
+    then run fresh `medical-journal-review` without evaluator material; draft a Cover
+    Letter only after an outlet route is selected.
+15. **Verify delivery.** `article-submission-compositor` performs format-only assembly.
+    When tooling exists, require synchronized DOCX, native tables, available figures,
+    semantic parity, and full-page render QA.
 
 ## Promotion and Stop Rules
 
+- Use `pending_review` while a required review is running,
+  `independent_review_pending` when fresh review is unavailable, `blocked` for a fatal
+  dependency, and `stopped` for an unfixable or no-gain route.
 - Stop on failed readiness, clarification, reanalysis, method block, fatal flaw, no gain, incomplete review, or panel redesign/rejection.
 - Any unresolved fatal finding prevents `accept`, `promoted`, and ready-for-signoff states.
 - Journal instructions, references, table/figure/result consistency, and final declarations are checked only at submission-package verification. Missing verification caps status below `ready_for_author_signoff`.
-- The packaged Markdown digest must match the qualifying evaluator. DOCX content drift, required missing assets, unavailable render QA, or manuscript identity drift prevents `human_signoff_required`.
+- The packaged artifact ID/version/path and current index pointer must match the qualifying evaluator's reader bundle. DOCX semantic drift, required missing assets, unavailable render QA, or manuscript identity drift prevents `human_signoff_required`.
 
 ## Conditional Resources
 
@@ -59,9 +92,15 @@ Mark fast-track backfill `confidence: low` and `scope_limitation: fast_track_bac
 - Read `references/workflow-state-schema.md` for workflow state.
 - Read `references/artifact-naming-and-directory-rules.md` for paths, versions, or the index.
 - Read `references/artifact-contracts.md` for intake through claim-audit schemas.
+- Read `references/article-blueprint-contract.md` when creating or validating the
+  pre-drafting blueprint.
 - Read `references/artifact-review-and-submission-contracts.md` for evaluation, revision, panel, cover-letter, and package schemas.
+- Read `references/article-editorial-readiness-contracts.md` when building or
+  validating the protected register, YAML writer brief, or preservation report.
 - Read `references/handoff-validation.md` before cross-skill handoff.
 - Read `references/delegate-brief-templates.md` for auditor, evaluator, panel, or compositor briefs.
+- Read `references/article-editorial-delegate-briefs.md` when dispatching narrative,
+  language, editorial-writer, or preservation work.
 - Read `references/delegation-rules-pattern.md` for isolation and dispatch.
 - Read `references/loop-control-rules.md` for revision or no-gain decisions.
 - Read `references/evidence-confirmation-and-routing.md` when a finding is tagged `[evidence]`.

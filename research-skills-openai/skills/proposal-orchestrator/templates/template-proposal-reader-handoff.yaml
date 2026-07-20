@@ -1,0 +1,18 @@
+schema: proposal-reader-handoff.v1
+artifact_id:
+version_id:
+workflow_id:
+round_id:
+source_skill: proposal-orchestrator
+path: 01_context/proposal-reader-handoff-vNNN.yaml
+based_on_context_ref:
+  artifact_id:
+  version:
+  path:
+target_reader_profile:
+reader_prior_knowledge: []
+terms_requiring_definition: []
+reader_reasoning_chain: []
+gap_type:
+binding_constraints: []
+frozen: true
