@@ -21,7 +21,7 @@ REGISTRY = PLUGIN / "workflow-registry.yaml"
 MANIFEST = PLUGIN / ".codex-plugin" / "plugin.json"
 MARKETPLACE = REPO / ".agents" / "plugins" / "marketplace.json"
 
-EXPECTED_REVIEWERS = 20
+EXPECTED_REVIEWERS = 21
 RESEARCH_POLISHER_ENTRY = "research-polisher-orchestrator"
 EXPECTED_PUBLIC_ENTRY_SKILLS = {
     "academic-deep-search",
@@ -53,11 +53,12 @@ EXPECTED_WORKFLOWS = {
     "perspective",
     "research_polisher",
 }
-OPENAI_NATIVE_SKILLS = {
-    "research-polisher-methodology-publishability-reviewer",
-    "research-polisher-orchestrator",
-    "research-polisher-plan-assembler",
-    "research-polisher-strategy-reviewer",
+OPENAI_NATIVE_SKILL_PACKAGES = {
+    "idea-narrative-assessor": "research-idea",
+    "research-polisher-methodology-publishability-reviewer": "research-polisher",
+    "research-polisher-orchestrator": "research-polisher",
+    "research-polisher-plan-assembler": "research-polisher",
+    "research-polisher-strategy-reviewer": "research-polisher",
 }
 DELETED_PERSONAL_PROFILE_ASSETS = {
     "PHASE7-8-RUNBOOK.md",
@@ -215,7 +216,10 @@ def resource_ownership_errors(skill_md: Path) -> list[str]:
     resources = [
         path
         for path in skill_md.parent.rglob("*")
-        if path.is_file() and any(part in {"references", "templates", "scripts"} for part in path.parts)
+        if path.is_file()
+        and "__pycache__" not in path.parts
+        and path.suffix.lower() != ".pyc"
+        and any(part in {"references", "templates", "scripts"} for part in path.parts)
     ]
     for resource in sorted(resources):
         resource_path = resource.relative_to(skill_md.parent).as_posix()
@@ -381,9 +385,8 @@ def main() -> int:
         "method_analysis_or_processing",
         "output",
         "supported_objective_or_claim",
-        "limitations_and_failure_conditions",
     ]:
-        errors.append("registry Idea evidence chains must use the complete five-field semi-structured contract")
+        errors.append("registry Idea evidence chains must use the complete four-field semi-structured contract")
     editorial = artifact_policy.get("idea_editorial_repositioning_contract", {})
     if not (
         editorial.get("title_audience_and_positioning_changes_allowed") is True
@@ -417,11 +420,39 @@ def main() -> int:
         "prior_decision",
     }
     if not (
-        dossier_only.get("allowed_project_artifacts") == ["current_complete_idea_dossier_and_digest"]
+        dossier_only.get("allowed_project_artifacts") == ["current_complete_idea_dossier"]
         and dossier_only.get("exact_project_artifact_count") == 1
         and set(dossier_only.get("forbidden_project_artifacts", [])) == expected_idea_forbidden
+        and dossier_only.get("logical_binding_fields") == ["artifact_id", "version", "path"]
+        and dossier_only.get("content_digest_required") is False
+        and dossier_only.get("readiness_reports_visible") is False
     ):
         errors.append("registry Idea evaluator must receive exactly the current complete dossier")
+    readiness = artifact_policy.get("idea_editorial_readiness_contract", {})
+    if not (
+        readiness.get("runs_after_scientific_revision_before_evaluation") is True
+        and readiness.get("parallel_reviewers")
+        == ["idea-narrative-assessor", "academic-language-assessor"]
+        and readiness.get("editorially_eligible_narrative_decisions")
+        == ["narrative_ready", "minor_narrative_revision"]
+        and readiness.get("editorially_eligible_language_decisions")
+        == ["submission_ready", "minor_language_revision"]
+        and readiness.get("eligibility_requires_no_unresolved_major_narrative_finding") is True
+        and readiness.get("eligibility_requires_no_unresolved_critical_or_major_language_finding") is True
+        and readiness.get("idea_scope_overrides_global_language_minor_revision_action") is True
+        and readiness.get("ordinary_repair_decisions")
+        == ["major_narrative_revision", "major_language_revision"]
+        and readiness.get("clarification_required_route")
+        == "clarification_stop_then_fresh_assessment"
+        and readiness.get("needs_professional_editing_route")
+        == "editorial_revision_required_external_language_support_then_fresh_assessment"
+        and readiness.get("repair_plan_format") == "yaml"
+        and readiness.get("repair_requires_protected_content_register") is True
+        and readiness.get("repair_requires_fresh_content_preservation_review") is True
+        and readiness.get("repair_requires_fresh_narrative_and_language_reassessment") is True
+        and readiness.get("evaluator_reads_editorial_artifacts") is False
+    ):
+        errors.append("registry Idea editorial-readiness contract is incomplete")
     idea_machine = state_machines.get("idea", {})
     if idea_machine.get("primary_artifact_type") != "idea_dossier":
         errors.append("registry Idea primary artifact must be idea_dossier")
@@ -455,17 +486,16 @@ def main() -> int:
         errors.append(
             f"registry/skill name mismatch: missing={sorted(set(names)-registry_names)} extra={sorted(registry_names-set(names))}"
         )
-    native_registry_names = {
-        entry.get("name", "")
-        for entry in entries
-        if entry.get("package") == "research-polisher"
-    }
-    if native_registry_names != OPENAI_NATIVE_SKILLS:
-        errors.append(
-            "OpenAI-native research-polisher registry inventory differs: "
-            f"missing={sorted(OPENAI_NATIVE_SKILLS - native_registry_names)} "
-            f"extra={sorted(native_registry_names - OPENAI_NATIVE_SKILLS)}"
-        )
+    entries_by_name = {entry.get("name", ""): entry for entry in entries}
+    for native_name, expected_package in OPENAI_NATIVE_SKILL_PACKAGES.items():
+        entry = entries_by_name.get(native_name)
+        if entry is None:
+            errors.append(f"OpenAI-native skill missing from registry: {native_name}")
+        elif entry.get("package") != expected_package:
+            errors.append(
+                f"OpenAI-native skill {native_name} package differs: "
+                f"expected {expected_package}, found {entry.get('package')}"
+            )
     plugin_license = PLUGIN / "LICENSE"
     root_license = REPO / "LICENSE"
     if not plugin_license.exists() or not root_license.exists():
@@ -475,7 +505,7 @@ def main() -> int:
     for entry in entries:
         name = entry.get("name", "")
         package = entry.get("package", "")
-        if name in OPENAI_NATIVE_SKILLS:
+        if name in OPENAI_NATIVE_SKILL_PACKAGES:
             continue
         source_dir = REPO / "research-skills" / str(package) / str(name)
         if not source_dir.is_dir():
@@ -1068,7 +1098,7 @@ def main() -> int:
         "**Method / analysis / processing:**",
         "**Output:**",
         "**Supports:**",
-        "**Limits and failure conditions:**",
+        "Section 14 is the sole global authority",
         "supported / qualified / unsupported",
         "Similar prior work does not automatically require new work",
     ):
@@ -1102,7 +1132,7 @@ def main() -> int:
             errors.append(f"Idea reference-ledger contract lacks `{marker}`")
     idea_evaluator = read(SKILLS / "idea-evaluator" / "SKILL.md")
     for marker in (
-        "reviewed_dossier_digest",
+        "reviewed_dossier_ref",
         "complete_dossier_confirmed",
         "dossier_only_input_confirmed",
         "dossier_locator",

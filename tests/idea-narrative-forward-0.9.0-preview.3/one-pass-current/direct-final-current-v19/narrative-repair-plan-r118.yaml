@@ -1,0 +1,72 @@
+schema_version: research-idea-narrative-repair-plan.v1
+plan_id: narrative-repair-plan-I01-001-r118
+assessment_id: narrative-assessment-I01-001-r118
+source_artifact:
+  artifact_id: idea-dossier-I01-001-v053
+  version: v053
+  path: tests/idea-narrative-forward-0.9.0-preview.3/one-pass-current/direct-final-current-v19/idea-dossier-v053.md
+decision: major_narrative_revision
+clarifications_required: []
+actions:
+  - action_id: NRP-001
+    addresses_findings:
+      - NAR-001
+    priority: major
+    dossier_locator:
+      section_heading: Research design and methods
+      subsection_heading: Conditional trial-observation mapping and independent analysis
+      content_anchor: "本阶段是仅在预设条件满足后利用随机对照试验稀疏访视资料开展的次要再分析"
+    operation: move
+    current_problem: >-
+      条件性阶段 III 的完整方法位于 Secondary representation diagnostics 之前，读者尚未完成阶段 I–II 核心方法就被带入 24 个月后的从属延伸。
+    target_state: >-
+      Research design and methods 先连续完成两项主要任务、状态系统、观察性目标、绝对恢复、跨数据库检验和两项次要表征诊断，再进入条件性试验延伸。
+    required_content_or_function: >-
+      保持阶段 I–II 方法为连续主路线，并将条件性试验分析明确呈现为主路线之后的从属方法分支。
+    content_to_preserve:
+      - 条件性试验分析的共享前提、分试验观测映射、外部忠实度标准、分层标准化概率指数、独立 SOFA 端点、缺失与多重性处理及停止条件
+      - Secondary representation diagnostics 对伪遮蔽重建和未来轨迹预测两项阶段 II 诊断的完整说明
+      - EXIT-SEP 与 XBJ-SCAP 始终分开分析且不补足阶段 II 成功的科学边界
+    content_to_remove_or_move:
+      - 将完整的 Conditional trial-observation mapping and independent analysis 小节从 Hospital-primary cross-database validation 与 Secondary representation diagnostics 之间移出
+    destination_if_moved: >-
+      Research design and methods 中 Secondary representation diagnostics 之后，作为阶段 I–II 核心方法完成后的最后一个从属方法小节
+    dependencies: []
+    acceptance_test: >-
+      从 Research design and methods 开头顺序阅读时，读者在遇到任何阶段 III 公式、资格分支或试验特异处理之前，已经读完阶段 I–II 的两项主要任务、状态系统、恢复、跨数据库检验和两项次要表征诊断；移动未删除或改写任何科学条件。
+  - action_id: NRP-002
+    addresses_findings:
+      - NAR-001
+    priority: major
+    dossier_locator:
+      section_heading: Research design and methods
+      subsection_heading: Conditional trial-observation mapping and independent analysis
+      content_anchor: "共享前提；观测映射成立时；观测映射不成立但独立分析条件成立时；核心语义不足时停止"
+    operation: consolidate
+    current_problem: >-
+      条件性试验延伸的完整启动资格、映射分支、替代端点、停止规则和解释边界已在本小节定义，却在多个后续必需章节中被成组重述，使从属延伸获得与阶段 I–II 主线不相称的篇幅，并让读者反复核对同一逻辑。
+    target_state: >-
+      本小节保留完整技术逻辑；Objectives、Work packages、Evidence chains、Required analyses、Planned outputs、Falsification、Interpretation、Contribution 和 Claim-support 各只保留完成自身功能所需的最小从属说明；完整限制只保留在 Limitations and boundary conditions，其他位置仅留下直接支撑相邻设计选择且不可省略的自足边界。
+    required_content_or_function: >-
+      一个完整的条件性试验技术权威位置、一个完整的限制权威位置，以及各必需章节互不替代的目标、工作包、证据链、验收、产物、解释和主张核查功能。
+    content_to_preserve:
+      - Primary research question 与 Objective 4 对条件性分试验次要分析的简短身份说明
+      - WP5 的时间、依赖关系和不计入阶段 II 成功的最小信息
+      - 第五条 Evidence chain 的 Input、Method / analysis / processing、Output 和 Supports
+      - Planned outputs 中分试验结果或不开展原因记录这一产物
+      - Interpretation matrix 中映射成立与独立 SOFA 端点两种结果的不同解释功能
+      - Title and positioning claim-support table 对从属转化延伸的主张核查功能
+      - Limitations and boundary conditions 中资源、语义、映射、时间、监管和禁止主张的完整限制
+      - 所有试验资格阈值、公式、缺失处理、多重性、分试验差异和停止条件的科学内容
+    content_to_remove_or_move:
+      - Required analyses and evidence 中对授权、原始材料、共同锚点、映射、概率指数、插补、中心、Holm 检验族和负责人确认的整组重复规格
+      - Falsification and stop criteria 中已由技术权威位置和完整限制位置覆盖的观测映射与核心语义完整分支，仅保留本节判伪功能所需的结果后果
+      - Contribution and evidence ladder、Verified representative closest-work comparison 与 Title and positioning claim-support table 中超出各自贡献、近邻比较或主张核查功能的条件性试验方法细节
+      - Feasibility and resources、Working assumptions、Risks alternatives and stop conditions 中与 Limitations and boundary conditions 重复且不直接推进相邻资源决定的完整限制陈述
+      - 全文反复出现的“阶段 III 不计入或补足阶段 II 成功”完整句式，只在定位、WP5、方法权威和完整限制中保留完成各自功能所需的最小说明
+    destination_if_moved: >-
+      资格、操作、替代和停止的技术细节统一保留在 Conditional trial-observation mapping and independent analysis；完整限制统一保留在 Limitations and boundary conditions
+    dependencies:
+      - NRP-001
+    acceptance_test: >-
+      条件性试验的完整资格、阈值、公式、替代端点和停止逻辑只在指定方法小节出现一次；第 14 节仍是唯一完整限制说明位置，其他章节不使用指针替代限制，只保留直接服务本节功能的自足边界；15 个必需 H2、Background 到 Rationale 五个 H3、五条完整 Evidence chain、Key techniques 的实施记录及全部科学内容均仍存在，且从标题到主要目标再到阶段 I–II 方法可连续阅读而无需回读阶段 III 条件。

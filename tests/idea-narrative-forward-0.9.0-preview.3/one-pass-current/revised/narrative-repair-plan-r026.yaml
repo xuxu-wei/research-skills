@@ -1,0 +1,50 @@
+schema_version: research-idea-narrative-repair-plan.v1
+plan_id: narrative-repair-plan-r026
+assessment_id: narrative-assessment-r026
+source_artifact:
+  artifact_id: idea-dossier-I01-001-v022
+  version: v022
+  path: tests/idea-narrative-forward-0.9.0-preview.3/one-pass-current/revised/idea-dossier-v022.md
+decision: minor_narrative_revision
+clarifications_required: []
+actions:
+  - action_id: NRP-001
+    addresses_findings:
+      - NAR-001
+    priority: minor
+    dossier_locator:
+      section_heading: "Title, summary, audience, and positioning"
+      subsection_heading: null
+      content_anchor: "Positioning and contribution frame: 本研究的预期贡献是把可追溯的全病程时间轴"
+    operation: define
+    current_problem: "“模拟恢复检验”在定位段首次出现，结构化摘要又使用其更具体的标准和失败检查，但跨学科读者要到后面的 Rationale 或方法部分才知道该检验是在已知生成真值下检查可恢复性并防止模型错设时的虚假高置信度。"
+    target_state: "首次出现即有一句简短、非公式化的功能说明；读者在进入结构化摘要前已能区分这种检验与一般预测验证，后文保留完整情形、指标和阈值。"
+    required_content_or_function: "说明模拟数据提供已知参照，检验用于判断候选模型能否恢复预设的可解释状态、转移或关系，并在零关系或模型错设时避免输出虚假高置信度；不要在开篇搬入数值阈值。"
+    content_to_preserve:
+      - "定位段关于全病程时间轴、变量角色分离、跨数据库测试及增量贡献边界的全部科学内容"
+      - "结构化摘要中复杂候选只有通过绝对标准才进入后续检验的顺序"
+      - "Rationale 与 Absolute simulation and semi-synthetic recovery assessment 中完整的功能解释、情形和阈值"
+    content_to_remove_or_move: []
+    destination_if_moved: null
+    dependencies: []
+    acceptance_test: "从标题开始顺序阅读至结构化摘要结束，不查看后文方法，目标读者能够说明该模拟检验所依赖的已知参照、它检查的对象以及它为何不能由预测排名替代；开篇未重复后文的数值阈值。"
+  - action_id: NRP-002
+    addresses_findings:
+      - NAR-002
+    priority: minor
+    dossier_locator:
+      section_heading: "Background, current state, gap, significance, and rationale"
+      subsection_heading: "Gap"
+      content_anchor: "现有证据也不能说明，阶段 II 模型能否在不重新估计试验特异权重的情况下"
+    operation: define
+    current_problem: "“阶段 II 模型”在缺口段首次作为关键前置成果出现，但阶段 I–II 的 24 个月公共数据库最低交付和阶段 III 的后续条件性试验分析要到工作包部分才说明。"
+    target_state: "首次使用阶段编号时即可识别每个阶段的科学内容、时间边界和依赖顺序，后续阶段编号可作为简洁指代而不要求回查。"
+    required_content_or_function: "在首次使用处用简短说明界定：阶段 I–II 是 24 个月内完成的公共重症监护数据库审计、模型构建与预先隔离跨数据库检验；阶段 III 是其后仅在前一阶段成功且试验条件合格时开展的分试验次要分析。"
+    content_to_preserve:
+      - "现有证据不能说明冻结模型能否映射到两项试验稀疏实际访视指标的科学缺口"
+      - "阶段 III 不得补足阶段 II 失败且不能验证未测动态过程或整个候选模型的边界"
+      - "Twenty-four-month minimum and dated decision points 中的日期、顺序、停止条件和最低交付"
+    content_to_remove_or_move: []
+    destination_if_moved: null
+    dependencies: []
+    acceptance_test: "目标读者在读完 Gap 后、尚未进入 Research content and work packages 时，能够准确说明阶段 I–II 与阶段 III 各自包含什么、何时发生，以及试验分析依赖哪些前置条件；后文阶段描述与时间表保持一致。"

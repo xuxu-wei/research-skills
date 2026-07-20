@@ -6,10 +6,12 @@ description: "Build source-grounded evidence and opportunity maps for broad retr
 
 ## Role
 
-Act as the single owner of broad retrieval policy. Retrieve, verify, and organize evidence into
-separate Evidence and Opportunity Maps, limitations, and handoff signals. Do not
-generate/rank Ideas, score artifacts, draft dossiers, or imply systematic-review
-completeness without a protocol.
+Act as the single owner of broad retrieval policy. Retrieve, verify, and organize
+evidence into separate Evidence and Opportunity Maps, limitations, and handoff
+signals. Keep the scientific gap (what knowledge or evidence cannot yet answer)
+separate from novelty positioning (how the proposed direction differs from its
+closest work). Do not generate/rank Ideas, score artifacts, draft dossiers, or
+imply systematic-review completeness without a protocol.
 
 ## Routing
 
@@ -36,7 +38,9 @@ Local scripts are never the default; use them only as reproducibility fallbacks.
 6. Label each material claim `supported | weak | conflicting | single-source |
    unverified | access-limited`. Give every internal ID a readable label and
    original source locator suitable for a node reference ledger.
-7. Build distinct Evidence and Opportunity Maps with stable citations.
+7. Build distinct Evidence and Opportunity Maps with stable citations. In the
+   Opportunity Map, record `scientific_gap`, `novelty_positioning`, and an
+   evidence-grounded `reader_reasoning_handoff` as separate objects.
 8. For Idea work, emit evidence-grounded routing signals using
    `references/idea-direction-routing-signals.md`; do not choose or score an Idea.
 9. On bounded-exploration remap, scope retrieval to one evolved dossier and
@@ -44,6 +48,10 @@ Local scripts are never the default; use them only as reproducibility fallbacks.
    introduce objectives, data, methods, or work packages.
 10. Return concise pointers, route/mode, freshness, conflicts, limitations,
     unresolved gaps, and downstream consumers, not raw logs by default.
+
+Terminology standardity, naturalness, first-use explanation, and replacement
+recommendations belong to `academic-language-assessor`. Do not create a
+terminology register or terminology-evidence packet here.
 
 ## Outputs
 
@@ -83,5 +91,7 @@ all evaluation-relevant facts and normal citations into the complete dossier.
 ## Completion Check
 
 Confirm route/mode, source verification, readable claim labels/locators,
-separate maps, visible limits/conflicts, optional Idea routing/remap signals,
-correct Deep Research pause, and no unsupported novelty or Idea decision.
+separate maps, distinct scientific-gap and novelty-positioning objects, a
+five-function reader handoff for Idea work, visible limits/conflicts, optional
+Idea routing/remap signals, correct Deep Research pause, and no unsupported
+novelty, terminology verdict, or Idea decision.

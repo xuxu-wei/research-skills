@@ -13,6 +13,22 @@ A usable endpoint or metric should be:
 - compatible with the intended output;
 - not merely a vague value claim.
 
+Calibrate specificity to the artifact stage. An Idea must identify the
+scientific function, estimand or metric family, calculation inputs, comparison,
+direction, decision timing, and failure meaning well enough to prevent
+result-driven choice. It need not invent a universal numerical threshold or a
+protocol-level implementation detail that can only be set after a declared data
+audit, simulation, or pilot. Record that pending specification with an owner,
+deadline, allowed information, and false consequence, and freeze it before the
+relevant results are visible.
+
+Do not force every systems, identification, or multi-task study into a single
+clinical endpoint. A prespecified validation vector or hierarchy is acceptable
+when each component has a unique role and the joint decision and multiplicity
+rule are explicit. Conversely, `metric A or metric B` is not operational merely
+because both are standard; either select one or state a result-blind selection
+rule and its deadline.
+
 ## Common Failure Modes
 
 - Endpoint is absent.

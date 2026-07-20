@@ -614,7 +614,7 @@
       "workflow": "research_polisher"
     }
   ],
-  "plugin_version": "0.9.0-preview.2",
+  "plugin_version": "0.10.0",
   "profile": "personal-owner",
   "research_polisher_routing_results": [
     {
@@ -652,8 +652,8 @@
     "declared_entry_modes": 17,
     "false_ready_count": 0,
     "implicit_entry_count": 6,
-    "independent_reviewer_count": 20,
-    "installed_skill_count": 49,
+    "independent_reviewer_count": 21,
+    "installed_skill_count": 50,
     "negative_guards_rejected": 34,
     "personal_status": "in_progress_owner_observation",
     "positive_modes_passed": 17,

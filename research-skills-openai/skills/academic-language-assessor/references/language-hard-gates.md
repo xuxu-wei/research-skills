@@ -74,6 +74,11 @@ OR
 - The main method or technique name
 - The key construct being measured
 
+A supporting diagnostic, implementation label, secondary outcome, or isolated
+technical criterion is not automatically core. Count it only when the dossier
+itself makes it necessary to understand the primary question, primary task,
+main inference, or principal interpretation.
+
 **What does NOT count**:
 - Intentional synonym variation for readability
 - Full term vs. defined abbreviation (acceptable if abbreviation consistently used after definition)
@@ -90,14 +95,20 @@ OR
 **Threshold**: Systematic tense misuse in Methods or Results sections, judged against the conventions of the target discipline
 
 **What constitutes "systematic"**:
-- The dominant tense in Methods is present or future (should be past for empirical research)
-- The dominant tense in Results is present for reporting findings (should be past for most disciplines)
-- Method descriptions consistently using future tense ("we will recruit", "participants will be randomized")
+- In a report of completed empirical research, the dominant tense in Methods is
+  present or future when the target discipline requires past tense
+- In a report of completed empirical research, the dominant tense in Results is
+  present for reporting findings when the target discipline requires past tense
+- Tense systematically contradicts the artifact's declared study status, such as
+  describing completed work as planned or planned work as completed
 
 **What does NOT count**:
 - Isolated tense shifts for valid reasons (referring to a table, describing a figure)
 - Present tense for established facts or definitions within Methods
 - Discipline-appropriate deviations (present tense in CS system description; present tense in mathematics proofs)
+- Future or prospective language for genuinely planned actions in an Idea,
+  proposal, protocol, SAP, or other pre-study artifact (for example, planned
+  recruitment or randomization)
 
 **Failure consequence**: `overall_language_readiness ≤ major_language_revision`
 
@@ -106,6 +117,29 @@ OR
 ---
 
 ## Gate Interaction
+
+For an Idea dossier, a core term in the title, summary, research question,
+primary contribution, or core design also fails the terminology gate when it
+remains misleading, inaccessible to the stated reader without a timely
+definition, or unsupported after focused verification. Gate failure requires
+positive evidence about the misleading, inaccessible, or unverified semantic
+component; absence of the exact composite title phrase in a source is not such
+evidence. Prefer a verified standard term or direct descriptive wording; do not
+pass a coined label merely because it is used consistently. Required machine
+metadata and contract-fixed labels do not trigger this gate unless they leak
+into ordinary reader-facing prose. The required research-idea.v3 headings and
+field labels themselves are scaffold, even when their language differs from the
+dossier prose; never count or translate them for this gate.
+
+A descriptive term does not fail this gate merely because its formula, full
+input specification, numerical direction, or implementation threshold appears
+later. Failure requires evidence that the stated reader cannot identify the
+term's referent or function at the point of use, or that the wording supports a
+materially wrong reading.
+
+Do not construct a gate failure by adding three unrelated minor or secondary
+terminology edits. The threshold requires three genuinely core concepts that
+each meet the inconsistency test above.
 
 - A single gate failure is sufficient to constrain the overall level
 - Multiple gate failures compound: 2+ gate failures → `overall_language_readiness = needs_professional_editing`

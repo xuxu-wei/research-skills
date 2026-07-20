@@ -111,12 +111,12 @@
       "captured_skills_tree_sha256": "2409b09f94a51228ce4e58472a744c5ede0e0be9275def825fac81e2f0f2a45e",
       "captured_workflow_registry_sha256": null,
       "contract_assessment": "outcome_consistent_valid_gate_stop",
-      "current_manifest_sha256": "8ef84914a2a381a08ca7f23701f91cc851ef84d8dce90ab14d1dc1a6eb2c380d",
-      "current_plugin_version": "0.9.0-preview.2",
+      "current_manifest_sha256": "5505a335a01bf12bb0b72081272d8083247074ab3d881618d45ac976732dcce4",
+      "current_plugin_version": "0.10.0",
       "current_receipt_schema_sha256": null,
       "current_registry_schema_version": 5,
-      "current_skills_tree_sha256": "4a28647550387cc772fe87e21733e822ad34bb528acf6cfee98d47ef61888ed9",
-      "current_workflow_registry_sha256": "b7f934b103789e1f6f68debcf38dbc3165fb318d072b7727269578e22a047c18",
+      "current_skills_tree_sha256": "24df6993da2572508ec9edbf037f13394f98c26641b8b7da8bdb3bbeb8f9f5fc",
+      "current_workflow_registry_sha256": "4711e77a34fb67e0201b2534092558cb4b7b884d0e4b781ad353c58a597041eb",
       "evaluator_instances": [
         "/root/evaluator_r1",
         "/root/evaluator_r2_retry"
@@ -155,12 +155,12 @@
       "captured_skills_tree_sha256": "2409b09f94a51228ce4e58472a744c5ede0e0be9275def825fac81e2f0f2a45e",
       "captured_workflow_registry_sha256": null,
       "contract_assessment": "incomplete_panel_qualification",
-      "current_manifest_sha256": "8ef84914a2a381a08ca7f23701f91cc851ef84d8dce90ab14d1dc1a6eb2c380d",
-      "current_plugin_version": "0.9.0-preview.2",
+      "current_manifest_sha256": "5505a335a01bf12bb0b72081272d8083247074ab3d881618d45ac976732dcce4",
+      "current_plugin_version": "0.10.0",
       "current_receipt_schema_sha256": null,
       "current_registry_schema_version": 5,
-      "current_skills_tree_sha256": "4a28647550387cc772fe87e21733e822ad34bb528acf6cfee98d47ef61888ed9",
-      "current_workflow_registry_sha256": "b7f934b103789e1f6f68debcf38dbc3165fb318d072b7727269578e22a047c18",
+      "current_skills_tree_sha256": "24df6993da2572508ec9edbf037f13394f98c26641b8b7da8bdb3bbeb8f9f5fc",
+      "current_workflow_registry_sha256": "4711e77a34fb67e0201b2534092558cb4b7b884d0e4b781ad353c58a597041eb",
       "evaluator_instances": [
         "/root/proposal_eval_v1",
         "/root/proposal_eval_v2",
@@ -200,12 +200,12 @@
       "captured_skills_tree_sha256": "2409b09f94a51228ce4e58472a744c5ede0e0be9275def825fac81e2f0f2a45e",
       "captured_workflow_registry_sha256": null,
       "contract_assessment": "outcome_consistent_valid_gate_stop",
-      "current_manifest_sha256": "8ef84914a2a381a08ca7f23701f91cc851ef84d8dce90ab14d1dc1a6eb2c380d",
-      "current_plugin_version": "0.9.0-preview.2",
+      "current_manifest_sha256": "5505a335a01bf12bb0b72081272d8083247074ab3d881618d45ac976732dcce4",
+      "current_plugin_version": "0.10.0",
       "current_receipt_schema_sha256": null,
       "current_registry_schema_version": 5,
-      "current_skills_tree_sha256": "4a28647550387cc772fe87e21733e822ad34bb528acf6cfee98d47ef61888ed9",
-      "current_workflow_registry_sha256": "b7f934b103789e1f6f68debcf38dbc3165fb318d072b7727269578e22a047c18",
+      "current_skills_tree_sha256": "24df6993da2572508ec9edbf037f13394f98c26641b8b7da8bdb3bbeb8f9f5fc",
+      "current_workflow_registry_sha256": "4711e77a34fb67e0201b2534092558cb4b7b884d0e4b781ad353c58a597041eb",
       "evaluator_instances": [
         "article-evaluator-telehf90-v001-7f3c",
         "eval-v002-fresh-telehf90-20260712"
@@ -240,12 +240,12 @@
       "captured_skills_tree_sha256": "2409b09f94a51228ce4e58472a744c5ede0e0be9275def825fac81e2f0f2a45e",
       "captured_workflow_registry_sha256": null,
       "contract_assessment": "generic_outlet_caps_below_human_signoff",
-      "current_manifest_sha256": "8ef84914a2a381a08ca7f23701f91cc851ef84d8dce90ab14d1dc1a6eb2c380d",
-      "current_plugin_version": "0.9.0-preview.2",
+      "current_manifest_sha256": "5505a335a01bf12bb0b72081272d8083247074ab3d881618d45ac976732dcce4",
+      "current_plugin_version": "0.10.0",
       "current_receipt_schema_sha256": null,
       "current_registry_schema_version": 5,
-      "current_skills_tree_sha256": "4a28647550387cc772fe87e21733e822ad34bb528acf6cfee98d47ef61888ed9",
-      "current_workflow_registry_sha256": "b7f934b103789e1f6f68debcf38dbc3165fb318d072b7727269578e22a047c18",
+      "current_skills_tree_sha256": "24df6993da2572508ec9edbf037f13394f98c26641b8b7da8bdb3bbeb8f9f5fc",
+      "current_workflow_registry_sha256": "4711e77a34fb67e0201b2534092558cb4b7b884d0e4b781ad353c58a597041eb",
       "evaluator_instances": [
         "/root/evaluator_v001",
         "/root/evaluator_v002",
@@ -656,7 +656,7 @@
       "status": "rejected_as_expected"
     }
   ],
-  "plugin_version": "0.9.0-preview.2",
+  "plugin_version": "0.10.0",
   "polisher_decision_route_results": [
     {
       "decision": "matrix_complete",
@@ -718,7 +718,6 @@
         "degraded_16k": {
           "behavior": "context_handoff_required",
           "continuation_package": {
-            "current_artifact_digest": "sha256:f2429a6a4a2d01235baf749456101319ee1c5170d4b2f8a26dfdaf13f247e521",
             "current_artifact_id": "ideas-v1",
             "current_artifact_path": "03_ideas/nodes/idea-001/dossiers/idea-dossier-v001.md",
             "current_artifact_version": "v001",
@@ -730,26 +729,26 @@
             "latest_qualifying_evaluation": null,
             "next_route": "idea-evaluator",
             "pending_edge": "research-idea-orchestrator -> idea-evaluator",
-            "plugin_version": "0.9.0-preview.2",
+            "plugin_version": "0.10.0",
             "round_id": "round-001",
             "runtime_status": "context_handoff_required",
             "suspended_workflow_state": "artifact_frozen",
             "unresolved_finding_ids": [],
             "workflow_id": "wf-phase4-idea-001"
           },
-          "initial_load": 12937,
+          "initial_load": 13233,
           "interpretation": "conservative_initial-load_proxy_not_model_token_accounting",
           "measurement_unit": "characters",
           "minimum_working_reserve": 4000,
-          "remaining": 3063
+          "remaining": 2767
         },
         "standard_32k": {
           "behavior": "continue_current_phase",
-          "initial_load": 12937,
+          "initial_load": 13233,
           "interpretation": "conservative_initial-load_proxy_not_model_token_accounting",
           "measurement_unit": "characters",
           "minimum_working_reserve": 16000,
-          "remaining": 19063
+          "remaining": 18767
         }
       },
       "dissent_ids": [
@@ -891,6 +890,73 @@
           "type": "entry_gate"
         },
         {
+          "edge": "research-idea-orchestrator -> idea-narrative-assessor",
+          "event_id": "idea-narrative-v1",
+          "observation": {
+            "actual_write_paths": [
+              "03_ideas/nodes/idea-001/reviews/narrative-assessment-r001.md",
+              "03_ideas/nodes/idea-001/reviews/narrative-repair-plan-r001.yaml"
+            ],
+            "files_read": [
+              "03_ideas/nodes/idea-001/dossiers/idea-dossier-v001.md",
+              "01_context/research-context-v001.md"
+            ],
+            "input_hashes_after": {
+              "01_context/research-context-v001.md": "sha256:e6d3fd4c95291f488538c46ae450e73f9d0fb5537f79e073cc0d9065fcb33467",
+              "03_ideas/nodes/idea-001/dossiers/idea-dossier-v001.md": "sha256:f2429a6a4a2d01235baf749456101319ee1c5170d4b2f8a26dfdaf13f247e521"
+            },
+            "input_hashes_before": {
+              "01_context/research-context-v001.md": "sha256:e6d3fd4c95291f488538c46ae450e73f9d0fb5537f79e073cc0d9065fcb33467",
+              "03_ideas/nodes/idea-001/dossiers/idea-dossier-v001.md": "sha256:f2429a6a4a2d01235baf749456101319ee1c5170d4b2f8a26dfdaf13f247e521"
+            },
+            "lifecycle_transitions": [
+              {
+                "event_id": "idea-narrative-v1",
+                "from": "artifact_frozen",
+                "to": "editorial_review_pending",
+                "trigger": "idea_editorial_readiness_dispatched"
+              }
+            ]
+          },
+          "sequence": 4,
+          "state_after": "editorial_review_pending",
+          "state_before": "artifact_frozen",
+          "type": "review"
+        },
+        {
+          "edge": "research-idea-orchestrator -> academic-language-assessor",
+          "event_id": "idea-language-v1",
+          "observation": {
+            "actual_write_paths": [
+              "03_ideas/nodes/idea-001/reviews/language-assessment-r001.md"
+            ],
+            "files_read": [
+              "03_ideas/nodes/idea-001/dossiers/idea-dossier-v001.md",
+              "01_context/research-context-v001.md"
+            ],
+            "input_hashes_after": {
+              "01_context/research-context-v001.md": "sha256:e6d3fd4c95291f488538c46ae450e73f9d0fb5537f79e073cc0d9065fcb33467",
+              "03_ideas/nodes/idea-001/dossiers/idea-dossier-v001.md": "sha256:f2429a6a4a2d01235baf749456101319ee1c5170d4b2f8a26dfdaf13f247e521"
+            },
+            "input_hashes_before": {
+              "01_context/research-context-v001.md": "sha256:e6d3fd4c95291f488538c46ae450e73f9d0fb5537f79e073cc0d9065fcb33467",
+              "03_ideas/nodes/idea-001/dossiers/idea-dossier-v001.md": "sha256:f2429a6a4a2d01235baf749456101319ee1c5170d4b2f8a26dfdaf13f247e521"
+            },
+            "lifecycle_transitions": [
+              {
+                "event_id": "idea-language-v1",
+                "from": "editorial_review_pending",
+                "to": "artifact_frozen",
+                "trigger": "idea_editorial_readiness_passed"
+              }
+            ]
+          },
+          "sequence": 5,
+          "state_after": "artifact_frozen",
+          "state_before": "editorial_review_pending",
+          "type": "review"
+        },
+        {
           "edge": "research-idea-orchestrator -> idea-evaluator",
           "event_id": "idea-evaluate-v1",
           "observation": {
@@ -921,7 +987,7 @@
               }
             ]
           },
-          "sequence": 4,
+          "sequence": 6,
           "state_after": "revision_required",
           "state_before": "artifact_frozen",
           "type": "review"
@@ -936,15 +1002,15 @@
             "files_read": [],
             "input_hashes_after": {
               "03_ideas/nodes/idea-001/dossiers/idea-dossier-v001.md": "sha256:f2429a6a4a2d01235baf749456101319ee1c5170d4b2f8a26dfdaf13f247e521",
-              "03_ideas/nodes/idea-001/reviews/evaluation-r001.md": "sha256:efff42463c2471c2020cd2e9e95195ad5ad69d2af7be198c000c47d71588cb8e"
+              "03_ideas/nodes/idea-001/reviews/evaluation-r001.md": "sha256:0bb4b711bc0ba84f738d6ff7ddc9e9ac1444963b338279dcfc5db7a2cf415931"
             },
             "input_hashes_before": {
               "03_ideas/nodes/idea-001/dossiers/idea-dossier-v001.md": "sha256:f2429a6a4a2d01235baf749456101319ee1c5170d4b2f8a26dfdaf13f247e521",
-              "03_ideas/nodes/idea-001/reviews/evaluation-r001.md": "sha256:efff42463c2471c2020cd2e9e95195ad5ad69d2af7be198c000c47d71588cb8e"
+              "03_ideas/nodes/idea-001/reviews/evaluation-r001.md": "sha256:0bb4b711bc0ba84f738d6ff7ddc9e9ac1444963b338279dcfc5db7a2cf415931"
             },
             "lifecycle_transitions": []
           },
-          "sequence": 5,
+          "sequence": 7,
           "state_after": "revision_required",
           "state_before": "revision_required",
           "type": "orchestrator_record"
@@ -978,7 +1044,7 @@
               }
             ]
           },
-          "sequence": 6,
+          "sequence": 8,
           "state_after": "artifact_frozen",
           "state_before": "revision_required",
           "type": "produce"
@@ -1003,10 +1069,77 @@
             },
             "lifecycle_transitions": []
           },
-          "sequence": 7,
+          "sequence": 9,
           "state_after": "artifact_frozen",
           "state_before": "artifact_frozen",
           "type": "orchestrator_record"
+        },
+        {
+          "edge": "research-idea-orchestrator -> idea-narrative-assessor",
+          "event_id": "idea-narrative-v2",
+          "observation": {
+            "actual_write_paths": [
+              "03_ideas/nodes/idea-001/reviews/narrative-assessment-r002.md",
+              "03_ideas/nodes/idea-001/reviews/narrative-repair-plan-r002.yaml"
+            ],
+            "files_read": [
+              "03_ideas/nodes/idea-001/dossiers/idea-dossier-v002.md",
+              "01_context/research-context-v001.md"
+            ],
+            "input_hashes_after": {
+              "01_context/research-context-v001.md": "sha256:e6d3fd4c95291f488538c46ae450e73f9d0fb5537f79e073cc0d9065fcb33467",
+              "03_ideas/nodes/idea-001/dossiers/idea-dossier-v002.md": "sha256:4b81c6a766ee06bc5e2540b1c291106cb0969f356526d83b81ff1e0d52ebc024"
+            },
+            "input_hashes_before": {
+              "01_context/research-context-v001.md": "sha256:e6d3fd4c95291f488538c46ae450e73f9d0fb5537f79e073cc0d9065fcb33467",
+              "03_ideas/nodes/idea-001/dossiers/idea-dossier-v002.md": "sha256:4b81c6a766ee06bc5e2540b1c291106cb0969f356526d83b81ff1e0d52ebc024"
+            },
+            "lifecycle_transitions": [
+              {
+                "event_id": "idea-narrative-v2",
+                "from": "artifact_frozen",
+                "to": "editorial_review_pending",
+                "trigger": "idea_editorial_readiness_dispatched"
+              }
+            ]
+          },
+          "sequence": 10,
+          "state_after": "editorial_review_pending",
+          "state_before": "artifact_frozen",
+          "type": "review"
+        },
+        {
+          "edge": "research-idea-orchestrator -> academic-language-assessor",
+          "event_id": "idea-language-v2",
+          "observation": {
+            "actual_write_paths": [
+              "03_ideas/nodes/idea-001/reviews/language-assessment-r002.md"
+            ],
+            "files_read": [
+              "03_ideas/nodes/idea-001/dossiers/idea-dossier-v002.md",
+              "01_context/research-context-v001.md"
+            ],
+            "input_hashes_after": {
+              "01_context/research-context-v001.md": "sha256:e6d3fd4c95291f488538c46ae450e73f9d0fb5537f79e073cc0d9065fcb33467",
+              "03_ideas/nodes/idea-001/dossiers/idea-dossier-v002.md": "sha256:4b81c6a766ee06bc5e2540b1c291106cb0969f356526d83b81ff1e0d52ebc024"
+            },
+            "input_hashes_before": {
+              "01_context/research-context-v001.md": "sha256:e6d3fd4c95291f488538c46ae450e73f9d0fb5537f79e073cc0d9065fcb33467",
+              "03_ideas/nodes/idea-001/dossiers/idea-dossier-v002.md": "sha256:4b81c6a766ee06bc5e2540b1c291106cb0969f356526d83b81ff1e0d52ebc024"
+            },
+            "lifecycle_transitions": [
+              {
+                "event_id": "idea-language-v2",
+                "from": "editorial_review_pending",
+                "to": "artifact_frozen",
+                "trigger": "idea_editorial_readiness_passed"
+              }
+            ]
+          },
+          "sequence": 11,
+          "state_after": "artifact_frozen",
+          "state_before": "editorial_review_pending",
+          "type": "review"
         },
         {
           "edge": "research-idea-orchestrator -> idea-evaluator",
@@ -1039,9 +1172,58 @@
               }
             ]
           },
-          "sequence": 8,
+          "sequence": 12,
           "state_after": "panel_pending",
           "state_before": "artifact_frozen",
+          "type": "review"
+        },
+        {
+          "edge": "orchestrator_internal_gate",
+          "event_id": "idea-journal-candidate-materialize",
+          "observation": {
+            "actual_write_paths": [
+              "03_ideas/nodes/idea-001/reviews/candidate-journal-match-r001.yaml"
+            ],
+            "files_read": [],
+            "input_hashes_after": {
+              "03_ideas/nodes/idea-001/dossiers/idea-dossier-v002.md": "sha256:4b81c6a766ee06bc5e2540b1c291106cb0969f356526d83b81ff1e0d52ebc024",
+              "03_ideas/nodes/idea-001/reviews/evaluation-r002.md": "sha256:cdc72fce7bba7b6c0532cf4b30aa74b90ee31135b55fd113282ec0e31187349f"
+            },
+            "input_hashes_before": {
+              "03_ideas/nodes/idea-001/dossiers/idea-dossier-v002.md": "sha256:4b81c6a766ee06bc5e2540b1c291106cb0969f356526d83b81ff1e0d52ebc024",
+              "03_ideas/nodes/idea-001/reviews/evaluation-r002.md": "sha256:cdc72fce7bba7b6c0532cf4b30aa74b90ee31135b55fd113282ec0e31187349f"
+            },
+            "lifecycle_transitions": []
+          },
+          "sequence": 13,
+          "state_after": "panel_pending",
+          "state_before": "panel_pending",
+          "type": "orchestrator_record"
+        },
+        {
+          "edge": "research-idea-orchestrator -> medical-journal-review",
+          "event_id": "idea-medical-journal-review",
+          "observation": {
+            "actual_write_paths": [
+              "03_ideas/nodes/idea-001/reviews/medical-journal-review-r001.md"
+            ],
+            "files_read": [
+              "03_ideas/nodes/idea-001/dossiers/idea-dossier-v002.md",
+              "03_ideas/nodes/idea-001/reviews/candidate-journal-match-r001.yaml"
+            ],
+            "input_hashes_after": {
+              "03_ideas/nodes/idea-001/dossiers/idea-dossier-v002.md": "sha256:4b81c6a766ee06bc5e2540b1c291106cb0969f356526d83b81ff1e0d52ebc024",
+              "03_ideas/nodes/idea-001/reviews/candidate-journal-match-r001.yaml": "sha256:e15866070bdc9461abbe88a7e9da4c01433da19c4b1653b270ae067dbdfe1fc5"
+            },
+            "input_hashes_before": {
+              "03_ideas/nodes/idea-001/dossiers/idea-dossier-v002.md": "sha256:4b81c6a766ee06bc5e2540b1c291106cb0969f356526d83b81ff1e0d52ebc024",
+              "03_ideas/nodes/idea-001/reviews/candidate-journal-match-r001.yaml": "sha256:e15866070bdc9461abbe88a7e9da4c01433da19c4b1653b270ae067dbdfe1fc5"
+            },
+            "lifecycle_transitions": []
+          },
+          "sequence": 14,
+          "state_after": "panel_pending",
+          "state_before": "panel_pending",
           "type": "review"
         },
         {
@@ -1062,7 +1244,7 @@
             },
             "lifecycle_transitions": []
           },
-          "sequence": 9,
+          "sequence": 15,
           "state_after": "panel_pending",
           "state_before": "panel_pending",
           "type": "review"
@@ -1085,7 +1267,7 @@
             },
             "lifecycle_transitions": []
           },
-          "sequence": 10,
+          "sequence": 16,
           "state_after": "panel_pending",
           "state_before": "panel_pending",
           "type": "review"
@@ -1108,7 +1290,7 @@
             },
             "lifecycle_transitions": []
           },
-          "sequence": 11,
+          "sequence": 17,
           "state_after": "panel_pending",
           "state_before": "panel_pending",
           "type": "review"
@@ -1130,7 +1312,7 @@
               }
             ]
           },
-          "sequence": 12,
+          "sequence": 18,
           "state_after": "packaging_pending",
           "state_before": "panel_pending",
           "type": "panel_gate"
@@ -1152,7 +1334,13 @@
               "03_ideas/nodes/idea-001/adversarial/round-002/pi-strategy-review.md": "sha256:1603d126f78061693da3e364135a260250145e4dce5ff534f4cd81fc78f3ef89",
               "03_ideas/nodes/idea-001/dossiers/idea-dossier-v002.md": "sha256:4b81c6a766ee06bc5e2540b1c291106cb0969f356526d83b81ff1e0d52ebc024",
               "03_ideas/nodes/idea-001/references/reference-ledger.md": "sha256:b0b7aacfbda2d3d39cdace765ef35017c537a43e7b996f376415e3a4aa482eef",
-              "03_ideas/nodes/idea-001/reviews/evaluation-r002.md": "sha256:e6fa35523aa44513ec9dc523c29a6b236cc29a8cabf48edac3d8113c24f01950",
+              "03_ideas/nodes/idea-001/reviews/candidate-journal-match-r001.yaml": "sha256:e15866070bdc9461abbe88a7e9da4c01433da19c4b1653b270ae067dbdfe1fc5",
+              "03_ideas/nodes/idea-001/reviews/evaluation-r002.md": "sha256:cdc72fce7bba7b6c0532cf4b30aa74b90ee31135b55fd113282ec0e31187349f",
+              "03_ideas/nodes/idea-001/reviews/language-assessment-r002.md": "sha256:9301bd61a159bc454ff54baaa4c29d6db229e9b11f4f208b2ef4a536dea80e8a",
+              "03_ideas/nodes/idea-001/reviews/medical-journal-review-r001.md": "sha256:378243a935bd631e3b308e14a1f201fb2b1d810d9fbe029c6b0547060a6a07c8",
+              "03_ideas/nodes/idea-001/reviews/narrative-assessment-r002.md": "sha256:f0ef8e6daa921786cc5ae45f5bad87d9e875d641e744f274bd60fa373d2db6fa",
+              "03_ideas/nodes/idea-001/reviews/narrative-repair-plan-r001.yaml": "sha256:9cdaa8c5be09cb39db7bab89904d241feaeff397294d12bcb22b4254c6c707d7",
+              "03_ideas/nodes/idea-001/reviews/narrative-repair-plan-r002.yaml": "sha256:551d078ed08b4c3ad6c59a313486de55fff3f4f681bd1bca7faadac5ba0daf66",
               "03_ideas/nodes/idea-001/revisions/round-002/revision-delta.md": "sha256:385d98d7e0f73c58aa3f7ea358bce1786e53e30e5902ce822338df4d1fe8ff55",
               "03_ideas/nodes/idea-001/revisions/round-002/revision-plan.md": "sha256:4836763b779397eb65f7fdc89c290f4514873933761769b95f1941890fa00099",
               "05_state/idea-routing-decision-v001.yaml": "sha256:a45f75900377ae4aaaa5c9231cf2d91e98e35c226ee506107eba1af11f6c3e9a"
@@ -1166,7 +1354,13 @@
               "03_ideas/nodes/idea-001/adversarial/round-002/pi-strategy-review.md": "sha256:1603d126f78061693da3e364135a260250145e4dce5ff534f4cd81fc78f3ef89",
               "03_ideas/nodes/idea-001/dossiers/idea-dossier-v002.md": "sha256:4b81c6a766ee06bc5e2540b1c291106cb0969f356526d83b81ff1e0d52ebc024",
               "03_ideas/nodes/idea-001/references/reference-ledger.md": "sha256:b0b7aacfbda2d3d39cdace765ef35017c537a43e7b996f376415e3a4aa482eef",
-              "03_ideas/nodes/idea-001/reviews/evaluation-r002.md": "sha256:e6fa35523aa44513ec9dc523c29a6b236cc29a8cabf48edac3d8113c24f01950",
+              "03_ideas/nodes/idea-001/reviews/candidate-journal-match-r001.yaml": "sha256:e15866070bdc9461abbe88a7e9da4c01433da19c4b1653b270ae067dbdfe1fc5",
+              "03_ideas/nodes/idea-001/reviews/evaluation-r002.md": "sha256:cdc72fce7bba7b6c0532cf4b30aa74b90ee31135b55fd113282ec0e31187349f",
+              "03_ideas/nodes/idea-001/reviews/language-assessment-r002.md": "sha256:9301bd61a159bc454ff54baaa4c29d6db229e9b11f4f208b2ef4a536dea80e8a",
+              "03_ideas/nodes/idea-001/reviews/medical-journal-review-r001.md": "sha256:378243a935bd631e3b308e14a1f201fb2b1d810d9fbe029c6b0547060a6a07c8",
+              "03_ideas/nodes/idea-001/reviews/narrative-assessment-r002.md": "sha256:f0ef8e6daa921786cc5ae45f5bad87d9e875d641e744f274bd60fa373d2db6fa",
+              "03_ideas/nodes/idea-001/reviews/narrative-repair-plan-r001.yaml": "sha256:9cdaa8c5be09cb39db7bab89904d241feaeff397294d12bcb22b4254c6c707d7",
+              "03_ideas/nodes/idea-001/reviews/narrative-repair-plan-r002.yaml": "sha256:551d078ed08b4c3ad6c59a313486de55fff3f4f681bd1bca7faadac5ba0daf66",
               "03_ideas/nodes/idea-001/revisions/round-002/revision-delta.md": "sha256:385d98d7e0f73c58aa3f7ea358bce1786e53e30e5902ce822338df4d1fe8ff55",
               "03_ideas/nodes/idea-001/revisions/round-002/revision-plan.md": "sha256:4836763b779397eb65f7fdc89c290f4514873933761769b95f1941890fa00099",
               "05_state/idea-routing-decision-v001.yaml": "sha256:a45f75900377ae4aaaa5c9231cf2d91e98e35c226ee506107eba1af11f6c3e9a"
@@ -1180,7 +1374,7 @@
               }
             ]
           },
-          "sequence": 13,
+          "sequence": 19,
           "state_after": "human_signoff_required",
           "state_before": "packaging_pending",
           "type": "package"
@@ -1212,9 +1406,12 @@
         "v002"
       ],
       "registry_edges_exercised": [
+        "idea -> research-idea-orchestrator -> academic-language-assessor",
         "idea -> research-idea-orchestrator -> idea-adversarial-review-panel",
         "idea -> research-idea-orchestrator -> idea-evaluator",
+        "idea -> research-idea-orchestrator -> idea-narrative-assessor",
         "idea -> research-idea-orchestrator -> idea-portfolio-assembler",
+        "idea -> research-idea-orchestrator -> medical-journal-review",
         "idea -> research-idea-orchestrator -> multi-path-idea-generator"
       ],
       "registry_lifecycle_transitions": [
@@ -1229,6 +1426,18 @@
           "from": "preprocessing",
           "to": "artifact_frozen",
           "trigger": "versioned_artifact_created"
+        },
+        {
+          "event_id": "idea-narrative-v1",
+          "from": "artifact_frozen",
+          "to": "editorial_review_pending",
+          "trigger": "idea_editorial_readiness_dispatched"
+        },
+        {
+          "event_id": "idea-language-v1",
+          "from": "editorial_review_pending",
+          "to": "artifact_frozen",
+          "trigger": "idea_editorial_readiness_passed"
         },
         {
           "event_id": "idea-evaluate-v1",
@@ -1247,6 +1456,18 @@
           "from": "revision_required",
           "to": "artifact_frozen",
           "trigger": "new_version_created"
+        },
+        {
+          "event_id": "idea-narrative-v2",
+          "from": "artifact_frozen",
+          "to": "editorial_review_pending",
+          "trigger": "idea_editorial_readiness_dispatched"
+        },
+        {
+          "event_id": "idea-language-v2",
+          "from": "editorial_review_pending",
+          "to": "artifact_frozen",
+          "trigger": "idea_editorial_readiness_passed"
         },
         {
           "event_id": "idea-evaluate-v2",
@@ -1280,7 +1501,6 @@
         "degraded_16k": {
           "behavior": "context_handoff_required",
           "continuation_package": {
-            "current_artifact_digest": "sha256:3433cd5be22d55e87fd00725c8a5073198c94baf2bc140e9499fc370f0c1eaba",
             "current_artifact_id": "proposal-v1",
             "current_artifact_path": "04_drafts/proposal-v001.md",
             "current_artifact_version": "v001",
@@ -1292,26 +1512,26 @@
             "latest_qualifying_evaluation": null,
             "next_route": "proposal-evaluator",
             "pending_edge": "proposal-orchestrator -> proposal-evaluator",
-            "plugin_version": "0.9.0-preview.2",
+            "plugin_version": "0.10.0",
             "round_id": "round-001",
             "runtime_status": "context_handoff_required",
             "suspended_workflow_state": "artifact_frozen",
             "unresolved_finding_ids": [],
             "workflow_id": "wf-phase4-proposal-001"
           },
-          "initial_load": 13146,
+          "initial_load": 13288,
           "interpretation": "conservative_initial-load_proxy_not_model_token_accounting",
           "measurement_unit": "characters",
           "minimum_working_reserve": 4000,
-          "remaining": 2854
+          "remaining": 2712
         },
         "standard_32k": {
           "behavior": "continue_current_phase",
-          "initial_load": 13146,
+          "initial_load": 13288,
           "interpretation": "conservative_initial-load_proxy_not_model_token_accounting",
           "measurement_unit": "characters",
           "minimum_working_reserve": 16000,
-          "remaining": 18854
+          "remaining": 18712
         }
       },
       "dissent_ids": [
@@ -1905,7 +2125,6 @@
         "degraded_16k": {
           "behavior": "context_handoff_required",
           "continuation_package": {
-            "current_artifact_digest": "sha256:ae98076f5ff402867afacf27e0fef35fc6cf05a7280345adbd6498b1c5422a10",
             "current_artifact_id": "manuscript-v1",
             "current_artifact_path": "06_drafts/manuscript-v001.md",
             "current_artifact_version": "v001",
@@ -1917,26 +2136,26 @@
             "latest_qualifying_evaluation": null,
             "next_route": "article-evaluator",
             "pending_edge": "article-orchestrator -> article-evaluator",
-            "plugin_version": "0.9.0-preview.2",
+            "plugin_version": "0.10.0",
             "round_id": "round-001",
             "runtime_status": "context_handoff_required",
             "suspended_workflow_state": "artifact_frozen",
             "unresolved_finding_ids": [],
             "workflow_id": "wf-phase4-article-001"
           },
-          "initial_load": 12833,
+          "initial_load": 12975,
           "interpretation": "conservative_initial-load_proxy_not_model_token_accounting",
           "measurement_unit": "characters",
           "minimum_working_reserve": 4000,
-          "remaining": 3167
+          "remaining": 3025
         },
         "standard_32k": {
           "behavior": "continue_current_phase",
-          "initial_load": 12833,
+          "initial_load": 12975,
           "interpretation": "conservative_initial-load_proxy_not_model_token_accounting",
           "measurement_unit": "characters",
           "minimum_working_reserve": 16000,
-          "remaining": 19167
+          "remaining": 19025
         }
       },
       "dissent_ids": [
@@ -2724,7 +2943,6 @@
         "degraded_16k": {
           "behavior": "context_handoff_required",
           "continuation_package": {
-            "current_artifact_digest": "sha256:5d73957d449696627f30a6a9695276fe7f9ae110e03524a259d0311f4634ec74",
             "current_artifact_id": "perspective-v1",
             "current_artifact_path": "04_drafts/perspective-v001.md",
             "current_artifact_version": "v001",
@@ -2736,26 +2954,26 @@
             "latest_qualifying_evaluation": null,
             "next_route": "perspective-evaluator",
             "pending_edge": "perspective-orchestrator -> perspective-evaluator",
-            "plugin_version": "0.9.0-preview.2",
+            "plugin_version": "0.10.0",
             "round_id": "round-001",
             "runtime_status": "context_handoff_required",
             "suspended_workflow_state": "artifact_frozen",
             "unresolved_finding_ids": [],
             "workflow_id": "wf-phase4-perspective-001"
           },
-          "initial_load": 12728,
+          "initial_load": 12870,
           "interpretation": "conservative_initial-load_proxy_not_model_token_accounting",
           "measurement_unit": "characters",
           "minimum_working_reserve": 4000,
-          "remaining": 3272
+          "remaining": 3130
         },
         "standard_32k": {
           "behavior": "continue_current_phase",
-          "initial_load": 12728,
+          "initial_load": 12870,
           "interpretation": "conservative_initial-load_proxy_not_model_token_accounting",
           "measurement_unit": "characters",
           "minimum_working_reserve": 16000,
-          "remaining": 19272
+          "remaining": 19130
         }
       },
       "dissent_ids": [
@@ -3533,7 +3751,6 @@
         "degraded_16k": {
           "behavior": "context_handoff_required",
           "continuation_package": {
-            "current_artifact_digest": "sha256:c977f74e2b70b53518b9a85bcb2a7d4944b9a11ca1072a8ad46fcc25c3c86381",
             "current_artifact_id": "polisher-portfolio-v1",
             "current_artifact_path": "04_portfolios/research_polisher_candidate_portfolio-v001.yaml",
             "current_artifact_version": "v001",
@@ -3545,26 +3762,26 @@
             "latest_qualifying_evaluation": null,
             "next_route": "research-polisher-methodology-publishability-reviewer",
             "pending_edge": "research-polisher-orchestrator -> research-polisher-methodology-publishability-reviewer",
-            "plugin_version": "0.9.0-preview.2",
+            "plugin_version": "0.10.0",
             "round_id": "round-001",
             "runtime_status": "context_handoff_required",
             "suspended_workflow_state": "artifact_frozen",
             "unresolved_finding_ids": [],
             "workflow_id": "wf-phase4-research-polisher-001"
           },
-          "initial_load": 12195,
+          "initial_load": 12337,
           "interpretation": "conservative_initial-load_proxy_not_model_token_accounting",
           "measurement_unit": "characters",
           "minimum_working_reserve": 4000,
-          "remaining": 3805
+          "remaining": 3663
         },
         "standard_32k": {
           "behavior": "continue_current_phase",
-          "initial_load": 12195,
+          "initial_load": 12337,
           "interpretation": "conservative_initial-load_proxy_not_model_token_accounting",
           "measurement_unit": "characters",
           "minimum_working_reserve": 16000,
-          "remaining": 19805
+          "remaining": 19663
         }
       },
       "dissent_ids": [

@@ -1,0 +1,32 @@
+schema_version: research-idea-narrative-repair-plan.v1
+plan_id: narrative-repair-plan-I01-001-r019
+assessment_id: narrative-assessment-I01-001-r019
+source_artifact:
+  artifact_id: idea-dossier-I01-001-v007
+  version: v007
+  path: tests/idea-narrative-forward-0.9.0-preview.3/one-pass-current/revised/idea-dossier-v007.md
+decision: minor_narrative_revision
+clarifications_required: []
+actions:
+  - action_id: NRP-001
+    addresses_findings:
+      - NAR-001
+    priority: minor
+    dossier_locator:
+      section_heading: "Title, summary, audience, and positioning"
+      subsection_heading: null
+      content_anchor: "One-sentence complete-Idea summary 中的‘若试验资料语义和观测桥接均合格’"
+    operation: define
+    current_problem: "‘观测桥接’首次出现时只作为合格或不合格的条件标签，读者尚不知道它连接哪些观测、面向哪个状态量，以及为何决定后续试验分析分支。"
+    target_state: "一句话摘要在不展开技术公式的前提下，使读者首次接触该术语时即可理解：每项试验的实际访视测量须与阶段 II 预先确定的生理锚点相容，并须证明据此形成的可观测摘要能够忠实反映预先确定的状态投影。"
+    required_content_or_function: "在‘观测桥接’首次出现处加入简短的同位说明，至少交代桥接的两端是阶段 II 生理锚点与每项试验目标访视的实际测量，判定功能是决定一维可观测状态摘要是否可用于访视特异随机化比较；详细合格阈值仍留在 Research design and methods。"
+    content_to_preserve:
+      - "阶段 I–II 在 24 个月内完成，阶段 III 位于 24 个月之后的既定顺序。"
+      - "阶段 III 只有在阶段 II 成功、试验资料语义合格且观测桥接合格时才开展可观测状态摘要分析。"
+      - "EXIT-SEP 与 XBJ-SCAP 分别使用各自目标访视的实际测量并分别分析。"
+      - "合格测量须与阶段 II 预先确定的生理锚点同义同单位，映射与忠实度检验的完整标准保持不变。"
+      - "观测桥接不合格时采用与阶段 II 表征独立的死亡优先排序 SOFA 复合状态端点。"
+    content_to_remove_or_move: []
+    destination_if_moved: null
+    dependencies: []
+    acceptance_test: "独立读者只读标题与一句话摘要，即可回答观测桥接连接什么、它判定什么以及合格与不合格分别导向哪一类阶段 III 分析；答案与 Rationale 及 Research design and methods 一致，且摘要没有引入新的科学主张、阈值或替代端点。"

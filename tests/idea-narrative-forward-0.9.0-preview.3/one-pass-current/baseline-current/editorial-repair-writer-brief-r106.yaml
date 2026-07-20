@@ -1,0 +1,1269 @@
+schema_version: research-idea-editorial-repair-writer-brief.v1
+brief_id: editorial-repair-writer-brief-I01-001-r106
+workflow_id: RID-SEPSIS-CSM-20260717-001
+round_id: r106
+active_plugin_version: 0.9.0-preview.3
+role: >-
+  对完整 Idea dossier 执行一次仅限编辑的修订；不得评估研究、改变科学内容、
+  补作科学选择或把计划中的工作写成已完成结果。
+
+source_artifact:
+  artifact_id: idea-dossier-I01-001-v003
+  version: v003
+  path: tests/idea-test-0.9.0-preview.1/0.9.0-preview.1/03_ideas/nodes/I01-001/dossiers/idea-dossier-v003.md
+
+protected_content_register:
+  register_id: protected-content-register-I01-001-v004-r004
+  version: r004
+  path: tests/idea-narrative-forward-0.9.0-preview.3/run-001/inputs/protected-content-register-v004.yaml
+
+source_review_binding:
+  narrative_assessment:
+    artifact_id: narrative-assessment-I01-001-r079
+    version: r079
+    path: tests/idea-narrative-forward-0.9.0-preview.3/one-pass-current/baseline-current/narrative-assessment-r079.md
+  narrative_repair_plan:
+    artifact_id: narrative-repair-plan-I01-001-r079
+    version: r079
+    path: tests/idea-narrative-forward-0.9.0-preview.3/one-pass-current/baseline-current/narrative-repair-plan-r079.yaml
+  language_assessment:
+    artifact_id: lang-r105
+    version: baseline-current-r105
+    path: tests/idea-narrative-forward-0.9.0-preview.3/one-pass-current/baseline-current/language-assessment-r105.md
+
+writer_scope:
+  repair_type: editorial_only
+  governing_instructions:
+    - >-
+      只执行本 brief 中的十四项 normalized_repair_actions；评估报告和原修订计划仅为
+      审计来源，不是 writer 输入，也不得重新打开。
+    - >-
+      叙事动作决定章节功能、顺序、信息层级、保留位置以及移动或删除；语言动作决定
+      科学角色的读者称名、修饰关系、首次必要说明、全篇一致性和局部表达。
+    - >-
+      不得为了满足语言动作而把叙事动作已经移出读者入口的技术细节放回标题或摘要。
+      读者入口使用可直接理解的高层描述；完整定义放在首次允许技术展开的位置。
+    - >-
+      第 14 节是完整限制、工作假设和风险的唯一权威位置。其他位置只有在删除会扭曲
+      紧邻科学推理或主张时才保留最小且自足的边界；不得用“见第 14 节”等指针代替正文。
+    - >-
+      第 7 节保留设计资格、分析定义和互斥分支的完整技术说明；第 11 节保留结果证伪
+      和结果依赖解释；第 14 节不得再次展开这两类完整决策树。
+    - >-
+      不建立术语清单，不创造新的压缩标签或缩写，不增加源动作之外的病例规则、阈值、
+      分支或科学限制。R0、R1 仅可在其科学含义已直接说明后保留。
+    - >-
+      两个输出只用逻辑 ID、版本和路径建立血缘；不得计算、请求、报告或持久化 SHA、
+      内容哈希或摘要值。
+  clarification_stop: >-
+    若执行任一动作需要在两个科学定义、参数、估计目标、数据状态或解释边界之间作出
+    brief 与 protected register 未授权的选择，则保持 v003 科学内容不变，记录需要确认的
+    具体 locator 与选择，停止修订，不得猜测或把缺失答案改写成新假设。
+
+identity_anchor_verbatim:
+  instruction: >-
+    将 v003 frontmatter 的 identity_anchor 键和值逐字复制到 v051；键顺序可保持原顺序，
+    任何值均不得翻译、改写、缩写或重新标点。
+  exact_values:
+    primary_research_question: "can a knowledge-constrained, uncertainty-aware dynamic system representation of ICU patients cover the sepsis-centered pre-onset, onset, post-onset, and outcome continuum, demonstrate cross-database state/structure validity, and then test limited randomized intervention perturbations without conflating prediction with causality?"
+    primary_objective: "construct and validate the sepsis complex-system model, with stage II completed within 24 months."
+    study_object: "the longitudinal sepsis-centered ICU patient system, including comparable at-risk non-onset intervals and post-onset trajectories."
+    core_data_or_evidence_base: "literature/expert priors; longitudinal public ICU data; conditionally available EXIT-SEP and XBJ-SCAP individual-level RCT data."
+    primary_unit_of_inference: "patient-time state and state transition, with patient and hospital clustering respected."
+  acceptance: >-
+    v051 的 identity_anchor 映射与上述五个键值逐字符一致，identity_status 仍为 preserved；
+    任何差异均停止 editorial repair。
+
+included_repair_item_ids:
+  - NRP-001
+  - NRP-002
+  - NRP-003
+  - NRP-004
+  - NRP-005
+  - LAR-105-01
+  - LAR-105-02
+  - LAR-105-03
+  - LAR-105-04
+  - LAR-105-05
+  - LAR-105-06
+  - LAR-105-07
+  - LAR-105-08
+  - LAR-105-09
+
+omitted_reported_nonblocking_findings: []
+
+included_nonblocking_finding_rationale:
+  NAR-005: >-
+    本次集中修订需要把第 8 节改造成可复查的科学实现说明；与 major 动作共同执行可避免
+    方法移动后留下重复或内部工具化表达。
+  LAR-105-07: >-
+    负向产物和停止动作遍布摘要、方法、证据链与产物，若不在本次全篇扫描中统一其对象
+    和后果，会继续妨碍跨学科读者识别交付物。
+  LAR-105-09: >-
+    该去重动作与第 14 节权威集中和证据链字段删除直接重合，纳入同一次修订才能保留所有
+    不同边界而删除近乎逐字重复。
+
+repair_ownership:
+  narrative:
+    owns:
+      - 章节和字段的功能
+      - 论证顺序与渐进披露
+      - 技术内容的权威位置
+      - 重复内容的移动、合并和删除
+  language:
+    owns:
+      - 科学角色的读者称名
+      - 修饰语附着关系
+      - 首次必要说明与后续回指
+      - 全篇称名一致性与局部学术表达
+  preservation:
+    owns:
+      - identity_anchor 逐字保持
+      - PCR-001 至 PCR-012 中每个科学承诺、状态、数值、时间规则、分支资格和主张边界
+  combined_rule: >-
+    先按叙事动作确定每项内容是否属于当前单元及其位置，再在该位置执行语言动作；任何
+    移动或压缩均须以 protected register 的实际 source_locator 内容逐项核对，而非只看摘要。
+
+identified_overlaps:
+  - finding_ids:
+      - NRP-002
+      - LAR-105-01
+      - LAR-105-02
+      - LAR-105-03
+      - LAR-105-04
+      - LAR-105-05
+      - LAR-105-06
+      - LAR-105-08
+      - LAR-105-09
+    locator: 标题、One-sentence complete-Idea summary 与 Structured abstract
+  - finding_ids:
+      - NRP-001
+      - NRP-003
+      - NRP-004
+      - LAR-105-01
+      - LAR-105-06
+      - LAR-105-09
+    locator: Background, current state, gap, significance, and rationale
+  - finding_ids:
+      - NRP-003
+      - NRP-004
+      - LAR-105-01
+      - LAR-105-02
+      - LAR-105-03
+      - LAR-105-06
+      - LAR-105-09
+    locator: 第 7 节阶段 III 技术权威与其余章节的最小提及
+  - finding_ids:
+      - NRP-003
+      - NRP-004
+      - LAR-105-06
+      - LAR-105-09
+    locator: 第 11 节结果解释与第 14 节限制、假设和风险权威
+  - finding_ids:
+      - NRP-003
+      - NRP-004
+      - NRP-005
+      - LAR-105-04
+      - LAR-105-05
+      - LAR-105-06
+      - LAR-105-07
+      - LAR-105-09
+    locator: 外部检验、负向结果、实现记录和失败后果
+  - finding_ids:
+      - NRP-005
+      - LAR-105-02
+      - LAR-105-03
+      - LAR-105-05
+      - LAR-105-06
+      - LAR-105-07
+    locator: Key techniques and implementation
+
+overlap_dispositions:
+  - finding_ids:
+      - NRP-002
+      - LAR-105-01
+      - LAR-105-02
+      - LAR-105-03
+      - LAR-105-04
+      - LAR-105-05
+      - LAR-105-06
+      - LAR-105-08
+      - LAR-105-09
+    disposition: >-
+      NRP-002 决定入口只先说明问题、24 个月阶段 I–II 目标、价值、总体设计和一项从属的
+      高层阶段 III 用途。标题和摘要不写试验名、访视日、摘要量、共享资格清单、技术分支
+      标签、公式或四种更新操作。语言动作在入口改用可直接理解的普通科学描述；P_state、
+      P_obs、有序访视结局、独立 SOFA 端点、可恢复不变量和四种外部更新的完整定义分别在
+      第 7 节首次允许技术展开处给出。One-sentence 字段仍为一句并有三个清楚分句，但第二
+      分句只作高层条件性说明，不把已移出的分支细节塞回入口。
+  - finding_ids:
+      - NRP-001
+      - NRP-003
+      - NRP-004
+      - LAR-105-01
+      - LAR-105-06
+      - LAR-105-09
+    disposition: >-
+      NRP-001 保留五个 H3 的论证功能。背景只用一句说明后续试验数据不能替代阶段 I–II
+      证据，不展开资格、映射或限制清单；完整方法移到第 7 节，完整限制、假设与风险只在
+      第 14 节。保留的局部句子采用直接科学语言，不使用“门、层、降级”等内部表达，也
+      不通过“见后文”或“见第 14 节”完成其功能。
+  - finding_ids:
+      - NRP-003
+      - NRP-004
+      - LAR-105-01
+      - LAR-105-02
+      - LAR-105-03
+      - LAR-105-06
+      - LAR-105-09
+    disposition: >-
+      第 7 节相应小节是阶段 III 资格、映射、比较、缺失处理、互斥分支和停止规则的唯一
+      连续技术权威。先写阶段 II 成功、试验个体数据和核心语义等共享前提，再并列“观测
+      映射成立时的有序访视结局分析”与“观测映射不成立但独立分析条件成立时的 SOFA
+      有序临床状态端点”；共同锚点数量和投影忠实度只属于前一分支，不得升格为整个阶段
+      III 的共同前提。其他章节由 NRP-003 规定最小功能提及，语言动作只修正其称名。
+  - finding_ids:
+      - NRP-003
+      - NRP-004
+      - LAR-105-06
+      - LAR-105-09
+    disposition: >-
+      第 11 节只保留结果证伪标准和结果依赖解释；第 14 节一次性完整保留限制、工作假设、
+      风险、非方法型触发—响应—后果和禁止主张，不复制第 7 节的完整分析树或第 11 节的
+      完整解释矩阵。其他单元的必要边界必须短而自足，且全篇不得加入指向第 14 节的提示。
+  - finding_ids:
+      - NRP-003
+      - NRP-004
+      - NRP-005
+      - LAR-105-04
+      - LAR-105-05
+      - LAR-105-06
+      - LAR-105-07
+      - LAR-105-09
+    disposition: >-
+      第 7 节保留科学方法及判定标准，第 8 节只记录可复现输入、计算关系、输出和核查用途，
+      第 9 节只保留每条证据链的 Input、Method / analysis / processing、Output 和 Supports，
+      第 14 节保留完整限制与风险后果。四种外部操作和负向结果均按实际科学角色直接命名；
+      不以新的通用短称代替不同动作，也不因去重删除数值标准或失败后果。
+  - finding_ids:
+      - NRP-005
+      - LAR-105-02
+      - LAR-105-03
+      - LAR-105-05
+      - LAR-105-06
+      - LAR-105-07
+    disposition: >-
+      NRP-005 决定第 8 节的功能是复现记录而非方法复述。语言动作在这些记录中使用已在
+      第 7 节定义的科学称名，直接说明输入、计算、输出和核查用途；不重复阶段 III 完整
+      分支、不建立术语清单、不创造工具名或压缩标签。
+
+unresolved_overlaps: []
+all_overlaps_resolved: true
+
+normalized_repair_actions:
+  - repair_item_id: NRP-001
+    source_item_ids:
+      - NRP-001
+      - NAR-001
+    addresses_finding_ids:
+      - NAR-001
+    locator: "Background, current state, gap, significance, and rationale：现有五段正文"
+    operation: split
+    problem: >-
+      Background、Current state、Gap、Significance 和 Rationale 混在连续段落中；gap 被
+      相邻工作组合差异替代，significance 未说明解决问题会改变什么，设计理由被技术条件
+      和阶段 III 限制分散。
+    target: >-
+      保留原 H2，在其下依次建立 Background、Current state、Gap、Significance 和
+      Rationale 五个 H3。每个 H3 完成唯一且可独立概括的论证功能，并形成从科学问题到
+      现有证据、未解证据问题、读者相关价值及阶段 I–II 设计理由的连续链。
+    required_function_or_term: >-
+      Gap 必须命名现有证据尚不能回答的全病程和跨数据库证据问题；Significance 必须说明
+      对重症研究设计、跨数据库解释和后续干预研究判断的后果；Rationale 用高层科学关系
+      连接双时钟、状态—治疗—测量分离、模拟恢复和跨数据库检验，不展开计算细节。
+    content_to_preserve:
+      protected_ids:
+        - PCR-001
+        - PCR-002
+        - PCR-003
+        - PCR-004
+        - PCR-005
+        - PCR-009
+        - PCR-010
+        - PCR-011
+        - PCR-012
+      source_science:
+        - Sepsis-3 标签与信息可用时刻并不唯一的事实及引文
+        - 公共 ICU 数据库异质性、既有研究范围和观察性偏倚事实及引文
+        - 观察政策下预测或生成表示的边界和低支持时停止过度解释
+        - 稀疏试验资料只能支持后续且有前置条件的次要分析
+        - 研究对象、阶段 I–II 目标与后续阶段 III 之间的科学关系
+    delete_move_disposition: >-
+      将“没有完全相同组合”的详细定位比较移到第 12 节；把阶段 III 资格、映射、替代分析
+      和监管限制的技术细节移到第 7 节；恢复阈值和失配处置只留在第 7 节。背景仅保留一句
+      说明后续试验分析不能替代阶段 I–II 证据，不保留限制清单或跳转提示。
+    destination:
+      - "Research design and methods 中相应技术小节"
+      - "Contribution, innovation, impact, application, and closest-work comparison"
+    dependencies: []
+    acceptance_test: >-
+      原 H2 名称不变并按规定顺序包含五个 H3；每个 H3 可独立用一句话概括。Gap 不是
+      “尚无相同组合”的改写，Significance 明确给出对目标读者的科学后果，Rationale 完成
+      gap-to-design 连接且不含计算阈值；阶段 III 在本节只剩一项高层、必要且自足的关系说明。
+
+  - repair_item_id: NRP-002
+    source_item_ids:
+      - NRP-002
+      - NAR-002
+      - NAR-003
+    addresses_finding_ids:
+      - NAR-002
+      - NAR-003
+    locator: "Title, summary, audience, and positioning：Title、One-sentence complete-Idea summary 及 Structured abstract"
+    operation: replace
+    problem: >-
+      标题和一句话摘要把 24 个月主要研究与后续试验分析并列，并在正向目标之前枚举资格、
+      计算、失败分支和禁止主张；Structured abstract 继续提前使用未解释的跨学科概念。
+    target: >-
+      标题首先标识脓毒症全病程候选动态系统表征及阶段 I–II 的计划跨数据库检验。读者入口
+      按“问题—24 个月目标—价值—总体设计—从属的高层阶段 III 用途”渐进披露；
+      One-sentence 字段保持一个句子和三个清楚分句，Structured abstract 全部字段合计只
+      用一次高层阶段 III 用途，不展开试验或分支细节。
+    required_function_or_term: >-
+      用跨学科读者可直接理解的语言说明四段病程、两项主要临床任务、模拟恢复和两库检验
+      的关系。标题和摘要对阶段 III 只说明“主体研究达到标准后，条件性开展分试验次要分析”；
+      不写试验名、访视日、摘要量、资格清单或分支标签。所需技术概念在第 7 节首次允许的
+      技术位置给出完整定义。
+    content_to_preserve:
+      protected_ids:
+        - PCR-001
+        - PCR-002
+        - PCR-003
+        - PCR-004
+        - PCR-005
+        - PCR-009
+        - PCR-011
+        - PCR-012
+      source_science:
+        - 发病前、首次发病、发病后和结局连续体
+        - 知识约束和不确定性感知的候选表征
+        - 阶段 I–II 在 24 个月内完成并接受两个公共 ICU 数据库检验
+        - 数据访问与可观测性尚须审计且结果尚未生成
+        - 预测或观察性表示不等于因果
+        - 主体研究达标后才开展分试验的后续次要分析
+    delete_move_disposition: >-
+      删除标题中把阶段 III 与主体并列的细节；替换一句话摘要中的完整资格—计算—失败枚举；
+      将恢复算法、四种外部更新、试验名/访视、P_state/P_obs、两种端点及完整禁止主张清单
+      移到其第 7 节或第 14 节权威位置。不得把这些技术细节作为语言“首次定义”重新塞回入口。
+    destination:
+      - "Research design and methods > Absolute simulation and semi-synthetic recovery gate"
+      - "Research design and methods > Hospital-primary genuine cross-database validation"
+      - "Research design and methods > Conditional trial-observation projection and independent fallback"
+      - "Feasibility, resources, risks, alternatives, and stop conditions"
+    dependencies:
+      - NRP-003
+    acceptance_test: >-
+      目标读者只读标题、摘要和定位即可复述问题、24 个月主体目标、价值和总体设计；保留概念
+      均可直接理解。标题不把阶段 III 列为并列贡献；One-sentence 字段恰为一个句子且有主体、
+      高层条件性延伸和共同解释边界三个分句，但不含试验名、访视日、技术分支标签、公式、
+      更新层级清单或完整禁止主张串；Structured abstract 中高层阶段 III 用途合计只出现一次。
+
+  - repair_item_id: NRP-003
+    source_item_ids:
+      - NRP-003
+      - NAR-003
+    addresses_finding_ids:
+      - NAR-003
+    locator: "Research design and methods > Conditional trial-observation projection and independent fallback"
+    operation: consolidate
+    problem: >-
+      阶段 III 的资格、共同生理锚点、投影计算、忠实度、死亡/出院排序、缺失处理、替代分析
+      和解释范围在多处重复，使后续次要分析获得与阶段 I–II 相近的叙事重量，并混淆共享
+      前提与分支专属条件。
+    target: >-
+      在本方法小节连续且只完整说明一次阶段 III 科学流程。先列共享前提，再平行列出观测
+      映射成立的分支、观测映射不成立但独立分析条件成立的分支，以及核心语义不足时停止；
+      其余章节各自只保留完成问题、目标、时间、数据状态、接口、证据链、核查、产物、证伪、
+      贡献、主张或风险功能所必需的最小陈述。
+    required_function_or_term: >-
+      共享前提只包括阶段 II 成功、相应试验个体数据可用和核心试验语义可核验。观测映射
+      分支独自承担共同生理锚点、P_state/P_obs、外部忠实度和有序访视结局；映射不成立但
+      SOFA 及核心语义可核验时，使用与阶段 II 表征独立的 SOFA 有序临床状态端点；核心
+      语义不足则不开展新访视结局分析。完整保留两试验分开、all-randomized 或 mITT、
+      死亡/出院排序、缺失敏感性、多重比较以及各分支允许和不允许的解释。
+    content_to_preserve:
+      protected_ids:
+        - PCR-004
+        - PCR-005
+        - PCR-006
+        - PCR-007
+        - PCR-008
+        - PCR-010
+        - PCR-011
+        - PCR-012
+      source_science:
+        - 阶段 III 位于 24 个月最低交付之外且不能补足阶段 II 失败
+        - EXIT-SEP D7 与 XBJ-SCAP D8 分开分析且不合并
+        - 每项试验的共同锚点、冻结映射和治疗组比较前忠实度判定
+        - 映射分支、独立 SOFA 分支和语义不足停止三种结果
+        - 两试验各自分析集、死亡/出院排序、缺失敏感性、多重比较和解释边界
+    delete_move_disposition: >-
+      从第 1–6 节移除共同锚点、计算、阈值和替代分析的重复；从第 9–11 节删除完整
+      资格—计算—替代三段式，只保留各字段的独立功能；第 12–13 节仅保留贡献或主张范围；
+      第 14 节仅保留限制、假设和风险后果，不复制操作流程。所有技术内容集中到本小节，
+      但不同分支的条件不得被合并为共享条件。
+    destination: "Research design and methods > Conditional trial-observation projection and independent fallback"
+    dependencies: []
+    acceptance_test: >-
+      完整资格、映射、比较、缺失处理、替代和停止逻辑只在本方法小节连续出现一次；共享前提
+      与两条互斥分支的资格没有串写。其他每次提及都能唯一归属于其章节功能，且没有任何一处
+      再次同时解释资格、计算和替代方案；标题和摘要符合 PCR-011 的高层限制。
+
+  - repair_item_id: NRP-004
+    source_item_ids:
+      - NRP-004
+      - NAR-004
+    addresses_finding_ids:
+      - NAR-004
+    locator: "Feasibility, resources, risks, alternatives, and stop conditions；全篇重复限制与五条 Evidence chains"
+    operation: consolidate
+    problem: >-
+      同类限制、假设和失败后果在摘要、背景、非假设、方法、五条证据链、解释矩阵、贡献、
+      主张核对和风险表中反复出现；读者无法判断完整权威位置，正向论证也被防御性内容切断。
+    target: >-
+      第 14 节一次性、无遗漏地成为完整限制、工作假设和风险的唯一权威位置，并保留资源与
+      治理、风险矩阵、尚待解决事项和身份停止边界的独立功能。其他章节只保留直接改变紧邻
+      科学选择或主张的最小自足边界，不使用任何指向第 14 节的提示。
+    required_function_or_term: >-
+      第 14 节完整覆盖数据访问与支持、团队承诺、G1、标签与泄漏、状态可恢复性、MNAR 与
+      低重叠、冻结模型外部检验、时间节点、试验数据和语义、共同锚点/观测映射、closest-work
+      不确定性、未解决工作假设、非方法型风险及禁止主张。第 7 节仍独占设计资格和分析分支，
+      第 11 节仍独占结果证伪与结果依赖解释。
+    content_to_preserve:
+      protected_ids:
+        - PCR-001
+        - PCR-002
+        - PCR-003
+        - PCR-004
+        - PCR-005
+        - PCR-006
+        - PCR-007
+        - PCR-008
+        - PCR-009
+        - PCR-010
+        - PCR-011
+        - PCR-012
+      source_science:
+        - 所有彼此不同的假设、适用边界、失败判定、替代路线和停止后果
+        - 摘要与核心假设防止把预测或表示误读为因果的最小边界
+        - 方法中删除会改变紧邻分析含义的局部条件
+        - Required analyses、Falsification criteria、Interpretation matrix、主张表和风险表各自的核查、判定、解释、审计或风险功能
+        - 十五个规定 H2 和 Background 下五个规定 H3 的名称与功能
+    delete_move_disposition: >-
+      删除五条证据链的 Limits and failure conditions 字段；合并重复的完整禁止主张串、
+      有限适配不能补偿主要外部检验失败、独立 SOFA 不验证阶段 II、核心语义不足即停止等
+      说明。设计流程留第 7 节，结果证伪留第 11 节，完整限制/假设/风险留第 14 节。不得新增
+      “详见第 14 节”或同义指针，也不得用去重删除任何独特边界。
+    destination: "Feasibility, resources, risks, alternatives, and stop conditions"
+    dependencies:
+      - NRP-003
+    acceptance_test: >-
+      第 14 节可独立找到 PCR-010 和 PCR-012 要求的全部限制、工作假设、风险与禁止主张；
+      其余每条保留边界均直接改变紧邻选择或主张。五条证据链只含 Input、Method / analysis /
+      processing、Output 和 Supports；全篇无指向第 14 节的提示，无完整限制清单在其他章节复现。
+
+  - repair_item_id: NRP-005
+    source_item_ids:
+      - NRP-005
+      - NAR-005
+    addresses_finding_ids:
+      - NAR-005
+    locator: "Key techniques and implementation：现有十项编号列表"
+    operation: replace
+    problem: >-
+      第 8 节以工具或控制隐喻重述第 7 节科学原则，没有稳定区分输入数据、计算关系、输出
+      记录和复查用途。
+    target: >-
+      以直接科学功能组织可复现性说明，使研究者可逐项辨认数据或构念来源、派生或计算步骤、
+      输出记录、核查目的及与相邻步骤的依赖，而不必理解项目内部工具名。
+    required_function_or_term: >-
+      覆盖临床事件时刻与信息可用时刻、变量构念与单位、队列和互斥状态派生、模型输入输出、
+      模拟情景与判定标准、医院分组和跨院患者排除、试验共同生理锚点与映射接口、不确定性
+      分析及阴性对照。第 8 节只说明复现接口，不重复第 7 节完整科学理由、阈值推导或阶段 III
+      分支。
+    content_to_preserve:
+      protected_ids:
+        - PCR-003
+        - PCR-004
+        - PCR-005
+        - PCR-006
+        - PCR-007
+        - PCR-008
+        - PCR-010
+        - PCR-011
+      source_science:
+        - event time 与 label-availability time 的区分及来源时戳
+        - 双库样本、事件、转移、医院、单位、观察密度和缺失记录
+        - 生理测量、治疗、测量过程、标签和基线变量的角色分离
+        - 基线先行、恢复检验、外部医院分组、试验映射、不确定性和阴性对照
+        - 既有判定条件与失败后果，但不在本节重复完整推导
+    delete_move_disposition: >-
+      替换以“引擎、审计器、防火墙、封印、投影器”等命名的标题；删除仅重复第 7 节阈值且
+      不新增复现信息的句子。科学理由和完整方法留第 7 节；第 8 节不新造工具名、缩写、术语
+      清单或病例规则。
+    destination: "Research design and methods 中对应科学方法小节"
+    dependencies:
+      - NRP-003
+      - NRP-004
+    acceptance_test: >-
+      未接触内部命名的研究者可从第 8 节每项说明指出数据字段或研究构念、计算步骤、输出记录
+      和核查目的；每项均提供复现信息而非改名复述第 7 节，且不使用工具或项目管理隐喻。
+
+  - repair_item_id: LAR-105-01
+    source_item_ids:
+      - LAR-105-01
+    addresses_finding_ids:
+      - LAR-105-01
+    locator: "标题、定位、目标、第 7 节阶段 III 方法及贡献/主张中的 RCT 次要分析称名"
+    operation: replace
+    problem: >-
+      “条件性稀疏 RCT 次要再分析”等复合短语会把“稀疏”误读为修饰试验设计或样本量，
+      也没有说明前置条件约束的是后续分析。
+    target: >-
+      标题按 NRP-002 只呈现阶段 I–II 主体；读者入口只用“主体研究达到标准后，条件性地
+      分试验开展次要分析”的高层直接描述。首次允许技术展开的第 7 节说明稀疏性属于实际
+      访视资料，并在直接列明阶段 II、试验语义和观测映射条件后，才可使用源报告允许的稳定
+      简称“有前置条件的 RCT 次要再分析”。
+    required_function_or_term: >-
+      完整形式为“仅在预设条件满足后利用 RCT 稀疏访视资料开展的次要再分析”；“稀疏”只
+      修饰访视资料，“预设条件”只修饰分析资格。两项试验仍须分开，阶段 III 仍位于 24 个月
+      主体之外；不得使用“稀疏 RCT 层”或其他新压缩标签。
+    content_to_preserve:
+      protected_ids:
+        - PCR-002
+        - PCR-005
+        - PCR-009
+        - PCR-011
+      source_science:
+        - 计划性、次要分析属性与两项试验分开分析
+        - 访视资料稀疏而非试验设计或样本量“稀疏”
+        - 阶段 II、试验语义和观测映射的前置关系
+        - 阶段 III 位于 24 个月最低交付之外
+    delete_move_disposition: >-
+      删除“严格条件化的稀疏 RCT 次要再分析层”“稀疏 RCT 层”和同类误附着形式。标题不
+      保留阶段 III 技术称名；入口的高层说明不承担完整定义，完整定义移至第 7 节首次技术
+      位置。固定脚手架标题不改名。
+    destination: "Research design and methods > Conditional trial-observation projection and independent fallback"
+    dependencies:
+      - NRP-002
+      - NRP-003
+    acceptance_test: >-
+      标题与入口不能把“稀疏”读成 RCT 样本量或设计属性；第 7 节首次完整称名明确修饰对象
+      和三类前置关系，其后只使用源报告允许的一个稳定简称。全篇无“稀疏 RCT 层”等竞争
+      形式，固定脚手架标题保持不变。
+
+  - repair_item_id: LAR-105-02
+    source_item_ids:
+      - LAR-105-02
+    addresses_finding_ids:
+      - LAR-105-02
+    locator: "摘要、目标、第 7 节映射定义、证据链、产物与解释中的投影对象"
+    operation: define
+    problem: >-
+      “投影可观测状态摘要”“投影摘要”“可观测代理 P_obs”和“状态投影 P_state”交替出现，
+      把潜在状态投影、实测锚点代理及加入死亡/出院排序后的试验结局混为一个对象。
+    target: >-
+      读者入口按 NRP-002 只保留高层的分试验次要分析，不引入符号或摘要量。第 7 节首次
+      技术位置依次区分潜在状态投影 P_state、由试验实际访视共同生理测量计算的一维可观测
+      代理 P_obs，以及由死亡、P_obs 和存活出院共同排序的访视结局；后文按科学角色唯一回指。
+    required_function_or_term: >-
+      P_state 只称“潜在状态投影”，P_obs 只称“由冻结观测方程和试验实际访视共同生理测量
+      计算的一维可观测代理”，治疗组比较的目标称“由死亡、P_obs 和存活出院共同排序的
+      访视结局”。不得再用“投影摘要”同时指多个对象，也不得另造短称。
+    content_to_preserve:
+      protected_ids:
+        - PCR-005
+        - PCR-006
+        - PCR-010
+        - PCR-011
+        - PCR-012
+      source_science:
+        - 每项试验独立的共同锚点与冻结映射
+        - D7/D8 实际访视及 P_state、P_obs 的数学定义
+        - 死亡和存活出院排序
+        - 仅限可观测有序访视结局的随机分配比较与解释边界
+    delete_move_disposition: >-
+      从标题和摘要移除符号、摘要量和映射定义；完整定义只在第 7 节首次技术出现。逐项替换
+      模糊的“投影可观测状态摘要/投影可观测摘要/投影摘要”，但不得删除相应数学定义、
+      访视时点或排序规则。
+    destination: "Research design and methods > Conditional trial-observation projection and independent fallback"
+    dependencies:
+      - NRP-002
+      - NRP-003
+    acceptance_test: >-
+      全篇扫描后，P_state 只指潜在状态投影，P_obs 只指实测锚点代理，治疗组比较目标只用
+      一个明确的有序访视结局名称；第 7 节首次技术定义说明三者关系，标题、摘要不含符号或
+      技术摘要量，目标、方法、产物和解释中的回指一致。
+
+  - repair_item_id: LAR-105-03
+    source_item_ids:
+      - LAR-105-03
+    addresses_finding_ids:
+      - LAR-105-03
+    locator: "摘要、目标、第 7 节替代分支、产物、解释与风险中的独立 SOFA 端点"
+    operation: define
+    problem: >-
+      death-ranked、trial-specific、fallback、独立 SOFA 和独立临床状态等多套称名在三层
+      排序定义之前出现，读者无法判断该对象是连续 SOFA、序数复合结局还是阶段 II 状态。
+    target: >-
+      读者入口只作高层条件性次要分析说明，不放入访视日、分支标签或三层技术定义。第 7 节
+      首次允许技术展开时直接定义“与阶段 II 表征独立的 SOFA 有序临床状态端点”：访视前
+      死亡最差、访视时仍住院者按 SOFA 从高到低排序、访视前存活出院最有利；其后统一回指。
+    required_function_or_term: >-
+      统一简称为“独立的 SOFA 有序临床状态端点”，仅在完整中文定义后才可保留确有必要的
+      英文名称。该端点只在观测映射不成立且 SOFA、死亡、住院/出院、随机化和中心语义可
+      核验时使用，并始终与阶段 II 表征独立。
+    content_to_preserve:
+      protected_ids:
+        - PCR-005
+        - PCR-010
+        - PCR-011
+        - PCR-012
+      source_science:
+        - 观测映射失败才进入该独立分析分支
+        - 每项试验独立且三层排序保持不变
+        - SOFA、死亡、住院/出院、随机化和中心语义须可核验
+        - 核心语义失败时停止新访视结局分析
+        - 该分支不验证或扰动阶段 II 表征
+    delete_move_disposition: >-
+      删除 death-ranked、trial-specific、fallback 及多种中文短称的交替；入口不承担完整定义。
+      将首次完整中文定义放在第 7 节独立分支，后文只用规定简称，不删除分支资格、排序或停止
+      条件。
+    destination: "Research design and methods > Conditional trial-observation projection and independent fallback > independent branch"
+    dependencies:
+      - NRP-002
+      - NRP-003
+    acceptance_test: >-
+      第 7 节第一次技术出现即可辨认三层排序、试验特异性和与阶段 II 的独立性；全篇只用
+      “独立的 SOFA 有序临床状态端点”回指，且所有分支、产物、解释和风险位置指向同一对象。
+      标题和摘要不包含访视日、三层排序、英文复合短语或分支标签。
+
+  - repair_item_id: LAR-105-04
+    source_item_ids:
+      - LAR-105-04
+    addresses_finding_ids:
+      - LAR-105-04
+    locator: "Structured abstract、Core hypothesis、Observational target、模拟恢复及贡献中的可恢复不变量"
+    operation: define
+    problem: >-
+      “恢复不变量”“可恢复不变量”“锚定不变量”和“冻结不变量”在目标量说明中交替出现，
+      首次使用未说明具体量、允许的重参数化或模拟恢复证据环境。
+    target: >-
+      首次读者需要理解该核心阶段 I–II 目标时，以高层直接描述说明：这些量是在允许的
+      重参数化下保持一致、并能在预设模拟生成机制中重建的状态占用率、转移概率、锚点预测
+      以及预设依赖的符号或滞后；完整数学限定和解释边界留在第 7 节 Observational target。
+    required_function_or_term: >-
+      完整定义后统一简称“可恢复不变量”。“锚定不变量”改为“受锚定约束的这些量”，
+      “冻结不变量”改为“冻结后接受外部检验的这些量”；不得暗示因果不变量、物理守恒量、
+      真实系统识别或新的不变量类别。
+    content_to_preserve:
+      protected_ids:
+        - PCR-006
+        - PCR-007
+        - PCR-009
+        - PCR-012
+      source_science:
+        - 允许的重参数化关系
+        - 状态占用、转移概率、锚点预测和预设符号/滞后
+        - 预设模拟生成机制中的恢复和外部稳定性检验
+        - 不解释任意潜变量坐标或未通过判定的边
+    delete_move_disposition: >-
+      合并三个修饰变体；入口只给理解目标所需的直接说明，不放阈值。完整定义、数学对象和
+      判定条件保留在第 7 节，后文按上下文展开“受锚定约束”或“冻结后外部检验”，不另造
+      不变量类别。
+    destination: "Research design and methods > Observational target, anchoring and abstention；Absolute simulation and semi-synthetic recovery gate"
+    dependencies:
+      - NRP-002
+    acceptance_test: >-
+      首次使用可回答这些量是什么、在何种等价关系下保持一致以及在哪种证据环境中重建；
+      第 7 节保留完整技术定义。全篇只用“可恢复不变量”作为规定简称，无“锚定不变量”或
+      “冻结不变量”被误读为新类别。
+
+  - repair_item_id: LAR-105-05
+    source_item_ids:
+      - LAR-105-05
+    addresses_finding_ids:
+      - LAR-105-05
+    locator: "Structured abstract、工作包、第 7 节外部检验、证据链、解释、主张与风险中的更新操作"
+    operation: replace
+    problem: >-
+      零更新、zero update、adaptation、有限更新、transport updating 和“运输”混用，
+      使参数冻结范围、允许更新对象及证据身份不清楚。
+    target: >-
+      读者入口只说计划跨数据库检验，不列更新层级。第 7 节首次技术列举时按顺序直接定义
+      四种操作：（1）冻结模型不作任何更新的外部检验；（2）仅更新校准参数的适配分析；
+      （3）仅更新观测层参数的适配分析；（4）全模型重新拟合，仅作为模型开发而非外部验证。
+      后文只使用源报告允许的四个中文简称。
+    required_function_or_term: >-
+      简称依次为“不更新外部检验”“仅校准适配”“仅观测层适配”和“全模型重拟合”。
+      跨库结果称“跨数据库适用性”或在定义后称“可运输性”，适配结果称“适配后的跨数据库
+      表现”；不得裸用“运输”，不得以有限适配补偿主要不更新外部检验失败。
+    content_to_preserve:
+      protected_ids:
+        - PCR-004
+        - PCR-006
+        - PCR-007
+        - PCR-009
+        - PCR-010
+      source_science:
+        - 医院优先分区与最终测试区不用于开发
+        - 四种更新层级及各自可更新参数
+        - 不更新外部检验是主要外部证据
+        - 两种有限适配不能补偿主要外部检验失败
+        - 全模型重拟合只属于模型开发
+    delete_move_disposition: >-
+      从标题和摘要移出更新层级；在第 7 节完整定义后，逐项替换 zero-update、zero update、
+      零更新、adaptation、transport update 及裸词“运输”。不得删除医院分区、参数冻结、
+      测试隔离、报告顺序或失败后果。
+    destination: "Research design and methods > Hospital-primary genuine cross-database validation"
+    dependencies:
+      - NRP-002
+      - NRP-003
+    acceptance_test: >-
+      全篇扫描后，每个中文名称唯一对应一组可更新参数和一种证据身份；英文竞争形式和裸词
+      “运输”不再出现。入口不含四项技术清单，第 7 节首次完整列举，有限适配不能补偿主要
+      外部检验失败以及全模型重拟合非外部验证的关系保持可定位。
+
+  - repair_item_id: LAR-105-06
+    source_item_ids:
+      - LAR-105-06
+    addresses_finding_ids:
+      - LAR-105-06
+    locator: "定位、摘要、日期标准、方法、实现、证据、产物、贡献、主张和风险中的内部隐喻"
+    operation: replace
+    problem: >-
+      “门/硬门/按门”“防火墙”“封印”“泄漏清零”“打开 test”“救回/挽救”和无对象的
+      “自动降级”用项目管理或软件隐喻代替科学判定、数据访问控制、替代分析和证据后果。
+    target: >-
+      每处直接说明被判定的对象、预先规定的标准、未达到时采用的具体替代或停止动作，以及
+      对可支持主张的后果；全文使用标准科学或方法学语言。
+    required_function_or_term: >-
+      “X 门/硬门”改为“预先规定的 X 判定标准/准入条件”；“变量角色防火墙”改为“变量角色
+      分离规则”；“外部封印”改为“外部测试集预分配、权限隔离和分析冻结”；“泄漏清零”改为
+      “无未解决的高严重度信息泄漏问题”；“打开 test”改为“授权访问并分析最终外部测试集”；
+      “救回/挽救”改为“不能补偿或改变未通过判定”。每个“降级”改写为源文已经规定的具体
+      替代项和允许主张；R0/R1 只在直接定义后保留。
+    content_to_preserve:
+      protected_ids:
+        - PCR-004
+        - PCR-005
+        - PCR-006
+        - PCR-007
+        - PCR-008
+        - PCR-009
+        - PCR-010
+        - PCR-011
+        - PCR-012
+      source_science:
+        - 所有预设判定标准、日期与访问隔离
+        - 变量角色边界和信息泄漏防护
+        - 每项替代分析、停止规则和不可支持结论
+        - 所有数值阈值和试验分支资格
+    delete_move_disposition: >-
+      只替换表达，不删除或合并科学条件。若源文“降级”已对应多状态、线性、prediction-only、
+      备份库、独立 SOFA 或停止等不同后果，必须分别写出，不得用一个新通用词覆盖。按
+      NRP-003/004/005 移动后再做全篇逐处修订。
+    destination:
+      - "各原科学功能的保留 locator"
+      - "Research design and methods 中被集中保留的技术 locator"
+      - "Feasibility, resources, risks, alternatives, and stop conditions 中的完整限制/风险 locator"
+    dependencies:
+      - NRP-003
+      - NRP-004
+      - NRP-005
+    acceptance_test: >-
+      全篇不再依靠项目管理或软件隐喻理解科学动作；每个判定句均能直接回答对象、标准、
+      未达到时的具体动作和可支持主张。所有日期、阈值、访问隔离、变量角色、替代路线和停止
+      后果保持不变，R0/R1 均在直接定义之后使用。
+
+  - repair_item_id: LAR-105-07
+    source_item_ids:
+      - LAR-105-07
+    addresses_finding_ids:
+      - LAR-105-07
+    locator: "摘要、工作包、模拟、实现、证据链、产物、解释和主张中的失败图/弃权"
+    operation: replace
+    problem: >-
+      “失败图”未说明失败对象、标准或后果，“弃权”则同时指错设检测、停止结构解释、不估计
+      治疗作用、模型不晋级和记录，读者无法识别负向交付物和科学动作。
+    target: >-
+      负向输出按医院、状态、变量或结构直接说明未达到的预设标准及后果；每种原“弃权”按
+      实际动作分别写成停止结构解释、不估计治疗作用、不让复杂模型晋级，或记录未达到标准
+      及后续处置。
+    required_function_or_term: >-
+      首次提到负向产物时直接写“按预设对象汇总未达到标准、停止解释或不晋级决定及其原因的
+      记录与图表”；后文名称必须带实际对象和科学后果，不使用一个通用替换词，也不创造新
+      压缩标签。
+    content_to_preserve:
+      protected_ids:
+        - PCR-006
+        - PCR-007
+        - PCR-009
+        - PCR-010
+      source_science:
+        - 负向结果发布与错设检测
+        - 低支持关系和不估计治疗作用
+        - 停止结构解释与复杂模型不晋级
+        - 按医院、状态、变量或结构分层展示的计划
+    delete_move_disposition: >-
+      替换所有无对象的“失败图”和“弃权”用法；不删除负向结果、失配检测、支持判定、模型
+      淘汰或分层展示。摘要只保留可辨认的高层负向产物，第 7–8 节说明具体记录和计算，
+      其余位置按章节功能最小表达。
+    destination: "各动作和负向产物实际承担科学功能的 revised locator"
+    dependencies:
+      - NRP-004
+      - NRP-005
+    acceptance_test: >-
+      摘要首次提及即可辨认负向交付物；全篇没有不带对象与后果的“失败图”或“弃权”。每个
+      位置的名称与停止解释、不估计作用、模型不晋级或记录处置中的实际动作一致，所有负向
+      结果发布承诺仍可定位。
+
+  - repair_item_id: LAR-105-08
+    source_item_ids:
+      - LAR-105-08
+    addresses_finding_ids:
+      - LAR-105-08
+    locator: "Title, summary, audience, and positioning > One-sentence complete-Idea summary"
+    operation: replace
+    problem: >-
+      当前单句同时装入数据条件、四段病程、多重修饰语、阶段 I–II 检验、阶段 III 资格与
+      分支以及完整禁止主张，目标读者无法一次分清主体、延伸和解释边界。
+    target: >-
+      保持一个完整句子，以三个可辨认分句依次表达：（1）24 个月阶段 I–II 构建和检验的
+      主体；（2）主体研究达到标准后才分试验开展次要分析的高层用途；（3）预测/观察性表示
+      不等于因果的共同高层边界。按 NRP-002 和 PCR-011，不在该句列出技术资格、试验名、
+      访视日、摘要量、分支标签或完整禁止主张串。
+    required_function_or_term: >-
+      使用其他语言动作规定的直接科学称名，但凡完整定义会引入已被叙事动作移出的技术细节，
+      只在入口给高层直接描述，并把完整定义放在第 7 节首次允许技术展开处。删除不增加区分度
+      的叠加修饰语。
+    content_to_preserve:
+      protected_ids:
+        - PCR-001
+        - PCR-002
+        - PCR-003
+        - PCR-004
+        - PCR-005
+        - PCR-009
+        - PCR-011
+        - PCR-012
+      source_science:
+        - 24 个月、两个公共 ICU 数据库及访问/可观测性尚待确认
+        - 发病前、首次发病、发病后和结局连续体
+        - 阶段 I–II 的模拟恢复和跨数据库检验
+        - 主体研究达到标准后才开展分试验次要分析
+        - 预测或观察性表示不支持因果解释的最小边界
+      relocated_technical_content:
+        - EXIT-SEP D7 与 XBJ-SCAP D8
+        - 观测映射分支和独立 SOFA 分支
+        - 完整因果、连续动力学、控制、数字孪生和系统验证边界
+    delete_move_disposition: >-
+      从该句移出试验名、访视日、共同资格、P_state/P_obs、三层端点排序、分支标签和完整禁止
+      主张清单；这些科学内容不得删除，分别在第 7 节和第 14 节保留。该冲突按叙事 placement
+      权威解决，不把语言报告的技术定义要求解释为必须在第 32 行完整展开。
+    destination:
+      - "Research design and methods > Conditional trial-observation projection and independent fallback"
+      - "Feasibility, resources, risks, alternatives, and stop conditions"
+    dependencies:
+      - NRP-002
+      - NRP-003
+    acceptance_test: >-
+      One-sentence 字段恰为一个句子且有主体阶段 I–II、高层条件性延伸和共同解释边界三个
+      清楚分句；目标读者无需回读即可辨认主问题、24 个月证据操作和延伸的从属地位。句中无
+      未定义项目短标签、试验名、访视日、技术摘要量、分支标签或完整限制串；被移出的每项
+      科学内容在第 7 或第 14 节权威位置仍可定位。
+
+  - repair_item_id: LAR-105-09
+    source_item_ids:
+      - LAR-105-09
+    addresses_finding_ids:
+      - LAR-105-09
+    locator: "摘要、背景、核心边界、第 7 节、五条证据链、第 11–14 节中的近乎逐字限制"
+    operation: consolidate
+    problem: >-
+      RCT 不验证阶段 II 潜在结构、后续分析不能补偿阶段 II 失败以及当前非因果/非数字孪生
+      等不同边界，以近乎相同词序在多处重复，增加入口负担并掩盖各边界的不同对象。
+    target: >-
+      按 NRP-004 建立第 14 节唯一完整限制/假设/风险权威，并对其他位置逐句去重。观察性
+      阶段 II、观测映射分支和独立 SOFA 分支只保留各自紧邻对象所需的最小自足边界；所有
+      科学上不同的限制仍保持可定位。
+    required_function_or_term: >-
+      不在同一局部单元重复完整的“潜在动力学—转移边—中介—控制—整个模型”串；按当前
+      科学对象使用稳定、简洁、直接的限制句。有限适配不能补偿不更新外部检验失败、后续
+      阶段不能补足阶段 II、独立 SOFA 与阶段 II 无关以及当前不构成因果网络/控制/数字孪生/
+      临床工具等不同边界不得误合并或删除。
+    content_to_preserve:
+      protected_ids:
+        - PCR-007
+        - PCR-009
+        - PCR-010
+        - PCR-011
+        - PCR-012
+      source_science:
+        - 预测或观察性表示不等于因果
+        - RCT 映射分支不验证阶段 II 潜在结构
+        - 独立 SOFA 分支与阶段 II 表征独立
+        - 有限适配不能补偿主要不更新外部检验失败
+        - 当前不构成数字孪生、控制、临床工具或无条件推广依据
+    delete_move_disposition: >-
+      删除未增加新对象、条件或后果的近乎逐字重复；五条证据链的限制字段按 NRP-004 整体
+      删除。完整禁止主张只在第 14 节一次出现；局部必要边界自足表达且不加入指针。不得以
+      去重改变固定字段、表格功能或任何独特科学边界。
+    destination: "Feasibility, resources, risks, alternatives, and stop conditions；各必要局部边界的 revised locator"
+    dependencies:
+      - NRP-003
+      - NRP-004
+    acceptance_test: >-
+      全篇没有一整串限制在未增加新对象、新条件或新后果时近乎逐字重复；五条证据链无
+      Limits and failure conditions 字段；每个科学上不同的限制仍有可定位证据，第 14 节包含
+      唯一完整清单，其他位置没有指向第 14 节的提示，固定章节和表格功能保持不变。
+
+protected_content_execution:
+  instruction: >-
+    写作前逐个打开 PCR 的 source_locator，核对实际原文中的每一项科学承诺；下列映射规定
+    修订后的权威位置，但不能替代 protected register 的完整内容。完成全文扫描后，在 delta
+    中为 PCR-001 至 PCR-012 各写一行 revised locator 和逐项文本证据。
+  items:
+    - protected_id: PCR-001
+      revised_authority: "frontmatter identity_anchor；Research question, objectives, and core hypothesis > Primary research question"
+      governed_by:
+        - NRP-001
+        - NRP-002
+        - NRP-004
+        - LAR-105-08
+      required_disposition: >-
+        identity_anchor 逐字复制；正文保留以脓毒症为中心的发病前—首次发病—发病后—结局
+        候选动态系统研究身份，不得改成普通预测或泛 ICU 风险分层。
+    - protected_id: PCR-002
+      revised_authority: "Research question, objectives, and core hypothesis > Objectives；Contribution and evidence ladder"
+      governed_by:
+        - NRP-001
+        - NRP-002
+        - NRP-004
+        - LAR-105-01
+        - LAR-105-08
+      required_disposition: >-
+        分别保留 24 个月阶段 I–II 主要目标、高水平论文与可审计科学证据的交付方向，以及
+        不得收缩为只产出预测工具三项可定位承诺；frontmatter primary_objective 逐字保持。
+    - protected_id: PCR-003
+      revised_authority: "frontmatter identity_anchor；Research design and methods > Observational target, anchoring and abstention"
+      governed_by:
+        - NRP-001
+        - NRP-002
+        - NRP-005
+        - LAR-105-08
+      required_disposition: >-
+        保留纵向脓毒症 ICU 患者系统、可比较未发病在险片段和发病后轨迹，以及尊重患者和
+        医院聚类的患者—时间状态及状态转移推断单位。
+    - protected_id: PCR-004
+      revised_authority: "Data, materials, and existing evidence base；Feasibility, resources, risks, alternatives, and stop conditions"
+      governed_by:
+        - NRP-001
+        - NRP-002
+        - NRP-003
+        - NRP-004
+        - NRP-005
+        - LAR-105-05
+        - LAR-105-06
+        - LAR-105-08
+      required_disposition: >-
+        数据库存在/版本已核验与团队访问、DUA、可运行提取、队列支持、具名人员和结果尚未
+        核验或生成的状态必须保持；HiRID 或 AmsterdamUMCdb 仍是预先指定的条件性备份。
+    - protected_id: PCR-005
+      revised_authority: "Data, materials, and existing evidence base > Local RCT evidence and present limits；第 7 节阶段 III 方法权威"
+      governed_by:
+        - NRP-001
+        - NRP-002
+        - NRP-003
+        - NRP-004
+        - NRP-005
+        - LAR-105-01
+        - LAR-105-02
+        - LAR-105-03
+        - LAR-105-06
+        - LAR-105-08
+      required_disposition: >-
+        EXIT-SEP 与 XBJ-SCAP 只作为条件性阶段 III 潜在个体数据来源；衍生报告不得被写成
+        个体数据授权、原始 CRF/SAP 或随机化、中心、访视与生存语义已经核验。
+    - protected_id: PCR-006
+      revised_authority: "Research content and work packages；Research design and methods 中相应技术小节"
+      governed_by:
+        - NRP-003
+        - NRP-004
+        - NRP-005
+        - LAR-105-02
+        - LAR-105-04
+        - LAR-105-05
+        - LAR-105-06
+        - LAR-105-07
+      required_disposition: >-
+        保留规定设计顺序、状态—治疗—测量分离、解释约束，以及 20 种子对齐率 90%、
+        bootstrap 保留率 80%、外部符号一致率 80%、状态对齐 0.70 和区间校准等所有判定与
+        删除/合并/数据库或政策特异处置；预测表现不得豁免。
+    - protected_id: PCR-007
+      revised_authority: "Research content and work packages > Conjunctive minimum success definition；第 7 节外部检验方法权威"
+      governed_by:
+        - NRP-003
+        - NRP-004
+        - NRP-005
+        - LAR-105-04
+        - LAR-105-05
+        - LAR-105-06
+        - LAR-105-07
+        - LAR-105-09
+      required_disposition: >-
+        阶段 II 合取成功的全部组成保持不变；两种有限适配与主要不更新外部检验分开报告且
+        不能补偿其失败，阶段 III 不计入或补足阶段 II 成功。
+    - protected_id: PCR-008
+      revised_authority: "Research design and methods > Protocol locks for the two primary clinical tasks；Mutually exclusive post-onset state/event system"
+      governed_by:
+        - NRP-003
+        - NRP-004
+        - NRP-005
+        - LAR-105-06
+      required_disposition: >-
+        逐项保留两项主要任务、双时钟、风险集、delayed entry、互斥状态、竞争终止、as-of、
+        proper score/校准、聚类不确定性、72h/24h 配对、SOFA、滚动窗、首次发病、landmark
+        权重、同窗排序及全部泄漏检查；不得因压缩改变数值、时间或排序关系。
+    - protected_id: PCR-009
+      revised_authority: "Structured abstract；Contribution, innovation, impact, application, and closest-work comparison"
+      governed_by:
+        - NRP-001
+        - NRP-002
+        - NRP-004
+        - LAR-105-01
+        - LAR-105-04
+        - LAR-105-05
+        - LAR-105-06
+        - LAR-105-07
+        - LAR-105-08
+        - LAR-105-09
+      required_disposition: >-
+        全文保持“计划中的候选表征与验证、无现成结果”；贡献强度只到条件性整合、验证和
+        benchmark/resource 增量，完整组合缺口低至中等置信，不得声称全球首次或新算法。
+    - protected_id: PCR-010
+      revised_authority: "第 7 节方法权威；第 11 节结果证伪/解释权威；第 14 节完整限制、工作假设和风险权威"
+      governed_by:
+        - NRP-001
+        - NRP-003
+        - NRP-004
+        - NRP-005
+        - LAR-105-02
+        - LAR-105-03
+        - LAR-105-05
+        - LAR-105-06
+        - LAR-105-07
+        - LAR-105-09
+      required_disposition: >-
+        第 14 节一次性完整保留 register 列举的限制和工作假设；设计资格与互斥分析只在
+        第 7 节完整出现，结果证伪与结果依赖解释只在第 11 节完整出现。两试验方向不一致或
+        区间过宽时不得以亚组改变主要解释，筛选下限不得替代有效样本量和模拟稳定性。
+    - protected_id: PCR-011
+      revised_authority: "Research content and work packages > Twenty-four-month minimum；第 7 节阶段 III 方法权威；其余规定的最小功能位置"
+      governed_by:
+        - NRP-001
+        - NRP-002
+        - NRP-003
+        - NRP-004
+        - NRP-005
+        - LAR-105-01
+        - LAR-105-02
+        - LAR-105-03
+        - LAR-105-06
+        - LAR-105-08
+        - LAR-105-09
+      required_disposition: >-
+        24 个月阶段 I–II、阶段 III 共享前提、映射分支、独立分支、停止和不可补足关系保持；
+        完整技术逻辑只在第 7 节一次出现。标题/摘要、Structured abstract、问题、目标、时间、
+        数据、实现、证据链、核查、产物、贡献和 Claim-Support 的出现次数与信息粒度严格按
+        register 规定，不把一个分支的条件写成共享前提。
+    - protected_id: PCR-012
+      revised_authority: "Feasibility, resources, risks, alternatives, and stop conditions；必要的局部估计目标/解释/主张边界"
+      governed_by:
+        - NRP-001
+        - NRP-002
+        - NRP-003
+        - NRP-004
+        - LAR-105-02
+        - LAR-105-03
+        - LAR-105-04
+        - LAR-105-06
+        - LAR-105-08
+        - LAR-105-09
+      required_disposition: >-
+        第 14 节一次性保留完整禁止主张清单；观察性数据、预测和条件性试验分析的不同证据
+        边界不得削弱。其他位置只有在删除会造成紧邻估计目标、结果解释或主张审计实质误读时
+        才保留最小自足边界，不成组重复完整清单。
+
+writer_access:
+  allowed_reads:
+    - tests/idea-test-0.9.0-preview.1/0.9.0-preview.1/03_ideas/nodes/I01-001/dossiers/idea-dossier-v003.md
+    - tests/idea-narrative-forward-0.9.0-preview.3/one-pass-current/baseline-current/editorial-repair-writer-brief-r106.yaml
+    - tests/idea-narrative-forward-0.9.0-preview.3/run-001/inputs/protected-content-register-v004.yaml
+  forbidden_reads:
+    - 任何 narrative assessment、language assessment 或 assessor report
+    - 任何 narrative repair plan、修订计划或其他计划型 reviewer 产物
+    - 任何既有 revision delta、修订差异或历史修订记录
+    - 任何 methodology preflight 或方法学预检
+    - 任何 evaluation、评估报告、评分或决定
+    - 除绑定 v003 外的任何 prior dossier、context、evidence map、ledger、portfolio 或 hidden parent context
+  allowed_writes:
+    complete_dossier:
+      artifact_id: idea-dossier-I01-001-v051
+      version: v051
+      path: tests/idea-narrative-forward-0.9.0-preview.3/one-pass-current/direct-final-current-v17/idea-dossier-v051.md
+      change_type: editorial_repair
+    revision_delta:
+      artifact_id: revision-delta-I01-001-v003-to-v051
+      version: v051
+      path: tests/idea-narrative-forward-0.9.0-preview.3/one-pass-current/direct-final-current-v17/revision-delta-v003-to-v051.md
+      change_type: editorial_repair_delta
+
+output_lineage:
+  instruction: >-
+    v051 和 delta 均绑定 active_plugin_version 0.9.0-preview.3，并用上述逻辑 ID、版本和路径
+    记录 source dossier、writer brief 与 protected register。不得沿用 v003 的旧 plugin version，
+    不得复制 v003 based_on 中的旧完整性值，也不得生成新的 SHA、内容哈希或摘要值。
+  dossier_change_type: editorial_repair
+  delta_change_type: editorial_repair_delta
+
+execution_and_handoff:
+  single_complete_target_dossier: true
+  partial_artifacts_forbidden: true
+  delta_after_dossier_freeze_only: true
+  same_writer_requirement: >-
+    同一个 writer 实例在同一个完整 v051 文件上依次完成全部 section passes、全篇扫描和修复；
+    不得把章节分给不同 writer，不得持久化章节片段。
+  section_passes:
+    - "Pass 1：同一 writer 修订 reader core，即第 1–4 节；只编辑完整 v051 目标文件。"
+    - "Pass 2：同一 writer 修订研究计划和技术权威，即第 5–11 节；只编辑同一完整 v051。"
+    - "Pass 3：同一 writer 修订定位、主张审计及唯一完整限制/假设/风险权威，即第 12–14 节。"
+    - "Pass 4：同一 writer 核对 References，并对完整 dossier 执行术语、科学角色、数值、时间、引用和章节功能一致性扫描。"
+  freeze_sequence:
+    - 完成四个 bounded passes 后保存一个完整 v051。
+    - 对完整 v051 执行 mandatory_whole_dossier_checks 和确定性 linter。
+    - 修复 linter 或扫描发现的未执行动作，并重新运行完整扫描与 linter。
+    - 只有全部检查通过后冻结 v051；冻结前不得创建或定稿 delta。
+    - 冻结后创建并定稿 delta；若此后 v051 有任何编辑，作废 delta，重新扫描、lint、冻结并重写 delta。
+  delta_requirements:
+    - "为全部十四个 included repair item ID 各写一行：精确 revised locator、实际 operation 及可从 v051 文本核对的 acceptance-test 结果。"
+    - "为 PCR-001 至 PCR-012 各写一行：精确 revised locator(s) 及 register 每个枚举要素在 v051 中的逐项保存证据；不得用标题、主题或完成声明代替正文证据。"
+    - "加入紧凑的读者称名 concordance：只覆盖中央研究对象、主要问题/任务、主要结果、贡献，以及本 brief 实际修订的核心科学角色；记录一个读者称名、首次使用 locator、竞争形式处置和全篇扫描结果。不得扩展成术语清单。"
+    - "对 bounded comparison 产生的每个 advisory short-form-diff candidate 记录其 revised locator、是否采用及文本理由；未采用者说明原因；若没有候选则明确记录 none。该候选处置不能替代十四项动作或十二项 PCR 映射。"
+    - "记录完整 dossier 的术语/角色扫描、确定性 linter 通过和同一 writer 完成四个 section passes；不得复制评估说明、长段 source text 或 protected_content。"
+    - "delta 保持紧凑；不得持久化 SHA、内容哈希、摘要值、时间戳替代证明或新的科学规则。"
+  handoff_blockers:
+    - 任一 included repair item 缺少 text-grounded delta 映射
+    - 任一 PCR ID 缺少逐项保存证据或 identity_anchor 不逐字一致
+    - 任一 critical/major 语言动作在全篇仍有竞争称名、错误修饰或未定义首次使用
+    - 第 14 节不是唯一完整限制、假设和风险权威，或其他位置出现指向第 14 节的提示
+    - linter 未通过、v051 未冻结、delta 在冻结前完成，或冻结后又编辑 v051
+    - 修订需要未授权科学选择而 writer 未停止
+
+linter_pass:
+  mode: deterministic_complete_dossier
+  instruction: >-
+    在 delta 之前对完整 v051 运行适用的确定性 dossier linter；不得为运行 linter 打开额外
+    项目产物。若运行环境没有单独命令，则按下列 deterministic_checks 对输出文本完成同等
+    结构检查，并在 delta 记录每项通过结果。
+  deterministic_checks:
+    - frontmatter 可解析，artifact_id/version/plugin_version/change_type/identity_status 与本 brief 一致
+    - 十五个规定 H2 均存在且各出现一次，Background 下五个规定 H3 按指定顺序存在
+    - Markdown 表格列数一致，References 编号与正文引用保持可解析且原证据不丢失
+    - One-sentence complete-Idea summary 恰为一个句子，五条 Evidence chains 只有四个规定字段
+    - 禁止的竞争称名和内部隐喻扫描完成，保留的 R0/R1 均先有直接定义
+    - v051 或 delta 不含新持久化的 SHA、内容哈希或摘要值
+  acceptance: >-
+    所有 deterministic_checks 通过；任一失败必须先修复完整 v051，再重新进行全篇扫描和
+    linter，之后才能冻结 dossier 并创建 delta。
+
+mandatory_whole_dossier_checks:
+  not_new_findings: true
+  checks:
+    - check: identity-anchor-verbatim
+      instruction: >-
+        比较 v051 frontmatter identity_anchor 的五个键值与 identity_anchor_verbatim.exact_values，
+        并核对正文主要研究问题、对象和推断单位未发生身份漂移。
+      acceptance: >-
+        五个值逐字符一致，identity_status 为 preserved，正文仍是同一脓毒症全病程候选动态
+        系统研究而非普通预测或泛 ICU 风险分层。
+    - check: section-function-and-authority
+      instruction: >-
+        核对十五个 H2 的原定功能、第 3 节五个 H3 的顺序、第 7 节技术权威、第 11 节结果
+        证伪/解释权威及第 14 节完整限制/假设/风险权威。
+      acceptance: >-
+        每项内容位于其唯一权威位置；其他单元只保留自身功能所需的最小自足内容，无跳转提示，
+        无完整技术树、解释树或限制清单的重复。
+    - check: stage-iii-branch-logic
+      instruction: >-
+        全篇核对阶段 III 共享前提、观测映射分支、独立 SOFA 分支和核心语义不足停止的逻辑；
+        特别检查共同锚点和忠实度条件只属于映射分支。
+      acceptance: >-
+        完整逻辑只在第 7 节一次出现，两个试验分开且不合并，一个分支的资格未被写成整个
+        阶段 III 的共享前提，阶段 III 仍不能补足阶段 II 失败。
+    - check: reader-entry-progressive-disclosure
+      instruction: >-
+        检查标题、One-sentence 字段、定位和 Structured abstract 的顺序、负荷及阶段 III 粒度。
+      acceptance: >-
+        读者可一次复述问题、24 个月目标、价值和总体设计；标题/摘要不含试验名、访视日、
+        技术摘要量、资格清单或分支标签，Structured abstract 的阶段 III 高层用途合计一次。
+    - check: scientific-role-concordance
+      instruction: >-
+        对完整 dossier 扫描中央研究对象、主要问题/任务、主要结果、贡献，以及本 brief 修订的
+        RCT 次要分析、P_state、P_obs、有序访视结局、独立 SOFA 端点、可恢复不变量、四种
+        外部更新操作、负向结果和实际停止动作；核对首次使用、修饰关系和全部回指。
+      acceptance: >-
+        每个角色只有一个源动作授权的读者称名，首次必要说明位于允许的信息层级，竞争形式
+        已删除或按不同科学角色重分类；扫描结果可在 delta 紧凑记录而不形成术语清单。
+    - check: local-scientific-expression
+      instruction: >-
+        扫描“门、硬门、防火墙、封印、泄漏清零、打开 test、救回、挽救”和无对象的“降级、
+        失败图、弃权”，并逐处核对替换后的对象、标准、动作和后果。
+      acceptance: >-
+        无内部项目或软件隐喻承担科学含义；每个判定和负向产物均直接说明实际对象、标准、
+        替代/停止动作及允许主张，原科学条件全部保留。
+    - check: limitation-and-boundary-preservation
+      instruction: >-
+        按 PCR-010、PCR-011、PCR-012 逐项核对第 7、11、14 节及必要局部边界，检查近乎逐字
+        重复、完整禁止清单位置和所有独特限制。
+      acceptance: >-
+        第 14 节是唯一完整限制/假设/风险权威且不含末尾复述；第 7/11 节各保留自己的技术或
+        结果功能；所有独特边界存在，无完整清单在其他位置重复，也无指向第 14 节的提示。
+    - check: quantitative-temporal-and-status-concordance
+      instruction: >-
+        全篇核对 PCR-004 至 PCR-009 的数据库/结果状态、日期、样本数、访视、阈值、百分比、
+        排序、分析集、更新范围、失败后果和 planned/not-generated 表达。
+      acceptance: >-
+        所有数值和时间规则与 v003/PCR 一致；未核验或未生成内容未被写成已具备，有限适配、
+        试验分支和贡献强度均未被加强。
+    - check: evidence-chain-and-implementation-function
+      instruction: >-
+        核对第 8 节每项是否新增可复现输入—计算—输出—核查关系，并核对五条 evidence chains
+        的四字段结构和各自证据功能。
+      acceptance: >-
+        第 8 节不再以工具隐喻复述方法且不重复完整分支；五条链均只有 Input、Method /
+        analysis / processing、Output、Supports，原四项科学关系完整。
+    - check: protected-content-completeness
+      instruction: >-
+        对 PCR-001 至 PCR-012 逐个重开所有 source_locator 和 revised locator，比较 register 的
+        每个枚举要素与 v051 实际文字，而不是依赖标题或 delta 声明。
+      acceptance: >-
+        十二项全部有 item-level 文本证据；任何无法保留的承诺都被识别为科学变化并停止
+        editorial repair，不以措辞压缩、章节主题或完成声明掩盖缺失。
+    - check: output-freeze-and-delta-order
+      instruction: >-
+        确认四个 same-writer section passes、完整术语/角色扫描和 linter 均在 v051 freeze 之前
+        完成，delta 只在 freeze 之后创建或定稿。
+      acceptance: >-
+        v051 冻结后没有后续编辑；delta 包含十四项 repair、十二项 PCR、紧凑角色一致性和
+        advisory short-form-diff candidate disposition，且没有 SHA、内容哈希或摘要值。

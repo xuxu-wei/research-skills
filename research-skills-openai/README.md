@@ -1,25 +1,23 @@
 # Research Skills (Personal Preview)
 
 `research-skills-openai` is an owner-operated, experimental ChatGPT/Codex
-research workflow plugin. It contains 49 skills for research ideas, proposals,
+research workflow plugin. It contains 50 skills for research ideas, proposals,
 articles, perspectives, research-impact positioning, evidence retrieval, and
 independent review. It is maintained for one owner's research work and is not
 presented as a production-stable, supported, shared, or public distribution.
 
 The maintained deterministic suite covers static audits, workflow fixtures,
 reviewer isolation, context budgets, registry generation, and plugin packaging.
-The `0.9.0-preview.2` reviewer-input-isolation checkpoint passes that suite. The plugin remains
-`in_progress_owner_observation`, not `owner_observed_ready`, until its private
-current-version runtime slots are completed.
+The `0.10.0` Idea narrative-readiness checkpoint is accepted only after
+the deterministic suite and the Local/Git fresh-task checks below pass. Roadmap
+Phases 7 and 8 are closed. Complete Search/Deep Research runtime revalidation is
+not an active priority and must not be resumed unless the owner explicitly
+requests it.
 
-The immediate priorities are deliberately small:
-
-1. bind the already diagnosed current-version install, cache identity, and
-   fresh-task discovery to the formal owner-observed distribution receipt;
-2. run one owner-observed happy path for each of the five workflows plus two
-   cross-workflow controls; and
-3. exercise three built-in Search cases, one inactive-Deep-Research control,
-   and one complete user-started Deep Research handoff-return-resume cycle.
+The strict 13-slot receipt profile remains available as an optional diagnostic.
+Its tracked report truthfully remains `in_progress_owner_observation`, not
+`owner_observed_ready`; that stricter status no longer blocks personal use or
+subsequent owner-selected development.
 
 Research Polisher is already implemented as the seventh declared entry and is
 permanently explicit-only under the current personal routing policy. See
@@ -33,8 +31,9 @@ Register the GitHub repository as the rolling Preview marketplace once, then
 install the marketplace-qualified plugin:
 
 ```powershell
-codex plugin marketplace add xuxu-wei/research-skills --ref main
-codex plugin add research-skills-openai@xuxu-research-preview
+$codexCli = (python scripts/openai_plugin_dev.py status --json | ConvertFrom-Json).codex_cli
+& $codexCli plugin marketplace add xuxu-wei/research-skills --ref main
+& $codexCli plugin add research-skills-openai@xuxu-research-preview
 ```
 
 The marketplace uses a `git-subdir` source that tracks the rolling Preview `main`
@@ -48,9 +47,14 @@ After a new SemVer is pushed to GitHub `main`, refresh the Git marketplace
 snapshot, reinstall, and start a new Codex task:
 
 ```powershell
-codex plugin marketplace upgrade xuxu-research-preview
-codex plugin add research-skills-openai@xuxu-research-preview
+$codexCli = (python scripts/openai_plugin_dev.py status --json | ConvertFrom-Json).codex_cli
+& $codexCli plugin marketplace upgrade xuxu-research-preview
+& $codexCli plugin add research-skills-openai@xuxu-research-preview
 ```
+
+If the marketplace is no longer registered, restore it first with
+`& $codexCli plugin marketplace add xuxu-wei/research-skills --ref main`, then
+repeat the upgrade and add commands.
 
 If the standalone CLI is absent, the Codex App bundle can provide the same CLI;
 the current executable path is recorded as `CODEX_CLI_PATH` in the App's
@@ -63,14 +67,14 @@ For every installable behavior change, update the plugin SemVer in
 
 After reinstall, restart the Codex App if it still reports the previous cache,
 then open a new task. Record the Marketplace revision, installed cache path,
-Manifest version, and Registry digest, and confirm 49 skills, seven declared
+Manifest and Registry versions, and confirm 50 skills, seven declared
 entries, six implicit entries, and no standalone `pubmed` skill. Only a new task
-using one coherent current-version cache completes the personal distribution
-slot.
+using one coherent current-version cache completes the optional strict personal
+distribution slot.
 
-## Personal acceptance
+## Optional strict personal revalidation
 
-The personal acceptance profile contains 13 owner-observed slots:
+The optional strict profile contains 13 owner-observed slots:
 
 | Group | Required observations |
 |---|---:|
@@ -87,31 +91,102 @@ must stop at `independent_review_pending`; a fatal or unresolved blocking
 finding must never produce a ready state.
 
 Each observed slot records the task ID, plugin version, source identity,
-artifact paths and SHA-256 digests, timestamps, reviewer instance IDs when
-applicable, Search URLs when applicable, actual outcome, and explicit owner
-confirmation.
+artifact paths, timestamps, reviewer instance IDs when applicable, Search URLs
+when applicable, actual outcome, and explicit owner confirmation. Proposal,
+Article, Perspective, Research Polisher, installation, CLI, and runtime-log
+bindings retain SHA-256 checks. Idea artifact and review readiness instead uses
+logical `{artifact_id, version, path}` bindings, frozen frontmatter identity, a
+complete artifact index, a matching current pointer, revision delta, and fresh
+reassessment. A valid legacy Idea digest may remain but is ignored.
 
-## Local development cachebuster
+These slots are not scheduled automatically and are not a Roadmap completion
+gate. Run or resume them only when the owner explicitly requests strict full
+revalidation.
 
-GitHub reinstall never reads unpushed working-tree changes. During local
-iteration, replace (do not stack) the Codex build-metadata suffix, validate,
-copy the maintained plugin into the personal local marketplace, temporarily
-disable the GitHub-qualified copy if both are enabled, and open a new task:
+## Local development and version debugging
+
+GitHub reinstall never reads unpushed working-tree changes, and an existing
+Codex task does not hot-reload changed Skill files. Use Python 3.11 or later and
+create an isolated environment once from the repository root:
 
 ```powershell
-python scripts/update_openai_plugin_cachebuster.py
-python scripts/audit_openai_research_plugin.py
-python scripts/codex_plugin_converter.py --mode codex --install --fail-on-invalid
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+$env:PYTHONUTF8 = "1"
+python -m pip install -r requirements-dev.txt
+python scripts/openai_plugin_dev.py status
 ```
 
-The helper preserves the base version, including any prerelease identifier, and
-synchronizes the manifest and workflow registry, for example
-`0.9.0-preview.2` to `0.9.0-preview.2+codex.local-YYYYMMDD-HHMMSS`. Never commit
-or push a `+codex.local-*` version to the rolling Preview channel.
+Keep `PYTHONUTF8=1` in Windows validation shells so `quick_validate.py` reads
+UTF-8 Skill files independently of the system locale.
+
+`install-local` is an update loop and requires the personal marketplace entry
+to already point to `./plugins/research-skills-openai`. On a first setup only,
+when neither that entry nor the personal Local copy exists, create them through
+plugin-creator rather than editing `marketplace.json`:
+
+```powershell
+python "$env:USERPROFILE\.codex\skills\.system\plugin-creator\scripts\create_basic_plugin.py" research-skills-openai --with-marketplace --category Research
+```
+
+If `status --json` instead reports an existing but mismatched entry, stop and
+repair it through plugin-creator; the update helper intentionally does not
+rewrite marketplace configuration.
+
+In the Codex App, temporarily disable the Git-installed
+`research-skills-openai` plugin. Then install and verify an isolated Local copy:
+
+```powershell
+python scripts/openai_plugin_dev.py install-local
+python scripts/openai_plugin_dev.py verify --channel local --expected-version 0.10.0
+```
+
+The equivalent CLI switch is
+`& $codexCli plugin remove research-skills-openai@xuxu-research-preview --json`.
+Removing that installed selector does not remove the Git marketplace itself.
+If Windows holds the active Local copy open, close the Codex App before
+`install-local`, then reopen it after verification; keep the Local selector as
+the only enabled channel during this loop.
+
+The helper validates the existing marketplace entry and tracked source, then
+copies the source to the personal Local
+plugin directory. It writes `+codex.local-YYYYMMDD-HHMMSS-ffffff` only into that copy;
+the worktree remains `0.10.0`. It refuses installation while the Git
+channel is enabled, never edits marketplace JSON, and restores the previous
+Local copy if installation fails. Do not delete plugin caches.
+
+`verify --channel local` compares the complete file inventory and file contents
+against the current worktree, allowing only the two local version fields to
+differ; it does not save hashes. The cachebuster includes microseconds, so each
+rapid reinstall is separately discoverable.
+
+After every Skill change, rerun `install-local` and start a new Codex task. Keep
+exactly one channel enabled: Local during iteration, Git after acceptance. Once
+tests pass, commit and push the source, disable the Local plugin, enable or
+upgrade the Git plugin, verify it, and start another new task:
+
+```powershell
+$codexCli = (python scripts/openai_plugin_dev.py status --json | ConvertFrom-Json).codex_cli
+& $codexCli plugin remove research-skills-openai@local --json
+& $codexCli plugin marketplace upgrade xuxu-research-preview
+& $codexCli plugin add research-skills-openai@xuxu-research-preview --json
+python scripts/openai_plugin_dev.py verify --channel github --expected-version 0.10.0
+```
+
+For a non-mutating discovery smoke test, run a fresh ephemeral task after either
+channel verifies. The response must identify the requested installed Skill and
+the expected base version; it must not edit the repository:
+
+```powershell
+& $codexCli exec --ephemeral --sandbox read-only --cd (Get-Location) `
+  'Use $idea-narrative-assessor. Report its installed plugin version and its two required output artifacts; do not edit files.'
+```
+
+Never commit or push a `+codex.local-*` version.
 
 ## Inventory and invocation policy
 
-The maintained `0.9.0-preview.2` source contains 49 skill contracts and declares
+The maintained `0.10.0` source contains 50 skill contracts and declares
 seven discoverable entry skills. Six currently set
 `allow_implicit_invocation: true`:
 
@@ -125,15 +200,16 @@ seven discoverable entry skills. Six currently set
 `research-polisher-orchestrator` is the seventh declared entry and has a complete
 quickstart. It remains explicit-only as a permanent personal routing boundary;
 it must not take over language polishing, ordinary drafting, new-idea
-generation, or general literature-search requests. The other 42 private roles
+generation, or general literature-search requests. The other 43 private roles
 also set the policy to `false` and remain available for explicit or
 orchestrated delegation.
 
 A prior current-environment diagnostic confirmed the GitHub marketplace,
-enabled-plugin, and fresh-task discovery mechanism. Refreshing and observing the
-`0.9.0-preview.2` cache is part of the pending Phase 7 distribution slot, which
-also requires task/source identity, artifact digests, timestamps, outcome, and
-owner confirmation in the private receipt.
+enabled-plugin, and fresh-task discovery mechanism, and the owner has accepted
+that mechanism for current personal use. A formal current-version distribution
+receipt remains part of the optional strict profile and requires task/source
+identity, applicable non-Idea or install-source digests, timestamps, outcome,
+and owner confirmation; Idea artifacts use the logical binding described above.
 
 ## Artifact format defaults
 
@@ -142,7 +218,13 @@ owner confirmation in the private receipt.
   The Dossier contains background, methods, expected outputs, references, and
   semi-structured evidence chains expressed as input -> method/analysis/
   processing -> output. It is both the sole project artifact read by the fresh
-  Idea evaluator and the Idea delivered to the owner.
+  Idea evaluator and the Idea delivered to the owner. After scientific and
+  methodological revision, fresh narrative and full-dossier language reviewers
+  assess the frozen dossier in parallel. The orchestrator reconciles their
+  included actions into one approved writer brief; the writer does not read the
+  two reports or assessor plan. Any editorial repair uses that brief, a
+  protected-content register, a new dossier version, independent preservation
+  review, and fresh readiness reassessment before evaluation.
 - Idea direction routing is adaptive. A clear, supported direction receives
   focused optimization; a vague direction with several supported opportunities
   explores two or at most three directions for one bounded round before remapping
@@ -229,8 +311,9 @@ Use $research-idea-orchestrator in [standard | resume_candidates | portfolio_onl
 
 - Minimum input: a research direction or practical problem and one usable context, evidence, funding, or data cue.
 - Expected output: one to three self-contained Idea Dossiers with readable
-  references, closed input-method/output evidence chains, digest-bound
-  evaluations, lineage, dissent, and a navigation or comparison handoff.
+  references, closed input-method/output evidence chains, narrative/language
+  readiness, logical-reference-bound evaluations, lineage, dissent, and a
+  navigation or comparison handoff.
 - Stop states: `blocked`, `stopped`, `new_idea_required`, `no_defensible_direction`,
   `direction_route_confirmation_required`, `layout_migration_required`,
   `independent_review_pending`, or `context_handoff_required`. Bounded exploration
@@ -273,10 +356,15 @@ python scripts/test_openai_artifact_completeness.py
 python scripts/test_openai_article_docx_contract.py
 python scripts/test_openai_phase6_context.py
 python scripts/test_openai_phase2_phase3.py
+python scripts/test_openai_idea_narrative_contract.py
+python scripts/test_openai_idea_narrative_forward.py
+python research-skills-openai/skills/academic-language-assessor/scripts/test_validate_language_assessment.py
+python research-skills-openai/skills/multi-path-idea-generator/scripts/test_lint_idea_dossier.py
 python scripts/test_openai_phase4_scenarios.py --check-report
 python scripts/test_openai_phase7_modes.py --check-report
 python scripts/test_openai_phase8_corpus.py --check-report
 python scripts/test_validate_openai_personal_readiness.py
+python scripts/test_openai_plugin_dev.py
 python scripts/validate_openai_personal_readiness.py --check-report
 python scripts/codex_plugin_converter.py --mode codex --fail-on-invalid
 python "$env:USERPROFILE\.codex\skills\.system\plugin-creator\scripts\validate_plugin.py" research-skills-openai
@@ -285,12 +373,14 @@ python "$env:USERPROFILE\.codex\skills\.system\plugin-creator\scripts\validate_p
 GitHub Actions runs the portable audits, context budgets, workflow fixtures,
 package checks, and SemVer checks on pull requests and pushes to `main`.
 
-The personal runtime evidence level is `owner_observed`. Each accepted
-observation binds the plugin version, task ID, frozen input and output artifact
-IDs or paths, SHA-256 digests, timestamps, reviewer instances where applicable,
-and an explicit owner confirmation. These receipts support only the personal
-state `owner_observed_ready`; they do not assert external, provider, shared, or
-public attestation.
+The optional strict runtime evidence level is `owner_observed`. Each accepted
+observation binds the plugin version, task ID, frozen input and output artifacts,
+timestamps, reviewer instances where applicable, and an explicit owner
+confirmation. Idea artifacts and reviews use logical identity plus index/current
+pointer consistency and do not require SHA-256 or modification-time checks;
+other profiles and distribution/runtime evidence retain their existing digest
+checks. These receipts support only the personal state `owner_observed_ready`;
+they do not assert external, provider, shared, or public attestation.
 
 Receipt schema v2 also validates a private runtime run index, Codex JSONL,
 source/install identity, typed review reports, workflow lineage, Search records,
@@ -312,7 +402,8 @@ Copy-Item tests/openai_personal/current-version-owner-observed-receipts.yaml $pr
 ```
 
 The tracked derived report contains slot status/counts only. Pending observations remain a
-valid `in_progress_owner_observation` state and do not fail deterministic CI.
+valid `in_progress_owner_observation` state, do not fail deterministic CI, and
+do not override the owner's Roadmap acceptance of the personal-use baseline.
 
 Validate local progress without rewriting the tracked report:
 
@@ -320,7 +411,8 @@ Validate local progress without rewriting the tracked report:
 python scripts/validate_openai_personal_readiness.py --receipts $privateReceipts
 ```
 
-Assert final personal readiness only after every slot is observed:
+Assert optional strict full readiness only after every slot is observed and the
+owner has explicitly requested that revalidation:
 
 ```powershell
 python scripts/validate_openai_personal_readiness.py --receipts $privateReceipts --require-ready

@@ -1,0 +1,118 @@
+schema_version: research-idea-narrative-repair-plan.v1
+plan_id: narrative-repair-plan-I01-001-r012
+assessment_id: narrative-assessment-I01-001-r012
+source_artifact:
+  artifact_id: idea-dossier-I01-001-v003
+  version: v003
+  path: tests/idea-test-0.9.0-preview.1/0.9.0-preview.1/03_ideas/nodes/I01-001/dossiers/idea-dossier-v003.md
+decision: major_narrative_revision
+clarifications_required: []
+actions:
+  - action_id: NRP-001
+    addresses_findings:
+      - NAR-001
+    priority: major
+    dossier_locator:
+      section_heading: "Background, current state, gap, significance, and rationale"
+      subsection_heading: null
+      content_anchor: "The five paragraphs beginning with ‘脓毒症随时间形成’ and ending with the EXIT-SEP/XBJ-SCAP paragraph"
+    operation: split
+    current_problem: "The five required reasoning functions are carried by unlabelled paragraphs; significance is implicit and the main gap is not joined to the whole staged design by a direct rationale."
+    target_state: "The section presents five clearly separated H3 functions in order: Background, Current state, Gap, Significance, and Rationale. Each performs only its named role, and the final two steps explicitly connect the unresolved integration/validation problem to the staged observational, cross-database, and conditional RCT design."
+    required_content_or_function: "Use the five required H3 headings without renaming or omitting them. Derive the significance statement only from importance already expressed in the dossier; do not add a new impact or merit claim. End the Rationale subsection with an explicit bridge from the stated gap to the existing staged design."
+    content_to_preserve:
+      - "The Sepsis-3 and EHR-onset context, including the event-time and availability-time distinction"
+      - "The cross-database comparability problem and the description of existing neighboring research"
+      - "The bounded integration and validation gap without a global-first claim"
+      - "The observational inferential boundary and the conditional RCT projection/fallback rationale"
+      - "All citations currently supporting these paragraphs"
+    content_to_remove_or_move:
+      - "Move each existing sentence into the matching one of the five H3 functions rather than leaving an undifferentiated paragraph sequence"
+      - "Move detailed implementation conditions that do not establish the gap or rationale to their existing methods or limitations locations"
+    destination_if_moved: "The matching existing section under Research design and methods, or the authoritative Remaining execution gates subsection, without creating new scientific content"
+    dependencies: []
+    acceptance_test: "A reader can identify, in order and under the five required H3 headings, one distinct problem statement, one account of current capability, one unresolved gap, one explanation of why the gap matters, and one explicit gap-to-design bridge; no step depends on content introduced later."
+  - action_id: NRP-002
+    addresses_findings:
+      - NAR-002
+    priority: major
+    dossier_locator:
+      section_heading: "Title, summary, audience, and positioning"
+      subsection_heading: null
+      content_anchor: "The one-sentence complete-Idea summary beginning ‘本研究计划在 24 个月内’ and the five bullets in Structured abstract"
+    operation: replace
+    current_problem: "The opening presents numerous gate names, projection details, fallback labels, and prohibited interpretations before readers have a stable account of the problem, importance, gap, and broad design."
+    target_state: "The summary and structured abstract first state the problem, unresolved evidence gap, importance, research question, high-level staged response, and conditional contribution; specialized machinery is named only when needed and is defined in cross-disciplinary language at first use."
+    required_content_or_function: "Retain the qualified title and the Structured abstract H2. Keep its five labelled functions—Background and gap, Objective and hypothesis, Approach, Expected result, and Contribution and impact—distinct. The opening may shorten detail but must not alter the study identity, 24-month stage II boundary, conditional stage III status, external-test role, fallback logic, or interpretation boundaries."
+    content_to_preserve:
+      - "The complete research object spanning pre-onset, onset, post-onset, and outcome"
+      - "The knowledge-constrained and uncertainty-aware candidate-representation framing"
+      - "The 24-month stage I–II objective and stage III conditional status"
+      - "The genuine cross-database test and the separate conditional trial projection or independent SOFA fallback"
+      - "The prohibition on interpreting the work as a causal network, control system, digital twin, or completed validation"
+      - "The conservative integration, validation, and benchmark/resource contribution frame"
+    content_to_remove_or_move:
+      - "Replace the current overloaded one-sentence summary rather than preserving its clause-by-clause structure"
+      - "Move numeric gate details, update-layer ordering, projection-fidelity machinery, and branch-specific estimand detail out of the opening to their existing methods subsections"
+      - "Remove undefined abbreviations and project labels from the opening unless they are immediately defined there"
+    destination_if_moved: "Existing subsections under Research design and methods; do not create a parallel methods summary"
+    dependencies:
+      - NRP-001
+    acceptance_test: "A reader from any discipline in the handoff can paraphrase the problem, gap, importance, primary question, staged response, and conditional contribution after the opening; every specialized core term retained there is defined at first use, and all preserved identity and boundary elements remain present."
+  - action_id: NRP-003
+    addresses_findings:
+      - NAR-003
+    priority: major
+    dossier_locator:
+      section_heading: "Feasibility, resources, risks, alternatives, and stop conditions"
+      subsection_heading: "Remaining execution gates"
+      content_anchor: "The paragraph beginning ‘仍未解决且必须显式保留’ and repeated limitation statements elsewhere"
+    operation: consolidate
+    current_problem: "Global limitations and prohibited interpretations are repeated across the dossier, while the existing Remaining execution gates subsection is not yet used as the single complete authoritative location."
+    target_state: "Remaining execution gates is the single authoritative limitations location and contains the complete set of unresolved access, personnel, data-support, model-evidence, transport, trial-semantics, projection, interpretation, and search limitations. Elsewhere, a boundary remains only when it is necessary to understand the immediately adjacent design choice."
+    required_content_or_function: >-
+      Preserve every H2 section and all required H3 sections. Title/summary must still identify the study and qualified positioning; Structured abstract must still summarize all five labelled functions; Background must establish the five-step reasoning chain; Research question must retain the question, objectives, hypothesis, and non-hypotheses; Research content must retain schedule, success definition, work packages, and route; Data must retain resource status and audit inputs; Research design must retain estimands, gates, methods, and local interpretation boundaries; Key techniques must remain an implementation index; Evidence chains must retain input-method-output-support-limits traceability; Required analyses must remain the acceptance-evidence checklist; Expected outputs must retain deliverables, falsification criteria, and interpretation matrix; Contribution must interpret contribution and closest work; the claim-support table must audit title and positioning claims; Feasibility must retain resources, risks, the complete authoritative limitations, and final stop boundary; References must remain complete. A local limitation may remain only if deleting it would distort the immediately connected design choice, and it must be stated once in its shortest sufficient form.
+    content_to_preserve:
+      - "All distinct limitations, no-go conditions, fallback triggers, prohibited interpretations, and citations"
+      - "The observational-versus-causal boundary beside the observational estimand"
+      - "The meaning of projection failure and the independent SOFA fallback beside the trial branch"
+      - "The distinction between zero-update validation and adaptation beside the external-test design"
+      - "All required section functions and scientific content"
+    content_to_remove_or_move:
+      - "Move complete inventories of unresolved access, personnel, G1 support, model results, trial authorization/semantics, and projection evidence from non-authoritative locations to Remaining execution gates"
+      - "Delete repeated global prohibitions and failure caveats from summaries, work-package descriptions, evidence-chain prose, output lists, contribution prose, and tables when they do not directly explain the adjacent design choice"
+      - "Replace repeated multi-item limitation lists outside the authoritative location with no pointer unless a pointer is necessary for comprehension"
+    destination_if_moved: "Feasibility, resources, risks, alternatives, and stop conditions > Remaining execution gates"
+    dependencies:
+      - NRP-001
+      - NRP-002
+    acceptance_test: "A search and section-by-section review finds one complete limitations inventory under Remaining execution gates; every limitation retained elsewhere is adjacent to a design choice it directly qualifies, appears in the shortest sufficient form, and is not a second global inventory. No required heading, function, stop rule, or scientific boundary is lost."
+  - action_id: NRP-004
+    addresses_findings:
+      - NAR-004
+    priority: major
+    dossier_locator:
+      section_heading: "Evidence chains"
+      subsection_heading: null
+      content_anchor: "The five ‘Evidence chain’ subsections and their overlap with Work packages, Required analyses, Planned outputs, the evidence ladder, and the claim-support table"
+    operation: consolidate
+    current_problem: "Several mandatory sections restate the same sequence, gates, outputs, fallback branches, and interpretation boundaries at comparable detail, weakening navigation and section-function distinctions."
+    target_state: "Each mandatory section performs its own function with minimal duplication: Work packages gives sequence and deliverables; Research design and methods remains the authoritative procedural specification; Evidence chains trace inputs through analyses to supported claims; Required analyses states acceptance evidence; Expected outputs names deliverables and interpretations; contribution sections explain value and claim support."
+    required_content_or_function: >-
+      Do not delete or rename any H2 or required H3 heading. Keep all five evidence chains and their Input, Method/analysis/processing, Output, Supports, and Limits/failure conditions fields. Keep all work packages, required analyses, planned outputs, falsification criteria, the interpretation matrix, evidence ladder, closest-work comparison, and title/positioning claim-support audit. In each affected section retain the minimum content needed for that named function, while Research design and methods remains the sole detailed procedural specification and Remaining execution gates remains the sole complete limitations inventory.
+    content_to_preserve:
+      - "All five evidence chains and their traceable inputs, processes, outputs, supported objectives, and chain-specific failure meaning"
+      - "The dated work-package sequence and gate-linked deliverables"
+      - "The complete required-analysis checklist and planned-output list"
+      - "The falsification criteria and interpretation matrix"
+      - "The evidence ladder, closest-work comparison, and title/positioning claim-support table"
+      - "All citations and all distinct acceptance thresholds in their authoritative methods location"
+    content_to_remove_or_move:
+      - "Remove repeated procedural detail from Evidence chains when the same detail is already specified under Research design and methods; retain only the traceable analysis function"
+      - "Remove repeated deliverable prose from Work packages, Required analyses, and contribution sections when Planned outputs is authoritative; retain each section's distinct schedule, evidence, or interpretation function"
+      - "Remove repeated contribution interpretation from Evidence chains and Expected outputs when the evidence ladder or claim-support table is authoritative; retain only the support relationship required by each evidence chain"
+      - "Move any unique procedural threshold found outside Research design and methods into the matching existing methods subsection before shortening the duplicate"
+    destination_if_moved: "The matching existing subsection under Research design and methods for procedural specifications, Planned outputs for deliverables, or the existing contribution tables for interpretation; do not create a replacement omnibus table"
+    dependencies:
+      - NRP-003
+    acceptance_test: "For each repeated item, one location contains the full authoritative specification and every other occurrence performs a distinct required function in shorter form. All required headings, five evidence-chain structures, acceptance evidence, deliverables, falsification rules, and contribution audits remain independently identifiable, and no new omnibus substitute replaces them."

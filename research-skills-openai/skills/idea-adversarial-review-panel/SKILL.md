@@ -14,12 +14,12 @@ evaluator decisions, or draft proposal text.
 
 - Run each role in a distinct fresh subagent/delegated thread, never a context
   that generated, revised, or evaluated the Idea.
-- Accept frozen IDs, versions, exact paths, and digests. Inputs are read-only;
+- Accept the frozen dossier's artifact ID, version, and exact path. Inputs are read-only;
   write only one role report.
 - Do not read prior evaluator scores/findings/decisions, another reviewer output,
   expected conclusions, or parent hidden reasoning.
 - Do not draft, rewrite, polish, fix, merge, or reframe the dossier.
-- Report exact files read, assigned scope, reviewer instance ID, and digest.
+- Report exact files read, assigned scope, reviewer instance ID, and reviewed dossier reference.
 - If a fresh instance is unavailable, return `independent_review_pending` with a
   continuation brief and stop; never review inline.
 
@@ -33,7 +33,7 @@ evaluation completed without its findings/scores, and the node reference ledger.
 
 ## Procedure
 
-1. Validate current dossier digest, qualifying evaluation completion, role
+1. Validate the current dossier's logical reference, qualifying evaluation completion, role
    isolation, and role-specific frozen inputs.
 2. Attack handoff readiness only. Do not rescore or repair.
 3. Give every finding a human-readable title and `dossier_locator`. If an
@@ -56,7 +56,10 @@ round_id:
 input_artifact_ids: []
 input_versions: []
 files_read: []
-reviewed_dossier_digest: "sha256:"
+reviewed_dossier_ref:
+  artifact_id:
+  version:
+  path:
 review_scope:
 isolation_mode: fresh_subagent
 prior_scores_visible: false
@@ -82,7 +85,7 @@ Allowed recommendations: `handoff_ready`, `conditional_handoff`,
 
 ## Stops and Handoff
 
-Stop on missing qualifying evaluation, digest mismatch, incomplete role inputs,
+Stop on missing qualifying evaluation, logical-reference mismatch, incomplete role inputs,
 or unavailable delegation. Blocking findings route upstream; reviewers never
 perform the repair. This panel is not used to preselect a bounded-exploration
 winner; that route stops for human direction selection.
@@ -99,7 +102,7 @@ winner; that route stops for human direction selection.
 
 ## Completion Check
 
-Confirm this role used a fresh instance, frozen digest, all visibility fields
+Confirm this role used a fresh instance, the frozen dossier's logical reference, all visibility fields
 false, no evaluator/peer leakage,
 readable located findings, resolvable IDs, visible dissent, no source edits or
 scores, and a justified recommendation; the orchestrator checks all three IDs.

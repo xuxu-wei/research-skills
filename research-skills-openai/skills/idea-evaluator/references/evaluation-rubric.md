@@ -1,7 +1,9 @@
 # Idea Evaluation Rubric
 
 Use this canonical rubric for one frozen, complete v3 dossier. Score only the
-dossier; do not browse, retrieve project context, or reconstruct missing facts.
+dossier; do not browse, retrieve project context, or reconstruct missing facts
+during evaluation. Post-freeze journal matching is outside this rubric and
+cannot change its results.
 
 ## Scale
 
@@ -28,8 +30,13 @@ Compute the unweighted mean of all six dimensions.
   breadth counts only when the implementation supports the positioning claim.
 - **Relevance:** The question, contribution, audience, and output align with the
   user's stated goal and constraints.
-- **Clarity:** Question, objectives, hypothesis, design, evidence chains,
-  expected outputs, and claim boundaries are precise and mutually consistent.
+- **Clarity:** A target reader can follow the ordered Background -> Current
+  state -> Gap -> Significance -> Rationale chain before encountering the
+  technical design. Sections perform the function named by their headings;
+  concepts are introduced before they are used; terminology and qualification
+  do not force repeated backtracking. Question, objectives, hypothesis, design,
+  evidence chains, expected outputs, and claim boundaries also remain precise
+  and mutually consistent.
 - **Completion:** The dossier is self-contained, all 15 sections are substantive,
   references resolve, evidence chains close, and risks and required work are explicit.
 
@@ -40,6 +47,16 @@ Any fatal flaw overrides the mean. Fatal examples include an unanswerable
 question, unusable core input, method-question mismatch, unsupported primary
 title/positioning claim, irreparable evidence-chain break, or infeasible
 dependency.
+
+Clarity cannot pass, and its score cannot exceed `2`, when Significance is
+missing as a distinct function or when Gap does not lead intelligibly to
+Rationale. Technical precision and internal consistency do not compensate for
+either failure.
+
+Editorial improvement may change Clarity or Completion. It must not by itself
+raise Novelty, Feasibility, or Impact: those dimensions require a change in the
+documented contribution, executable scientific route, or supported value,
+respectively.
 
 ## Decision anchors
 

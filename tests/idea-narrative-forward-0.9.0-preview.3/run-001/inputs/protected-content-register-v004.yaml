@@ -1,0 +1,99 @@
+schema_version: research-idea-protected-content-register.v1
+register_id: protected-content-register-I01-001-v004-r004
+register_version: r004
+source_artifact:
+  artifact_id: idea-dossier-I01-001-v003
+  version: v003
+  path: tests/idea-test-0.9.0-preview.1/0.9.0-preview.1/03_ideas/nodes/I01-001/dossiers/idea-dossier-v003.md
+protected_items:
+  - protected_id: PCR-001
+    category: identity_and_question
+    source_locator: "YAML frontmatter identity_anchor; Research question, objectives, and core hypothesis > Primary research question"
+    protected_content: >-
+      研究身份是构建并验证以脓毒症为中心、覆盖尚未发病、首次发病、发病后状态演化及恢复、持续恶化、器官衰竭、出 ICU 或死亡结局的候选动态复杂系统表征；核心问题不是普通临床预测，也不是泛 ICU 风险分层。
+    required_revised_disposition: retained_same_meaning
+  - protected_id: PCR-002
+    category: identity_and_question
+    source_locator: "YAML frontmatter identity_anchor.primary_objective; Research question, objectives, and core hypothesis > Objectives"
+    source_context_locator: "00_input/user-idea-v001.md > 约束与可用条件（目标是一篇或多篇高水平论文，不是只产出一个预测模型）"
+    protected_content: >-
+      必须分别保留三项承诺：（1）主要目标是在 24 个月内完成阶段 I–II，以文献和专家知识约束候选结构，使用公共 ICU 数据开展系统辨识、跨数据库验证与全过程状态表征；（2）高水平论文和可审计科学证据是明确交付方向；（3）交付不得收缩为仅产出预测工具。修订后正文必须同时有这三项的可定位证据。
+    required_revised_disposition: retained_same_meaning
+  - protected_id: PCR-003
+    category: object_scope_and_boundaries
+    source_locator: "YAML frontmatter identity_anchor.study_object and primary_unit_of_inference; Research design and methods"
+    protected_content: >-
+      研究对象是纵向、以脓毒症为中心的 ICU 患者系统，包括可比较的未发病在险时段和发病后轨迹；主要推断单位是尊重患者与医院聚类的患者—时间状态及状态转移。
+    required_revised_disposition: retained_same_meaning
+  - protected_id: PCR-004
+    category: inputs_and_resources
+    source_locator: "Data, materials, and existing evidence base > Current verified-resource versus prospective-gate status; Public ICU database roles and G1 audit"
+    protected_content: >-
+      核心输入为文献/专家先验、MIMIC-IV 与 eICU-CRD 的纵向公共 ICU 数据，并预先指定 HiRID 或 AmsterdamUMCdb 作为条件性备份。数据库存在与版本已核验，但团队访问凭证、DUA、可运行提取、项目队列支持、具名人员与模型结果均尚未核验或尚未生成；这些状态不得被润色为已具备。
+    required_revised_disposition: retained_same_status
+  - protected_id: PCR-005
+    category: inputs_and_resources
+    source_locator: "Data, materials, and existing evidence base > Local RCT evidence and present limits"
+    protected_content: >-
+      EXIT-SEP 与 XBJ-SCAP 只构成条件性阶段 III 的潜在个体级随机试验数据来源。现有本地材料是衍生清洗/验证报告，不能替代个体数据分析授权、原始 CRF/SAP、随机化、中心、访视时序及生存/住院/出院语义核验。
+    required_revised_disposition: retained_same_status
+  - protected_id: PCR-006
+    category: design_analysis_and_inference
+    source_locator: "Research content and work packages; Research design and methods, including Observational target, anchoring, missingness and abstention"
+    protected_content: >-
+      设计顺序保持为资源与可观测性审计、标签/状态/医院拆分锁定、简单基线、绝对模拟恢复与假置信检查、至多一个复杂候选、两项主要任务和两项次要诊断、开发冻结、未触碰的跨数据库检验，随后才可能进入条件性试验再分析。状态、治疗行动与观测过程必须分离；允许解释的量受锚定、对齐、可恢复性、跨数据库表现和弃权规则约束。任一状态或边在 20 个随机种子中的对齐率低于 90%、bootstrap 保留率低于 80%、外部符号一致率低于 80%、状态对齐低于 0.70 或区间未校准时，必须删除、合并或标为数据库/照护政策特异；较好的预测表现不能豁免这些判定。
+    required_revised_disposition: retained_same_meaning_at_method_authority
+  - protected_id: PCR-007
+    category: design_analysis_and_inference
+    source_locator: "Research content and work packages > Conjunctive minimum success definition; Research design and methods > Hospital-primary genuine cross-database validation"
+    protected_content: >-
+      阶段 II 成功是数据支持、绝对恢复、两项主要任务的 proper score 与校准、泄漏清零、未触碰外部库零更新表现、状态对齐和结构稳定性的合取结果。适配区学得的有限更新必须与零更新分开报告，且不能替代零更新失败；阶段 III 不计入或补足阶段 II 的合取成功。
+    required_revised_disposition: retained_same_meaning_at_method_authority
+  - protected_id: PCR-008
+    category: design_analysis_and_inference
+    source_locator: "Research design and methods > Protocol locks for the two primary clinical tasks; Mutually exclusive post-onset state/event system"
+    protected_content: >-
+      两项主要临床任务、event/availability 双时钟、首次发病风险集、delayed entry、互斥发病后状态、竞争终止、as-of 特征约束、校准/proper-score 目标、患者与医院聚类不确定性，以及未来信息与跨拆分泄漏防护均为科学设计承诺，不得因叙事压缩而改变。完整承诺包括标本—抗菌药物 72 小时前/24 小时后配对、基线 SOFA 规则、滚动 24 小时成分计算和首个可排序发病时刻；仅分析首次发病、重叠 landmark 的单次住院总权重为 1；同一时间窗内 A_t 与下一状态的排序以及排除无法排序的同时间戳边；并明确检查同窗治疗、未来测量频率、重复住院和结局驱动网格或阈值造成的泄漏。
+    required_revised_disposition: retained_same_meaning_at_method_authority
+  - protected_id: PCR-009
+    category: claims_and_evidence_status
+    source_locator: "Structured abstract; Contribution, innovation, impact, application, and closest-work comparison > Contribution and evidence ladder"
+    protected_content: >-
+      当前材料描述的是计划中的候选表征和拟执行验证，没有现成模型、模拟恢复、外部验证或试验新分析结果。可辩护贡献是条件性的整合、验证和 benchmark/resource 增量；各单项模块已有先例，完整组合缺口只有低至中等置信，不能声称全球首次或新算法。
+    required_revised_disposition: retained_same_strength
+  - protected_id: PCR-010
+    category: assumptions_and_limitations
+    source_locator: "Feasibility, resources, risks, alternatives, and stop conditions; Research design and methods; Expected outputs, falsification criteria, and interpretations"
+    protected_content: >-
+      第 14 节是完整限制与工作假设的唯一权威位置，必须一次性保留资源/访问、团队承诺、G1 支持、标签与泄漏、状态可恢复性、MNAR 与低重叠、不更新参数的外部验证、时间节点、试验数据与语义、共同锚点与观测映射、以及 closest-work 不确定性等所有关键限制。仍未解决的工作假设包括临床尺度到模拟参数的映射，以及精确多类别校准估计量、置信界和阈值登记；筛选用事件或参数下限不得替代经验有效样本量与模拟稳定性。设计资格、互斥分析、失败触发及其替代或停止后果只在相应 Methods 权威小节保留一次；结果证伪和结果依赖的解释只在第 11 节保留一次。两项试验方向不一致或区间过宽时，只能报告无支持或跨场景适用性有限，不得选择亚组来改变主要解释。其他章节删除完整限制及上述决策树，除非某一最小限定直接推进相邻科学推理且删除会使该推理失真。
+    required_revised_disposition: retained_once_at_respective_authority_locations
+  - protected_id: PCR-011
+    category: assumptions_and_limitations
+    source_locator: "Research content and work packages > Twenty-four-month minimum and dated gates; Identity and final stop boundary"
+    protected_content: >-
+      阶段 I–II 必须在 24 个月内完成；阶段 III 位于最低交付之外，共享前提是阶段 II 成功、相应试验个体数据可用且核心试验语义可核验。只有观测桥接额外满足预设条件时，才进入基于阶段 II 映射的访视结局分析；若观测桥接不成立但 SOFA 及核心试验语义可核验，仍保留与阶段 II 候选表征独立的临床状态分析；若核心试验语义不可核验，则不开展新访视结局分析。任何后续试验结果都不能补足阶段 II 未满足的资源、模拟重建、主要任务或外部验证要求。
+      完整资格、两分支、停止和解释逻辑只在阶段 III 的方法权威小节出现一次。标题与摘要只说明“主体研究达到标准后，条件性开展分试验次要分析”，不写试验名、访视日、摘要量、共享资格清单或任何分支标签。Structured abstract 全部字段合计只出现一次高层用途；研究问题和目标各一句；时间表只保留一个依赖工作包；数据章只写可用性和证据状态；实现章只写接口；证据链、Required analyses 和计划产物各保留一项自身功能；Contribution 默认不把阶段 III 列为并列贡献；Claim-Support 只保留标题中的条件性次要分析一行，不为两个技术分支另建主张行。第 14 节分别保留资源状态、待定规范、完整限制和非方法型运行风险触发—响应—后果，不加末尾复述。其他位置完全省略。技术权威位置必须先只写共享前提，再并列“观测映射成立 → 映射分支”与“观测映射不成立但独立分析条件成立 → 独立分支”；禁止把一个分支的成立条件写成整个阶段 III 的共享条件。
+    required_revised_disposition: retained_once_at_respective_authority_locations
+  - protected_id: PCR-012
+    category: unsupported_claim_classes
+    source_locator: "Research question, objectives, and core hypothesis > Core hypothesis and non-hypotheses; Feasibility, resources, risks, alternatives, and stop conditions"
+    protected_content: >-
+      观察性数据和预测表现不支持真实因果网络、治疗因果效应、反事实策略、机制、中介、控制或数字孪生主张；条件性随机试验再分析也不能验证未测潜在动力学、转移边或整个系统模型。当前计划不得写成已验证模型、临床决策工具、药物平台或无条件临床推广依据。完整禁止主张清单只在第 14 节出现一次；其他位置仅在删除会使相邻估计目标、结果解释或主张审计产生实质误读时，保留所需的最小自足边界，不得成组重复该清单。
+    required_revised_disposition: retained_once_at_section_14_authority
+permitted_editorial_operations:
+  - replace
+  - define
+  - move
+  - split
+  - merge
+  - delete
+  - reorder
+  - add_bridge
+  - consolidate
+prohibited_changes:
+  - change_study_identity_or_core_question
+  - add_unreviewed_scientific_content
+  - strengthen_claim_or_evidence_status
+  - weaken_assumption_limitation_or_contingency
+  - present_planned_work_as_completed
+  - conceal_feasibility_finding

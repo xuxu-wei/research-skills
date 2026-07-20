@@ -39,10 +39,10 @@ EXPECTED_IMPLICIT_ENTRIES = EXPECTED_PUBLIC_ENTRIES - {
 }
 DESCRIPTION_PROXY_LIMIT = 6_200
 ORCHESTRATOR_PROXY_LIMIT = 13_400
-DESCRIPTION_REGRESSION_LIMIT = 6_086
+DESCRIPTION_REGRESSION_LIMIT = 6_171
 ORCHESTRATOR_REGRESSION_LIMITS = {
-    "research-idea-orchestrator": 13_088,
-    "proposal-orchestrator": 13_266,
+    "research-idea-orchestrator": 13_354,
+    "proposal-orchestrator": 13_288,
     "article-orchestrator": 13_146,
 }
 TOUCHED_SKILL_BODY_REGRESSION_LIMIT = 73_043

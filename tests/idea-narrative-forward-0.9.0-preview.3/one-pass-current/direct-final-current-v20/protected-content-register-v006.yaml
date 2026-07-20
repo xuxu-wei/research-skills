@@ -1,0 +1,1079 @@
+schema_version: research-idea-protected-content-register.v2
+register_id: protected-content-register-I01-001-v054-v006
+register_version: v006
+source_artifact:
+  artifact_id: idea-dossier-I01-001-v054
+  version: v054
+  path: tests/idea-narrative-forward-0.9.0-preview.3/one-pass-current/direct-final-current-v20/idea-dossier-v054.md
+identity_anchor:
+  primary_research_question: "can a knowledge-constrained, uncertainty-aware dynamic system representation of ICU patients cover the sepsis-centered pre-onset, onset, post-onset, and outcome continuum, demonstrate cross-database state/structure validity, and then test limited randomized intervention perturbations without conflating prediction with causality?"
+  primary_objective: "construct and validate the sepsis complex-system model, with stage II completed within 24 months."
+  study_object: "the longitudinal sepsis-centered ICU patient system, including comparable at-risk non-onset intervals and post-onset trajectories."
+  core_data_or_evidence_base: "literature/expert priors; longitudinal public ICU data; conditionally available EXIT-SEP and XBJ-SCAP individual-level RCT data."
+  primary_unit_of_inference: "patient-time state and state transition, with patient and hospital clustering respected."
+category_coverage:
+  - category: identity_and_question
+    source_status: source_present
+    protected_item_ids: [PCR-001, PCR-002, PCR-003]
+    not_applicable_reason: null
+  - category: object_scope_and_boundaries
+    source_status: source_present
+    protected_item_ids: [PCR-004, PCR-005, PCR-006, PCR-007]
+    not_applicable_reason: null
+  - category: inputs_and_resources
+    source_status: source_present
+    protected_item_ids: [PCR-008, PCR-009, PCR-010, PCR-011, PCR-012, PCR-013]
+    not_applicable_reason: null
+  - category: design_analysis_and_inference
+    source_status: source_present
+    protected_item_ids: [PCR-014, PCR-015, PCR-016, PCR-017, PCR-018, PCR-019, PCR-020, PCR-021, PCR-022, PCR-023, PCR-024, PCR-025, PCR-026, PCR-027, PCR-028, PCR-029, PCR-030, PCR-031, PCR-032, PCR-033, PCR-034, PCR-035, PCR-036, PCR-037, PCR-038]
+    not_applicable_reason: null
+  - category: claims_and_evidence_status
+    source_status: source_present
+    protected_item_ids: [PCR-039, PCR-040, PCR-041, PCR-042, PCR-043]
+    not_applicable_reason: null
+  - category: assumptions_and_limitations
+    source_status: source_present
+    protected_item_ids: [PCR-044, PCR-045, PCR-046, PCR-047, PCR-048, PCR-049, PCR-050, PCR-051, PCR-052, PCR-053, PCR-054, PCR-055, PCR-056, PCR-057, PCR-058, PCR-059, PCR-060]
+    not_applicable_reason: null
+  - category: unsupported_claim_classes
+    source_status: source_present
+    protected_item_ids: [PCR-061, PCR-062, PCR-063, PCR-064]
+    not_applicable_reason: null
+protected_items:
+  - protected_id: PCR-001
+    category: identity_and_question
+    source_locator: "frontmatter > identity_anchor"
+    source_context_locator: null
+    protected_content: >-
+      The five identity-anchor values are the verbatim values in this register's
+      identity_anchor mapping. They fix the primary question, objective, study
+      object, evidence base, and patient-time/state-transition unit of inference.
+    required_revised_disposition: retained_verbatim_in_identity_anchor
+
+  - protected_id: PCR-002
+    category: identity_and_question
+    source_locator: "Research question, objectives, and core hypothesis > Primary research question; Objectives"
+    source_context_locator: null
+    protected_content: >-
+      The question is whether a knowledge-constrained, uncertainty-aware,
+      sepsis-centered full-course candidate representation can cover comparable
+      non-onset at-risk intervals, first onset, post-onset evolution, and outcomes;
+      test patient states and candidate structure across hospitals and databases;
+      and only after the main study meets its criteria separately examine actual-visit
+      clinical states in each trial while keeping prediction and observational
+      representation distinct from causal interpretation. The four objectives are:
+      traceable full-course boundaries and clocks; an audit-constrained candidate
+      state representation separating physiology, treatment, and measurement;
+      absolute recovery plus planned cross-database testing of two primary clinical
+      tasks and two secondary representation diagnostics; and subordinate,
+      trial-specific randomized-trial secondary analyses only after the main study
+      succeeds. Deliverables are high-level papers and auditable scientific evidence,
+      not merely a prediction tool.
+    required_revised_disposition: retained_same_meaning
+
+  - protected_id: PCR-003
+    category: identity_and_question
+    source_locator: "Research question, objectives, and core hypothesis > Core hypothesis and evidence boundary"
+    source_context_locator: null
+    protected_content: >-
+      Conditional on adequate common-variable and event support, pre-analysis
+      fixation of anchoring, scale, number of states, and lags, and passage of
+      absolute simulation recovery and misspecification checks by the complex
+      candidate, the recoverable invariants are limited to state occupancies,
+      transition probabilities, anchor predictions, and signs or lags of prespecified
+      dependencies that retain predefined stability in untouched external data under
+      allowed reparameterizations. The hypothesis concerns predictive or generative
+      representation under actual care and measurement policies; causal effects are
+      not estimands.
+    required_revised_disposition: retained_same_meaning_and_evidence_boundary
+
+  - protected_id: PCR-004
+    category: object_scope_and_boundaries
+    source_locator: "Research design and methods > Observational target, anchoring, and evidence-qualified interpretation"
+    source_context_locator: null
+    protected_content: >-
+      The study object is the longitudinal, sepsis-centered ICU patient system,
+      including comparable pre-onset at-risk intervals and post-onset trajectories.
+      The primary inference unit is patient-time state and state transition, with
+      patient and hospital clustering respected. The observational target is the
+      joint predictive or generative distribution of latent physiology X, observed
+      physiology Y, treatment actions A, measurement process M, baseline B, and
+      database or hospital S under actual care and measurement policies, together
+      with derived risk, aligned occupancy and transition, anchor prediction, and
+      prespecified sign or lag quantities.
+    required_revised_disposition: retained_same_meaning
+
+  - protected_id: PCR-005
+    category: object_scope_and_boundaries
+    source_locator: "Research design and methods > Protocol locks for the two primary clinical tasks"
+    source_context_locator: null
+    protected_content: >-
+      The pre-onset population is adults aged at least 18 years, using the first
+      eligible ICU stay per admission, at least 12 hours of visible history, no main
+      label at the landmark, and exclusion of those already at onset at observation
+      start. The post-onset population uses first onset; patients already at onset on
+      ICU entry may enter only at the first auditable point, stratified and handled
+      with left truncation. Only first onset is analyzed. Overlapping landmarks are
+      retained with total stay weight one. Pre-onset alive ICU exit, in-hospital
+      death, transfer, or loss to follow-up are mutually exclusive terminations;
+      post-onset death, alive ICU exit, and transfer are terminal states. Discharge
+      does not substitute for physiological recovery, and administrative end is
+      handled separately with censoring sensitivity analyses.
+    required_revised_disposition: retained_same_meaning_at_cohort_authority
+
+  - protected_id: PCR-006
+    category: object_scope_and_boundaries
+    source_locator: "Research design and methods > Mutually exclusive post-onset state and event system"
+    source_context_locator: null
+    protected_content: >-
+      Post-onset state is assigned every 12 hours with fixed priority: death, then
+      transfer or inability to continue observation, then alive ICU exit, then
+      deterioration or new organ failure, then physiological recovery, then
+      persistent sepsis. Unsortable source times take the higher-priority state and
+      trigger an event-time sensitivity analysis. Death and alive ICU exit are
+      absorbing; transfer or loss of observation is a terminal competing event;
+      physiological recovery can relapse; persistent sepsis can transition.
+    required_revised_disposition: retained_same_meaning_at_state_authority
+
+  - protected_id: PCR-007
+    category: object_scope_and_boundaries
+    source_locator: "Data, materials, and existing evidence base > Variable roles"
+    source_context_locator: null
+    protected_content: >-
+      Physiological measurements Y, treatment actions A, measurement process M,
+      label-only variables, and baseline covariates B remain separate. Treatment
+      starts, stops, doses, and measurement frequency are not common physiological
+      anchors. SOFA and dual-use action copies used to form labels are isolated and
+      cannot flow back as same-time or earlier features. Measurement absence is not
+      normality and interface absence is not patient state. Static baseline values are
+      not repeated as pseudo-measurements; unknowns remain explicit.
+    required_revised_disposition: retained_same_meaning
+
+  - protected_id: PCR-008
+    category: inputs_and_resources
+    source_locator: "Data, materials, and existing evidence base > Public intensive-care database roles and support audit"
+    source_context_locator: null
+    protected_content: >-
+      MIMIC-IV v3.1 is the planned development database and eICU-CRD v2.0 the planned
+      hospital-level adaptation and untouched-test database. HiRID or AmsterdamUMCdb
+      may replace a database only if one backup is prespecified in months 0-3 and
+      receives an equivalent audit, never in response to test results. Only common
+      concepts with auditable units, semantics, timestamps, and visibility may enter
+      the shared variable set; database-specific information is exploratory in the
+      observation model.
+    required_revised_disposition: retained_same_meaning
+
+  - protected_id: PCR-009
+    category: inputs_and_resources
+    source_locator: "Data, materials, and existing evidence base > Public intensive-care database roles and support audit > audit table"
+    source_context_locator: null
+    protected_content: >-
+      Database access, agreements, releases, extraction dates, cohorts, hospitals,
+      events, transitions, follow-up, timestamps, common-anchor density, interface
+      coverage, missingness, patient linkage, and effective support are unexecuted
+      audit inputs. External testing requires at least 20 eligible event-supporting
+      hospitals. Each free risk parameter requires at least 20 development and 10
+      external events; each free transition parameter requires at least 20 development
+      and 10 external transitions, otherwise complexity or the edge is reduced.
+      Each latent dimension requires at least two common physiological anchors; each
+      anchor must be measured in at least 30% of eligible windows in both databases,
+      occur in at least 70% of eligible hospitals, and cover at least 80% of eligible
+      patients. The latent dimension is the smaller of the audited module count and
+      four; state mechanisms are at most three. The primary 12-hour grid changes to
+      24 hours before fitting if ordering is unsupported, then to event time if still
+      unsupported. Dynamic values are not unconditionally carried forward.
+    required_revised_disposition: retained_same_meaning_with_all_support_rules
+
+  - protected_id: PCR-010
+    category: inputs_and_resources
+    source_locator: "Data, materials, and existing evidence base > Current resource and result status"
+    source_context_locator: null
+    protected_content: >-
+      The public existence and versions of MIMIC-IV and eICU are verified, but team
+      credentials, agreements, download, storage, exact extracts, and executable
+      project risk sets are not verified. The dual-database sample, event, transition,
+      hospital, cross-hospital patient, anchor-density, and interface audits have not
+      been run. No stage-II model, simulation recovery, prediction, external test, or
+      new trial-analysis result exists. Existing local closest-work synthesis is
+      bounded and supports high confidence only that component methods have precedents;
+      the full-combination gap has low-to-moderate confidence.
+    required_revised_disposition: retained_same_evidence_status
+
+  - protected_id: PCR-011
+    category: inputs_and_resources
+    source_locator: "Data, materials, and existing evidence base > Local randomized-trial evidence status"
+    source_context_locator: null
+    protected_content: >-
+      EXIT-SEP and XBJ-SCAP local derivative reports document workbook construction,
+      missingness, and reproducibility checks but are not original case-report forms,
+      statistical analysis plans, independent peer review, individual-data permission,
+      or original semantic audits. EXIT-SEP has 1,817 randomized patients; the local
+      derivative reports 1,760 with known 28-day status, 395 deaths, 57 unknown status,
+      SOFA nonmissing counts of 1,750, 1,542, and 1,296 on days 1, 4, and 7, and lactate
+      counts declining from 855 to 223. XBJ-SCAP has 710 randomized patients; the local
+      derivative reports FAS 675, per-protocol 617, operational sepsis-like 671, strict
+      overlap 658, SOFA counts 703/628/610 on days 0/4/8, WBC 704/634/614, CRP
+      579/503/467, and 28-day status for 675. Severe community-acquired pneumonia does
+      not itself establish Sepsis-3. Several patient-level fields are unavailable and
+      D-dimer units remain unverified and may not be inferred or filled.
+    required_revised_disposition: retained_same_evidence_status_and_counts
+
+  - protected_id: PCR-012
+    category: inputs_and_resources
+    source_locator: "Data, materials, and existing evidence base > Current resource and result status > trial rows"
+    source_context_locator: null
+    protected_content: >-
+      Trial individual-data authorization, original case-report forms and analysis
+      plans, randomization, center, actual visit timing relative to first dose, and
+      death, hospitalization, discharge, and transfer semantics remain unverified.
+      Stage-II-to-trial common physiological anchors, units, and visit mappings remain
+      unverified; WBC and CRP are only candidates, and each trial mapping requires at
+      least two eligible anchors. Any core semantic that affects the estimand requires
+      confirmation from original material or the data holder.
+    required_revised_disposition: retained_same_evidence_status
+
+  - protected_id: PCR-013
+    category: inputs_and_resources
+    source_locator: "Feasibility, resources, risks, alternatives, and stop conditions > Feasibility and resources"
+    source_context_locator: null
+    protected_content: >-
+      Required roles are named ICU clinical/phenotyping, longitudinal statistics,
+      system identification, data engineering, model implementation, and an
+      independent test-data custodian. Role definitions exist, but named personnel,
+      commitments, and available effort are unverified. Scope is limited to two main
+      databases, at most four latent dimensions, at most three state mechanisms, two
+      primary tasks, two secondary representation diagnostics, and at most one complex
+      candidate. Animal experiments, conduct of a randomized trial, causal mechanism,
+      and control research are outside the 24-month resource plan.
+    required_revised_disposition: retained_same_resource_status_and_scope
+
+  - protected_id: PCR-014
+    category: design_analysis_and_inference
+    source_locator: "Research content and work packages > Work packages and minimum route"
+    source_context_locator: null
+    protected_content: >-
+      The minimum precedence is fixed: resource and dual-database support audit;
+      label, state, and hospital split fixation; competing-risk and multistate
+      baselines; linear state-space baseline; absolute simulation recovery; at most
+      one complex candidate; two primary tasks and two secondary representation
+      diagnostics; development freeze; untouched cross-database test; and only then
+      conditional trial secondary analyses. Failure invokes the prespecified simpler
+      representation, backup database, or stop; randomized-trial findings or added
+      complexity cannot bypass a failed step. Stages I-II are the 24-month minimum;
+      stage III is outside it and subordinate.
+    required_revised_disposition: retained_same_precedence_and_dependencies
+
+  - protected_id: PCR-015
+    category: design_analysis_and_inference
+    source_locator: "Research content and work packages > Conjunctive minimum success definition"
+    source_context_locator: null
+    protected_content: >-
+      Stage-II cross-database candidate-system success is conjunctive: both databases
+      support the main pre-onset risk set and post-onset state cohort plus fixed event,
+      transition, hospital, and common-anchor minima; any complex candidate passes all
+      correct-generation, zero-edge, and core-misspecification absolute criteria;
+      both primary tasks in development and temporal validation have an upper 95%
+      bound for Brier or multicategory-Brier difference versus the strongest simple
+      baseline no greater than +0.01, calibration slope 0.80-1.20, and absolute risk
+      error no greater than 0.02; no unresolved high-severity leakage remains; and the
+      hospital-primary external split retains at least 20 eligible test hospitals,
+      while the frozen no-update test meets Brier noninferiority, aligned primary-state
+      correlation or agreement at least 0.70, and prespecified structure-sign agreement
+      at least 0.80. Audit-dependent thresholds may be registered by month 6 using
+      clinical tolerance, development bootstrap, and pilot simulations without
+      external results; fixed standards may be tightened but not relaxed. Limited
+      adaptation cannot alter a failed no-update conclusion, and stage III cannot
+      count toward or repair stage-II success.
+    required_revised_disposition: retained_same_meaning_with_all_conjuncts
+
+  - protected_id: PCR-016
+    category: design_analysis_and_inference
+    source_locator: "Research design and methods > Protocol locks for the two primary clinical tasks > primary pre-onset task column"
+    source_context_locator: null
+    protected_content: >-
+      Primary task 1 estimates, conditional on history, the cumulative incidence of
+      first sepsis onset in the next 12 hours by converting discrete multinomial
+      cause-specific risks. Landmarks begin at ICU hour 12 every 12 hours, use up to
+      24 hours and at least 12 hours of previously visible history, and retain total
+      stay weight one. Metrics are 12-hour Brier score and absolute calibration
+      intercept and slope; precision-recall area, lead time, and false-alarm burden
+      are secondary. Patient- and hospital-level bootstrap 95% intervals are required.
+      Development and untouched testing must meet Brier noninferiority +0.01,
+      calibration slope 0.80-1.20, absolute-risk error at most 0.02, and no unresolved
+      high-severity leakage.
+    required_revised_disposition: retained_same_meaning_at_primary_task_authority
+
+  - protected_id: PCR-017
+    category: design_analysis_and_inference
+    source_locator: "Research design and methods > Protocol locks for the two primary clinical tasks > primary post-onset task column"
+    source_context_locator: null
+    protected_content: >-
+      Primary task 2 estimates day-7 occupancy of the favorable set consisting of
+      physiological recovery or alive ICU exit; the components are also reported
+      separately. It uses mutually exclusive discrete multistate modeling and the
+      Aalen-Johansen estimator, with day 14 as sensitivity analysis, first-onset and
+      delayed-entry strata, left truncation, effective-transition reporting, and
+      patient- and hospital-level bootstrap. Metrics are day-7 multicategory Brier
+      score and absolute favorable-state calibration; state and transition calibration
+      are secondary. It has the same frozen noninferiority, calibration, risk-error,
+      and leakage gates as task 1, and neither secondary diagnostics nor trial results
+      can reverse a primary-task failure.
+    required_revised_disposition: retained_same_meaning_at_primary_task_authority
+
+  - protected_id: PCR-018
+    category: design_analysis_and_inference
+    source_locator: "Research design and methods > Protocol locks for the two primary clinical tasks > event clock and information-availability clock"
+    source_context_locator: null
+    protected_content: >-
+      The main suspected-infection definition pairs first actual systemic-antibiotic
+      administration and microbiological sampling: if sampling is first, treatment
+      must occur within 72 hours; if treatment is first, sampling must occur within 24
+      hours; infection time is the earlier event. Baseline SOFA is zero without known
+      chronic organ dysfunction, otherwise the lowest calculable SOFA in the 24 hours
+      before ICU entry; unauditable baseline excludes the patient from the main risk
+      set. Worst SOFA components in a rolling 24-hour window must rise at least two
+      points within 48 hours before through 24 hours after infection; onset is the
+      first sortable qualifying time. Availability time is the maximum of the later
+      paired event and availability or finalization of required SOFA data, and later
+      information is not backfilled. Only two sensitivity labels are allowed: symmetric
+      plus/minus 24-hour culture-antibiotic pairing, and lowest calculable SOFA in the
+      prior 24 hours for everyone with an organ window of plus/minus 24 hours. Neither
+      sensitivity replaces the main result.
+    required_revised_disposition: retained_same_meaning_with_all_temporal_rules
+
+  - protected_id: PCR-019
+    category: design_analysis_and_inference
+    source_locator: "Research design and methods > Mutually exclusive post-onset state and event system > state definitions"
+    source_context_locator: null
+    protected_content: >-
+      Physiological recovery is a SOFA decrease of at least two points from the onset
+      reference plus 24 continuous hours without new deterioration; event time is the
+      window start and availability time the window end. Deterioration or new organ
+      failure is a SOFA increase of at least two points versus the lowest prior-24-hour
+      SOFA, or new/escalated vasopressor, invasive ventilation, or continuous renal
+      replacement therapy; concurrent events count once. Alive ICU exit is not
+      physiological recovery. Transfer or lost observation is not recovery or ordinary
+      independent censoring and requires weighting and bounds. Death is absorbing and
+      not missing at random.
+    required_revised_disposition: retained_same_meaning_with_state_rules
+
+  - protected_id: PCR-020
+    category: design_analysis_and_inference
+    source_locator: "Research design and methods > Observational target, anchoring, and evidence-qualified interpretation"
+    source_context_locator: null
+    protected_content: >-
+      Each latent dimension requires at least two cross-database common physiological
+      anchors. The first anchor loading is fixed at +1 with standardized scale;
+      non-designated cross-loadings are zero or follow a prewritten sparsity pattern.
+      Latent dimensions are at most four, state mechanisms at most three, and lags only
+      one or two fixed windows; no contemporaneous cycle is allowed. Twenty fixed
+      random-seed fits undergo permutation and sign alignment. Only aligned and
+      simulation-reconstructable occupancies, transitions, anchor predictions, and
+      prespecified signs or lags are interpreted; raw latent labels, arbitrary rotated
+      coordinates, and unaudited edges are not structural targets.
+    required_revised_disposition: retained_same_meaning_with_identifiability_constraints
+
+  - protected_id: PCR-021
+    category: design_analysis_and_inference
+    source_locator: "Research design and methods > Observational target, anchoring, and evidence-qualified interpretation > missingness and action support"
+    source_context_locator: null
+    protected_content: >-
+      Nonrandom missingness is addressed with an explicit measurement-process
+      missingness or selection-model baseline, pattern-mixture shifts of -1, -0.5, 0,
+      +0.5, and +1 development-database standard deviations for unmeasured physiology,
+      and selection-model tipping-point analysis. Action probabilities and effective
+      sample sizes are reported by aligned state, hospital, and time. If action
+      prevalence is below 5% or above 95%, or weighted effective sample size is below
+      20% of nominal, the relation is low-support and care-policy-specific and no
+      treatment effect is estimated.
+    required_revised_disposition: retained_same_meaning_with_sensitivity_grid
+
+  - protected_id: PCR-022
+    category: design_analysis_and_inference
+    source_locator: "Research design and methods > Absolute simulation and semi-synthetic recovery criteria > simulation regimen"
+    source_context_locator: null
+    protected_content: >-
+      In months 7-10 and without clinical final-test results, every core scenario has
+      at least 1,000 repeats or runs until the Monte Carlo standard error of each key
+      proportion is no more than 0.02. Generators include correct specification,
+      zero-edge or independent state, redundant state or overfitting, omitted state,
+      wrong lag, and wrong observation model, crossed with state separation,
+      switching, one- or two-window lag, policy feedback, hidden confounding,
+      nonrandom missingness, label error, visit density, whole-hospital interface
+      absence, and database difference.
+    required_revised_disposition: retained_same_meaning_with_scenario_coverage
+
+  - protected_id: PCR-023
+    category: design_analysis_and_inference
+    source_locator: "Research design and methods > Absolute simulation and semi-synthetic recovery criteria > continuous branch"
+    source_context_locator: null
+    protected_content: >-
+      For each simulation repeat b, compare centered true continuous latent-state
+      matrix X_b with centered posterior-mean matrix Xhat_b on the same prespecified
+      patient-time evaluation rows. Compute all d_b nonnegative canonical correlations
+      in descending order. If estimated dimension differs from d_b, either matrix has
+      rank below d_b, or the fixed algorithm cannot return all d_b correlations, set
+      r_b to zero; otherwise r_b is their minimum, unsquared. No result-driven
+      deletion of patients, times, or dimensions is allowed. Across B repeats compute
+      L=max(0, mean(r)-1.96*s_r/sqrt(B)); recovery passes only if L is at least 0.80.
+      Applicable scenarios, including correctly generated scenarios that require
+      continuous-state recovery, are fixed before results are visible.
+    required_revised_disposition: retained_same_meaning_with_complete_computation
+
+  - protected_id: PCR-024
+    category: design_analysis_and_inference
+    source_locator: "Research design and methods > Absolute simulation and semi-synthetic recovery criteria > recovery criteria table"
+    source_context_locator: null
+    protected_content: >-
+      Discrete-state recovery requires permutation-aligned adjusted Rand index at least
+      0.80 and alignment in at least 90% of 20 seeds; rule-generated clinical outcome
+      states are not substitute recovery targets. Transition-probability mean absolute
+      error must be at most 0.05 with 95% interval coverage 0.90-0.98. Prespecified
+      sign or lag recovery is at least 0.80. Edge detection requires sensitivity at
+      least 0.80 and false-discovery rate at most 0.10. In a zero-edge mechanism, the
+      proportion of repeats in which any false edge's 95% interval excludes zero is at
+      most 0.05. Under misspecification, at least 80% of repeats must detect mismatch
+      and stop the relevant interpretation, and high-confidence wrong structure may
+      occur in at most 0.05. Calibration slope is 0.80-1.20 and absolute probability
+      bias at most 0.02. A state or edge also fails if seed alignment is below 90%,
+      bootstrap retention below 80%, external sign agreement below 80%, state
+      alignment below 0.70, or intervals are miscalibrated. Failure requires deletion,
+      merging, simpler or prediction-only representation, or an explicit database- or
+      care-policy-specific limitation; prediction scores cannot override failure.
+    required_revised_disposition: retained_same_meaning_with_all_recovery_and_failure_rules
+
+  - protected_id: PCR-025
+    category: design_analysis_and_inference
+    source_locator: "Research design and methods > Hospital-primary cross-database validation > partition and cross-hospital-patient rules"
+    source_context_locator: null
+    protected_content: >-
+      Before outcome-guided selection, stratify eICU hospitals by eligible-volume
+      quartile and interface completeness and use deterministic seed 20260717 to assign
+      30% of hospitals to adaptation and 70% to untouched final testing. Hospital
+      assignment precedes patient rules. Cross-partition linked patients are excluded
+      entirely from the primary external analysis; within-partition patients retain
+      only the prespecified first eligible admission and first eligible ICU stay.
+      Exclusion counts, proportions, hospitals, and outcome-preceding characteristics
+      are reported before test performance. The prewritten bipartite sensitivity keeps
+      pure components in place, deletes mixed-component patients from adaptation, and
+      retains their first eligible stays only in preassigned test hospitals. If after
+      handling, test support has fewer than 20 hospitals, fewer than 10 events or
+      transitions for a free parameter, common anchors cease to cover 70% of hospitals
+      and 80% of patients, or cross-partition exclusion exceeds 10% of eligible test
+      patients or primary events, invoke the prespecified backup; if it also fails,
+      report only database-level applicability or description, not hospital robustness
+      or complete cross-database system success.
+    required_revised_disposition: retained_same_meaning_with_partition_and_support_logic
+
+  - protected_id: PCR-026
+    category: design_analysis_and_inference
+    source_locator: "Research design and methods > Hospital-primary cross-database validation > four update operations"
+    source_context_locator: null
+    protected_content: >-
+      After freezing labels, common-variable handling, states, preprocessing,
+      availability rules, model, hyperparameters, criteria, and code, test data are
+      analyzed once in fixed order: frozen no-update external test as primary evidence;
+      calibration-intercept-and-slope-only adaptation; observation-layer-only
+      adaptation with state and transition frozen; and complete-model refitting as
+      development only. Test data cannot select variables, time grid, state count,
+      common anchors, partition, update operation, or criteria. Limited adaptation
+      describes adapted performance and cannot compensate for or alter failure of the
+      no-update external test.
+    required_revised_disposition: retained_same_meaning_with_branch_roles
+
+  - protected_id: PCR-027
+    category: design_analysis_and_inference
+    source_locator: "Research design and methods > 试验观察映射和独立分析 > 共享前提"
+    source_context_locator: null
+    protected_content: >-
+      Any new trial visit-outcome analysis begins only if stage II meets every
+      conjunctive success criterion, the trial's individual data are authorized, and
+      original sources or the data holder verify randomization and analysis sets,
+      center or stratification, actual visit timing relative to randomization and
+      first dose, and death, hospitalization, alive discharge, and transfer semantics.
+      Common-anchor count and mapping fidelity are branch-specific, not shared
+      prerequisites. Trial analyses occur after the original trial results, are
+      secondary and exploratory, fall beyond the 24-month minimum, and remain separate
+      for EXIT-SEP and XBJ-SCAP with no pooled effect.
+    required_revised_disposition: retained_same_meaning_with_conditional_dependency
+
+  - protected_id: PCR-028
+    category: design_analysis_and_inference
+    source_locator: "Research design and methods > 试验观察映射和独立分析 > 观测映射成立时的有序访视结局分析及外部忠实度判定"
+    source_context_locator: null
+    protected_content: >-
+      Each trial-specific anchor set contains variables retained as stage-II common
+      physiological anchors, directly measured at the actual day-7 or day-8 visit,
+      consistent in construct, specimen, unit or verified deterministic conversion,
+      inside the fixed visit window, and not treatment, measurement frequency, SOFA,
+      outcome label, or post hoc state. At least two anchors per trial are required.
+      The frozen MIMIC means, standard deviations, and 1st/99th percentile truncation
+      define standardized values. SVD of the frozen observation equation defines the
+      latent-state projection and one-dimensional observable proxy; ties follow fixed
+      anchor dictionary order, and sign is fixed in development to nonnegative
+      same-day SOFA correlation so higher is worse. Mapping uses neither treatment arm,
+      trial outcomes, nor pooled trials. Untouched eICU fidelity requires first-axis
+      Frobenius energy at least 50%, projection-proxy correlation at least 0.70,
+      normalized MAE at most 0.50, standardized intercept magnitude at most 0.20,
+      slope 0.80-1.20, interval coverage 0.90-0.98, and each anchor's slope 0.80-1.20
+      and standardized intercept magnitude at most 0.20. In blinded trial data, at
+      least 80% of anchor values are within frozen physiological ranges and at least
+      60% of alive hospitalized visits have two directly measured anchors. Any failed
+      standard, unit/time noninvariance, or trial-specific weight re-estimation makes
+      the mapping ineligible; group differences cannot change eligibility.
+    required_revised_disposition: retained_same_meaning_with_mapping_and_fidelity_rules
+
+  - protected_id: PCR-029
+    category: design_analysis_and_inference
+    source_locator: "Research design and methods > 试验观察映射和独立分析 > 分层标准化概率指数"
+    source_context_locator: null
+    protected_content: >-
+      When mapping is eligible, actual-visit outcome orders death worst, alive
+      hospitalized patients by observable proxy from worse to better, and alive
+      discharge best. The unique primary estimand in each eligible trial is the
+      stratified standardized probability index theta_PI=sum_s omega_s{P(Y1>Y0|S=s)
+      +0.5P(Y1=Y0|S=s)}, where higher outcome is better, S is the verified original
+      randomization center or stratum, and omega_s is the pooled-arm stratum proportion
+      in the prespecified target analysis set fixed before any arm comparison. Death
+      ties, discharge ties, and equal proxy or SOFA values receive half credit.
+      theta=0.5 means no randomized superiority, above 0.5 favors the trial arm, and
+      below 0.5 favors control. Estimation, intervals, and testing preserve original
+      stratification. Strict win probability, win ratio, or another quantity may only
+      be prespecified as secondary or sensitivity and cannot replace the estimand.
+      EXIT-SEP and XBJ-SCAP are estimated separately.
+    required_revised_disposition: retained_same_meaning_with_complete_estimand
+
+  - protected_id: PCR-030
+    category: design_analysis_and_inference
+    source_locator: "Research design and methods > 试验观察映射和独立分析 > 观测映射不成立但独立分析条件成立时的分析; 核心语义不足时停止"
+    source_context_locator: null
+    protected_content: >-
+      If mapping eligibility or external fidelity fails but SOFA, death,
+      hospitalization/discharge, randomization, and center semantics are verifiable,
+      use the stage-II-independent ordered SOFA clinical-state endpoint: death worst,
+      alive hospitalized ordered from high to low SOFA, alive discharge best, with the
+      same probability-index contrast. This endpoint neither uses nor tests the
+      stage-II representation. If actual day-7/day-8 visit, randomization, center, or
+      death/hospitalization/discharge semantics cannot be verified, conduct no new
+      visit-outcome analysis and only reproduce original endpoints or report a data
+      audit. Failure of the mapping branch must not be converted into a shared
+      prerequisite failure when the independent branch remains eligible.
+    required_revised_disposition: retained_same_meaning_with_mutually_exclusive_branches
+
+  - protected_id: PCR-031
+    category: design_analysis_and_inference
+    source_locator: "Research design and methods > 试验观察映射和独立分析 > EXIT-SEP and XBJ-SCAP trial table"
+    source_context_locator: null
+    protected_content: >-
+      EXIT-SEP targets all 1,817 randomized participants; the 1,760 known-outcome set
+      is only a complete-outcome subset. Day 7 is the actual visit, and day 1 cannot be
+      untreated baseline if after randomization. XBJ-SCAP targets all 710 randomized;
+      if unreconstructable, FAS 675 is explicitly a modified intention-to-treat set;
+      PP 617, sepsis-like 671, and strict-overlap 658 are sensitivities only. Day 8 is
+      the visit, and day 0 cannot be baseline/change origin if not prerandomization.
+      For alive hospitalized participants with missing proxy inputs or SOFA, each
+      imputed dataset uses treatment, center, verified prerandomization covariates, and
+      prior actual visits, reconstructs the ordered outcome, and combines via Rubin's
+      rules and clustered bootstrap; shifts are plus/minus 0.5 and 1 SD with best/worst
+      tipping analysis. Transfer or unknown status uses bounds, not missing-at-random.
+      Structurally absent XBJ-SCAP fields are not imputed and unverified D-dimer is
+      excluded. The two primary trial state endpoints form a Holm family at 0.05;
+      other visits/modules are exploratory with false-discovery control, and subgroup
+      results are treatment-by-subgroup interactions only. Sparse visits are not
+      interpolated into pseudo-continuous trajectories.
+    required_revised_disposition: retained_same_meaning_with_trial_specific_rules
+
+  - protected_id: PCR-032
+    category: design_analysis_and_inference
+    source_locator: "Research design and methods > Secondary representation diagnostics"
+    source_context_locator: null
+    protected_content: >-
+      Pseudo-mask reconstruction is restricted to originally measured physiological
+      values and uses MAE, RMSE, log score, and interval coverage. Future-trajectory
+      prediction uses continuous ranked probability score, negative log likelihood,
+      and state-occupancy/outcome calibration. Both diagnostics are stratified by
+      variable, state, hospital, and observation density and reported separately; they
+      cannot change primary tasks, absolute simulation recovery, or cross-database
+      decisions.
+    required_revised_disposition: retained_same_meaning
+
+  - protected_id: PCR-033
+    category: design_analysis_and_inference
+    source_locator: "Required analyses and evidence; Research design and methods > 试验观察映射和独立分析"
+    source_context_locator: null
+    protected_content: >-
+      Stage-II claims require resource and named-role confirmation; dual-database
+      support audit; unit tests for labels, two clocks, landmarks, day-7 states,
+      priority, delayed entry, and competing events/censoring; variable-role and
+      isolated-copy proofs; simple baselines and absolute, zero-edge, and
+      misspecification simulations; nonrandom-missingness, action-support, interface,
+      label-error, time-reversal, and clinical negative controls; both primary tasks
+      and both secondary diagnostics with proper scores, calibration, coverage,
+      burden, and clustered intervals; deterministic hospital assignment,
+      cross-partition exclusion, pre-outcome comparisons, bipartite sensitivity,
+      permissions, and freeze records; separately identified four update operations;
+      and a month-24 conjunct table recording pass, simpler representation, or failure
+      for each item. Trial work additionally requires authorization and original
+      semantic verification, handling of EXIT-SEP unknown status and XBJ-SCAP analysis
+      sets, and prespecified per-trial anchors, mapping, outcome, probability index,
+      imputation, center, Holm family, and subgroup interactions.
+    required_revised_disposition: retained_same_meaning_as_required_evidence
+
+  - protected_id: PCR-034
+    category: design_analysis_and_inference
+    source_locator: "Expected outputs, falsification criteria, and interpretations > Falsification and stop criteria > clocks, leakage, and data support"
+    source_context_locator: null
+    protected_content: >-
+      If an endpoint is driven by information recorded only after label formation,
+      future actions in the same window, future measurement frequency, or
+      cross-split imputation, that endpoint fails and must be reassessed after time-rule
+      correction or variable deletion; unresolved high-severity leakage blocks final
+      external testing. If event/transition, hospital, cross-hospital exclusion, or
+      common-anchor support fails, delete unsupported modules or edges, switch to the
+      prespecified time grid, invoke the backup, or stop the affected cross-database
+      complex endpoint.
+    required_revised_disposition: retained_same_stop_and_failure_interpretation
+
+  - protected_id: PCR-035
+    category: design_analysis_and_inference
+    source_locator: "Expected outputs, falsification criteria, and interpretations > Falsification and stop criteria > recovery, missingness, action support, and external result"
+    source_context_locator: null
+    protected_content: >-
+      Failure of state/transition recovery, interval coverage, zero-edge false-structure
+      checks, or wrong-high-confidence structure under misspecification prevents complex
+      candidate promotion; relative prediction advantage cannot reverse it. If
+      missingness shifts or tipping analysis changes conclusions, report the sensitivity
+      range. If action overlap or effective sample size is inadequate, report a
+      care-policy-specific relation and do not estimate treatment effect. If no-update
+      external scoring, state alignment, or sign consistency fails, the cross-database
+      system endpoint fails; limited adaptation describes only adapted performance.
+    required_revised_disposition: retained_same_stop_and_failure_interpretation
+
+  - protected_id: PCR-036
+    category: design_analysis_and_inference
+    source_locator: "Expected outputs, falsification criteria, and interpretations > Falsification and stop criteria > trial criteria"
+    source_context_locator: null
+    protected_content: >-
+      Any failure of common anchors, unit, timing, low-dimensionality, correlation,
+      normalized error, calibration, or interval coverage blocks analysis of the
+      death/proxy/discharge ordered outcome; the independent SOFA endpoint is used only
+      if its separate conditions hold. Unverifiable randomization, center, actual
+      day-7/day-8 visit, or death/hospitalization/discharge semantics stops all new visit
+      outcomes. Discordant trial directions or wide intervals are reported as no common
+      direction or limited cross-context applicability and cannot be repaired by
+      selecting subgroups.
+    required_revised_disposition: retained_same_stop_and_failure_interpretation
+
+  - protected_id: PCR-037
+    category: design_analysis_and_inference
+    source_locator: "Expected outputs, falsification criteria, and interpretations > Falsification and stop criteria > time"
+    source_context_locator: null
+    protected_content: >-
+      If no complex candidate reaches its criteria by month 12, freeze the simple
+      representation. If development and analysis freeze are incomplete by month 20,
+      do not access final test data. If no untouched cross-database result exists by
+      month 24, the stage-II minimum endpoint is incomplete.
+    required_revised_disposition: retained_same_stop_and_timing_consequence
+
+  - protected_id: PCR-038
+    category: design_analysis_and_inference
+    source_locator: "Feasibility, resources, risks, alternatives, and stop conditions > Risks, alternatives, and stop conditions"
+    source_context_locator: null
+    protected_content: >-
+      Month-3 absence of two accessible databases or month-6 support failure invokes an
+      equally audited prespecified backup, a 24-hour/event-time grid, or deletion of
+      unsupported modules; persistent failure stops the 24-month cross-database route.
+      Missing named critical roles pauses the affected audit, criteria freeze, or data
+      access and prevents sign-off. Premature test access or test-driven development
+      invalidates that external analysis; independence must be rebuilt or only
+      development/adaptation results may be reported. Cross-hospital exclusion support
+      failure invokes bipartite sensitivity and backup, otherwise only database-level
+      description remains. Lack of trial authorization or core semantics allows only
+      original-endpoint reproduction or audit. Stronger novelty assertions require
+      updated systematic, citation, patent, and non-English-database checks. These are
+      object-specific contingencies, not general permission to relax a failed gate.
+    required_revised_disposition: retained_same_contingencies_and_consequences
+
+  - protected_id: PCR-039
+    category: claims_and_evidence_status
+    source_locator: "Title, summary, audience, and positioning; Structured abstract"
+    source_context_locator: null
+    protected_content: >-
+      The title and summary describe a candidate representation and planned
+      cross-database testing. Outputs are planned, not completed: executable labels and
+      clocks, cohorts and mutually exclusive states, simulation and misspecification
+      checks, two primary tasks, two secondary diagnostics, untouched external results,
+      and object-level negative/failure records. The contribution is conditional
+      integration, validation, reusable benchmark or research resource, and auditable
+      governance, not a new algorithm. Trial analyses are subordinate extensions only
+      after the main study meets criteria.
+    required_revised_disposition: retained_same_strength_and_planned_status
+
+  - protected_id: PCR-040
+    category: claims_and_evidence_status
+    source_locator: "Contribution, innovation, impact, application, and closest-work comparison > Contribution and evidence ladder"
+    source_context_locator: null
+    protected_content: >-
+      Claims rise only with evidence: traceable data require the dual-database audit,
+      role table, and leakage checks; state reconstruction and task evidence require
+      absolute simulation recovery, both primary tasks, both secondary diagnostics,
+      and calibration; cross-database state/structure stability requires frozen,
+      hospital-primary no-update testing with adaptation separated, alignment, and
+      negative results; trial evidence supports only a within-trial difference in its
+      actual-visit ordered outcome; causal mechanism, control, and clinical application
+      require evidence absent from this plan.
+    required_revised_disposition: retained_same_claim_strength_by_evidence_level
+
+  - protected_id: PCR-041
+    category: claims_and_evidence_status
+    source_locator: "Contribution, innovation, impact, application, and closest-work comparison > Verified representative closest-work comparison"
+    source_context_locator: null
+    protected_content: >-
+      Multistate trajectories, dynamic phenotypes, intervention-conditional transitions,
+      organ-interaction graphs, digital-twin prototypes, model-predictive control,
+      reinforcement learning, cross-database validation, and trial secondary analyses
+      all have precedents. The bounded search through 2026-07-17 gives high confidence
+      that components have precedents but only low-to-moderate confidence that it did
+      not identify the complete combination. The defensible position is a conditional
+      evidence-integration and validation increment, not algorithmic novelty, global
+      first, or proof of absence of prior work.
+    required_revised_disposition: retained_same_strength_and_uncertainty
+
+  - protected_id: PCR-042
+    category: claims_and_evidence_status
+    source_locator: "Expected outputs, falsification criteria, and interpretations > Interpretation matrix"
+    source_context_locator: null
+    protected_content: >-
+      Useful simple baselines plus failed complex recovery support only a multistate or
+      prediction benchmark, not identified complex structure. Simulation recovery plus
+      failed no-update testing supports recoverability in development and prespecified
+      generators with inadequate cross-database applicability, not a common system.
+      Improved limited adaptation does not establish natural robustness. Successful
+      primary tasks do not validate unsupported states or edges. A trial ordered-outcome
+      difference under an eligible mapping does not randomize-validate latent dynamics,
+      transition edges, or the whole model; an independent SOFA difference says nothing
+      about perturbing the stage-II representation. Even full stage-II conjunction
+      establishes only audited, simulated, task, and untouched cross-database support,
+      not treatment causality or clinical effectiveness.
+    required_revised_disposition: retained_same_failure_interpretations_and_claim_bounds
+
+  - protected_id: PCR-043
+    category: claims_and_evidence_status
+    source_locator: "Research design and methods > 试验观察映射和独立分析; Evidence chain: 有前置条件的随机试验次要分析"
+    source_context_locator: null
+    protected_content: >-
+      Trial results are separately reported secondary actual-visit results, or a record
+      explaining why no new visit analysis was done. They do not count toward stage-II
+      success, cannot replace stage-I/II data, reconstruction, main tasks, or external
+      evidence, and do not yield a pooled effect or common mechanism. Random allocation
+      permits interpretation only as a difference in the prespecified within-trial
+      ordered visit outcome under verified semantics and analysis conditions.
+    required_revised_disposition: retained_same_strength_and_conditional_status
+
+  - protected_id: PCR-044
+    category: assumptions_and_limitations
+    source_locator: "Feasibility, resources, risks, alternatives, and stop conditions > Working assumptions > continuous latent-state recovery row"
+    source_context_locator: null
+    protected_content:
+      working_assumption: >-
+        The continuous branch uses the dossier's unique fixed definition: compare true
+        continuous latent states and posterior means on the same prespecified
+        patient-time points; take the minimum unsquared nonnegative canonical
+        correlation across all true dimensions per repeat; record zero for dimension
+        mismatch, rank deficiency, or fixed-algorithm failure to return every
+        correlation; and pass a scenario only when the lower bound of the two-sided 95%
+        normal-approximation interval for the repeat mean is at least 0.80.
+      owner: >-
+        System identification lead confirms the definition; longitudinal statistics
+        lead independently verifies evaluation points, dimension and rank handling,
+        and repeat- and scenario-level code.
+      deadline: >-
+        Before the first simulation fit and before viewing any recovery result, no
+        later than the month-7 simulation protocol and code freeze.
+      consequence_if_false_or_unconfirmed: >-
+        The complex candidate cannot advance on continuous-state recovery; only the
+        prespecified linear, multistate, or prediction-only route remains. If the
+        definition changes after results become visible, the existing recovery
+        conclusion is invalid and a result-blinded redesign must receive new
+        independent methodology review.
+      affected_component: >-
+        Continuous latent-state recovery and complex-candidate admission; the
+        prespecified simpler route is unaffected.
+    required_revised_disposition: retained_same_assumption_owner_deadline_and_consequence
+
+  - protected_id: PCR-045
+    category: assumptions_and_limitations
+    source_locator: "Feasibility, resources, risks, alternatives, and stop conditions > Working assumptions > trial probability-index row"
+    source_context_locator: null
+    protected_content:
+      working_assumption: >-
+        Each trial that meets its start conditions uniquely uses the dossier-defined
+        stratified standardized probability index for the new ordered visit outcome,
+        gives each arm half credit for ties, uses verified original randomization
+        center or strata and pooled-arm stratum weights from the target analysis set,
+        fixes the favorable direction, and permits other quantities only as
+        prespecified secondary or sensitivity analyses.
+      owner: >-
+        The named statistics lead provides written confirmation and checks the formula,
+        direction, half-credit ties, target analysis set, original randomization center
+        or strata, and pooled-arm weights against original case-report forms, analysis
+        plan, randomization material, and data dictionary.
+      deadline: >-
+        After each trial's core semantics are verified and before treatment labels are
+        used for any between-arm outcome calculation and before analysis-plan and code
+        freeze.
+      consequence_if_false_or_unconfirmed: >-
+        Stop the affected trial's new primary ordered visit-outcome comparison; do not
+        substitute post hoc strata or another primary estimand. Retain only original
+        endpoint reproduction or data audit. Main stages I-II are unaffected.
+      affected_component: >-
+        Conditional randomized-trial new ordered visit-outcome primary comparison;
+        not the main stages I-II.
+    required_revised_disposition: retained_same_assumption_owner_deadline_and_consequence
+
+  - protected_id: PCR-046
+    category: assumptions_and_limitations
+    source_locator: "Feasibility, resources, risks, alternatives, and stop conditions > Working assumptions > clinical-scale-to-simulation mapping row"
+    source_context_locator: null
+    protected_content: >-
+      The mapping from clinical scale to simulation parameters remains to be fixed by
+      month 7 from clinically tolerable ranges, the development-database audit, and
+      pilot simulation without external results. Prespecified generators, recovery
+      objects, absolute state/edge criteria, and exclusion of final external-test
+      results are fixed. If unresolved, do not start dependent absolute recovery and
+      do not advance the complex candidate.
+    required_revised_disposition: retained_same_assumption_and_consequence
+
+  - protected_id: PCR-047
+    category: assumptions_and_limitations
+    source_locator: "Feasibility, resources, risks, alternatives, and stop conditions > Working assumptions > multicategory-calibration row"
+    source_context_locator: null
+    protected_content: >-
+      The exact multicategory calibration estimator, confidence-bound computation, and
+      threshold registration format remain to be fixed by month 6 using clinical
+      tolerance, development-database bootstrap, and pilot simulation without external
+      results. The two primary tasks, Brier-family scores, calibration slope 0.80-1.20,
+      absolute-risk error at most 0.02, and rule that thresholds may tighten but not
+      relax are fixed. If unresolved, do not declare conjunctive stage-II success and
+      do not authorize final external-test analysis.
+    required_revised_disposition: retained_same_assumption_and_consequence
+
+  - protected_id: PCR-048
+    category: assumptions_and_limitations
+    source_locator: "Feasibility, resources, risks, alternatives, and stop conditions > Limitations and boundary conditions > 1. Resources, access, and team status"
+    source_context_locator: null
+    protected_content: >-
+      Database existence and version do not establish team access, agreements, or an
+      executable extract; planned roles do not establish named commitments; actual
+      dual-database samples, events, transitions, hospitals, cross-hospital patients,
+      common physiological anchors, and interface support remain unaudited. Official
+      database scale cannot replace project-specific counts.
+    required_revised_disposition: retained_once_at_authority_location
+
+  - protected_id: PCR-049
+    category: assumptions_and_limitations
+    source_locator: "Feasibility, resources, risks, alternatives, and stop conditions > Limitations and boundary conditions > 2. Labels, clocks, and leakage"
+    source_context_locator: null
+    protected_content: >-
+      Sepsis-3 has no unique EHR onset time; infection pairing, SOFA baseline,
+      observation window, and availability time alter labels. Timestamp quality,
+      dual-use variables, measurement frequency, repeated admissions, and cross-split
+      processing can leak information. Results enter the evidence chain only with no
+      unresolved high-severity leakage.
+    required_revised_disposition: retained_once_at_authority_location
+
+  - protected_id: PCR-050
+    category: assumptions_and_limitations
+    source_locator: "Feasibility, resources, risks, alternatives, and stop conditions > Limitations and boundary conditions > 3. State recoverability and structural scope"
+    source_context_locator: null
+    protected_content: >-
+      Recoverable invariants exist only under allowed reparameterizations and
+      prespecified generators; simulation coverage is not real-system identification.
+      Prediction cannot replace state/edge recovery, seed alignment, bootstrap
+      retention, external sign agreement, state alignment, or interval calibration.
+      Failed states or edges must be deleted, merged, or qualified as database- or
+      care-policy-specific.
+    required_revised_disposition: retained_once_at_authority_location
+
+  - protected_id: PCR-051
+    category: assumptions_and_limitations
+    source_locator: "Feasibility, resources, risks, alternatives, and stop conditions > Limitations and boundary conditions > 4. Nonrandom missingness and low action overlap"
+    source_context_locator: null
+    protected_content: >-
+      Explicit measurement models, pattern-mixture shifts, selection-model tipping
+      points, and negative controls examine only part of missingness sensitivity and do
+      not identify unmeasured physiology. Low action overlap or low effective sample
+      size supports only care-policy-specific association, not treatment-effect
+      estimation.
+    required_revised_disposition: retained_once_at_authority_location
+
+  - protected_id: PCR-052
+    category: assumptions_and_limitations
+    source_locator: "Feasibility, resources, risks, alternatives, and stop conditions > Limitations and boundary conditions > 5. Cross-database evidence"
+    source_context_locator: null
+    protected_content: >-
+      The second database differs by center, era, sampling, and interface, and
+      hospital-wide interface absence can mimic patient-level missingness. The frozen
+      no-update test is primary external evidence; calibration-only and observation-
+      layer-only adaptation describe adapted performance, and full refitting is
+      development. Adaptation cannot alter a failed no-update conclusion.
+    required_revised_disposition: retained_once_at_authority_location
+
+  - protected_id: PCR-053
+    category: assumptions_and_limitations
+    source_locator: "Feasibility, resources, risks, alternatives, and stop conditions > Limitations and boundary conditions > 6. Time and delivery boundary"
+    source_context_locator: null
+    protected_content: >-
+      Stages I-II must complete within 24 months. Missing month-12, month-20, or
+      month-24 milestones respectively limits the complex candidate, access to final
+      external testing, or completion of the stage-II minimum. Stage III is outside the
+      minimum, and no later trial result can repair missing stage-I/II resources,
+      simulation reconstruction, primary tasks, or cross-database evidence.
+    required_revised_disposition: retained_once_at_authority_location
+
+  - protected_id: PCR-054
+    category: assumptions_and_limitations
+    source_locator: "Feasibility, resources, risks, alternatives, and stop conditions > Limitations and boundary conditions > 7. Trial data and semantics"
+    source_context_locator: null
+    protected_content: >-
+      EXIT-SEP and XBJ-SCAP are only conditionally potential individual-data sources.
+      Local derivative reports cannot replace permission, original case-report forms,
+      statistical analysis plans, or verification of randomization, centers, visit
+      timing, and survival/hospital status. Sparse visits, different populations, and
+      different fields do not support pseudo-continuous trajectories or pooled effects.
+    required_revised_disposition: retained_once_at_authority_location
+
+  - protected_id: PCR-055
+    category: assumptions_and_limitations
+    source_locator: "Feasibility, resources, risks, alternatives, and stop conditions > Limitations and boundary conditions > 8. Common physiological anchor variables and observation mapping"
+    source_context_locator: null
+    protected_content: >-
+      WBC and CRP are candidate rather than established common physiological anchors;
+      D-dimer units remain unverified. Common anchors, units, time invariance, and
+      external fidelity have no results. The mapping branch interprets only the actual
+      visit outcome ordered by death, one-dimensional observable proxy, and alive
+      discharge; the independent SOFA ordered clinical-state endpoint is unrelated to
+      the stage-II representation.
+    required_revised_disposition: retained_once_at_authority_location
+
+  - protected_id: PCR-056
+    category: assumptions_and_limitations
+    source_locator: "Feasibility, resources, risks, alternatives, and stop conditions > Limitations and boundary conditions > 9. Closest-work uncertainty"
+    source_context_locator: null
+    protected_content: >-
+      The representative search is not a systematic review and does not exhaust
+      citation networks, patents, Chinese-language databases, Scopus, Web of Science,
+      Embase, or all registries; preprints and terminology alter coverage. The complete
+      combination gap therefore has only low-to-moderate confidence, and component
+      precedents exist.
+    required_revised_disposition: retained_once_at_authority_location
+
+  - protected_id: PCR-057
+    category: assumptions_and_limitations
+    source_locator: "Feasibility, resources, risks, alternatives, and stop conditions > Limitations and boundary conditions > 10. Regulatory applicability"
+    source_context_locator: null
+    protected_content: >-
+      The 2026 Surviving Sepsis Campaign remains cautious about XueBiJing use where it
+      lacks local regulatory approval; conditional trial secondary analyses therefore
+      cannot support unconditional international clinical promotion.
+    required_revised_disposition: retained_once_at_authority_location
+
+  - protected_id: PCR-058
+    category: assumptions_and_limitations
+    source_locator: "Feasibility, resources, risks, alternatives, and stop conditions > Limitations and boundary conditions > 11. Complete prohibited claims"
+    source_context_locator: null
+    protected_content: >-
+      Observational data and prediction do not support real causal networks, treatment
+      causal effects, counterfactual policies, mechanisms, mediation, control, or
+      digital-twin claims. Trial secondary analyses cannot validate unmeasured latent
+      dynamics, transition edges, structure outside the measurement model, or the whole
+      stage-II system. The plan is not a validated model, clinical decision tool, drug
+      platform, or unconditional promotion basis; discordant or imprecise trials cannot
+      be repaired by selecting subgroups.
+    required_revised_disposition: retained_once_at_authority_location
+
+  - protected_id: PCR-059
+    category: assumptions_and_limitations
+    source_locator: "Research content and work packages > 24 个月最低交付与时间节点"
+    source_context_locator: null
+    protected_content: >-
+      Named-role signatures in the milestone table specify needed responsibilities and
+      are not evidence of current personnel commitments. Final external test data remain
+      inaccessible to developers until the independent custodian signs the month-18-20
+      freeze record. No external-result-driven modification is allowed after month 20.
+    required_revised_disposition: retained_same_limitation_and_governance_boundary
+
+  - protected_id: PCR-060
+    category: assumptions_and_limitations
+    source_locator: "Feasibility, resources, risks, alternatives, and stop conditions > Working assumptions > closing qualification"
+    source_context_locator: null
+    protected_content: >-
+      Event-per-parameter screening minima are design screens and do not replace
+      empirical effective sample size, simulation stability, or clustered uncertainty.
+      All methods proceed only if unresolved specifications are fixed at their stated
+      times from their stated information; otherwise their explicit consequences apply
+      and missing numerical choices are not invented after the fact.
+    required_revised_disposition: retained_same_assumption_boundary
+
+  - protected_id: PCR-061
+    category: unsupported_claim_classes
+    source_locator: "Feasibility, resources, risks, alternatives, and stop conditions > Limitations and boundary conditions > 11. Complete prohibited claims"
+    source_context_locator: null
+    protected_content: >-
+      Prohibited claim classes are a real causal network, treatment causal effect,
+      counterfactual treatment policy, mechanism, mediation, control, or digital twin
+      derived from the observational representation or prediction performance.
+    required_revised_disposition: retained_explicitly_as_unsupported
+
+  - protected_id: PCR-062
+    category: unsupported_claim_classes
+    source_locator: "Feasibility, resources, risks, alternatives, and stop conditions > Limitations and boundary conditions > 11. Complete prohibited claims; Contribution and evidence ladder"
+    source_context_locator: null
+    protected_content: >-
+      The current plan cannot be described as an already validated model, clinical
+      decision tool, drug platform, proof of clinical effectiveness, or basis for
+      unconditional clinical or international promotion. Causal mechanism, control,
+      and clinical application require additional identification, intervention,
+      prospective safety, utility, and governance evidence not supplied here.
+    required_revised_disposition: retained_explicitly_as_unsupported
+
+  - protected_id: PCR-063
+    category: unsupported_claim_classes
+    source_locator: "Contribution, innovation, impact, application, and closest-work comparison > Verified representative closest-work comparison"
+    source_context_locator: null
+    protected_content: >-
+      The dossier does not support a new-algorithm, global-first, worldwide-absence,
+      first-in-field, or patent-absence claim. A stronger novelty assertion requires a
+      new systematic review, citation-network review, patent search, and non-English
+      database review; the present claim remains conditional integration and
+      validation with low-to-moderate confidence about the full-combination gap.
+    required_revised_disposition: retained_explicitly_as_unsupported
+
+  - protected_id: PCR-064
+    category: unsupported_claim_classes
+    source_locator: "Expected outputs, falsification criteria, and interpretations > Interpretation matrix; Research design and methods > 试验观察映射和独立分析"
+    source_context_locator: null
+    protected_content: >-
+      A randomized-trial visit-outcome difference cannot be claimed to validate latent
+      dynamics, transition edges, the measurement-model-external structure, or the
+      entire stage-II system. Separate trials do not yield a pooled effect or common
+      mechanism, and subgroup selection cannot change the primary interpretation.
+    required_revised_disposition: retained_explicitly_as_unsupported
+permitted_editorial_operations:
+  - replace
+  - define
+  - move
+  - split
+  - merge
+  - delete
+  - reorder
+  - add_bridge
+  - consolidate
+prohibited_changes:
+  - change_study_identity_or_core_question
+  - add_unreviewed_scientific_content
+  - strengthen_claim_or_evidence_status
+  - weaken_assumption_limitation_or_contingency
+  - present_planned_work_as_completed
+  - conceal_feasibility_finding

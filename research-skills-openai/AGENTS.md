@@ -2,6 +2,10 @@
 
 本文件适用于 `research-skills-openai/` 插件子树，并覆盖仓库根目录中冲突的通用规则。
 
+## 输出内容
+
+所有面向研究者和用户的文本使用自然语言和标准科学术语；模型内部工作术语/状态机术语不允许出现在任何面向用户的内容中。
+
 ## 产品边界
 
 - 将插件视为所有者个人维护的 Experimental/Preview 研究工具，服务于 ChatGPT Work 和 Codex。
@@ -21,11 +25,11 @@
 
 ## 产物与人工边界
 
-- 源产物保持不可变；修订、Review 报告和 Delta 分开保存，并包含完整血缘与 Digest 绑定。
+- 源产物保持不可变；修订、Review 报告和 Delta 分开保存，并包含完整血缘。Idea 的 LLM-facing 合同使用 `{artifact_id, version, path}` 逻辑引用，不要求 SHA/Digest；确定性测试可在内部使用哈希观测不可变性。
 - Fatal 或未解决的 Blocking finding 会阻止晋级和 ready 状态。
 - 工作流止于供人类审阅和签字的材料，不向期刊、基金方、仓库或其他外部平台提交。
 - 确定性 Fixture 只能建立 `deterministic_validated`，不能证明真实运行完成。
-- 只有当前版本任务绑定了源码身份、产物、Digest、Reviewer 身份（如适用）、时间戳、结果和所有者确认后，才能记录为 `owner_observed`。
+- 只有当前版本任务绑定了源码身份、产物、Reviewer 身份（如适用）、时间戳、结果和所有者确认后，才能记录为 `owner_observed`。源码、安装、CLI、运行日志及非 Idea 工作流继续绑定 Digest；Idea 产物和 Review 仅绑定逻辑身份、完整索引与当前指针，不要求 Digest。
 
 ## Skill 与发现纪律
 

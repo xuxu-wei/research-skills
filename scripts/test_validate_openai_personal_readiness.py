@@ -57,6 +57,30 @@ def _artifact(path: Path, artifact_id: str, version: str, text: str) -> dict[str
     return {"artifact_id": artifact_id, "version": version, **_file(path, text)}
 
 
+def _strip_artifact_digests(value: Any) -> None:
+    if isinstance(value, dict):
+        if all(field in value for field in ("artifact_id", "version", "path")):
+            value.pop("sha256", None)
+        for child in value.values():
+            _strip_artifact_digests(child)
+    elif isinstance(value, list):
+        for child in value:
+            _strip_artifact_digests(child)
+
+
+def _remove_reviewed_artifact_digest(report: dict[str, Any]) -> None:
+    path = validator.REPO / report["path"]
+    record, errors = validator._load_review_record(path, "idea logical review fixture")
+    assert record is not None and not errors, errors
+    record.pop("reviewed_artifact_digest", None)
+    path.write_text(
+        "---\n"
+        + yaml.safe_dump(record, sort_keys=False, allow_unicode=True)
+        + "---\n\n# Independent review\n\nStructured findings for the frozen reviewed artifact.\n",
+        encoding="utf-8",
+    )
+
+
 def _yaml_artifact(
     path: Path, artifact_id: str, version: str, value: dict[str, Any]
 ) -> dict[str, str]:
@@ -453,13 +477,13 @@ def _standard_workflow(
     source = _artifact(slot / "input" / "source.md", f"source-{slot_id}", "v001", "Frozen source input\n")
     initial = _artifact(
         slot / "artifacts" / "complete-v001.md",
-        f"complete-{slot_id}",
+        "idea-I01-001-v001" if item["workflow"] == "idea" else f"complete-{slot_id}",
         "v001",
         _workflow_document(item["workflow"], slot_id, "v001"),
     )
     revised = _artifact(
         slot / "artifacts" / "complete-v002.md",
-        f"complete-{slot_id}",
+        "idea-I01-001-v002" if item["workflow"] == "idea" else f"complete-{slot_id}",
         "v002",
         _workflow_document(item["workflow"], slot_id, "v002")
         + "\nSubstantive revision incorporated.\n",
@@ -522,6 +546,54 @@ def _standard_workflow(
     final_package = _artifact(slot / "package" / "final-package.md", f"package-{slot_id}", "v001", _complete_document(f"Final {slot_id}", "package"))
     trace = ["drafted", "initial_reviewed", "revised", "fresh_reevaluated", item["expected_outcome"]]
     state = _state(slot, slot_id, item["expected_outcome"], trace)
+    current_pointer = None
+    idea_index = None
+    if item["workflow"] == "idea":
+        revised_frontmatter, frontmatter_errors = validator._load_markdown_frontmatter(
+            validator.REPO / revised["path"], "idea revised dossier fixture"
+        )
+        assert revised_frontmatter is not None and not frontmatter_errors, frontmatter_errors
+        current_pointer = _yaml_artifact(
+            slot / "state" / "node.yaml",
+            f"node-{slot_id}",
+            "v002",
+            {
+                "schema_version": "research-idea.v3",
+                "idea_id": revised_frontmatter["idea_id"],
+                "current_dossier_id": revised["artifact_id"],
+                "current_version": revised["version"],
+                "current_path": revised["path"],
+                "identity_anchor": revised_frontmatter["identity_anchor"],
+                "identity_status": "preserved",
+                "qualifying_evaluation_ref": {
+                    field: evaluation2[field]
+                    for field in ("artifact_id", "version", "path")
+                },
+            },
+        )
+        idea_index = _yaml_artifact(
+            slot / "state" / "idea-index-v002.yaml",
+            f"idea-index-{slot_id}",
+            "v002",
+            {
+                "idea_index": {
+                    "schema_version": "research-idea.v3",
+                    "artifact_id": f"idea-index-{slot_id}",
+                    "workflow_id": slot_id,
+                    "frozen": True,
+                    "ideas": [
+                        {
+                            "idea_id": revised_frontmatter["idea_id"],
+                            "dossier_id": revised["artifact_id"],
+                            "dossier_version": revised["version"],
+                            "dossier_path": revised["path"],
+                            "node_path": current_pointer["path"],
+                            "status": item["expected_outcome"],
+                        }
+                    ],
+                }
+            },
+        )
 
     generator = _actor(slot_id, "generator", "generator", [source["path"]], [initial["path"]])
     reviser = _actor(
@@ -562,6 +634,7 @@ def _standard_workflow(
         [
             *([compositor_report["path"]] if compositor_report else []),
             final_package["path"],
+            *([idea_index["path"], current_pointer["path"]] if idea_index and current_pointer else []),
             state["path"],
         ],
         skill=compositor_skill,
@@ -580,6 +653,7 @@ def _standard_workflow(
         supporting,
         *([compositor_report] if compositor_report else []),
         final_package,
+        *([idea_index, current_pointer] if idea_index and current_pointer else []),
         state,
     ]
     evidence = {
@@ -597,6 +671,14 @@ def _standard_workflow(
         ],
         "state_artifact": state,
         "compositor_verification_artifact": compositor_report,
+        **(
+            {
+                "idea_index_artifact": idea_index,
+                "current_pointer_artifact": current_pointer,
+            }
+            if idea_index and current_pointer
+            else {}
+        ),
         "status_trace": trace,
         "terminal_state": item["expected_outcome"],
         "generator_actor_ids": [generator["actor_id"], reviser["actor_id"]],
@@ -612,6 +694,10 @@ def _standard_workflow(
         "fresh_evaluation_rounds": 2,
         "polisher_matrix": None,
     }
+    if item["workflow"] == "idea":
+        for report in (evaluation1, evaluation2, panel1, panel2, supporting):
+            _remove_reviewed_artifact_digest(report)
+        _strip_artifact_digests([source, outputs, evidence])
     return actors, [source], {"outputs": outputs, "evidence": evidence}
 
 
@@ -1080,8 +1166,8 @@ def _build_receipts(base: Path, plugin_version: str) -> dict[str, Any]:
                 {
                     "plugin_version": plugin_version,
                     "installed_enabled": True,
-                    "skill_count": 49,
-                    "independent_reviewer_count": 20,
+                    "skill_count": 50,
+                    "independent_reviewer_count": 21,
                     "declared_entries": sorted(validator.EXPECTED_DECLARED),
                     "implicit_entries": sorted(validator.EXPECTED_IMPLICIT),
                     "explicit_only_entries": ["research-polisher-orchestrator"],
@@ -1327,6 +1413,7 @@ def _assert_review_record_rejected(
             receipts_path,
             name,
             mutate,
+            preserve={slot_id},
             expected_error=expected_error,
         )
     finally:
@@ -1371,11 +1458,52 @@ def _assert_version_document_rejected(
             receipts_path,
             name,
             mutate,
+            preserve={slot_id},
             expected_error=expected_error,
         )
     finally:
         for path, content in originals.items():
             path.write_bytes(content)
+
+
+def _assert_idea_state_artifact_rejected(
+    baseline: dict[str, Any],
+    plugin_version: str,
+    receipts_path: Path,
+    field: str,
+    name: str,
+    mutate_record: Callable[[dict[str, Any]], None],
+    expected_error: str,
+) -> None:
+    original: bytes | None = None
+    artifact_path: Path | None = None
+
+    def mutate(candidate: dict[str, Any]) -> None:
+        nonlocal original, artifact_path
+        item = _slot(candidate, "personal-idea-happy")
+        artifact = item["binding"]["workflow_evidence"][field]
+        artifact_path = validator.REPO / artifact["path"]
+        original = artifact_path.read_bytes()
+        record = validator.load_yaml(artifact_path)
+        mutate_record(record)
+        artifact_path.write_text(
+            yaml.safe_dump(record, sort_keys=False, allow_unicode=True),
+            encoding="utf-8",
+        )
+
+    try:
+        _assert_rejected(
+            baseline,
+            plugin_version,
+            receipts_path,
+            name,
+            mutate,
+            preserve={"personal-idea-happy"},
+            expected_error=expected_error,
+        )
+    finally:
+        if original is not None and artifact_path is not None:
+            artifact_path.write_bytes(original)
 
 
 def _without_h2(text: str, heading: str) -> str:
@@ -1643,15 +1771,82 @@ def main() -> int:
             assert not ready_errors, "\n".join(ready_errors)
             assert ready["status"] == "owner_observed_ready"
             assert ready["owner_observed_slot_count"] == 13
-            initial_report = _slot(baseline, "personal-idea-happy")["binding"][
-                "workflow_evidence"
-            ]["evaluation_artifacts"][0]
+            idea_item = _slot(baseline, "personal-idea-happy")
+            idea_binding = idea_item["binding"]
+            idea_evidence = idea_binding["workflow_evidence"]
+            assert all(
+                "sha256" not in artifact
+                for artifact in idea_binding["artifact_bindings"]
+            )
+            assert all(
+                "sha256" not in artifact
+                for field in (
+                    "source_inputs_before",
+                    "source_inputs_after",
+                    "frozen_review_inputs",
+                    "version_artifacts",
+                    "evaluation_artifacts",
+                    "panel_or_compositor_artifacts",
+                )
+                for artifact in idea_evidence[field]
+            )
+            idea_run_index = validator.load_yaml(
+                validator.REPO / idea_binding["runtime_evidence"]["run_index"]["path"]
+            )
+            assert all(
+                "sha256" not in artifact
+                for group in ("input_bindings", "output_bindings")
+                for artifact in idea_run_index[group]
+            )
+            initial_report = idea_evidence["evaluation_artifacts"][0]
             initial_record, initial_errors = validator._load_review_record(
                 validator.REPO / initial_report["path"], "historical-positive"
             )
             assert not initial_errors and initial_record is not None
+            assert "reviewed_artifact_digest" not in initial_record
             assert initial_record["review_stage"] == "initial_evaluator"
             assert initial_record["blocking_findings"] and initial_record["decision"] == "revise"
+
+            legacy_candidate = copy.deepcopy(baseline)
+            legacy_idea = _slot(legacy_candidate, "personal-idea-happy")
+            legacy_idea["binding"]["workflow_evidence"]["version_artifacts"][0][
+                "sha256"
+            ] = "0" * 64
+            legacy_report = legacy_idea["binding"]["workflow_evidence"][
+                "evaluation_artifacts"
+            ][-1]
+            legacy_report_path = validator.REPO / legacy_report["path"]
+            legacy_report_bytes = legacy_report_path.read_bytes()
+            try:
+                legacy_record, legacy_errors = validator._load_review_record(
+                    legacy_report_path, "legacy Idea logical review"
+                )
+                assert legacy_record is not None and not legacy_errors, legacy_errors
+                legacy_record["reviewed_artifact_digest"] = "0" * 64
+                legacy_report_path.write_text(
+                    "---\n"
+                    + yaml.safe_dump(legacy_record, sort_keys=False, allow_unicode=True)
+                    + "---\n\n# Independent review\n\nLegacy digest compatibility fixture.\n",
+                    encoding="utf-8",
+                )
+                legacy_schema_errors = validator._schema_errors(
+                    legacy_candidate,
+                    validator.load_yaml(validator.SCHEMA),
+                    "legacy Idea receipts",
+                )
+                assert not legacy_schema_errors, "\n".join(legacy_schema_errors)
+                legacy_run_index = validator.load_yaml(
+                    validator.REPO
+                    / legacy_idea["binding"]["runtime_evidence"]["run_index"]["path"]
+                )
+                legacy_validation_errors = validator._validate_workflow_evidence(
+                    legacy_idea,
+                    validator.REPO,
+                    legacy_run_index,
+                )
+                assert not legacy_validation_errors, "\n".join(legacy_validation_errors)
+            finally:
+                legacy_report_path.write_bytes(legacy_report_bytes)
             _assert_review_stage_routes_independently_of_role(
                 baseline, plugin_version, receipts_path
             )
@@ -1791,8 +1986,8 @@ def main() -> int:
                     "initial assembler did not read all strategist reports",
                 ),
                 (
-                    "wrong artifact hash",
-                    lambda value: _slot(value, "personal-idea-happy")["binding"]["workflow_evidence"]["version_artifacts"][0].update({"sha256": "0" * 64}),
+                    "wrong non-Idea artifact hash",
+                    lambda value: _slot(value, "personal-proposal-happy")["binding"]["workflow_evidence"]["version_artifacts"][0].update({"sha256": "0" * 64}),
                     None,
                     "SHA-256 does not match file bytes",
                 ),
@@ -1875,8 +2070,8 @@ def main() -> int:
                     "artifact identity aliases multiple normalized paths",
                 ),
                 (
-                    "source input changed",
-                    lambda value: _slot(value, "personal-idea-happy")["binding"]["workflow_evidence"]["source_inputs_after"][0].update({"sha256": "1" * 64}),
+                    "non-Idea source input changed",
+                    lambda value: _slot(value, "personal-proposal-happy")["binding"]["workflow_evidence"]["source_inputs_after"][0].update({"sha256": "1" * 64}),
                     None,
                     "source input 0 changed during the workflow",
                 ),
@@ -2015,6 +2210,48 @@ def main() -> int:
                 lambda text: _replace_h2_body(text, "Methods", "x"),
                 "proposal section is empty or placeholder: Methods",
             )
+            _assert_version_document_rejected(
+                baseline,
+                plugin_version,
+                receipts_path,
+                "personal-idea-happy",
+                "Idea dossier is not frozen",
+                lambda text: text.replace("frozen: true", "frozen: false", 1),
+                "dossier is not frozen",
+            )
+            _assert_version_document_rejected(
+                baseline,
+                plugin_version,
+                receipts_path,
+                "personal-idea-happy",
+                "Idea dossier frontmatter identity mismatch",
+                lambda text: text.replace(
+                    "artifact_id: idea-I01-001-v002",
+                    "artifact_id: idea-I01-001-wrong",
+                    1,
+                ),
+                "frontmatter artifact_id differs from the logical binding",
+            )
+            _assert_idea_state_artifact_rejected(
+                baseline,
+                plugin_version,
+                receipts_path,
+                "current_pointer_artifact",
+                "Idea current pointer is stale",
+                lambda record: record.update({"current_path": "stale/dossier.md"}),
+                "current pointer current_path differs from the revised dossier",
+            )
+            _assert_idea_state_artifact_rejected(
+                baseline,
+                plugin_version,
+                receipts_path,
+                "idea_index_artifact",
+                "Idea index disagrees with current pointer",
+                lambda record: record["idea_index"]["ideas"][0].update(
+                    {"dossier_version": "v999"}
+                ),
+                "Idea index dossier_version differs from the current pointer",
+            )
 
             _assert_run_index_rejected(
                 baseline,
@@ -2129,9 +2366,10 @@ def main() -> int:
                 baseline,
                 plugin_version,
                 receipts_path,
-                "reviewed digest mismatch",
+                "non-Idea reviewed digest mismatch",
                 lambda record: record.update({"reviewed_artifact_digest": "0" * 64}),
                 "reviewed artifact digest differs from the frozen input",
+                slot_id="personal-proposal-happy",
             )
             _assert_review_record_rejected(
                 baseline,

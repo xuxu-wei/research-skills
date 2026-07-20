@@ -3,6 +3,22 @@
 ```yaml
 opportunity_map:
   schema_version: research-idea.v3
+  scientific_gap:
+    unanswered_problem:
+    missing_knowledge_or_evidence:
+    consequence:
+    supporting_sources: []
+  novelty_positioning:
+    closest_work: []
+    overlap:
+    differentiation:
+    novelty_risk: low | medium | high | unverified
+  reader_reasoning_handoff:
+    background:
+    current_state:
+    gap:
+    significance:
+    rationale:
   opportunities:
     - opportunity_id: O1
       title:
@@ -24,5 +40,10 @@ opportunity_map:
 ```
 
 Every ID must have a readable title/label and resolve to evidence or be marked
-`not_verified`. Populate `idea_direction_evidence` only for an Idea workflow;
-follow `idea-direction-routing-signals.md`. Do not write a research Idea.
+`not_verified`. `scientific_gap` states the unanswered problem and missing
+knowledge/evidence; `novelty_positioning` separately compares the direction
+with its closest work. Neither may substitute for the other. For Idea work,
+populate every `reader_reasoning_handoff` function from mapped evidence or mark
+the unresolved link explicitly. Populate `idea_direction_evidence` only for an
+Idea workflow; follow `idea-direction-routing-signals.md`. Do not write a
+research Idea or a terminology verdict.

@@ -1,0 +1,137 @@
+schema_version: idea-language-terminology-forward-results.v1
+review_id: language-terminology-r001
+reviewer_skill: academic-language-assessor
+reviewer_instance_id: terminology-forward-r001-fresh
+isolation_mode: fresh_subagent
+prior_scores_visible: false
+source_edits_performed: false
+assessment_scope: >-
+  对六个相互独立的中文片段进行聚焦术语与读者可理解性判断；不评价科学方法、
+  研究价值、可行性或论证质量。
+files_read:
+  - research-skills-openai/skills/academic-language-assessor/SKILL.md
+  - research-skills-openai/skills/academic-language-assessor/references/terminology-review.md
+  - research-skills-openai/skills/academic-language-assessor/references/language-assessment-rubric.md
+  - research-skills-openai/skills/academic-language-assessor/references/language-hard-gates.md
+  - research-skills-openai/skills/academic-language-assessor/references/chinese-academic-language-conventions.md
+  - tests/idea-narrative-forward-0.9.0-preview.3/terminology/inputs/cases.yaml
+scope_limitations:
+  - 仅使用测试输入所附证据，未检索外部资料。
+  - 每例单独判断，不建立跨案例或全项目术语表。
+results:
+  - case_id: TERM-FWD-001
+    decision: pass
+    term_status: domain_standard
+    reader_effect: >-
+      “危险比”、英文全称与缩写 HR 的对应关系清楚，目标读者无需额外解释即可
+      识别该效应量。
+    action: >-
+      保留现有首次出现形式，后文统一使用“危险比”或已定义的缩写 HR。
+    replacement_or_definition: null
+    evidence_reason: >-
+      输入明确说明该术语及缩写符合生存分析在临床流行病学和生物统计学中的
+      标准用法；片段也已在首次出现时给出中英文名称与缩写。
+    acceptance_test: >-
+      首次出现仍为“危险比（hazard ratio，HR）”，后文 HR 均指同一效应量，
+      且不换用会改变含义的中文名称。
+
+  - case_id: TERM-FWD-002
+    decision: repair
+    term_status: nonstandard_or_misleading
+    reader_effect: >-
+      将同一个以人时发生率为基础的 IRR 改称“风险比”，会使读者误以为结果
+      指向另一种效应量，并对分子、分母及估计目标产生歧义。
+    action: >-
+      将结果部分指代该 IRR 的“风险比”统一改为“发生率比”，保留已定义的
+      英文名称和缩写；若另有风险比，则须作为不同效应量单独定义。
+    replacement_or_definition: >-
+      发生率比（incidence rate ratio，IRR）：两个发生率之比；此处发生率的
+      分母为人时。
+    evidence_reason: >-
+      输入说明定义、分母和缩写始终对应 incidence rate ratio，且没有科学理由
+      支持更换中文名称。因此，“风险比”不是可接受的同义变体，而是对同一核心
+      效应量的误导性命名。
+    acceptance_test: >-
+      全文逐处核对该估计量：凡定义与分母仍为人时发生率且缩写为 IRR，均使用
+      “发生率比”；“风险比”仅在明确指代并另行定义 risk ratio 时出现。
+
+  - case_id: TERM-FWD-003
+    decision: repair
+    term_status: cross_disciplinary_standard
+    reader_effect: >-
+      “可观测性”虽是控制与系统理论的标准术语，但目标读者不被假定具备该领域
+      背景；把解释延至方法后半部分，会使读者在摘要中无法立即理解核心设计关系。
+    action: >-
+      保留术语，但在摘要首次出现的同一句中给出直接、非循环的解释；后文统一
+      使用同一中文名称和英文对应词。
+    replacement_or_definition: >-
+      系统的可观测性（observability），即能否根据现有测量推断或恢复系统的
+      内部状态。
+    evidence_reason: >-
+      输入确认 observability 在控制与系统理论中已有稳定含义，但该知识不属于
+      肿瘤临床医生和临床试验研究者的既定共同背景。问题是定义时机，不是术语
+      本身不标准。
+    acceptance_test: >-
+      未接触控制理论的目标读者只读摘要首次出现句，即可说明“可观测性”在本文
+      指现有测量与内部状态可恢复性之间的关系，无需等到方法部分。
+
+  - case_id: TERM-FWD-004
+    decision: repair
+    term_status: nonstandard_or_misleading
+    reader_effect: >-
+      “证据恒温器”是不能自行说明操作内容的隐喻，标题中的该标签会迫使读者
+      猜测其含义，并可能误认为它是既有方法名称或独立科学概念。
+    action: >-
+      从标题和正文中删除该隐喻标签，改用直接描述预先规定规则的普通学术表述。
+    replacement_or_definition: >-
+      基于预先规定的交叉验证误差选择模型复杂度。
+    evidence_reason: >-
+      输入未提供该隐喻属于领域术语的证据，且它不承担独立定义；所述操作已有
+      准确、简洁的描述性表达，因此没有另造标签的语言必要性。
+    acceptance_test: >-
+      标题和首次摘要表述不再出现“证据恒温器”，目标读者无需借助隐喻即可指出
+      模型复杂度依据预先规定的交叉验证误差进行选择。
+
+  - case_id: TERM-FWD-005
+    decision: pass
+    term_status: necessary_coined_term
+    reader_effect: >-
+      虽然该名称不是既有标准术语，但首次出现即给出的操作定义明确限定了仪器、
+      单位对齐、连续同步采样点、差值阈值及事件持续条件，目标读者可以稳定识别
+      后续所指事件。
+    action: >-
+      保留该名称及其首次出现的完整操作定义，后文保持中英文形式和指代一致；
+      不将其表述为领域标准术语。
+    replacement_or_definition: >-
+      配对来源不一致事件（paired-source discordance episode）：两台已完成单位
+      对齐的独立仪器在至少两个连续同步采样点上的差值均超过预先规定的临床容许
+      误差。
+    evidence_reason: >-
+      输入说明现有标准只提供 agreement 和 measurement error 等上位概念，没有
+      为这一需在方案和分析计划中反复指代的复合事件提供确切名称。该标签未进入
+      标题、首次出现即定义且后续一致，符合保留必要新名称的语言条件。
+    acceptance_test: >-
+      任一后续实例都同时满足首次定义中的全部条件；名称始终一致，首次定义未被
+      删除或延后，且文本不声称该名称已是领域标准术语。
+
+  - case_id: TERM-FWD-006
+    decision: verification_required
+    term_status: unverified_or_disputed
+    reader_effect: >-
+      把“运动韧性指数”置于标题并称为领域标准术语，会使读者把单一团队提出的
+      标签误认为已有跨团队共识，也会掩盖该指标实际是两个量的乘积。
+    action: >-
+      核验该名称是否获得权威指南、共识、受控词表、报告规范、高质量综述或至少
+      两个独立研究团队的支持；在完成核验前，删除“领域标准术语”的表述，并在
+      标题和摘要中使用直接描述性名称及首次定义。
+    replacement_or_definition: >-
+      步速恢复斜率与活动变异度的乘积指标；首次出现时明确给出两个组成量及乘积
+      计算关系。
+    evidence_reason: >-
+      输入只提供同一研究团队的一篇论文。按聚焦术语核验标准，单篇论文不足以
+      证明一个核心标题术语已成为领域标准，且当前没有指南、共识、受控词表、
+      报告规范、综述、第二个独立团队或权威双语映射作为支撑。
+    acceptance_test: >-
+      满足以下任一条件：其一，补充达到上述证据层级且显示独立采用的资料后再称
+      其为标准术语；其二，标题和摘要改用描述性名称，删除标准术语主张，并在
+      首次出现处明确给出计算定义。

@@ -1,0 +1,62 @@
+schema_version: research-idea-narrative-repair-plan.v1
+plan_id: narrative-repair-plan-I01-001-r011
+assessment_id: narrative-assessment-I01-001-r011
+source_artifact:
+  artifact_id: idea-dossier-I01-001-v004
+  version: v004
+  path: tests/idea-narrative-forward-0.9.0-preview.3/one-pass/revised/idea-dossier-v004.md
+decision: major_narrative_revision
+clarifications_required: []
+actions:
+  - action_id: NRP-001
+    addresses_findings:
+      - NAR-001
+    priority: major
+    dossier_locator:
+      section_heading: "Title, summary, audience, and positioning / Structured abstract"
+      subsection_heading: null
+      content_anchor: "One-sentence complete-Idea summary and all six Structured abstract bullets"
+    operation: reorder
+    current_problem: "The opening presents specialized gates, latent-state and observation-model constructs, and external-validation variants before a cross-disciplinary reader has a plain-language map of the study object, two primary tasks, and ordered reason for the design."
+    target_state: "The opening first states the sepsis-centered longitudinal problem, the unresolved evidence gap, why resolving it matters, the two primary clinical tasks, and the ordered stage I–II response; specialized terms appear only after their purpose is established and are defined at first necessary use."
+    required_content_or_function: "Preserve the distinct Background and gap, Objective and hypothesis, Approach, Expected result, and Contribution and impact functions. Within them, order information as problem and current limit, gap, significance, primary question and tasks, audit-to-recovery-to-independent-validation rationale, expected outputs, then downstream conditions. Give a short cross-disciplinary explanation at first use of candidate dynamic system representation, G1 support audit, recoverable invariant, and zero-update external validation."
+    content_to_preserve:
+      - "The full-disease-course study object and patient-time state and transition unit of inference"
+      - "The separation of patient state, treatment action, and measurement process"
+      - "The two primary clinical tasks, the 24-month stage I–II boundary, and all scientific interpretation limits"
+      - "The ordered audit, simulation-recovery, task-evaluation, and independent external-validation logic"
+      - "The conditional nature and scientific boundaries of stage III"
+    content_to_remove_or_move:
+      - "Move threshold-level and branch-level detail that is not needed to interpret the abstract to the existing Research design and methods subsections where it is fully specified"
+      - "Move the detailed distinction among calibration updating, observation-model updating, and trial observation mapping until after zero-update external validation has been explained in ordinary language"
+      - "Replace first-use strings of unexplained specialist labels with short definitions followed by the established labels"
+    destination_if_moved: "Research design and methods, retaining the existing protocol-lock, recovery-gate, cross-database-validation, and conditional trial-projection subsections"
+    dependencies: []
+    acceptance_test: "A reader using only the title, summary, and structured abstract can identify the problem, current evidence limit, unresolved gap, significance, two primary tasks, ordered stage I–II design rationale, expected contribution, and conditional status of stage III without consulting later sections; every retained specialized core term is defined at first use, and no threshold or safeguard is lost from its authoritative methods location."
+  - action_id: NRP-002
+    addresses_findings:
+      - NAR-002
+    priority: major
+    dossier_locator:
+      section_heading: "Title, summary, audience, and positioning through Expected outputs, falsification criteria, and interpretations"
+      subsection_heading: null
+      content_anchor: "All repeated descriptions of the conditional trial-observation mapping and independent SOFA alternative"
+    operation: consolidate
+    current_problem: "The eligibility checks, observation mapping, failure branch, independent SOFA alternative, and non-substitution boundary for stage III are restated across many early, middle, and late sections, causing a downstream extension to compete with the stage I–II core route."
+    target_state: "Stage I–II remains the unmistakable primary narrative. Stage III is introduced briefly as a conditional extension, specified completely once in the trial methods subsection, bounded authoritatively in the limitations section, and mentioned elsewhere only when a required section needs a distinct local function."
+    required_content_or_function: "Retain all 15 required H2 sections and all five required H3 reasoning functions. Keep a concise stage III statement in the title/positioning material, primary question and objectives, dated plan, evidence-chain audit, planned outputs, and Claim-Support audit only to the extent required by each section's contract. Preserve the complete R0/R1, mapping, missingness, multiplicity, alternative-analysis, and stopping specification in the existing conditional trial methods subsection, and preserve authoritative limitations and interpretation boundaries in section 14."
+    content_to_preserve:
+      - "Stage III occurs only after stage II success and outside the 24-month minimum"
+      - "The two trials remain separate and use actual visit data without pseudo-continuous interpolation"
+      - "The complete R0 and R1 eligibility and mapping criteria"
+      - "The mapping-qualified observable-summary branch, independent SOFA alternative, missingness and multiplicity rules, and semantic stop conditions"
+      - "The rule that no stage III result substitutes for any stage II success criterion"
+      - "Distinct evidence-chain traceability and Claim-Support audit functions"
+    content_to_remove_or_move:
+      - "Remove repeated branch mechanics from the complete-Idea summary, abstract, rationale, and other overview passages after each has retained one sentence stating stage III's conditional role"
+      - "Consolidate repeated eligibility, mapping-failure, and independent-SOFA descriptions from dated gates, work-package prose, local-evidence commentary, required-analyses prose, planned outputs, falsification prose, interpretation tables, contribution ladder, closest-work comparison, and claim-support table, retaining only the information unique to each section's function"
+      - "Move any branch detail needed for execution but not unique to those sections into the existing Conditional trial-observation projection and independent alternative analysis subsection"
+    destination_if_moved: "Research design and methods > Conditional trial-observation projection and independent alternative analysis; interpretation limits remain in Feasibility, resources, risks, alternatives, and stop conditions"
+    dependencies:
+      - NRP-001
+    acceptance_test: "A section-by-section audit shows that the dossier's main route can be summarized as stage I–II audit, recovery, primary-task evaluation, and zero-update external validation before stage III is encountered as a downstream extension; the complete trial branch remains executable from its authoritative methods and limitations locations; every other occurrence adds a distinct required function rather than repeating branch mechanics; all required sections, evidence chains, and Claim-Support entries remain present."

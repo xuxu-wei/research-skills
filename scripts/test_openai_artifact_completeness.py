@@ -84,7 +84,7 @@ ALLOWED_CONTRIBUTION_FRAMES = {
     "integration",
     "editorial_repositioning",
 }
-IDEA_CHANGE_TYPES = {"create", "revise", "evidence_claim_sync", "editorial_reposition"}
+IDEA_CHANGE_TYPES = {"create", "revise", "evidence_claim_sync", "editorial_reposition", "editorial_repair"}
 
 
 def read(path: Path) -> str:
@@ -575,7 +575,6 @@ def main() -> int:
             "method_analysis_or_processing",
             "output",
             "supported_objective_or_claim",
-            "limitations_and_failure_conditions",
         ],
         "registry semi-structured evidence-chain fields",
     )
@@ -587,8 +586,14 @@ def main() -> int:
     evaluator_policy = policy.get("idea_evaluator_project_input_contract", {})
     require(evaluator_policy.get("exact_project_artifact_count") == 1, "registry evaluator gets one project artifact")
     require(
-        evaluator_policy.get("allowed_project_artifacts") == ["current_complete_idea_dossier_and_digest"],
+        evaluator_policy.get("allowed_project_artifacts") == ["current_complete_idea_dossier"],
         "registry evaluator only receives current dossier",
+    )
+    require(
+        evaluator_policy.get("logical_binding_fields") == ["artifact_id", "version", "path"]
+        and evaluator_policy.get("content_digest_required") is False
+        and evaluator_policy.get("readiness_reports_visible") is False,
+        "registry evaluator uses isolated logical dossier binding",
     )
     expected_forbidden = {
         "research_context",
@@ -1003,7 +1008,7 @@ def main() -> int:
 
     portfolio = read(PLUGIN / "skills/idea-portfolio-assembler/templates/research-idea-portfolio.md")
     for marker in (
-        "Current dossier / version / SHA-256",
+        "Current dossier artifact ID / version / path",
         "Relative dossier link",
         "Evaluation report link",
         "Reference ledger link",

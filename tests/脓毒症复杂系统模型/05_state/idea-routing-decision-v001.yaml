@@ -1,0 +1,48 @@
+schema_version: research-idea.v3
+plugin_version: "0.10.0"
+artifact_id: idea-routing-decision-v001
+version_id: v001
+workflow_id: sepsis-complex-system-idea-generation-v001
+round_id: round-001
+path: 05_state/idea-routing-decision-v001.yaml
+source_skill: research-idea-orchestrator
+created_by_instance_id: fresh-idea-portfolio-assembler-v001
+based_on:
+  - artifact_id: research-context-brief-v001
+    version: v001
+    path: 01_context/research-context-brief-v001.md
+  - artifact_id: evidence-map-v001
+    version: v001
+    path: 02_evidence/evidence-map-v001.md
+  - artifact_id: opportunity-map-v001
+    version: v001
+    path: 02_evidence/opportunity-map-v001.md
+  - artifact_id: idea-dossier-I01-001-v006
+    version: v006
+    path: 03_ideas/nodes/I01-001/dossiers/idea-dossier-v006.md
+change_type: create
+direction_clarity: clear
+current_direction_value: uncertain
+evidence_confidence: moderate
+distinct_supported_directions:
+  - title: 受约束的跨库脓毒症动态状态模型
+    current_node: I01-001
+    disposition: materialized_current_direction
+  - title: 以可迁移性和标签稳健性为主贡献的公开 ICU 基准
+    current_node: null
+    disposition: not_materialized
+  - title: 冻结动态状态后的随机试验效应修饰分析
+    current_node: null
+    disposition: conditional_follow_up_only
+route: focused_optimization
+route_basis: >-
+  当前持久化链条只有一个完整节点 I01-001，且当前 dossier、独立评价、候选期刊简报与医学期刊审查均绑定同一逻辑引用；因此本决定只记录该现有单节点链条的工作流拓扑，不重新比较、排序或选择机会地图中的方向。
+rationale: >-
+  I01-001 已将当前研究对象限定为一个开发数据库与一个异质外部数据库上的受约束全病程动态状态模型。机会地图对方向价值的 uncertain 判断和 moderate 证据置信度保持不变；focused_optimization 不构成科学价值升级，也不消除未物化方向或条件性后续研究的限制。
+sealed_evaluator_decision: revise_then_promote
+workflow_status: revision_required
+unresolved_issues:
+  - 两个数据库的项目级许可、真实样例字段映射、事件与有效转移信息量尚未实证确认。
+  - 建模前约束表、专家异议记录、五个核心团队角色和计算基准尚未完成。
+  - r007 的四项 minor narrative findings 与八项 minor language findings 仍待负责人决定是否纳入下一版完整 dossier。
+frozen: true

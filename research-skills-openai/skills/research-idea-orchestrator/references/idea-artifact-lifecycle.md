@@ -1,5 +1,9 @@
 # Idea Artifact Lifecycle
 
+## Contents
+
+Layout; dossier and index; node state and identity; review and promotion gates.
+
 Load this contract whenever an Idea is created, revised, reviewed, packaged, or
 resumed. It is the canonical `research-idea.v3` persistence model.
 
@@ -16,8 +20,8 @@ research-idea-projects/<project-slug>/
       node.yaml
       dossiers/idea-dossier-vNNN.md
       references/reference-ledger.md
-      revisions/round-NNN/{revision-plan.md,revision-delta.md}
-      reviews/{preflight-rNNN.md,evaluation-rNNN.md}
+      revisions/round-NNN/{revision-plan.md,revision-delta.md,protected-content-register.yaml,editorial-repair-writer-brief-rNNN.yaml}
+      reviews/{preflight-rNNN.md,narrative-assessment-rNNN.md,narrative-repair-plan-rNNN.yaml,language-assessment-rNNN.md,content-preservation-rNNN.md,evaluation-rNNN.md,candidate-journal-match-rNNN.yaml,medical-journal-review-rNNN.md}
       adversarial/
       handoff/
   04_portfolio/
@@ -36,14 +40,15 @@ research-idea-projects/<project-slug>/
 ## Dossier and index
 
 `dossiers/idea-dossier-vNNN.md` is the sole authoritative Idea body. Follow
-`idea-dossier-contract.md`. Store its SHA-256 in `node.yaml`, the immutable
-`idea-index-vNNN.yaml`, and reviewer briefs; do not embed a file's own digest.
+`idea-dossier-contract.md`. Bind it by artifact ID, version, and exact path in
+`node.yaml`, the immutable `idea-index-vNNN.yaml`, and reviewer briefs. Idea
+workflow contracts do not require or persist a content hash.
 
-The index contains only node ID, current dossier ID/version/path/digest,
+The index contains only node ID, current dossier ID/version/path,
 lineage, route profile, and status. It must not copy dossier prose.
 
 The orchestrator is the sole writer of node, index, ledger, and workflow-state
-metadata. Content writers return proposed entries and digests for validation.
+metadata. Content writers return proposed logical entries for validation.
 
 Every revision writes a complete next dossier plus a separate delta. A patch,
 changed-section list, delta, map, or portfolio is never the current Idea.
@@ -58,7 +63,6 @@ idea_id:
 current_dossier_id:
 current_version:
 current_path:
-current_digest: "sha256:"
 reference_ledger_path: <idea-node>/references/reference-ledger.md
 parent_idea_ids: []
 lineage_id:
@@ -76,21 +80,50 @@ qualifying_evaluation_ref:
 Clarifying or narrowing the same research identity is a revision. Changing only
 the title, target audience, contribution framing, or editorial packaging is not
 identity drift, but it is a substantive dossier change and requires a new
-version plus fresh evaluation. Replacing an identity anchor returns
+version plus fresh readiness review and evaluation. Replacing an identity anchor returns
 `new_idea_required`; do not revise in place or auto-create a child.
 
 ## Review and promotion gates
 
-- Bind each reviewer brief to the exact current dossier ID, version, path, and
-  digest.
+- Bind each reviewer brief to the exact current dossier ID, version, and path.
+- After preflight/scientific revision, run fresh narrative and full-dossier
+  language assessment. If repaired, require a protected-content register,
+  one frozen editorial-repair writer brief, preservation review, and fresh
+  reassessment before evaluation. The writer brief is the writer's sole review
+  interface; the underlying assessment reports and assessor plan remain
+  orchestrator audit inputs.
 - `idea-evaluator` receives exactly that dossier as its only project artifact;
   it receives no map, ledger, preflight, prior version, delta, must-fix list, or
   prior report. The dossier must therefore carry all facts and citations needed
   for evaluation.
 - The orchestrator may compare sealed rounds and deltas only after a fresh
   evaluation returns.
-- A qualifying report records `reviewed_dossier_digest`,
+- A qualifying report records `reviewed_dossier_ref` with artifact ID, version,
+  and path,
   `complete_dossier_confirmed`, and `dossier_only_input_confirmed`.
-- Package by linking the qualifying dossier, not by rewriting it. A digest
-  mismatch, incomplete dossier, identity drift, stale review, or unresolved
+- After the final qualifying evaluation for a current biomedical or clinical
+  dossier, materialize the evaluator's separate post-freeze candidate payload
+  as one orchestrator-owned `candidate-journal-match-rNNN.yaml`. Record
+  `matching_source_skill: idea-evaluator` and `materialized_by_skill:
+  research-idea-orchestrator`; do not repeat or reinterpret the match. It
+  contains unranked candidate outlets and public scope/article-type evidence,
+  but no scores, probabilities, evaluator findings, evaluator decision, or
+  evaluator-report reference. Dispatch a fresh `medical-journal-review` with
+  exactly that brief and the same dossier. Its report records both logical
+  references, lists exactly those two project files in `files_read`, and
+  confirms the evaluator report was unavailable. Neither Idea artifact requires
+  a SHA or content digest.
+- Package by linking the qualifying dossier, not by rewriting it. An invalid
+  logical reference, incomplete dossier, identity drift, stale review, unresolved
+  blocking editorial finding, or unresolved
   blocking finding prevents promotion.
+
+The artifact index is complete only when every registered `{artifact_id,
+version}` pair is unique, every path exists, every `based_on` reference
+resolves, all saved dossier versions and required reviewer outputs are listed,
+every required editorial-repair writer brief is listed, one current pointer
+exists per node, every applicable final current dossier has one current
+candidate journal-match brief and one logical-reference-matched medical review,
+reviewer instances and input versions are recorded, and node/index/manifest
+pointers agree. Legacy digest fields may be
+retained for compatibility but are optional and ignored by Idea readiness.

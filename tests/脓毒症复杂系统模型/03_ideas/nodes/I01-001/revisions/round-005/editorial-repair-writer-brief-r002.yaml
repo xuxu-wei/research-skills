@@ -1,0 +1,249 @@
+schema_version: research-idea-editorial-repair-writer-brief.v1
+brief_id: editorial-repair-writer-brief-I01-001-r002
+workflow_id: sepsis-complex-system-idea-generation-v001
+round_id: r006
+active_plugin_version: "0.10.0"
+role: scientific_writer
+source_artifact:
+  artifact_id: idea-dossier-I01-001-v005
+  version: v005
+  path: 03_ideas/nodes/I01-001/dossiers/idea-dossier-v005.md
+protected_content_register:
+  register_id: protected-content-register-v002
+  version: v002
+  path: 05_state/protected-content-register-v002.yaml
+source_review_binding:
+  narrative_assessment:
+    artifact_id: narrative-assessment-I01-001-r006
+    version: r006
+    path: 03_ideas/nodes/I01-001/reviews/narrative-assessment-r006.md
+  narrative_repair_plan:
+    artifact_id: narrative-repair-plan-I01-001-r006
+    version: r006
+    path: 03_ideas/nodes/I01-001/reviews/narrative-repair-plan-r006.yaml
+  language_assessment:
+    artifact_id: language-assessment-I01-001-r006
+    version: r006
+    path: 03_ideas/nodes/I01-001/reviews/language-assessment-r006.md
+source_review_binding_visibility:
+  purpose: orchestrator_audit_only
+  report_contents_are_writer_inputs: false
+included_repair_item_ids:
+  - LANG-001
+  - LANG-002
+omitted_reported_nonblocking_findings:
+  - finding_id: NAR-001
+    rationale: nonblocking_minor_observation_owner_prioritization
+  - finding_id: NAR-002
+    rationale: nonblocking_minor_observation_owner_prioritization
+  - finding_id: LANG-003
+    rationale: nonblocking_minor_observation_owner_prioritization
+  - finding_id: LANG-004
+    rationale: nonblocking_minor_observation_owner_prioritization
+  - finding_id: LANG-005
+    rationale: nonblocking_minor_observation_owner_prioritization
+  - finding_id: LANG-006
+    rationale: nonblocking_minor_observation_owner_prioritization
+  - finding_id: LANG-007
+    rationale: nonblocking_minor_observation_owner_prioritization
+  - finding_id: LANG-008
+    rationale: nonblocking_minor_observation_owner_prioritization
+  - finding_id: LANG-009
+    rationale: nonblocking_minor_observation_owner_prioritization
+  - finding_id: LANG-010
+    rationale: nonblocking_minor_observation_owner_prioritization
+excluded_nonblocking_repair_items:
+  - repair_item_id: NRP-001
+    addresses_finding_ids: [NAR-001]
+    rationale: nonblocking_minor_observation_owner_prioritization
+    disposition: do_not_repair_reproduce_or_add_testing
+  - repair_item_id: NRP-002
+    addresses_finding_ids: [NAR-002]
+    rationale: nonblocking_minor_observation_owner_prioritization
+    disposition: do_not_repair_reproduce_or_add_testing
+nonblocking_exclusion_policy:
+  finding_ids: [NAR-001, NAR-002, LANG-003, LANG-004, LANG-005, LANG-006, LANG-007, LANG-008, LANG-009, LANG-010]
+  narrative_repair_action_ids: [NRP-001, NRP-002]
+  rationale: nonblocking_minor_observation_owner_prioritization
+  consequence: do_not_start_repair_reproduction_or_extra_testing
+included_nonblocking_finding_rationale: {}
+writer_access:
+  allowed_reads:
+    - 03_ideas/nodes/I01-001/dossiers/idea-dossier-v005.md
+    - 05_state/protected-content-register-v002.yaml
+    - 03_ideas/nodes/I01-001/revisions/round-005/editorial-repair-writer-brief-r002.yaml
+  forbidden_reads:
+    - all narrative and language assessment reports
+    - all narrative repair plan files
+    - all source or prior revision delta files
+    - all methodology preflight reports
+    - all idea evaluation reports
+    - all prior dossier versions, workflow state, and portfolio artifacts
+  allowed_writes:
+    complete_dossier:
+      artifact_id: idea-dossier-I01-001-v006
+      version: v006
+      path: 03_ideas/nodes/I01-001/dossiers/idea-dossier-v006.md
+      change_type: editorial_repair
+    revision_delta:
+      artifact_id: revision-delta-I01-001-v005-to-v006
+      version: v005-to-v006
+      path: 03_ideas/nodes/I01-001/revisions/round-005/revision-delta-v005-to-v006.md
+      change_type: editorial_repair_delta
+identified_overlaps:
+  - finding_ids: [LANG-001, LANG-002]
+    common_reader_facing_role: >-
+      两项均触及开篇对“一个开发数据库—一个异质外部数据库”关系的首次表达；LANG-001负责题名中的研究设计修饰关系，LANG-002负责跨数据库状态表示诊断的名称和定义。
+overlap_dispositions:
+  - finding_ids: [LANG-001, LANG-002]
+    disposition: >-
+      先在 H1 题名、Title 字段和题名定位表执行 LANG-001 的唯一设计表述；再在首节定义段加入 LANG-002 的唯一首次定义，并在全篇把外部状态比较统一为“跨数据库状态表示诊断”或明确的“开发状态在外部数据库中的占用和可分离性”。两项共同保留模型仅在一个开发库拟合和冻结、异质外部库只作无重估评价的关系；不得把 LANG-002 的术语统一改写成两个数据库共同构建模型，也不得改变患者病程内“状态转移”的技术含义。
+all_overlaps_resolved: true
+unresolved_overlaps: []
+normalized_repair_actions:
+  - repair_item_id: LANG-001
+    source_item_ids: [LANG-001]
+    addresses_finding_ids: [LANG-001]
+    locator: >-
+      H1 题名“受约束的脓毒症全病程动态状态模型：跨数据库构建与外部验证”；“Title, summary, audience, and positioning”中的 Title 字段；“Title and positioning claim-support table”中“跨数据库构建与外部验证”条目。
+    operation: replace
+    problem: >-
+      “跨数据库”按通常句法同时修饰“构建”和“外部验证”，会把中央研究设计误读为两个数据库共同参与模型构建；实际设计是在一个开发库中拟合并冻结模型，另一个异质数据库仅用于无重估外部验证。
+    target: >-
+      H1 题名和 Title 字段完整替换为“受约束的脓毒症全病程动态状态模型：在一个数据库中开发并在异质数据库中外部验证”；题名定位表对应第一列替换为“在一个数据库中开发并在异质数据库中外部验证”。除这三个定位外，不把新短语扩展为新的科学主张。
+    required_function_or_term: >-
+      三个题名或定位位置必须使用同一表述“在一个数据库中开发并在异质数据库中外部验证”，清楚限定单一开发库和单一异质外部库的不同角色。
+    content_to_preserve:
+      protected_ids: [PCR-003, PCR-005, PCR-007, PCR-019, PCR-027, PCR-056]
+      requirements:
+        - 保留“受约束”“脓毒症”“全病程动态状态模型”。
+        - 保留一个公开开发数据库、一个异质外部数据库及外部无重估验证关系。
+        - 不改动五项 identity_anchor 值，不改变四任务、核心时间表、资格门或主张强度。
+    delete_move_disposition: >-
+      仅删除三个定位中的歧义短语“跨数据库构建与外部验证”并就地替换；不移动、删除或合并任何科学内容。
+    destination:
+      - document H1 title
+      - Title field in Title, summary, audience, and positioning
+      - design-relation row in Title and positioning claim-support table
+    dependencies: []
+    acceptance_test: >-
+      H1 题名和 Title 字段逐字为“受约束的脓毒症全病程动态状态模型：在一个数据库中开发并在异质数据库中外部验证”，题名定位表对应条目逐字为“在一个数据库中开发并在异质数据库中外部验证”；全文搜索“跨数据库构建”结果为零；任何句子均不能把外部数据库写成模型拟合、状态重估、结构选择或阈值冻结的数据来源；identity_anchor 五个值与 v005 逐字段相同。
+    replacement_matrix:
+      - source_locator: "H1 document title"
+        source_text: "受约束的脓毒症全病程动态状态模型：跨数据库构建与外部验证"
+        replacement_text: "受约束的脓毒症全病程动态状态模型：在一个数据库中开发并在异质数据库中外部验证"
+      - source_locator: "Title, summary, audience, and positioning > Title"
+        source_text: "受约束的脓毒症全病程动态状态模型：跨数据库构建与外部验证"
+        replacement_text: "受约束的脓毒症全病程动态状态模型：在一个数据库中开发并在异质数据库中外部验证"
+      - source_locator: "Title and positioning claim-support table > design-relation row > first column"
+        source_text: "跨数据库构建与外部验证"
+        replacement_text: "在一个数据库中开发并在异质数据库中外部验证"
+  - repair_item_id: LANG-002
+    source_item_ids: [LANG-002]
+    addresses_finding_ids: [LANG-002]
+    locator: >-
+      “Title, summary, audience, and positioning”定义段及首次摘要入口；其后全文所有指向外部数据库状态比较的“临床锚定状态迁移诊断”“临床锚定状态”“临床锚定特征”“预定临床锚定特征”“生理临床锚定”“锚定分布”“锚定距离”“状态迁移”“表示迁移”“迁移诊断”“状态表示的跨库可重复性”和“跨库可分离性”用例；患者病程内时序变化的“状态转移”除外。
+    operation: replace
+    problem: >-
+      当前称谓把用于比较状态的临床变量集合、跨数据库的状态表示诊断及其通过或失败结果混在一起，且“状态迁移”易被误解为患者病程内状态转移；首次摘要入口未给出变量、比较操作和判定对象。
+    target: >-
+      在首节定义段“外部验证”定义之后逐字加入：“本研究用预定临床特征（六个器官功能域、同期生命体征、当前器官支持及短时变化方向）比较开发状态在外部数据库中的占用、分布距离和可分离性；该操作称为跨数据库状态表示诊断，与患者病程中的状态转移不同。”其后将临床变量集合统一称为“预定临床特征”，将分布和距离写为“基于预定临床特征的分布/距离”，将外部数据库比较统一称为“跨数据库状态表示诊断”或明确结果“开发状态在外部数据库中的占用和可分离性”，并仅将“状态转移”用于同一患者病程内的时间演化。保留“未迁移”“合并”“拆分”为冻结规则下的具体结果名称。
+    required_function_or_term: >-
+      首次出现必须同时说明预定临床特征的四个组成、开发状态在外部数据库中的占用/分布距离/可分离性比较，以及该诊断与患者病程内状态转移的区别；后文三个角色分别只用“预定临床特征”“跨数据库状态表示诊断”和“状态转移”。
+    content_to_preserve:
+      protected_ids: [PCR-001, PCR-002, PCR-003, PCR-019, PCR-020, PCR-021, PCR-025, PCR-026, PCR-027, PCR-028, PCR-036, PCR-046, PCR-048, PCR-051, PCR-055]
+      requirements:
+        - 保留六个器官功能域、同期生命体征、当前器官支持和短时变化方向的完整变量集合。
+        - 保留开发标签继承、外部不重新估计或重命名状态、冻结占用/距离/可分离规则及不得使用验证结局修改规则。
+        - 保留未迁移、合并和拆分的各自条件、完整状态表示后果、受影响任务可执行性后果和其他任务最多部分支持的边界。
+        - 保留观测过程指标单独诊断且不能改善生理状态判定，以及患者病程内状态转移的原有科学含义。
+        - 不改变任何数值、时间、任务、统计判定、证据状态、限制、假设或条件性后续研究。
+    delete_move_disposition: >-
+      删除的仅是角色混合或歧义称谓；每处科学命题就地用下列唯一术语或明确对象改写，不删除、移动或弱化占用、距离、可分离性、未迁移/合并/拆分、观测过程及任务后果。
+    destination:
+      - "Title, summary, audience, and positioning > definition paragraph immediately after the external-validation definition"
+      - "Structured abstract; Background/current state/gap/significance/rationale; Research question/objectives/core hypothesis"
+      - "Research content and work packages; Research design and methods; Key techniques and implementation"
+      - "Evidence chains; Required analyses and evidence; Expected outputs/falsification/interpretations"
+      - "Contribution/claim-support table; Feasibility/limitations/risks"
+    dependencies: [LANG-001]
+    acceptance_test: >-
+      首节在首次摘要入口之前逐字包含指定定义；全文搜索“临床锚定”“锚定分布”“锚定距离”“状态迁移”“表示迁移”和没有明确对象的“迁移诊断”结果均为零；“状态转移”每一处只指患者内时间演化；每一外部诊断表述均明确主语为开发状态、场景为外部数据库、依据为预定临床特征；“未迁移”“合并”“拆分”的冻结条件和后果仍完整；所有 PCR-019、PCR-020、PCR-021、PCR-036、PCR-046 所列分支逻辑保持不变。
+    replacement_matrix:
+      - source_locator: "Title, summary, audience, and positioning > definition paragraph, immediately after the sentence defining external validation"
+        source_text: null
+        replacement_text: "本研究用预定临床特征（六个器官功能域、同期生命体征、当前器官支持及短时变化方向）比较开发状态在外部数据库中的占用、分布距离和可分离性；该操作称为跨数据库状态表示诊断，与患者病程中的状态转移不同。"
+      - source_locator: "all occurrences naming the clinical-variable set"
+        source_text: "临床锚定特征／预定临床锚定特征／生理临床锚定"
+        replacement_text: "预定临床特征"
+      - source_locator: "all occurrences naming the external comparison distributions or distances"
+        source_text: "锚定分布／锚定距离／外部锚定分布"
+        replacement_text: "基于预定临床特征的分布／基于预定临床特征的距离／外部数据库中基于预定临床特征的分布"
+      - source_locator: "all high-level occurrences naming the external state-representation procedure"
+        source_text: "临床锚定状态迁移诊断／状态迁移／表示迁移／迁移诊断"
+        replacement_text: "跨数据库状态表示诊断"
+      - source_locator: "reader-entry and claim occurrences naming the external result"
+        source_text: "状态表示的跨库可重复性／临床锚定状态的跨库可分离性／跨库可分离性"
+        replacement_text: "开发状态在外部数据库中的占用和可分离性／开发状态在预定临床特征上的跨数据库可分离性"
+      - source_locator: "External application and state-transfer diagnostics > rule outcomes and every downstream interpretation"
+        source_text: "未迁移／状态合并／状态拆分"
+        replacement_text: "保留这些冻结规则下的结果名称；只把其上位程序名称统一为跨数据库状态表示诊断"
+mandatory_whole_dossier_checks:
+  not_new_findings: true
+  checks:
+    - check: identity_anchor_verbatim
+      instruction: >-
+        从 v005 逐字段复制 primary_research_question、primary_objective、study_object、core_data_or_evidence_base 和 primary_unit_of_inference，不得因题名或术语改写而改写这些机器可读值。
+      acceptance: v006 的 identity_anchor 映射与 v005 五个值逐字相同。
+    - check: protected_content_traceability
+      instruction: >-
+        打开 register v002 中每个 source_locator；凡改写、合并或压缩相邻句，逐项保留对应 protected_content 的数值、时间、分支资格、依赖、先后顺序、失败后果、限制和主张强度。
+      acceptance: 58 个 protected_id 均在 v006 有同义且同强度的权威定位，没有条件上移、分支丢失或计划性工作被写成已完成结果。
+    - check: development_external_validation_relation
+      instruction: >-
+        核对题名、Title 字段、摘要、方法和题名定位表对一个开发库与一个异质外部库的角色陈述。
+      acceptance: 三个指定题名定位使用 LANG-001 精确替换，且全文没有让外部库参与模型拟合、状态重估、结构选择或阈值冻结的表述。
+    - check: external_state_representation_terminology
+      instruction: >-
+        按 LANG-002 replacement_matrix 完成首次定义和全篇术语归一，再核查每处外部诊断的主语、数据库场景、预定临床特征和冻结结果规则。
+      acceptance: LANG-002 的禁用形式搜索为零，患者内状态转移和跨数据库状态表示诊断始终可区分，未迁移/合并/拆分逻辑完整。
+    - check: scientific_scope_and_evidence_status
+      instruction: >-
+        通读任务三、四任务确认性程序、条件性后续研究、限制、证伪条件、结果解释和不支持主张类别。
+      acceptance: 除两项授权语言修订外没有新增或改变数据、方法、结果、证据、阈值、因果含义、临床用途或后续研究资格。
+    - check: complete_dossier_concordance
+      instruction: >-
+        在所有四个有界区段处理完毕后，扫描固定章节、表格、公式、交叉引用和参考文献，并运行确定性结构检查。
+      acceptance: v006 是可独立阅读的完整 dossier；无持久化片段、缺章、断表、公式损坏、术语回退或相邻措辞回归。
+pre_freeze_action_compliance:
+  owner: orchestrator
+  required_before_target_freeze: true
+  action_ids_to_check: [LANG-001, LANG-002]
+  check_against_actual_candidate_text: true
+  same_writer_bounded_correction_required_for_major_failure: true
+  dispatch_preservation_or_reassessment_before_pass: false
+  validator:
+    script: research-skills-openai/skills/research-idea-orchestrator/scripts/validate_editorial_repair_writer_brief.py
+    arguments:
+      brief: 03_ideas/nodes/I01-001/revisions/round-005/editorial-repair-writer-brief-r002.yaml
+      narrative_assessment: 03_ideas/nodes/I01-001/reviews/narrative-assessment-r006.md
+      narrative_plan: 03_ideas/nodes/I01-001/reviews/narrative-repair-plan-r006.yaml
+      language_assessment: 03_ideas/nodes/I01-001/reviews/language-assessment-r006.md
+      protected_register: 05_state/protected-content-register-v002.yaml
+execution_and_handoff:
+  single_complete_target_dossier: true
+  partial_artifacts_forbidden: true
+  same_writer_for_all_passes: true
+  pre_freeze_action_compliance_required: true
+  delta_after_dossier_freeze_only: true
+  section_passes:
+    - sections 1-4
+    - sections 5-11
+    - sections 12-14
+    - references and whole-dossier concordance
+  delta_requirements:
+    - Map each of LANG-001 and LANG-002 to its revised locator, operation, and text-grounded acceptance result.
+    - Map every protected_id in register v002 to revised locator or locators and item-level preservation evidence.
+    - Record compact locator-level results without copying source reports, the protected register, or long dossier excerpts.
+    - Create or finalize the delta only after the complete v006 dossier is frozen and the whole-dossier scan and deterministic checks pass.
+    - If v006 changes after delta creation, invalidate and rewrite the delta after a new whole-dossier scan.

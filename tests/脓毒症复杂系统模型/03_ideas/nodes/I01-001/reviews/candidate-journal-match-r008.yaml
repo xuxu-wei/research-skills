@@ -1,0 +1,36 @@
+schema_version: research-idea-journal-candidate-brief.v1
+artifact_id: candidate-journal-match-I01-001-r008
+version: r008
+workflow_id: sepsis-complex-system-idea-generation-v001
+round_id: r008
+materialized_by_skill: research-idea-orchestrator
+brief_id: journal-candidate-brief-I01-001-v006-r008
+matching_source_skill: idea-evaluator
+source_dossier_ref:
+  artifact_id: idea-dossier-I01-001-v006
+  version: v006
+  path: 03_ideas/nodes/I01-001/dossiers/idea-dossier-v006.md
+evaluation_fields_included: false
+scoring_present: false
+ranking_present: false
+publication_probability_present: false
+candidates:
+  - candidate_id: CM-ARTICLE-01
+    publication_unit:
+      unit_id: core_empirical_study_manuscript
+      dossier_locator: Research content and work packages > 4. 敏感性、复现与论文；Expected outputs，第 6 项
+      whole_idea_reason: null
+    journal_title: Communications Medicine
+    proposed_article_type: Article
+    scope_fit: >-
+      核心实证论文把成人 ICU 临床纵向数据、计算建模、异质数据库外部验证和临床结局连接起来；官方 scope 明确覆盖临床与转化研究、医学和计算科学交叉、观察性研究以及具有临床或转化意义的新方法与技术。
+    article_type_fit: >-
+      官方 content-types 页面将 Article 定义为原创研究类型；dossier 预期产出是完成两库开发、外部验证、敏感性与独立复现后的原创实证论文。
+    mismatch_risks:
+      - 官方 scope 要求结果构成可能影响领域认识的进展；最终适配取决于完成研究后是否形成足够坚实且具有医学意义的实证结论。
+      - Article 正文建议约 5,000 词；四项任务、状态表示诊断、敏感性与复现材料可能需要高度压缩并将技术细节放入补充材料。
+    official_source_ids:
+      - CM-SCOPE-01
+      - CM-TYPE-01
+no_candidate_reason: null
+frozen: true

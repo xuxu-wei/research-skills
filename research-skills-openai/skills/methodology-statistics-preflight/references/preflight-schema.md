@@ -25,6 +25,15 @@ This file defines the required structure for a Methodology-Statistics Preflight 
 - `handoff_recommendation`: recommended next workflow or skill.
 - `limitations`: uncertainty and missing information affecting the preflight.
 
+For `input_type: idea`, also require:
+
+- `idea_handoff_decision`: `proceed`, `proceed_with_assumptions`, or
+  `clarification_stop`;
+- `finding_class` on every actionable finding: `required_repair`,
+  `working_assumption`, or `nonblocking_advice`;
+- `working_assumptions`: an empty list unless the handoff is
+  `proceed_with_assumptions`; each item follows `working-assumption-rules.md`.
+
 ## Status Values
 
 Use short status labels when helpful:

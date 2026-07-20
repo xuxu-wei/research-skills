@@ -1,0 +1,45 @@
+idea_index:
+  schema_version: research-idea.v3
+  plugin_version: "0.10.0"
+  artifact_id: idea-index-v001
+  version_id: v001
+  workflow_id: sepsis-complex-system-idea-generation-v001
+  round_id: round-001
+  source_skill: research-idea-orchestrator
+  created_by_instance_id: fresh-idea-portfolio-assembler-v001
+  path: 03_ideas/idea-index-v001.yaml
+  created_round: 1
+  based_on:
+    - artifact_id: idea-routing-decision-v001
+      version: v001
+      path: 05_state/idea-routing-decision-v001.yaml
+    - artifact_id: idea-node-I01-001
+      version: v001
+      path: 03_ideas/nodes/I01-001/node.yaml
+  change_type: create
+  frozen: true
+  route_profile: focused_optimization
+  ideas:
+    - idea_id: I01-001
+      title: 受约束的脓毒症全病程动态状态模型：在一个数据库中开发并在异质数据库中外部验证
+      dossier_id: idea-dossier-I01-001-v006
+      parent_idea_ids: []
+      lineage_id: lineage-I01-001
+      node_path: 03_ideas/nodes/I01-001/node.yaml
+      dossier_path: 03_ideas/nodes/I01-001/dossiers/idea-dossier-v006.md
+      dossier_version: v006
+      reference_ledger_path: 03_ideas/nodes/I01-001/references/reference-ledger.md
+      route_profile: focused_optimization
+      remap_status: not_required
+      status: revision_required
+      qualifying_evaluation_ref:
+        artifact_id: evaluation-I01-001-r008
+        version: r008
+        path: 03_ideas/nodes/I01-001/reviews/evaluation-r008.md
+  overall_remap_status: not_required
+  downstream_needs:
+    methodology_statistics_preflight: complete_for_preserved_scientific_content
+    narrative_readiness: minor_revision_open
+    academic_language_readiness: minor_revision_open
+    isolated_independent_evaluation: complete_revise_then_promote
+    biomedical_medical_journal_review: complete

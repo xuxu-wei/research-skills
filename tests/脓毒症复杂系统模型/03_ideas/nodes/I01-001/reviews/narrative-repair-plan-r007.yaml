@@ -1,0 +1,131 @@
+schema_version: research-idea-narrative-repair-plan.v1
+plan_id: narrative-repair-plan-I01-001-r007
+assessment_id: narrative-assessment-I01-001-r007
+source_artifact:
+  artifact_id: idea-dossier-I01-001-v006
+  version: v006
+  path: tests/脓毒症复杂系统模型/03_ideas/nodes/I01-001/dossiers/idea-dossier-v006.md
+decision: minor_narrative_revision
+clarifications_required: []
+actions:
+  - action_id: NRP-001
+    addresses_findings:
+      - NAR-001
+    priority: minor
+    dossier_locator:
+      section_heading: "Background, current state, gap, significance, and rationale"
+      subsection_heading: "Background"
+      content_anchor: "因而本研究把患者病程表示为一个开放的动态临床系统"
+    operation: move
+    current_problem: >-
+      Background 在 Current state、Gap 和 Significance 之前给出本研究选择的状态表示，
+      且 Rationale 随后再次解释同一选择。
+    target_state: >-
+      Background 以病程随时间变化以及治疗、测量和结局相互依赖的问题前提收束；
+      Rationale 在 Gap 和 Significance 之后首次说明为何采用开放动态表示。
+    required_content_or_function: >-
+      保持五段式论证的单向顺序，并在 Rationale 中明确连接动态临床问题、未解决缺口与拟议
+      受约束状态模型。
+    content_to_preserve:
+      - "治疗和环境作为时间变化输入的科学前提"
+      - "器官功能、生理观测与低维状态之间的关系"
+      - "首次发生、恢复、恶化、存活出 ICU 和死亡作为病程事件"
+    content_to_remove_or_move:
+      - "Background 末句中以“因而本研究把”开头的拟议表示说明"
+    destination_if_moved: "Background, current state, gap, significance, and rationale > Rationale 的开头，与现有设计顺序说明合并"
+    dependencies: []
+    acceptance_test: >-
+      顺序阅读五个小节时，Background 不再在 Current state 和 Gap 之前宣布方案；Rationale
+      能独立说明开放动态表示如何回应 Gap，且相关科学组成没有丢失或重复成第二段完整说明。
+  - action_id: NRP-002
+    addresses_findings:
+      - NAR-002
+    priority: minor
+    dossier_locator:
+      section_heading: "Title, summary, audience, and positioning"
+      subsection_heading: null
+      content_anchor: "One-sentence complete-Idea summary 中首次出现“持续恢复”"
+    operation: define
+    current_problem: >-
+      核心结局“持续恢复”在多个摘要和论证位置使用后，才在方法部分被说明为不同于存活出
+      ICU 的特定复合事件。
+    target_state: >-
+      读者在首次遇到“持续恢复”时即可获得足以理解任务二的简短释义，方法部分继续保留
+      完整的 24 小时操作定义和事件编码。
+    required_content_or_function: >-
+      首次使用处须让读者知道持续恢复要求稳定的器官功能改善和停止主要器官支持，并且不
+      等同于存活出 ICU；具体阈值和时长仍由方法部分权威规定。
+    content_to_preserve:
+      - "持续恢复作为任务二的首次事件"
+      - "完整操作定义中的存活、停止三类器官支持、六个器官功能域和连续 24 小时条件"
+      - "存活出 ICU 单独编码且不自动等同恢复"
+    content_to_remove_or_move: []
+    destination_if_moved: null
+    dependencies: []
+    acceptance_test: >-
+      一名只读到 Title, summary, audience, and positioning 的跨学科读者能够区分持续恢复、
+      短暂改善和存活出 ICU；Research design and methods 中的完整定义保持唯一且未改变。
+  - action_id: NRP-003
+    addresses_findings:
+      - NAR-003
+    priority: minor
+    dossier_locator:
+      section_heading: "Title, summary, audience, and positioning"
+      subsection_heading: null
+      content_anchor: "“动态状态模型”在本研究中指"
+    operation: consolidate
+    current_problem: >-
+      开篇定义段把理解核心构想所需的入口定义、跨数据库诊断的操作细节和一个后文不再使用
+      的复杂系统标签放在同一层级，重复了方法部分已有的技术权威说明。
+    target_state: >-
+      开篇只解释理解题目、摘要和主要问题所需的模型、全病程、约束、外部验证及状态表示诊断
+      的读者级含义；操作细节只在对应方法小节完整出现，未继续使用的标签从开篇移除。
+    required_content_or_function: >-
+      保留跨学科入口所需的最小概念桥梁，同时让跨数据库诊断的特征集合、分布距离和判定逻辑
+      由 External application and cross-database state-representation diagnostics 统一承载。
+    content_to_preserve:
+      - "动态状态模型概括器官功能和生理构型并表示停留与允许转移的读者级含义"
+      - "全病程从感染风险入口覆盖首次发生及发病后结局的边界"
+      - "约束来自建模前文献与结构化专家程序"
+      - "外部验证使用冻结模型直接应用于异质数据库的基本含义"
+      - "治疗、测量和环境与病程持续交互的科学前提"
+    content_to_remove_or_move:
+      - "开篇对六个器官功能域、生命体征、器官支持、短时变化、占用、分布距离和可分离性的成套操作说明"
+      - "只在开篇出现的“人体开放复杂巨系统”标签"
+    destination_if_moved: "Research design and methods > External application and cross-database state-representation diagnostics；已经完整存在的细节不再重复添加"
+    dependencies: []
+    acceptance_test: >-
+      开篇每个保留术语都直接服务于题目、摘要或主要问题的一次阅读；跨数据库诊断的具体特征
+      与规则只在方法权威位置完整出现；Background 仍明确表达治疗、测量和环境交互的科学前提。
+  - action_id: NRP-004
+    addresses_findings:
+      - NAR-004
+    priority: minor
+    dossier_locator:
+      section_heading: "Feasibility, resources, risks, alternatives, and stop conditions"
+      subsection_heading: "Working assumptions"
+      content_anchor: "任务三的固定操作化说明"
+    operation: consolidate
+    current_problem: >-
+      该段把固定设计要素放入 Working assumptions，以“用户提出的”说明来源，并重复 H3、
+      结果解释和限制部分已经承担的任务三操作及认识边界。
+    target_state: >-
+      Working assumptions 直接从真正未确认的 WA-01 和 WA-02 展开；任务三的科学理由与完整
+      操作定义集中在 H3，成功结果的允许解释和潜在状态边界分别留在结果解释与限制部分。
+    required_content_or_function: >-
+      用“观察性数据库没有潜在生理状态金标准”这一科学条件解释为何 H3 以有意遮蔽的实测值
+      评分；保留任务三只支持测量补全用途、不验证潜在生理状态的必要解释边界。
+    content_to_preserve:
+      - "观察性重症监护数据库不提供潜在生理状态金标准的科学理由"
+      - "H3 从部分已观测历史预测按规则遮蔽但实际测得的临床变量"
+      - "H3 成功只支持测量补全用途，不支持潜在状态恢复"
+      - "WA-01 和 WA-02 的未确认事项、固定内容、验证点与后果"
+    content_to_remove_or_move:
+      - "Working assumptions 下以“任务三的固定操作化说明”开头的完整重复段落"
+      - "以“用户提出的”表述科学设计来源的产出过程措辞"
+    destination_if_moved: "Research design and methods > Four task-level summary hypotheses > H3 保留科学理由和操作定义；Result-dependent interpretations 与 Limitations and boundary conditions 各保留其必要的局部边界"
+    dependencies: []
+    acceptance_test: >-
+      Working assumptions 只包含真正未确认的条件；H3 在不借助“用户提出的”等产出过程表述
+      的情况下独立解释评分对象和选择理由；任务三的完整操作说明不再在多个位置重复，而结果
+      解释、限制和必需 Claim-Support 功能仍各自保留最小且自足的边界。

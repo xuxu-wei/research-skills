@@ -1,6 +1,6 @@
 schema_version: 2
 profile: personal-owner
-plugin_version: 0.9.0-preview.2
+plugin_version: 0.10.0
 evidence_level: owner_observed
 
 # This collection is intentionally pending. Repository-authored files can
@@ -9,7 +9,7 @@ distribution:
   slot_id: personal-distribution-current
   kind: distribution
   workflow: null
-  expected_outcome: current_version_install_reinstall_and_fresh_task_discovery_49_7_6
+  expected_outcome: current_version_install_reinstall_and_fresh_task_discovery_50_7_6
   actual_outcome: null
   status: pending_owner_observation
   binding: &pending_binding
@@ -28,7 +28,7 @@ distribution:
     started_at: null
     completed_at: null
     owner_confirmed: false
-  notes: Deterministic acceptance for 0.9.0-preview.2 is complete; the formal distribution slot remains pending until the refreshed cache, discovery, complete binding, and owner confirmation are recorded.
+  notes: Deterministic acceptance for 0.10.0 is in progress; strict owner-observed distribution remains an optional pending revalidation until cache discovery, complete binding, and owner confirmation are recorded.
 
 workflow_runs:
   - slot_id: personal-idea-happy
@@ -38,7 +38,7 @@ workflow_runs:
     actual_outcome: null
     status: pending_owner_observation
     binding: *pending_binding
-    notes: null
+    notes: When observed, bind Idea artifacts and reviews by artifact_id, version, and path; leave artifact/review SHA fields absent. Runtime-log and source-install identity hashes remain required.
   - slot_id: personal-proposal-happy
     kind: workflow_happy
     workflow: proposal

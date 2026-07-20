@@ -1,14 +1,14 @@
 {
   "ok": true,
-  "expected_skill_count": 49,
-  "plugin_version": "0.9.0-preview.2",
+  "expected_skill_count": 50,
+  "plugin_version": "0.10.0",
   "registry_schema_version": 5,
   "plugin": {
     "plugin": "research-skills-openai",
-    "plugin_version": "0.9.0-preview.2",
+    "plugin_version": "0.10.0",
     "ok": true,
     "errors": [],
-    "skill_count": 49,
+    "skill_count": 50,
     "skills": {
       "academic-deep-search": "academic-deep-search",
       "academic-language-assessor": "academic-language-assessor",
@@ -28,6 +28,7 @@
       "article-submission-compositor": "article-submission-compositor",
       "idea-adversarial-review-panel": "idea-adversarial-review-panel",
       "idea-evaluator": "idea-evaluator",
+      "idea-narrative-assessor": "idea-narrative-assessor",
       "idea-portfolio-assembler": "idea-portfolio-assembler",
       "medical-journal-review": "medical-journal-review",
       "methodology-statistics-preflight": "methodology-statistics-preflight",

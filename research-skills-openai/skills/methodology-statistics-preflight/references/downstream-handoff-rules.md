@@ -26,3 +26,18 @@ Use this file to decide where the preflight report should go next.
 ## Isolation Requirement
 
 The agent performing this preflight should not also perform the downstream evaluator role for the same artifact. Evaluation and review tasks must remain isolated.
+
+## Idea-specific handoff
+
+For an Idea, preserve the general preflight decision above and add:
+
+- `proceed`: no required methodological repair remains;
+- `proceed_with_assumptions`: a minimal viable route exists and the scientific
+  writer may write under every explicitly recorded bounded assumption;
+- `clarification_stop`: an unresolved detail crosses the boundary in
+  `working-assumption-rules.md` and must not be guessed.
+
+The writer records each accepted working assumption once in the dossier's
+authoritative assumptions section. It remains a research risk, not an
+established fact. A false assumption that would invalidate the core route must
+not be handed off as `proceed_with_assumptions`.

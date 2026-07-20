@@ -196,7 +196,7 @@
   "errors": [],
   "execution_kind": "deterministic_replay",
   "live_runtime_evidence": false,
-  "plugin_version": "0.9.0-preview.2",
+  "plugin_version": "0.10.0",
   "profile": "personal-owner",
   "schema_version": 1
 }

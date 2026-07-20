@@ -8,7 +8,8 @@ and stop. Do not imitate Deep Research with ordinary chat or Built-in Search.
 ## Required package sections
 
 1. **State binding:** workflow ID, round ID, pending edge ID, plugin version,
-   frozen input refs/digests, and the exact resume target.
+   frozen input logical references (`artifact_id`, `version`, `path`), and the
+   exact resume target.
 2. **Research objective:** one bounded question or landscape objective, why it
    matters to the downstream decision, and what decision the evidence will
    inform.
@@ -26,8 +27,8 @@ and stop. Do not imitate Deep Research with ordinary chat or Built-in Search.
 7. **Output contract:** search summary, source table, claim table, conflicts,
    negative/inaccessible searches, remaining gaps, and limitations.
 8. **Return contract:** required local filename or artifact type, source links,
-   completion signal, digest binding, and instructions to resume only the named
-   pending edge.
+   completion signal, returned artifact logical reference, and instructions to
+   resume only the named pending edge.
 
 ## Search plan
 
@@ -89,5 +90,6 @@ access limits rather than inferring no evidence.
 Retrieve and synthesize evidence only. Do not generate or rank Ideas, draft a
 proposal/protocol, or make an evaluator decision. When the report returns, the
 mapper verifies source identity and material locators, converts findings into
-Evidence and Opportunity Maps, preserves conflicts and access limits, binds the
-returned artifact digest, and resumes the named pending edge once.
+Evidence and Opportunity Maps, preserves conflicts and access limits, records
+the returned artifact's ID, version, and path, and resumes the named pending
+edge once.

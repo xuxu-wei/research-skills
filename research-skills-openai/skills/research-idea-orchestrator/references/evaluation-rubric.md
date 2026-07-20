@@ -7,7 +7,7 @@ skills/idea-evaluator/references/evaluation-rubric.md
 ```
 
 When freezing an evaluation round, bind that canonical resource to the current
-plugin version and record its digest in the delegate brief. Do not copy,
+plugin version and record its artifact ID/version/path in the delegate brief. Do not copy,
 summarize, or redefine scoring rules here.
 
 The evaluator loads the canonical rubric as a skill instruction. It is not a

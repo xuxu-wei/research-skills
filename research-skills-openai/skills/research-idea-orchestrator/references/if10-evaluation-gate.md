@@ -26,8 +26,8 @@ high_impact_aspiration:
   unsupported_positioning_claims: []
 ```
 
-This check does not change the six canonical scores or hard gates. Do not
-estimate submission or acceptance probability, recommend a specific journal,
-or create a journal ladder. Publication-probability assessment belongs only to
-`medical-journal-review` when that separate workflow has sufficient artifact
-and target-outlet inputs.
+This check does not change the six canonical scores or hard gates and does not
+estimate submission or acceptance probability. After freezing the evaluation,
+the evaluator still follows the ordinary journal-matching contract. For a final
+biomedical or clinical Idea, the orchestrator freezes its unscored, unranked
+candidate brief and delegates a fresh `medical-journal-review`.

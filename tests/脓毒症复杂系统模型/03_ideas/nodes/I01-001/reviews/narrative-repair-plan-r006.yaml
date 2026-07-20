@@ -1,0 +1,62 @@
+schema_version: research-idea-narrative-repair-plan.v1
+plan_id: narrative-repair-plan-I01-001-r006
+assessment_id: narrative-assessment-I01-001-r006
+source_artifact:
+  artifact_id: idea-dossier-I01-001-v005
+  version: v005
+  path: 03_ideas/nodes/I01-001/dossiers/idea-dossier-v005.md
+decision: minor_narrative_revision
+clarifications_required: []
+actions:
+  - action_id: NRP-001
+    addresses_findings:
+      - NAR-001
+    priority: minor
+    dossier_locator:
+      section_heading: Research question, objectives, and core hypothesis
+      subsection_heading: null
+      content_anchor: "**Confirmatory family.** 数据资格和最小模型可辨识性是进入外部确认性评价前必须实证满足的条件。"
+    operation: consolidate
+    current_problem: >-
+      D_kc、Delta_k、max-t 重采样、单侧上置信界、任务 p 值和 Holm 判定规则的完整说明位于主问题与目标之间，并与“Multiplicity and overall interpretation”的完整方法说明重复。
+    target_state: >-
+      本节按主问题、目标、核心假设的顺序完成正向研究陈述，只保留识别四项确认性任务及其共同判定原则所需的简短说明；全部公式、同时推断和 Holm 实施细节在方法部分集中说明一次。
+    required_content_or_function: >-
+      保持四项任务各自形成一个确认性假设、主要模型须同时优于任务内全部比较模型、患者级汇总、四任务家族错误率控制及任务通过条件；完整方法说明须让读者能够恢复 D_kc、Delta_k、置信界、p 值与 Holm 程序之间的关系。
+    content_to_preserve:
+      - 四项任务各自唯一的确认性假设及负损失差有利于主要模型的方向。
+      - 每位患者先在任务内汇总、Delta_k 取相对全部比较模型的最不利平均损失差。
+      - 患者级 max-t 同时推断、单侧上置信界、任务 p 值和四任务 Holm 控制的全部既定规则。
+      - 任务须同时满足上置信界小于 0 和 Holm 调整后 p 值小于 0.05 的既定通过规则。
+    content_to_remove_or_move:
+      - 从主问题与 Objectives 之间移出关于 D_kc、Delta_k、max-t、比较模型 p 值最大值和 Holm 程序的完整技术段落。
+      - 合并两处对同一推断程序的完整解释，避免研究问题部分和方法部分各保留一套可被视为权威的技术说明。
+    destination_if_moved: "Research design and methods > Multiplicity and overall interpretation"
+    dependencies: []
+    acceptance_test: >-
+      一位新的读者可在不越过公式段落的情况下连续概括主问题、四项目标和核心假设；D_kc、Delta_k、max-t、单侧上置信界、任务 p 值与 Holm 实施规则在方法部分有且只有一处完整且相互一致的说明，所有数值阈值和科学内容均未改变。
+  - action_id: NRP-002
+    addresses_findings:
+      - NAR-002
+    priority: minor
+    dossier_locator:
+      section_heading: Title, summary, audience, and positioning
+      subsection_heading: null
+      content_anchor: "One-sentence complete-Idea summary 末尾的“状态表示的跨库可重复性”"
+    operation: define
+    current_problem: >-
+      跨数据库的状态可重复性、临床锚定可分离性和状态迁移在开篇承担核心目标功能，却到方法部分才获得可解释的含义，而且与病程内“状态转移”的表达相邻。
+    target_state: >-
+      首次出现处提供一个简短的概念界定，使读者知道这里评价的是冻结开发状态在外部数据库中能否由可观测临床特征保持对应和可区分，而不是患者从一个状态变化到另一个状态；完整操作规则仍只在方法部分展开。
+    required_content_or_function: >-
+      定义须说明跨库应用冻结开发标签、使用临床可观测锚定特征判断对应与可分离性，并明确其与患者病程内状态转移的区别；无需在开篇重复占用、距离、未迁移、合并和拆分的全部判定细节。
+    content_to_preserve:
+      - 状态表示跨库可重复性是核心外部验证目标之一。
+      - 外部数据库不重新估计或重新命名潜在状态。
+      - 临床锚定特征与观测过程指标分开，且不使用验证结局修改迁移规则。
+      - “External application and state-transfer diagnostics”中的占用、距离、可分离性及未迁移、合并、拆分处置规则。
+    content_to_remove_or_move: []
+    destination_if_moved: null
+    dependencies: []
+    acceptance_test: >-
+      只读开篇的声明读者即可准确区分跨数据库的状态迁移或可重复性与患者病程内的状态转移，并能说明前者依赖冻结标签和临床可观测锚定；方法部分仍是完整指标与判定规则的唯一位置，且未增加新的科学主张。

@@ -15,6 +15,7 @@ import yaml
 REPO = Path(__file__).resolve().parents[1]
 PLUGIN = REPO / "research-skills-openai"
 ROADMAP = PLUGIN / "ROADMAP.md"
+README = PLUGIN / "README.md"
 MANIFEST = PLUGIN / ".codex-plugin" / "plugin.json"
 REGISTRY = PLUGIN / "workflow-registry.yaml"
 READINESS = PLUGIN / "reports" / "personal-readiness.json"
@@ -36,7 +37,7 @@ EXPECTED_HEADINGS = [
     "当前完成判定",
     "非目标",
 ]
-PHASE_MARKERS = ["- 状态：", "- 优先级：", "- 目标：", "### 已完成", "### 待完成", "### 完成条件"]
+PHASE_MARKERS = ["- 状态：", "- 优先级：", "- 目标：", "### 已完成", "### 完成条件"]
 ALLOWED_STATUSES = {"已完成", "进行中", "候选"}
 FORBIDDEN_TERMS = (
     "Phase 9",
@@ -83,7 +84,9 @@ def validate(text: str, *, version: str, registry: dict[str, Any], readiness: di
         errors.append("ROADMAP 必须包含九个 Phase 区块")
     for block in blocks:
         heading = block.splitlines()[0] if block else "<missing>"
-        positions = [block.find(marker) for marker in PHASE_MARKERS]
+        pending_marker = "### 可选复验" if heading.startswith(("## Phase 7：", "## Phase 8：")) else "### 待完成"
+        markers = [*PHASE_MARKERS[:-1], pending_marker, PHASE_MARKERS[-1]]
+        positions = [block.find(marker) for marker in markers]
         if any(position < 0 for position in positions):
             errors.append(f"{heading} 缺少统一字段")
         elif positions != sorted(positions):
@@ -106,17 +109,91 @@ def validate(text: str, *, version: str, registry: dict[str, Any], readiness: di
         f"| 当前插件版本 | `{version}` |",
         f"| 当前范围 | {len(skills)} 个 Skill、{reviewer_count} 个独立 Reviewer、5 个完整工作流 |",
         f"| 发现面 | {declared_count} 个声明入口、{implicit_count} 个隐式入口、1 个 explicit-only 入口 |",
-        f"| 当前验收状态 | `{readiness.get('personal_status')}`，`{observed_slots}/{expected_slots}` 个 owner-observed 槽位完成 |",
+        "| 当前路线图状态 | 个人使用基线已接受，Phase 7–8 已完成 |",
+        f"| 严格复验状态 | `{readiness.get('personal_status')}`，`{observed_slots}/{expected_slots}` 个 owner-observed 槽位完成（可选） |",
     )
     for line in expected_metadata:
         if line not in text:
             errors.append(f"元数据与机器状态不一致：{line}")
 
     phase7 = next((block for block in blocks if block.startswith("## Phase 7：")), "")
+    phase8 = next((block for block in blocks if block.startswith("## Phase 8：")), "")
     if "personal-research-polisher-happy" not in phase7:
         errors.append("Research Polisher 的 owner-observed 槽位必须整合在 Phase 7")
     if "方法学/可发表性 Reviewer" not in phase7 or "explicit-only" not in phase7:
         errors.append("Phase 7 缺少 Research Polisher 的实现与路由边界")
+    if "- 状态：`已完成`" not in phase7 or "- 优先级：`P0 已关闭`" not in phase7:
+        errors.append("Phase 7 必须按所有者决定标记为已完成并关闭 P0")
+    if "### 可选复验" not in phase7:
+        errors.append("Phase 7 必须把严格运行档案标记为可选复验")
+    if "- 状态：`已完成`" not in phase8 or "- 优先级：`按需复验`" not in phase8:
+        errors.append("Phase 8 必须标记为已完成且仅按需复验")
+    if "### 可选复验" not in phase8:
+        errors.append("Phase 8 必须把严格原生闭环标记为可选复验")
+    if "不得自动恢复" not in phase8 or "仅在所有者明确要求时" not in phase8:
+        errors.append("Phase 8 必须禁止自动恢复并要求所有者显式重开")
+    if "不再阻塞后续个人开发" not in text or "可选的严格全量复验档案" not in text:
+        errors.append("ROADMAP 必须区分所有者接受状态和可选严格复验状态")
+    edge_count = len(registry.get("workflow_edges", []))
+    if f"{edge_count} 条工作流边" not in text:
+        errors.append("ROADMAP 工作流边计数与 Registry 不一致")
+    priorities = (
+        "`P0`：把已在 Idea 中验证的 narrative readiness",
+        "Article、Proposal",
+        "`P2`：仅在 OpenAI 插件",
+        "同步到 Hermes",
+    )
+    for phrase in priorities:
+        if phrase not in text:
+            errors.append(f"ROADMAP 缺少后续优先事项：{phrase}")
+    return errors
+
+
+def validate_readme(text: str, *, version: str, registry: dict[str, Any]) -> list[str]:
+    errors: list[str] = []
+    normalized = " ".join(text.split())
+    forbidden = (
+        "The immediate priorities are deliberately small:",
+        "part of the pending Phase 7 distribution slot",
+    )
+    for phrase in forbidden:
+        if phrase in normalized:
+            errors.append(f"README 仍声明已关闭的 Phase 7–8 优先任务：{phrase}")
+    required = (
+        "Roadmap Phases 7 and 8 are closed.",
+        "must not be resumed unless the owner explicitly requests it",
+        "## Optional strict personal revalidation",
+        "not a Roadmap completion gate",
+        "do not override the owner's Roadmap acceptance",
+    )
+    for phrase in required:
+        if phrase not in normalized:
+            errors.append(f"README 缺少所有者接受或按需复验声明：{phrase}")
+    skills = registry.get("skills", [])
+    declared = registry.get("public_entry_policy", {}).get("declared_entries", [])
+    private_count = len(skills) - len(declared)
+    inventory = (
+        f"contains {len(skills)} skills",
+        f"The maintained `{version}` source contains {len(skills)} skill contracts",
+        f"The other {private_count} private roles",
+    )
+    for phrase in inventory:
+        if phrase not in normalized:
+            errors.append(f"README 库存与 Registry 不一致：{phrase}")
+    development = (
+        "python -m venv .venv",
+        "python scripts/openai_plugin_dev.py install-local",
+        f"verify --channel local --expected-version {version}",
+        f"verify --channel github --expected-version {version}",
+        "After every Skill change, rerun `install-local` and start a new Codex task.",
+        "Keep exactly one channel enabled",
+        "Never commit or push a `+codex.local-*` version.",
+    )
+    for phrase in development:
+        if phrase not in normalized:
+            errors.append(f"README 缺少开发调试闭环：{phrase}")
+    if "python scripts/update_openai_plugin_cachebuster.py" in normalized:
+        errors.append("README 不得再指导修改源码 cachebuster")
     return errors
 
 
@@ -124,6 +201,7 @@ def main() -> int:
     try:
         raw = ROADMAP.read_bytes()
         text = raw.decode("utf-8")
+        readme_text = README.read_text(encoding="utf-8")
         manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
         registry = load_yaml(REGISTRY)
         readiness = json.loads(READINESS.read_text(encoding="utf-8"))
@@ -133,6 +211,7 @@ def main() -> int:
 
     version = str(manifest.get("version", ""))
     errors = validate(text, version=version, registry=registry, readiness=readiness)
+    errors.extend(validate_readme(readme_text, version=version, registry=registry))
     mutations = {
         "missing-field": text.replace("- 状态：`已完成`", "", 1),
         "field-order": text.replace("### 已完成", "### __TMP__", 1)

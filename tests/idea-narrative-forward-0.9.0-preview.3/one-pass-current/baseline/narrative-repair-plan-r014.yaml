@@ -1,0 +1,167 @@
+schema_version: research-idea-narrative-repair-plan.v1
+plan_id: narrative-repair-plan-r014
+assessment_id: narrative-assessment-r014
+source_artifact:
+  artifact_id: idea-dossier-I01-001-v003
+  version: v003
+  path: tests/idea-test-0.9.0-preview.1/0.9.0-preview.1/03_ideas/nodes/I01-001/dossiers/idea-dossier-v003.md
+decision: major_narrative_revision
+clarifications_required: []
+actions:
+  - action_id: NRP-001
+    addresses_findings:
+      - NAR-001
+    priority: major
+    dossier_locator:
+      section_heading: "Background, current state, gap, significance, and rationale"
+      subsection_heading: null
+      content_anchor: "脓毒症随时间形成"
+    operation: split
+    current_problem: "五项读者功能目前混排在五个连续段落中，Significance 没有作为独立、非空的功能回答该缺口为何值得目标读者关注。"
+    target_state: "在保留现有 H2 标题的前提下，形成依次排列且各自非空的 Background、Current state、Gap、Significance 和 Rationale 五个 H3；先闭合问题—现状—缺口—意义，再说明设计依据。"
+    required_content_or_function: "Background 交代脓毒症时间演化与标签问题；Current state 概括公共 ICU 数据、相邻研究和现有可回答范围；Gap 明确尚不能回答的跨阶段、跨数据库证据问题；Significance 说明解决该问题对跨数据库解释、可重复性和后续转化研究判断的价值；Rationale 把双时钟、状态—行动—测量分离、绝对恢复检验、未触碰外部检验和条件性 RCT 设计逐项连接到相应缺口。"
+    content_to_preserve:
+      - "Sepsis-3 操作基础、EHR 发病时刻不唯一及标签可用时钟的事实"
+      - "公共 ICU 数据库的中心、年代、采样和接口异质性"
+      - "各单项研究模块已有先例、完整组合缺口仅为有界检索判断"
+      - "治疗—病情反馈、测量过程偏倚和观察性因果解释边界"
+      - "EXIT-SEP 与 XBJ-SCAP 的稀疏性、异质性及冻结观测投影设计依据"
+    content_to_remove_or_move:
+      - "从‘本项目的可辩护空间’直接跳到设计组成、但未先说明科学意义的现有过渡"
+      - "混在 Current state 或 Gap 段落中的详细实施条件，移到 Rationale 内对应设计说明之后"
+    destination_if_moved: null
+    dependencies: []
+    acceptance_test: "该 H2 下恰有五个必需 H3 且顺序为 Background、Current state、Gap、Significance、Rationale；每个 H3 可用一句话概括其独有功能；Significance 不复述方法，而明确回答解决缺口为何重要；Rationale 中每个主要设计选择都能回连前述缺口。"
+
+  - action_id: NRP-002
+    addresses_findings:
+      - NAR-002
+    priority: major
+    dossier_locator:
+      section_heading: "Title, summary, audience, and positioning"
+      subsection_heading: null
+      content_anchor: "One-sentence complete-Idea summary"
+    operation: replace
+    current_problem: "一句话摘要把研究对象、24 个月范围、两类数据库检验、多个判定条件、两条 RCT 分支和完整禁止性解释压在一个长句中，并在说明科学功能前使用多个项目特定名称。"
+    target_state: "一句话摘要让跨学科读者一次读完即可辨认研究对象、主要问题、阶段 II 的总体设计和条件性 RCT 层的地位；只保留理解研究身份所必需的限定。"
+    required_content_or_function: "用读者可理解的科学功能表述候选动态系统表征、跨数据库检验和条件性 RCT 次要再分析；保留 24 个月阶段 II 范围、公共 ICU 数据、发病前至结局连续体、未触碰外部检验以及 RCT 层不补足阶段 II 的关系。"
+    content_to_preserve:
+      - "知识约束、不确定性感知的候选全病程表征"
+      - "两个经访问与可观测性审计的公共 ICU 数据库"
+      - "24 个月内完成阶段 I–II 的范围"
+      - "阶段 III 为条件性、分试验、次要再分析且不支持因果网络或整个系统验证"
+    content_to_remove_or_move:
+      - "‘绝对模拟恢复门’、‘冻结观测投影门’和‘death-ranked SOFA’等在一句话摘要中未经解释的实施名称"
+      - "投影失败分支的全部操作细节和多项禁止性主张清单"
+    destination_if_moved: "Research design and methods 中对应的恢复检验、跨数据库检验与 RCT 投影小节"
+    dependencies:
+      - NRP-001
+    acceptance_test: "不看后文的目标读者能从该句回答研究研究什么、使用什么总体证据路径、24 个月交付边界是什么以及 RCT 层为何是条件性的；句中不要求读者先理解项目内部标签或后文才定义的技术名称。"
+
+  - action_id: NRP-003
+    addresses_findings:
+      - NAR-002
+    priority: major
+    dossier_locator:
+      section_heading: "Structured abstract"
+      subsection_heading: null
+      content_anchor: "Background and gap"
+    operation: reorder
+    current_problem: "结构式摘要的五项功能齐全，但 Objective、Approach、Expected result 和 Contribution 在概念首次出现时直接使用阶段编号、恢复/假置信、零更新、观测投影和 death-ranked SOFA 等名称，科学功能往往晚于标签出现。"
+    target_state: "保持结构式摘要五项功能和现有科学边界，按问题与意义、目标、总体设计、计划结果、贡献的读者顺序展开；每个必要的非共享概念在首次出现时先说明科学功能，再给出简称或后置到方法章节。"
+    required_content_or_function: "Background and gap 明确现有工作能回答什么、仍不能回答什么及为何重要；Objective 明确主要问题和可证伪假设；Approach 只保留理解设计合理性所需的总体顺序；Expected result 区分计划产物与现有结果；Contribution and impact 以正向增量为主并保留最小解释边界。"
+    content_to_preserve:
+      - "五个结构式摘要项目及其科学内容"
+      - "两项主要任务、双库审计、简单基线优先、未触碰外部检验和条件性 RCT 层"
+      - "所有结果均为计划产物而非现有验证结果"
+      - "预测、投影摘要与因果机制之间的必要边界"
+    content_to_remove_or_move:
+      - "在科学功能之前出现的‘阶段 I–II/III’、‘绝对恢复/假置信门’、‘zero-update’和‘projection-pass’式标签"
+      - "只服务于实施复现而不服务于摘要理解的阈值、更新层级和 fallback 细节"
+    destination_if_moved: "Research content and work packages 或 Research design and methods 的相应小节"
+    dependencies:
+      - NRP-001
+      - NRP-002
+    acceptance_test: "按顺序只读五个摘要项目时，读者无需后翻即可复述问题、现状、缺口、意义、设计依据和预期贡献；首次出现的必要专门概念均有同句或紧邻的功能性解释；摘要不承载后文的完整实施清单。"
+
+  - action_id: NRP-004
+    addresses_findings:
+      - NAR-003
+      - NAR-004
+    priority: major
+    dossier_locator:
+      section_heading: "Feasibility, resources, risks, alternatives, and stop conditions"
+      subsection_heading: "Remaining execution gates"
+      content_anchor: "仍未解决且必须显式保留"
+    operation: consolidate
+    current_problem: "完整的数据、识别、运输性、解释和 RCT 限制散见多个章节并多次成组重述，第 14 节尚未清楚承担唯一的完整限制与假设权威。"
+    target_state: "第 14 节自包含地汇总完整限制、假设、风险、替代方案与停止条件；其他必需章节仅保留其独有功能和为理解紧邻科学选择不可缺少的最小边界，不保留完整限制清单，也不以指针代替被删除限制。"
+    required_content_or_function: "Title/summary 保留研究身份与最小范围限定；Structured abstract 保留问题、缺口、意义、总体设计、计划结果和贡献；Research question/objectives 保留研究定义与非因果目标边界；Research content 保留范围、顺序和日期；Data 保留资源现状；Methods 保留实施步骤及直接决定估计对象的局部边界；Required analyses 保留可核验交付清单；Expected outputs/falsification 保留计划产物、可观察失败判据和对应解释；Contribution 与 claim-support 表保留正向增量、相邻工作比较和主张校准；第 14 节保留并统一数据访问与支持、模型可识别性、泄漏、缺失与重叠、外部运输、RCT 授权/语义/投影、因果与临床解释、时间和人员资源的完整限制。"
+    content_to_preserve:
+      - "所有尚未核验的数据访问、团队承诺、G1 数据支持、模型结果与 RCT 原始语义"
+      - "观察性目标不识别治疗因果效应、真实反馈网络或反事实策略"
+      - "绝对恢复、泄漏、外部零更新、RCT 投影与核心语义失败的科学后果"
+      - "RCT 独立 SOFA 分支与阶段 II 表征无关，两试验不合并"
+      - "有界 closest-work 检索不支持全球首次，以及当前不支持数字孪生、控制、临床工具或药物平台主张"
+      - "各必需章节在 required_content_or_function 中列明的独有最低功能"
+    content_to_remove_or_move:
+      - "摘要、Core hypothesis and non-hypotheses、方法小节、Required analyses、Expected outputs、解释矩阵、Contribution and evidence ladder、claim-support 表中成组重复的完整限制清单"
+      - "日期、阈值和失败路线在非其主责章节中的逐项复述"
+      - "第 14 节内部风险矩阵、Remaining execution gates 和 Identity and final stop boundary 之间语义相同的重复句"
+    destination_if_moved: "Feasibility, resources, risks, alternatives, and stop conditions（第 14 节）的相应限制、假设或风险条目"
+    dependencies:
+      - NRP-001
+      - NRP-003
+    acceptance_test: "第 14 节单独阅读即可得到完整限制、假设、风险和停止条件；全文检索每一类完整限制时只有第 14 节保留权威版本。第 14 节以外的每个保留边界都能在不引用其他章节的情况下直接解释紧邻的科学选择，删除它会使该选择被误读；不存在‘见第 14 节’或等价指针。所有 15 个必需 H2 与第 3 节五个必需 H3 均保留，各必需章节仍完成其独有功能。"
+
+  - action_id: NRP-005
+    addresses_findings:
+      - NAR-003
+    priority: major
+    dossier_locator:
+      section_heading: "Evidence chains"
+      subsection_heading: "Evidence chain: 可用性时钟、风险集与互斥病程"
+      content_anchor: "Limits and failure conditions"
+    operation: delete
+    current_problem: "五条证据链均含有当前 research-idea.v3 合同不允许的独立‘Limits and failure conditions’字段，使限制权威分散并给读者造成第五项链功能仍属 schema 的印象。"
+    target_state: "五条证据链各自只含 Input、Method / analysis / processing、Output 和 Supports 四项，科学内容血缘仍可审计；完整限制只在第 14 节出现。"
+    required_content_or_function: "逐条保留数据或证据输入、处理方法、计划输出及其支持的目标或主张；不得新增任何链级限制字段，不得把删除的限制改写为跨节指针。"
+    content_to_preserve:
+      - "‘可用性时钟、风险集与互斥病程’链的 Input、Method / analysis / processing、Output、Supports"
+      - "‘G1 支持、锚定识别与绝对恢复’链的 Input、Method / analysis / processing、Output、Supports"
+      - "‘两项主要任务与两项次要诊断’链的 Input、Method / analysis / processing、Output、Supports"
+      - "‘医院优先、未触碰的计划跨数据库检验’链的 Input、Method / analysis / processing、Output、Supports"
+      - "‘条件性稀疏 RCT 观测投影或独立临床状态再分析’链的 Input、Method / analysis / processing、Output、Supports"
+    content_to_remove_or_move:
+      - "五条证据链中的全部‘Limits and failure conditions’字段及其正文"
+    destination_if_moved: null
+    dependencies:
+      - NRP-004
+    acceptance_test: "Evidence chains 下恰有五条链，每条恰含 Input、Method / analysis / processing、Output、Supports 四项；不存在 Limits、Limitations、failure conditions 或同义的第五字段，也不存在指向第 14 节的替代语句；被删除字段中的独有科学限制已在第 14 节以完整、自包含方式保留。"
+
+  - action_id: NRP-006
+    addresses_findings:
+      - NAR-004
+    priority: minor
+    dossier_locator:
+      section_heading: "Required analyses and evidence"
+      subsection_heading: null
+      content_anchor: "阶段 II 主张前必须完成"
+    operation: consolidate
+    current_problem: "该节把前文的日期、实施顺序、分析内容、阈值和失败路线成组复述，随后 Expected outputs 与第 14 节又重复其中多数内容。"
+    target_state: "该节只列判断计划是否得到执行与证据是否完整所需的可核验交付；研究顺序留在 Research content，实施细节留在 Methods，可证伪结果与解释留在 Expected outputs，第 14 节保留完整限制和风险。"
+    required_content_or_function: "保留阶段 II 的资源与数据审计、标签/时钟/状态测试、变量角色隔离、基线与恢复实验、缺失和重叠敏感性、主要任务评价、外部检验封存记录及合取结论表；保留 RCT 启动前授权、语义、映射和分析规则的可核验交付。Research content 仍自包含范围与时间顺序；Methods 仍自包含模型和分析实现；Expected outputs 仍自包含计划产物、失败判据和允许解释；第 14 节仍自包含风险、替代方案、假设和完整限制。"
+    content_to_preserve:
+      - "八类阶段 II 必需证据及 RCT 启动前的核验要求"
+      - "标签、泄漏、模型恢复、外部检验和 RCT 分支的可审计记录"
+      - "closest-work 定位仅支持保守贡献主张的要求"
+      - "所有受影响必需章节在 required_content_or_function 中列明的独有最低功能"
+    content_to_remove_or_move:
+      - "已在 Research content 完整说明的月 3、月 6、月 24 时间顺序复述"
+      - "已在 Methods 完整说明的具体阈值、插补算法、投影计算和检验次序复述"
+      - "已在 Expected outputs 或第 14 节承担的失败后果和完整解释限制复述"
+    destination_if_moved: null
+    dependencies:
+      - NRP-004
+      - NRP-005
+    acceptance_test: "Required analyses and evidence 中每一项都对应一个可检查的交付或记录，且不再复制整段实施方法、日期路线或完整限制；所有 15 个必需 H2 仍在，Research content、Methods、Expected outputs 和第 14 节分别保有其自包含的独有功能；删除重复内容后不新增跨节限制指针。"

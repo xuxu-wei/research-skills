@@ -233,6 +233,10 @@ class ScenarioEngine:
         self.lifecycle_receipts: list[dict[str, Any]] = []
         self.initial_artifact_ids: list[str] = []
         self.idea_node_id: str | None = None
+        self.idea_editorial_ready_by_version: dict[str, set[str]] = {}
+        self.idea_editorial_outcomes_by_version: dict[str, dict[str, str]] = {}
+        self.idea_editorially_repaired_refs: set[str] = set()
+        self.idea_preservation_ready_refs: set[str] = set()
 
     def canonical_artifact_role(self, role: str) -> str:
         if self.workflow == "research_polisher":
@@ -628,21 +632,102 @@ class ScenarioEngine:
             for artifact in outputs
             if artifact["artifact_role"] == self.machine["primary_artifact_type"]
         ]
+        is_idea_editorial_repair = bool(
+            self.workflow == "idea"
+            and self.current_primary is not None
+            and primary_outputs
+            and self.state == "editorial_revision_required"
+        )
         if self.current_primary is not None and primary_outputs:
+            required_plan_role = (
+                "editorial_repair_writer_brief"
+                if is_idea_editorial_repair
+                else revision_contract["controller_output_role"]
+            )
             plans = [
                 self.artifacts[artifact_id]
                 for artifact_id in event["input_artifact_ids"]
                 if self.artifact_has_role(
-                    self.artifacts[artifact_id], revision_contract["controller_output_role"]
+                    self.artifacts[artifact_id], required_plan_role
                 )
             ]
-            require(len(plans) == 1, "revision_plan_missing", event["event_id"])
+            missing_plan_violation = (
+                "editorial_writer_brief_missing"
+                if is_idea_editorial_repair
+                else "revision_plan_missing"
+            )
+            require(len(plans) == 1, missing_plan_violation, event["event_id"])
             expected_plan_source = (
-                self.machine.get("primary_assembler_skill")
+                "research-idea-orchestrator"
+                if is_idea_editorial_repair
+                else self.machine.get("primary_assembler_skill")
                 if self.workflow == "research_polisher"
                 else event["source_skill"]
             )
-            require(plans[0]["source_skill"] == expected_plan_source, "revision_plan_missing", event["event_id"])
+            require(
+                plans[0]["source_skill"] == expected_plan_source,
+                missing_plan_violation,
+                event["event_id"],
+            )
+            if is_idea_editorial_repair:
+                registers = [
+                    self.artifacts[artifact_id]
+                    for artifact_id in event["input_artifact_ids"]
+                    if self.artifact_has_role(self.artifacts[artifact_id], "protected_content_register")
+                ]
+                require(len(registers) == 1, "protected_content_register_missing", event["event_id"])
+                require(
+                    registers[0]["source_skill"] == "research-idea-orchestrator",
+                    "protected_content_register_missing",
+                    event["event_id"],
+                )
+                expected_input_ids = {
+                    self.current_primary["artifact_id"],
+                    plans[0]["artifact_id"],
+                    registers[0]["artifact_id"],
+                }
+                require(
+                    set(event["input_artifact_ids"]) == expected_input_ids,
+                    "editorial_writer_isolation",
+                    f"{event['event_id']}: writer must read exactly current dossier, approved brief, and protected register",
+                )
+                expected_read_paths = {
+                    self.artifacts[artifact_id]["path"]
+                    for artifact_id in expected_input_ids
+                }
+                require(
+                    set(event["allowed_read_paths"]) == expected_read_paths,
+                    "editorial_writer_isolation",
+                    f"{event['event_id']}: unexpected writer read path",
+                )
+                required_parent_refs = {
+                    f"{self.current_primary['artifact_id']}@{self.current_primary['version_id']}",
+                    f"{plans[0]['artifact_id']}@{plans[0]['version_id']}",
+                    f"{registers[0]['artifact_id']}@{registers[0]['version_id']}",
+                }
+                require(
+                    required_parent_refs <= set(primary_outputs[0].get("based_on", [])),
+                    "artifact_lineage",
+                    f"{event['event_id']}: missing editorial repair parents",
+                )
+                require(
+                    primary_outputs[0].get("change_type") == "editorial_repair",
+                    "editorial_repair_change_type",
+                    event["event_id"],
+                )
+                repaired_ref = (
+                    f"{primary_outputs[0]['artifact_id']}@"
+                    f"{primary_outputs[0]['version_id']}"
+                )
+                for delta in outputs:
+                    if self.canonical_artifact_role(delta["artifact_role"]) != "revision_delta":
+                        continue
+                    require(
+                        required_parent_refs | {repaired_ref}
+                        <= set(delta.get("based_on", [])),
+                        "artifact_lineage",
+                        f"{event['event_id']}: missing editorial delta parents",
+                    )
             output_roles = {
                 self.canonical_artifact_role(artifact["artifact_role"])
                 for artifact in outputs
@@ -668,12 +753,27 @@ class ScenarioEngine:
                 if self.workflow != "research_polisher":
                     require(expected_parent in artifact["based_on"], "artifact_lineage", f"missing {expected_parent}")
                 require(artifact["version_id"] != self.current_primary["version_id"], "version_not_advanced", artifact["version_id"])
-                require(self.state == "revision_required", "registry_lifecycle_mismatch", event["event_id"])
+                expected_state = (
+                    "editorial_revision_required"
+                    if is_idea_editorial_repair
+                    else "revision_required"
+                )
+                require(self.state == expected_state, "registry_lifecycle_mismatch", event["event_id"])
             self.current_primary = artifact
             self.first_primary = self.first_primary or artifact
             self.primary_versions.append(artifact["version_id"])
             if len(self.primary_versions) > 1:
-                self.transition("artifact_frozen", "new_version_created", event["event_id"])
+                trigger = (
+                    "preserved_editorial_version_created"
+                    if is_idea_editorial_repair
+                    else "new_version_created"
+                )
+                self.transition("artifact_frozen", trigger, event["event_id"])
+                if is_idea_editorial_repair:
+                    current_ref = f"{artifact['artifact_id']}@{artifact['version_id']}"
+                    self.idea_editorially_repaired_refs.add(current_ref)
+                    self.idea_editorial_ready_by_version.pop(artifact["version_id"], None)
+                    self.idea_editorial_outcomes_by_version.pop(artifact["version_id"], None)
             if event.get("panel_patch"):
                 require(
                     self.panel_revision_scope in {"minor", "substantive"},
@@ -700,6 +800,121 @@ class ScenarioEngine:
             require(artifact["path"] in event["allowed_read_paths"], "read_scope", artifact["path"])
         outputs = event.get("outputs", [])
         require(outputs, "event_schema", f"{event['event_id']} has no outputs")
+        writer_briefs = [
+            output
+            for output in outputs
+            if self.canonical_artifact_role(output["artifact_role"])
+            == "editorial_repair_writer_brief"
+        ]
+        if writer_briefs:
+            require(
+                self.workflow == "idea"
+                and self.state == "editorial_revision_required"
+                and len(writer_briefs) == 1,
+                "editorial_writer_brief_contract",
+                event["event_id"],
+            )
+            input_artifacts = [
+                self.artifacts[artifact_id]
+                for artifact_id in event["input_artifact_ids"]
+            ]
+            input_roles = [
+                self.canonical_artifact_role(artifact["artifact_role"])
+                for artifact in input_artifacts
+            ]
+            expected_roles = {
+                "idea_dossier",
+                "narrative_assessment",
+                "narrative_repair_plan",
+                "language_assessment_report",
+                "protected_content_register",
+            }
+            require(
+                set(input_roles) == expected_roles
+                and len(input_roles) == len(expected_roles),
+                "editorial_writer_brief_contract",
+                f"{event['event_id']}: brief must reconcile the dossier, both reports, narrative plan, and register",
+            )
+            expected_paths = {artifact["path"] for artifact in input_artifacts}
+            require(
+                set(event["allowed_read_paths"]) == expected_paths,
+                "editorial_writer_brief_contract",
+                f"{event['event_id']}: unexpected brief-construction read path",
+            )
+            required_refs = {
+                f"{artifact['artifact_id']}@{artifact['version_id']}"
+                for artifact in input_artifacts
+            }
+            require(
+                required_refs <= set(writer_briefs[0].get("based_on", [])),
+                "artifact_lineage",
+                f"{event['event_id']}: incomplete writer-brief source lineage",
+            )
+        journal_briefs = [
+            output
+            for output in outputs
+            if self.canonical_artifact_role(output["artifact_role"])
+            == "candidate_journal_match_brief"
+        ]
+        if journal_briefs:
+            require(
+                self.workflow == "idea" and len(journal_briefs) == 1,
+                "idea_journal_match_contract",
+                event["event_id"],
+            )
+            evaluations = [
+                self.artifacts[artifact_id]
+                for artifact_id in event["input_artifact_ids"]
+                if self.artifact_has_role(self.artifacts[artifact_id], "evaluation_report")
+            ]
+            require(
+                len(evaluations) == 1,
+                "idea_journal_match_contract",
+                f"{event['event_id']}: one frozen evaluation is required",
+            )
+            review_id = self.review_artifact_reports.get(evaluations[0]["artifact_id"])
+            evaluation = self.review_reports.get(review_id or "")
+            require(
+                evaluation is not None
+                and evaluation.get("evaluation_frozen_before_journal_search") is True
+                and evaluation.get("evaluation_changed_after_journal_search") is False,
+                "idea_journal_match_contract",
+                f"{event['event_id']}: matching must follow a frozen evaluation",
+            )
+            matching = evaluation.get("journal_matching", {})
+            candidate_brief = matching.get("candidate_brief", {})
+            external_sources = evaluation.get("external_urls_consulted", [])
+            source_ids = {
+                item.get("source_id")
+                for item in external_sources
+                if item.get("source_status") == "usable"
+            }
+            candidates = candidate_brief.get("candidates", [])
+            require(
+                matching.get("status") == "completed"
+                and matching.get("match_basis") == "official_scope_and_article_type_only"
+                and candidate_brief.get("schema_version")
+                == "research-idea-journal-candidate-brief.v1"
+                and candidate_brief.get("matching_source_skill") == "idea-evaluator"
+                and candidate_brief.get("evaluation_fields_included") is False
+                and candidate_brief.get("scoring_present") is False
+                and candidate_brief.get("ranking_present") is False
+                and candidate_brief.get("publication_probability_present") is False
+                and bool(candidates)
+                and all(
+                    candidate.get("journal_title")
+                    and candidate.get("official_source_ids")
+                    and set(candidate["official_source_ids"]) <= source_ids
+                    for candidate in candidates
+                ),
+                "idea_journal_match_contract",
+                f"{event['event_id']}: concrete official-source-backed candidate required",
+            )
+            require(
+                journal_briefs[0].get("candidate_brief") == candidate_brief,
+                "idea_journal_match_contract",
+                f"{event['event_id']}: materialized brief changed evaluator payload",
+            )
         if any(output["artifact_role"] == "revision_plan" for output in outputs):
             self.validate_revision_plan_lineage(event, outputs)
         observation = self.materialize_outputs(event, outputs, None)
@@ -783,6 +998,7 @@ class ScenarioEngine:
             "evaluation_report": "reviews",
             "revision_plan": "revisions",
             "revision_delta": "revisions",
+            "editorial_repair_writer_brief": "revisions",
             "panel_report": "adversarial",
         }
         path = Path(artifact["path"])
@@ -1903,10 +2119,12 @@ class ScenarioEngine:
                 "idea_dossier_only_input",
                 event["event_id"],
             )
-            if report.get("reviewed_dossier_digest") == "computed":
-                report["reviewed_dossier_digest"] = dossier["content_digest"]
             require(
-                report.get("reviewed_dossier_digest") == dossier["content_digest"]
+                report.get("reviewed_dossier_ref") == {
+                    "artifact_id": dossier["artifact_id"],
+                    "version": dossier["version_id"],
+                    "path": dossier["path"],
+                }
                 and report.get("complete_dossier_confirmed") is True
                 and report.get("dossier_only_input_confirmed") is True,
                 "idea_dossier_binding",
@@ -1922,6 +2140,32 @@ class ScenarioEngine:
             require(
                 all(finding.get("title") and finding.get("dossier_locator") for finding in report["findings"]),
                 "idea_finding_locator",
+                event["event_id"],
+            )
+        if self.workflow == "idea" and destination == "medical-journal-review":
+            input_roles = {
+                self.canonical_artifact_role(self.artifacts[item]["artifact_role"])
+                for item in event["input_artifact_ids"]
+            }
+            candidate_artifacts = [
+                self.artifacts[item]
+                for item in event["input_artifact_ids"]
+                if self.artifact_has_role(self.artifacts[item], "candidate_journal_match_brief")
+            ]
+            candidate_ids = {
+                item.get("candidate_id")
+                for item in candidate_artifacts[0].get("candidate_brief", {}).get("candidates", [])
+            } if len(candidate_artifacts) == 1 else set()
+            dispositions = report.get("candidate_dispositions", [])
+            require(
+                input_roles == {"idea_dossier", "candidate_journal_match_brief"}
+                and len(candidate_artifacts) == 1
+                and report.get("evaluator_report_visible") is False
+                and report.get("evaluator_scores_visible") is False
+                and report.get("publication_probability_assessment") is None
+                and bool(dispositions)
+                and all(item.get("candidate_id") in candidate_ids for item in dispositions),
+                "idea_journal_review_isolation",
                 event["event_id"],
             )
 
@@ -2043,10 +2287,96 @@ class ScenarioEngine:
             require(report.get("peer_outputs_visible") is False, "peer_output_visible", event["event_id"])
             self.panel_instances[role] = event["actor_instance_id"]
             self.panel_review_ids.add(report["review_id"])
+        elif self.workflow == "idea" and destination in {
+            "idea-narrative-assessor",
+            "academic-language-assessor",
+        }:
+            require(self.entry_gate_verified, "entry_gate_receipts", event["event_id"])
+            require(self.current_primary is not None, "missing_primary_artifact", event["event_id"])
+            current_ref = f"{self.current_primary['artifact_id']}@{self.current_primary['version_id']}"
+            preservation_decisions = set(
+                self.contract["review_decision_contracts"]["idea-narrative-assessor"]
+                ["mode_specific_decisions"]["preservation"]
+            )
+            is_preservation_review = (
+                destination == "idea-narrative-assessor"
+                and report["decision"] in preservation_decisions
+            )
+            if is_preservation_review:
+                require(self.state == "artifact_frozen", "registry_lifecycle_mismatch", event["event_id"])
+                require(
+                    current_ref in self.idea_editorially_repaired_refs,
+                    "content_preservation_not_applicable",
+                    event["event_id"],
+                )
+                if report["decision"] == "scientific_content_preserved":
+                    require(route is None, "decision_finding_mismatch", event["event_id"])
+                    self.idea_preservation_ready_refs.add(current_ref)
+                elif category == "revise":
+                    self.transition(
+                        "editorial_revision_required",
+                        "idea_editorial_revision_requested",
+                        event["event_id"],
+                    )
+                else:
+                    self.transition("stopped", "unfixable_no_gain_or_user_stop", event["event_id"])
+            else:
+                require(self.state in {"artifact_frozen", "editorial_review_pending"}, "registry_lifecycle_mismatch", event["event_id"])
+                if current_ref in self.idea_editorially_repaired_refs:
+                    require(
+                        current_ref in self.idea_preservation_ready_refs,
+                        "content_preservation_missing",
+                        event["event_id"],
+                    )
+                if self.state == "artifact_frozen":
+                    self.transition(
+                        "editorial_review_pending",
+                        "idea_editorial_readiness_dispatched",
+                        event["event_id"],
+                    )
+                if category == "stop":
+                    self.transition("stopped", "unfixable_no_gain_or_user_stop", event["event_id"])
+                else:
+                    require(route is None or category == "revise", "decision_finding_mismatch", event["event_id"])
+                    version = self.current_primary["version_id"]
+                    outcomes = self.idea_editorial_outcomes_by_version.setdefault(version, {})
+                    outcomes[destination] = category
+                    if category == "pass":
+                        self.idea_editorial_ready_by_version.setdefault(version, set()).add(destination)
+                    if set(outcomes) == {"idea-narrative-assessor", "academic-language-assessor"}:
+                        if "revise" in outcomes.values():
+                            self.transition(
+                                "editorial_revision_required",
+                                "idea_editorial_revision_requested",
+                                event["event_id"],
+                            )
+                        else:
+                            self.transition(
+                                "artifact_frozen",
+                                "idea_editorial_readiness_passed",
+                                event["event_id"],
+                            )
         elif destination == self.machine["evaluator_skill"]:
             require(self.entry_gate_verified, "entry_gate_receipts", event["event_id"])
             require(self.state == "artifact_frozen", "registry_lifecycle_mismatch", event["event_id"])
             require(self.current_primary is not None, "missing_primary_artifact", event["event_id"])
+            if self.workflow == "idea":
+                version = self.current_primary["version_id"]
+                require(
+                    self.idea_editorial_ready_by_version.get(version) == {
+                        "idea-narrative-assessor",
+                        "academic-language-assessor",
+                    },
+                    "idea_editorial_readiness_missing",
+                    event["event_id"],
+                )
+                current_ref = f"{self.current_primary['artifact_id']}@{version}"
+                if current_ref in self.idea_editorially_repaired_refs:
+                    require(
+                        current_ref in self.idea_preservation_ready_refs,
+                        "content_preservation_missing",
+                        event["event_id"],
+                    )
             require(self.current_primary["artifact_id"] in report["input_artifact_ids"], "review_inputs", event["event_id"])
             require(self.current_primary["version_id"] in report["input_versions"], "review_inputs", event["event_id"])
             self.evaluator_instances.append(event["actor_instance_id"])
@@ -2257,6 +2587,25 @@ class ScenarioEngine:
                     or artifact["source_skill"] in set(requirement["source_skills"])
                 )
             ]
+            required_condition = requirement.get("required_when_condition")
+            if required_condition:
+                if required_condition == "editorial_repair_occurred":
+                    condition_met = current_ref in self.idea_editorially_repaired_refs
+                elif required_condition == "proposal_handoff_candidate":
+                    condition_met = self.post_evaluation_panel_required()
+                elif required_condition == "current_dossier_biomedical_or_clinical":
+                    condition_met = (
+                        self.fixture.get("current_dossier_domain")
+                        == "biomedical_or_clinical"
+                    )
+                else:
+                    raise ScenarioViolation(
+                        "package_input_contract",
+                        f"{event['event_id']}: unsupported required_when_condition {required_condition}",
+                    )
+                if not condition_met:
+                    require(not matches, "package_input_contract", f"{event['event_id']}: {requirement}")
+                    continue
             required_profile = requirement.get("required_when_direction_profile")
             if required_profile and required_profile != direction_profile:
                 require(not matches, "package_input_contract", f"{event['event_id']}: {requirement}")
@@ -2287,6 +2636,23 @@ class ScenarioEngine:
                 )
             elif requirement.get("count_must_equal_current_idea_dossier_count"):
                 require(len(matches) == current_dossier_count, "package_input_contract", f"{event['event_id']}: {requirement}")
+            elif requirement.get("count_per_editorially_repaired_current_dossier") is not None:
+                repaired_current_count = int(current_ref in self.idea_editorially_repaired_refs)
+                require(
+                    len(matches)
+                    == repaired_current_count
+                    * requirement["count_per_editorially_repaired_current_dossier"],
+                    "package_input_contract",
+                    f"{event['event_id']}: {requirement}",
+                )
+            elif requirement.get("count_per_applicable_current_dossier") is not None:
+                require(
+                    len(matches)
+                    == current_dossier_count
+                    * requirement["count_per_applicable_current_dossier"],
+                    "package_input_contract",
+                    f"{event['event_id']}: {requirement}",
+                )
             else:
                 require(len(matches) == requirement["count"], "package_input_contract", f"{event['event_id']}: {requirement}")
             require(all(artifact["frozen"] is True for artifact in matches), "package_input_contract", event["event_id"])
@@ -2464,7 +2830,6 @@ class ScenarioEngine:
                     "current_artifact_id": primary["artifact_id"],
                     "current_artifact_version": primary["version_id"],
                     "current_artifact_path": primary["path"],
-                    "current_artifact_digest": primary["content_digest"],
                     "latest_qualifying_evaluation": None,
                     "gate_receipts": [],
                     "unresolved_finding_ids": [],
@@ -3657,7 +4022,11 @@ def validate_bounded_idea_fixture(fixture: dict[str, Any], registry: dict[str, A
         report = {
             "reviewer_instance_id": review["reviewer_instance_id"], "isolation_mode": "fresh_subagent",
             "input_artifact_refs": [current_ref], "files_read": files_read,
-            "reviewed_dossier_digest": dossier["sha256"], "complete_dossier_confirmed": True,
+            "reviewed_dossier_ref": {
+                "artifact_id": dossier["artifact_id"],
+                "version": dossier["version_id"],
+                "path": dossier["path"],
+            }, "complete_dossier_confirmed": True,
             "dossier_only_input_confirmed": True, "prior_scores_visible": False, "source_edits_performed": False,
             "decision": review["decision"], "unresolved_issues": [],
             "findings": [{"id": review["finding_id"], "title": review["finding_title"], "dossier_locator": review["dossier_locator"], "severity": "minor", "blocking": False, "resolved": False, "dissent": True}],

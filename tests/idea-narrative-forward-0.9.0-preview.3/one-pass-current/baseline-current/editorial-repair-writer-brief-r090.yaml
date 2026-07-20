@@ -1,0 +1,357 @@
+schema_version: research-idea-editorial-repair-writer-brief.v1
+brief_id: editorial-repair-writer-brief-I01-001-r090
+workflow_id: RID-SEPSIS-CSM-20260717-001
+round_id: r090
+active_plugin_version: 0.9.0-preview.3
+role: 对冻结的完整 Idea dossier 执行一次集中编辑修复；只改变表达、结构与信息位置，不评价或改变科学设计、证据状态、研究身份或核心问题。
+
+source_artifact:
+  artifact_id: idea-dossier-I01-001-v003
+  version: v003
+  path: tests/idea-test-0.9.0-preview.1/0.9.0-preview.1/03_ideas/nodes/I01-001/dossiers/idea-dossier-v003.md
+protected_content_register:
+  register_id: protected-content-register-I01-001-v004-r004
+  version: r004
+  path: tests/idea-narrative-forward-0.9.0-preview.3/run-001/inputs/protected-content-register-v004.yaml
+source_review_binding:
+  narrative_assessment:
+    artifact_id: narrative-assessment-I01-001-r079
+    version: r079
+    path: tests/idea-narrative-forward-0.9.0-preview.3/one-pass-current/baseline-current/narrative-assessment-r079.md
+  narrative_repair_plan:
+    artifact_id: narrative-repair-plan-I01-001-r079
+    version: r079
+    path: tests/idea-narrative-forward-0.9.0-preview.3/one-pass-current/baseline-current/narrative-repair-plan-r079.yaml
+  language_assessment:
+    artifact_id: language-assessment-r089
+    version: baseline-current
+    path: tests/idea-narrative-forward-0.9.0-preview.3/one-pass-current/baseline-current/language-assessment-r089.md
+
+included_repair_item_ids:
+  - NRP-001
+  - NRP-002
+  - NRP-003
+  - NRP-004
+  - NRP-005
+  - LA-R089-001
+  - LA-R089-002
+  - LA-R089-003
+  - LA-R089-004
+  - LA-R089-005
+  - LA-R089-006
+  - LA-R089-007
+  - LA-R089-008
+omitted_reported_nonblocking_findings: []
+included_nonblocking_finding_rationale:
+  NAR-005: 由 NRP-005 在同一轮集中修复中执行，使实施部分形成独立的复现功能，而不是延后留下已知的小问题。
+  LA-R089-007: 同轮重写研究问题可与后续阶段的信息层级调整一次完成，避免入口句法与全篇结构再次失配。
+  LA-R089-008: 与 NRP-004 的限制集中和去重直接重叠，同轮执行可避免保留局部近义重复。
+
+writer_access:
+  allowed_reads:
+    - tests/idea-test-0.9.0-preview.1/0.9.0-preview.1/03_ideas/nodes/I01-001/dossiers/idea-dossier-v003.md
+    - tests/idea-narrative-forward-0.9.0-preview.3/one-pass-current/baseline-current/editorial-repair-writer-brief-r090.yaml
+    - tests/idea-narrative-forward-0.9.0-preview.3/run-001/inputs/protected-content-register-v004.yaml
+  forbidden_reads:
+    - any narrative or language assessment report
+    - any narrative repair plan or assessor plan other than this approved brief
+    - any prior or later dossier and any revision delta
+    - any methodology preflight artifact
+    - any evaluation report, portfolio artifact, workflow history, or hidden parent context
+  allowed_writes:
+    complete_dossier:
+      artifact_id: idea-dossier-I01-001-v048
+      version: v048
+      path: tests/idea-narrative-forward-0.9.0-preview.3/one-pass-current/direct-final-current-v14/idea-dossier-v048.md
+      change_type: editorial_repair
+    revision_delta:
+      artifact_id: revision-delta-I01-001-v003-to-v048
+      version: v003-to-v048
+      path: tests/idea-narrative-forward-0.9.0-preview.3/one-pass-current/direct-final-current-v14/revision-delta-v003-to-v048.md
+      change_type: editorial_repair_delta
+
+global_rules:
+  - H1 与 Title 完全一致，并以直接科学描述只突出阶段 I–II 的脓毒症纵向研究对象及计划的跨数据库评估；标题不得出现阶段 III、试验、访视、投影或后续分析。
+  - One-sentence complete-Idea summary 保持一个句号结束的一句，先写正向主线，再写 24 个月目标、总体设计与预期贡献；最多在末尾用一个高层从属短语说明主体研究达到标准后的条件性次要用途，不列试验名、访视、资格、分支或禁止性清单，也不强制加入非因果清单。
+  - Primary research question 保持一个总问句和语法平行的主要任务；可保留一个高层条件性后续用途，但不得展开资格、访视、映射、替代或停止分支树。
+  - 后续阶段的共享前提、两个互斥分析分支、结局排序、汇总量、缺失、多重性、停止和解释逻辑，只在第 7 节相应方法权威小节完整出现一次。
+  - 第 14 节是完整限制、工作假设和不支持主张类别的唯一权威位置；其他位置不留指向第 14 节的提示，只在删除会实质扭曲紧邻推理时保留最小、自足的局部边界。
+  - 第 11 节只保留结果证伪判定及结果依赖的解释，第 7 节只保留方法资格与分析后果；二者都不得复制完整限制家族或完整禁止主张清单。
+  - 压缩、删除或移动前，打开 protected register 中每个 source_locator，逐项保留该位置的数值、时序、分析处理、证据状态和主张边界；register 摘要不是丢弃细节的许可。
+
+identified_overlaps:
+  - finding_ids: [NRP-002, NRP-003, NRP-004, LA-R089-001, LA-R089-004, LA-R089-006, LA-R089-008]
+    locator: 标题、一句话摘要与结构化摘要的研究主线、后续用途和边界措辞。
+  - finding_ids: [NRP-003, NRP-004, LA-R089-004, LA-R089-007, LA-R089-008]
+    locator: Primary research question 中后续用途的层级、术语和句法。
+  - finding_ids: [NRP-001, NRP-003, NRP-004, LA-R089-002, LA-R089-004, LA-R089-008]
+    locator: 第 3、7、11、14 节之间的方法条件、限制、后果和禁止性解释。
+  - finding_ids: [NRP-002, NRP-004, LA-R089-002, LA-R089-003, LA-R089-005]
+    locator: 摘要、方法、证据链与贡献表中的外部评估、模型更新和项目短称。
+  - finding_ids: [NRP-003, NRP-004, LA-R089-002, LA-R089-004, LA-R089-005, LA-R089-008]
+    locator: 条件性试验方法、证据链、产物与风险中的完整逻辑和读者用语。
+  - finding_ids: [NRP-005, NRP-003, NRP-004, LA-R089-002, LA-R089-005]
+    locator: Key techniques and implementation 的复现功能、内部隐喻和缩写。
+overlap_dispositions:
+  - finding_ids: [NRP-002, NRP-003, NRP-004, LA-R089-001, LA-R089-004, LA-R089-006, LA-R089-008]
+    disposition: >-
+      Narrative 动作决定入口功能、信息位置和披露层级，language 动作只决定已保留内容的直接措辞与句法。标题只写阶段 I–II；一句话摘要先完成正向主线，可在末尾保留高层后续用途，但不纳入试验名、D7/D8、结局排序、分支树或成组禁止性解释。上述细节移至各自权威位置；LA-R089-001、004、006 中要求把后续分析或非因果清单写回标题/一句话摘要的局部 placement 不执行。
+  - finding_ids: [NRP-003, NRP-004, LA-R089-004, LA-R089-007, LA-R089-008]
+    disposition: >-
+      Narrative 动作限定研究问题只保留一个高层条件性用途，不展开后续分支；LA-R089-007 控制一个问号、平行动词和闭合句法，LA-R089-004 控制保留术语的准确性。试验人群、访视、层级结局、替代和停止条件均在第 7 节完整表达，不在研究问题重复。
+  - finding_ids: [NRP-001, NRP-003, NRP-004, LA-R089-002, LA-R089-004, LA-R089-008]
+    disposition: >-
+      Narrative 动作控制跨节功能：第 3 节完成五步推理，第 7 节保留方法资格和分析树，第 11 节保留证伪及结果解释，第 14 节完整且唯一地列出限制、假设和不支持主张。Language 动作在这些位置提供直接科学名称并删除近义复述；其他位置既不复制完整边界，也不添加跨节指针。
+  - finding_ids: [NRP-002, NRP-004, LA-R089-002, LA-R089-003, LA-R089-005]
+    disposition: >-
+      摘要只用高层外部评估表述；方法权威位置按 LA-R089-003 分开“未更新外部性能评估”“基于适配集的重新校准”“基于适配集的观测层更新”“全模型重新拟合”，并由 narrative 动作决定完整冻结、失败和限制的位置。缩写和内部标签不得取代这些操作名称。
+  - finding_ids: [NRP-003, NRP-004, LA-R089-002, LA-R089-004, LA-R089-005, LA-R089-008]
+    disposition: >-
+      第 7 节先写共享前提，再并列观测映射成立时的投影结局分支与映射不成立但独立分析条件满足时的 SOFA 分支，最后写核心语义不足时停止；不得把单一分支条件提升为共享前提。Narrative 动作决定唯一完整位置，language 动作决定层级复合结局、随机分配组间差异、缩写和局部句法。
+  - finding_ids: [NRP-005, NRP-003, NRP-004, LA-R089-002, LA-R089-005]
+    disposition: >-
+      第 10 节只写可复现记录的输入、计算关系、输出、核查用途和依赖；用直接科学操作替换门、封印、防火墙等隐喻并定义必要缩写。完整科学理由和分析分支留第 7 节，完整限制留第 14 节，不在第 10 节复述或指向它们。
+unresolved_overlaps: []
+all_overlaps_resolved: true
+
+normalized_repair_actions:
+  - repair_item_id: NRP-001
+    source_item_ids: [NRP-001, NAR-001]
+    addresses_finding_ids: [NAR-001]
+    locator: "Background, current state, gap, significance, and rationale；五段正文"
+    operation: split
+    problem: 背景、现状、差距、意义和理由混写，组合差异替代未解证据问题，方法条件与限制分散正向论证。
+    target: 原 H2 下依次建立五个非空 H3：Background、Current state、Gap、Significance、Rationale，各自只承担规定功能。
+    required_function_or_term: Gap 明确现有证据尚不能回答的全病程与跨数据库问题；Significance 写其对重症研究设计、跨库解释和后续干预判断的科学后果；Rationale 用双时钟、状态—治疗—测量区分、恢复检验和跨库评估连接 gap 与阶段 I–II，不展开计算。
+    content_to_preserve:
+      protected_ids: [PCR-001, PCR-003, PCR-004, PCR-005, PCR-009, PCR-012]
+    delete_move_disposition: 相邻工作比较移第 12 节，计算条件移第 7 节，完整限制与不支持主张移第 14 节；本节只留推进五步推理所需的最小边界。
+    destination: [第 7 节方法, 第 12 节 closest-work comparison, 第 14 节]
+    dependencies: [NRP-003, NRP-004, LA-R089-001, LA-R089-002, LA-R089-008]
+    acceptance_test: 五个规定 H3 均非空并可各用一句概括；Gap 不是组合差异改写，Significance 明示科学后果，Rationale 完成 gap-to-design；无完整限制或禁止清单，无第 14 节指针。
+
+  - repair_item_id: NRP-002
+    source_item_ids: [NRP-002, NAR-002, NAR-003]
+    addresses_finding_ids: [NAR-002, NAR-003]
+    locator: "Title, summary, audience, and positioning > Title 与 One-sentence complete-Idea summary"
+    operation: replace
+    problem: 标题和一句话摘要把 24 个月主体研究与条件性后续分析并列，并在正向主线前堆叠资格、计算、替代和禁止性解释。
+    target: 标题只突出阶段 I–II；一句话摘要按研究对象或问题—24 个月目标—总体设计—预期贡献展开，最多以一个高层从属短语说明主体研究达标后的条件性次要用途。
+    required_function_or_term: 用直接科学语言说明发病前风险、首次发病及发病后互斥状态转移的候选纵向模型，以及恢复检验和计划跨数据库评估的关系；无需在入口列非因果或其他禁止性清单。
+    content_to_preserve:
+      protected_ids: [PCR-001, PCR-002, PCR-003, PCR-009, PCR-011, PCR-012]
+    delete_move_disposition: 标题删除阶段 III；一句话摘要删除试验名、访视、资格、映射、替代树、内部标签和成组禁止主张；方法内容移第 7 节，完整限制与不支持主张移第 14 节。
+    destination: [第 7 节后续阶段方法权威小节, 第 14 节]
+    dependencies: [NRP-003, NRP-004, LA-R089-001, LA-R089-004, LA-R089-006, LA-R089-008]
+    acceptance_test: H1 与 Title 一致且只突出阶段 I–II；One-sentence 恰为一个句号结束的一句，正向主干先于条件；无阶段 III 细节、限制清单或第 14 节指针。
+
+  - repair_item_id: NRP-003
+    source_item_ids: [NRP-003, NAR-003]
+    addresses_finding_ids: [NAR-003]
+    locator: "Research design and methods > Conditional trial-observation projection and independent fallback"
+    operation: consolidate
+    problem: 后续阶段资格、共同锚点、映射、排序、缺失、替代和停止逻辑散布多节，使其与主体研究并列并多次重复。
+    target: 本小节先写共享前提，再并列观测映射分支与独立临床状态分支，最后写核心语义不足时停止；其他章节只留自身功能所需的最小陈述。
+    required_function_or_term: 完整保留阶段 II 先决条件、两试验分开核验、共同生理锚点、冻结映射及忠实度、D7/D8 层级复合结局、随机分配组间差异、死亡/出院/缺失、多重性、独立 SOFA 分支、停止及各分支解释范围。
+    content_to_preserve:
+      protected_ids: [PCR-005, PCR-006, PCR-008, PCR-010, PCR-011, PCR-012]
+    delete_move_disposition: 从标题、摘要、研究问题、目标、时间表、数据、证据链、必需分析、产物、贡献、主张表和风险表删除完整资格—计算—替代复述；数据状态留第 6 节，完整限制留第 14 节。
+    destination: [本方法权威小节, 第 6 节数据状态, 第 14 节]
+    dependencies: [LA-R089-002, LA-R089-004, LA-R089-005, LA-R089-008]
+    acceptance_test: 完整资格、两分支和停止逻辑只连续出现一次；共享前提不含单一分支条件，其他提及均承担一个明确章节功能且不展开分支树。
+
+  - repair_item_id: NRP-004
+    source_item_ids: [NRP-004, NAR-004]
+    addresses_finding_ids: [NAR-004]
+    locator: "Feasibility, resources, risks, alternatives, and stop conditions；全篇限制家族"
+    operation: consolidate
+    problem: 同类限制、工作假设、不支持主张和失败后果全篇重复，五条证据链另带限制字段，割裂正向论证。
+    target: 第 14 节一次完整列出所有限制、工作假设、非方法型风险和不支持主张；第 7 节保留方法资格与分支，第 11 节保留结果证伪及结果依赖解释。
+    required_function_or_term: 第 14 节完整覆盖资源/访问、团队、数据支持、标签/泄漏、可恢复性、缺失/低重叠、外部评估、时间、试验数据/语义、观测映射、closest-work、未决规范和全部不支持主张及后果。
+    content_to_preserve:
+      protected_ids: [PCR-004, PCR-005, PCR-006, PCR-007, PCR-008, PCR-009, PCR-010, PCR-011, PCR-012]
+    delete_move_disposition: 删除五条证据链的 Limits and failure conditions 字段、重复禁止清单和无局部功能的失败复述；方法树归第 7 节，证伪/结果解释归第 11 节，完整限制归第 14 节；删除所有跨节指针。
+    destination: [第 7 节, 第 11 节, 第 14 节]
+    dependencies: [NRP-003, LA-R089-008]
+    acceptance_test: 第 14 节完整且是唯一完整权威位置；其他每条局部边界都不可替代地推进紧邻推理，证据链无 Limits 字段，全篇无第 14 节指针。
+
+  - repair_item_id: NRP-005
+    source_item_ids: [NRP-005, NAR-005]
+    addresses_finding_ids: [NAR-005]
+    locator: "Key techniques and implementation；十项编号列表"
+    operation: replace
+    problem: 十项列表用工具或控制隐喻重述方法，未稳定说明复现记录的输入、计算、输出和核查用途。
+    target: 每项写成数据字段或科学构念—计算关系—输出记录—核查用途—依赖，使本节补充而不复制第 7 节。
+    required_function_or_term: 明确双时钟、变量构念与单位、队列和互斥状态、模型输入输出、模拟、医院分区、共同锚点与映射、不确定性和阴性对照的复现用途。
+    content_to_preserve:
+      protected_ids: [PCR-003, PCR-006, PCR-008, PCR-011]
+    delete_move_disposition: 删除工具隐喻及没有新增复现信息的门槛复述；完整科学理由归第 7 节，完整限制归第 14 节。
+    destination: [第 7 节方法, 第 14 节]
+    dependencies: [NRP-003, NRP-004, LA-R089-002, LA-R089-005]
+    acceptance_test: 未接触内部命名的研究者能逐项指出输入、计算、输出和核查目的；每项新增复现信息，无工具隐喻、限制复述或跨节指针。
+
+  - repair_item_id: LA-R089-001
+    source_item_ids: [LA-R089-001]
+    addresses_finding_ids: [LA-R089-001]
+    locator: "标题、摘要、研究问题、解释矩阵、贡献与全篇核心研究对象名称"
+    operation: define
+    problem: “候选动态系统表征”及多个变体未在入口说明描述对象、可估计范围和模型类别尚待审计确定，跨学科读者无法识别核心对象。
+    target: 标题与摘要首次用直接描述建立研究对象；首次定义后全篇只用一个短称“候选纵向模型”，不得保留竞争形式。
+    required_function_or_term: >-
+      采用“用于描述脓毒症发病前风险、首次发病及发病后互斥状态转移的候选纵向模型”或等义直接描述；首次定义须说明其观测性、候选性，且具体类别将在双数据库审计后从预设多状态模型、线性状态空间模型或至多一个受限复杂模型中确定。该替换由 dossier 已列研究对象、任务和候选类别直接支持，不引入未经核验的新术语。标题只保留阶段 I–II，不因本 action 加回条件性后续分析。
+    content_to_preserve:
+      protected_ids: [PCR-001, PCR-003, PCR-006, PCR-009, PCR-011, PCR-012]
+    delete_move_disposition: 将“候选全病程表示、候选架构、候选系统表征、复杂候选、跨库系统表征”等改为已定义短称或具体模型类别；阶段 III 内容按 NRP-003 归第 7 节。
+    destination: [标题与首次摘要定义, 全篇 concordance, 第 7 节后续阶段方法]
+    dependencies: [NRP-002, NRP-003]
+    acceptance_test: 全篇检索所有竞争形式，正文仅保留一个已定义短称及必要的具体模型类别；只读标题和一句摘要即可回答对象、时间范围、观测性与模型类别未锁定，且标题没有阶段 III。
+
+  - repair_item_id: LA-R089-002
+    source_item_ids: [LA-R089-002]
+    addresses_finding_ids: [LA-R089-002]
+    locator: "全篇判定标准、资格、停止、替代和 G1/R0/R1 名称"
+    operation: replace
+    problem: 门、过门、降级、准入、封印、清零、救回、失败图、防火墙等隐喻及裸 G1/R0/R1 混指不同科学动作和后果。
+    target: 每处直接写判定对象、预先规定标准、受影响分析及未满足时允许的替代或停止；阶段标签只在完整科学名称后作括号短称。
+    required_function_or_term: 首次分别写“双数据库可观测性与样本支持审计（G1）”“试验语义与共同测量变量资格核验（R0）”“测量一致性、校准与投影误差核验（R1）”；其余使用预先规定的判定标准、最低数据支持条件、停止相应结构解释或改用预设较简单模型等直接表述。
+    content_to_preserve:
+      protected_ids: [PCR-004, PCR-006, PCR-007, PCR-008, PCR-010, PCR-011]
+    delete_move_disposition: 删除只靠隐喻或短称理解的表达；保留全部日期、阈值、先后、停止、替代和解释边界，并按 NRP-003/004 放到权威位置。
+    destination: [首次读者可见定义, 第 7 节, 第 14 节]
+    dependencies: [NRP-003, NRP-004]
+    acceptance_test: 全篇检索源 finding 列出的隐喻及 G1/R0/R1；每个保留标签同句或邻句都有对象、标准和后果，且未合并不同科学判定。
+
+  - repair_item_id: LA-R089-003
+    source_item_ids: [LA-R089-003]
+    addresses_finding_ids: [LA-R089-003]
+    locator: "摘要、外部评估方法、证据链、解释矩阵、贡献表与风险表"
+    operation: consolidate
+    problem: 跨数据库检验、运输、zero update、有限更新和重拟合混用，模糊冻结模型外部评估与利用适配数据更新模型的差别。
+    target: 全篇将外部评估及三个更新操作分成四个名称和四种证据含义，并在摘要首次高层出现时说明评估与更新不同。
+    required_function_or_term: >-
+      统一使用“未更新外部性能评估（通常称外部验证）”“基于适配集的重新校准”“基于适配集的观测层更新”“全模型重新拟合”；删除真正、天然稳健、运输和英文 zero-update/transport 等不能直接说明操作的形式。TRIPOD 与 TRIPOD+AI 所支持的核心区别必须保留：外部评估用冻结模型在新数据生成预测并比较观察结局，后三类利用适配数据，不能替代第一类失败。
+    content_to_preserve:
+      protected_ids: [PCR-006, PCR-007, PCR-009, PCR-010]
+    delete_move_disposition: 摘要只留未更新外部性能评估的高层说明；四类完整顺序、冻结和后果留第 7 节，完整限制留第 14 节。
+    destination: [首次摘要说明, 第 7 节外部评估方法, 第 14 节]
+    dependencies: [NRP-002, NRP-004, LA-R089-005]
+    acceptance_test: 全篇检索跨数据库检验、外部检验、运输、transport、zero update、有限更新、更新、重拟合；每处恰归入四类之一，摘要、方法、证据链、解释和贡献使用同一名称，后三类明确不能替代第一类。
+
+  - repair_item_id: LA-R089-004
+    source_item_ids: [LA-R089-004]
+    addresses_finding_ids: [LA-R089-004]
+    locator: "第 7 节条件性试验方法及其他保留的高层后续用途"
+    operation: define
+    problem: 投影摘要、随机化扰动、death-ranked、fallback 等同时混指结局、排序、汇总量、组间比较和替代分析，并可能暗示机制性干预。
+    target: 第 7 节分别直接命名投影结局、SOFA 独立结局、死亡/出院排序、概率指数或胜率及随机分配组间差异；其他章节只用自身功能所需的高层名称。
+    required_function_or_term: >-
+      按 ICH E9(R1) 的估计目标要素和优先级复合结局方法，完整写“D7/D8 层级复合结局的随机分配组间差异，以概率指数或胜率汇总”：死亡最不利，访视时存活在院者在投影分支按冻结投影分数排序、在独立分支按 SOFA 排序，访视前存活出院最有利。结果称“随机分配组间差异”，不用“随机化扰动”、裸 death-ranked、投影摘要或 fallback。
+    content_to_preserve:
+      protected_ids: [PCR-005, PCR-010, PCR-011, PCR-012]
+    delete_move_disposition: 完整人群、访视、排序、汇总量、缺失、中心、多重性和分支关系只在第 7 节；标题完全删除，摘要和研究问题只留高层条件性用途。
+    destination: [第 7 节后续阶段方法权威小节]
+    dependencies: [NRP-003, NRP-004, LA-R089-005]
+    acceptance_test: 第 7 节两分支均明确人群、实际访视、结局、死亡/出院处理、汇总量及与阶段 II 的关系；全篇不再由扰动、death-ranked、fallback 或投影摘要单独承担这些信息，D7/D8 只修饰访视。
+
+  - repair_item_id: LA-R089-005
+    source_item_ids: [LA-R089-005]
+    addresses_finding_ids: [LA-R089-005]
+    locator: "Structured abstract 至 References 前的全部读者正文与表格"
+    operation: define
+    problem: 多领域缩写和裸露英文普通词在摘要或主文首次出现时未定义，跨学科读者必须猜测相邻领域含义。
+    target: 摘要与主文各自首次出现的必要缩写采用“自然中文名称（标准英文全称，缩写）”；少于三次且无阅读收益者直接展开，英文普通词改为具体中文操作名称。
+    required_function_or_term: >-
+      逐项处理 RCT、SOFA、EHR、MPC、MDP、RL、CIF、DUA、CRF、SAP、MAR、MNAR、IPCW、ESS、ARI、MAE、FDR、MCSE、NMAE、SVD、CRPS、MI、mITT、FAS、PPS；将 test、adaptation、loading、coverage、baseline、fallback、proper score 分别改为最终测试区、适配区、载荷、区间覆盖率、基线、预设替代分析、恰当评分规则或更具体评分名。保留数据库/试验名、公式变量和参考文献题名，不翻译合同固定字段。
+    content_to_preserve:
+      protected_ids: [PCR-004, PCR-005, PCR-006, PCR-007, PCR-008, PCR-010, PCR-011]
+    delete_move_disposition: 删除无必要缩写和裸英文；必要缩写只在定义后使用，不合并不同概念；不改变公式或统计方法。
+    destination: [摘要首次出现, 主文首次出现, 全篇 concordance]
+    dependencies: [NRP-003]
+    acceptance_test: 对 References 前正文执行大小写缩写与连续英文词扫描；所列每项均已定义、展开或明确处置，摘要与主文首次使用分别可理解，且同一概念全篇形式一致。
+
+  - repair_item_id: LA-R089-006
+    source_item_ids: [LA-R089-006]
+    addresses_finding_ids: [LA-R089-006]
+    locator: "Title, summary, audience, and positioning > One-sentence complete-Idea summary"
+    operation: replace
+    problem: 一句话摘要把数据资格、病程、模型、多阶段证据、试验分支和禁止性解释嵌入一个过载主句，主体动作出现过晚。
+    target: 保持一个句号结束的一句，用平行分句先呈现对象与 24 个月主体、总体评估和贡献，最多在句末放一个高层条件性后续用途。
+    required_function_or_term: 每个分句只承担一个主要动作，分号不超过 3 个；不强制加入非因果或禁止性清单，也不使用“仅当……/不满足时……”展开后续分支，因为 narrative action 将其完整 placement 固定在第 7 节。
+    content_to_preserve:
+      protected_ids: [PCR-001, PCR-002, PCR-003, PCR-009, PCR-011, PCR-012]
+    delete_move_disposition: 删除一句话中的阈值、阶段编号重复、试验名/访视、资格/替代树、内部短称和禁止清单；相应科学承诺在第 7 或第 14 节权威位置保留。
+    destination: [第 7 节方法, 第 14 节]
+    dependencies: [NRP-002, NRP-003, NRP-004, LA-R089-001]
+    acceptance_test: 修改后只有一个句号和一个完整句子，分号不超过 3 个，正向主体在条件用途之前；目标读者可复述研究对象、24 个月目标、总体设计和贡献，无分支树或成组禁止主张。
+
+  - repair_item_id: LA-R089-007
+    source_item_ids: [LA-R089-007]
+    addresses_finding_ids: [LA-R089-007]
+    locator: "Research question, objectives, and core hypothesis > Primary research question"
+    operation: replace
+    problem: 单个问句嵌套模型属性、四段病程、外部评估、试验访视、映射资格和替代分支，编号任务语法不平行且第三项过长。
+    target: 保持一个主要研究问题和一个问号，用一个总问句统领语法平行、长度接近的主要任务；后续用途只保留一个高层条件性短语。
+    required_function_or_term: 以“描述”“评估”和一个高层“用于”或等义动词形成平行结构；第三项只说明主体研究达标后可用于分试验的条件性次要分析，不写试验名、访视、映射、替代或停止分支。
+    content_to_preserve:
+      protected_ids: [PCR-001, PCR-003, PCR-011, PCR-012]
+    delete_move_disposition: 详细后续分支移第 7 节；必要的完整禁止主张归第 14 节，问题中只留防止主干实质误读时不可替代的最小自足边界。
+    destination: [第 7 节后续阶段方法, 第 14 节]
+    dependencies: [NRP-003, NRP-004, LA-R089-001, LA-R089-004]
+    acceptance_test: 最终只有一个问号和一个主要研究问题；各任务主要动词平行且长度接近；后续用途不展开分支树，无未定义短称或跨节指针。
+
+  - repair_item_id: LA-R089-008
+    source_item_ids: [LA-R089-008]
+    addresses_finding_ids: [LA-R089-008]
+    locator: "摘要、核心假设、方法、证据链、第 11–14 节及主张表中的限定语和禁止性解释"
+    operation: consolidate
+    problem: 不能挽救、不支持潜在动力学、有限更新不能替代、阶段 III 不补足等边界以近义长串重复，多个限定语叠加削弱局部重点。
+    target: 由 narrative 动作决定唯一完整位置；language 动作只删除同一局部的同义复述、把限定语贴近修饰对象，并保留科学上不同的边界。
+    required_function_or_term: 第 14 节一次完整保留全部限制、假设和不支持主张；第 7 节只保留改变方法选择的局部条件，第 11 节只保留改变结果判定或解释的边界，其他位置仅保留不可替代的最小自足边界；连续前置限定语不超过 3 个。
+    content_to_preserve:
+      protected_ids: [PCR-007, PCR-009, PCR-010, PCR-011, PCR-012]
+    delete_move_disposition: 删除同一段落或表格内的近义重复和成组禁止清单；不得删除预测非因果、更新不替代未更新评估、独立分支与阶段 II 分离、试验不验证系统结构、阶段 III 不补足阶段 II 等不同科学边界。
+    destination: [第 7 节, 第 11 节, 第 14 节]
+    dependencies: [NRP-003, NRP-004]
+    acceptance_test: 全文对照四组源短语，同一局部无同义复述且连续前置限定不超过 3 个；每种不同边界至少有一个完整权威表述，其他保留边界有不可替代的紧邻功能，无跨节指针。
+
+mandatory_whole_dossier_checks:
+  not_new_findings: true
+  checks:
+    - check: protected_source_locator_preservation
+      instruction: 删除、移动或压缩前逐一打开 PCR-001 至 PCR-012 的 source_locator，核对数字、时序、分支资格、分析处理、证据状态和主张强度。
+      acceptance: 每个 protected_id 在 v048 有修订 locator 和逐项文本证据；无承诺丢失、分支条件上提、状态加强或科学内容新增。
+    - check: entry_hierarchy_and_sentence_contracts
+      instruction: 联查 H1/Title、一句话摘要、结构化摘要和主要研究问题，确认阶段 I–II 主线先行，后续用途从属且不展开分支树。
+      acceptance: 标题无阶段 III；一句摘要一个句号且先正向主线；研究问题一个问号且任务平行；入口无试验细节、禁止清单或第 14 节指针。
+    - check: authority_location_and_no_pointers
+      instruction: 扫描每个限制、假设、不支持主张和阶段 III 分支家族，分别核对第 7、11、14 节的唯一权威功能，并删除其他位置的完整复述与指针。
+      acceptance: 第 14 节是完整限制/假设/不支持主张的唯一位置，第 7 节只有方法树，第 11 节只有证伪/结果解释；其他边界最小、自足且不可替代。
+    - check: verified_terminology_concordance
+      instruction: 建立全篇术语表并扫描研究对象、判定标准、外部评估/更新四类、试验层级复合结局及其所有竞争形式；采用各 language action 中有证据支持的替换。
+      acceptance: 每个核心角色有一个稳定名称和首次定义；TRIPOD/TRIPOD+AI 支持的评估—更新区别及 ICH E9(R1) 支持的结局—汇总量区别在摘要、方法、证据链、解释和贡献中一致。
+    - check: abbreviation_and_plain_language_scan
+      instruction: 从标题至 References 前扫描大写缩写和连续英文普通词，按 LA-R089-005 逐项定义、展开或替换。
+      acceptance: 所列缩写在摘要与主文首次出现时分别可理解，低频缩写已展开，裸英文操作词已换成具体中文且公式、数据库名和参考文献题名未变。
+    - check: structure_references_and_lint
+      instruction: 保留十五个规定 H2、第 3 节五个规定 H3、表格功能、引文编号与完整 References；冻结前运行适用的确定性结构 lint 和全篇 concordance。
+      acceptance: 结构与引文完整，lint 无错误或未处置提示，核心名称无竞争形式，未写入评审历史、修订历史或内部工作术语。
+
+execution_and_handoff:
+  section_passes:
+    - sections 1-4
+    - sections 5-11
+    - sections 12-14
+    - references and whole-dossier concordance
+  single_complete_target_dossier: true
+  partial_artifacts_forbidden: true
+  delta_after_dossier_freeze_only: true
+  delta_requirements:
+    - 每个 included_repair_item_id 映射到修订 locator、实际 operation 和正文中的 acceptance evidence
+    - 每个 PCR-001 至 PCR-012 映射到修订 locator 和逐项保护证据，包括 source_locator 中未被 register 摘要逐字复述的承诺
+    - 记录标题/摘要/研究问题层级、权威位置、术语、缩写和引用的全篇 concordance，不复制审计报告、protected content 或长段 dossier 正文
+    - 完整 dossier 冻结并通过 lint 后才创建 delta；之后若 dossier 改动，重新扫描并重写 delta
+  failure_routes:
+    scientific_change_needed: scientific_change_declared
+    identity_drift_detected: new_idea_required
+    missing_scientific_confirmation: clarification_required
+    incomplete_mapping: block_preservation_handoff

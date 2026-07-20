@@ -14,6 +14,19 @@ research_context_brief:
   user_goal:
   intended_output: paper | grant | protocol | pilot_study | long_term_program | internal_decision | unspecified
   target_audience_or_reviewer:
+  target_reader_profile:
+    disciplines: []
+    intended_use:
+  reader_prior_knowledge:
+    assumed_known: []
+    requires_first_use_explanation: []
+  reader_reasoning_chain:
+    background:
+    current_state:
+    gap:
+    significance:
+    rationale:
+  gap_type: knowledge | evidence | theory | method | measurement | data | validation | implementation | mixed | unclear
   study_object:
   setting_or_context:
   available_data:
@@ -45,6 +58,9 @@ research_context_brief:
 ```
 
 A valid brief includes goal/output, domain, object when inferable, data and
-endpoint status, assumptions/uncertainties, direction clarity with rationale,
-proceed status, and downstream needs. Use explicit unknown values; do not infer
-research value from clarity.
+endpoint status, a target-reader profile, prior-knowledge boundaries, all five
+reader-reasoning functions, gap type, assumptions/uncertainties, direction
+clarity with rationale, proceed status, and downstream needs. When proceeding,
+each reasoning function must contain either usable context or an explicit
+unresolved need; do not leave a silent blank. The chain describes what a reader
+must understand. It does not establish scientific value or novelty.

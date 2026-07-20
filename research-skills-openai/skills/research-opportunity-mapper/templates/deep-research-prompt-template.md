@@ -5,7 +5,7 @@
 - Handoff status: `deep_research_handoff_required`
 - Workflow ID / round ID / pending edge ID:
 - Plugin version:
-- Frozen input refs and SHA-256 digests:
+- Frozen input logical refs (`artifact_id`, `version`, `path`):
 - Resume target:
 - Expected returned artifact path or type:
 
@@ -92,5 +92,5 @@ access-limited` for support status.
    inference.
 
 Save or return the report as the named artifact, include its completion time,
-and preserve the workflow, round, and pending-edge IDs for digest binding and
-single-edge resume.
+and preserve the workflow, round, pending-edge, returned-artifact ID, version,
+and path for single-edge resume.

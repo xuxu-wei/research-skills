@@ -46,7 +46,9 @@ ORCHESTRATORS = {
     "research_polisher": "research-polisher-orchestrator",
 }
 IDEA_NON_BYPASS_GATES = {
+    "current_dossier_editorial_readiness_complete",
     "latest_version_independently_evaluated",
+    "biomedical_journal_review_complete_or_not_applicable",
     "dissent_and_fatal_findings_indexed",
     "idea-portfolio-assembler",
 }

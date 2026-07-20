@@ -167,9 +167,9 @@ def build_report() -> tuple[dict[str, Any], list[str]]:
 
     require(registry.get("plugin_version") == version, "manifest/registry version mismatch", errors)
     skills = registry.get("skills", [])
-    require(isinstance(skills, list) and len(skills) == 49, "expected 49 registered skills", errors)
+    require(isinstance(skills, list) and len(skills) == 50, "expected 50 registered skills", errors)
     reviewers = [item for item in skills if isinstance(item, dict) and item.get("requires_independent_subagent") is True]
-    require(len(reviewers) == 20, "expected 20 independent reviewers", errors)
+    require(len(reviewers) == 21, "expected 21 independent reviewers", errors)
 
     policy = registry.get("public_entry_policy", {})
     declared = set(policy.get("declared_entries", [])) if isinstance(policy, dict) else set()

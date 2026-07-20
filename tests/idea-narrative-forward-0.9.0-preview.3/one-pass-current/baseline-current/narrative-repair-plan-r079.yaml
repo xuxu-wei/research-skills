@@ -1,0 +1,165 @@
+schema_version: research-idea-narrative-repair-plan.v1
+plan_id: narrative-repair-plan-I01-001-r079
+assessment_id: narrative-assessment-I01-001-r079
+source_artifact:
+  artifact_id: idea-dossier-I01-001-v003
+  version: v003
+  path: tests/idea-test-0.9.0-preview.1/0.9.0-preview.1/03_ideas/nodes/I01-001/dossiers/idea-dossier-v003.md
+decision: major_narrative_revision
+clarifications_required: []
+actions:
+  - action_id: NRP-001
+    addresses_findings:
+      - NAR-001
+    priority: major
+    dossier_locator:
+      section_heading: "Background, current state, gap, significance, and rationale"
+      subsection_heading: null
+      content_anchor: "从‘脓毒症随时间形成’到‘任何结果均不支持无条件国际临床推广’的五段正文"
+    operation: split
+    current_problem: >-
+      五种论证功能混在连续段落中；差距主要表现为与相邻研究的组合差异，意义没有独立回答“解决后会改变什么”，设计理由又被方法条件和试验限制分散。
+    target_state: >-
+      在原 H2 下依次形成 Background、Current state、Gap、Significance 和 Rationale 五个 H3。读者无需借用后文即可说明研究问题、现有证据、仍缺证据、解决它的价值，以及阶段 I–II 设计为何能够推进该问题。
+    required_content_or_function: >-
+      Gap 命名尚不能由现有证据回答的全病程与跨数据库问题；Significance 说明该问题对重症研究设计、跨数据库解释和后续干预研究判断的后果；Rationale 以简洁科学关系连接双时钟、状态—治疗—测量区分、恢复检验和跨数据库检验，不展开计算细节。
+    content_to_preserve:
+      - Sepsis-3 标签与信息可用时刻不唯一的事实及引文
+      - 公共 ICU 数据库异质性、已有研究范围和观察性偏倚事实及引文
+      - 研究限定为观察政策下的预测或生成表示，以及低支持时不作过度解释的边界
+      - 稀疏试验数据只能作为后续条件性分析的事实
+      - 研究对象、阶段 I–II 目标和条件性阶段 III 之间的科学关系
+    content_to_remove_or_move:
+      - 将“现有研究没有采用完全相同组合”的定位论述与真正未解的科学或证据问题分离；详细的相邻工作比较保留在第 12 节
+      - 将阶段 III 的投影资格、替代分析和监管限制细节移出本节，仅保留其为何不能替代阶段 I–II 证据的一句理由
+      - 将恢复阈值、失配处置和其他计算条件留到第 7 节，不用这些细节代替 Significance
+    destination_if_moved: "第 7 节 Research design and methods；第 12 节 Contribution, innovation, impact, application, and closest-work comparison"
+    dependencies: []
+    acceptance_test: >-
+      原 H2 名称不变且包含五个规定的 H3；每个 H3 可用一句话概括且不借用另一节的关键内容。Gap 不是“尚无相同组合”的同义改写，Significance 明确写出对既定读者的科学后果，Rationale 明确完成 gap-to-design 连接。
+
+  - action_id: NRP-002
+    addresses_findings:
+      - NAR-002
+      - NAR-003
+    priority: major
+    dossier_locator:
+      section_heading: "Title, summary, audience, and positioning"
+      subsection_heading: null
+      content_anchor: "Title 与 One-sentence complete-Idea summary"
+    operation: replace
+    current_problem: >-
+      标题和一句话摘要把 24 个月主要研究与后续条件性试验分析并列，并在正向目标完成前装入多层资格条件、替代方案和禁止性解释；结构化摘要随后继续使用尚未解释的跨学科概念。
+    target_state: >-
+      标题首先标识脓毒症全病程候选动态系统表征及阶段 I–II 的跨数据库检验；摘要按“问题—24 个月目标—总体设计—预期贡献—后续条件性延伸”的顺序展开，阶段 III 仅以从属说明出现。
+    required_content_or_function: >-
+      用一遍阅读即可理解的语言说明研究对象、两项主要临床任务、恢复检验和跨数据库检验的关系；只在首次影响理解的位置解释跨学科概念。条件性试验分析的详细资格、计算和替代方案保留在第 7 节。
+    content_to_preserve:
+      - 脓毒症发病前、首次发病、发病后和结局连续体
+      - 知识约束和不确定性感知的候选表征
+      - 阶段 I–II 在 24 个月内完成及两库检验
+      - 预测不等于因果的核心边界
+      - 阶段 III 只在规定科学条件满足后开展，并且失败时使用独立临床状态分析
+    content_to_remove_or_move:
+      - 将标题中与主要阶段并列的后续试验分析细节移到摘要末尾的从属说明
+      - 替换当前一句话摘要中对全部资格条件、投影计算、失败分支和禁止性主张的连锁枚举
+      - 从结构化摘要移出只有读完方法才能理解的恢复、外部更新和试验投影操作细节，只保留该摘要字段完成自身功能所需的信息
+    destination_if_moved: "Research design and methods > Conditional trial-observation projection and independent fallback，以及相应的恢复检验和跨数据库检验小节"
+    dependencies:
+      - NRP-003
+    acceptance_test: >-
+      一名符合 reader handoff 的读者在只读标题、摘要和定位后，能够准确复述问题、24 个月主要目标、为何重要和总体设计；无需查阅后文即可理解每个保留概念。标题和摘要不再枚举阶段 III 的完整资格、计算与替代逻辑。
+
+  - action_id: NRP-003
+    addresses_findings:
+      - NAR-003
+    priority: major
+    dossier_locator:
+      section_heading: "Research design and methods"
+      subsection_heading: "Conditional trial-observation projection and independent fallback"
+      content_anchor: "Gate R0 — trial semantics and common-anchor eligibility"
+    operation: consolidate
+    current_problem: >-
+      试验资格、共同生理锚点、投影计算、绝对忠实度判定、死亡与出院排序、缺失处理、替代分析和解释范围在多个必需部分重复展开，使后续条件性分析获得与主要阶段相同的叙事重量。
+    target_state: >-
+      本方法小节保留阶段 III 的完整科学说明；标题、摘要、研究问题、目标、时间表、数据、证据链、必需分析、产物、证伪、贡献、主张核对和风险部分各自只保留完成本部分功能所必需的最小陈述。
+    required_content_or_function: >-
+      完整说明阶段 II 先决条件、两项试验分别核验的语义和共同生理锚点、投影定义及外部忠实度判定、随机分配比较、死亡/出院/缺失处理、投影失败后的独立 SOFA 分析、核心语义不足时停止，以及各分支允许和不允许的科学解释。
+    content_to_preserve:
+      - 阶段 III 位于 24 个月最低交付之后且不能补足阶段 II 失败
+      - EXIT-SEP D7 与 XBJ-SCAP D8 分开分析且不合并
+      - 每项试验的共同生理锚点要求、固定投影定义和治疗分组比较前的忠实度判定
+      - 投影通过、独立临床状态分析和停止三种科学结果
+      - all-randomized 或 mITT、死亡和出院排序、缺失敏感性、多重比较及解释边界
+    content_to_remove_or_move:
+      - 从第 1–6 节删除共同锚点、投影计算、各阈值和替代分析的重复展开，仅保留各节不可替代的问题、目标、时间或数据状态
+      - 从 Evidence chains、Required analyses、Expected outputs 和 Falsification criteria 删除与本方法小节相同的完整资格—计算—替代三段式说明，各自保留 Input/Method/Output/Supports、核查项目、产物或失败判定所需的最小信息
+      - 从 Contribution、Title and positioning claim-support table 和第 14 节删除重复的操作过程，仅保留贡献解释、主张范围或风险后果
+    destination_if_moved: "Research design and methods > Conditional trial-observation projection and independent fallback"
+    dependencies: []
+    acceptance_test: >-
+      阶段 III 的完整资格、投影、比较、替代和停止逻辑只在本方法小节连续出现一次；其他每次提及都能明确归属于问题、目标、时间、输入、方法摘要、产物、失败判定或主张范围中的一种功能，并且没有任何一处再次同时解释资格、计算和替代方案。
+
+  - action_id: NRP-004
+    addresses_findings:
+      - NAR-004
+    priority: major
+    dossier_locator:
+      section_heading: "Feasibility, resources, risks, alternatives, and stop conditions"
+      subsection_heading: "Remaining execution gates"
+      content_anchor: "仍未解决且必须显式保留"
+    operation: consolidate
+    current_problem: >-
+      同一类限制和失败后果在全篇多次完整重述，五条证据链还各有独立限制字段，导致正向问题、贡献和证据关系被防御性内容分割。
+    target_state: >-
+      第 14 节完整、无遗漏地说明独特的假设、限制、风险、替代分析和停止条件；其他部分仅保留直接支撑紧邻科学选择或限定紧邻主张的自足边界，不使用跳转提示代替必要说明。
+    required_content_or_function: >-
+      对数据访问与支持、标签与时间、可恢复性、缺失与治疗支持、跨数据库运输、试验语义与投影、时间进度及主张范围分别给出完整限制和后果；保留各必需部分的独立功能，不以一张表替代问题、方法、证据链、产物或主张核对。
+    content_to_preserve:
+      - 所有彼此不同的科学假设、适用边界、失败判定、替代路线和停止后果
+      - 摘要与核心假设中防止把预测或表示误读为因果机制的最小边界
+      - 方法部分中若删除会改变紧邻分析选择含义的局部条件
+      - Required analyses、Falsification criteria、Interpretation matrix、主张核对表和风险表各自不可替代的核查、判定、解释或风险功能
+      - 十五个规定 H2 和第 3 节五个规定 H3 的名称与功能
+    content_to_remove_or_move:
+      - 删除五条证据链各自的 Limits and failure conditions 字段；保留每条链的 Input、Method / analysis / processing、Output 和 Supports
+      - 合并在摘要、背景、非假设、试验方法、证据链、解释矩阵、贡献阶梯和主张核对表中反复出现的“不能支持因果机制、控制、数字孪生或临床推广”完整枚举
+      - 合并多次出现且没有新增局部功能的“有限更新不能挽救零更新失败”“独立 SOFA 分析不验证阶段 II 表征”“试验语义失败即停止”等说明
+      - 删除为指向本节而新增的交叉引用；确有必要的局部边界必须在原处自足表达
+    destination_if_moved: "Feasibility, resources, risks, alternatives, and stop conditions"
+    dependencies:
+      - NRP-003
+    acceptance_test: >-
+      第 14 节包含全部独特限制和停止后果；全篇其余每一条保留边界都能说明它如何直接改变紧邻的研究选择或主张。五条证据链不再含独立限制字段，且没有用指向第 14 节的提示替代必要的局部说明。
+
+  - action_id: NRP-005
+    addresses_findings:
+      - NAR-005
+    priority: minor
+    dossier_locator:
+      section_heading: "Key techniques and implementation"
+      subsection_heading: null
+      content_anchor: "从事件与信息可用时刻到阴性对照的十项编号列表"
+    operation: replace
+    current_problem: >-
+      十项列表主要用工具或控制隐喻重述第 7 节方法原则，未稳定说明各项研究记录的输入、计算关系、输出及复查用途。
+    target_state: >-
+      本节逐项列出完成研究所需的可复现性记录与计算关系，使研究者可以识别数据来自哪里、如何形成分析对象、如何执行规定计算、产生什么结果以及如何核查，而无需先理解项目内部命名。
+    required_content_or_function: >-
+      具体说明临床事件时刻与信息可用时刻记录、变量构念及单位对应、队列和互斥状态派生、模型输入输出、模拟情景与判定标准、医院分组及跨院患者排除、试验共同生理锚点与投影定义、不确定性分析和阴性对照的复现用途及相互依赖。
+    content_to_preserve:
+      - event time 与 label-availability time 的区分以及来源时戳
+      - 双库样本、事件、转移、医院、单位、观察密度和缺失信息
+      - 生理测量、治疗、测量过程、标签和基线变量的角色分离
+      - 基线先行、恢复检验、外部医院分组、试验投影、不确定性及阴性对照
+      - 所有已有科学判定条件和失败后果，但不在本节重复其完整推导
+    content_to_remove_or_move:
+      - 替换当前以工具或控制隐喻命名的十项列表标题
+      - 删除仅重复第 7 节方法门槛而没有新增复现信息的句子
+      - 将每项方法的完整科学理由保留在第 7 节，本节只说明可复查的输入、计算、输出和记录用途
+    destination_if_moved: "Research design and methods 中对应的科学方法小节"
+    dependencies:
+      - NRP-003
+      - NRP-004
+    acceptance_test: >-
+      一名未接触项目内部命名的研究者能够从本节逐项指出所需数据字段或研究构念、计算步骤、输出记录和核查目的；每项都新增可复现信息，不只是改名重复第 7 节，且没有用工具隐喻代替科学功能。

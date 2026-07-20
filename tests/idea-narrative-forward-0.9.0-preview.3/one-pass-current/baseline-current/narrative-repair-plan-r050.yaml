@@ -1,0 +1,112 @@
+schema_version: research-idea-narrative-repair-plan.v1
+plan_id: narrative-repair-plan-I01-001-r050
+assessment_id: narrative-assessment-I01-001-r050
+source_artifact:
+  artifact_id: idea-dossier-I01-001-v003
+  version: v003
+  path: tests/idea-test-0.9.0-preview.1/0.9.0-preview.1/03_ideas/nodes/I01-001/dossiers/idea-dossier-v003.md
+decision: major_narrative_revision
+clarifications_required: []
+actions:
+  - action_id: NRP-050-001
+    addresses_findings:
+      - NAR-050-001
+    priority: major
+    dossier_locator:
+      section_heading: "Background, current state, gap, significance, and rationale"
+      subsection_heading: null
+      content_anchor: "从“最近近邻使‘单个模块新颖’不可成立”至该节末的三段"
+    operation: replace
+    current_problem: "现有工作综述之后，核心缺口只以特定组合尚未建立及项目可辩护空间来表达；研究意义没有独立功能，设计依据被因果边界、弃权规则和 RCT 投影细节分散。"
+    target_state: "该节按问题、现状、证据缺口、研究意义、设计依据的顺序形成连续路线，并让每一功能能由读者用一句话区分。"
+    required_content_or_function: "在不新增科学主张的前提下，把 dossier 已有内容组织为：当前孤立模块仍不能回答的证据问题；该证据不足为何会妨碍对跨病程表示、运输性和试验层关系的可靠判断；双时钟、状态—行动—观察分离、绝对恢复检验、未触碰外部检验和条件性试验扩展为何分别回应这些问题。差异化定位放在完成缺口与意义之后。"
+    content_to_preserve:
+      - "Sepsis-3 时间标签不唯一及 event time 与 availability time 的区分"
+      - "公共 ICU 数据库在中心、年代、采样、接口和访问状态上的差异"
+      - "多状态、动态表型、状态空间、数字孪生、强化学习和 RCT 二次分析已有近邻的事实与引文"
+      - "观察性分析不识别治疗因果作用、试验分支不验证完整潜在动力学的科学边界"
+      - "阶段 III 依赖冻结阶段 II 观测关系并设独立临床状态降级路径的内容"
+    content_to_remove_or_move:
+      - "把“本项目的可辩护空间仅是特定五层组合”作为唯一缺口的句法结构"
+      - "背景中关于确定性低维投影、测量不变性和投影忠实度门的实现级细节"
+      - "在本节不直接推动下一推理步骤的完整禁止性主张清单"
+    destination_if_moved: "投影实现细节只保留在“Research design and methods / Conditional trial-observation projection and independent fallback”；完整限制归入“Feasibility, resources, risks, alternatives, and stop conditions”，不得在原处留下指针。"
+    dependencies: []
+    acceptance_test: "遮去项目定位与禁止性句子后，目标读者仍能从该节依次指出一个研究问题、一项当前能力、一项尚未解决的证据问题、一项明确后果及一条对应设计依据；缺口不能仅改写为“尚无相同组合”，且所有原科学边界仍可在对应方法或集中限制章节找到。"
+  - action_id: NRP-050-002
+    addresses_findings:
+      - NAR-050-002
+    priority: major
+    dossier_locator:
+      section_heading: "Title, summary, audience, and positioning"
+      subsection_heading: null
+      content_anchor: "One-sentence complete-Idea summary"
+    operation: replace
+    current_problem: "单句摘要同时承担研究目标、全套验证流程、两个试验访视、投影失败路径和所有禁止性解释，正向主问题被多层条件包围。"
+    target_state: "保留一个单句 complete-Idea summary，但先直接给出研究对象、核心目标和主要证据路线，只保留改变研究身份所必需的条件性试验边界。"
+    required_content_or_function: "一句话中依次交代脓毒症全病程候选表示、24 个月阶段 I–II 的构建与跨数据库检验、24 个月后条件满足才开展的分试验次要分析，以及不把预测等同于因果这一身份边界；详细门槛、D7/D8、投影计算和失败解释留在摘要或方法的对应功能中。"
+    content_to_preserve:
+      - "知识约束、不确定性感知的候选动态系统表征"
+      - "发病前、首次发病、发病后互斥状态和结局的范围"
+      - "两个公共 ICU 数据库及真正未触碰的跨数据库检验"
+      - "阶段 III 位于 24 个月最低交付之后且为条件性、分试验、次要分析"
+      - "不混淆预测与因果的核心边界"
+    content_to_remove_or_move:
+      - "绝对模拟恢复门和假置信门的展开"
+      - "EXIT-SEP D7、XBJ-SCAP D8、冻结观测投影和 death-ranked SOFA 的分支细节"
+      - "真实因果网络、连续动力学、控制和数字孪生等完整禁止性枚举"
+    destination_if_moved: "恢复与外部检验细节保留在结构化摘要和阶段 II 方法；试验访视与分支细节保留在条件性 RCT 方法；完整禁止性枚举保留在集中限制章节，不新增交叉指针。"
+    dependencies:
+      - NRP-050-001
+    acceptance_test: "首次接触项目的目标读者读完该单句后，能在不查看后文定义的情况下准确说出研究对象、24 个月主要目标、证据路线和条件性扩展；句中不再要求理解 D7/D8 投影、R0/R1 或降级端点才能识别主旨。"
+  - action_id: NRP-050-003
+    addresses_findings:
+      - NAR-050-002
+    priority: major
+    dossier_locator:
+      section_heading: "Structured abstract"
+      subsection_heading: null
+      content_anchor: "Objective and hypothesis、Approach 与 Contribution and impact 中首次承担推理功能的阶段、恢复、外部检验和投影概念"
+    operation: define
+    current_problem: "阶段 I–III、绝对恢复/假置信、未触碰外部检验、冻结观测投影、投影可观测摘要和独立 SOFA 分支等概念在科学用途得到跨学科说明之前即被用来支撑目标和贡献。"
+    target_state: "每个不可省略的专用概念在首次承担核心推理时先得到一句功能性说明；只服务于实现的标签与阈值延后到工作包或方法。"
+    required_content_or_function: "在结构化摘要或紧邻的首次使用处，解释阶段 I–II 对应构建、恢复与外部检验，阶段 III 对应条件性试验扩展；说明恢复检验是在已知生成情形下检查表示能否找回预定不变量，未触碰外部检验不允许按测试结果改动模型，观测投影只把冻结表示连接到试验实际可测访视摘要，独立 SOFA 分支不再与阶段 II 表示相连。G1、R0/R1、projection-pass、fallback、no-go 等标签只有在平实说明之后才可作为短称。"
+    content_to_preserve:
+      - "所有阶段依赖、绝对判据、失败分支和停止条件"
+      - "试验之间不合并且访视不同的边界"
+      - "预测、表示、随机分配证据和因果机制之间的解释层级"
+      - "研究问题、四项目标和核心假设中的全部核心元素"
+    content_to_remove_or_move: []
+    destination_if_moved: null
+    dependencies:
+      - NRP-050-002
+    acceptance_test: "逐项检查摘要、背景、主问题和目标：任何首次出现且后文中央论证依赖的项目专用概念，都能在原处由跨学科读者理解其科学功能，或已延后到相应方法；读者无需向后查找 G1、R0/R1、projection-pass 或 fallback 的含义才能理解前述主张。"
+  - action_id: NRP-050-004
+    addresses_findings:
+      - NAR-050-003
+    priority: major
+    dossier_locator:
+      section_heading: "Evidence chains"
+      subsection_heading: "Evidence chain: 可用性时钟、风险集与互斥病程"
+      content_anchor: "五条证据链的独立“Limits and failure conditions”字段及其在全文中的重复来源"
+    operation: consolidate
+    current_problem: "限制、假设、失败、降级、非因果和非验证边界在多个必需章节完整重述，五条证据链还各自设置独立限制字段，造成主线被持续中断。"
+    target_state: "“Feasibility, resources, risks, alternatives, and stop conditions”成为完整限制与假设的唯一权威位置；其他章节恢复其独立功能，只保留理解相邻设计选择必不可少的最小、自包含边界。"
+    required_content_or_function: "删除五条证据链的独立“Limits and failure conditions”字段，并把其中尚未在第 14 节完整表达的独特限制合并到第 14 节。逐节检查摘要、背景、非假设、日期门、成功定义、工作包、资源状态、方法、必需分析、证伪标准、解释矩阵、贡献表和主张支持表：保留各节合同功能与必要局部边界，删除同一完整限制清单的重复实例。不得用指向第 14 节的提示替代删除内容。"
+    content_to_preserve:
+      - "全部 15 个必需 H2 章节及五个必需 H3 功能，名称不删除、不改名"
+      - "每条证据链的 Input、Method / analysis / processing、Output 和 Supports"
+      - "Evidence chains 与 Title and positioning claim-support table 的读者可审计功能"
+      - "所有独特科学假设、数据边界、失败触发、降级路线、停止条件和禁止性主张"
+      - "摘要、问题、目标、方法、输出、证伪、贡献、可行性章节各自不同的最小功能"
+    content_to_remove_or_move:
+      - "五条证据链全部独立“Limits and failure conditions”字段"
+      - "预测不等于因果、RCT 不验证潜在动力学/转移边/控制/整个模型的完整重复枚举"
+      - "外部零更新失败不能由有限更新挽救、投影失败转独立 SOFA、数据访问尚未证实等完整规则在非必要位置的重复实例"
+      - "同一失败条件在日期门、风险矩阵、证伪标准、解释矩阵和主张支持表之间超出各节独立功能所需的复述"
+    destination_if_moved: "独特的限制、假设、失败后果和停止条件合并到“Feasibility, resources, risks, alternatives, and stop conditions”中的 Risk and automatic alternative matrix、Remaining execution gates 或紧邻的自包含段落；局部必要边界留在原科学推理处，不使用跨章节指针。"
+    dependencies:
+      - NRP-050-001
+      - NRP-050-002
+      - NRP-050-003
+    acceptance_test: "全文仅第 14 节提供完整限制与假设总表；五条证据链各自只含 Input、Method / analysis / processing、Output 和 Supports；全文搜索每类核心边界时，除第 14 节外只保留能直接解释相邻设计选择的自包含短句。所有必需 H2/H3、证据链功能、Claim-Support 功能和独特科学内容仍存在，且没有新增“见第 14 节”式指针。"

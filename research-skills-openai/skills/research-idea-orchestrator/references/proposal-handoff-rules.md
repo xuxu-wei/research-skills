@@ -14,7 +14,8 @@ A promoted idea package should include:
 - methodology/statistics preflight status when relevant;
 - independent idea evaluation summary;
 - pre-handoff adversarial review summary;
-- major risks, assumptions, and unresolved issues;
+- the current dossier logical reference and its Section 14 authority locator;
+- unresolved finding locators and decision status, without copying limitation text;
 - user constraints and intended proposal output.
 
 ## Ready for Proposal
@@ -26,7 +27,7 @@ Mark an idea as ready for proposal workflow only when:
 - a fresh independent `idea-evaluator` recommends `promote`; a
   `revise_then_promote` dossier must first be revised and freshly re-evaluated;
 - no unresolved fatal flaw blocks drafting;
-- evidence limitations are explicit;
+- the dossier's Section 14 authority is complete and linked without duplicating its text;
 - endpoint/metric and data/method path are clear enough for `proposal-readiness-triage`;
 - `idea-adversarial-review-panel` returns `handoff_ready` or `conditional_handoff`, with no unresolved blocking objection;
 - required user constraints are recorded.

@@ -1,0 +1,10 @@
+schema_version: research-idea-narrative-repair-plan.v1
+plan_id: narrative-repair-plan-I01-001-r016
+assessment_id: narrative-assessment-I01-001-r016
+source_artifact:
+  artifact_id: idea-dossier-I01-001-v006
+  version: v006
+  path: tests/idea-narrative-forward-0.9.0-preview.3/one-pass-current/revised/idea-dossier-v006.md
+decision: narrative_ready
+clarifications_required: []
+actions: []

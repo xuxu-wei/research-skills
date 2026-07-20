@@ -8,7 +8,7 @@
 
 ## 2. Closest Candidates
 
-| Idea ID | Idea title | Dossier / version / digest | Reference ledger | Evaluation report | Evaluation summary | Failed gates / flaws |
+| Idea ID | Idea title | Dossier artifact ID / version / path | Reference ledger | Evaluation report | Evaluation summary | Failed gates / flaws |
 |---|---|---|---|---|---|---|
 
 ## 3. Main Bottlenecks

@@ -1,0 +1,133 @@
+schema_version: research-idea-narrative-repair-plan.v1
+plan_id: narrative-repair-plan-I01-001-r001
+assessment_id: narrative-assessment-I01-001-r001
+source_artifact:
+  artifact_id: idea-dossier-I01-001-v003
+  version: v003
+  path: tests/idea-test-0.9.0-preview.1/0.9.0-preview.1/03_ideas/nodes/I01-001/dossiers/idea-dossier-v003.md
+decision: major_narrative_revision
+clarifications_required: []
+actions:
+  - action_id: NRP-001
+    addresses_findings:
+      - NAR-001
+    priority: major
+    dossier_locator:
+      section_heading: "Background, current state, gap, significance, and rationale"
+      subsection_heading: null
+      content_anchor: "最近近邻使“单个模块新颖”不可成立。"
+    operation: replace
+    current_problem: >-
+      该节把代表性近邻未覆盖完整组合当作主要缺口，随后直接进入方法边界和条件，未独立完成证据缺口、意义与设计理由三项功能。
+    target_state: >-
+      该节以连续且互不替代的段落说明现有工作能回答什么、仍不能回答什么、为何值得目标读者解决，以及阶段 II 与条件性阶段 III 的每个主要设计层如何回应这一问题。
+    required_content_or_function: >-
+      将现有能力、未解决的跨阶段和跨数据库证据问题、该问题对可靠解释与进一步研究决策的意义、以及状态—行动—测量分离、绝对恢复检验、未触碰外部检验和条件性试验桥接的理由按依赖顺序写出；不得以“尚无完整组合”或创新定位代替科学或证据缺口。
+    content_to_preserve:
+      - "Sepsis-3 发病时刻和标签可用时刻并不唯一，以及禁止未来信息回填的边界与引文 [1-3]。"
+      - "公共 ICU 数据库在中心、年代、采样、接口和共同概念上的差异与引文 [5-10]。"
+      - "各单项模块已有代表性先例、项目仅主张条件性整合与验证增量的定位及引文 [26-37]。"
+      - "治疗—病情反馈、测量过程、MNAR 与观察性目标不识别因果作用的内容及引文 [14-16]。"
+      - "EXIT-SEP 与 XBJ-SCAP 的稀疏性、冻结观测投影、独立备用端点及推广边界与引文 [4,17,18,21-25]。"
+    content_to_remove_or_move:
+      - "把“单个模块不新颖”或“未建立全球先例”当作缺口主体的防御性展开；移至 closest-work comparison。"
+      - "不直接推进本节相邻推理的完整限制和失败分支；移至权威限制与停止条件位置。"
+    destination_if_moved: "Contribution, innovation, impact, application, and closest-work comparison；以及 Feasibility, resources, risks, alternatives, and stop conditions 下的权威限制与停止条件小节。"
+    dependencies: []
+    acceptance_test: >-
+      只读本节的目标读者能够分别用一句话回答研究问题的背景、现有能力、未解决证据问题、解决该问题的意义及设计理由；意义不是创新性同义语，每个主要设计层都能追溯到前述缺口，且未新增科学主张。
+  - action_id: NRP-002
+    addresses_findings:
+      - NAR-002
+    priority: major
+    dossier_locator:
+      section_heading: "Title, summary, audience, and positioning"
+      subsection_heading: null
+      content_anchor: "One-sentence complete-Idea summary"
+    operation: replace
+    current_problem: >-
+      单句摘要在完成正面研究概括之前纳入几乎全部检验条件、试验访视、失败分支和禁止性解释。
+    target_state: >-
+      单句摘要先清楚表达研究对象、核心问题、24 个月阶段 II 的主要证据目标及阶段 III 的条件性从属地位，只保留改变研究身份或允许解释范围的必要限定。
+    required_content_or_function: >-
+      用跨学科读者一次可解析的主干陈述全病程候选表征、公共 ICU 数据的计划性跨数据库检验和后续条件性试验再分析；将具体检验名称、访视编号、备用端点细节和完整禁止性清单放回结构化摘要、方法或限制章节。
+    content_to_preserve:
+      - "24 个月内完成阶段 I–II 的时间边界。"
+      - "发病前、首次发病、发病后和结局连续体。"
+      - "知识约束、不确定性感知的候选表征与两个须经审计的公共 ICU 数据库。"
+      - "计划性未触碰跨数据库检验是阶段 II 主要证据目标。"
+      - "试验再分析仅在阶段 II 后条件性开展，且不把预测或随机分配结果扩张为因果系统结论。"
+    content_to_remove_or_move:
+      - "绝对模拟恢复条件、具体外部更新层级和其他执行性检验名称。"
+      - "EXIT-SEP D7、XBJ-SCAP D8、投影失败后的 death-ranked SOFA 细节。"
+      - "真实因果网络、连续动力学、控制、数字孪生等完整禁止性枚举。"
+    destination_if_moved: "Structured abstract；Research design and methods；权威限制与停止条件小节。"
+    dependencies:
+      - NRP-001
+    acceptance_test: >-
+      一名符合 reader handoff 的读者在一次阅读后能准确复述研究对象、主要问题、阶段 II 贡献和阶段 III 从属关系；句中没有必须查阅后文才能理解的项目特定名称，移出的科学边界在指定章节仍可找到。
+  - action_id: NRP-003
+    addresses_findings:
+      - NAR-003
+    priority: major
+    dossier_locator:
+      section_heading: "Structured abstract"
+      subsection_heading: null
+      content_anchor: "Approach: 主发病前任务采用每 12 小时 landmark"
+    operation: reorder
+    current_problem: >-
+      方法条目在解释各设计环节的读者功能之前引入多个跨学科或项目特定概念，必要定义与设计理由位于后文。
+    target_state: >-
+      结构化摘要自身完成问题、现状、缺口、意义、设计理由和预期贡献的短路线；每个方法概念在其功能已经明确后出现，并在首次必要使用处获得跨学科可理解的说明。
+    required_content_or_function: >-
+      先以普通科学语言说明发病前和发病后任务、数据库审计、由简单到复杂的候选比较、未触碰外部检验及条件性试验层分别解决什么问题，再给出不可省略的专业名称；将阈值、代码式名称、访视级失败分支和更新层级细节后移。
+    content_to_preserve:
+      - "主发病前和发病后任务的时间范围与互斥多状态设计。"
+      - "月 4–6 双库审计决定共同模块、时间方案和复杂度。"
+      - "简单基线先行、复杂候选须通过绝对恢复检验。"
+      - "医院级适配区与未触碰测试区的分离，以及零更新结果的主要地位。"
+      - "阶段 III 位于 24 个月最低交付之外，并受试验语义与观测投影条件约束。"
+      - "所有结果均为计划产物而非现有结果。"
+    content_to_remove_or_move:
+      - "在首次出现处没有说明功能的 landmark、zero update、observation-layer update、projection fidelity 和 death-ranked 等压缩表达。"
+      - "proper score、具体校准界限、D7/D8 和失败分支的阈值级细节。"
+    destination_if_moved: "Protocol locks for the two primary clinical tasks；Hospital-primary genuine cross-database validation；Conditional trial-observation projection and independent fallback；权威限制与停止条件小节。"
+    dependencies:
+      - NRP-001
+      - NRP-002
+    acceptance_test: >-
+      仅凭结构化摘要，具备 handoff 所列一般背景但不精通全部参与学科的读者，能够按顺序说明问题、缺口、意义和设计理由；摘要中的每个核心专业概念均可在首次使用处理解，不需要向后查找定义再回读。
+  - action_id: NRP-004
+    addresses_findings:
+      - NAR-004
+    priority: major
+    dossier_locator:
+      section_heading: "Expected outputs, falsification criteria, and interpretations"
+      subsection_heading: "Falsification and stop criteria"
+      content_anchor: "RCT 投影：共同锚点/单位/时序、SVD 低维性"
+    operation: consolidate
+    current_problem: >-
+      同一解释边界、失败条件和停止规则在摘要、核心假设、日期条件、方法、证据链、解释矩阵、贡献表与风险矩阵中多次完整出现，限制内容没有单一权威位置。
+    target_state: >-
+      一个权威小节完整收纳所有独特限制、失败条件和停止后果；其他位置只保留会直接改变紧邻设计选择含义的最小局部边界，重复内容被删除而不是再次总结。
+    required_content_or_function: >-
+      逐项合并观察性与因果边界、外部零更新与有限更新的解释边界、试验投影与独立备用端点的解释边界、数据和结果尚未生成的状态、创新与应用边界，以及各阶段停止或降级条件；保留触发条件和后果之间的一一对应。
+    content_to_preserve:
+      - "观察性结果不识别治疗因果效应、真实反馈网络或反事实策略。"
+      - "有限更新成功不能替代未触碰零更新失败。"
+      - "试验投影通过只支持实际访视的可观测摘要差异，独立 SOFA 备用端点与阶段 II 表征无关。"
+      - "任何分支都不验证潜在动力学、转移边、中介、控制、整个系统或临床推广。"
+      - "资源、G1、模型、模拟、外部检验和试验语义目前的未验证或未生成状态。"
+      - "不主张新算法、全球首次、数字孪生、控制模型、临床工具或药物平台。"
+      - "所有现有日期、数值触发条件、自动降级和停止后果。"
+    content_to_remove_or_move:
+      - "摘要、核心假设、证据链、解释矩阵和贡献表中不承担相邻推理功能的完整禁止性清单。"
+      - "日期表、falsification 列表和风险矩阵之间语义相同的停止条件副本。"
+      - "多处重复的计划状态、未验证资源和有限创新说明。"
+    destination_if_moved: "Feasibility, resources, risks, alternatives, and stop conditions 下新增或扩展的单一权威“限制与停止条件”小节。"
+    dependencies:
+      - NRP-001
+      - NRP-002
+      - NRP-003
+    acceptance_test: >-
+      对全文逐项核对后，每一独特限制和停止条件都有且只有一个完整权威表述；其他章节中的限定均能证明其对紧邻设计选择不可缺少，删除任何重复没有丢失触发条件、后果、阶段边界或科学解释边界。

@@ -6,6 +6,33 @@
 - Overall evidence status:
 - Main limitations:
 
+## Scientific Gap
+
+- Unanswered problem:
+- Missing knowledge or evidence:
+- Consequence of the gap:
+- Supporting sources and locators:
+
+## Novelty Positioning
+
+- Closest work:
+- Overlap with closest work:
+- Evidence-supported differentiation:
+- Novelty risk: `low` / `medium` / `high` / `unverified`
+
+Do not use novelty wording as a substitute for the unanswered scientific
+problem or missing evidence.
+
+## Reader Reasoning Handoff (Idea workflows only)
+
+| Function | Evidence-grounded handoff |
+|---|---|
+| Background | |
+| Current state | |
+| Gap | |
+| Significance | |
+| Rationale | |
+
 ## Opportunities
 
 | ID | Type | Title | Description | Supporting claim labels | Supporting source and locator | Evidence confidence | Novelty risk | Why it matters | Feasibility concerns | Recommended generation paths |

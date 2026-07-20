@@ -1,0 +1,65 @@
+schema_version: research-idea-narrative-repair-plan.v1
+plan_id: narrative-repair-plan-I01-001-r007
+assessment_id: narrative-assessment-I01-001-r007
+source_artifact:
+  artifact_id: idea-dossier-I01-001-v008
+  version: v008
+  path: tests/idea-narrative-forward-0.9.0-preview.3/run-001/delivery/idea-dossier-v008.md
+decision: minor_narrative_revision
+clarifications_required: []
+actions:
+  - action_id: NRP-001
+    addresses_findings:
+      - NAR-001
+    priority: minor
+    dossier_locator:
+      section_heading: "Title, summary, audience, and positioning"
+      subsection_heading: null
+      content_anchor: "One-sentence complete-Idea summary: 本研究计划在 24 个月内"
+    operation: define
+    current_problem: >-
+      阶段 II 和阶段 III 在摘要中先出现，阶段 I 直到后文才被提及且始终未定义；月份、工作包和阶段编号之间没有一处完整映射。
+    target_state: >-
+      读者在首次遇到阶段编号时即可看到阶段 I、阶段 II、阶段 III 的边界、时间范围、所含工作和进入条件，并能把所有后续编号唯一映射回该定义。
+    required_content_or_function: >-
+      在顶部定向信息中增加一个简短的三阶段映射，并使 Twenty-four-month minimum deliverable、Objectives、Conditional trial observation mapping 和停止条件中的阶段用语与该映射一致；明确阶段 III 只有在阶段 II 的五类必要证据全部满足后才可能启动。
+    content_to_preserve:
+      - 阶段 I–II 构成 24 个月最低交付、阶段 III 位于 24 个月之后的时间边界。
+      - 阶段 II 成功需要五类证据全部满足，任一必要条件失败均不能由阶段 III 补足。
+      - 现有月度里程碑、WP1–WP5 内容、执行顺序和停止条件。
+      - 主要研究问题、四项目标和研究身份锚点。
+    content_to_remove_or_move: []
+    destination_if_moved: null
+    dependencies: []
+    acceptance_test: >-
+      在阶段编号第二次出现之前，文本已分别定义阶段 I、II、III，并将其对应到既有月份和工作包；逐一检查后文所有“阶段 I”“阶段 II”“阶段 III”引用时，每一处均与该映射一致，且没有更改任何月份、成功阈值、条件分支或研究对象。
+  - action_id: NRP-002
+    addresses_findings:
+      - NAR-002
+    priority: minor
+    dossier_locator:
+      section_heading: "Title, summary, audience, and positioning"
+      subsection_heading: null
+      content_anchor: "跨学科概念桥：候选动态系统模型表示患者生理状态如何随时间变化"
+    operation: split
+    current_problem: >-
+      背景和缺口尚未建立时，顶部单段同时引入多个潜在状态、观测层和结构恢复术语，随后又引入四类证据，导致定义密度超过该位置的定向功能。
+    target_state: >-
+      顶部以普通跨学科语言说明研究对象和四类证据各自回答的问题；只有理解摘要所必需的术语留在首次定向处，详细技术定义在其首次承担具体论证或方法功能之前出现。
+    required_content_or_function: >-
+      拆分现有概念桥：保留候选动态系统模型、生理状态与治疗行动和测量过程的区分，以及四类证据互不替代的顶部定向功能；在 Structured abstract 的首次使用处为必须保留的专业概念提供就地短释；把共同生理锚点、观测方程、状态对齐允许的变换、关系符号与滞后及“预定状态与结构对象”的完整操作定义放到 Observational model target, anchoring, and reporting 中相应内容之前。
+    content_to_preserve:
+      - 状态占用概率与观察到的状态比例之间的区别。
+      - 共同观测指标、共同生理锚点和共同生理锚点预测之间的关系。
+      - 状态对齐允许潜在维度排列和符号变换的限定。
+      - 观测方程对阶段 III 冻结观测映射的来源作用。
+      - 关系正负符号、时间滞后与结构边方向之间的区别。
+      - 任务表现、模拟恢复、跨数据库稳定性和条件性试验分析分别回答不同问题。
+    content_to_remove_or_move:
+      - 顶部单段中超出首次定向需要的共同生理锚点预测、状态对齐变换、观测方程、关系符号与时间滞后及集合名称的完整操作定义。
+      - 顶部连续出现但尚未与具体问题或方法功能连接的术语串列。
+    destination_if_moved: >-
+      详细操作定义置于 Research design and methods > Observational model target, anchoring, and reporting 的相关公式和锚定规则之前；摘要必须使用的概念在 Structured abstract 的首次使用处就地短释。
+    dependencies: []
+    acceptance_test: >-
+      从标题开始连续阅读到 Gap 时，读者先获得研究问题、现状和未解决证据关系，不需要记忆尚未承担功能的术语串列；全文搜索每个被拆分的核心概念时，其首次实质使用之前均有适合跨学科读者的定义，列出的科学区别全部保留，且未改变模型对象、评价对象、阶段条件或任何方法规范。

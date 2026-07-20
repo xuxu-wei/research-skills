@@ -1,5 +1,5 @@
 schema_version: 5
-plugin_version: "0.9.0-preview.2"
+plugin_version: "0.10.0"
 public_entry_policy:
   declared_entries:
     - academic-deep-search
@@ -39,7 +39,7 @@ skills:
   - name: "academic-language-assessor"
     package: "research"
     role: "reviewer"
-    related_skills: ["article-drafter", "article-evaluator", "article-orchestrator", "article-refinement-controller", "perspective-drafter", "perspective-evaluator", "perspective-refinement-controller", "proposal-drafter", "proposal-evaluator", "proposal-refinement-controller"]
+    related_skills: ["article-drafter", "article-evaluator", "article-orchestrator", "article-refinement-controller", "idea-narrative-assessor", "perspective-drafter", "perspective-evaluator", "perspective-refinement-controller", "proposal-drafter", "proposal-evaluator", "proposal-refinement-controller", "research-idea-orchestrator"]
     invocation_policy: "explicit_or_orchestrated"
     requires_independent_subagent: true
     allowed_input_artifacts: "frozen_artifacts_and_review_brief"
@@ -172,13 +172,21 @@ skills:
     requires_independent_subagent: true
     allowed_input_artifacts: "one_frozen_complete_idea_dossier_only"
     output_artifact_type: "idea_evaluation_report"
+  - name: "idea-narrative-assessor"
+    package: "research-idea"
+    role: "reviewer"
+    related_skills: ["academic-language-assessor", "multi-path-idea-generator", "research-context-builder", "research-idea-orchestrator"]
+    invocation_policy: "explicit_or_orchestrated"
+    requires_independent_subagent: true
+    allowed_input_artifacts: "one_current_idea_dossier_and_reader_handoff_or_preservation_comparison_bundle"
+    output_artifact_type: "narrative_assessment_and_yaml_repair_plan_or_content_preservation_report"
   - name: "idea-portfolio-assembler"
     package: "research-idea"
     role: "assembler"
-    related_skills: ["idea-evaluator", "methodology-statistics-preflight", "multi-path-idea-generator", "research-context-builder", "research-idea-orchestrator", "research-opportunity-mapper"]
+    related_skills: ["idea-evaluator", "medical-journal-review", "methodology-statistics-preflight", "multi-path-idea-generator", "research-context-builder", "research-idea-orchestrator", "research-opportunity-mapper"]
     invocation_policy: "explicit_or_orchestrated"
     requires_independent_subagent: false
-    allowed_input_artifacts: "evaluated_current_idea_dossiers_index_lineage_findings_and_dissent"
+    allowed_input_artifacts: "evaluated_current_idea_dossiers_applicable_candidate_journal_matches_medical_reviews_index_lineage_findings_and_dissent"
     output_artifact_type: "pi_navigation_or_comparison_handoff_package"
   - name: "medical-journal-review"
     package: "research"
@@ -202,7 +210,7 @@ skills:
     related_skills: ["idea-evaluator", "idea-portfolio-assembler", "methodology-statistics-preflight", "research-context-builder", "research-idea-orchestrator", "research-opportunity-mapper"]
     invocation_policy: "explicit_or_orchestrated"
     requires_independent_subagent: false
-    allowed_input_artifacts: "frozen_context_evidence_opportunities_routing_decision_current_dossiers_and_revision_plan"
+    allowed_input_artifacts: "frozen_context_evidence_opportunities_routing_decision_current_dossiers_and_applicable_revision_plan_or_approved_editorial_repair_writer_brief_or_preflight_approved_working_assumptions"
     output_artifact_type: "versioned_complete_idea_dossiers_revision_delta_and_proposed_navigation_metadata"
   - name: "perspective-argument-architect"
     package: "research-perspective"
@@ -351,7 +359,7 @@ skills:
   - name: "research-idea-orchestrator"
     package: "research-idea"
     role: "orchestrator"
-    related_skills: ["academic-language-assessor", "idea-adversarial-review-panel", "idea-evaluator", "idea-portfolio-assembler", "methodology-statistics-preflight", "multi-path-idea-generator", "proposal-orchestrator", "research-context-builder", "research-opportunity-mapper"]
+    related_skills: ["academic-language-assessor", "idea-adversarial-review-panel", "idea-evaluator", "idea-narrative-assessor", "idea-portfolio-assembler", "medical-journal-review", "methodology-statistics-preflight", "multi-path-idea-generator", "proposal-orchestrator", "research-context-builder", "research-opportunity-mapper"]
     invocation_policy: "implicit"
     requires_independent_subagent: false
     allowed_input_artifacts: "user_inputs_and_existing_workflow_artifacts"
@@ -442,7 +450,7 @@ workflow_edges:
     destination: "multi-path-idea-generator"
     dispatch_mode: "orchestrated"
     trigger: "routing_decision_ready_or_revision_authorized"
-    input_contract: "frozen_context_evidence_opportunities_routing_decision_current_dossiers_and_revision_plan"
+    input_contract: "frozen_context_evidence_opportunities_routing_decision_current_dossiers_and_applicable_revision_plan_or_approved_editorial_repair_writer_brief_or_current_preflight_approved_working_assumptions"
     output_contract: "versioned_complete_idea_dossiers_revision_delta_and_proposed_navigation_metadata"
     failure_route: "generation_blocked"
   - workflow: "idea"
@@ -451,15 +459,39 @@ workflow_edges:
     dispatch_mode: "delegated"
     trigger: "method_or_endpoint_fit_needs_review"
     input_contract: "frozen_complete_idea_dossiers_and_method_facts"
-    output_contract: "preflight_report"
+    output_contract: "preflight_report_and_idea_handoff"
+    failure_route: "independent_review_pending"
+  - workflow: "idea"
+    source: "research-idea-orchestrator"
+    destination: "idea-narrative-assessor"
+    dispatch_mode: "delegated"
+    trigger: "scientific_revision_frozen_or_editorial_repair_completed"
+    input_contract: "one_current_idea_dossier_and_reader_handoff_or_old_new_register_delta"
+    output_contract: "narrative_assessment_and_yaml_repair_plan_or_content_preservation_report"
+    failure_route: "independent_review_pending"
+  - workflow: "idea"
+    source: "research-idea-orchestrator"
+    destination: "academic-language-assessor"
+    dispatch_mode: "delegated"
+    trigger: "scientific_revision_frozen_and_editorial_review_pending"
+    input_contract: "complete_current_idea_dossier_language_scope_and_reader_handoff"
+    output_contract: "language_assessment_report"
     failure_route: "independent_review_pending"
   - workflow: "idea"
     source: "research-idea-orchestrator"
     destination: "idea-evaluator"
     dispatch_mode: "delegated"
-    trigger: "focused_current_dossier_frozen_or_bounded_terminal_dossier_after_single_optimization_remap_and_sync"
+    trigger: "current_dossier_frozen_after_fresh_narrative_language_readiness_and_preservation_when_applicable"
     input_contract: "one_frozen_complete_idea_dossier_only"
     output_contract: "idea_evaluation_report"
+    failure_route: "independent_review_pending"
+  - workflow: "idea"
+    source: "research-idea-orchestrator"
+    destination: "medical-journal-review"
+    dispatch_mode: "delegated"
+    trigger: "final_current_idea_evaluation_valid_and_domain_biomedical_or_clinical"
+    input_contract: "one_frozen_complete_idea_dossier_and_unscored_unranked_candidate_journal_match_brief_without_evaluator_material"
+    output_contract: "medical_journal_review_report"
     failure_route: "independent_review_pending"
   - workflow: "idea"
     source: "research-idea-orchestrator"
@@ -471,18 +503,10 @@ workflow_edges:
     failure_route: "independent_review_pending"
   - workflow: "idea"
     source: "research-idea-orchestrator"
-    destination: "academic-language-assessor"
-    dispatch_mode: "delegated"
-    trigger: "external_facing_portfolio_language_check"
-    input_contract: "frozen_portfolio_text_and_language_scope"
-    output_contract: "language_assessment_report"
-    failure_route: "independent_review_pending"
-  - workflow: "idea"
-    source: "research-idea-orchestrator"
     destination: "idea-portfolio-assembler"
     dispatch_mode: "orchestrated"
     trigger: "qualifying_focused_review_or_bounded_exploration_reviews_sealed"
-    input_contract: "evaluated_current_dossiers_index_lineage_findings_and_dissent"
+    input_contract: "evaluated_current_dossiers_applicable_candidate_journal_matches_medical_reviews_readiness_index_lineage_findings_and_dissent"
     output_contract: "pi_navigation_or_comparison_handoff_package"
     failure_route: "assembly_blocked"
   - workflow: "idea"
@@ -490,7 +514,7 @@ workflow_edges:
     destination: "proposal-orchestrator"
     dispatch_mode: "handoff"
     trigger: "focused_or_human_selected_direction_fresh_promote_and_handoff_gate_passed"
-    input_contract: "promoted_idea_package_and_limitations"
+    input_contract: "promoted_idea_package_with_section_14_and_unresolved_finding_locators"
     output_contract: "proposal_workflow_state"
     failure_route: "proposal_handoff_blocked"
   - workflow: "proposal"
@@ -972,15 +996,19 @@ workflow_state_policy:
   - preprocessing
   - artifact_frozen
   - revision_required
+  - editorial_revision_required
   - panel_pending
   - packaging_pending
   pause_states:
   - pending_review
+  - editorial_review_pending
   - specialist_review_pending
   - independent_review_pending
   - direction_route_confirmation_required
   - clarification_stop
   - deep_research_handoff_required
+  - new_idea_required
+  - layout_migration_required
   terminal_states:
   - stopped
   - blocked
@@ -999,6 +1027,9 @@ workflow_state_policy:
     direction_route_confirmation_required: preprocessing
     clarification_stop: preprocessing
     deep_research_handoff_required: preprocessing
+    editorial_review_pending: artifact_frozen
+    new_idea_required: preprocessing
+    layout_migration_required: preprocessing
   version_gate:
     changed_artifact_requires_new_version: true
     evaluator_instance_must_be_fresh: true
@@ -1031,6 +1062,27 @@ workflow_state_policy:
     to: artifact_frozen
     trigger: versioned_artifact_created
   - from: artifact_frozen
+    to: editorial_review_pending
+    trigger: idea_editorial_readiness_dispatched
+  - from: editorial_review_pending
+    to: editorial_revision_required
+    trigger: idea_editorial_revision_requested
+  - from: editorial_revision_required
+    to: editorial_revision_required
+    trigger: editorial_scope_violation_requires_writer_repair
+  - from: editorial_revision_required
+    to: revision_required
+    trigger: scientific_change_declared
+  - from: editorial_revision_required
+    to: new_idea_required
+    trigger: identity_drift_detected
+  - from: editorial_revision_required
+    to: artifact_frozen
+    trigger: preserved_editorial_version_created
+  - from: editorial_review_pending
+    to: artifact_frozen
+    trigger: idea_editorial_readiness_passed
+  - from: artifact_frozen
     to: pending_review
     trigger: independent_review_dispatched
   - from: pending_review
@@ -1039,6 +1091,18 @@ workflow_state_policy:
   - from: revision_required
     to: artifact_frozen
     trigger: new_version_created
+  - from: revision_required
+    to: new_idea_required
+    trigger: identity_drift_detected
+  - from: preprocessing
+    to: layout_migration_required
+    trigger: legacy_idea_layout_detected
+  - from: new_idea_required
+    to: preprocessing
+    trigger: explicit_new_identity_workflow_started
+  - from: layout_migration_required
+    to: preprocessing
+    trigger: explicit_layout_migration_completed
   - from: pending_review
     to: panel_pending
     trigger: latest_version_accepted
@@ -1092,6 +1156,21 @@ workflow_state_policy:
     - specialist_reports_current
     - sanitized_findings_bundle_current
     - fresh_evaluator_instance
+  - from: pending_review
+    to: specialist_review_pending
+    trigger: biomedical_idea_journal_review_dispatched
+    requires:
+    - final_current_evaluation_valid
+    - current_dossier_biomedical_or_clinical
+    - candidate_journal_match_brief_current_unscored_unranked
+    - candidate_brief_contains_no_evaluator_material
+  - from: specialist_review_pending
+    to: pending_review
+    trigger: biomedical_idea_journal_review_returned
+    requires:
+    - fresh_medical_journal_review_current
+    - dossier_and_candidate_brief_logical_refs_match
+    - evaluator_report_not_visible_to_medical_reviewer
   - from: packaging_pending
     to: human_signoff_required
     trigger: package_verified
@@ -1106,7 +1185,7 @@ workflow_state_policy:
     to: preprocessing
     trigger: human_selected_current_dossier
     requires:
-    - selected_current_dossier_digest_match
+    - selected_current_dossier_logical_ref_match
     - direction_profile_switched_to_focused_optimization
   - from: packaging_pending
     to: human_strategy_selection_required
@@ -1169,7 +1248,9 @@ workflow_state_machines:
       - routing_decision_frozen
       - idea_dossier_versioned
       portfolio_only:
+      - latest_version_editorially_ready
       - latest_version_independently_evaluated
+      - biomedical_journal_review_complete_or_not_applicable
       - dissent_and_fatal_findings_indexed
     scenario_entry_gate_contracts:
       standard:
@@ -1199,18 +1280,31 @@ workflow_state_machines:
           artifact_roles:
           - idea_dossier
       portfolio_only:
+        latest_version_editorially_ready:
+          artifact_roles:
+          - narrative_assessment
+          - language_assessment_report
         latest_version_independently_evaluated:
           review_skill: idea-evaluator
           input_artifact_roles:
           - idea_dossier
+        biomedical_journal_review_complete_or_not_applicable:
+          conditional_artifact_roles:
+          - candidate_journal_match_brief
+          - medical_journal_review_report
+          required_when: current_dossier_biomedical_or_clinical
+          not_applicable_when: current_dossier_not_biomedical_or_clinical
         dissent_and_fatal_findings_indexed:
           artifact_roles:
           - review_finding_index
     before_panel:
+    - current_dossier_editorial_readiness_complete
     - latest_version_independently_evaluated
     - no_unresolved_fatal_finding
     before_packaging:
+    - current_dossier_editorial_readiness_complete
     - latest_version_independently_evaluated
+    - biomedical_journal_review_complete_or_not_applicable
     - dissent_and_fatal_findings_indexed
     before_packaging_by_direction_profile:
       focused_optimization:
@@ -1248,21 +1342,61 @@ workflow_state_machines:
       focused_optimization:
         eligible_artifact: current_frozen_idea_dossier
         required_preconditions:
-        - current_dossier_digest_bound
+        - current_dossier_logical_ref_bound
+        - fresh_narrative_editorially_eligible
+        - fresh_full_dossier_language_editorially_eligible
+        - scientific_content_preserved_when_editorially_repaired
+        - artifact_index_complete
       bounded_exploration:
         eligible_artifact: terminal_current_idea_dossier_only
         required_preconditions:
         - exactly_one_bounded_optimization_complete_for_direction
         - evidence_and_opportunity_remap_complete_for_direction
         - post_remap_claim_sync_complete_for_direction
-        - terminal_dossier_digest_bound
+        - terminal_dossier_logical_ref_bound
+        - fresh_narrative_editorially_eligible
+        - fresh_full_dossier_language_editorially_eligible
+        - scientific_content_preserved_when_editorially_repaired
+        - artifact_index_complete
         initial_or_pre_remap_dossier_evaluation_forbidden: true
+    biomedical_journal_review_contract:
+      dispatch_after: final_effective_current_version_evaluation
+      applicability: biomedical_or_clinical_domain_or_study_setting
+      non_applicable_record_required: true
+      state_while_waiting: specialist_review_pending
+      review_skill: medical-journal-review
+      reviewer_isolation_mode: fresh_subagent
+      candidate_brief_role: candidate_journal_match_brief
+      candidate_brief_source_skill: research-idea-orchestrator
+      candidate_brief_matching_source_skill: idea-evaluator
+      candidate_brief_materialized_by_skill: research-idea-orchestrator
+      candidate_brief_schema_version: research-idea-journal-candidate-brief.v1
+      candidate_outlets_unranked: true
+      candidate_brief_scoring_present: false
+      candidate_brief_publication_probability_present: false
+      candidate_brief_evaluator_material_included: false
+      reviewer_allowed_project_artifacts:
+      - current_complete_idea_dossier
+      - candidate_journal_match_brief
+      reviewer_forbidden_project_artifacts:
+      - idea_evaluation_report
+      - prior_scores
+      - prior_findings
+      - prior_decisions
+      medical_review_route: idea_journal_match_editorial_review
+      publication_probability_assessment: null
+      logical_binding_fields:
+      - artifact_id
+      - version
+      - path
+      content_digest_required: false
+      medical_review_changes_evaluator_score_or_decision: false
     proposal_handoff_contract:
       eligible_direction_profiles:
       - focused_optimization
       required_current_evaluation_decision: promote
       fresh_evaluation_required: true
-      evaluated_dossier_digest_must_match_current: true
+      evaluated_dossier_logical_ref_must_match_current: true
       revise_then_promote_is_not_a_handoff_decision: true
       revise_then_promote_requires_revision_and_fresh_re_evaluation: true
   proposal:
@@ -1690,7 +1824,7 @@ scenario_eval_contract:
   workflow_review_extensions:
     idea-evaluator:
       required_fields:
-      - reviewed_dossier_digest
+      - reviewed_dossier_ref
       - complete_dossier_confirmed
       - dossier_only_input_confirmed
       finding_required_fields:
@@ -1842,19 +1976,55 @@ scenario_eval_contract:
   reviewer_instance_must_differ_from_artifact_writer: true
   panel_role_instance_mapping_must_be_one_to_one: true
   review_decision_contracts:
+    idea-narrative-assessor:
+      allowed:
+      - narrative_ready
+      - minor_narrative_revision
+      - major_narrative_revision
+      - clarification_required
+      - scientific_content_preserved
+      - editorial_scope_violation
+      - identity_drift_detected
+      - scientific_change_declared
+      pass:
+      - narrative_ready
+      - minor_narrative_revision
+      - scientific_content_preserved
+      revise:
+      - major_narrative_revision
+      - editorial_scope_violation
+      stop:
+      - clarification_required
+      - identity_drift_detected
+      - scientific_change_declared
+      mode_specific_decisions:
+        narrative:
+        - narrative_ready
+        - minor_narrative_revision
+        - major_narrative_revision
+        - clarification_required
+        preservation:
+        - scientific_content_preserved
+        - editorial_scope_violation
+        - identity_drift_detected
+        - scientific_change_declared
     academic-language-assessor:
       allowed:
       - submission_ready
       - minor_language_revision
       - major_language_revision
       - needs_professional_editing
+      - clarification_required
+      - independent_review_pending
       pass:
       - submission_ready
-      revise:
       - minor_language_revision
+      revise:
       - major_language_revision
-      stop:
       - needs_professional_editing
+      stop:
+      - clarification_required
+      - independent_review_pending
     medical-journal-review:
       allowed:
       - support
@@ -1863,8 +2033,14 @@ scenario_eval_contract:
       - redesign_required
       - not_reviewable_with_current_materials
       - fatal_flaw
+      - journal_candidates_confirmed
+      - journal_candidates_revised
+      - no_supported_journal_candidate
       pass:
       - support
+      - journal_candidates_confirmed
+      - journal_candidates_revised
+      - no_supported_journal_candidate
       revise:
       - support_with_minor_revision
       - major_revision_required
@@ -2307,7 +2483,16 @@ scenario_eval_contract:
       - idea_index
       - idea_dossier
       - reference_ledger
+      - preflight_report
+      - protected_content_register
+      - narrative_assessment
+      - narrative_repair_plan
+      - language_assessment_report
+      - editorial_repair_writer_brief
+      - content_preservation_report
       - evaluation_report
+      - candidate_journal_match_brief
+      - medical_journal_review_report
       - panel_report
       - revision_plan
       - revision_delta
@@ -2352,10 +2537,41 @@ scenario_eval_contract:
         - research-idea-orchestrator
         - external-input
         count_per_current_idea_node: 1
+      - artifact_role: narrative_assessment
+        source_skill: idea-narrative-assessor
+        current_primary_lineage: true
+        count_must_equal_current_idea_dossier_count: true
+      - artifact_role: language_assessment_report
+        source_skill: academic-language-assessor
+        current_primary_lineage: true
+        count_must_equal_current_idea_dossier_count: true
+      - artifact_role: content_preservation_report
+        source_skill: idea-narrative-assessor
+        current_primary_lineage: true
+        required_when_condition: editorial_repair_occurred
+        count_per_editorially_repaired_current_dossier: 1
       - artifact_role: evaluation_report
         source_skill: idea-evaluator
         current_primary_lineage: true
         count_must_equal_current_idea_dossier_count: true
+      - artifact_role: candidate_journal_match_brief
+        source_skill: research-idea-orchestrator
+        matching_source_skill: idea-evaluator
+        materialized_by_skill: research-idea-orchestrator
+        schema_version: research-idea-journal-candidate-brief.v1
+        current_primary_lineage: true
+        required_when_condition: current_dossier_biomedical_or_clinical
+        count_per_applicable_current_dossier: 1
+        scoring_forbidden: true
+        ranking_forbidden: true
+        evaluator_material_forbidden: true
+      - artifact_role: medical_journal_review_report
+        source_skill: medical-journal-review
+        current_primary_lineage: true
+        required_when_condition: current_dossier_biomedical_or_clinical
+        count_per_applicable_current_dossier: 1
+        fresh_review_required: true
+        evaluator_report_visible: false
       - artifact_role: panel_report
         source_skill: idea-adversarial-review-panel
         all_panel_instances: true
@@ -2373,6 +2589,18 @@ scenario_eval_contract:
           bounded_exploration:
             minimum: 2
             maximum: 3
+      - artifact_role: narrative_repair_plan
+        source_skill: idea-narrative-assessor
+        minimum_count: 0
+        include_all_created: true
+      - artifact_role: protected_content_register
+        source_skill: research-idea-orchestrator
+        minimum_count: 0
+        include_all_created: true
+      - artifact_role: editorial_repair_writer_brief
+        source_skill: research-idea-orchestrator
+        minimum_count: 0
+        include_all_created: true
       - artifact_role: revision_delta
         source_skill: multi-path-idea-generator
         minimum_count: 0
@@ -2768,6 +2996,9 @@ scenario_eval_contract:
       - idea_index
       - reference_ledger
       - revision_plan
+      - protected_content_register
+      - editorial_repair_writer_brief
+      - candidate_journal_match_brief
       - continuation_brief
       proposal-orchestrator:
       - minimal_workflow_state
@@ -2846,6 +3077,10 @@ scenario_eval_contract:
       - revision_plan
       academic-language-assessor:
       - language_assessment_report
+      idea-narrative-assessor:
+      - narrative_assessment
+      - narrative_repair_plan
+      - content_preservation_report
       medical-journal-review:
       - medical_journal_review_report
       methodology-statistics-preflight:
@@ -3072,7 +3307,6 @@ context_profile_policy:
   - current_artifact_id
   - current_artifact_version
   - current_artifact_path
-  - current_artifact_digest
   - latest_qualifying_evaluation
   - gate_receipts
   - unresolved_finding_ids
@@ -3091,6 +3325,7 @@ artifact_completeness_policy:
   - revise
   - evidence_claim_sync
   - editorial_reposition
+  - editorial_repair
   idea_index_role: idea_index
   idea_reference_ledger_role: reference_ledger
   idea_routing_decision_role: idea_routing_decision
@@ -3126,7 +3361,6 @@ artifact_completeness_policy:
     - method_analysis_or_processing
     - output
     - supported_objective_or_claim
-    - limitations_and_failure_conditions
     every_major_objective_and_hypothesis_has_output: true
     every_output_traces_to_input_and_processing: true
     expected_outputs_must_not_be_presented_as_observed_results: true
@@ -3136,6 +3370,15 @@ artifact_completeness_policy:
     supported_editorial_repositioning_is_not_identity_drift: true
     editorial_change_creates_new_dossier_version: true
     editorial_change_requires_fresh_evaluation: true
+    editorial_change_requires_content_preservation_and_fresh_readiness: true
+    limitations_single_authority_section: section_14
+    limitations_omitted_elsewhere_unless_required_to_explain_immediate_reasoning: true
+    reader_reasoning_chain_required:
+    - background
+    - current_state
+    - gap
+    - significance
+    - rationale
     all_title_and_positioning_claims_must_be_supported_by_implementation: true
     claim_support_states:
     - supported
@@ -3163,7 +3406,7 @@ artifact_completeness_policy:
     user_visible_internal_markers_require_human_label_and_ledger_resolution: true
   idea_evaluator_project_input_contract:
     allowed_project_artifacts:
-    - current_complete_idea_dossier_and_digest
+    - current_complete_idea_dossier
     exact_project_artifact_count: 1
     forbidden_project_artifacts:
     - research_context
@@ -3178,10 +3421,139 @@ artifact_completeness_policy:
     - prior_score
     - prior_decision
     stable_rubric_is_skill_instruction_not_project_artifact: true
+    readiness_reports_visible: false
+    logical_binding_fields:
+    - artifact_id
+    - version
+    - path
+    content_digest_required: false
+  idea_biomedical_journal_review_contract:
+    dispatch_after: final_effective_current_version_evaluation
+    applicability: biomedical_or_clinical_domain_or_study_setting
+    candidate_brief_artifact_role: candidate_journal_match_brief
+    candidate_brief_schema_version: research-idea-journal-candidate-brief.v1
+    candidate_brief_matching_source_skill: idea-evaluator
+    candidate_brief_materialized_by_skill: research-idea-orchestrator
+    candidate_brief_contains_unranked_outlets: true
+    candidate_brief_scoring_forbidden: true
+    candidate_brief_publication_probability_forbidden: true
+    candidate_brief_evaluator_material_forbidden: true
+    reviewer_skill: medical-journal-review
+    reviewer_reads_exactly:
+    - current_complete_idea_dossier
+    - candidate_journal_match_brief
+    reviewer_forbidden_inputs:
+    - idea_evaluation_report
+    - prior_scores
+    - prior_findings
+    - prior_decisions
+    reviewer_isolation_mode: fresh_subagent
+    review_route: idea_journal_match_editorial_review
+    publication_probability_assessment: null
+    review_output_artifact_role: medical_journal_review_report
+    logical_binding_fields:
+    - artifact_id
+    - version
+    - path
+    content_digest_required: false
+  idea_editorial_readiness_contract:
+    runs_after_scientific_revision_before_evaluation: true
+    parallel_reviewers:
+    - idea-narrative-assessor
+    - academic-language-assessor
+    editorially_eligible_narrative_decisions:
+    - narrative_ready
+    - minor_narrative_revision
+    editorially_eligible_language_decisions:
+    - submission_ready
+    - minor_language_revision
+    eligibility_requires_no_unresolved_major_narrative_finding: true
+    eligibility_requires_no_unresolved_critical_or_major_language_finding: true
+    idea_scope_overrides_global_language_minor_revision_action: true
+    ordinary_repair_decisions:
+    - major_narrative_revision
+    - major_language_revision
+    clarification_required_route: clarification_stop_then_fresh_assessment
+    needs_professional_editing_route: editorial_revision_required_external_language_support_then_fresh_assessment
+    repair_plan_format: yaml
+    repair_requires_protected_content_register: true
+    writer_interface_artifact_role: editorial_repair_writer_brief
+    writer_interface_source_skill: research-idea-orchestrator
+    writer_brief_construction_reads_exactly:
+    - current_idea_dossier
+    - narrative_assessment
+    - narrative_repair_plan
+    - language_assessment_report
+    - protected_content_register
+    writer_brief_requires_source_review_binding: true
+    writer_brief_requires_source_coverage_validation: true
+    writer_reads_exactly:
+    - current_idea_dossier
+    - editorial_repair_writer_brief
+    - protected_content_register
+    writer_forbidden_editorial_inputs:
+    - narrative_assessment
+    - narrative_repair_plan
+    - language_assessment_report
+    writer_brief_requires_all_blocking_findings_and_resolved_overlaps: true
+    repair_requires_fresh_content_preservation_review: true
+    repair_requires_fresh_narrative_and_language_reassessment: true
+    evaluator_reads_editorial_artifacts: false
+    record_only_minor_observation:
+      single_report_path: tests/idea-narrative-forward-0.9.0-preview.3/error-localization-report-r001.md
+      required_conditions:
+      - severity_minor_or_suggestion
+      - localized_scope
+      - no_scientific_or_content_preservation_change
+      - no_decision_or_reader_eligibility_effect
+      - no_broad_recurrence
+      required_fields:
+      - plugin_version
+      - observed_symptom
+      - suspected_diagnosis
+      - proposed_solution
+      forbidden_followups:
+      - new_correction
+      - reproduction_attempt
+      - extra_test
+      blocking_exceptions:
+      - critical_or_major_finding
+      - content_drift
+      - decision_or_readiness_effect
+      - broad_contamination
+      - invalid_deterministic_result
+    repair_outcome_attribution_contract:
+      required_when: fresh_reassessment_retains_blocking_finding_or_explicit_diagnostic_run
+      cardinality_when_required: 1
+      successful_production_repair_may_omit: true
+      fresh_reassessment_closed_is_optional_validation_receipt: true
+      allowed:
+      - source_input_or_context_handoff_failure
+      - assessor_coverage_failure
+      - assessor_variance
+      - brief_normalization_failure
+      - writer_execution_failure
+      - writer_regression
+      - context_attention_failure
+      - workflow_contract_conflict
+      - fresh_reassessment_closed
+      readable_fingerprint_fields:
+      - finding_level
+      - scientific_role
+      - normalized_locator
+      - failure_mode
+      hash_forbidden: true
+      context_attention_diagnostic_opt_in: true
+      context_attention_failure_requires:
+      - explicit_brief_action_with_acceptance_test
+      - full_context_action_omitted_or_failed
+      - same_writer_instance_succeeds_in_deterministic_bounded_section_view
+      - no_better_supported_alternative_attribution
   proposal_current_artifact: complete_proposal
   article_schema: research-article.v6
   article_current_artifact: complete_canonical_markdown
   fresh_re_evaluation:
+    scope: non_idea_workflows
     allowed:
     - current_complete_artifact_and_digest
     - stable_rubric

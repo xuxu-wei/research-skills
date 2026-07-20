@@ -18,7 +18,6 @@ idea_index:
       node_path: 03_ideas/nodes/I01-001/node.yaml
       dossier_path: 03_ideas/nodes/I01-001/dossiers/idea-dossier-v001.md
       dossier_version: v001
-      dossier_digest: "sha256:"
       reference_ledger_path: 03_ideas/nodes/I01-001/references/reference-ledger.md
       route_profile: focused_optimization | bounded_exploration
       remap_status: not_required | required | complete | structural_revision_required
@@ -26,6 +25,9 @@ idea_index:
   overall_remap_status: not_required | required | complete | structural_revision_required
   downstream_needs:
     methodology_statistics_preflight: []
+    narrative_readiness: required
+    academic_language_readiness: required
     isolated_independent_evaluation: required
+    biomedical_medical_journal_review: required_when_applicable
 
 # Do not copy dossier prose into this index.

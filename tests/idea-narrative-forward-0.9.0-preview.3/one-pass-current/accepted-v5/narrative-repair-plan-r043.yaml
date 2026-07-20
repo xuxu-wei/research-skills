@@ -1,0 +1,83 @@
+schema_version: research-idea-narrative-repair-plan.v1
+plan_id: narrative-repair-plan-r043
+assessment_id: narrative-assessment-r043
+source_artifact:
+  artifact_id: idea-dossier-I01-001-v029
+  version: v029
+  path: tests/idea-narrative-forward-0.9.0-preview.3/one-pass-current/accepted-v5/idea-dossier-v029.md
+decision: minor_narrative_revision
+clarifications_required: []
+actions:
+  - action_id: NRP-043-001
+    addresses_findings:
+      - NAR-043-001
+    priority: minor
+    dossier_locator:
+      section_heading: "Title, summary, audience, and positioning"
+      subsection_heading: null
+      content_anchor: "One-sentence complete-Idea summary: 本研究拟在 24 个月内整合文献、专家知识"
+    operation: replace
+    current_problem: "现有单句摘要在一个句法单位内展开研究对象、全部验证维度、模拟恢复检验定义、阶段 II 五类条件和 RCT 启动条件，主研究目标与条件性后续层级难以在一遍阅读后区分。"
+    target_state: "保留为一个完整句子，但先呈现全病程患者状态与状态转移这一研究对象、24 个月跨数据库验证这一主要目标，再用一个清楚的从属层级说明 RCT 仅在验证标准和试验数据条件满足后开展。"
+    required_content_or_function: "让目标读者无需解析阈值或审计清单即可复述研究问题、主要验证终点和条件性 RCT 层级；模拟恢复检验与阶段 II 的详细定义由 Structured abstract 和 Prespecified criteria for completing the 24-month validation stage 承担。"
+    content_to_preserve:
+      - "24 个月内构建并验证覆盖发病前在险时段、首次发病、发病后状态演化和结局的候选表征"
+      - "文献、专家知识和两个须先完成访问与可观测性审计的公共 ICU 数据库构成主要证据来源"
+      - "未参与开发或参数调整的医院与数据库用于主要外部检验"
+      - "RCT 分析是阶段 II 达标且试验授权、语义与实际访视指标符合要求后才开展的分试验次要分析"
+      - "该句陈述计划而非已完成结果"
+    content_to_remove_or_move:
+      - "从单句摘要删除模拟恢复检验的完整行内定义；该定义已由 Structured abstract、Simulation and semi-synthetic recovery tests 和阶段 II 判定章节承担"
+      - "从单句摘要删除阶段 II 五类证据的逐项展开；完整条件保留在 Prespecified criteria for completing the 24-month validation stage"
+      - "从单句摘要删除预测、校准、状态一致程度、结构符号和不更新参数验证的并列细目；这些细目保留在 Structured abstract 与方法章节"
+    destination_if_moved: null
+    dependencies: []
+    acceptance_test: "一名符合 reader handoff 的跨学科读者只读标题和修订后的单句摘要，即可准确说出研究对象、24 个月主要验证目标以及 RCT 是条件性后续分析；句中不再展开模拟恢复检验或阶段 II 的完整判定清单，且所有被压缩的科学内容仍可在指定后续章节找到。"
+
+  - action_id: NRP-043-002
+    addresses_findings:
+      - NAR-043-002
+    priority: minor
+    dossier_locator:
+      section_heading: "Structured abstract"
+      subsection_heading: null
+      content_anchor: "Objective and hypothesis: 目标是在 24 个月内完成数据审计、恢复检验"
+    operation: define
+    current_problem: "早期假设依赖候选动态表征、跨数据库锚点和可恢复不变量的作用，但其跨学科可理解的功能说明晚于首次论证用途。"
+    target_state: "在标题之后的首次实质性使用处，读者即可知道候选动态表征是对患者随时间变化的状态与状态转移的模型化表示，跨数据库锚点用于以可比较测量固定和对齐状态维度，可恢复不变量是经过恢复检验后才允许跨数据解释的状态、转移或预设关系特征。"
+    required_content_or_function: "提供简短的功能性首用解释，明确每个概念在问题到设计的连接中承担什么作用；不要提前复制公式、载荷限制、阈值或完整方法步骤，也不要判断术语是否标准或建议术语替换。"
+    content_to_preserve:
+      - "知识约束、不确定性感知的候选表征这一研究对象"
+      - "患者—时间状态和状态转移为主要推断单位"
+      - "双数据库锚定、模拟恢复检验与外部稳定性之间的既有逻辑关系"
+      - "Observational target, anchoring and abstention 及 Simulation and semi-synthetic recovery tests 中的全部正式规范"
+    content_to_remove_or_move: []
+    destination_if_moved: null
+    dependencies:
+      - NRP-043-001
+    acceptance_test: "从 Structured abstract 读到 Core hypothesis 时，临床、流行病学、纵向统计或系统科学读者均无需查找后文即可说明这三个核心概念各自的读者功能；后续公式和阈值只增加技术深度，不再补回理解早期假设所必需的定义。"
+
+  - action_id: NRP-043-003
+    addresses_findings:
+      - NAR-043-003
+    priority: minor
+    dossier_locator:
+      section_heading: "Contribution, innovation, impact, application, and closest-work comparison"
+      subsection_heading: "Representative related research comparison"
+      content_anchor: "截至 2026-07-17 的有界代表性检索对“各单项模块已有先例”给出高置信判断"
+    operation: consolidate
+    current_problem: "有界检索的完整边界在已有局部功能的位置之外又以两个独立段落重复出现，打断从证据要求到预期产物以及从相关研究比较到正向贡献的推进。"
+    target_state: "第 14 节保留完整文献定位限制；Gap 保留直接限定缺口陈述所需的自足边界；claim-support 表和风险表保留各自的审计与停止条件功能；其余不增加新功能的完整复述删除。"
+    required_content_or_function: "保持保守的文献定位和所有可审计边界不变，同时使 Required analyses and evidence 自然进入 Expected outputs，使 Representative related research comparison 自然回到本研究的条件性整合与验证增量；不得用指向第 14 节的跨章节语句替代被删内容。"
+    content_to_preserve:
+      - "Gap 中有界检索仅以低至中等置信度支持完整组合缺口的限定，因为该限定直接约束缺口陈述"
+      - "Limitations and boundary conditions 第 8 项中的完整检索范围限制"
+      - "Title and positioning claim-support table 中该主张的证据状态与支持范围"
+      - "Risks, alternatives, and stop conditions 中需要更强主张时扩展检索的触发条件、替代方案和停止结论"
+      - "Contribution and evidence progression 与相关研究比较表中的正向整合、验证和资源贡献"
+    content_to_remove_or_move:
+      - "删除 Required analyses and evidence 末尾以“代表性相关研究比较支持保守的整合、验证与资源定位”开头的独立文献边界段落"
+      - "删除 Representative related research comparison 表后以“截至 2026-07-17 的有界代表性检索”开头、重复高置信先例与低至中等置信完整组合缺口的独立段落"
+    destination_if_moved: null
+    dependencies: []
+    acceptance_test: "完整文献检索限制只在 Limitations and boundary conditions 中作为权威说明；其他保留位置均能指出其紧邻的独特推理、追溯或停止条件功能；两个指定独立复述不存在，也没有新增跨章节指针，且保守的缺口和贡献范围未改变。"

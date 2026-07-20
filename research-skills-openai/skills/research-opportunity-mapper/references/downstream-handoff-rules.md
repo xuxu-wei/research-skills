@@ -3,9 +3,15 @@
 ## Idea orchestrator and dossier writer
 
 Return map refs, readable opportunities, claim/source locators, evidence limits,
-per-claim support status, and Idea direction signals. The orchestrator chooses the deterministic route;
-the writer converts relevant evidence into self-contained prose, standard
-citations, evidence chains, and Claim-Support rows in a complete dossier.
+per-claim support status, separate scientific-gap and novelty-positioning
+objects, the five-function reader-reasoning handoff, and Idea direction signals.
+The orchestrator chooses the deterministic route; the writer converts relevant
+evidence into self-contained prose, standard citations, evidence chains, and
+Claim-Support rows in a complete dossier.
+
+Do not create a terminology register or terminology-evidence packet. The
+academic language assessor checks terminology against the target reader's
+knowledge boundary and supplies any needed replacement or first-use definition.
 
 Do not pass Evidence/Opportunity Maps, limitations, or a reference ledger to
 `idea-evaluator`. Evaluation-relevant content must already be in the dossier.

@@ -1,0 +1,493 @@
+schema_version: research-idea-editorial-repair-writer-brief.v1
+brief_id: editorial-repair-writer-brief-I01-001-r001
+workflow_id: sepsis-complex-system-idea-generation-v001
+round_id: round-003
+active_plugin_version: "0.10.0"
+role: >-
+  对完整 dossier 执行一次仅限编辑的修订；不评估研究，不改变研究身份、科学设计、
+  分析规则、证据状态、限制、假设或停止条件。
+
+source_artifact:
+  artifact_id: idea-dossier-I01-001-v003
+  version: v003
+  path: tests/脓毒症复杂系统模型/03_ideas/nodes/I01-001/dossiers/idea-dossier-v003.md
+protected_content_register:
+  register_id: protected-content-register-v001
+  version: v001
+  path: tests/脓毒症复杂系统模型/05_state/protected-content-register-v001.yaml
+source_review_binding:
+  narrative_assessment:
+    artifact_id: narrative-assessment-I01-001-r001
+    version: r001
+    path: tests/脓毒症复杂系统模型/03_ideas/nodes/I01-001/reviews/narrative-assessment-r001.md
+  narrative_repair_plan:
+    artifact_id: narrative-repair-plan-I01-001-r001
+    version: r001
+    path: tests/脓毒症复杂系统模型/03_ideas/nodes/I01-001/reviews/narrative-repair-plan-r001.yaml
+  language_assessment:
+    artifact_id: language-assessment-r001
+    version: r001
+    path: tests/脓毒症复杂系统模型/03_ideas/nodes/I01-001/reviews/language-assessment-r001.md
+
+included_repair_item_ids:
+  - NRP-001
+  - NRP-002
+  - NRP-003
+  - LANG-001
+  - LANG-002
+  - LANG-003
+  - LANG-004
+  - LANG-005
+  - LANG-006
+
+included_nonblocking_finding_rationale:
+  NAR-003: >-
+    本轮已经因两个 major narrative finding 进行集中修订；该项只要求把内部任务来源和
+    裸阶段标签替换为既有科学对象名称，动作明确、无需科学选择，与 NRP-002 的范围归并
+    同步完成可避免保留第二份待修清单。
+  LANG-002: >-
+    本轮已经因 LANG-001 进行 major language repair；模型恢复诊断的对象可由现有模拟检查
+    直接确定，首用定义和全篇统一均不改变方法。
+  LANG-003: >-
+    概率与权重的规范名称由现有权重公式和用途唯一确定，可在同一轮全篇术语核对中直接统一，
+    不改变协变量、截断、归一化或敏感性分析。
+  LANG-004: >-
+    预测起始时点的中文首用定义只解释现有 landmark 功能，不改变任何时点、风险集或时域。
+  LANG-005: >-
+    将可能暗示统计独立性的措辞改为分别报告且互不替代，直接恢复既定任务关系，不改变四任务
+    Holm 家族或推断结构。
+  LANG-006: >-
+    两处数据库资格语句的平行动词和完整谓语可直接修复，且所有资格条件已经明确，无需补充新事实。
+
+omitted_reported_nonblocking_findings: []
+
+identified_overlaps:
+  - finding_ids: [NRP-001, NRP-003, LANG-001, LANG-005]
+    locator: Structured abstract and opening positioning
+  - finding_ids: [NRP-001, NRP-002, NRP-003]
+    locator: Opening positioning, contribution, feasibility, limitations, and stop-condition mentions
+  - finding_ids: [NRP-001, LANG-001]
+    locator: Result-dependent interpretation for task three
+  - finding_ids: [NRP-001, LANG-003]
+    locator: Limitations and boundary conditions item 8
+  - finding_ids: [NRP-002, NRP-003]
+    locator: Conditional follow-up scope and stage naming
+  - finding_ids: [NRP-003, LANG-002]
+    locator: Approach, rationale, work packages, and evidence-chain phase descriptions
+
+overlap_dispositions:
+  - finding_ids: [NRP-001, NRP-003, LANG-001, LANG-005]
+    disposition: >-
+      以开篇和摘要各自的正向身份、目标、方法和预期产物功能为先：删除重复成组边界和内部来源/
+      裸阶段标签；保留四任务与 H3 的既定内容；把保留的任务三读者措辞统一为“部分观测下的临床
+      测量值预测”，把任务结果关系写为“分别报告且互不替代”。不得改写 frontmatter identity_anchor。
+  - finding_ids: [NRP-001, NRP-002, NRP-003]
+    disposition: >-
+      “Limitations and boundary conditions”保留完整限制权威，“Conditional randomized-trial and
+      animal follow-up”保留后续研究的完整资格、操作和解释权威；其他章节只保留各自范围、输入、
+      资源或停止功能所需的最小陈述，并用科学对象名称替代阶段编号。重复文本删除；只有专门方法
+      小节缺失的操作规则才移动至该小节，限制事实仍留在限制权威位置。
+  - finding_ids: [NRP-001, LANG-001]
+    disposition: >-
+      结果解释表保留其不可替代的按结果模式限定结论功能；任务三行使用“临床测量值/可观测值预测”，
+      并保留“不支持潜在状态或全病程模型”的最小结果特异边界，不复制完整限制集合。
+  - finding_ids: [NRP-001, LANG-003]
+    disposition: >-
+      限制第 8 项作为完整限制权威保留全部残余偏倚内容，仅将概率和权重名称规范为“目标值被观测的
+      概率”“逆观测概率权重”“逆删失概率权重”；不得因术语统一删减限制。
+  - finding_ids: [NRP-002, NRP-003]
+    disposition: >-
+      条件性后续的完整逻辑只留在专门方法小节；保留第二阶段与后续研究的真实依赖，但读者正文改称
+      “12–18 个月核心实证研究”和“条件性后续研究”。必要的时间表、输入、资源、限制与停止陈述
+      保持其局部功能，不展开完整资格组合。
+  - finding_ids: [NRP-003, LANG-002]
+    disposition: >-
+      阶段性位置直接以“建模前文献—专家约束”“开发期参数与潜在状态恢复诊断”“12–18 个月核心
+      实证研究”命名；保留顺序和依赖，且每处“恢复”明确区分模型参数/潜在状态恢复与患者持续恢复。
+
+unresolved_overlaps: []
+all_overlaps_resolved: true
+
+normalized_repair_actions:
+  - repair_item_id: NRP-001
+    source_item_ids: [NRP-001, NAR-001]
+    addresses_finding_ids: [NAR-001]
+    locator: >-
+      全 dossier；完整权威位置为 Feasibility, resources, risks, alternatives, and stop conditions >
+      Limitations and boundary conditions；重点核对开篇、Structured abstract、Core hypothesis、
+      Result-dependent interpretations、Bounded contribution frame、Anticipated impact、
+      Title and positioning claim-support table
+    operation: consolidate
+    problem: >-
+      因果、机制、生物实体、临床效用、可部署性和首创性边界在多个读者位置接近完整重述，
+      与限制小节竞争权威并遮蔽研究的正向主线。
+    target: >-
+      限制小节完整且不削弱地保留限制集合；其他必需章节只保留删除后会歪曲紧邻科学选择、结果解释
+      或支持状态的最小自足边界。开篇、摘要、结果解释和主张支持表分别完成身份、摘要、解释和审计，
+      不使用指向限制小节的提示。
+    required_function_or_term: >-
+      保留正向模型身份、全病程范围、四项外部任务、状态迁移贡献、结果模式允许解释和逐项主张支持
+      审计；限制权威必须继续明确首创性、因果、潜在状态、临床效用、部署和证据边界。
+    content_to_preserve:
+      protected_ids: [PCR-003, PCR-011, PCR-025, PCR-026, PCR-027, PCR-028, PCR-031, PCR-032, PCR-033, PCR-034, PCR-035, PCR-036, PCR-037, PCR-038, PCR-039, PCR-040, PCR-041, PCR-049, PCR-050, PCR-051]
+      instruction: >-
+        打开每个 PCR source_locator，按逐项科学承诺而非摘要主题核对；治疗系数仅用于条件预测、
+        结果模式允许解释、完整限制和不支持主张类别均不得丢失或弱化。
+    delete_move_disposition: >-
+      删除各非权威位置重复的完整否定清单；保留直接解释相邻选择或支持状态的最小自足边界。
+      若某个完整限制元素在限制权威位置缺失，只移动该元素至限制小节后删除重复，不得合并成新科学主张。
+    destination: Feasibility, resources, risks, alternatives, and stop conditions > Limitations and boundary conditions
+    dependencies: []
+    acceptance_test: >-
+      逐节扫描全文：PCR-031 至 PCR-041 的完整限制均在限制小节可逐项定位且不弱化；其他位置没有
+      成组重复限制，每一条保留的局部边界都能指出其直接解释的相邻选择/结果/支持状态；开篇、摘要、
+      结果解释和主张支持表的独立功能仍完整，PCR-049 至 PCR-051 的不支持主张仍明确。
+
+  - repair_item_id: NRP-002
+    source_item_ids: [NRP-002, NAR-002]
+    addresses_finding_ids: [NAR-002]
+    locator: >-
+      Research design and methods > Conditional randomized-trial and animal follow-up，以及开篇、
+      Research content and work packages、Required inputs and database constitution、Closest-work comparison、
+      Feasibility and resources、Limitations and boundary conditions、Risks, alternatives, and stop conditions
+    operation: consolidate
+    problem: >-
+      条件性随机试验和动物研究的启动资格、数据/资源条件、不可补救规则与解释边界在专门方法小节外
+      多次成组展开，使非核心延伸获得接近当前两库研究的叙事权重。
+    target: >-
+      专门方法小节成为条件性后续研究完整操作逻辑的唯一位置；开篇不展开，其他必需章节仅保留本节
+      范围、输入、资源、限制或停止功能不可缺少的一句角色说明。
+    required_function_or_term: >-
+      完整保留随机试验与动物研究各自的启动条件、可回答问题、解释边界和不可补救规则；核心范围仍是
+      12–18 个月的两库外部验证，后续研究不是当前必需交付。
+    content_to_preserve:
+      protected_ids: [PCR-005, PCR-009, PCR-022, PCR-023, PCR-024, PCR-039, PCR-040, PCR-041, PCR-047, PCR-052]
+      instruction: >-
+        条件分支分别保留其资格与后果：随机试验和动物研究不得共享错误的全局启动前提；失败一个分支
+        不得抹去另一可用分支；共同的“不得补救核心失败”只在技术权威处完整表达一次。
+    delete_move_disposition: >-
+      删除开篇提前展开和其他章节重复的完整资格/不可补救组合；把专门方法小节缺失的操作规则移动到
+      该小节。输入、资源、限制和停止章节的独立状态事实原位保留为最小陈述，不移动成方法细节。
+    destination: Research design and methods > Conditional randomized-trial and animal follow-up
+    dependencies: [NRP-001]
+    acceptance_test: >-
+      从标题至核心方法的阅读路线不要求处理后续研究操作条件；全文只有专门方法小节完整列出随机试验
+      和动物研究各自的启动与解释逻辑。PCR-005、009、022 至 024、039 至 041、047、052 均可定位，
+      其他章节仅保留其局部功能且不重复完整规则。
+
+  - repair_item_id: NRP-003
+    source_item_ids: [NRP-003, NAR-003]
+    addresses_finding_ids: [NAR-003]
+    locator: >-
+      全 dossier 的“用户给定/用户提出/用户设定/用户四项候选标准”及脱离对象的第一、第二、第三阶段；
+      重点为 opening positioning、Structured abstract、Rationale、Evidence chains、Bounded contribution frame、
+      Feasibility and resources
+    operation: replace
+    problem: >-
+      内部任务来源措辞和裸阶段编号要求研究读者恢复生成背景，四项验证目标也因此像外部指令而非由
+      科学问题组织的任务。
+    target: >-
+      直接以文献—专家约束、12–18 个月核心实证研究、四项预定验证任务和条件性后续研究命名对象，
+      保持所有真实顺序、范围和依赖关系。
+    required_function_or_term: >-
+      使用“四项预定验证任务”“建模前文献—专家约束”“12–18 个月核心实证研究”“条件性后续研究”；
+      将“人体开放复杂巨系统”保留为被操作化的动态临床系统视角，而非既定模型类别。
+    content_to_preserve:
+      protected_ids: [PCR-001, PCR-002, PCR-003, PCR-005, PCR-006, PCR-009, PCR-022, PCR-023, PCR-024, PCR-027, PCR-041, PCR-052]
+      instruction: >-
+        保留四任务的结果对象、证据独立功能和不可互补关系，约束验收先于建模，核心研究时限及后续
+        启动依赖；只替换读者叙述，不改 frontmatter identity_anchor 的任何值。
+    delete_move_disposition: >-
+      删除任务来源措辞；将裸阶段编号在原位替换为科学对象名称，不移动科学内容，也不删除阶段间关系。
+    destination: null
+    dependencies: [NRP-002]
+    acceptance_test: >-
+      读者正文检索不再以“用户”说明研究目标来源；每个阶段性指代在本句即可识别科学对象。
+      四任务、建模前约束、核心实证研究、条件性后续之间的顺序和范围与 v003 相同，identity_anchor 五项逐字相同。
+
+  - repair_item_id: LANG-001
+    source_item_ids: [LANG-001]
+    addresses_finding_ids: [LANG-001]
+    locator: >-
+      任务三全部读者入口与解释：Structured abstract Objective and hypothesis、Significance、Primary research question、
+      Four task-level summary hypotheses H3、Result-dependent interpretations；全篇同角色表述一并扫描
+    operation: replace
+    problem: >-
+      “其他临床状态/状态估计”可被理解为潜在状态估计，而既定任务目标是预测遮蔽但真实测得的临床值。
+    target: >-
+      所有读者可见任务三表述明确指向部分观测条件下未提供给模型的临床测量值预测，不得被读成潜在
+      状态估计；机器可读 identity_anchor 保持 v003 原文。
+    required_function_or_term: >-
+      统称“部分观测下的临床测量值预测”；H3 标题“部分观测下预测未观测的临床测量值”；首用说明
+      六个器官功能域和三类器官支持值被遮蔽但真实测得，潜在状态不作为金标准。
+    content_to_preserve:
+      protected_ids: [PCR-001, PCR-002, PCR-003, PCR-012, PCR-015, PCR-017, PCR-026, PCR-028]
+      instruction: >-
+        保留六个器官功能域、三类器官支持、12 小时连续块遮蔽、真实测量值目标、负对数评分、权重、
+        比较模型、H3 判定和不以潜在状态为金标准的边界；PCR-001 的科学含义保留，但 frontmatter 原值不改。
+    delete_move_disposition: >-
+      仅替换保留下来的 reader-facing 竞争名称；不移动任务、指标或解释，不把 identity_anchor 当作读者术语修订对象。
+    destination: null
+    dependencies: [NRP-001, NRP-003]
+    acceptance_test: >-
+      全 dossier 读者正文中每个任务三入口、H3 标题与解释均明确为临床测量值预测，没有可合理读作
+      潜在状态估计的竞争形式；PCR-015 的全部设计元素逐项存在，frontmatter identity_anchor 与 v003 逐字一致。
+
+  - repair_item_id: LANG-002
+    source_item_ids: [LANG-002]
+    addresses_finding_ids: [LANG-002]
+    locator: >-
+      全 dossier 的“恢复诊断”“参数恢复”“状态恢复”，重点为 Structured abstract Approach、Rationale、
+      Objectives、work package 2、Complexity selection and identifiability、Key techniques、Evidence chains、
+      Required analyses、Expected outputs、risks and stops
+    operation: define
+    problem: >-
+      “恢复诊断”首用对象不明，并与患者“持续恢复”邻近；参数恢复、潜在状态恢复和统称不一致。
+    target: >-
+      首用说明通过模拟检验模型参数和潜在状态能否从已知生成机制数据可靠恢复；后续统称稳定且每句可
+      识别模型诊断对象，不与患者持续恢复事件混淆。
+    required_function_or_term: >-
+      首用“开展模拟并检验参数和潜在状态能否被可靠恢复”；需统称时用“参数与潜在状态恢复诊断”。
+    content_to_preserve:
+      protected_ids: [PCR-002, PCR-006, PCR-008, PCR-010, PCR-018, PCR-022, PCR-027, PCR-045]
+      instruction: >-
+        保留模拟、参数偏倚、区间覆盖、潜在状态恢复、标签交换、弱转移恢复、预测稳定性、复杂度缩减
+        与停止规则；患者持续恢复的事件定义保持不变。
+    delete_move_disposition: >-
+      替换含混简称并在首次出现处定义；不移动或删除任何恢复检查，也不更名患者持续恢复事件。
+    destination: null
+    dependencies: [NRP-003]
+    acceptance_test: >-
+      全篇检索“恢复诊断”“参数恢复”“状态恢复”“持续恢复”；每个模型诊断本句可见参数和/或潜在状态对象，
+      患者事件仍只指持续恢复，PCR-018 和 PCR-045 的全部诊断与停止顺序未丢失。
+
+  - repair_item_id: LANG-003
+    source_item_ids: [LANG-003]
+    addresses_finding_ids: [LANG-003]
+    locator: >-
+      Four task-level summary hypotheses 的基础权重、H3 和删失/观测权重段；Key techniques item 6；
+      Limitations and boundary conditions item 8；所有同概念出现
+    operation: replace
+    problem: >-
+      同一机制混用观察/观测、概率/权重及可观察/被观测，概率、逆概率权重和删失权重语法层级不一致。
+    target: >-
+      概率一律描述目标值被观测的概率；对应权重一律为逆观测概率权重；与删失并列时使用平行的
+      “逆观测概率权重与逆删失概率权重”。
+    required_function_or_term: >-
+      “目标值被观测的概率”“逆观测概率权重”“逆删失概率权重”。
+    content_to_preserve:
+      protected_ids: [PCR-012, PCR-015, PCR-017, PCR-021, PCR-028, PCR-038, PCR-048]
+      instruction: >-
+        保留患者内归一化、外部资料截止点、目标可评分条件、冻结权重模型、协变量、截断、无穷权重、
+        敏感性分析、患者聚类及残余偏倚限制。
+    delete_move_disposition: >-
+      仅替换术语和为语法平行作必要句法调整；不移动权重规则，不删除任何限制或分析处理。
+    destination: null
+    dependencies: [NRP-001]
+    acceptance_test: >-
+      全篇同概念扫描中，概率只指目标值被观测的概率，权重明确为逆概率权重，与逆删失概率权重层级平行；
+      PCR-017 和 PCR-038 的每个元素仍在正文可定位且含义未变。
+
+  - repair_item_id: LANG-004
+    source_item_ids: [LANG-004]
+    addresses_finding_ids: [LANG-004]
+    locator: >-
+      Confirmatory family 首次出现以及 Four task-level summary hypotheses、任务表、Multiplicity、Key techniques、
+      Evidence chains、Required analyses 中所有 landmark
+    operation: define
+    problem: >-
+      裸用英文 landmark 承担风险集和预测时域起点的核心角色，跨学科读者首次出现时没有中文功能锚点。
+    target: >-
+      首次出现即用普通中文定义每次预测起始时点，后文使用稳定中文形式；仅在首次或确需对照方法文献时
+      保留英文括注。
+    required_function_or_term: >-
+      首用“预定预测起始时点（landmark）”，定义其界定风险集、截断可用信息并开始后续预测时域；
+      后文用“预测起始时点”。
+    content_to_preserve:
+      protected_ids: [PCR-001, PCR-004, PCR-010, PCR-012, PCR-013, PCR-014, PCR-015, PCR-016, PCR-017, PCR-019, PCR-020, PCR-021]
+      instruction: >-
+        保留各任务全部起始时点集合、风险集、预测时域、患者内汇总、重复测量结构、信息截断和外部冻结规则。
+    delete_move_disposition: >-
+      增加首用定义并替换后续裸英文；不移动、合并或删除任何时间点、风险集或时域。
+    destination: null
+    dependencies: []
+    acceptance_test: >-
+      首次出现即可说明该术语的时间功能；全文无未被中文锚定的裸用 landmark，且 PCR-013 至 PCR-017
+      中每项任务的起始时点、风险集、时域和汇总规则逐项保持。
+
+  - repair_item_id: LANG-005
+    source_item_ids: [LANG-005]
+    addresses_finding_ids: [LANG-005]
+    locator: Structured abstract > Expected result
+    operation: replace
+    problem: >-
+      “四个相互独立的任务级比较结果”会产生未经支持的统计独立性含义。
+    target: >-
+      只陈述四项结果分别报告、分别判定且互不替代，不作统计独立性主张。
+    required_function_or_term: “四项分别报告且互不替代的任务级比较结果”
+    content_to_preserve:
+      protected_ids: [PCR-012, PCR-021, PCR-026]
+      instruction: >-
+        保留四任务分别比较、共同进入 Holm 家族、任务间不可补救及产物仍为预期而非完成结果。
+    delete_move_disposition: >-
+      原位替换“相互独立”；不移动或删除预期产物，不改统计程序。
+    destination: null
+    dependencies: [NRP-001]
+    acceptance_test: >-
+      修订句不以“独立”描述任务结果，明确分别报告且互不替代；PCR-012、021、026 的推断结构和证据状态不变。
+
+  - repair_item_id: LANG-006
+    source_item_ids: [LANG-006]
+    addresses_finding_ids: [LANG-006]
+    locator: >-
+      Data, materials, and existing evidence base > Required inputs and database constitution 的首段及数据库资格表
+    operation: replace
+    problem: >-
+      数据库资格陈述的动作与状态不平行，表格谓语“通过”缺少所支配的审计对象。
+    target: >-
+      每个资格条件具有明确、平行的动作或状态，并完整说出患者级标识与事件记录通过资格审计。
+    required_function_or_term: >-
+      “当前尚未确认任何组合已取得项目级访问许可、完成字段适配并具备足够信息量。”
+      “患者级标识与事件记录通过资格审计。”
+    content_to_preserve:
+      protected_ids: [PCR-007, PCR-008, PCR-032, PCR-042]
+      instruction: >-
+        保留项目访问、字段适配、信息量、患者级识别和事件记录均须建模前实证核验，以及未通过时的换库与停止规则。
+    delete_move_disposition: >-
+      原位完成句法替换；不移动或删减资格条件，不把未确认状态写成已满足。
+    destination: null
+    dependencies: []
+    acceptance_test: >-
+      两处句子有明确主语和完整谓语，三个资格条件语法平行；PCR-007、008、032、042 的全部资格状态、
+      验证顺序和失败后果仍可定位，且没有新增条件。
+
+writer_access:
+  allowed_reads:
+    - tests/脓毒症复杂系统模型/03_ideas/nodes/I01-001/dossiers/idea-dossier-v003.md
+    - tests/脓毒症复杂系统模型/03_ideas/nodes/I01-001/revisions/round-003/editorial-repair-writer-brief-r001.yaml
+    - tests/脓毒症复杂系统模型/05_state/protected-content-register-v001.yaml
+  forbidden_reads:
+    - narrative and language assessments or assessor reports
+    - narrative repair plan or any other review plan
+    - prior dossiers and any revision delta or revision-delta artifact
+    - methodology preflight reports
+    - evaluation reports, scores, decisions, or evaluator output
+    - parent hidden context, workflow state, portfolio, or prior review history
+  allowed_writes:
+    complete_dossier:
+      artifact_id: idea-dossier-I01-001-v004
+      version: v004
+      path: tests/脓毒症复杂系统模型/03_ideas/nodes/I01-001/dossiers/idea-dossier-v004.md
+      change_type: editorial_repair
+    revision_delta:
+      artifact_id: revision-delta-I01-001-v003-to-v004
+      version: v003-to-v004
+      path: tests/脓毒症复杂系统模型/03_ideas/nodes/I01-001/revisions/round-003/revision-delta-v003-to-v004.md
+      change_type: editorial_repair_delta
+
+execution_and_handoff:
+  single_complete_target_dossier: true
+  partial_artifacts_forbidden: true
+  pre_freeze_action_compliance_required: true
+  delta_after_dossier_freeze_only: true
+  section_passes:
+    - >-
+      Pass 1 — reader core, sections 1–4: edit one complete v004 target through Title/summary/positioning,
+      Structured abstract, background-current state-gap-significance-rationale, and research question/objectives/core hypothesis;
+      apply NRP-001, NRP-003, LANG-001, LANG-002, LANG-004, and LANG-005 where applicable.
+    - >-
+      Pass 2 — research plan and technical authority, sections 5–11: edit research content, inputs/evidence, methods,
+      implementation, evidence chains, required analyses, and outputs/interpretations; make the conditional-follow-up
+      subsection the sole operational authority and apply all terminology actions without changing design.
+    - >-
+      Pass 3 — positioning, claim audit, and sole limitations authority, sections 12–14: edit contribution/comparison,
+      claim-support table, feasibility/assumptions/limitations/risks/stops; retain every registered limitation and stop,
+      remove only narrative duplication, and keep limitations as the sole complete limitation authority.
+    - >-
+      Pass 4 — references and whole-dossier concordance: preserve reference support, scan every included action and every
+      PCR item against actual revised text, run exact-version structural lint, candidate scan, all-candidate disposition,
+      reader-facing short-form diff, and whole-dossier role concordance; freeze v004 before writing the delta.
+  delta_requirements:
+    - >-
+      After v004 is frozen, provide one compact row for each of NRP-001..003 and LANG-001..006 with revised locator,
+      executed operation, and text-grounded acceptance result; no included item may be missing or marked complete by assertion alone.
+    - >-
+      Provide one compact row for each PCR-001..PCR-052 with revised locator(s), item-level preservation evidence, and
+      required disposition; do not copy the protected text or long dossier excerpts.
+    - >-
+      Record a reader-facing concordance for central object, primary question/task, primary outcome, contribution,
+      task-three prediction target, model-recovery diagnostic, missingness weighting, and prediction time origin:
+      one name, first-use locator, competing forms removed/reclassified, and all-occurrence scan result for each.
+    - >-
+      Record the short-form diff from v003 to frozen v004 and dispose every scanner candidate as retained-and-clear,
+      defined, replaced, deleted-as-duplication, or not-reader-facing, each with locator and brief rationale; this is an
+      execution receipt, not a second finding or repair list.
+    - >-
+      State that identity_anchor values were copied verbatim; limitations PCR-031..041 and stops PCR-042..048 were
+      re-opened in v004; all branch-specific eligibility and consequences remained correctly scoped.
+    - >-
+      Keep the delta compact, bind both outputs to plugin version 0.10.0, and do not compute, request, report, or persist
+      content hashes, digests, checksums, or timestamps as integrity substitutes.
+
+mandatory_whole_dossier_checks:
+  not_new_findings: true
+  checks:
+    - check: Exact research-idea.v3 structural lint for plugin version 0.10.0
+      instruction: >-
+        After all dossier edits and before freezing v004, run exactly:
+        python research-skills-openai/skills/multi-path-idea-generator/scripts/lint_idea_dossier.py
+        tests/脓毒症复杂系统模型/03_ideas/nodes/I01-001/dossiers/idea-dossier-v004.md
+        --expected-plugin-version 0.10.0
+      acceptance: The command exits 0 against the final frozen v004; any later edit requires rerunning it and all following checks.
+    - check: Reader-facing short-form diff
+      instruction: >-
+        Run python research-skills-openai/skills/academic-language-assessor/scripts/diff_reader_facing_short_forms.py
+        with v003 as source and frozen v004 as revised; inspect every reported added, removed, or changed form.
+      acceptance: >-
+        The delta records the tool result and gives a locator-level disposition for every reported form; no new ambiguous
+        short form remains and the tool output is not treated as a language verdict by itself.
+    - check: Full language-candidate disposition
+      instruction: >-
+        Run scan_idea_language_candidates.py on frozen v004 and inspect every candidate in context; record each candidate
+        disposition once in the compact delta receipt, without inventing new findings.
+      acceptance: >-
+        Every candidate has exactly one observable disposition, all LANG-001..006 acceptance tests pass across all occurrences,
+        and no unresolved major terminology competition remains.
+    - check: Complete protected-content preservation
+      instruction: >-
+        For PCR-001 through PCR-052, reopen every source locator in v003 and every claimed revised locator in v004;
+        compare actual dossier words with every enumerated commitment and required revised disposition.
+      acceptance: >-
+        All 52 protected IDs map to exact revised locators with item-level evidence; no numerical, temporal, analysis,
+        eligibility, evidence-status, claim-boundary, assumption, limitation, or stop element is lost, broadened, or weakened.
+    - check: Identity-anchor verbatim preservation
+      instruction: >-
+        Compare the five frontmatter identity_anchor values in v003 and v004 character for character; reader-facing titles
+        and task-three wording may change, but machine-facing anchor values may not.
+      acceptance: All five values are byte-for-byte identical in content and order, and the delta records this comparison.
+    - check: Limitations and stopping rules
+      instruction: >-
+        Reopen PCR-031..041 at the sole complete limitations authority and PCR-042..048 at Risks, alternatives, and stop conditions;
+        verify that consolidation removed only duplication and that every trigger, response, consequence, and non-remediation rule remains.
+      acceptance: >-
+        Eleven limitations and seven stop-condition items are individually locatable and not weakened; conditional RCT and animal
+        branch conditions remain distinct, and no fallback is promoted into a shared prerequisite.
+    - check: Scientific-scope and identity guard
+      instruction: >-
+        Compare v004 against v003 and the PCR for study object, four tasks, populations, databases, time axes, outcomes,
+        comparators, weights, inference, thresholds, evidence status, assumptions, resources, claims, and branch logic.
+      acceptance: >-
+        Differences are limited to the nine normalized editorial actions; no scientific addition, deletion, choice, stronger claim,
+        completed-work implication, or identity drift occurs. If any is necessary, stop and declare scientific change.
+    - check: References and claim-support concordance
+      instruction: >-
+        Verify every retained citation still supports the adjacent claim after moves/deletions, and every claim-support-table row
+        retains contribution, implementation, evidence chain, basis, actual increment, and support status without a repeated full limitation list.
+      acceptance: References remain complete and correctly attached; the claim-support table preserves its audit function and scope.
+    - check: Freeze-before-delta ordering and output boundaries
+      instruction: >-
+        Persist only the complete v004 dossier, finish all scans and lint, freeze it, then create revision-delta-v003-to-v004.md;
+        do not write fragments, candidate files, or intermediate deltas.
+      acceptance: >-
+        Exactly the two allowed outputs exist; the delta postdates the final content decision, covers all included items/PCR/roles,
+        and any subsequent dossier edit invalidates and requires rewriting the delta.

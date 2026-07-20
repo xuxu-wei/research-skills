@@ -61,11 +61,11 @@ properties:
   input_bindings:
     type: array
     uniqueItems: true
-    items: {$ref: 'owner-observed-receipts.schema.yaml#/$defs/artifact_binding'}
+    items: {$ref: 'owner-observed-receipts.schema.yaml#/$defs/workflow_artifact_binding'}
   output_bindings:
     type: array
     uniqueItems: true
-    items: {$ref: 'owner-observed-receipts.schema.yaml#/$defs/artifact_binding'}
+    items: {$ref: 'owner-observed-receipts.schema.yaml#/$defs/workflow_artifact_binding'}
   actor_bindings:
     type: array
     uniqueItems: true
@@ -94,3 +94,18 @@ properties:
         maxItems: 1
         uniqueItems: true
         items: {type: string, minLength: 1}
+allOf:
+  - if:
+      properties: {slot_id: {const: personal-idea-happy}}
+    then:
+      properties:
+        input_bindings:
+          items: {$ref: 'owner-observed-receipts.schema.yaml#/$defs/idea_artifact_binding'}
+        output_bindings:
+          items: {$ref: 'owner-observed-receipts.schema.yaml#/$defs/idea_artifact_binding'}
+    else:
+      properties:
+        input_bindings:
+          items: {$ref: 'owner-observed-receipts.schema.yaml#/$defs/artifact_binding'}
+        output_bindings:
+          items: {$ref: 'owner-observed-receipts.schema.yaml#/$defs/artifact_binding'}

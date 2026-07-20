@@ -1,0 +1,578 @@
+schema_version: research-idea-protected-content-register.v2
+register_id: protected-content-register-v001
+register_version: v001
+source_artifact:
+  artifact_id: idea-dossier-I01-001-v003
+  version: v003
+  path: tests/脓毒症复杂系统模型/03_ideas/nodes/I01-001/dossiers/idea-dossier-v003.md
+identity_anchor:
+  primary_research_question: >-
+    在成人重症监护感染风险患者中，一个预先限定的低维脓毒症全病程动态状态模型能否从一个公开纵向开发数据库中稳定估计，并在一个异质外部数据库中分别改善首次脓毒症发生、死亡或持续恢复、部分观测下状态估计以及后续演化过程的预测，同时保持可重复的临床锚定状态表示？
+  primary_objective: >-
+    构建并外部验证一个区分生理过程、观测过程和临床处置过程的受约束统一动态状态模型，使其状态空间、训练样本和允许转移覆盖感染风险期、首次脓毒症发生及发病后恢复、恶化、出重症监护和死亡，并以四个预定任务级确认性假设给出预测用途、状态迁移性和失效边界。
+  study_object: >-
+    成人重症监护期间从感染风险进入、首次脓毒症发生到发病后器官功能、临床支持、恢复、恶化、存活出重症监护或死亡的全病程演化。
+  core_data_or_evidence_base: >-
+    达到最低完整性要求的文献与临床专家约束表，以及一个公开成人重症监护纵向开发数据库和一个异质公开成人重症监护外部验证数据库中的共同变量、治疗记录、测量过程和临床事件。
+  primary_unit_of_inference: >-
+    成人患者的一次重症监护住院经历及其中按预定时间定位的重复风险集、可观测病程和状态转移；任务内先汇总为患者级结果，再进行患者间推断。
+category_coverage:
+  - category: identity_and_question
+    source_status: source_present
+    protected_item_ids: [PCR-001, PCR-002]
+    not_applicable_reason: null
+  - category: object_scope_and_boundaries
+    source_status: source_present
+    protected_item_ids: [PCR-003, PCR-004, PCR-005]
+    not_applicable_reason: null
+  - category: inputs_and_resources
+    source_status: source_present
+    protected_item_ids: [PCR-006, PCR-007, PCR-008, PCR-009]
+    not_applicable_reason: null
+  - category: design_analysis_and_inference
+    source_status: source_present
+    protected_item_ids: [PCR-010, PCR-011, PCR-012, PCR-013, PCR-014, PCR-015, PCR-016, PCR-017, PCR-018, PCR-019, PCR-020, PCR-021, PCR-022, PCR-023, PCR-024]
+    not_applicable_reason: null
+  - category: claims_and_evidence_status
+    source_status: source_present
+    protected_item_ids: [PCR-025, PCR-026, PCR-027, PCR-028]
+    not_applicable_reason: null
+  - category: assumptions_and_limitations
+    source_status: source_present
+    protected_item_ids: [PCR-029, PCR-030, PCR-031, PCR-032, PCR-033, PCR-034, PCR-035, PCR-036, PCR-037, PCR-038, PCR-039, PCR-040, PCR-041, PCR-042, PCR-043, PCR-044, PCR-045, PCR-046, PCR-047, PCR-048]
+    not_applicable_reason: null
+  - category: unsupported_claim_classes
+    source_status: source_present
+    protected_item_ids: [PCR-049, PCR-050, PCR-051, PCR-052]
+    not_applicable_reason: null
+protected_items:
+  - protected_id: PCR-001
+    category: identity_and_question
+    source_locator:
+      section_heading: "## Research question, objectives, and core hypothesis"
+      content_anchor: "Primary research question. 在成人重症监护感染风险患者中"
+    source_context_locator: null
+    protected_content: >-
+      主要研究问题是：在成人重症监护感染风险患者中，由合格文献—专家约束预先限定并区分生理状态、测量过程和治疗记录的低维全病程动态状态模型，能否在一个开发数据库稳定估计，并在一个异质外部数据库分别优于任务特异简单比较模型，预测首次脓毒症发生、死亡或持续恢复、部分观测下其他临床状态及后续演化过程，同时保持临床锚定状态的跨库可分离性。
+    required_revised_disposition: retained_same_meaning
+  - protected_id: PCR-002
+    category: identity_and_question
+    source_locator:
+      section_heading: "## Research question, objectives, and core hypothesis"
+      content_anchor: "Objectives."
+    source_context_locator: null
+    protected_content: >-
+      四项目标依次为：建模前验收变量本体和结构约束表并实证确认开发库、异质外部库、核心团队及计算条件；在开发库用模拟、参数恢复和内部时间验证确定状态数与复杂度并冻结覆盖感染风险、首次发生和发病后演化的统一模型；把冻结模型直接应用于外部患者，按预定患者级汇总规则平行评价四项确认性假设并用不含验证结局的临床锚定特征评价状态迁移；分别给出四项任务的通过、未通过和不确定性，按通过任务与可迁移状态限定总体或部分支持并保存失效边界。
+    required_revised_disposition: retained_same_meaning
+  - protected_id: PCR-003
+    category: object_scope_and_boundaries
+    source_locator:
+      section_heading: "## Title, summary, audience, and positioning"
+      content_anchor: "动态状态模型、全病程、受约束和外部验证的项目内定义"
+    source_context_locator: null
+    protected_content: >-
+      研究对象是成人 ICU 患者从感染风险、首次脓毒症发生到发病后恢复、恶化、存活出 ICU 或死亡的全病程。同一状态空间、训练样本和预测接口从感染风险队列入口开始，显式包含首次发生并继续覆盖发病后状态与终末事件；任何索引后窗口只用于任务评价。模型须区分生理、观测和处置过程；约束来自文献与结构化专家程序，外部验证是在模型、变量映射、状态标签、任务代码、比较模型、权重和判定规则冻结后直接用于未参与开发的异质数据库患者。
+    required_revised_disposition: retained_same_meaning
+  - protected_id: PCR-004
+    category: object_scope_and_boundaries
+    source_locator:
+      section_heading: "## Research design and methods"
+      subsection_heading: "### Unified full-course population, time axis, and state space"
+      content_anchor: "统一训练样本从成人 ICU 住院中首次满足冻结感染风险入口的时点开始"
+    source_context_locator: null
+    protected_content: >-
+      统一训练样本从成人 ICU 住院中首次满足冻结感染风险入口时开始，至存活出 ICU、死亡或行政删失。未发生脓毒症者保留在感染风险状态族并贡献任务一和全病程轨迹；发生者经冻结的首次 Sepsis-3 电子病历实现进入首次发生转移并继续贡献发病后状态、恢复、恶化、出 ICU 和死亡转移。同一患者重复住院必须归入同一分割。状态空间包含感染风险未发病、首次发生转移、发病后低维器官功能与临床支持、持续恢复或恶化、存活出 ICU 和死亡五类功能组成。
+    required_revised_disposition: retained_same_meaning_at_method_authority
+  - protected_id: PCR-005
+    category: object_scope_and_boundaries
+    source_locator:
+      section_heading: "## Title, summary, audience, and positioning"
+      content_anchor: "本构想的 12–18 个月实证核心对应用户设定的第二阶段"
+    source_context_locator: null
+    protected_content: >-
+      12–18 个月的实证核心只对应第二阶段。随机试验二次分析和动物机制研究均须在第二阶段满足预定条件后另行启动，不是该时限内的必需交付，也不能改变第二阶段失败任务的结论。
+    required_revised_disposition: retained_same_meaning
+  - protected_id: PCR-006
+    category: inputs_and_resources
+    source_locator:
+      section_heading: "## Data, materials, and existing evidence base"
+      subsection_heading: "### First-stage constraint-table prerequisite"
+      content_anchor: "主模型拟合前，约束表必须覆盖"
+    source_context_locator: null
+    protected_content: >-
+      主模型拟合前，第一阶段约束表须覆盖感染风险、首次脓毒症转移、发病后器官功能、恢复与恶化、出 ICU 与死亡，区分治疗输入、生理观测、观测过程和事件结局，登记允许、禁止和不确定转移、时间滞后与尺度、来源、专家支持、反对理由和数据库可映射性。专家组至少含两名脓毒症或重症医师、一名系统科学或系统辨识专家、一名纵向统计或生存分析专家和一名重症数据或人工智能专家；须记录利益冲突和缺席，先独立判断再至少一轮匿名理由反馈。强制约束须获至少 80% 参与者支持，且包含至少一名临床成员与一名方法学成员支持；否则标为不确定，不能作为强制边。共识、少数意见、未解决异议和最终处置须逐项保存。
+    required_revised_disposition: retained_same_meaning_at_input_authority
+  - protected_id: PCR-007
+    category: inputs_and_resources
+    source_locator:
+      section_heading: "## Data, materials, and existing evidence base"
+      subsection_heading: "### Required inputs and database constitution"
+      content_anchor: "第二阶段固定使用一个公开成人重症监护纵向开发数据库和一个在人群、中心构成、地域或照护流程上异质的公开外部数据库"
+    source_context_locator: null
+    protected_content: >-
+      第二阶段固定需要一个公开成人 ICU 纵向开发库和一个在人群、中心构成、地域或照护流程上异质的公开外部验证库。当前没有任何候选组合被视为已经取得项目访问、字段适配或足够信息量；只有项目级授权、真实样例提取和逐概念映射全部通过后，才按预登记顺序确定一开发库和一外部库，且不得依据模型表现、外部状态可分离性或任务结果选择或替换数据库。开发库须支持全病程构建、模拟校准、内部时间验证与全部阈值冻结；外部库须能执行同一核心标签、6 小时网格和共同变量表，并与开发库患者和机构独立，外部结局不得参与开发选择。
+    required_revised_disposition: retained_same_meaning_at_input_authority
+  - protected_id: PCR-008
+    category: inputs_and_resources
+    source_locator:
+      section_heading: "## Data, materials, and existing evidence base"
+      subsection_heading: "### Database, team, and compute qualification"
+      content_anchor: "核心团队须在月 2 前书面落实"
+    source_context_locator: null
+    protected_content: >-
+      数据、团队和计算均为不可由工作假设替代的启动前置门。每个候选库须用真实样例证明共同变量、时间戳、各阶段测量密度、患者数、首次发病及恢复、恶化、出 ICU、死亡事件数、候选状态占用、有效患者级转移、随访删失、重复住院、版本、许可和允许用途；有效转移必须有可判定起止点及足够前后观测。月 2 前须书面落实临床、系统辨识、纵向统计、数据和独立复现五个核心负责人及工时责任，并用候选样例结构实测全病程模拟、最小模型多初值拟合、患者级重采样、外部评分的时间与存储。任一项不通过，只能按预登记顺序换库、削减非核心分析或停止复杂模型路线，不能假设继续。
+    required_revised_disposition: retained_same_meaning_at_input_authority
+  - protected_id: PCR-009
+    category: inputs_and_resources
+    source_locator:
+      section_heading: "## Data, materials, and existing evidence base"
+      subsection_heading: "### Required inputs and database constitution"
+      content_anchor: "第三公开数据库与 EXIT-SEP 或 XBJ-SCAP 个体数据"
+    source_context_locator: null
+    protected_content: >-
+      第三公开数据库仅是两库核心结果锁定后、另行通过同一资格审计的可选压力测试，不进入四任务 Holm 家族或总体判定。EXIT-SEP 或 XBJ-SCAP 个体数据仅属条件性第三阶段资源；当前使用权、逐时变量和功效均未核实，也不是第二阶段输入。
+    required_revised_disposition: retained_same_meaning_at_input_authority
+  - protected_id: PCR-010
+    category: design_analysis_and_inference
+    source_locator:
+      section_heading: "## Research design and methods"
+      subsection_heading: "### Unified full-course population, time axis, and state space"
+      content_anchor: "持续恢复定义为"
+    source_context_locator: null
+    protected_content: >-
+      持续恢复定义为患者存活、脱离侵入性机械通气、血管活性药物和肾脏替代治疗，且六个器官功能域连续 24 小时不再满足冻结的脓毒症相关恶化标准；它是任务二的首次事件，但统一模型仍允许随后恶化或出 ICU。存活出 ICU 单独编码，不自动等同恢复。模型以真实时间运行，6 小时网格仅用于共同特征生成和任务评分；各索引后窗口或未来窗口均不改变从感染风险入口至出 ICU 或死亡的病程边界。
+    required_revised_disposition: retained_same_meaning_at_method_authority
+  - protected_id: PCR-011
+    category: design_analysis_and_inference
+    source_locator:
+      section_heading: "## Research design and methods"
+      subsection_heading: "### Primary model and task-specific comparators"
+      content_anchor: "主要模型为受约束隐半马尔可夫全病程动态状态模型"
+    source_context_locator: null
+    protected_content: >-
+      主要模型为受约束隐半马尔可夫全病程动态状态模型：有限潜在状态表示低维器官功能构型，停留时间分布允许转移风险随状态持续时间变化，观测模型连接生命体征、实验室和器官支持，观测过程模型表示是否测量、频率和距上次测量时间，治疗记录作为时间变化输入进入转移模型；治疗系数仅用于条件预测，不估计治疗作用。任务一至四各有两个预定简单比较模型，并与主要模型使用完全相同的队列、共同变量、信息截断、时间轴、结果编码、风险集、权重和评分代码；每项以相对全部比较模型的最不利平均损失差判定，同时优于全部预定比较模型才可通过。
+    required_revised_disposition: retained_same_meaning_at_method_authority
+  - protected_id: PCR-012
+    category: design_analysis_and_inference
+    source_locator:
+      section_heading: "## Research question, objectives, and core hypothesis"
+      content_anchor: "Confirmatory family."
+    source_context_locator: null
+    protected_content: >-
+      数据资格与最小模型可辨识性是进入外部确认性评价前必须实证通过的前置门，而非统计假设。通过后仅有四个任务级原假设。每位患者先汇总所有预定 landmark、时域和结果组成的加权损失；对任务 k，D_kc 是主要模型相对比较模型 c 的患者级平均损失差，Delta_k 为其中最大值，原假设为 Delta_k 大于或等于 0、备择为小于 0，负值有利。任务内以患者级 max-t 重采样覆盖全部比较模型，给出单侧 95% 上置信界；任务 p 值取各比较模型单侧配对检验 p 值最大值，检验同时优于全部比较模型的交并假设。四个任务 p 值共同进入家族错误率 0.05 的 Holm step-down；另报告各比较的患者级平均差和双侧 95% 置信区间。任务仅在上置信界小于 0 且 Holm 调整后 p 值小于 0.05 时通过。
+    required_revised_disposition: retained_same_meaning_at_method_authority
+  - protected_id: PCR-013
+    category: design_analysis_and_inference
+    source_locator:
+      section_heading: "## Research design and methods"
+      subsection_heading: "### Four task-level summary hypotheses"
+      content_anchor: "H1：是否及何时首次发生脓毒症"
+    source_context_locator: null
+    protected_content: >-
+      H1 从感染风险入口起每 6 小时设 landmark，风险集为仍在 ICU、尚未首次脓毒症且未死亡者；结果为随后 6、12、24 小时的首次脓毒症、先存活出 ICU、先死亡、仍无上述事件四类状态向量，使用多类别 Brier 损失，转院或行政终止按删失。三个时域等权，患者内所有合格 landmark 等权汇总；比较透明重复 landmark 离散时间竞争风险模型与简单感染—脓毒症多状态 Markov 模型，以 Delta_1 的最不利比较和共同通过规则判定。
+    required_revised_disposition: retained_same_meaning_at_method_authority
+  - protected_id: PCR-014
+    category: design_analysis_and_inference
+    source_locator:
+      section_heading: "## Research design and methods"
+      subsection_heading: "### Four task-level summary hypotheses"
+      content_anchor: "H2：何时转向死亡或持续恢复"
+    source_context_locator: null
+    protected_content: >-
+      H2 的 landmark 为首次脓毒症索引后 6、12、24、48、72 小时，风险集为仍存活、在 ICU 且此前未持续恢复者；在索引后 24、48、72、168 小时中晚于 landmark 的时点，结果为首次死亡、首次持续恢复、先存活出 ICU 且未先恢复、此前均未发生四类状态向量，使用多类别 Brier 损失。每个 landmark 只纳入其后绝对时域，合格 landmark—时域对等权并在患者内汇总；比较简单竞争风险多状态模型与透明重复 landmark 竞争风险模型，以 Delta_2 的最不利比较和共同通过规则判定。
+    required_revised_disposition: retained_same_meaning_at_method_authority
+  - protected_id: PCR-015
+    category: design_analysis_and_inference
+    source_locator:
+      section_heading: "## Research design and methods"
+      subsection_heading: "### Four task-level summary hypotheses"
+      content_anchor: "H3：部分观测下估计其他临床状态"
+    source_context_locator: null
+    protected_content: >-
+      H3 在全病程 6 小时网格上，对确有真实测量的六个器官功能域和三类器官支持构造预定 12 小时连续块遮蔽；landmark 为遮蔽开始，输入仅含此前和未遮蔽观测。连续变量按开发库冻结尺度变换，二元支持用 Bernoulli 编码；目标是被遮蔽但真实存在的值，不以潜在状态为金标准。使用冻结预测分布的负对数评分，九个结果域等权，域内变量、遮蔽块和 landmark 等权，并用目标可观察概率权重校正；比较含开发库估计不确定性的最近一次观测模型和简单条件分布模型，以 Delta_3 和共同通过规则判定。预测区间覆盖只作校准诊断，不进入 H3。
+    required_revised_disposition: retained_same_meaning_at_method_authority
+  - protected_id: PCR-016
+    category: design_analysis_and_inference
+    source_locator:
+      section_heading: "## Research design and methods"
+      subsection_heading: "### Four task-level summary hypotheses"
+      content_anchor: "H4：预测后续演化过程及结果"
+    source_context_locator: null
+    protected_content: >-
+      H4 从感染风险入口起每 6 小时设 landmark，风险集为仍在 ICU 且存活者；结果为随后 24、48、72、168 小时的可观测状态向量，包括是否仍在感染风险期、是否已首次脓毒症、六个器官功能域类别、三类器官支持、持续恢复、存活出 ICU 和死亡，吸收事件后保持吸收编码，使用各结果域多类别 Brier 损失。四时域和结果域等权，患者内所有 landmark 先汇总；比较简单全病程多状态 Markov 模型与透明重复 landmark 轨迹模型，以 Delta_4 和共同通过规则判定。
+    required_revised_disposition: retained_same_meaning_at_method_authority
+  - protected_id: PCR-017
+    category: design_analysis_and_inference
+    source_locator:
+      section_heading: "## Research design and methods"
+      subsection_heading: "### Four task-level summary hypotheses"
+      content_anchor: "所有基础权重均在开发阶段冻结"
+    source_context_locator: null
+    protected_content: >-
+      基础权重在开发阶段冻结：landmark 与时域基础权重相等，结果域先等权再域内等权，逆删失或逆观察概率权重乘入后在患者内重新归一，使每位患者对任务总体均值贡献相等。权重模型形式、协变量、截断分位数和无穷权重处理均须开发期冻结；外部库仅按冻结算法用截至 landmark 的资料估计删失或目标可观察概率，外部潜在状态、任务预测和结局不得进入权重模型。患者级重采样以患者为单位并保持重复住院聚类。死亡与存活出 ICU 按已定义事件或竞争事件而非删失；观测权重只用于实际测量可评分的纵向组成与任务三目标。主分析用冻结截断规则，不截断、替代截断和完整病例仅属敏感性分析，不改变主判定。
+    required_revised_disposition: retained_same_meaning_at_method_authority
+  - protected_id: PCR-018
+    category: design_analysis_and_inference
+    source_locator:
+      section_heading: "## Research design and methods"
+      subsection_heading: "### Complexity selection and identifiability"
+      content_anchor: "若最高复杂度未通过"
+    source_context_locator: null
+    protected_content: >-
+      开发阶段须依据资格审计所见的全病程测量密度、缺失、删失、患者、事件和有效转移结构进行模拟，并检查状态占用、参数偏倚、区间覆盖、标签交换、弱转移恢复和预测稳定性，再在内部时间分割中完成多初值及后验预测诊断；所有数值阈值、重复次数和通过规则须在接触外部结局或外部可分离性之前冻结。最高复杂度失败时按减少状态数、合并支持不足转移、简化停留时间分布、移除非必要交互的顺序简化并逐步重跑恢复诊断。最小统一模型仍不能同时恢复感染风险、首次发生和发病后关键转移时，停止潜在状态与全病程统一模型主张，不得缩窄为索引后模型后继续宣称全病程成功。
+    required_revised_disposition: retained_same_meaning_at_method_authority
+  - protected_id: PCR-019
+    category: design_analysis_and_inference
+    source_locator:
+      section_heading: "## Research design and methods"
+      subsection_heading: "### External application and state-transfer diagnostics"
+      content_anchor: "开发完成后，状态数、全部参数、状态标签、标准化、变量映射、允许转移、任务代码、比较模型和权重冻结"
+    source_context_locator: null
+    protected_content: >-
+      开发完成后冻结状态数、全部参数、状态标签、标准化、变量映射、允许转移、任务代码、比较模型和权重；外部库只接收冻结模型和截至当前时点的共同变量历史，不重新估计潜在状态、状态数、转移参数或观测参数，也不重命名或一一匹配状态。临床锚定只包括六个器官功能域、同期生命体征、当前器官支持和短时变化方向；开发期冻结各状态锚定分布、距离、最小占用和可分离规则，且不得用验证结局修改。未满足占用或距离规则为未迁移；两个开发状态在外部不可分离为合并；一个开发状态分成多个不相容子分布为拆分。测量指示、频率和距上次测量时间只作独立观测过程诊断，不能提高生理状态迁移判定。
+    required_revised_disposition: retained_same_meaning_at_method_authority
+  - protected_id: PCR-020
+    category: design_analysis_and_inference
+    source_locator:
+      section_heading: "## Research design and methods"
+      subsection_heading: "### External application and state-transfer diagnostics"
+      content_anchor: "必需状态在开发阶段定义为"
+    source_context_locator: null
+    protected_content: >-
+      必需状态是在开发期定义为至少服务一个任务且通过最小占用与有效转移门槛的状态。任一必需状态未迁移，或同一病程阶段的必需状态合并或拆分，均不支持完整状态表示；若受影响状态不改变已通过任务的可观测预测，最多支持这些任务而不支持完整状态迁移；若迁移失败使某任务的预定风险集、预测状态或结果域不可执行，该任务直接未通过。
+    required_revised_disposition: retained_same_meaning_at_method_authority
+  - protected_id: PCR-021
+    category: design_analysis_and_inference
+    source_locator:
+      section_heading: "## Research design and methods"
+      subsection_heading: "### Multiplicity and overall interpretation"
+      content_anchor: "前置资格门通过后，四项任务同时估计"
+    source_context_locator: null
+    protected_content: >-
+      前置门通过后四项任务平行估计，无任务顺序，某一任务结果不停止其他任务。每个比较模型的患者级配对损失差采用同一 max-t 重采样，固定 10,000 次；任务 p 值取单侧 p 值最大值，任务上置信界为最不利比较的同时单侧 95% 上界；四任务用 Holm step-down。并列 p 值按任务编号处理，排序后依次与 0.05/4、0.05/3、0.05/2、0.05 比较，首次未拒绝时停止拒绝后续排序假设。总体支持要求四任务均通过、所有必需状态迁移且无严重泄漏或独立复现失败；部分支持只能按通过任务或可迁移状态限定；资格或最小模型失败、四任务全未通过或状态迁移失败使关键病程阶段不可解释时判为失败。有限校准只可在无调整结果锁定后、与最终评价互斥的校准样本中调整基线风险或截距，不得改状态、边、锚定或任务摘要；有限校准及第三库均仅为敏感性证据，不替代无调整判定。
+    required_revised_disposition: retained_same_meaning_at_method_authority
+  - protected_id: PCR-022
+    category: design_analysis_and_inference
+    source_locator:
+      section_heading: "## Research content and work packages"
+      content_anchor: "月 1–2、月 3–6、月 7–12、月 13–18"
+    source_context_locator: null
+    protected_content: >-
+      第二阶段的 12–18 个月安排是：月 1–2 完成两库资格、约束表、团队和计算验收；月 3–6 完成全病程开发、比较模型、模拟恢复、内部验证与全部规则冻结；月 7–12 将冻结模型无调整应用于一个异质外部库，先作迁移与观测过程诊断，再平行估计四任务和 Holm，并在月 12 前形成核心结果；月 13–18 完成预定敏感性、独立复现、代码与变量映射及论文，可选第三库结果单列。随机试验和动物研究不在该时间表内。
+    required_revised_disposition: retained_same_meaning_at_method_authority
+  - protected_id: PCR-023
+    category: design_analysis_and_inference
+    source_locator:
+      section_heading: "## Research design and methods"
+      subsection_heading: "### Conditional randomized-trial and animal follow-up"
+      content_anchor: "只有第二阶段达到总体支持"
+    source_context_locator: null
+    protected_content: >-
+      仅当第二阶段达到总体支持、模型和代码冻结、EXIT-SEP 使用权与逐时变量确认、交互功效及与既有表型分析差异核验完成后，才可另行提出随机治疗效应修饰问题。随机分配直接支持分配治疗比较，但不自动识别中介网络。XBJ-SCAP 仅在重症社区获得性肺炎边界和测量时点适配时单独使用；任何 RCT 结果都不能将第二阶段未通过任务改写为通过。
+    required_revised_disposition: retained_same_meaning_at_method_authority
+  - protected_id: PCR-024
+    category: design_analysis_and_inference
+    source_locator:
+      section_heading: "## Research design and methods"
+      subsection_heading: "### Conditional randomized-trial and animal follow-up"
+      content_anchor: "只有合格随机试验分析与人类观察结果共同提出"
+    source_context_locator: null
+    protected_content: >-
+      只有合格随机试验分析与人类观察结果共同提出一个具体、可干预且可测机制，并且具备平台、伦理和样本量依据时，才另行设计符合 MQTiPSS 与 ARRIVE 2.0 的动物研究。动物结果不作为临床模型外部验证，也不能补救第二阶段失败。
+    required_revised_disposition: retained_same_meaning_at_method_authority
+  - protected_id: PCR-025
+    category: claims_and_evidence_status
+    source_locator:
+      section_heading: "## Data, materials, and existing evidence base"
+      subsection_heading: "### Existing evidence base"
+      content_anchor: "当前证据不支持‘首个’或‘完整系统’主张"
+    source_context_locator: null
+    protected_content: >-
+      代表性来源支持临床定义、公开数据库存在与异质性、外部性能下降、信息性缺失以及动态表型和状态空间近邻；标签实现影响主要由一项针对性研究支持，EXIT-SEP、XBJ-SCAP 及 EXIT-SEP 表型事后分析各有直接来源。现有证据不支持“首个”或“完整系统”主张。
+    required_revised_disposition: retained_same_strength
+  - protected_id: PCR-026
+    category: claims_and_evidence_status
+    source_locator:
+      section_heading: "## Structured abstract"
+      content_anchor: "Expected result 与 Contribution and impact"
+    source_context_locator: null
+    protected_content: >-
+      状态与转移模型、四个任务级比较结果、迁移与观测过程诊断、总体/部分支持或失败均是预期产物而非已完成结果。计划贡献是把文献—专家结构、全病程潜在状态模型、四任务确认性评价和异质外部验证组成可证伪路线，为脓毒症复杂系统研究提供可重复的预测性表示；不宣称得到真实生物状态、因果网络或可部署治疗工具。
+    required_revised_disposition: retained_same_strength
+  - protected_id: PCR-027
+    category: claims_and_evidence_status
+    source_locator:
+      section_heading: "## Contribution, innovation, impact, application, and closest-work comparison"
+      subsection_heading: "### Bounded contribution frame"
+      content_anchor: "本研究的计划贡献有三项"
+    source_context_locator: null
+    protected_content: >-
+      计划贡献限定为三项：以约束表、项目级数据资格、团队和计算门及模拟恢复诊断使模型复杂度由可支持的信息结构决定；以一个统一模型覆盖感染风险、首次发生和发病后演化，同时将四目标各压缩为患者级确认性假设并控制家族错误率；将冻结开发模型直接用于外部患者，以临床锚定诊断状态迁移并单列测量强度。贡献性质是方法整合、外部验证和失效边界证据，不是“首次完整人体系统”、真实生物实体、临床效用、因果调控或个体化治疗作用证明。
+    required_revised_disposition: retained_same_strength
+  - protected_id: PCR-028
+    category: claims_and_evidence_status
+    source_locator:
+      section_heading: "## Expected outputs, falsification criteria, and interpretations"
+      subsection_heading: "### Result-dependent interpretations"
+      content_anchor: "允许解释"
+    source_context_locator: null
+    protected_content: >-
+      四任务全通过、所有必需状态迁移且独立复现成功时，只能在研究数据库、共同变量、风险集和时域内支持预测性全病程表示及四项外部用途，不推导真实生物状态或因果治疗关系。一至三项通过时仅支持通过任务；四任务通过但非必需状态迁移不完整时只支持可观测预测用途及可迁移状态；仅 H3 通过只支持有限观测下可观测值预测；开发重建好但迁移或外部任务全失败只支持开发环境观测重建；有限校准或第三库优于核心结果仅属环境差异和失效边界敏感性证据，不改写无调整两库判定。
+    required_revised_disposition: retained_same_strength
+  - protected_id: PCR-029
+    category: assumptions_and_limitations
+    source_locator:
+      section_heading: "## Feasibility, resources, risks, alternatives, and stop conditions"
+      subsection_heading: "### Working assumptions"
+      content_anchor: "WA-01"
+    source_context_locator: null
+    protected_content: >-
+      WA-01：尚未确认最终论文是否只呈现第二阶段；计划暂按第二阶段可独立形成完整实证论文、后续阶段可另文或后续整合推进。核心身份、四任务、两库路线和第二阶段交付不因成果组织改变；月 3 协议冻结前确认，若不成立只调整成果组织、作者分工和后续整合。
+    required_revised_disposition: retained_same_meaning_at_assumption_authority
+  - protected_id: PCR-030
+    category: assumptions_and_limitations
+    source_locator:
+      section_heading: "## Feasibility, resources, risks, alternatives, and stop conditions"
+      subsection_heading: "### Working assumptions"
+      content_anchor: "WA-02"
+    source_context_locator: null
+    protected_content: >-
+      WA-02：可选第三数据库暂按只有两库核心结果锁定且资源允许时才加入压力测试推进。第三库不进入四任务 Holm 家族、总体判定、核心身份或月 12 必需交付；月 12 核心外部结果锁定后确认，若资格或资源不足则取消。
+    required_revised_disposition: retained_same_meaning_at_assumption_authority
+  - protected_id: PCR-031
+    category: assumptions_and_limitations
+    source_locator:
+      section_heading: "## Feasibility, resources, risks, alternatives, and stop conditions"
+      subsection_heading: "### Limitations and boundary conditions"
+      content_anchor: "1. 当前证据来自有界检索"
+    source_context_locator: null
+    protected_content: >-
+      当前证据来自有界检索而非穷尽性系统综述，不能支持“首个”“完整”或无人研究的主张；2026 年来源须在论文定稿时复核。
+    required_revised_disposition: retained_not_weakened
+  - protected_id: PCR-032
+    category: assumptions_and_limitations
+    source_locator:
+      section_heading: "## Feasibility, resources, risks, alternatives, and stop conditions"
+      subsection_heading: "### Limitations and boundary conditions"
+      content_anchor: "2. 尚未取得候选数据库"
+    source_context_locator: null
+    protected_content: >-
+      尚未取得候选数据库的项目访问批准、真实样例提取和完整变量字典；数据库存在不等于本项目已经具备许可、共同变量和足够信息量。
+    required_revised_disposition: retained_not_weakened
+  - protected_id: PCR-033
+    category: assumptions_and_limitations
+    source_locator:
+      section_heading: "## Feasibility, resources, risks, alternatives, and stop conditions"
+      subsection_heading: "### Limitations and boundary conditions"
+      content_anchor: "3. 数据库之间的人群、实践、变量语义、采样和结局定义不同"
+    source_context_locator: null
+    protected_content: >-
+      数据库在人群、实践、变量语义、采样和结局定义上不同；外部差异可能同时反映病例组合、标签和观测过程。
+    required_revised_disposition: retained_not_weakened
+  - protected_id: PCR-034
+    category: assumptions_and_limitations
+    source_locator:
+      section_heading: "## Feasibility, resources, risks, alternatives, and stop conditions"
+      subsection_heading: "### Limitations and boundary conditions"
+      content_anchor: "4. 感染风险入口、脓毒症标签、首次索引时点、任务时域和持续恢复定义"
+    source_context_locator: null
+    protected_content: >-
+      感染风险入口、脓毒症标签、首次索引时点、任务时域和持续恢复定义会影响结果，须用冻结代码和预定敏感性分析界定。
+    required_revised_disposition: retained_not_weakened
+  - protected_id: PCR-035
+    category: assumptions_and_limitations
+    source_locator:
+      section_heading: "## Feasibility, resources, risks, alternatives, and stop conditions"
+      subsection_heading: "### Limitations and boundary conditions"
+      content_anchor: "5. 观察性电子病历中的治疗和测量"
+    source_context_locator: null
+    protected_content: >-
+      观察性电子病历中的治疗和测量受病情与既往处置影响；模型关系只能解释为预测性时间关联，不能识别因果调控、最优治疗或反事实个体效应。
+    required_revised_disposition: retained_not_weakened
+  - protected_id: PCR-036
+    category: assumptions_and_limitations
+    source_locator:
+      section_heading: "## Feasibility, resources, risks, alternatives, and stop conditions"
+      subsection_heading: "### Limitations and boundary conditions"
+      content_anchor: "6. 潜在状态无直接金标准"
+    source_context_locator: null
+    protected_content: >-
+      潜在状态无直接金标准；临床锚定迁移只评价表示可重复，任务预测只评价用途，观测重建只评价观测模型，任何一项均不能证明真实生物状态。
+    required_revised_disposition: retained_not_weakened
+  - protected_id: PCR-037
+    category: assumptions_and_limitations
+    source_locator:
+      section_heading: "## Feasibility, resources, risks, alternatives, and stop conditions"
+      subsection_heading: "### Limitations and boundary conditions"
+      content_anchor: "7. 外部验证只适用于"
+    source_context_locator: null
+    protected_content: >-
+      外部验证仅适用于所研究的人群、共同变量、风险集、时域和医疗环境；预测改善不等于临床效用、真实世界效果或可部署性。
+    required_revised_disposition: retained_not_weakened
+  - protected_id: PCR-038
+    category: assumptions_and_limitations
+    source_locator:
+      section_heading: "## Feasibility, resources, risks, alternatives, and stop conditions"
+      subsection_heading: "### Limitations and boundary conditions"
+      content_anchor: "8. 观测概率与删失权重"
+    source_context_locator: null
+    protected_content: >-
+      观测概率与删失权重依赖冻结模型和可观测历史；极端权重、未测量驱动因素或跨库观测政策差异可能造成残余偏倚。
+    required_revised_disposition: retained_not_weakened
+  - protected_id: PCR-039
+    category: assumptions_and_limitations
+    source_locator:
+      section_heading: "## Feasibility, resources, risks, alternatives, and stop conditions"
+      subsection_heading: "### Limitations and boundary conditions"
+      content_anchor: "9. EXIT-SEP 与 XBJ-SCAP"
+    source_context_locator: null
+    protected_content: >-
+      EXIT-SEP 与 XBJ-SCAP 的数据权限、逐时变量和功效未核实；既有 EXIT-SEP 表型分析造成重叠风险，随机分配也不自动识别中介网络。
+    required_revised_disposition: retained_not_weakened
+  - protected_id: PCR-040
+    category: assumptions_and_limitations
+    source_locator:
+      section_heading: "## Feasibility, resources, risks, alternatives, and stop conditions"
+      subsection_heading: "### Limitations and boundary conditions"
+      content_anchor: "10. 动物研究缺少"
+    source_context_locator: null
+    protected_content: >-
+      动物研究缺少具体机制、平台、样本量、伦理和预算；人鼠可转化性证据存在冲突，动物结果不能作为临床模型外部验证。
+    required_revised_disposition: retained_not_weakened
+  - protected_id: PCR-041
+    category: assumptions_and_limitations
+    source_locator:
+      section_heading: "## Feasibility, resources, risks, alternatives, and stop conditions"
+      subsection_heading: "### Limitations and boundary conditions"
+      content_anchor: "11. 第一阶段约束表、核心团队和计算承诺"
+    source_context_locator: null
+    protected_content: >-
+      第一阶段约束表、核心团队和计算承诺目前尚未完成；12–18 个月只约束第二阶段，第三阶段没有既定时间和资源承诺。
+    required_revised_disposition: retained_not_weakened
+  - protected_id: PCR-042
+    category: assumptions_and_limitations
+    source_locator:
+      section_heading: "## Feasibility, resources, risks, alternatives, and stop conditions"
+      subsection_heading: "### Risks, alternatives, and stop conditions"
+      content_anchor: "月 2 末不能形成一个开发库和一个异质外部库的合格组合"
+    source_context_locator: null
+    protected_content: >-
+      若月 2 末不能形成一开发库加一异质外部库的合格组合，只可按预登记顺序核验替代库且不得查看模型表现；替代后仍失败即停止跨库主分析，不进入潜在状态模型。
+    required_revised_disposition: retained_not_weakened
+  - protected_id: PCR-043
+    category: assumptions_and_limitations
+    source_locator:
+      section_heading: "## Feasibility, resources, risks, alternatives, and stop conditions"
+      subsection_heading: "### Risks, alternatives, and stop conditions"
+      content_anchor: "约束表缺少核心字段、最低专家构成、共识或异议记录"
+    source_context_locator: null
+    protected_content: >-
+      若约束表缺少核心字段、最低专家构成、共识或异议记录，须补齐专家轮次和逐项记录，不得由数据团队代填；月 2 末仍不合格则不开始主模型拟合。
+    required_revised_disposition: retained_not_weakened
+  - protected_id: PCR-044
+    category: assumptions_and_limitations
+    source_locator:
+      section_heading: "## Feasibility, resources, risks, alternatives, and stop conditions"
+      subsection_heading: "### Risks, alternatives, and stop conditions"
+      content_anchor: "核心团队角色未书面落实或计算基准不足"
+    source_context_locator: null
+    protected_content: >-
+      若核心团队角色未书面落实或计算基准不足，先取消第三库、额外亚组和非必需消融并重新基准；五个核心角色仍不齐，或两库模拟、重采样和复现仍不能完成，则停止复杂模型路线。
+    required_revised_disposition: retained_not_weakened
+  - protected_id: PCR-045
+    category: assumptions_and_limitations
+    source_locator:
+      section_heading: "## Feasibility, resources, risks, alternatives, and stop conditions"
+      subsection_heading: "### Risks, alternatives, and stop conditions"
+      content_anchor: "模拟或内部时间验证显示最小统一模型不可恢复"
+    source_context_locator: null
+    protected_content: >-
+      若模拟或内部时间验证显示最小统一模型不可恢复，按状态数、转移、停留时间和交互的顺序简化并重跑恢复诊断；最小模型仍不能覆盖全病程则停止统一潜在状态主张。
+    required_revised_disposition: retained_not_weakened
+  - protected_id: PCR-046
+    category: assumptions_and_limitations
+    source_locator:
+      section_heading: "## Feasibility, resources, risks, alternatives, and stop conditions"
+      subsection_heading: "### Risks, alternatives, and stop conditions"
+      content_anchor: "外部必需状态未迁移、合并或拆分"
+    source_context_locator: null
+    protected_content: >-
+      外部必需状态未迁移、合并或拆分时，保留开发标签并报告受影响状态，不得用结局重定义或强制匹配；完整状态表示失败，受影响任务按预定规则失败，其他任务最多部分支持。
+    required_revised_disposition: retained_not_weakened
+  - protected_id: PCR-047
+    category: assumptions_and_limitations
+    source_locator:
+      section_heading: "## Feasibility, resources, risks, alternatives, and stop conditions"
+      subsection_heading: "### Risks, alternatives, and stop conditions"
+      content_anchor: "一个或多个任务未通过 Holm 调整"
+    source_context_locator: null
+    protected_content: >-
+      一个或多个任务未通过 Holm 调整时，仍报告其估计量和区间且不改变其他任务检验；未通过任务明确不受支持，不能由其他任务、有限校准、第三库、RCT 或动物研究补救。
+    required_revised_disposition: retained_not_weakened
+  - protected_id: PCR-048
+    category: assumptions_and_limitations
+    source_locator:
+      section_heading: "## Feasibility, resources, risks, alternatives, and stop conditions"
+      subsection_heading: "### Risks, alternatives, and stop conditions"
+      content_anchor: "不能由独立分析者复现"
+    source_context_locator: null
+    protected_content: >-
+      数据抽取、任务摘要、Holm 结论或迁移诊断若不能由独立分析者复现，须暂停结果解释并核对字段血缘、患者聚类、权重和代码；核心结果仍不能复现则不得提交全病程状态或外部验证主张。
+    required_revised_disposition: retained_not_weakened
+  - protected_id: PCR-049
+    category: unsupported_claim_classes
+    source_locator:
+      section_heading: "## Contribution, innovation, impact, application, and closest-work comparison"
+      subsection_heading: "### Bounded contribution frame"
+      content_anchor: "不声称首次建立完整人体系统"
+    source_context_locator: null
+    protected_content: >-
+      不支持“首个”“完整系统”“无人研究”或首次建立完整人体系统的主张，也不主张首次使用动态状态方法。
+    required_revised_disposition: retained_as_explicitly_unsupported
+  - protected_id: PCR-050
+    category: unsupported_claim_classes
+    source_locator:
+      section_heading: "## Feasibility, resources, risks, alternatives, and stop conditions"
+      subsection_heading: "### Limitations and boundary conditions"
+      content_anchor: "模型关系只能解释为预测性时间关联"
+    source_context_locator: null
+    protected_content: >-
+      观察性电子病历中的边、权重和治疗系数不支持因果调控、最优治疗、反事实个体效应、治疗作用或中介网络主张；只能作为预测性条件时间关联。
+    required_revised_disposition: retained_as_explicitly_unsupported
+  - protected_id: PCR-051
+    category: unsupported_claim_classes
+    source_locator:
+      section_heading: "## Contribution, innovation, impact, application, and closest-work comparison"
+      subsection_heading: "### Anticipated impact and application"
+      content_anchor: "临床部署、治疗建议、机制和监管用途均需独立后续研究"
+    source_context_locator: null
+    protected_content: >-
+      潜在状态、临床锚定迁移、任务预测或观测重建均不能证明真实生物状态；预测改善不支持临床效用、真实世界效果、可部署性、治疗建议、机制或监管用途，这些均需独立后续研究。
+    required_revised_disposition: retained_as_explicitly_unsupported
+  - protected_id: PCR-052
+    category: unsupported_claim_classes
+    source_locator:
+      section_heading: "## Research design and methods"
+      subsection_heading: "### Conditional randomized-trial and animal follow-up"
+      content_anchor: "任何 RCT 结果都不能把第二阶段未通过的任务改写为通过"
+    source_context_locator: null
+    protected_content: >-
+      RCT 或动物研究不支持改写第二阶段未通过任务；随机分配不自动识别中介网络，动物结果不构成临床模型的外部验证。
+    required_revised_disposition: retained_as_explicitly_unsupported
+permitted_editorial_operations:
+  - replace
+  - define
+  - move
+  - split
+  - merge
+  - delete
+  - reorder
+  - add_bridge
+  - consolidate
+prohibited_changes:
+  - change_study_identity_or_core_question
+  - add_unreviewed_scientific_content
+  - strengthen_claim_or_evidence_status
+  - weaken_assumption_limitation_or_contingency
+  - present_planned_work_as_completed
+  - conceal_feasibility_finding

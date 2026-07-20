@@ -38,6 +38,11 @@ If the minimum information is missing, return clarification needs or failure; do
 
 ## Outputs
 
+Before writing the output, classify each actionable uncertainty as a
+`required_repair`, `working_assumption`, or `nonblocking_advice`. For Idea
+workflows, apply `references/working-assumption-rules.md` and assign a separate
+Idea handoff decision.
+
 Default output: **Methodology-Statistics Preflight Report** with:
 
 - decision;
@@ -47,6 +52,11 @@ Default output: **Methodology-Statistics Preflight Report** with:
 - feasibility blockers;
 - repair directions;
 - downstream handoff.
+
+For Idea inputs, also report `idea_handoff_decision` as `proceed`,
+`proceed_with_assumptions`, or `clarification_stop`, plus structured working
+assumptions when applicable. This does not replace the general preflight
+decision used by other workflows.
 
 Allowed decisions: `pass`, `revise_endpoint_or_metric`, `revise_data_source`, `revise_method`, `revise_analysis_route`, `needs_clarification`, `blocked`, `out_of_scope`.
 
@@ -100,6 +110,9 @@ endpoint/metric、data route、method）——不得依赖父会话隐含上下�
 若发现需要修订，应返回 preflight report，由 orchestrator 决定是否进入 revision loop。
 
 ## References
+
+- Read `references/working-assumption-rules.md` for Idea findings that might
+  proceed under an explicit, testable assumption.
 
 - Read `references/preflight-schema.md` when its named guidance or contract applies: ：定义 preflight report 的结构字段、评估维度和输出格式。
 - Read `references/endpoint-metric-checks.md` when its named guidance or contract applies: ：规范 endpoint、outcome 和 metric 的清晰度、可测量性和与 study design 对齐的检查规则。

@@ -1,0 +1,87 @@
+schema_version: research-idea-narrative-repair-plan.v1
+plan_id: narrative-repair-plan-I01-001-v028-r041
+assessment_id: narrative-assessment-I01-001-v028-r041
+source_artifact:
+  artifact_id: idea-dossier-I01-001-v028
+  version: v028
+  path: tests/idea-narrative-forward-0.9.0-preview.3/one-pass-current/accepted-v4/idea-dossier-v028.md
+decision: minor_narrative_revision
+clarifications_required: []
+actions:
+  - action_id: NRP-001
+    addresses_findings:
+      - NAR-001
+    priority: minor
+    dossier_locator:
+      section_heading: "Title, summary, audience, and positioning"
+      subsection_heading: null
+      content_anchor: "One-sentence complete-Idea summary: 本研究拟在 24 个月内"
+    operation: replace
+    current_problem: "一个长句同时承担正面研究目的、数据库前提、多个未解释的验证概念、RCT 启动条件和不替代阶段 II 的边界，导致首次摘要的概念与限定负荷过高。"
+    target_state: "摘要先让跨学科读者用一次阅读识别研究对象、核心问题、24 个月主要路线和预期贡献，再用一个紧凑的后置分句交代条件性 RCT 扩展。"
+    required_content_or_function: "用自然语言说明候选全病程表征要连接发病前、首次发病、发病后状态和结局，并将在独立医院与数据库中检验；首次保留使用‘阶段 II’时说明其在本研究中指 24 个月内的数据审计、恢复检验、主要任务和跨数据库验证阶段，或在摘要中暂不使用该内部阶段标签。"
+    content_to_preserve:
+      - "24 个月完成主要研究路线"
+      - "文献与专家知识及两个须先审计的公共 ICU 数据库"
+      - "发病前在险时段、首次发病、发病后状态演化和结局的全病程范围"
+      - "独立外部测试中的预测、状态与候选结构验证功能"
+      - "仅在预设证据与试验资料条件满足后开展分试验 RCT 次要分析"
+    content_to_remove_or_move:
+      - "把‘阶段 II’‘状态对齐’和‘候选结构稳定性’作为未解释标签直接压入首次摘要的现有表达"
+      - "摘要末尾与后续结构式摘要重复的‘该扩展不用于补足阶段 II 或验证整个系统模型’完整否定句"
+      - "把数据库前提、验证细节、RCT 条件和证据边界全部并列在一个主句中的现有句法结构"
+    destination_if_moved: null
+    dependencies: []
+    acceptance_test: "一名只具备 handoff 所列共同背景的读者在不查阅后文时，能够从该条目分别说出研究对象、主要验证路线和条件性扩展；任何保留的项目阶段标签或跨学科核心概念均在同一条目得到功能性说明，且正面目的在条件与排除项之前完成。"
+  - action_id: NRP-002
+    addresses_findings:
+      - NAR-001
+      - NAR-002
+    priority: minor
+    dossier_locator:
+      section_heading: "Structured abstract"
+      subsection_heading: null
+      content_anchor: "从 Background and gap 到 Contribution and impact 的五个条目"
+    operation: replace
+    current_problem: "结构式摘要总体元素齐全，但早期条目继续使用未解释的阶段和验证标签，最后的贡献与影响条目重复组件清单及 RCT 边界，没有把正文已有的研究意义带到摘要层。"
+    target_state: "五个条目分别承担背景与缺口、目标与假设、方法、预期结果、贡献与影响的单一主功能，并按问题—目的—回应—结果—意义的顺序递进。"
+    required_content_or_function: "在首次需要处用跨学科可理解的功能描述解释候选表征、恢复检验、状态对齐和跨数据库稳定性，或把非必要术语延后；贡献与影响条目应明确说明区分单库预测与跨库状态证据、提高纵向研究可重复性、以及支持继续检验或停止的研究判断价值。"
+    content_to_preserve:
+      - "Sepsis-3 标签与信息可用时间所形成的问题边界"
+      - "现有工作能够回答的内容与同一表征内证据关系仍未检验的缺口"
+      - "两项主要任务、由审计决定复杂度、简单模型先行和隔离外部测试的设计轮廓"
+      - "全部内容均为计划产物而非现有结果的时间状态"
+      - "RCT 分析有前置条件、按试验分别开展且不替代主要跨数据库证据的范围"
+      - "可复用失败记录与基准资源的贡献"
+    content_to_remove_or_move:
+      - "在首次出现处没有功能性说明的‘阶段 II’‘合取证据’‘状态对齐’和‘候选结构稳定性’标签"
+      - "Contribution and impact 条目中再次完整陈述‘条件性 RCT 分析只回答……不替代阶段 II 的证据’的重复边界"
+      - "Contribution and impact 条目中与 Approach 和 Expected result 已重复、却没有新增影响功能的评价组件清单"
+    destination_if_moved: "详细验证概念、阈值和证据角色保留在 Conjunctive stage-II success definition、Research design and methods、Evidence chains 与 Limitations and boundary conditions；摘要只保留理解研究身份所需的层级。"
+    dependencies:
+      - NRP-001
+    acceptance_test: "五个摘要标签各自能由其内容直接回答；读者在摘要结束时能各用一句话说出问题、缺口、设计回应、预期产物和研究意义；同一 RCT 不替代主要证据的边界在结构式摘要中只出现一次，且任何保留的跨学科核心术语在首次出现处可理解。"
+  - action_id: NRP-003
+    addresses_findings:
+      - NAR-003
+    priority: minor
+    dossier_locator:
+      section_heading: "Research question, objectives, and core hypothesis"
+      subsection_heading: "Primary research question"
+      content_anchor: "能否构建一个知识约束、不确定性感知的 ICU 患者候选动态系统表征"
+    operation: replace
+    current_problem: "主问题把要检验的三个核心关系与条件不满足时的独立临床状态备选分析写成一个分叉问句，混合了问题和方案功能。"
+    target_state: "主问题只包含全病程表征、独立医院与数据库验证、以及在预定关系成立时开展 RCT 访视摘要比较这三个相互关联的科学问题；失败后的备选分析由目标和方法承担。"
+    required_content_or_function: "维持研究对象、患者—时间推断边界、观察性与随机化证据区分，以及 RCT 路径的条件性；删除主问题中的备选端点实现细节，但不删除其在 Objective 4 和 Trial-specific mapping to observed visits and independent clinical-state analysis 中的规定。"
+    content_to_preserve:
+      - "纵向、脓毒症中心的 ICU 患者系统及可比较的未发病与发病后轨迹"
+      - "知识约束和不确定性感知的候选动态系统表征"
+      - "全病程覆盖、跨数据库稳定性检验和条件性 RCT 访视摘要关系"
+      - "不混淆观察性关联与随机化证据的边界"
+    content_to_remove_or_move:
+      - "主问题句末‘否则只分析与阶段 II 独立的试验特异次要临床状态’这一备选分支"
+      - "把条件满足路径和条件不满足路径并列为同一个主问题的现有分叉句法"
+    destination_if_moved: "备选临床状态分析继续由 Objectives 的目标 4、Trial-specific mapping to observed visits and independent clinical-state analysis 以及风险替代表承担，不在主问题中重复。"
+    dependencies:
+      - NRP-001
+    acceptance_test: "主问题可被改写为一个不含‘否则’分支的连贯问句，并能与标题、核心假设及前三层贡献逐项对应；独立临床状态备选方案仍可在目标 4 和相应方法小节中完整找到。"

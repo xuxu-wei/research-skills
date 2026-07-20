@@ -27,7 +27,8 @@ distinction.
 
 ## Extraction order
 
-1. User goal, intended audience, and output.
+1. User goal, intended output, target-reader disciplines/use, and what those
+   readers can be assumed to know versus what requires explanation at first use.
 2. Research question, object, setting, and intended contribution.
 3. Available data/evidence, access, provenance, and limitations.
 4. Available methods and maturity.
@@ -35,7 +36,9 @@ distinction.
 6. Time, resources, access, collaboration, and other binding constraints.
 7. Supplied evidence materials.
 8. Facts, assumptions, uncertainties, and impact if wrong.
-9. Direction clarity and downstream needs.
+9. The reader's background, current-state, gap, significance, and rationale
+   chain, including an explicit unresolved need where context is insufficient.
+10. Gap type, direction clarity, and downstream needs.
 
 Set endpoint/metric status to `clear`, `partially_clear`, `unclear`, or
 `not_applicable`. Characterize direction clarity as `clear`, `underdefined`, or

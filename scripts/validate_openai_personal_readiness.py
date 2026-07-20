@@ -391,6 +391,8 @@ def _validate_artifact_binding(
     value: Any,
     repo_root: Path,
     label: str,
+    *,
+    require_digest: bool = True,
 ) -> tuple[Path | None, list[str]]:
     if not isinstance(value, dict):
         return None, [f"{label}: artifact binding is malformed"]
@@ -398,9 +400,36 @@ def _validate_artifact_binding(
     for field in ("artifact_id", "version"):
         if not isinstance(value.get(field), str) or not value[field].strip():
             errors.append(f"{label}: {field} is missing")
-    path, file_errors = _validate_file_binding(value, repo_root, label)
-    errors.extend(file_errors)
+    if require_digest:
+        path, file_errors = _validate_file_binding(value, repo_root, label)
+        errors.extend(file_errors)
+    else:
+        path, path_errors = _resolve_repo_file(repo_root, value.get("path"), label)
+        errors.extend(path_errors)
     return path, errors
+
+
+def _load_markdown_frontmatter(
+    path: Path,
+    label: str,
+) -> tuple[dict[str, Any] | None, list[str]]:
+    try:
+        lines = path.read_text(encoding="utf-8").splitlines()
+    except (OSError, UnicodeDecodeError) as exc:
+        return None, [f"{label}: Markdown artifact cannot be read: {exc}"]
+    if not lines or lines[0].strip() != "---":
+        return None, [f"{label}: Markdown artifact lacks YAML frontmatter"]
+    try:
+        closing = next(index for index, line in enumerate(lines[1:], 1) if line.strip() == "---")
+    except StopIteration:
+        return None, [f"{label}: Markdown artifact frontmatter is not closed"]
+    try:
+        value = yaml.load("\n".join(lines[1:closing]), Loader=UniqueKeyLoader)
+    except yaml.YAMLError as exc:
+        return None, [f"{label}: Markdown artifact frontmatter cannot be parsed: {exc}"]
+    if not isinstance(value, dict):
+        return None, [f"{label}: Markdown artifact frontmatter must be a mapping"]
+    return value, []
 
 
 def _parse_datetime(value: Any, label: str) -> tuple[datetime | None, list[str]]:
@@ -563,9 +592,13 @@ def _validate_review_report(
     ready_outcome: bool,
     repo_root: Path,
     label: str,
+    *,
+    require_digest: bool = True,
 ) -> tuple[list[str], list[Any]]:
     errors: list[str] = []
-    path, path_errors = _validate_artifact_binding(report, repo_root, label)
+    path, path_errors = _validate_artifact_binding(
+        report, repo_root, label, require_digest=require_digest
+    )
     errors.extend(path_errors)
     if path is None:
         return errors, []
@@ -585,7 +618,6 @@ def _validate_review_report(
         "reviewed_artifact_id",
         "reviewed_artifact_version",
         "reviewed_artifact_path",
-        "reviewed_artifact_digest",
         "report_artifact_id",
         "report_artifact_version",
         "report_artifact_path",
@@ -593,6 +625,11 @@ def _validate_review_report(
     ):
         if not isinstance(record.get(field), str) or not record[field].strip():
             errors.append(f"{label}: {field} is missing")
+    if require_digest and (
+        not isinstance(record.get("reviewed_artifact_digest"), str)
+        or not record["reviewed_artifact_digest"].strip()
+    ):
+        errors.append(f"{label}: reviewed_artifact_digest is missing")
     if record.get("workflow_id") != workflow_id:
         errors.append(f"{label}: workflow_id differs from the workflow receipt")
     if record.get("reviewer_actor_id") != actor.get("actor_id"):
@@ -626,8 +663,9 @@ def _validate_review_report(
         "reviewed_artifact_id": "artifact_id",
         "reviewed_artifact_version": "version",
         "reviewed_artifact_path": "path",
-        "reviewed_artifact_digest": "sha256",
     }
+    if require_digest:
+        reviewed_fields["reviewed_artifact_digest"] = "sha256"
     matching_artifacts = [
         artifact
         for artifact in reviewed_artifacts
@@ -635,7 +673,12 @@ def _validate_review_report(
                for record_field, binding_field in reviewed_fields.items())
     ]
     if len(matching_artifacts) != 1:
-        errors.append(f"{label}: reviewed artifact digest differs from the frozen input")
+        mismatch = (
+            "reviewed artifact digest differs from the frozen input"
+            if require_digest
+            else "reviewed artifact logical reference differs from the frozen input"
+        )
+        errors.append(f"{label}: {mismatch}")
     elif matching_artifacts[0].get("path") not in actor.get("files_read", []):
         errors.append(f"{label}: reviewed artifact is absent from reviewer files_read")
     if record.get("isolation_mode") != "fresh_subagent":
@@ -681,8 +724,156 @@ def _validate_review_report(
     return errors, dissent
 
 
-def _artifact_key(value: dict[str, Any]) -> tuple[Any, ...]:
-    return tuple(value.get(field) for field in ("artifact_id", "version", "path", "sha256"))
+def _artifact_key(
+    value: dict[str, Any], *, logical_only: bool = False
+) -> tuple[Any, ...]:
+    fields = ("artifact_id", "version", "path")
+    if not logical_only:
+        fields = (*fields, "sha256")
+    return tuple(value.get(field) for field in fields)
+
+
+IDEA_IDENTITY_ANCHOR_FIELDS = (
+    "primary_research_question",
+    "primary_objective",
+    "study_object",
+    "core_data_or_evidence_base",
+    "primary_unit_of_inference",
+)
+
+
+def _validate_idea_dossier_identity(
+    artifact: dict[str, Any],
+    path: Path,
+    label: str,
+) -> tuple[dict[str, Any] | None, list[str]]:
+    frontmatter, errors = _load_markdown_frontmatter(path, label)
+    if frontmatter is None:
+        return None, errors
+    if frontmatter.get("schema_version") != "research-idea.v3":
+        errors.append(f"{label}: schema_version is not research-idea.v3")
+    for frontmatter_field, binding_field in (
+        ("artifact_id", "artifact_id"),
+        ("version_id", "version"),
+    ):
+        if frontmatter.get(frontmatter_field) != artifact.get(binding_field):
+            errors.append(
+                f"{label}: frontmatter {frontmatter_field} differs from the logical binding"
+            )
+    if "path" in frontmatter and frontmatter.get("path") != artifact.get("path"):
+        errors.append(f"{label}: frontmatter path differs from the logical binding")
+    if frontmatter.get("frozen") is not True:
+        errors.append(f"{label}: dossier is not frozen")
+    if not isinstance(frontmatter.get("idea_id"), str) or not frontmatter["idea_id"].strip():
+        errors.append(f"{label}: idea_id is missing")
+    anchor = frontmatter.get("identity_anchor")
+    if not isinstance(anchor, dict):
+        errors.append(f"{label}: identity_anchor is missing")
+    else:
+        for field in IDEA_IDENTITY_ANCHOR_FIELDS:
+            if not isinstance(anchor.get(field), str) or not anchor[field].strip():
+                errors.append(f"{label}: identity_anchor.{field} is missing")
+    return frontmatter, errors
+
+
+def _validate_idea_index_and_pointer(
+    evidence: dict[str, Any],
+    binding: dict[str, Any],
+    repo_root: Path,
+    revised: dict[str, Any],
+    revised_frontmatter: dict[str, Any] | None,
+) -> list[str]:
+    errors: list[str] = []
+    index_binding = evidence.get("idea_index_artifact")
+    pointer_binding = evidence.get("current_pointer_artifact")
+    index_path, index_errors = _validate_artifact_binding(
+        index_binding,
+        repo_root,
+        "personal-idea-happy.idea_index_artifact",
+        require_digest=False,
+    )
+    pointer_path, pointer_errors = _validate_artifact_binding(
+        pointer_binding,
+        repo_root,
+        "personal-idea-happy.current_pointer_artifact",
+        require_digest=False,
+    )
+    errors.extend(index_errors + pointer_errors)
+    if index_path is None or pointer_path is None:
+        return errors
+
+    pointer, pointer_parse_errors = _load_structured_file(
+        pointer_path, "personal-idea-happy.current_pointer_artifact"
+    )
+    index_record, index_parse_errors = _load_structured_file(
+        index_path, "personal-idea-happy.idea_index_artifact"
+    )
+    errors.extend(pointer_parse_errors + index_parse_errors)
+    if pointer is None or index_record is None:
+        return errors
+
+    expected_pointer = {
+        "current_dossier_id": revised.get("artifact_id"),
+        "current_version": revised.get("version"),
+        "current_path": revised.get("path"),
+    }
+    for field, expected in expected_pointer.items():
+        if pointer.get(field) != expected:
+            errors.append(f"personal-idea-happy: current pointer {field} differs from the revised dossier")
+    if revised_frontmatter is not None:
+        if pointer.get("idea_id") != revised_frontmatter.get("idea_id"):
+            errors.append("personal-idea-happy: current pointer idea_id differs from dossier frontmatter")
+        if pointer.get("identity_anchor") != revised_frontmatter.get("identity_anchor"):
+            errors.append("personal-idea-happy: current pointer identity anchor differs from dossier frontmatter")
+    if pointer.get("identity_status") != "preserved":
+        errors.append("personal-idea-happy: current pointer does not preserve the Idea identity")
+
+    evaluations = evidence.get("evaluation_artifacts", [])
+    qualifying = evaluations[-1] if isinstance(evaluations, list) and evaluations else None
+    qualifying_ref = pointer.get("qualifying_evaluation_ref")
+    expected_qualifying_ref = (
+        {
+            "artifact_id": qualifying.get("artifact_id"),
+            "version": qualifying.get("version"),
+            "path": qualifying.get("path"),
+        }
+        if isinstance(qualifying, dict)
+        else None
+    )
+    if qualifying_ref != expected_qualifying_ref:
+        errors.append("personal-idea-happy: current pointer does not bind the fresh reassessment")
+
+    index = index_record.get("idea_index")
+    if not isinstance(index, dict):
+        errors.append("personal-idea-happy: Idea index wrapper is missing")
+        return errors
+    if index.get("artifact_id") != index_binding.get("artifact_id"):
+        errors.append("personal-idea-happy: Idea index frontmatter identity differs from its binding")
+    if index.get("frozen") is not True:
+        errors.append("personal-idea-happy: Idea index is not frozen")
+    ideas = index.get("ideas")
+    if not isinstance(ideas, list):
+        errors.append("personal-idea-happy: Idea index entries are missing")
+        return errors
+    pointer_idea_id = pointer.get("idea_id")
+    matching = [
+        item for item in ideas
+        if isinstance(item, dict) and item.get("idea_id") == pointer_idea_id
+    ]
+    if len(matching) != 1:
+        errors.append("personal-idea-happy: Idea index lacks one unambiguous current entry")
+        return errors
+    entry = matching[0]
+    expected_entry = {
+        "dossier_id": revised.get("artifact_id"),
+        "dossier_version": revised.get("version"),
+        "dossier_path": revised.get("path"),
+        "node_path": pointer_binding.get("path"),
+    }
+    for field, expected in expected_entry.items():
+        if entry.get(field) != expected:
+            errors.append(f"personal-idea-happy: Idea index {field} differs from the current pointer")
+    return errors
 
 
 def _normalized_artifact_path(value: dict[str, Any], repo_root: Path) -> str | None:
@@ -883,6 +1074,8 @@ def _validate_workflow_evidence(
     if not isinstance(evidence, dict):
         return [f"{slot_id}: complete workflow evidence is missing"]
     errors: list[str] = []
+    profile = evidence.get("profile")
+    idea_logical = profile == "idea"
     if evidence.get("profile") != receipt.get("workflow"):
         errors.append(f"{slot_id}: workflow evidence profile differs from the slot")
     before = evidence.get("source_inputs_before", [])
@@ -891,7 +1084,9 @@ def _validate_workflow_evidence(
     if len(before) != len(after):
         errors.append(f"{slot_id}: source input before/after inventories differ")
     for offset, (initial, final) in enumerate(zip(before, after)):
-        if _artifact_key(initial) != _artifact_key(final):
+        if _artifact_key(initial, logical_only=idea_logical) != _artifact_key(
+            final, logical_only=idea_logical
+        ):
             errors.append(f"{slot_id}: source input {offset} changed during the workflow")
 
     versions = evidence.get("version_artifacts", [])
@@ -900,6 +1095,8 @@ def _validate_workflow_evidence(
     delta = evidence.get("revision_delta")
     state_artifact = evidence.get("state_artifact")
     compositor_verification = evidence.get("compositor_verification_artifact")
+    idea_index_artifact = evidence.get("idea_index_artifact")
+    current_pointer_artifact = evidence.get("current_pointer_artifact")
     review_contracts: list[
         tuple[dict[str, Any], dict[str, Any], list[dict[str, Any]], str]
     ] = []
@@ -909,10 +1106,12 @@ def _validate_workflow_evidence(
         *evaluations,
         *panels,
         *([compositor_verification] if isinstance(compositor_verification, dict) else []),
+        *([idea_index_artifact] if isinstance(idea_index_artifact, dict) else []),
+        *([current_pointer_artifact] if isinstance(current_pointer_artifact, dict) else []),
         state_artifact,
     ]
     all_artifacts = {
-        _artifact_key(artifact)
+        _artifact_key(artifact, logical_only=idea_logical)
         for artifact in binding.get("artifact_bindings", [])
         if isinstance(artifact, dict)
     }
@@ -923,7 +1122,10 @@ def _validate_workflow_evidence(
             errors.append(f"{slot_id}: workflow artifact {offset} is malformed")
             continue
         artifact_path, artifact_errors = _validate_artifact_binding(
-            artifact, repo_root, f"{slot_id}.workflow_evidence.artifact[{offset}]"
+            artifact,
+            repo_root,
+            f"{slot_id}.workflow_evidence.artifact[{offset}]",
+            require_digest=not idea_logical,
         )
         errors.extend(artifact_errors)
         errors.extend(
@@ -934,29 +1136,68 @@ def _validate_workflow_evidence(
                 allow_private_inputs=offset < private_input_count,
             )
         )
-        if offset >= private_input_count and _artifact_key(artifact) not in all_artifacts:
+        if (
+            offset >= private_input_count
+            and _artifact_key(artifact, logical_only=idea_logical) not in all_artifacts
+        ):
             errors.append(f"{slot_id}: workflow artifact {offset} is absent from receipt artifacts")
 
     inputs = run_index.get("input_bindings", []) if isinstance(run_index, dict) else []
     outputs = run_index.get("output_bindings", []) if isinstance(run_index, dict) else []
-    input_keys = {_artifact_key(item) for item in inputs if isinstance(item, dict)}
-    output_keys = {_artifact_key(item) for item in outputs if isinstance(item, dict)}
+    input_keys = {
+        _artifact_key(item, logical_only=idea_logical)
+        for item in inputs
+        if isinstance(item, dict)
+    }
+    output_keys = {
+        _artifact_key(item, logical_only=idea_logical)
+        for item in outputs
+        if isinstance(item, dict)
+    }
     if not inputs or not outputs:
         errors.append(f"{slot_id}: run-index input/output bindings must both be non-empty")
     for artifact in before:
-        if isinstance(artifact, dict) and _artifact_key(artifact) not in input_keys:
+        if (
+            isinstance(artifact, dict)
+            and _artifact_key(artifact, logical_only=idea_logical) not in input_keys
+        ):
             errors.append(f"{slot_id}: source input is absent from run-index inputs")
     for artifact in stage_artifacts:
-        if isinstance(artifact, dict) and _artifact_key(artifact) not in output_keys:
+        if (
+            isinstance(artifact, dict)
+            and _artifact_key(artifact, logical_only=idea_logical) not in output_keys
+        ):
             errors.append(f"{slot_id}: workflow stage artifact is absent from run-index outputs")
     if any(key not in output_keys for key in all_artifacts):
         errors.append(f"{slot_id}: receipt workflow artifact is absent from run-index outputs")
+    if idea_logical and all_artifacts != output_keys:
+        errors.append(f"{slot_id}: complete logical artifact index differs from run-index outputs")
+    if idea_logical:
+        logical_artifacts = [
+            artifact
+            for artifact in binding.get("artifact_bindings", [])
+            if isinstance(artifact, dict)
+        ]
+        logical_paths = [artifact.get("path") for artifact in logical_artifacts]
+        logical_identities = [
+            (artifact.get("artifact_id"), artifact.get("version"))
+            for artifact in logical_artifacts
+        ]
+        if len(all_artifacts) != len(logical_artifacts):
+            errors.append(f"{slot_id}: complete logical artifact index contains duplicate identities")
+        if len(logical_identities) != len(set(logical_identities)):
+            errors.append(f"{slot_id}: complete logical artifact index aliases an artifact identity")
+        if len(logical_paths) != len(set(logical_paths)):
+            errors.append(f"{slot_id}: complete logical artifact index aliases an artifact path")
     for offset, artifact in enumerate(frozen_review_inputs):
         if not isinstance(artifact, dict):
             errors.append(f"{slot_id}: frozen review input {offset} is malformed")
             continue
         path, artifact_errors = _validate_artifact_binding(
-            artifact, repo_root, f"{slot_id}.frozen_review_inputs[{offset}]"
+            artifact,
+            repo_root,
+            f"{slot_id}.frozen_review_inputs[{offset}]",
+            require_digest=not idea_logical,
         )
         errors.extend(artifact_errors)
         errors.extend(
@@ -967,7 +1208,7 @@ def _validate_workflow_evidence(
                 allow_private_inputs=True,
             )
         )
-        key = _artifact_key(artifact)
+        key = _artifact_key(artifact, logical_only=idea_logical)
         if key not in input_keys and key not in output_keys:
             errors.append(f"{slot_id}: frozen review input is absent from run-index bindings")
         if key in output_keys and key not in all_artifacts:
@@ -975,20 +1216,30 @@ def _validate_workflow_evidence(
 
     if len(versions) >= 2:
         initial, revised = versions[0], versions[-1]
-        if (
-            initial.get("sha256") == revised.get("sha256")
-            or initial.get("path") == revised.get("path")
+        same_logical_version = (
+            initial.get("path") == revised.get("path")
             or initial.get("version") == revised.get("version")
-        ):
+        )
+        same_content_digest = (
+            not idea_logical and initial.get("sha256") == revised.get("sha256")
+        )
+        if same_logical_version or same_content_digest:
             errors.append(f"{slot_id}: revised artifact is not a distinct substantive version")
         delta_path, _ = _validate_artifact_binding(
-            delta, repo_root, f"{slot_id}.workflow_evidence.revision_delta"
+            delta,
+            repo_root,
+            f"{slot_id}.workflow_evidence.revision_delta",
+            require_digest=not idea_logical,
         )
         if delta_path is not None and len(delta_path.read_text(encoding="utf-8").strip()) < 20:
             errors.append(f"{slot_id}: revision delta is not substantive")
+        dossier_frontmatter: dict[str, Any] | None = None
         for label_name, artifact in (("initial", initial), ("revised", revised)):
             artifact_path, _ = _validate_artifact_binding(
-                artifact, repo_root, f"{slot_id}.{label_name}_complete_artifact"
+                artifact,
+                repo_root,
+                f"{slot_id}.{label_name}_complete_artifact",
+                require_digest=not idea_logical,
             )
             if artifact_path is not None:
                 errors.extend(
@@ -998,6 +1249,25 @@ def _validate_workflow_evidence(
                         f"{slot_id}: {label_name}",
                     )
                 )
+                if idea_logical:
+                    current_frontmatter, identity_errors = _validate_idea_dossier_identity(
+                        artifact,
+                        artifact_path,
+                        f"{slot_id}: {label_name}",
+                    )
+                    errors.extend(identity_errors)
+                    if label_name == "revised":
+                        dossier_frontmatter = current_frontmatter
+        if idea_logical:
+            errors.extend(
+                _validate_idea_index_and_pointer(
+                    evidence,
+                    binding,
+                    repo_root,
+                    revised,
+                    dossier_frontmatter,
+                )
+            )
 
     actors = binding.get("actor_bindings", [])
     generator_ids = evidence.get("generator_actor_ids", [])
@@ -1187,8 +1457,11 @@ def _validate_workflow_evidence(
                     (actor, reports[0], reviewed_artifacts, f"reviewer {offset}")
                 )
     if assembler_ids and panels:
+        finalizer_artifacts = [panels[-1], state_artifact]
+        if idea_logical:
+            finalizer_artifacts.extend([idea_index_artifact, current_pointer_artifact])
         write_expectations.append(
-            (_actor_by_id(actors, assembler_ids[0]), [panels[-1], state_artifact], "finalizer")
+            (_actor_by_id(actors, assembler_ids[0]), finalizer_artifacts, "finalizer")
         )
     for actor, artifacts, role_name in write_expectations:
         if actor is None:
@@ -1208,7 +1481,10 @@ def _validate_workflow_evidence(
     if not trace or trace[-1] != evidence.get("terminal_state"):
         errors.append(f"{slot_id}: workflow state trace does not reach the terminal state")
     state_path, _ = _validate_artifact_binding(
-        state_artifact, repo_root, f"{slot_id}.workflow_evidence.state_artifact"
+        state_artifact,
+        repo_root,
+        f"{slot_id}.workflow_evidence.state_artifact",
+        require_digest=not idea_logical,
     )
     if state_path is not None:
         state, state_errors = _load_structured_file(state_path, f"{slot_id}.state_artifact")
@@ -1525,12 +1801,16 @@ def _validate_workflow_evidence(
             receipt.get("actual_outcome") in READY_STATES,
             repo_root,
             f"{slot_id}.{role_name}.review_report",
+            require_digest=not idea_logical,
         )
         errors.extend(report_errors)
         visible_dissent.extend(dissent)
     if visible_dissent and panels:
         final_path, _ = _validate_artifact_binding(
-            panels[-1], repo_root, f"{slot_id}.final_package"
+            panels[-1],
+            repo_root,
+            f"{slot_id}.final_package",
+            require_digest=not idea_logical,
         )
         final_text = final_path.read_text(encoding="utf-8") if final_path is not None else ""
         if any(str(item) not in final_text for item in visible_dissent):
@@ -1744,16 +2024,16 @@ def deterministic_checks() -> tuple[dict[str, Any], list[str]]:
         errors.append("manifest and workflow registry versions differ")
 
     skills = registry.get("skills", [])
-    if not isinstance(skills, list) or len(skills) != 49:
-        errors.append("registry must contain exactly 49 skills")
+    if not isinstance(skills, list) or len(skills) != 50:
+        errors.append("registry must contain exactly 50 skills")
         skills = []
     reviewer_count = sum(
         1
         for item in skills
         if isinstance(item, dict) and item.get("requires_independent_subagent") is True
     )
-    if reviewer_count != 20:
-        errors.append(f"registry must contain 20 independent reviewers, found {reviewer_count}")
+    if reviewer_count != 21:
+        errors.append(f"registry must contain 21 independent reviewers, found {reviewer_count}")
 
     policy = registry.get("public_entry_policy", {})
     declared = set(policy.get("declared_entries", [])) if isinstance(policy, dict) else set()
@@ -1892,6 +2172,11 @@ def _validate_run_index(
     label: str,
 ) -> tuple[dict[str, Any] | None, list[dict[str, Any]], list[str]]:
     errors: list[str] = []
+    workflow_evidence = binding.get("workflow_evidence")
+    idea_logical = (
+        isinstance(workflow_evidence, dict)
+        and workflow_evidence.get("profile") == "idea"
+    )
     run_index_path, file_errors = _validate_file_binding(
         runtime.get("run_index"), repo_root, f"{label}.runtime_evidence.run_index"
     )
@@ -1939,12 +2224,19 @@ def _validate_run_index(
     for group in ("input_bindings", "output_bindings"):
         values = run_index.get(group, [])
         if isinstance(values, list):
-            keys = [_artifact_key(value) for value in values if isinstance(value, dict)]
+            keys = [
+                _artifact_key(value, logical_only=idea_logical)
+                for value in values
+                if isinstance(value, dict)
+            ]
             if len(keys) != len(set(keys)):
                 errors.append(f"{label}: run-index {group} contains duplicate artifact bindings")
             for offset, value in enumerate(values):
                 path, item_errors = _validate_artifact_binding(
-                    value, repo_root, f"{label}.run_index.{group}[{offset}]"
+                    value,
+                    repo_root,
+                    f"{label}.run_index.{group}[{offset}]",
+                    require_digest=not idea_logical,
                 )
                 errors.extend(item_errors)
                 errors.extend(
@@ -2116,9 +2408,13 @@ def _validate_observed_binding(
             )
         )
     artifacts = binding.get("artifact_bindings", [])
+    idea_logical = receipt.get("workflow") == "idea"
     for offset, artifact in enumerate(artifacts if isinstance(artifacts, list) else []):
         artifact_path, artifact_errors = _validate_artifact_binding(
-            artifact, repo_root, f"{slot_id}.artifact_bindings[{offset}]"
+            artifact,
+            repo_root,
+            f"{slot_id}.artifact_bindings[{offset}]",
+            require_digest=not idea_logical,
         )
         errors.extend(artifact_errors)
         if receipt.get("kind") == "distribution":
@@ -2394,8 +2690,8 @@ def _validate_distribution(
     for field, value in expected.items():
         if report.get(field) != value:
             errors.append(f"{slot_id}: distribution report {field} differs from installed evidence")
-    if expected["skill_count"] != 49 or expected["independent_reviewer_count"] != 20:
-        errors.append(f"{slot_id}: installed distribution count baseline differs from 49/20")
+    if expected["skill_count"] != 50 or expected["independent_reviewer_count"] != 21:
+        errors.append(f"{slot_id}: installed distribution count baseline differs from 50/21")
     if report.get("pubmed_present") is not False:
         errors.append(f"{slot_id}: distribution reports the removed pubmed skill")
     return errors

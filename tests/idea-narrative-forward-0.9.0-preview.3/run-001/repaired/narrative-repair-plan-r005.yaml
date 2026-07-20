@@ -1,0 +1,31 @@
+schema_version: research-idea-narrative-repair-plan.v1
+plan_id: narrative-repair-plan-I01-001-r005
+assessment_id: narrative-assessment-I01-001-r005
+source_artifact:
+  artifact_id: idea-dossier-I01-001-v006
+  version: v006
+  path: tests/idea-narrative-forward-0.9.0-preview.3/run-001/repaired/idea-dossier-v006.md
+decision: minor_narrative_revision
+clarifications_required: []
+actions:
+  - action_id: NRP-001
+    addresses_findings:
+      - NAR-001
+    priority: minor
+    dossier_locator:
+      section_heading: "Title, summary, audience, and positioning"
+      subsection_heading: null
+      content_anchor: "跨学科概念桥：候选动态系统模型表示患者生理状态如何随时间变化并发生转移"
+    operation: define
+    current_problem: "概念桥首次列出模拟恢复与跨数据库稳定性检验的对象时，没有向跨学科读者解释“状态占用”“锚点预测”和“结构符号或滞后”的功能含义，相关理解依赖后文方法细节。"
+    target_state: "读者在只阅读标题与定位章节时，即可分辨模型要恢复和跨数据库比较的状态分布、共同生理锚点预测以及预设关系方向与时间延迟，并能把这些对象连接到后续 Gap、核心假设和贡献。"
+    required_content_or_function: "在三个术语首次出现的同一概念桥内加入简短的非公式化定义：说明状态占用对应指定时点处于各状态的概率或比例；锚点预测对应对用于固定潜在状态含义与尺度的共同生理观测指标所作的预测；结构符号或滞后对应预先指定关系的方向及时间延迟。定义只服务于初次理解，技术细节仍留在方法章节。"
+    content_to_preserve:
+      - "候选动态系统模型关于患者生理状态随时间变化和转移的现有说明"
+      - "任务表现、模拟恢复、跨数据库稳定性和条件性试验分析四类证据各自回答不同问题并分别报告的结构"
+      - "未来 12 小时首次发病、第 7 日状态、状态占用、转移概率、锚点预测、结构符号或滞后及一维状态摘要等现有科学对象"
+      - "阶段 II 观测映射预先锁定、只有映射检验通过后才比较随机分组，以及摘要数值越高表示状态越不利的现有边界"
+    content_to_remove_or_move: []
+    destination_if_moved: null
+    dependencies: []
+    acceptance_test: "一名只具备 reader handoff 所列共同先验、且不熟悉多状态建模或系统辨识专门术语的读者，只读该概念桥即可用自己的话区分状态占用、锚点预测和结构符号或滞后；三个定义均位于首次出现处，不引入公式、阈值、方法重写或新的科学主张，且四类证据的原有顺序和边界保持不变。"

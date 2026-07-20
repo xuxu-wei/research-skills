@@ -1,3 +1,20 @@
+---
+review_id:
+reviewer_skill: methodology-statistics-preflight
+reviewer_instance_id:
+workflow_id:
+round_id:
+input_artifact_ids: []
+input_versions: []
+files_read: []
+isolation_mode: fresh_subagent
+prior_scores_visible: false
+source_edits_performed: false
+decision: <needs_clarification | blocked | out_of_scope | independent_review_pending>
+findings: []
+unresolved_issues: []
+---
+
 # Methodology-Statistics Preflight Failure Report
 
 ## 1. Failure Type

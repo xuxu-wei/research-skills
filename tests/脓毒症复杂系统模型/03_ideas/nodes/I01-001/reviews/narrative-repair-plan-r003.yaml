@@ -1,0 +1,10 @@
+schema_version: research-idea-narrative-repair-plan.v1
+plan_id: narrative-repair-plan-I01-001-r003
+assessment_id: narrative-assessment-I01-001-r003
+source_artifact:
+  artifact_id: idea-dossier-I01-001-v004
+  version: v004
+  path: tests/脓毒症复杂系统模型/03_ideas/nodes/I01-001/dossiers/idea-dossier-v004.md
+decision: narrative_ready
+clarifications_required: []
+actions: []

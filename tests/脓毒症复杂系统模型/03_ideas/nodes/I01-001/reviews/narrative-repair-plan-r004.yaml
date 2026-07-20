@@ -1,0 +1,42 @@
+schema_version: research-idea-narrative-repair-plan.v1
+plan_id: narrative-repair-plan-I01-001-r004
+assessment_id: narrative-assessment-I01-001-r004
+source_artifact:
+  artifact_id: idea-dossier-I01-001-v004
+  version: v004
+  path: 03_ideas/nodes/I01-001/dossiers/idea-dossier-v004.md
+decision: clarification_required
+clarifications_required:
+  - >-
+    请确认第三项核心任务的权威对象：是估计部分观测下的潜在临床状态，还是预测预定遮蔽块中真实测得的临床测量值；并确认“潜在状态不作为金标准”的现有限定是否保持不变。
+actions:
+  - action_id: NRP-001
+    addresses_findings:
+      - NAR-002
+    priority: minor
+    dossier_locator:
+      section_heading: Research question, objectives, and core hypothesis
+      subsection_heading: null
+      content_anchor: "**Confirmatory family.** 数据资格和最小模型可辨识性是进入外部确认性评价前必须实证满足的条件"
+    operation: consolidate
+    current_problem: >-
+      完整的患者内加权、D_kc、Delta_k、交并检验、max-t、置信界和 Holm 判定在 Objectives 之前展开，并在后续方法部分重复。
+    target_state: >-
+      研究问题部分连续呈现主问题、四任务确认性结构的简要说明、Objectives 和 Core hypothesis；完整推断规范仅在方法部分出现一次。
+    required_content_or_function: >-
+      本节须保留四项任务分别形成一个患者级确认性假设、各任务必须同时优于其预定比较模型、四项任务共同控制家族错误率且不存在跨任务总准确率的读者导向说明；完整计算与判定规则须在方法部分保持可复现。
+    content_to_preserve:
+      - 四项任务各自形成一个患者级确认性假设且互不替代。
+      - 每位患者先汇总其预测起始时点、时域和结果组成，患者对任务总体均值等权。
+      - D_kc、Delta_k、同时优于全部比较模型的交并检验、患者级 max-t 重采样、单侧 95% 上置信界和任务通过判据的全部定义。
+      - 四任务 Holm step-down 家族错误率控制规则。
+      - 现有 Objectives 列表和 Core hypothesis 的科学内容。
+    content_to_remove_or_move:
+      - >-
+        从 Confirmatory family 段落中“对任务 1–4，令每位患者……”开始至“一个任务只有在……时通过”为止的完整符号、重采样、置信界和多重性计算细节；在本节只留完成局部功能所需的简要确认性结构说明。
+      - >-
+        Confirmatory family 与 Four task-level summary hypotheses、Multiplicity and overall interpretation 之间重复的完整判定说明。
+    destination_if_moved: Research design and methods > Multiplicity and overall interpretation
+    dependencies: []
+    acceptance_test: >-
+      新读者可不经过公式和重采样细节，按“Primary research question—简要确认性结构—Objectives—Core hypothesis”的顺序连续理解研究；D_kc、Delta_k、患者级汇总、max-t、单侧上置信界、任务通过标准和 Holm 规则均在方法部分一个权威位置完整且仅完整出现一次。

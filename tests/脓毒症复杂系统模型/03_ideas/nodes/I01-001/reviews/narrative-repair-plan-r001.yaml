@@ -1,0 +1,100 @@
+schema_version: research-idea-narrative-repair-plan.v1
+plan_id: narrative-repair-plan-I01-001-r001
+assessment_id: narrative-assessment-I01-001-r001
+source_artifact:
+  artifact_id: idea-dossier-I01-001-v003
+  version: v003
+  path: tests/脓毒症复杂系统模型/03_ideas/nodes/I01-001/dossiers/idea-dossier-v003.md
+decision: major_narrative_revision
+clarifications_required: []
+actions:
+  - action_id: NRP-001
+    addresses_findings:
+      - NAR-001
+    priority: major
+    dossier_locator:
+      section_heading: Title, summary, audience, and positioning
+      subsection_heading: null
+      content_anchor: “模型状态是观测资料的预测性表示”及其后的边界说明
+    operation: consolidate
+    current_problem: >-
+      因果、机制、生物实体、临床效用、可部署性和首创性边界在开篇、结构化摘要、核心假设、总体解释、贡献框架、预期影响和主张支持表中重复接近完整的说明，与“Limitations and boundary conditions”的完整权威位置竞争。
+    target_state: >-
+      “Limitations and boundary conditions”保留完整限制集合；其他章节删除重复边界，只在删去后会歪曲紧邻科学选择时保留一条自足的最小限定，并且不使用任何指向限制章节的提示。
+    required_content_or_function: >-
+      开篇仍须正向说明模型身份、全病程范围、四项外部任务和状态迁移贡献；结构化摘要仍须给出贡献；总体解释仍须按结果模式界定允许结论；主张支持表仍须审计每项主张的支持范围。
+    content_to_preserve:
+      - 单句摘要中关于全病程对象、约束来源、开发库、外部库、四项任务和计划证据的正向陈述
+      - 治疗系数仅用于条件预测这一直接解释相邻模型选择的自足边界
+      - 结果依赖解释表中每种结果模式对应的允许解释
+      - 主张支持表中每一行的贡献、实施、证据链、依据、实际增量和支持状态功能
+      - “Limitations and boundary conditions”中的完整限制与假设说明
+    content_to_remove_or_move:
+      - 开篇对潜在状态、生物实体、因果网络和临床工具的成组否定性说明中不承担术语定义的重复部分
+      - 结构化摘要贡献段中与限制章节重复的“而不是宣称”边界串
+      - 贡献框架中关于首创性、生物实体、临床效用、因果调控和个体化治疗的重复完整清单
+      - 预期影响及其他解释位置中已由限制章节完整覆盖、且不直接决定相邻结果解释的部署与效用边界
+      - 主张支持表中超出本行支持状态审计所需的重复限制清单
+    destination_if_moved: Feasibility, resources, risks, alternatives, and stop conditions > Limitations and boundary conditions
+    dependencies: []
+    acceptance_test: >-
+      逐节检查全文：每项完整限制只在“Limitations and boundary conditions”出现；其他章节若保留边界，能够指出其所直接解释的相邻科学选择，删除它会造成何种具体误解，且该边界自足、不复述完整限制、不引用或指向限制章节。开篇、摘要、结果解释和主张支持表在删减后仍分别完成身份、摘要、解释和审计功能。
+  - action_id: NRP-002
+    addresses_findings:
+      - NAR-002
+    priority: major
+    dossier_locator:
+      section_heading: Research design and methods
+      subsection_heading: Conditional randomized-trial and animal follow-up
+      content_anchor: “只有第二阶段达到总体支持”段及动物研究启动条件段
+    operation: consolidate
+    current_problem: >-
+      随机试验和动物研究的完整启动资格、数据与资源条件、不可补救规则和解释边界在专门方法小节之外，仍于开篇、研究单元、数据材料、贡献比较、资源表、限制和风险表中多次展开。
+    target_state: >-
+      专门方法小节成为条件性后续研究操作逻辑的唯一完整位置；开篇不展开后续研究，其他必需章节只保留完成其范围、输入、资源或限制功能所需的最小角色说明。
+    required_content_or_function: >-
+      专门方法小节完整保留随机试验与动物研究各自的启动条件、可回答问题和解释边界；研究单元仅界定当前时间表，数据材料仅标明是否属于当前输入，资源表仅说明是否属于核心资源，限制章节仅陈述当前未核实的限制。
+    content_to_preserve:
+      - 当前两库外部验证是 12–18 个月核心研究的范围
+      - 随机试验与动物研究均为条件性后续且不属于当前必需交付
+      - 专门方法小节中的启动资格、科学问题和解释边界
+      - 数据输入、资源和限制章节各自不可替代的最小功能
+    content_to_remove_or_move:
+      - 开篇“本构想的 12–18 个月实证核心”段中对随机试验与动物研究的提前展开
+      - 研究单元、数据材料、贡献比较和资源表中重复的完整启动资格或不可补救逻辑
+      - 风险表中与专门方法小节重复、且不构成当前核心研究风险响应的后续研究说明
+      - 专门方法小节以外对后续研究资格、操作和结果解释的重复组合说明
+    destination_if_moved: Research design and methods > Conditional randomized-trial and animal follow-up
+    dependencies:
+      - NRP-001
+    acceptance_test: >-
+      从标题依次读到核心研究方法时，读者无需处理随机试验或动物研究的操作条件；全文只有“Conditional randomized-trial and animal follow-up”完整列出其启动和解释逻辑。其他章节每处最多保留完成本节独立功能所需的信息，且相互不重复完整规则。
+  - action_id: NRP-003
+    addresses_findings:
+      - NAR-003
+    priority: minor
+    dossier_locator:
+      section_heading: Title, summary, audience, and positioning
+      subsection_heading: null
+      content_anchor: “四个用户给定目标”与“用户提出的‘人体开放复杂巨系统’”
+    operation: replace
+    current_problem: >-
+      “用户给定目标”“用户提出”“用户设定”“用户四项候选标准”等任务来源措辞，以及脱离科学对象单独使用的第一、第二、第三阶段标签，要求研究读者掌握内部项目背景。
+    target_state: >-
+      全文以科学功能直接命名四项预定验证任务、建模前文献—专家约束、12–18 个月核心实证研究和条件性后续研究；阶段之间的真实先后与依赖关系保持不变。
+    required_content_or_function: >-
+      保留四项任务来自既定研究目标这一事实、约束材料先于建模、当前核心研究具有明确时限、后续研究必须满足条件后才启动等科学关系，但不依赖任务来源或裸露阶段编号表达。
+    content_to_preserve:
+      - 四项任务的结果对象、独立证据功能和不可相互补救关系
+      - 文献—专家约束表在主模型拟合前验收的顺序
+      - 12–18 个月核心实证研究与条件性后续研究的范围边界
+      - “人体开放复杂巨系统”被操作化为动态临床系统视角而非既定模型类别的科学含义
+    content_to_remove_or_move:
+      - “用户给定目标”“用户提出”“用户设定”“用户四项候选标准”等任务来源措辞
+      - 未同时说明科学对象的“第一阶段”“第二阶段”“第三阶段”标签
+      - 仅用于恢复内部项目背景、对科学推理没有新增作用的阶段指代
+    destination_if_moved: null
+    dependencies:
+      - NRP-002
+    acceptance_test: >-
+      搜索全文不再出现以“用户”说明研究目标来源的措辞；每个阶段性指代在原位即可识别其科学对象，不需要读者查找项目阶段定义。四项任务、约束材料、核心实证研究和条件性后续研究之间的顺序与范围关系仍与修订前一致。

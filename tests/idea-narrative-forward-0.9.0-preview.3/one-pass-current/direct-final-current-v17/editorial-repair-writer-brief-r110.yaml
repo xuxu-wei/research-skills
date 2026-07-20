@@ -1,0 +1,630 @@
+schema_version: research-idea-editorial-repair-writer-brief.v1
+brief_id: editorial-repair-writer-brief-I01-001-r110
+version: r110
+workflow_id: RID-SEPSIS-CSM-20260717-001
+round_id: r110
+active_plugin_version: 0.9.0-preview.3
+role: fresh_scientific_writer_editorial_repair_only
+
+source_artifact:
+  artifact_id: idea-dossier-I01-001-v051
+  version: v051
+  path: tests/idea-narrative-forward-0.9.0-preview.3/one-pass-current/direct-final-current-v17/idea-dossier-v051.md
+
+protected_content_register:
+  register_id: protected-content-register-I01-001-v004-r004
+  version: r004
+  path: tests/idea-narrative-forward-0.9.0-preview.3/run-001/inputs/protected-content-register-v004.yaml
+
+source_review_binding:
+  narrative_assessment:
+    artifact_id: narrative-assessment-I01-001-r108
+    version: r108
+    path: tests/idea-narrative-forward-0.9.0-preview.3/one-pass-current/direct-final-current-v17/narrative-assessment-r108.md
+  narrative_repair_plan:
+    artifact_id: narrative-repair-plan-I01-001-r108
+    version: r108
+    path: tests/idea-narrative-forward-0.9.0-preview.3/one-pass-current/direct-final-current-v17/narrative-repair-plan-r108.yaml
+  language_assessment:
+    artifact_id: language-assessment-I01-001-r108
+    version: r108
+    path: tests/idea-narrative-forward-0.9.0-preview.3/one-pass-current/direct-final-current-v17/language-assessment-r108.md
+
+source_coverage:
+  narrative:
+    decision: narrative_ready
+    source_findings_count: 0
+    source_plan_actions_count: 0
+    macroscopic_narrative_actions_included: false
+    rationale: >-
+      Narrative 已就绪，评估与配对计划均没有 finding 或 action；本 brief
+      不新增宏观叙事修订动作。
+  language:
+    decision: major_language_revision
+    blocking_findings_count: 4
+    blocking_findings_included:
+      - LANG-R108-001
+      - LANG-R108-002
+      - LANG-R108-003
+      - LANG-R108-004
+    nonblocking_findings_count: 14
+    nonblocking_dispositions_location: omitted_reported_nonblocking_findings
+    second_additive_repair_list_allowed: false
+    rationale: >-
+      本次阻塞修订只执行四项 major language findings。十四项 minor
+      finding 均在下方 source coverage 中逐项保留可见处置，但不形成第二个
+      加法式修订清单，也不进入 writer 的 normalized repair actions。
+
+included_repair_item_ids:
+  - LANG-R108-001
+  - LANG-R108-002
+  - LANG-R108-003
+  - LANG-R108-004
+
+omitted_reported_nonblocking_findings:
+  - finding_id: LANG-R108-005
+    severity: minor
+    scientific_role: contribution-positioning
+    source_locator: >-
+      Positioning and contribution frame（第 40 行）；Contribution and evidence
+      ladder（第 402 行）；Title and positioning claim-support table（第 431 行）
+    disposition: not_included_in_this_blocking_revision
+    rationale: >-
+      本项不纳入由四项 major findings 构成的本次阻塞修订；它仍作为 source
+      coverage 的可见处置保留，供新 dossier 的独立语言复评重新判断，但不形成
+      第二个加法式修订清单。
+  - finding_id: LANG-R108-006
+    severity: minor
+    scientific_role: randomized-trial-data-sources
+    source_locator: >-
+      Current resource and result status（第 139 行首次出现）；Local randomized-trial
+      evidence status（第 185、187 行）；Conditional trial-observation mapping and
+      independent analysis（第 267–290 行）
+    disposition: not_included_in_this_blocking_revision
+    rationale: >-
+      本项不纳入由四项 major findings 构成的本次阻塞修订；它仍作为 source
+      coverage 的可见处置保留，供新 dossier 的独立语言复评重新判断，但不形成
+      第二个加法式修订清单。
+  - finding_id: LANG-R108-007
+    severity: minor
+    scientific_role: observation-mapping-fidelity-criterion
+    source_locator: "Conditional trial-observation mapping and independent analysis，第 277 行"
+    disposition: not_included_in_this_blocking_revision
+    rationale: >-
+      本项不纳入由四项 major findings 构成的本次阻塞修订；它仍作为 source
+      coverage 的可见处置保留，供新 dossier 的独立语言复评重新判断，但不形成
+      第二个加法式修订清单。
+  - finding_id: LANG-R108-008
+    severity: minor
+    scientific_role: complete-idea-summary
+    source_locator: "Title, summary, audience, and positioning，One-sentence complete-Idea summary（第 38 行）"
+    disposition: not_included_in_this_blocking_revision
+    rationale: >-
+      本项不纳入由四项 major findings 构成的本次阻塞修订；它仍作为 source
+      coverage 的可见处置保留，供新 dossier 的独立语言复评重新判断，但不形成
+      第二个加法式修订清单。
+  - finding_id: LANG-R108-009
+    severity: minor
+    scientific_role: structured-abstract-gap
+    source_locator: "Structured abstract，Background and gap（第 44 行）"
+    disposition: not_included_in_this_blocking_revision
+    rationale: >-
+      本项不纳入由四项 major findings 构成的本次阻塞修订；它仍作为 source
+      coverage 的可见处置保留，供新 dossier 的独立语言复评重新判断，但不形成
+      第二个加法式修订清单。
+  - finding_id: LANG-R108-010
+    severity: minor
+    scientific_role: research-gap
+    source_locator: "Background, current state, gap, significance, and rationale，Gap（第 62 行）"
+    disposition: not_included_in_this_blocking_revision
+    rationale: >-
+      本项不纳入由四项 major findings 构成的本次阻塞修订；它仍作为 source
+      coverage 的可见处置保留，供新 dossier 的独立语言复评重新判断，但不形成
+      第二个加法式修订清单。
+  - finding_id: LANG-R108-011
+    severity: minor
+    scientific_role: stage-three-evidence-boundary
+    source_locator: >-
+      Objective 4、timeline 和 work packages（第 83、104、116、126 行）；Trial
+      mapping 与 evidence chains（第 269、346 行）；Planned outputs、contribution
+      和 closest-work comparison（第 373、402、420 行）；Limitations（第 458、463 行）
+    disposition: not_included_in_this_blocking_revision
+    rationale: >-
+      本项不纳入由四项 major findings 构成的本次阻塞修订；它仍作为 source
+      coverage 的可见处置保留，供新 dossier 的独立语言复评重新判断，但不形成
+      第二个加法式修订清单。
+  - finding_id: LANG-R108-012
+    severity: minor
+    scientific_role: limited-adaptation-evidence-boundary
+    source_locator: >-
+      Conjunctive minimum success definition（第 116 行）；Hospital-primary
+      cross-database validation（第 265 行）；Falsification criteria 和
+      interpretation matrix（第 381–392 行）；Limitations（第 457 行）
+    disposition: not_included_in_this_blocking_revision
+    rationale: >-
+      本项不纳入由四项 major findings 构成的本次阻塞修订；它仍作为 source
+      coverage 的可见处置保留，供新 dossier 的独立语言复评重新判断，但不形成
+      第二个加法式修订清单。
+  - finding_id: LANG-R108-013
+    severity: minor
+    scientific_role: publication-deliverable
+    source_locator: "Research question, objectives, and core hypothesis（第 85 行）"
+    disposition: not_included_in_this_blocking_revision
+    rationale: >-
+      本项不纳入由四项 major findings 构成的本次阻塞修订；它仍作为 source
+      coverage 的可见处置保留，供新 dossier 的独立语言复评重新判断，但不形成
+      第二个加法式修订清单。
+  - finding_id: LANG-R108-014
+    severity: minor
+    scientific_role: label-feature-separation
+    source_locator: "Variable roles 表，‘仅用于标签’行（第 180 行）"
+    disposition: not_included_in_this_blocking_revision
+    rationale: >-
+      本项不纳入由四项 major findings 构成的本次阻塞修订；它仍作为 source
+      coverage 的可见处置保留，供新 dossier 的独立语言复评重新判断，但不形成
+      第二个加法式修订清单。
+  - finding_id: LANG-R108-015
+    severity: minor
+    scientific_role: missing-data-baseline
+    source_locator: >-
+      Observational target, anchoring, and evidence-qualified interpretation
+      （第 228 行首句）
+    disposition: not_included_in_this_blocking_revision
+    rationale: >-
+      本项不纳入由四项 major findings 构成的本次阻塞修订；它仍作为 source
+      coverage 的可见处置保留，供新 dossier 的独立语言复评重新判断，但不形成
+      第二个加法式修订清单。
+  - finding_id: LANG-R108-016
+    severity: minor
+    scientific_role: singular-vector-tie-rule
+    source_locator: "Conditional trial-observation mapping and independent analysis（第 275 行）"
+    disposition: not_included_in_this_blocking_revision
+    rationale: >-
+      本项不纳入由四项 major findings 构成的本次阻塞修订；它仍作为 source
+      coverage 的可见处置保留，供新 dossier 的独立语言复评重新判断，但不形成
+      第二个加法式修订清单。
+  - finding_id: LANG-R108-017
+    severity: minor
+    scientific_role: trial-evidence-reference
+    source_locator: >-
+      Contribution and evidence ladder 表，‘从属的试验访视结局证据’行（第 409 行）
+    disposition: not_included_in_this_blocking_revision
+    rationale: >-
+      本项不纳入由四项 major findings 构成的本次阻塞修订；它仍作为 source
+      coverage 的可见处置保留，供新 dossier 的独立语言复评重新判断，但不形成
+      第二个加法式修订清单。
+  - finding_id: LANG-R108-018
+    severity: minor
+    scientific_role: conditional-method-statements
+    source_locator: >-
+      Protocol locks 表（第 196–205 行）及信息泄漏段（第 207 行）；Observational
+      target 和 recovery criteria（第 228、244 行）；Hospital-primary validation
+      与 trial mapping（第 256、277、287–288 行）；Required analyses、contribution
+      和 limitations（第 361、402、463 行）
+    disposition: not_included_in_this_blocking_revision
+    rationale: >-
+      本项不纳入由四项 major findings 构成的本次阻塞修订；它仍作为 source
+      coverage 的可见处置保留，供新 dossier 的独立语言复评重新判断，但不形成
+      第二个加法式修订清单。
+
+included_nonblocking_finding_rationale: {}
+
+identified_overlaps:
+  - finding_ids:
+      - LANG-R108-002
+      - LANG-R108-004
+    locator: "Research question, objectives, and core hypothesis，Objective 3（第 82 行）"
+    reason: >-
+      两项 finding 同时改写 Objective 3：一项命名两项次要表征诊断，另一项拆分
+      零边机制与模型错设下的两类检查对象。
+
+overlap_dispositions:
+  - finding_ids:
+      - LANG-R108-002
+      - LANG-R108-004
+    disposition: >-
+      由同一 writer 在 sections 1–4 pass 中对 Objective 3 只编辑一次。合并后的
+      目标先写已知结构的绝对恢复，再分别直述零边机制下的虚假结构检查与模型
+      错设下错误高置信结构结论检查，随后用“伪遮蔽重建诊断”和“未来轨迹预测
+      诊断”称名两项次要表征诊断；四个科学角色彼此独立，原阈值、次要地位与
+      阶段 II 判定边界全部保留。
+    combined_target: >-
+      Objective 3 同时满足 LANG-R108-002 的稳定诊断称名和 LANG-R108-004 的
+      两类检查对象区分，不由 writer 在二者之间取舍。
+
+unresolved_overlaps: []
+all_overlaps_resolved: true
+
+normalized_repair_actions:
+  - repair_item_id: LANG-R108-001
+    source_item_ids:
+      - LANG-R108-001
+    addresses_finding_ids:
+      - LANG-R108-001
+    scientific_role: physiological-anchor-variables
+    source_normalized_locator: first-use-and-observation-mapping
+    locator: >-
+      Structured abstract，Objective and hypothesis（第 45 行）；Current resource
+      and result status 及 support audit（第 100、110、138、141、165–168 行）；
+      Observational target, anchoring, and evidence-qualified interpretation
+      （第 224–226 行）；Conditional trial-observation mapping and independent
+      analysis（第 273、275、277 行）；Key techniques and implementation
+      （第 303、307 行）
+    operation: define
+    problem: >-
+      “锚点预测”首次出现时没有说明锚点是跨数据库可比的生理测量变量；后文又用
+      “锚点”“共同锚点”“观测锚点”和“实测锚点”交替指变量、观测值与预测对象，
+      三种科学角色被同一短语折叠。
+    target: >-
+      首次出现时定义共同生理锚点，并在全文明确区分锚点变量、锚点观测值和锚点
+      预测值；定义后的短形式不得跨越这三个角色。
+    required_function_or_term: >-
+      将第 45 行的“锚点预测”定义为“对跨数据库共同生理测量变量（共同生理锚点）
+      的预测”。变量称“共同生理锚点变量”或已定义的“共同锚点”，实际测得的数值
+      称“锚点观测值”，模型输出称“锚点预测值”；第 277 行的“观测锚点/实测锚点”
+      依实际角色改为“锚点观测值”或“具有实测值的共同生理锚点变量”。
+    standard_or_direct_name:
+      - 共同生理锚点变量
+      - 锚点观测值
+      - 锚点预测值
+    first_use_definition: >-
+      共同生理锚点是指在两个重症监护数据库中均通过单位、测量语义、时间戳和
+      可见性审计，可用于锚定潜在状态的实测生理变量。
+    content_to_preserve:
+      protected_ids:
+        - PCR-003
+        - PCR-004
+        - PCR-006
+        - PCR-007
+        - PCR-008
+        - PCR-010
+        - PCR-011
+      commitments: >-
+        保留双库审计、每维至少两个锚点、单位与时间语义、覆盖率、载荷与尺度约束、
+        试验映射资格、观测方程及全部数值阈值，不改变变量是否合格或如何进入模型
+        的科学规则。
+    delete_move_disposition: >-
+      只定义并替换读者可见称名；不删除或移动任何变量资格、方程、阈值、后果或
+      证据状态。
+    destination: >-
+      Structured abstract，Objective and hypothesis（第 45 行）首次定义；其余列明
+      位置按变量、观测值或预测值作一致称名。
+    dependencies: []
+    acceptance_test: >-
+      从第 45 行起全文检索所有含“锚点”的读者可见表述；每一处均能唯一归入变量、
+      观测值或预测值三类之一，首次定义先于任何短形式，且第 277 行不再用同一个
+      名词同时表示变量和数值。
+
+  - repair_item_id: LANG-R108-002
+    source_item_ids:
+      - LANG-R108-002
+    addresses_finding_ids:
+      - LANG-R108-002
+    scientific_role: secondary-representation-diagnostics
+    source_normalized_locator: abstract-objectives-and-diagnostics
+    locator: >-
+      Structured abstract，Expected result（第 47 行）；Objective 3 及 work
+      packages（第 82、124、128 行）；Protocol locks 及 Secondary representation
+      diagnostics（第 205、292–294 行）；Evidence chain、required analyses 和
+      evidence ladder（第 330–331、357、372、407 行）
+    operation: replace
+    problem: >-
+      首两次出现只称“两项次要表示诊断”，没有说是哪两项；后文在“表示/表征”、
+      “伪遮蔽重建/部分状态重建”和“未来轨迹诊断”之间切换，可能把对原已测生理值
+      的诊断误读为潜在状态恢复。
+    target: >-
+      首次出现即给出两项诊断的直接名称，全文统一使用“表征”，并使伪遮蔽重建与
+      未来轨迹预测始终保持为两个不同的次要诊断。
+    required_function_or_term: >-
+      将第 47 行改为“两项次要表征诊断（对原已测生理值的伪遮蔽重建诊断，以及
+      未来轨迹预测诊断）”；后文统一用“伪遮蔽重建诊断”和“未来轨迹预测诊断”。
+      第 62、76、82 和 205 行凡以“表示”指 representation 者改为“表征”，但不
+      改动数学符号或普通动词“表示”。
+    standard_or_direct_name:
+      - 对原已测生理值的伪遮蔽重建诊断
+      - 未来轨迹预测诊断
+    first_use_definition: >-
+      两项次要表征诊断是：遮蔽原本已测的生理值后检验其重建误差与覆盖，以及
+      检验未来生理轨迹预测的评分与校准。
+    content_to_preserve:
+      protected_ids:
+        - PCR-001
+        - PCR-002
+        - PCR-006
+        - PCR-007
+        - PCR-008
+        - PCR-009
+        - PCR-010
+        - PCR-011
+      commitments: >-
+        保留两项诊断的次要地位、伪遮蔽仅作用于原已测值、各自的评分与覆盖指标、
+        分层报告方式，以及它们不能改变主要任务或阶段 II 判定的边界。
+    delete_move_disposition: >-
+      替换“表示诊断”“部分状态重建”和“未来轨迹诊断”等竞争形式；不删除、移动
+      或合并两个诊断，不改变其指标、作用域或证据地位。
+    destination: >-
+      Structured abstract，Expected result（第 47 行）给出两个直接名称；其余列明
+      位置使用相同名称。Objective 3 与 LANG-R108-004 合并编辑一次。
+    dependencies: []
+    acceptance_test: >-
+      全文只能找到一个首次定义和两个稳定的诊断名称；“部分状态重建”和术语意义上
+      的“表示诊断”不再出现，且每一处“两项次要诊断”均可追溯到这两个名称。
+
+  - repair_item_id: LANG-R108-003
+    source_item_ids:
+      - LANG-R108-003
+    addresses_finding_ids:
+      - LANG-R108-003
+    scientific_role: primary-task-performance-criterion
+    source_normalized_locator: freeze-and-external-criteria
+    locator: >-
+      24-month milestones（第 102 行）；WP3、primary-task protocol 和 evidence
+      chain（第 124、203、330–331 行）；Required analyses、falsification criteria
+      和 working assumptions（第 357、381、447 行）
+    operation: define
+    problem: >-
+      “适当评分”可被理解为未具体说明的“合适评分”，没有明确指向统计学上的
+      proper scoring rule；该词控制分析冻结、外部检验和阶段 II 判定，首次出现
+      时尚未与 Brier 分数建立关系。
+    target: >-
+      使用明确指向 proper scoring rule 的中英对照术语，并在首次出现时给出本计划
+      实际采用的 Brier 或多类别 Brier 分数实例。
+    required_function_or_term: >-
+      将首次出现的“适当评分”定义并替换为“恰当评分规则（proper scoring rules；
+      本计划主要采用 Brier 分数或多类别 Brier 分数）”；后文统一使用“恰当评分
+      规则”或直接写出相应 Brier 指标，不再单独使用“适当评分”。
+    standard_or_direct_name:
+      - 恰当评分规则（proper scoring rules）
+      - Brier 分数
+      - 多类别 Brier 分数
+    first_use_definition: >-
+      恰当评分规则是对概率预测分布进行评价、并在真实分布下使期望得分最优的一类
+      评分规则；本计划主要使用 Brier 分数或多类别 Brier 分数。
+    content_to_preserve:
+      protected_ids:
+        - PCR-006
+        - PCR-007
+        - PCR-008
+        - PCR-010
+      commitments: >-
+        保留全部 Brier 非劣界、校准斜率、校准截距或绝对风险误差、置信界和最终
+        测试授权规则；不改变任何评价指标或阈值。
+    delete_move_disposition: >-
+      只定义标准术语并替换“适当评分”这一不明确形式；不删除、移动或重写任何
+      指标、阈值、置信界或授权后果。
+    destination: >-
+      24-month milestones（第 102 行）之前或当行给出完整定义；后续列明位置统一
+      使用标准术语或 dossier 已指定的 Brier 指标。
+    dependencies: []
+    acceptance_test: >-
+      第 102 行之前或当行出现完整定义；全文检索“适当评分”无结果，所有冻结和
+      外部判定位置均明确连接到恰当评分规则及 dossier 已指定的 Brier 指标。
+
+  - repair_item_id: LANG-R108-004
+    source_item_ids:
+      - LANG-R108-004
+    addresses_finding_ids:
+      - LANG-R108-004
+    scientific_role: misspecification-diagnostic
+    source_normalized_locator: objective-recovery-and-stop-rules
+    locator: >-
+      Objective 3（第 82 行）；Recovery admission and absolute criteria
+      （第 101、240–241 行）；Key techniques、evidence chain 和 required analyses
+      （第 304、323、355 行）；Falsification criteria（第 379 行）
+    operation: replace
+    problem: >-
+      “假置信检查”和“错设与零边假置信检查”没有写明是谁对什么给出错误的高置信
+      结论，并把零边机制中的虚假结构与模型错设下的过度置信两个不同结果压进同一
+      短语；第 240–241 行实际给出两个不同判定对象。
+    target: >-
+      用直接表述区分“零边机制下产生虚假结构”和“模型错设下仍给出错误的高置信
+      结构结论”，首次出现时同时定义，后文不再用一个无对象的“假置信”统称二者。
+    required_function_or_term: >-
+      将第 82 行的“执行绝对恢复与假置信检查”替换为“检验已知结构能否按预设绝对
+      标准恢复，并分别检查零边机制下是否产生虚假结构、模型错设时是否仍给出错误
+      的高置信结构结论”。后文使用“零边虚假结构检查”和“错设下错误高置信结论
+      检查”，或使用同等清楚的完整描述。
+    standard_or_direct_name:
+      - 零边机制下的虚假结构检查
+      - 模型错设下错误高置信结构结论的检查
+    first_use_definition: >-
+      零边虚假结构检查判断无真实边时模型是否仍报告边；错设下错误高置信结论检查
+      判断生成机制不符合模型假设时，模型是否仍对错误结构给出高置信结论。
+    content_to_preserve:
+      protected_ids:
+        - PCR-006
+        - PCR-007
+        - PCR-009
+        - PCR-010
+        - PCR-012
+      commitments: >-
+        保留零边虚假边比例、错设识别比例、错误结构高置信比例、复杂候选淘汰和不得
+        事后调整阈值的所有规则，并保持两个判定对象彼此独立。
+    delete_move_disposition: >-
+      替换无主客体的“假置信”统称；不删除、移动或合并两类检查，不改变各自阈值、
+      淘汰规则或停止解释后果。
+    destination: >-
+      Objective 3（第 82 行）同时定义两个检查对象；其余列明位置各自只映射到一个
+      稳定名称。Objective 3 与 LANG-R108-002 合并编辑一次。
+    dependencies: []
+    acceptance_test: >-
+      第 82 行即可辨认两个检查对象；全文不再出现无主客体的“假置信检查”，第 240
+      和 241 行的两项判定分别只映射到一个稳定名称。
+
+preservation_requirements:
+  identity_anchor_copy_verbatim: true
+  frozen_identity_anchor:
+    primary_research_question: "can a knowledge-constrained, uncertainty-aware dynamic system representation of ICU patients cover the sepsis-centered pre-onset, onset, post-onset, and outcome continuum, demonstrate cross-database state/structure validity, and then test limited randomized intervention perturbations without conflating prediction with causality?"
+    primary_objective: "construct and validate the sepsis complex-system model, with stage II completed within 24 months."
+    study_object: "the longitudinal sepsis-centered ICU patient system, including comparable at-risk non-onset intervals and post-onset trajectories."
+    core_data_or_evidence_base: "literature/expert priors; longitudinal public ICU data; conditionally available EXIT-SEP and XBJ-SCAP individual-level RCT data."
+    primary_unit_of_inference: "patient-time state and state transition, with patient and hospital clustering respected."
+  required_protected_ids:
+    - PCR-001
+    - PCR-002
+    - PCR-003
+    - PCR-004
+    - PCR-005
+    - PCR-006
+    - PCR-007
+    - PCR-008
+    - PCR-009
+    - PCR-010
+    - PCR-011
+    - PCR-012
+  reopen_every_registered_source_locator: true
+  register_summary_is_index_only: true
+  no_new_scientific_choice: true
+  instruction: >-
+    修改前逐一打开 PCR-001 至 PCR-012 的 source_locator，并按原文核对所有科学
+    承诺。不得新增、选择或改写研究对象、估计目标、数据资格、方法、阈值、分支、
+    停止规则、证据状态或主张强度；若语言修改需要新的科学选择，停止并报告，不能
+    在本次 editorial repair 中自行决定。
+
+writer_access:
+  allowed_reads:
+    - tests/idea-narrative-forward-0.9.0-preview.3/one-pass-current/direct-final-current-v17/idea-dossier-v051.md
+    - tests/idea-narrative-forward-0.9.0-preview.3/one-pass-current/direct-final-current-v17/editorial-repair-writer-brief-r110.yaml
+    - tests/idea-narrative-forward-0.9.0-preview.3/run-001/inputs/protected-content-register-v004.yaml
+  forbidden_reads:
+    - any narrative or language assessment report, including the three audit-source review files
+    - any assessor repair plan
+    - any prior dossier or any revision delta
+    - any methodology or statistics preflight
+    - any evaluation report, score, decision, or reviewer output
+    - any hidden parent context or unlisted project artifact
+  allowed_writes:
+    complete_dossier:
+      artifact_id: idea-dossier-I01-001-v052
+      version: v052
+      path: tests/idea-narrative-forward-0.9.0-preview.3/one-pass-current/direct-final-current-v18/idea-dossier-v052.md
+      change_type: editorial_repair
+    revision_delta:
+      artifact_id: revision-delta-v051-to-v052
+      version: v051-to-v052
+      path: tests/idea-narrative-forward-0.9.0-preview.3/one-pass-current/direct-final-current-v18/revision-delta-v051-to-v052.md
+      change_type: editorial_repair_delta
+
+mandatory_whole_dossier_checks:
+  not_new_findings: true
+  checks:
+    - check: frozen identity and protected-content preservation
+      instruction: >-
+        逐字复制五个 identity_anchor 值，并逐项重开 PCR-001 至 PCR-012 的修订后
+        locator，核对 register 中枚举的每项承诺，而不是以标题或 delta 声明代替正文。
+      acceptance: >-
+        五个 identity_anchor 值与 v051 完全相同；PCR-001 至 PCR-012 均有修订后
+        locator 和正文可见的逐项保留证据。
+    - check: four-role reader-facing concordance
+      instruction: >-
+        全文扫描共同生理锚点变量、锚点观测值、锚点预测值；两项次要表征诊断；
+        恰当评分规则；零边与错设检查对象的首次定义和所有竞争形式。
+      acceptance: >-
+        四项 major action 的 acceptance test 均通过，且一个短形式不再跨越不同
+        科学角色。
+    - check: overlapping Objective 3 edit
+      instruction: >-
+        按 overlap disposition 对 Objective 3 只作一次合并编辑，同时保留绝对恢复、
+        两类检查对象和两项次要表征诊断的独立角色。
+      acceptance: >-
+        Objective 3 同时满足 LANG-R108-002 与 LANG-R108-004，且不存在相互覆盖、
+        重复或矛盾的处方。
+    - check: editorial scope and scientific cardinality
+      instruction: >-
+        对照 v051 检查全部数字、时间窗、指标、阈值、分支资格、失败后果、表格行数、
+        列表项数、固定字段基数和证据状态；只允许本 brief 的定义与称名替换。
+      acceptance: >-
+        没有新增科学选择或主张强化；所有科学数量、否定词、条件和作用域保持不变。
+    - check: complete dossier structure
+      instruction: >-
+        检查 v052 是包含完整 frontmatter、15 个固定 H2、5 个固定推理 H3、证据链、
+        Claim-Support 表和参考文献的单一完整 dossier。
+      acceptance: >-
+        没有持久化章节片段，完整 dossier 可独立进入后续 preservation review。
+
+execution_and_handoff:
+  single_complete_target_dossier: true
+  partial_artifacts_forbidden: true
+  same_writer_instance_required: true
+  delta_after_dossier_freeze_only: true
+  section_passes:
+    - >-
+      Pass 1 — 同一 writer 编辑 reader core（sections 1–4）：建立 LANG-R108-001、
+      LANG-R108-002 和 LANG-R108-004 的首次定义，并按 overlap disposition 对
+      Objective 3 只编辑一次。
+    - >-
+      Pass 2 — 同一 writer 编辑 research plan and technical authority（sections
+      5–11）：执行四项 action 在时间节点、工作包、资源审计、主要任务、锚定、
+      绝对恢复、跨数据库检验、试验映射、次要诊断和实现表中的全部列明 occurrence。
+    - >-
+      Pass 3 — 同一 writer 编辑 positioning, claim audit, and limitations authority
+      （sections 12–14）：执行 evidence chains、Required analyses、Planned outputs、
+      Falsification criteria、Contribution、Claim-Support 和第 14 节中的列明 occurrence，
+      不增加宏观叙事动作或新的科学边界。
+    - >-
+      Pass 4 — 同一 writer 完成 references and whole-dossier concordance：不改文献
+      证据内容，逐项运行四个 acceptance test、PCR-001 至 PCR-012 保留核对、完整
+      dossier 检查和所有 occurrence 扫描。
+  required_command_sequence:
+    - structural_linter
+    - freeze_complete_dossier
+    - reader_facing_short_form_advisory_diff
+    - write_revision_delta
+  required_commands:
+    - command_id: structural_linter
+      command: >-
+        python research-skills-openai/skills/multi-path-idea-generator/scripts/lint_idea_dossier.py tests/idea-narrative-forward-0.9.0-preview.3/one-pass-current/direct-final-current-v18/idea-dossier-v052.md --expected-plugin-version 0.9.0-preview.3
+      substitution_allowed: false
+      required_result: pass
+      instruction: >-
+        完成全部 bounded section passes 和 whole-dossier concordance 后运行此指定
+        linter；不得用其他命令替代。若失败，修复完整 dossier 后重新运行全部受影响
+        检查，再重新执行本命令。
+    - command_id: reader_facing_short_form_advisory_diff
+      command: >-
+        python research-skills-openai/skills/academic-language-assessor/scripts/diff_reader_facing_short_forms.py tests/idea-narrative-forward-0.9.0-preview.3/one-pass-current/direct-final-current-v17/idea-dossier-v051.md tests/idea-narrative-forward-0.9.0-preview.3/one-pass-current/direct-final-current-v18/idea-dossier-v052.md
+      substitution_allowed: false
+      mode: advisory_read_only
+      strict_switch_allowed: false
+      instruction: >-
+        dossier 通过指定 linter 并冻结后原样运行此现行 advisory diff；不得添加严格
+        开关，也不得用自写搜索或其他命令替代。candidate 的出现本身不构成失败。
+  advisory_candidate_dispositions:
+    record_in: tests/idea-narrative-forward-0.9.0-preview.3/one-pass-current/direct-final-current-v18/revision-delta-v051-to-v052.md
+    one_disposition_per_returned_candidate: true
+    allowed_dispositions:
+      - removed
+      - standard_and_defined
+      - descriptive_not_label
+      - fixed_scaffolding
+    instruction: >-
+      对 advisory diff 返回的每一个 candidate，逐项记录 candidate、修订后 locator、
+      语义依据和且仅一个允许的 disposition；不得漏项、合并多项或把 candidate presence
+      当作 failure。若某项仍是经语义确认且未解决的术语问题，则阻止 handoff，不得
+      虚构第五种 disposition。
+  delta_requirements:
+    - >-
+      在 dossier 冻结之后才创建或最终确定 delta；任何后续 dossier 修改都使现有
+      delta 和 advisory diff 结果失效，须重新完成 whole-dossier scan、指定 linter、
+      冻结、指定 advisory diff 和 delta。
+    - >-
+      逐项映射 LANG-R108-001 至 LANG-R108-004 的修订后 locator、operation 和
+      文本可核验的 acceptance-test 结果；不得以概括性“已完成”替代证据。
+    - >-
+      逐项映射 PCR-001 至 PCR-012 的修订后 locator 与正文保留证据，并记录五个
+      identity_anchor 值逐字保留。
+    - >-
+      记录中心研究对象、主要研究问题或任务、主要结局、贡献，以及本次修订涉及的
+      四个核心科学角色各自唯一的读者可见名称、首次出现位置、竞争形式处置和全文
+      occurrence scan 结果。
+    - >-
+      记录指定 structural linter 的原命令和 pass 结果，以及指定 advisory diff 的
+      原命令、只读运行结果和每个 returned candidate 的逐项 disposition。
+    - >-
+      delta 保持 locator-level 紧凑记录，不复制评估说明、protected content 或长篇
+      dossier 正文。
+  handoff_condition: >-
+    仅当四项 major action、全部 PCR 保留、identity anchor、完整 dossier、指定
+    linter、指定 advisory diff 及其逐项 dispositions 均完成时，才交付 v052 和
+    revision-delta-v051-to-v052；其后必须进入独立 preservation review 与全新
+    narrative/language reassessment。

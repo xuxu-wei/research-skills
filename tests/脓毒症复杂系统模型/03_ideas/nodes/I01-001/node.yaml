@@ -1,0 +1,53 @@
+schema_version: research-idea.v3
+plugin_version: "0.10.0"
+artifact_id: idea-node-I01-001
+version_id: v001
+workflow_id: sepsis-complex-system-idea-generation-v001
+round_id: round-001
+source_skill: research-idea-orchestrator
+created_by_instance_id: fresh-idea-portfolio-assembler-v001
+path: 03_ideas/nodes/I01-001/node.yaml
+idea_id: I01-001
+title: 受约束的脓毒症全病程动态状态模型：在一个数据库中开发并在异质数据库中外部验证
+current_dossier_id: idea-dossier-I01-001-v006
+current_version: v006
+current_path: 03_ideas/nodes/I01-001/dossiers/idea-dossier-v006.md
+reference_ledger_path: 03_ideas/nodes/I01-001/references/reference-ledger.md
+parent_idea_ids: []
+lineage_id: lineage-I01-001
+route_profile: focused_optimization
+identity_anchor:
+  primary_research_question: >-
+    在成人重症监护感染风险患者中，一个预先限定的低维脓毒症全病程动态状态模型能否从一个公开纵向开发数据库中稳定估计，并在一个异质外部数据库中分别改善首次脓毒症发生、死亡或持续恢复、从部分已观测历史预测被有意遮蔽但实际测得的临床变量以及后续演化过程的预测，同时保持可重复的临床锚定状态表示；其中第三项任务不以潜在生理状态作为真值或验证端点？
+  primary_objective: >-
+    构建并外部验证一个区分生理过程、观测过程和临床处置过程的受约束统一动态状态模型，使其状态空间、训练样本和允许转移覆盖感染风险期、首次脓毒症发生及发病后恢复、恶化、出重症监护和死亡，并以四个预定任务级确认性假设给出预测用途、状态迁移性和失效边界；第三项任务专门检验从部分已观测历史预测被有意遮蔽但实际测得的临床变量。
+  study_object: >-
+    成人重症监护期间从感染风险进入、首次脓毒症发生到发病后器官功能、临床支持、恢复、恶化、存活出重症监护或死亡的全病程演化。
+  core_data_or_evidence_base: >-
+    达到最低完整性要求的文献与临床专家约束表，以及一个公开成人重症监护纵向开发数据库和一个异质公开成人重症监护外部验证数据库中的共同变量（包括可按预定规则遮蔽并评分的实测临床变量）、治疗记录、测量过程和临床事件。
+  primary_unit_of_inference: >-
+    成人患者的一次重症监护住院经历及其中按预定时间定位的重复风险集、可观测病程和状态转移；任务内先汇总为患者级结果，再进行患者间推断。
+identity_status: preserved
+qualifying_evaluation_ref:
+  artifact_id: evaluation-I01-001-r008
+  version: r008
+  path: 03_ideas/nodes/I01-001/reviews/evaluation-r008.md
+current_candidate_journal_match_ref:
+  artifact_id: candidate-journal-match-I01-001-r008
+  version: r008
+  path: 03_ideas/nodes/I01-001/reviews/candidate-journal-match-r008.yaml
+current_medical_journal_review_ref:
+  artifact_id: medical-journal-review-I01-001-r008
+  version: r008
+  path: 03_ideas/nodes/I01-001/reviews/medical-journal-review-r008.md
+status: revision_required
+sealed_decision: revise_then_promote
+based_on:
+  - artifact_id: idea-dossier-I01-001-v006
+    version: v006
+    path: 03_ideas/nodes/I01-001/dossiers/idea-dossier-v006.md
+  - artifact_id: evaluation-I01-001-r008
+    version: r008
+    path: 03_ideas/nodes/I01-001/reviews/evaluation-r008.md
+change_type: create
+frozen: false

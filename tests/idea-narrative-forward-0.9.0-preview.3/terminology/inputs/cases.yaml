@@ -1,0 +1,62 @@
+schema_version: idea-language-terminology-forward-cases.v1
+test_scope: >-
+  Six independent terminology snippets. Assess language and reader accessibility
+  only; do not judge the underlying scientific methods.
+cases:
+  - case_id: TERM-FWD-001
+    target_reader: clinical epidemiologists and biostatisticians
+    context: primary effect measure in a time-to-event study
+    text: >-
+      主要效应量为危险比（hazard ratio，HR），并报告 95% 置信区间。
+    supplied_evidence: >-
+      The term and abbreviation follow standard survival-analysis usage in the
+      stated disciplines.
+  - case_id: TERM-FWD-002
+    target_reader: clinical epidemiologists and biostatisticians
+    context: count of new events per person-time
+    text: >-
+      主要效应量为发生率比（incidence rate ratio，IRR）。结果部分随后将同一
+      IRR 称为“风险比”，但其定义和分母仍是人时发生率。
+    supplied_evidence: >-
+      No scientific reason is supplied for changing the Chinese name while retaining
+      the same estimand and abbreviation.
+  - case_id: TERM-FWD-003
+    target_reader: oncology clinicians and clinical trialists; control-theory knowledge is not assumed
+    context: core design relation stated in the summary
+    text: >-
+      本研究将用系统的可观测性（observability）决定哪些内部状态可以从现有
+      测量中恢复。正文到方法后半部分才解释该词。
+    supplied_evidence: >-
+      Observability is established terminology in control and systems theory, but it
+      is not declared shared prior knowledge for the stated readers.
+  - case_id: TERM-FWD-004
+    target_reader: environmental epidemiologists and exposure scientists
+    context: ordinary adaptive threshold selection
+    text: >-
+      我们使用“证据恒温器（evidence thermostat）”根据预先规定的交叉验证误差
+      调整模型复杂度；该标签出现在标题中，且后文不承担独立的科学定义。
+    supplied_evidence: >-
+      The described operation can be stated directly as prespecified error-based
+      model-complexity selection; no source establishes the metaphor as a field term.
+  - case_id: TERM-FWD-005
+    target_reader: measurement scientists and longitudinal-data researchers
+    context: a repeatedly used, prespecified composite measurement event
+    text: >-
+      本文将“配对来源不一致事件（paired-source discordance episode）”定义为：
+      两台已完成单位对齐的独立仪器在至少两个连续同步采样点上的差值均超过预先
+      规定的临床容许误差。该名称不进入标题，首次出现即给出上述操作定义，后文
+      始终用同一名称。
+    supplied_evidence: >-
+      The supplied standards use general terms such as agreement and measurement
+      error but provide no exact name for this repeated composite event. The event
+      must be referred to throughout the protocol and analysis plan.
+  - case_id: TERM-FWD-006
+    target_reader: rehabilitation researchers and clinical methodologists
+    context: proposed primary construct in the title and summary
+    text: >-
+      标题将一种由步速恢复斜率与活动变异度相乘得到的指标称为“运动韧性指数
+      （kinetic resilience index）”，并称其为领域标准术语。
+    supplied_evidence: >-
+      The only supplied support is one paper from one research team. No guideline,
+      consensus, controlled vocabulary, reporting standard, review, second team, or
+      authoritative bilingual mapping is supplied.

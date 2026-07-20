@@ -1,0 +1,190 @@
+schema_version: research-idea.v3
+plugin_version: "0.10.0"
+artifact_id: workflow-state-v001
+version_id: v001
+workflow_id: sepsis-complex-system-idea-generation-v001
+round_id: round-001
+path: 05_state/workflow-state.yaml
+source_skill: research-idea-orchestrator
+created_by_instance_id: fresh-idea-portfolio-assembler-v001
+project_directory: tests/脓毒症复杂系统模型
+artifact_index_path: 05_state/artifact-index.md
+user_goal: >-
+  将脓毒症复杂系统模型构想形成可独立审阅、可追溯且具有期刊适配导航的研究 Idea 包。
+intended_output: PI-review research Idea portfolio and human revision handoff
+route_profile: focused_optimization
+workflow_status: revision_required
+human_review_status: revision_decision_required
+current_artifact_version: v006
+latest_evaluated_version: v006
+current_pointers:
+  routing_decision:
+    artifact_id: idea-routing-decision-v001
+    version: v001
+    path: 05_state/idea-routing-decision-v001.yaml
+  idea_index:
+    artifact_id: idea-index-v001
+    version: v001
+    path: 03_ideas/idea-index-v001.yaml
+  idea_node:
+    artifact_id: idea-node-I01-001
+    version: v001
+    path: 03_ideas/nodes/I01-001/node.yaml
+  current_dossier:
+    artifact_id: idea-dossier-I01-001-v006
+    version: v006
+    path: 03_ideas/nodes/I01-001/dossiers/idea-dossier-v006.md
+  qualifying_evaluation:
+    artifact_id: evaluation-I01-001-r008
+    version: r008
+    path: 03_ideas/nodes/I01-001/reviews/evaluation-r008.md
+  candidate_journal_match:
+    artifact_id: candidate-journal-match-I01-001-r008
+    version: r008
+    path: 03_ideas/nodes/I01-001/reviews/candidate-journal-match-r008.yaml
+  medical_journal_review:
+    artifact_id: medical-journal-review-I01-001-r008
+    version: r008
+    path: 03_ideas/nodes/I01-001/reviews/medical-journal-review-r008.md
+  portfolio:
+    artifact_id: research-idea-portfolio-v001
+    version: v001
+    path: 04_portfolio/research-idea-portfolio-v001.md
+artifacts:
+  input:
+    - {artifact_id: user-idea-v001, version: v001, path: 00_input/user-idea-v001.md}
+  context_brief: {artifact_id: research-context-brief-v001, version: v001, path: 01_context/research-context-brief-v001.md}
+  evidence_packet:
+    - {artifact_id: evidence-map-v001, version: v001, path: 02_evidence/evidence-map-v001.md}
+    - {artifact_id: opportunity-map-v001, version: v001, path: 02_evidence/opportunity-map-v001.md}
+  idea_routing_decision: {artifact_id: idea-routing-decision-v001, version: v001, path: 05_state/idea-routing-decision-v001.yaml}
+  idea_index: {artifact_id: idea-index-v001, version: v001, path: 03_ideas/idea-index-v001.yaml}
+  idea_nodes:
+    - {artifact_id: idea-node-I01-001, version: v001, path: 03_ideas/nodes/I01-001/node.yaml}
+  idea_dossiers:
+    - {artifact_id: idea-dossier-I01-001-v001, version: v001, path: 03_ideas/nodes/I01-001/dossiers/idea-dossier-v001.md}
+    - {artifact_id: idea-dossier-I01-001-v002, version: v002, path: 03_ideas/nodes/I01-001/dossiers/idea-dossier-v002.md}
+    - {artifact_id: idea-dossier-I01-001-v003, version: v003, path: 03_ideas/nodes/I01-001/dossiers/idea-dossier-v003.md}
+    - {artifact_id: idea-dossier-I01-001-v004, version: v004, path: 03_ideas/nodes/I01-001/dossiers/idea-dossier-v004.md}
+    - {artifact_id: idea-dossier-I01-001-v005, version: v005, path: 03_ideas/nodes/I01-001/dossiers/idea-dossier-v005.md}
+    - {artifact_id: idea-dossier-I01-001-v006, version: v006, path: 03_ideas/nodes/I01-001/dossiers/idea-dossier-v006.md}
+  reference_ledgers:
+    - {artifact_id: reference-ledger-I01-001-v001, version: v001, path: 03_ideas/nodes/I01-001/references/reference-ledger.md}
+  revision_plans:
+    - {artifact_id: revision-plan-I01-001-r001-v001, version: v001, path: 03_ideas/nodes/I01-001/revisions/round-001/revision-plan-v001.md}
+    - {artifact_id: revision-plan-I01-001-r002-v002, version: v002, path: 03_ideas/nodes/I01-001/revisions/round-002/revision-plan-v002.md}
+    - {artifact_id: revision-plan-I01-001-r004-v003, version: v003, path: 03_ideas/nodes/I01-001/revisions/round-004/revision-plan-v003.md}
+  revision_deltas:
+    - {artifact_id: revision-delta-I01-001-v001-to-v002, version: v001-to-v002, path: 03_ideas/nodes/I01-001/revisions/round-001/revision-delta-v001-to-v002.md}
+    - {artifact_id: revision-delta-I01-001-v002-to-v003, version: v003, path: 03_ideas/nodes/I01-001/revisions/round-002/revision-delta-v002-to-v003.md}
+    - {artifact_id: revision-delta-I01-001-v003-to-v004, version: v003-to-v004, path: 03_ideas/nodes/I01-001/revisions/round-003/revision-delta-v003-to-v004.md}
+    - {artifact_id: revision-delta-I01-001-v004-to-v005, version: v004-to-v005, path: 03_ideas/nodes/I01-001/revisions/round-004/revision-delta-v004-to-v005.md}
+    - {artifact_id: revision-delta-I01-001-v005-to-v006, version: v005-to-v006, path: 03_ideas/nodes/I01-001/revisions/round-005/revision-delta-v005-to-v006.md}
+  preflight_reports:
+    - {artifact_id: preflight-r001, version: r001, path: 03_ideas/nodes/I01-001/reviews/preflight-r001.md}
+    - {artifact_id: preflight-r002, version: r002, path: 03_ideas/nodes/I01-001/reviews/preflight-r002.md}
+    - {artifact_id: preflight-r003, version: r003, path: 03_ideas/nodes/I01-001/reviews/preflight-r003.md}
+    - {artifact_id: methodology-statistics-preflight-I01-001-r004, version: r004, path: 03_ideas/nodes/I01-001/reviews/preflight-r004.md}
+    - {artifact_id: methodology-statistics-preflight-I01-001-r005, version: r005, path: 03_ideas/nodes/I01-001/reviews/preflight-r005.md}
+  protected_content_registers:
+    - {artifact_id: protected-content-register-v001, version: v001, path: 05_state/protected-content-register-v001.yaml}
+    - {artifact_id: protected-content-register-v002, version: v002, path: 05_state/protected-content-register-v002.yaml}
+  narrative_assessments:
+    - {artifact_id: narrative-assessment-I01-001-r001, version: r001, path: 03_ideas/nodes/I01-001/reviews/narrative-assessment-r001.md}
+    - {artifact_id: narrative-assessment-I01-001-r003, version: r003, path: 03_ideas/nodes/I01-001/reviews/narrative-assessment-r003.md}
+    - {artifact_id: narrative-assessment-I01-001-r004, version: r004, path: 03_ideas/nodes/I01-001/reviews/narrative-assessment-r004.md}
+    - {artifact_id: narrative-assessment-I01-001-r006, version: r006, path: 03_ideas/nodes/I01-001/reviews/narrative-assessment-r006.md}
+    - {artifact_id: narrative-assessment-I01-001-r007, version: r007, path: 03_ideas/nodes/I01-001/reviews/narrative-assessment-r007.md}
+  narrative_repair_plans:
+    - {artifact_id: narrative-repair-plan-I01-001-r001, version: r001, path: 03_ideas/nodes/I01-001/reviews/narrative-repair-plan-r001.yaml}
+    - {artifact_id: narrative-repair-plan-I01-001-r003, version: r003, path: 03_ideas/nodes/I01-001/reviews/narrative-repair-plan-r003.yaml}
+    - {artifact_id: narrative-repair-plan-I01-001-r004, version: r004, path: 03_ideas/nodes/I01-001/reviews/narrative-repair-plan-r004.yaml}
+    - {artifact_id: narrative-repair-plan-I01-001-r006, version: r006, path: 03_ideas/nodes/I01-001/reviews/narrative-repair-plan-r006.yaml}
+    - {artifact_id: narrative-repair-plan-I01-001-r007, version: r007, path: 03_ideas/nodes/I01-001/reviews/narrative-repair-plan-r007.yaml}
+  language_assessments:
+    - {artifact_id: language-assessment-I01-001-r001, version: r001, path: 03_ideas/nodes/I01-001/reviews/language-assessment-r001.md}
+    - {artifact_id: language-assessment-I01-001-r003, version: r003, path: 03_ideas/nodes/I01-001/reviews/language-assessment-r003.md}
+    - {artifact_id: language-assessment-I01-001-r004, version: r004, path: 03_ideas/nodes/I01-001/reviews/language-assessment-r004.md}
+    - {artifact_id: language-assessment-I01-001-r006, version: r006, path: 03_ideas/nodes/I01-001/reviews/language-assessment-r006.md}
+    - {artifact_id: language-assessment-I01-001-r007, version: r007, path: 03_ideas/nodes/I01-001/reviews/language-assessment-r007.md}
+  editorial_repair_writer_briefs:
+    - {artifact_id: editorial-repair-writer-brief-I01-001-r001, version: r001, path: 03_ideas/nodes/I01-001/revisions/round-003/editorial-repair-writer-brief-r001.yaml}
+    - {artifact_id: editorial-repair-writer-brief-I01-001-r002, version: r002, path: 03_ideas/nodes/I01-001/revisions/round-005/editorial-repair-writer-brief-r002.yaml}
+  content_preservation_reports:
+    - {artifact_id: content-preservation-I01-001-r002, version: r002, path: 03_ideas/nodes/I01-001/reviews/content-preservation-r002.md}
+    - {artifact_id: content-preservation-I01-001-r007, version: r007, path: 03_ideas/nodes/I01-001/reviews/content-preservation-r007.md}
+  writer_action_compliance_reports:
+    - {artifact_id: writer-action-compliance-I01-001-r002, version: r002, path: 03_ideas/nodes/I01-001/reviews/writer-action-compliance-r002.md}
+  evaluation_reports:
+    - {artifact_id: evaluation-I01-001-r008, version: r008, path: 03_ideas/nodes/I01-001/reviews/evaluation-r008.md}
+  candidate_journal_match_briefs:
+    - {artifact_id: candidate-journal-match-I01-001-r008, version: r008, path: 03_ideas/nodes/I01-001/reviews/candidate-journal-match-r008.yaml}
+  medical_journal_review_reports:
+    - {artifact_id: medical-journal-review-I01-001-r008, version: r008, path: 03_ideas/nodes/I01-001/reviews/medical-journal-review-r008.md}
+  portfolio: {artifact_id: research-idea-portfolio-v001, version: v001, path: 04_portfolio/research-idea-portfolio-v001.md}
+  state_artifacts:
+    - {artifact_id: workflow-state-v001, version: v001, path: 05_state/workflow-state.yaml}
+    - {artifact_id: artifact-index-v001, version: v001, path: 05_state/artifact-index.md}
+    - {artifact_id: round-001-manifest, version: v001, path: 05_state/round-001-manifest.md}
+decisions:
+  routing: focused_optimization
+  preflight: pass
+  content_preservation: scientific_content_preserved
+  narrative_readiness: minor_narrative_revision
+  language_readiness: minor_language_revision
+  evaluation: revise_then_promote
+  candidate_journal_match_status: completed_unscored_unranked
+  medical_journal_review: journal_candidates_confirmed
+  portfolio_group: revise-then-promote
+  editorial_repair_failure_attribution: null
+fatal_findings: []
+blocking_findings: []
+open_major_findings:
+  - source: evaluation-I01-001-r008
+    label: 核心实施依赖仍待实证落实
+    status: open
+open_minor_readiness_findings:
+  narrative:
+    - id: NAR-001
+      label: Background 提前承担 Rationale 的方案选择功能
+    - id: NAR-002
+      label: “持续恢复”的技术含义晚于多次核心使用
+    - id: NAR-003
+      label: 开篇定义段混合读者入口与方法细节
+    - id: NAR-004
+      label: Working assumptions 中任务三说明重复且不符合小节功能
+  language:
+    - id: LANG-001
+      label: 外部状态表示相关术语的修饰对象与“占用”含义不够直接
+    - id: LANG-002
+      label: 任务三预测目标的限定语叠加且角色形式不一致
+    - id: LANG-003
+      label: 参数和潜在状态恢复诊断的并列范围有歧义
+    - id: LANG-004
+      label: “人体开放复杂巨系统”标签不透明且装饰性较强
+    - id: LANG-005
+      label: 单句完整构想摘要的从句链负担过重
+    - id: LANG-006
+      label: 任务三说明泄露对话来源
+    - id: LANG-007
+      label: 条件性后续研究独立性的表达含连续否定与分支隐喻
+    - id: LANG-008
+      label: MQTiPSS 与 ARRIVE 2.0 首次使用缺少用途说明
+stop_condition: sealed_revise_then_promote_decision_requires_human_revision_choice
+failure_route: null
+unresolved_risks:
+  - 两库许可、真实字段映射、事件与有效转移信息量仍未实证确认。
+  - 约束表、专家异议记录、核心团队和计算基准仍未完成。
+  - 参数和潜在状态恢复、权重稳定性与跨数据库状态表示诊断阈值尚待在预定时点冻结。
+  - r007 的 12 项 minor readiness finding 仍为公开的人类审阅事项。
+next_action: >-
+  负责人决定是否授权新完整 dossier；若发生实质性修订，必须创建 v007 或更高版本并重新运行独立保真、叙事、语言、评价以及适用的候选期刊和医学期刊审查。
+based_on:
+  - artifact_id: idea-index-v001
+    version: v001
+    path: 03_ideas/idea-index-v001.yaml
+  - artifact_id: research-idea-portfolio-v001
+    version: v001
+    path: 04_portfolio/research-idea-portfolio-v001.md
+change_type: create
+frozen: false

@@ -14,20 +14,24 @@ run methods review, score, rank, or decide promotion.
 ## Procedure
 
 1. Classify the input using `references/context-extraction-rules.md`.
-2. Extract goal, audience/output, research object, setting, data, methods,
-   endpoint/metric, resources, constraints, known facts, and uncertainties using
-   `references/context-brief-schema.md`.
-3. Separate facts from assumptions; record confidence, impact if wrong, and
+2. Extract goal, output, target-reader profile and prior knowledge, research
+   object, setting, data, methods, endpoint/metric, resources, constraints,
+   known facts, and uncertainties using `references/context-brief-schema.md`.
+3. Record the reader's needed `background -> current state -> gap ->
+   significance -> rationale` reasoning chain and `gap_type`. This is a
+   non-evaluative handoff: mark unknown links explicitly rather than inventing
+   evidence, importance, or novelty.
+4. Separate facts from assumptions; record confidence, impact if wrong, and
    whether user confirmation is required.
-4. Set `direction_clarity`:
+5. Set `direction_clarity`:
    - `clear`: primary question, object, and intended contribution are usable;
    - `underdefined`: one plausible direction exists but key scope is missing;
    - `ambiguous`: several materially different interpretations remain.
    This is descriptive context, not a value or novelty judgment.
-5. Ask only essential questions. Otherwise proceed with explicit assumptions.
-6. Mark downstream mapping, routing, dossier generation, preflight, independent
+6. Ask only essential questions. Otherwise proceed with explicit assumptions.
+7. Mark downstream mapping, routing, dossier generation, preflight, independent
    evaluation, and Proposal-triage needs; return control to the orchestrator.
-7. Validate the handoff against
+8. Validate the handoff against
    `research-idea-orchestrator/references/handoff-validation.md`.
 
 ## Evaluation Isolation
@@ -60,5 +64,6 @@ belongs to a fresh `idea-evaluator` after a complete dossier exists.
 ## Completion Check
 
 Confirm `input_type: problem`, subtype, goal, output, object, data/method/endpoint,
-constraints, separated facts/assumptions, direction clarity with rationale,
-proceed status, and downstream needs without evaluation.
+target-reader profile and prior knowledge, all five reader-reasoning functions,
+gap type, constraints, separated facts/assumptions, direction clarity with
+rationale, proceed status, and downstream needs without evaluation.

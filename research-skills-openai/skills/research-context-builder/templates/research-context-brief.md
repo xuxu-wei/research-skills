@@ -14,10 +14,28 @@
 | Research domain | |
 | User goal and intended output | |
 | Target audience/reviewer | |
+| Target-reader disciplines and intended use | |
 | Study object and setting | |
 | Available data and methods | |
 | Endpoint/metric status | |
 | Time/resource/collaboration constraints | |
+
+## Reader knowledge boundary
+
+- Assumed known:
+- Requires explanation at first use:
+
+## Reader reasoning chain
+
+| Function | What the reader needs to understand | Known or unresolved basis |
+|---|---|---|
+| Background | | |
+| Current state | | |
+| Gap | | |
+| Significance | | |
+| Rationale | | |
+
+- Gap type: `knowledge` / `evidence` / `theory` / `method` / `measurement` / `data` / `validation` / `implementation` / `mixed` / `unclear`
 
 ## Direction clarity
 

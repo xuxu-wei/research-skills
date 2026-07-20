@@ -1,0 +1,717 @@
+schema_version: research-idea-editorial-repair-writer-brief.v1
+brief_id: editorial-repair-writer-brief-I01-001-r127
+workflow_id: RID-SEPSIS-CSM-20260717-001
+round_id: r127
+active_plugin_version: 0.9.0-preview.3
+role: >-
+  Perform one complete editorial-only repair of the current Idea dossier. Execute
+  only the two included major narrative actions in one concentrated revision,
+  preserve every scientific commitment and all machine-facing identity values, and
+  do not evaluate the Idea, make a scientific choice, or repair an omitted minor
+  observation.
+
+source_artifact:
+  artifact_id: idea-dossier-I01-001-v055
+  version: v055
+  path: tests/idea-narrative-forward-0.9.0-preview.3/one-pass-current/direct-final-current-v21/idea-dossier-v055.md
+
+protected_content_register:
+  register_id: protected-content-register-I01-001-v055-v007
+  version: v007
+  path: tests/idea-narrative-forward-0.9.0-preview.3/one-pass-current/direct-final-current-v21/protected-content-register-v007.yaml
+
+source_review_binding:
+  narrative_assessment:
+    artifact_id: narrative-assessment-I01-001-r126
+    version: r126
+    path: tests/idea-narrative-forward-0.9.0-preview.3/one-pass-current/direct-final-current-v21/narrative-assessment-r126.md
+  narrative_repair_plan:
+    artifact_id: narrative-repair-plan-I01-001-r126
+    version: r126
+    path: tests/idea-narrative-forward-0.9.0-preview.3/one-pass-current/direct-final-current-v21/narrative-repair-plan-r126.yaml
+  language_assessment:
+    artifact_id: language-assessment-I01-001-r126
+    version: r126
+    path: tests/idea-narrative-forward-0.9.0-preview.3/one-pass-current/direct-final-current-v21/language-assessment-r126.md
+
+included_repair_item_ids:
+  - NRP-001
+  - NRP-002
+
+omitted_source_repair_items:
+  - repair_item_id: NRP-003
+    addresses_finding_ids:
+      - NAR-003
+    rationale: nonblocking_minor_observation_owner_prioritization
+    execution_disposition: no_repair_no_reproduction_no_extra_testing
+
+omitted_reported_nonblocking_findings:
+  - finding_id: NAR-003
+    source_repair_item_id: NRP-003
+    rationale: nonblocking_minor_observation_owner_prioritization
+  - finding_id: LA-001
+    rationale: nonblocking_minor_observation_owner_prioritization
+  - finding_id: LA-002
+    rationale: nonblocking_minor_observation_owner_prioritization
+  - finding_id: LA-003
+    rationale: nonblocking_minor_observation_owner_prioritization
+  - finding_id: LA-004
+    rationale: nonblocking_minor_observation_owner_prioritization
+  - finding_id: LA-005
+    rationale: nonblocking_minor_observation_owner_prioritization
+  - finding_id: LA-006
+    rationale: nonblocking_minor_observation_owner_prioritization
+
+included_nonblocking_finding_rationale: {}
+
+omitted_item_scope_guard: >-
+  NRP-003 and LA-001 through LA-006 are visible owner-prioritization records only.
+  Do not execute their replacements, silently fold them into NRP-001 or NRP-002,
+  reproduce them, or add a language, terminology, or summary-specific test because of
+  them. Incidental wording changes required to delete duplicated major-action prose
+  must not be used to perform any omitted minor repair.
+
+identified_overlaps:
+  - finding_ids:
+      - NRP-001
+      - NRP-002
+
+overlap_dispositions:
+  - finding_ids:
+      - NRP-001
+      - NRP-002
+    disposition: >-
+      Execute NRP-001 first. It owns every occurrence of conditional trial-extension
+      eligibility, branch selection, estimand, trial-specific processing,
+      multiplicity, stopping logic, and trial-result interpretation. Keep that
+      complete logic exactly once in Research design and methods > 试验观测映射和独立分析,
+      and reduce every other occurrence to the closed list of minimum local functions
+      stated in NRP-001. Then execute NRP-002 on the resulting text. NRP-002 owns the
+      complete limitation families and residual caveat duplication: keep all eleven
+      full families exactly in section 14, delete an outside restatement unless it is
+      indispensable to one allowed adjacent function, and never re-expand trial
+      mechanics or delete NRP-001's required local role. When one source sentence
+      mixes trial mechanics with a limitation, retain the operating rule only at the
+      methods authority or its expressly allowed local function, retain the complete
+      limitation only in section 14, and delete the duplicated explanatory clause.
+
+unresolved_overlaps: []
+all_overlaps_resolved: true
+
+normalized_repair_actions:
+  - repair_item_id: NRP-001
+    source_item_ids:
+      - NRP-001
+      - NAR-001
+    addresses_finding_ids:
+      - NAR-001
+    locator: >-
+      Research design and methods > 试验观测映射和独立分析, together with every
+      occurrence of the conditional trial extension from Title, summary, audience,
+      and positioning through Feasibility, resources, risks, alternatives, and stop
+      conditions
+    operation: consolidate
+    problem: >-
+      The dedicated methods subsection correctly contains the full extension, but
+      shared prerequisites, mapping eligibility and fidelity, the ordered proxy
+      outcome, the independent SOFA alternative, the probability-index estimand,
+      trial-specific processing, stopping rules, and interpretation boundaries are
+      repeatedly re-explained across the dossier. This repeatedly interrupts the
+      24-month stage I-II route and gives the contingent extension near-primary
+      narrative weight.
+    target: >-
+      Preserve one complete eligibility-to-analysis-to-stopping authority in Research
+      design and methods > 试验观测映射和独立分析. Outside that authority, retain only
+      the minimum statement expressly allowed below for one local role, delete every
+      multi-step branch explanation, and remove every other stage-III occurrence.
+      The reader must be able to follow the complete stage I-II route without leaving
+      it to reconstruct the contingent extension.
+    required_function_or_term: >-
+      The sole methods authority must retain the shared prerequisites; separate
+      EXIT-SEP and XBJ-SCAP authorization and semantic verification; trial-specific
+      common-anchor eligibility; external-fidelity rules; the ordered outcome based
+      on death, the one-dimensional observable proxy, and live discharge; the
+      mutually exclusive independent SOFA ordered-endpoint alternative; the
+      stratified standardized probability-index estimand with original strata,
+      pooled-arm weights, favorable direction, and half-credit ties; visit timing;
+      analysis sets; missing-data and bounds handling; multiplicity; and every
+      semantic, mapping, and analysis stop. Outside the authority, no retained
+      statement may reproduce more than its single enumerated local role.
+    content_to_preserve:
+      protected_ids:
+        - PCR-001
+        - PCR-002
+        - PCR-010
+        - PCR-011
+        - PCR-012
+        - PCR-013
+        - PCR-014
+        - PCR-027
+        - PCR-028
+        - PCR-029
+        - PCR-030
+        - PCR-031
+        - PCR-033
+        - PCR-036
+        - PCR-038
+        - PCR-039
+        - PCR-040
+        - PCR-042
+        - PCR-043
+        - PCR-045
+        - PCR-053
+        - PCR-054
+        - PCR-055
+        - PCR-057
+        - PCR-058
+        - PCR-059
+        - PCR-061
+        - PCR-062
+        - PCR-064
+      instruction: >-
+        Before changing any affected passage, reopen every applicable register
+        locator. Preserve the conditional dependency on conjunctive stage-II success,
+        separate-trial status, exact branch eligibility and consequences, all
+        thresholds and formulas, trial-specific populations and visits, missing-data
+        handling, multiplicity, current evidence status, noncausal interpretation,
+        and every prohibited claim. Moving or deleting repetition does not authorize
+        changing scientific content.
+    delete_move_disposition: >-
+      Keep the complete trial-extension logic in the existing methods subsection.
+      Delete full or partial re-explanations of its eligibility tree, mapping-fidelity
+      branch, independent-SOFA branch, estimand, imputation, multiplicity, stopping
+      sequence, and whole-system interpretation outside that subsection. At each
+      expressly allowed outside locator, retain only its stated local role; delete the
+      extension entirely from all other opening, abstract, reasoning, methods-adjacent,
+      contribution, feasibility, and governance prose. Do not replace deleted detail
+      with another summary of the branch tree.
+    destination: Research design and methods > 试验观测映射和独立分析
+    dependencies: []
+    outside_authority_allowed_occurrences:
+      - locator: Research question, objectives, and core hypothesis > Primary research question
+        allowed_local_function: primary_question_identity
+        minimum_statement: >-
+          One subordinate clause may state that, only after the main study meets its
+          standard, separate trial-specific analyses examine randomized assignment in
+          relation to the prespecified ordered visit outcome. Include no eligibility,
+          branch, estimator, or stop detail.
+      - locator: Research question, objectives, and core hypothesis > Objectives > objective 4
+        allowed_local_function: objective
+        minimum_statement: >-
+          One objective sentence may state the same conditional, separate, secondary
+          trial question and that it does not count toward stage-II success.
+      - locator: Research content and work packages > 24-month minimum delivery and milestones
+        allowed_local_function: timing_dependency
+        minimum_statement: >-
+          One milestone entry may state that the extension follows the 24-month
+          stage-I/II minimum, depends on stage-II success, and cannot count toward or
+          repair it. Include no operating detail.
+      - locator: Research content and work packages > Work packages and minimum route
+        allowed_local_function: work_package
+        minimum_statement: >-
+          WP5 and the terminal precedence link may state only dependency, timing,
+          separate per-trial output, and exclusion from stage-II success.
+      - locator: Data, materials, and existing evidence base > Current resource and result status
+        allowed_local_function: current_factual_status
+        minimum_statement: >-
+          Retain only the current facts that authorization, original semantics,
+          mapping inputs, and new trial results remain unverified or ungenerated.
+      - locator: Data, materials, and existing evidence base > Local randomized-trial evidence status
+        allowed_local_function: current_factual_status
+        minimum_statement: >-
+          Preserve the registered trial-specific counts, source status, field gaps,
+          and facts still requiring verification. Do not add the downstream branch
+          sequence to these factual descriptions.
+      - locator: Key techniques and implementation > trial-observation-mapping interface row
+        allowed_local_function: implementation_record
+        minimum_statement: >-
+          Retain only the per-trial inputs and the records the implementation must
+          produce. Do not repeat eligibility thresholds, formulas, alternative-branch
+          conditions, imputation recipes, multiplicity rules, or stopping logic.
+      - locator: Evidence chain > 有前置条件的随机试验次要分析
+        allowed_local_function: evidence_chain
+        minimum_statement: >-
+          Keep exactly the required Input, Method / analysis / processing, Output, and
+          Supports roles. The method line may state separate per-trial verification
+          and execution of the prespecified ordered-outcome analysis, but not the
+          branch tree or its technical specifications.
+      - locator: Required analyses and evidence
+        allowed_local_function: method_eligibility
+        minimum_statement: >-
+          One compact requirement may state authorization, original-semantic
+          verification, trial-specific eligibility, and execution of the fixed
+          method. Delete field lists, thresholds, formulas, branch construction,
+          imputation, center, multiplicity, and stopping sequences.
+      - locator: Expected outputs, falsification criteria, and interpretations > Planned outputs
+        allowed_local_function: planned_output
+        minimum_statement: >-
+          Retain only separate per-trial results when eligible, or the recorded reason
+          that no new visit-outcome analysis was performed.
+      - locator: Expected outputs, falsification criteria, and interpretations > Falsification and stop criteria
+        allowed_local_function: falsification_consequence
+        minimum_statement: >-
+          Retain only the consequence that mapping failure blocks the mapping-ordered
+          outcome without erasing an independently eligible SOFA analysis, while
+          unverifiable core semantics stop all new visit-outcome analyses. Preserve
+          discordance and imprecision consequences without repeating any thresholds
+          or the full eligibility sequence.
+      - locator: Expected outputs, falsification criteria, and interpretations > Interpretation matrix
+        allowed_local_function: interpretation
+        minimum_statement: >-
+          Retain one result-interpretation row for an eligible mapping result and one
+          for an independent SOFA result, with their distinct allowed and prohibited
+          meanings. Include no construction or eligibility method.
+      - locator: Contribution, innovation, impact, application, and closest-work comparison > Contribution and evidence ladder
+        allowed_local_function: contribution_positioning
+        minimum_statement: >-
+          Retain one subordinate evidence row stating the conditional per-trial
+          claim-strength role. Do not list technical method requirements.
+      - locator: Contribution, innovation, impact, application, and closest-work comparison > Verified representative closest-work comparison
+        allowed_local_function: contribution_positioning
+        minimum_statement: >-
+          Retain only the precedent comparison and the conditional, separate,
+          subordinate difference proposed here.
+      - locator: Title and positioning claim-support table
+        allowed_local_function: claim_audit
+        minimum_statement: >-
+          Retain one row that audits the subordinate-extension claim, its evidence
+          chain, conditional status, separate-trial scope, and non-primary role.
+          Include no branch method.
+      - locator: Feasibility, resources, risks, alternatives, and stop conditions > Working assumptions
+        allowed_local_function: assumption_governance
+        minimum_statement: >-
+          Retain the estimator-confirmation owner, deadline, affected component, and
+          consequence. Keep the complete estimator definition and branch mechanics
+          only in the methods authority; map PCR-045 to both revised locators.
+      - locator: Feasibility, resources, risks, alternatives, and stop conditions > Limitations and boundary conditions
+        allowed_local_function: limitation_authority
+        minimum_statement: >-
+          Preserve the complete trial-related limitation families within the sole
+          full limitations authority. They must not be converted into a second
+          eligibility-to-analysis specification.
+      - locator: Feasibility, resources, risks, alternatives, and stop conditions > Risks, alternatives, and stop conditions
+        allowed_local_function: risk_response
+        minimum_statement: >-
+          Retain only the concrete authorization or core-semantic trigger, response,
+          and consequence. Do not restate the mutually exclusive branch tree.
+    acceptance_test: >-
+      The complete extension from shared prerequisites through eligibility, mapping,
+      alternatives, estimand, trial-specific processing, multiplicity, and stopping
+      appears exactly once in Research design and methods > 试验观测映射和独立分析.
+      The stage-I/II question-to-output route remains continuous and visibly primary.
+      Every retained outside occurrence appears in the closed list above, performs
+      exactly its one assigned role, contains no multi-step branch logic, and is the
+      minimum text needed for that role. EXIT-SEP and XBJ-SCAP remain separate;
+      mapping failure does not erase the independent SOFA alternative; core-semantic
+      failure stops all new visit outcomes; and stage III cannot count toward, bypass,
+      repair, or receive narrative weight comparable to stage II.
+
+  - repair_item_id: NRP-002
+    source_item_ids:
+      - NRP-002
+      - NAR-002
+    addresses_finding_ids:
+      - NAR-002
+    locator: >-
+      Feasibility, resources, risks, alternatives, and stop conditions > Limitations
+      and boundary conditions, together with every limitation or caveat restatement
+      elsewhere in the complete dossier
+    operation: consolidate
+    problem: >-
+      Section 14 already contains eleven complete limitation families, while access,
+      support, isolation, noncausal interpretation, trial semantics, result status,
+      timing, and claim boundaries recur throughout the dossier even when they add no
+      local scientific or operational decision. The repeated cautions fragment the
+      positive argument and obscure the difference among a true limitation, a current
+      fact, a method rule, a falsification consequence, an interpretation, and a risk
+      response.
+    target: >-
+      Keep section 14 as the sole full limitations authority. Outside it, omit every
+      limitation or caveat restatement unless it is indispensable to the immediately
+      adjacent positive reasoning, method eligibility, current factual status,
+      falsification consequence, interpretation, or risk response. Do not keep a
+      statement merely because its section is required, do not retain general warning
+      prose around a valid local function, and do not insert a pointer to section 14.
+    required_function_or_term: >-
+      Preserve all eleven scientifically distinct limitation families in full in
+      section 14. Every retained similar statement outside it must be concise,
+      self-contained, indispensable to the adjacent text, and assigned exactly one of
+      these allowed functions: positive_reasoning, method_eligibility,
+      current_factual_status, falsification_consequence, interpretation, or
+      risk_response. A section heading, table requirement, claim-audit convention, or
+      desire for repetition is not an allowed function.
+    content_to_preserve:
+      protected_ids:
+        - PCR-001
+        - PCR-002
+        - PCR-003
+        - PCR-004
+        - PCR-005
+        - PCR-006
+        - PCR-007
+        - PCR-008
+        - PCR-009
+        - PCR-010
+        - PCR-011
+        - PCR-012
+        - PCR-013
+        - PCR-014
+        - PCR-015
+        - PCR-016
+        - PCR-017
+        - PCR-018
+        - PCR-019
+        - PCR-020
+        - PCR-021
+        - PCR-022
+        - PCR-023
+        - PCR-024
+        - PCR-025
+        - PCR-026
+        - PCR-027
+        - PCR-028
+        - PCR-029
+        - PCR-030
+        - PCR-031
+        - PCR-032
+        - PCR-033
+        - PCR-034
+        - PCR-035
+        - PCR-036
+        - PCR-037
+        - PCR-038
+        - PCR-039
+        - PCR-040
+        - PCR-041
+        - PCR-042
+        - PCR-043
+        - PCR-044
+        - PCR-045
+        - PCR-046
+        - PCR-047
+        - PCR-048
+        - PCR-049
+        - PCR-050
+        - PCR-051
+        - PCR-052
+        - PCR-053
+        - PCR-054
+        - PCR-055
+        - PCR-056
+        - PCR-057
+        - PCR-058
+        - PCR-059
+        - PCR-060
+        - PCR-061
+        - PCR-062
+        - PCR-063
+        - PCR-064
+      instruction: >-
+        Reopen every source_locator before condensing, moving, or deleting its text.
+        Preserve every enumerated scientific commitment, including identity, numbers,
+        time rules, formulas, support rules, eligibility, mutually exclusive branches,
+        consequences, owners and deadlines, evidence status, claim strength, and
+        unsupported claim classes. PCR-048 through PCR-058 remain complete once in
+        section 14. Other protected commitments remain at the technical or local
+        authority required by their scientific function. Consolidation changes only
+        location and repetition; it adds no data, method, evidence, or claim strength.
+    delete_move_disposition: >-
+      Preserve all eleven complete families in section 14. Elsewhere, first isolate
+      the smallest clause that is indispensable to one allowed adjacent function,
+      retain that clause without general warning prose, and delete the rest. Delete
+      the entire occurrence when no allowed function applies. Do not move duplicate
+      caveats into another outside section, do not preserve them because a required
+      section exists, and do not replace deleted prose with a cross-reference or
+      pointer to section 14.
+    destination: >-
+      Full limitation families remain only in Feasibility, resources, risks,
+      alternatives, and stop conditions > Limitations and boundary conditions
+    dependencies:
+      - NRP-001
+    allowed_outside_authority_functions:
+      - function: positive_reasoning
+        rule: >-
+          Retain only a boundary without which the immediately adjacent positive gap,
+          rationale, study question, or contribution would change meaning or claim
+          strength. Delete free-standing caution and repeated lists.
+      - function: method_eligibility
+        rule: >-
+          Retain only a condition that directly determines whether the adjacent
+          cohort, model, external test, or analysis may be run or interpreted. Keep
+          complete technical logic at its methods authority.
+      - function: current_factual_status
+        rule: >-
+          Retain only what currently exists, remains unverified or ungenerated, and
+          what source or resource status is known. Do not append a general limitation
+          explanation.
+      - function: falsification_consequence
+        rule: >-
+          Retain only the failed object, trigger, and scientific consequence needed by
+          the adjacent falsification or stop statement.
+      - function: interpretation
+        rule: >-
+          Retain only the result-specific allowed or prohibited inference needed to
+          understand the adjacent result pattern or bounded claim.
+      - function: risk_response
+        rule: >-
+          Retain only the concrete trigger, prespecified response, and consequence in
+          the adjacent risk row.
+    locator_dispositions:
+      - locator: Title, summary, audience, and positioning; Structured abstract
+        disposition: >-
+          Preserve candidate and planned status and only an identity-defining
+          interpretive boundary indispensable to the positive aim. Delete repeated
+          access, result-status, trial-semantic, isolation, noncausal, deployment, and
+          other caveat prose. NRP-003 remains omitted: do not otherwise redesign the
+          one-sentence summary or apply a minor language repair.
+      - locator: Background, current state, gap, significance, and rationale; Research question, objectives, and core hypothesis
+        disposition: >-
+          Preserve the positive reasoning chain, primary question, objectives, and
+          hypothesis. Retain a concise noncausal or evidence boundary only where its
+          omission would strengthen the adjacent question, hypothesis, or rationale;
+          delete repeated complete cautions.
+      - locator: Research content and work packages; Research design and methods; Key techniques and implementation; Required analyses and evidence
+        disposition: >-
+          Retain only operational eligibility, data-isolation, analysis-precedence,
+          and stop rules needed to execute the adjacent method. Delete general
+          limitation restatements, and keep the complete trial-extension logic only at
+          the NRP-001 methods authority.
+      - locator: Data, materials, and existing evidence base; Feasibility and resources
+        disposition: >-
+          Retain exact current resource, access, support, evidence, and result facts.
+          Delete surrounding general cautions and repeated consequences unless they
+          directly state the status decision in that row.
+      - locator: Evidence chains; Planned outputs
+        disposition: >-
+          Preserve all required evidence-chain fields and planned-output roles. A
+          limitation-like clause may remain only if it is indispensable to method
+          eligibility, current factual status, or the output's interpretation; a
+          required field alone is not a reason to keep it.
+      - locator: Falsification and stop criteria
+        disposition: >-
+          Retain object-specific triggers and consequences, not the surrounding full
+          limitation explanation.
+      - locator: Interpretation matrix; Contribution and evidence ladder; Verified representative closest-work comparison; Title and positioning claim-support table
+        disposition: >-
+          Retain only result-specific interpretation and the minimum boundary needed
+          to keep the adjacent positive or positioning claim at its registered
+          strength. Delete general noncausal, nondeployment, novelty, or evidence
+          warnings that merely repeat section 14.
+      - locator: Working assumptions
+        disposition: >-
+          Preserve each registered assumption's fixed content, owner, deadline,
+          affected component, and consequence. Keep technical definitions at their
+          methods authority and governance at the assumption row; delete only
+          duplicated limitation prose that changes none of those elements.
+      - locator: Limitations and boundary conditions
+        disposition: >-
+          Preserve all eleven complete and scientifically distinct families as the
+          sole full limitations authority. Do not shorten, merge away, replace, or
+          redirect any family.
+      - locator: Risks, alternatives, and stop conditions
+        disposition: >-
+          Retain each concrete trigger, prespecified response, and consequence. Delete
+          general warning clauses and repeated branch explanations that do not change
+          that risk response.
+    acceptance_test: >-
+      Section 14 contains the complete eleven-family limitations authority and is the
+      only place where full limitation families are stated. Every similar retained
+      occurrence outside section 14 is indispensable to its immediately adjacent
+      text, is assigned exactly one allowed function, and contains only the minimum
+      self-contained boundary needed for that function. Every unassigned occurrence
+      is deleted; no text is retained merely because a section is required; no
+      limitation or caveat pointer to section 14 is inserted; and NRP-001's single
+      trial-method authority, closed list of role statements, uninterrupted stage-I/II
+      route, and subordinate weighting remain intact.
+
+writer_access:
+  allowed_reads:
+    - tests/idea-narrative-forward-0.9.0-preview.3/one-pass-current/direct-final-current-v21/idea-dossier-v055.md
+    - tests/idea-narrative-forward-0.9.0-preview.3/one-pass-current/direct-final-current-v21/editorial-repair-writer-brief-r127.yaml
+    - tests/idea-narrative-forward-0.9.0-preview.3/one-pass-current/direct-final-current-v21/protected-content-register-v007.yaml
+  forbidden_reads:
+    - any narrative assessment report or language assessment report
+    - any assessor repair plan or other plan
+    - any prior dossier, old draft, or source history
+    - any prior or later revision delta
+    - any preflight report or methodology preflight material
+    - any evaluation report, score, or decision
+    - any preservation review, fresh reassessment, or workflow-state artifact
+    - any hidden parent context or unlisted project artifact
+  allowed_writes:
+    complete_dossier:
+      artifact_id: idea-dossier-I01-001-v056
+      version: v056
+      path: tests/idea-narrative-forward-0.9.0-preview.3/one-pass-current/direct-final-current-v22/idea-dossier-v056.md
+      change_type: editorial_repair
+    revision_delta:
+      artifact_id: revision-delta-I01-001-v055-to-v056
+      version: v055-to-v056
+      path: tests/idea-narrative-forward-0.9.0-preview.3/one-pass-current/direct-final-current-v22/revision-delta-v055-to-v056.md
+      change_type: editorial_repair_delta
+
+machine_identity_anchor_requirement:
+  copy_verbatim_from_register: true
+  fields:
+    - primary_research_question
+    - primary_objective
+    - study_object
+    - core_data_or_evidence_base
+    - primary_unit_of_inference
+  acceptance: >-
+    All five identity_anchor frontmatter values in v056 are character-for-character
+    identical to register v007. Reader-facing prose may move or consolidate, but the
+    machine-facing values may not be paraphrased.
+
+mandatory_whole_dossier_checks:
+  not_new_findings: true
+  checks:
+    - check: Exact structural and active-plugin-version lint
+      instruction: >-
+        After all bounded passes and before freezing the dossier, run exactly: python
+        research-skills-openai/skills/multi-path-idea-generator/scripts/lint_idea_dossier.py
+        tests/idea-narrative-forward-0.9.0-preview.3/one-pass-current/direct-final-current-v22/idea-dossier-v056.md
+        --expected-plugin-version 0.9.0-preview.3. Resolve every error without changing
+        science. Preserve all 15 required H2 headings, the five distinct
+        Background-to-Rationale H3 functions, all five evidence chains with Input,
+        Method / analysis / processing, Output, and Supports fields, the Key
+        techniques implementation records, and the claim-support table.
+      acceptance: >-
+        The exact command exits successfully, reports OK for idea-dossier-v056.md,
+        and the dossier declares plugin_version 0.9.0-preview.3.
+    - check: All 64 protected-content items
+      instruction: >-
+        Reopen every source locator and every revised locator for PCR-001 through
+        PCR-064. Compare the candidate dossier against every enumerated element,
+        including numbers, times, formulas, branch eligibility and consequences,
+        owners and deadlines, evidence status, claim strength, and unsupported claim
+        classes. A heading, a short register summary, or a completion assertion is not
+        preservation evidence. Consolidation may change location and repetition only.
+      acceptance: >-
+        Every PCR-001 through PCR-064 commitment remains at its stated revised locator
+        or locators, and the revision delta contains exactly one compact,
+        text-grounded preservation row for each protected ID.
+    - check: Five verbatim machine-facing identity anchors
+      instruction: >-
+        Compare primary_research_question, primary_objective, study_object,
+        core_data_or_evidence_base, and primary_unit_of_inference in v056 against
+        register v007 and copy each value verbatim, including punctuation and
+        capitalization.
+      acceptance: >-
+        All five values are character-for-character identical to register v007, and
+        the dossier uses artifact_id idea-dossier-I01-001-v056, version_id v056, the
+        v22 path, plugin_version 0.9.0-preview.3, and change_type editorial_repair.
+    - check: Fixture-specific all-occurrence inventory for the conditional trial extension
+      instruction: >-
+        Inspect every occurrence in v055 and v056 that refers to stage III, the
+        conditional trial extension, EXIT-SEP, XBJ-SCAP, randomized assignment, trial
+        authorization or semantics, common-anchor mapping, the one-dimensional proxy,
+        the trial-specific ordered visit outcome, the independent SOFA endpoint, the
+        probability-index estimand, trial missingness, multiplicity, or trial stopping.
+        Record each source occurrence and its revised disposition. For each retained
+        occurrence, record its exact locator and exactly one NRP-001 allowed local
+        function; tag the methods subsection as the sole complete authority. Delete
+        every retained occurrence that cannot be assigned one allowed function or
+        that repeats a multi-step branch. This inventory is evidence for this fixture,
+        not a generally applicable occurrence-count threshold.
+      acceptance: >-
+        The inventory covers every source and candidate occurrence; the complete
+        eligibility-to-analysis-to-stopping logic occurs once in the named methods
+        subsection; every other retained occurrence has exactly one allowed role and
+        no multi-step branch logic; every unassigned occurrence is absent; and the
+        stage-I/II route remains uninterrupted and clearly primary.
+    - check: Fixture-specific all-occurrence inventory for limitation and caveat language
+      instruction: >-
+        Inspect every occurrence in v055 and v056 that states or restates any of the
+        eleven limitation families: resources and access; labels, clocks, and leakage;
+        recoverability and structural scope; nonrandom missingness and action support;
+        cross-database evidence; time and delivery; trial data and semantics; common
+        anchors and observation mapping; closest-work uncertainty; regulatory
+        applicability; and prohibited claims. Record each source occurrence and its
+        revised disposition. Tag the eleven section-14 families as the sole full
+        authority. For every retained outside occurrence, record its exact locator and
+        exactly one NRP-002 allowed function, and confirm that the clause is
+        indispensable to the immediately adjacent text. Delete every unassigned
+        occurrence. This inventory is evidence for this fixture, not a generally
+        applicable occurrence-count threshold.
+      acceptance: >-
+        The inventory covers every source and candidate occurrence; all eleven full
+        families remain in section 14; each outside retained clause has exactly one of
+        the six allowed functions and is the minimum necessary self-contained text;
+        no outside clause merely restates a limitation; no required-section rationale
+        is used; and no pointer to section 14 appears.
+    - check: Scope, branches, stages, and scientific claim boundaries
+      instruction: >-
+        Verify that the complete trial logic retains shared prerequisites, mapping
+        eligibility, external fidelity, the ordered proxy outcome, the independent
+        SOFA alternative, the unique probability-index primary estimand,
+        trial-specific processing, multiplicity, and all stopping consequences.
+        Verify that mapping failure is branch-specific, core-semantic failure stops
+        all new visit outcomes, EXIT-SEP and XBJ-SCAP remain separate, and stage III
+        remains outside the 24-month minimum and cannot count toward, bypass, repair,
+        or alter stage-II success. Confirm that no data, method, evidence, claim
+        strength, or omitted minor repair has been added.
+      acceptance: >-
+        Every branch retains its original eligibility and consequence, no fallback is
+        lost, no scientific value is guessed, the stage-I/II route remains primary,
+        all prohibited claim classes remain explicit at their proper authority, and
+        only NRP-001 and NRP-002 have changed reader-facing text.
+
+execution_and_handoff:
+  section_passes:
+    - >-
+      Pass 1 — reader core, sections 1-4: apply only the NRP-001 and NRP-002
+      dispositions needed in the title, summary, positioning, structured abstract,
+      Background-to-Rationale chain, question, objectives, and hypothesis. Remove
+      non-authorized extension and caveat repetition without executing NRP-003 or any
+      language finding; preserve required field cardinalities.
+    - >-
+      Pass 2 — research plan and technical authority, sections 5-11: keep the complete
+      trial-extension logic in its single methods subsection, reduce every other trial
+      occurrence to its enumerated local role, apply the aggressive limitation rule,
+      and preserve the uninterrupted stage-I/II work-package, methods, implementation,
+      evidence-chain, required-analysis, output, falsification, and interpretation
+      route in one complete dossier.
+    - >-
+      Pass 3 — positioning, claim audit, and limitations authority, sections 12-14:
+      preserve positive contribution and bounded claim-support functions, keep all
+      eleven full limitation families only in section 14, delete all unjustified
+      outside caveats, and preserve registered assumptions and risk responses without
+      re-expanding trial logic.
+    - >-
+      Pass 4 — references and whole-dossier concordance: inspect references, perform
+      both fixture-specific all-occurrence inventories, verify PCR-001 through
+      PCR-064 and all five identity anchors, run the exact structural lint, verify
+      both included actions against their acceptance tests, and only then freeze the
+      complete dossier.
+  same_writer_instance_required: true
+  single_complete_target_dossier: true
+  partial_artifacts_forbidden: true
+  pre_freeze_action_compliance_required: true
+  delta_after_dossier_freeze_only: true
+  delta_requirements:
+    - >-
+      Create or finalize revision-delta-v055-to-v056.md only after the complete v056
+      dossier has passed all four bounded section passes, both all-occurrence
+      inventories, the exact lint, the full protected-content scan, the identity check,
+      and the action-compliance check, and after v056 is frozen. Any later dossier edit
+      invalidates the delta and requires rerunning these checks and rewriting it.
+    - >-
+      Map NRP-001 and NRP-002 to revised locators, executed consolidation and deletion
+      operations, every enumerated locator disposition, and text-grounded results of
+      their acceptance tests. Do not map NRP-003 or LA-001 through LA-006 as executed.
+    - >-
+      Map every PCR-001 through PCR-064 to revised locator or locators and compact
+      item-level evidence in the dossier's actual words. Do not reproduce protected
+      passages or long dossier excerpts.
+    - >-
+      Include both complete fixture-specific all-occurrence inventories, with a source
+      locator, candidate locator or deletion disposition, and exactly one allowed
+      local function for each retained occurrence.
+    - >-
+      Record the five verbatim identity-anchor comparisons, the eleven-family sole
+      limitations-authority check, the trial-method sole-authority check, branch and
+      stage checks, and the exact structural-lint receipt.
+    - >-
+      Keep the delta concise and text-grounded. Do not include assessor reports,
+      source-review instructions, hidden reasoning, or any unrelated editorial work.

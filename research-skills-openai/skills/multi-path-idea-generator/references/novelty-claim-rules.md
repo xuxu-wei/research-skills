@@ -8,7 +8,8 @@
   benchmark value.
 - If claiming scientific, data, or method novelty, identify the actual increment
   in an evidence-chain input, transformation, or output.
-- Every title/positioning claim must be `supported` or retain the qualifier from
-  a `qualified` Claim-Support row. Remove `unsupported` claims.
-- Carry evidence limitations into the dossier using normal prose and citations,
-  never unexplained internal IDs.
+- Every title/positioning claim must be `supported` or be written at the bounded
+  scope recorded by a `qualified` Claim-Support row. Remove `unsupported` claims.
+- Record evidence limitations once in section 14 using normal prose and
+  citations, never unexplained internal IDs. State one locally only when it is
+  necessary to explain the reasoning or design choice that immediately follows.

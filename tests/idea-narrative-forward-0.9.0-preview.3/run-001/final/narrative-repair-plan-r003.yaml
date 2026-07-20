@@ -1,0 +1,135 @@
+schema_version: research-idea-narrative-repair-plan.v1
+plan_id: narrative-repair-plan-I01-001-r003
+assessment_id: narrative-assessment-I01-001-r003
+source_artifact:
+  artifact_id: idea-dossier-I01-001-v005
+  version: v005
+  path: tests/idea-narrative-forward-0.9.0-preview.3/run-001/final/idea-dossier-v005.md
+decision: major_narrative_revision
+clarifications_required: []
+actions:
+  - action_id: NRP-001
+    addresses_findings:
+      - NAR-001
+    priority: major
+    dossier_locator:
+      section_heading: "Title, summary, audience, and positioning"
+      subsection_heading: null
+      content_anchor: "One-sentence complete-Idea summary"
+    operation: add_bridge
+    current_problem: >-
+      开篇在解释核心问题与贡献之前，要求跨学科读者自行推断候选动态系统模型、
+      患者—时间状态、结构量、恢复、对齐和观测映射之间的关系；完整含义到后文技术小节才出现。
+    target_state: >-
+      读者在进入 Structured abstract 前，即可用非公式语言说明研究对象是什么、四个证据层级分别
+      回答什么问题，以及条件性试验摘要为何不是对完整动态系统的替代验证。
+    required_content_or_function: >-
+      在开篇摘要与定位附近加入一个紧凑的跨学科概念桥：说明候选模型表示患者生理状态随时间的
+      变化及转移，并将治疗行动和测量过程分开；区分患者—时间状态、模型中的结构关系、任务级预测
+      表现、模拟中的状态/结构恢复、跨数据库对齐/稳定性和条件性试验可观测摘要。只预告这些层级，
+      公式、锚定规则、阈值和试验映射步骤仍留在现有技术位置。
+    content_to_preserve:
+      - 覆盖发病前、首次发病、发病后和结局的全病程对象边界
+      - 患者—时间状态及状态转移的主要推断单位，以及患者和医院聚类处理
+      - 生理状态、治疗行动和测量过程的角色分离
+      - 阶段 II 的恢复与跨数据库稳定性目标，以及阶段 II 成功后才进入的条件性阶段 III
+      - 任务表现或随机分组差异不等同于完整因果系统证据的边界
+    content_to_remove_or_move: []
+    destination_if_moved: null
+    dependencies: []
+    acceptance_test: >-
+      让符合 reader handoff、但不专攻系统辨识的读者只读标题、开篇部分和 Structured abstract；
+      该读者应能在不查阅后文公式的情况下，准确区分研究对象、任务表现、模型量恢复、跨库稳定性和
+      条件性试验摘要，并且每个中心构念都在首次承担论证功能时得到解释。
+  - action_id: NRP-002
+    addresses_findings:
+      - NAR-002
+    priority: major
+    dossier_locator:
+      section_heading: "Key techniques and implementation"
+      subsection_heading: null
+      content_anchor: "基于信息可用时间的标签引擎"
+    operation: consolidate
+    current_problem: >-
+      详细方法之后存在多套近似的技术、证据链、必做分析、产物、贡献和主张支持清单；
+      独有追踪信息分散在其中，读者必须横向比较才能确定从问题到贡献的权威映射。
+    target_state: >-
+      dossier 保留全部 15 个固定 H2 和第三节五个固定 H3；详细方法、关键技术、证据链、
+      必需分析、计划产物、贡献解释与 Claim-Support 各自在原 H2 只完成一种独特功能，
+      每项独有信息有一个权威归属，跨功能重复被删除。
+    required_content_or_function: >-
+      不改名、不删除 15 个 H2 或第三节五个 H3。Research design and methods 继续权威定义完整方法；
+      Key techniques 只列实现该方法所需且方法节未承担的技术职责；Evidence chains 只保留
+      Input—transformation—output—supported objective 的可审计映射；Required analyses 只列交付前
+      必须完成且不能从方法步骤直接推出的分析与记录验收项；Expected outputs 只列产物及其计划状态；
+      Contribution 只解释这些证据和产物可形成的有界增量；Claim-Support 继续用合同规定字段逐项核对
+      标题与定位主张、实现、证据链、实际增量和支持状态。各节不得复制公式、完整方法、完整限制、
+      失败后果或另一节的整表内容，也不得用一张新表替代多个强制功能。
+    content_to_preserve:
+      - 五条证据链中独有的输入、输出及其所支持目标的对应关系
+      - 两项主要任务、两项次要表征诊断、跨数据库验证与条件性试验分析的全部预期产物
+      - 贡献阶梯中数据可追溯性、模型恢复与任务效度、跨库稳定性、试验摘要和独立 SOFA 分析的层级
+      - 标题与定位主张支持表中的主张类型、实际增量和 supported/qualified 状态
+      - Required analyses 中未在详细方法或权威停止条件位置出现的执行与记录要求
+      - 所有科学内容、估计目标、数据角色、分析顺序、阈值和失败后果
+    content_to_remove_or_move:
+      - 从 Key techniques and implementation 删除对完整方法顺序的重复说明；保留该 H2，并把内容压缩为不重复方法的实现职责
+      - 从五条 Evidence chains 删除方法细节、阈值、限制和后果副本；保留该 H2 及五条链的输入—转换—输出—目标映射
+      - 从 Required analyses and evidence 删除已在方法和第 14 节权威定义的步骤、条件及后果；保留该 H2 中独有的分析与记录验收要求
+      - 从 Planned outputs 删除方法、贡献和限制复述；保留该 H2 中每项计划产物、内容范围和计划状态
+      - 从 Contribution and evidence ladder 删除方法与产物清单副本；保留该 H2 中从证据到有界贡献的解释
+      - 从 Title and positioning claim-support table 删除完整限制和方法复述；保留该 H2 及合同字段所需的逐主张审计
+    destination_if_moved: >-
+      独有信息只迁入其对应的强制 H2：方法信息归 Research design and methods，技术职责归 Key techniques，
+      链路映射归 Evidence chains，验收要求归 Required analyses，产物归 Expected outputs，贡献解释归
+      Contribution，主张审计归 Claim-Support；不得全部迁入单一替代表。
+    dependencies:
+      - NRP-001
+    acceptance_test: >-
+      结构 lint 仍确认 15 个 H2 与第三节五个 H3 完整；逐节只读时，Key techniques、Evidence chains、
+      Required analyses、Expected outputs、Contribution 和 Claim-Support 分别能回答实现职责、证据映射、
+      验收要求、计划产物、有界贡献和主张支持六个不同问题。任一被删内容的独有信息都能在对应强制 H2
+      或第 14 节权威位置找到一次；不存在用单一新表替代多个功能的情况，且阈值、数据角色、估计目标、
+      计划状态、支持状态和失败后果均未丢失或改变。
+  - action_id: NRP-003
+    addresses_findings:
+      - NAR-003
+    priority: major
+    dossier_locator:
+      section_heading: "Feasibility, resources, risks, alternatives, and stop conditions"
+      subsection_heading: "Authoritative limitations, feasibility findings, interpretation boundaries, alternatives, and stop conditions"
+      content_anchor: "本小节是全文关于当前可行性、限制、解释边界、替代方案和停止条件的唯一权威位置"
+    operation: consolidate
+    current_problem: >-
+      同一组阶段边界、非因果边界、研究定位边界和外部验证边界在唯一权威限制小节之外多次完整复述，
+      使局部章节反复承担防御性说明而非自身的主要阅读功能。
+    target_state: >-
+      每项边界有且只有一处完整权威表述；开篇和具体设计处只保留维持紧邻主张准确性所必需的短限定，
+      正面问题、意义、rationale 和贡献在一遍阅读中保持连续。
+    required_content_or_function: >-
+      逐项建立四类边界的权威归属：阶段 III 位于 24 个月最低交付之外且不能补足阶段 II；
+      观察性状态/治疗/测量关系、预测表现和试验访视组间差异不识别完整因果系统；当前不主张新算法、
+      数字孪生、控制或临床决策工具；不更新模型的外部验证是阶段 II 的主要跨库依据，再校准、观测层
+      更新和全模型重拟合具有不同解释。完整范围与后果集中在现有权威小节，方法处保留直接决定分析
+      顺序的规则，开篇仅保留界定研究身份所需的最短限定。
+    content_to_preserve:
+      - 四类边界的全部科学含义、适用范围、触发条件、替代方案和停止后果
+      - 标题和摘要中的条件性阶段 III 身份，以及定位段的有界正面贡献
+      - Rationale 中为解释设计选择所必需的因果边界
+      - Hospital-based cross-database validation 中不更新、再校准、观测层更新和全模型重拟合的实施顺序
+      - Conditional trial observation mapping 中进入试验分支所需的直接条件
+      - Authoritative limitations 小节中的完整可行性状态、解释边界和操作阈值表
+    content_to_remove_or_move:
+      - 将“阶段 III 不属于 24 个月最低交付且不能补足阶段 II”在摘要、工作包、证伪解释、贡献说明和最终边界中的完整重复合并；仅在开篇保留一次身份限定，在权威小节保留完整后果
+      - 将“预测或随机分组差异不等于完整因果动态系统”在摘要、significance、试验方法、解释和贡献位置的完整重复合并；仅保留与紧邻主张直接相连的短限定
+      - 将“不主张新算法、数字孪生、控制、临床决策或药物平台”在定位、最接近工作、主张支持表和科学边界中的重复合并为开篇的有界正面定位与权威小节的完整范围
+      - 将“不更新模型的外部验证不能由再校准或观测层更新替代”在方法、证伪标准、解释和停止表中的重复后果合并；实施顺序留在方法，完整解释后果留在权威小节
+    destination_if_moved: >-
+      完整边界与后果归入现有 Authoritative limitations, feasibility findings,
+      interpretation boundaries, alternatives, and stop conditions 小节；仅保留必要的开篇身份限定与局部设计规则
+    dependencies:
+      - NRP-002
+    acceptance_test: >-
+      对四类边界逐项检查：每项只有一个完整权威表述；权威小节之外的每次保留均能指出其直接限定的
+      相邻主张或设计选择，删除后确会改变该处含义；Title/summary、五段逻辑和统一贡献追踪表能先陈述
+      bounded positive claim，再引导读者到权威限制位置，且所有原有边界和停止后果仍可定位。

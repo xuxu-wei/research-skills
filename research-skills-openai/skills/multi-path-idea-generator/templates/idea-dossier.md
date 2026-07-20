@@ -1,10 +1,11 @@
 ---
 schema_version: research-idea.v3
-plugin_version:
+plugin_version: "<active plugin SemVer from the delegation brief>"
 artifact_id:
 workflow_id:
 idea_id:
 version_id: v001
+path: 03_ideas/nodes/<idea-id>/dossiers/idea-dossier-v001.md
 parent_idea_ids: []
 based_on: []
 source_skill: multi-path-idea-generator
@@ -24,7 +25,7 @@ frozen: true
 ## Title, summary, audience, and positioning
 
 - **Title:** <must match the H1 title>
-- **One-sentence complete-Idea summary:**
+- **One-sentence complete-Idea summary:** <state the central object or question, primary research approach or planned test, and positive planned contribution; use validation language only when the Idea includes validation; if a contingent downstream component exists, mention only its purpose and conditional status, without its decision tree or unexplained project labels>
 - **Primary audience:**
 - **Positioning and contribution frame:**
 
@@ -37,6 +38,26 @@ frozen: true
 - **Contribution and impact:**
 
 ## Background, current state, gap, significance, and rationale
+
+### Background
+
+<Establish the problem and necessary context at the target reader's knowledge level.>
+
+### Current state
+
+<State what is currently known or possible, with normal citations.>
+
+### Gap
+
+<State what existing knowledge or evidence cannot yet answer.>
+
+### Significance
+
+<Explain why closing that gap matters.>
+
+### Rationale
+
+<Explain why the proposed research design follows from the gap and significance.>
 
 ## Research question, objectives, and core hypothesis
 
@@ -56,7 +77,6 @@ frozen: true
 - **Method / analysis / processing:**
 - **Output:**
 - **Supports:**
-- **Limits and failure conditions:**
 
 ## Required analyses and evidence
 
@@ -66,9 +86,25 @@ frozen: true
 
 ## Title and positioning claim-support table
 
-| Title or positioning claim | Contribution frame / claim type | Existing implementation that supports it | Supporting evidence-chain output | Literature or existing-result basis | Actual increment, or `none` | Support status | Required qualifier |
-|---|---|---|---|---|---|---|---|
+| Title or positioning claim, written at its supported scope | Contribution frame in the dossier language | Existing implementation that supports it | Supporting evidence-chain output | Literature or existing-result basis | Actual increment, or a natural-language no-increment statement | Support status in the dossier language |
+|---|---|---|---|---|---|---|
 
 ## Feasibility, resources, risks, alternatives, and stop conditions
+
+### Feasibility and resources
+
+### Working assumptions (omit when none)
+
+For each unresolved specification: pending choice; already fixed content;
+decision point and allowed information; consequence if unresolved.
+
+### Limitations and boundary conditions (omit when none)
+
+### Risks, alternatives, and stop conditions
+
+Record only operational risk triggers, responses, and consequences not already
+covered by the Methods design logic or section 11 falsification criteria. Do not
+repeat design branches, analysis-specific stopping logic, complete limitations,
+or result interpretations here.
 
 ## References

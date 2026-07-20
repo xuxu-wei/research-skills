@@ -1,0 +1,137 @@
+schema_version: research-idea-narrative-repair-plan.v1
+plan_id: narrative-repair-plan-I01-001-r126
+assessment_id: narrative-assessment-I01-001-r126
+source_artifact:
+  artifact_id: idea-dossier-I01-001-v055
+  version: v055
+  path: tests/idea-narrative-forward-0.9.0-preview.3/one-pass-current/direct-final-current-v21/idea-dossier-v055.md
+decision: major_narrative_revision
+clarifications_required: []
+actions:
+  - action_id: NRP-001
+    addresses_findings:
+      - NAR-001
+    priority: major
+    dossier_locator:
+      section_heading: Research design and methods
+      subsection_heading: 试验观测映射和独立分析
+      content_anchor: '**共享前提。** 启动任何新访视结局分析前'
+    operation: consolidate
+    current_problem: >-
+      The dedicated methods subsection contains the appropriate complete trial-extension logic, but
+      eligibility, mapping, alternative analysis, stopping, and interpretation details are repeatedly
+      re-explained across the dossier, giving the contingent stage III work near-primary prominence.
+    target_state: >-
+      One authoritative methods subsection contains the complete stage III logic; every other required
+      section contains only the shortest statement needed for its own question, objective, work-package,
+      resource, evidence-chain, output, interpretation, contribution, claim-audit, limitation, or risk
+      function, with stage I–II remaining the visible main route.
+    required_content_or_function: >-
+      Retain a complete account of shared prerequisites, trial-specific anchor eligibility, external
+      fidelity checks, ordered visit outcomes, the stratified probability-index estimand, the independent
+      SOFA alternative, semantic stopping conditions, trial-specific missing-data handling, and
+      multiplicity in the methods authority. Retain brief role-specific stage III statements in the
+      primary question, objective 4, WP5, the trial evidence chain, planned outputs, and claim-support
+      functions.
+    content_to_preserve:
+      - The main identity: a 24-month stage I–II sepsis-centered candidate dynamic-system representation and planned cross-database test.
+      - Stage III begins only after stage II meets its conjunctive standard and never completes or alters stage II success.
+      - EXIT-SEP and XBJ-SCAP remain separate, conditional secondary analyses with verified authorization and trial semantics.
+      - The methods subsection's full mapping, independent-SOFA alternative, estimand, missingness, multiplicity, and stopping logic.
+      - Each required section's distinct question, objective, evidence-chain, output, interpretation, contribution, claim-audit, and risk function.
+    content_to_remove_or_move:
+      - Repeated multi-step explanations of trial eligibility outside `Research design and methods > 试验观测映射和独立分析`.
+      - Repeated descriptions outside that subsection of the mapping-fidelity branch, the independent SOFA branch, and their respective stopping rules.
+      - Repeated explanations outside that subsection that a trial result cannot validate the entire stage II representation, except the minimum statement required by a local interpretation or claim-audit function.
+      - Repeated lists of authorization, randomization, center, visit-timing, and survival-semantics requirements where the local section needs only a status, input, output, or consequence.
+    destination_if_moved: Research design and methods > 试验观测映射和独立分析
+    dependencies: []
+    acceptance_test: >-
+      A reader can follow the stage I–II route from question through outputs without entering stage III
+      operating detail; the complete stage III eligibility-to-analysis logic appears once in its methods
+      subsection; and every other occurrence can be matched to one distinct required section function
+      without restating the full eligibility, alternative, and interpretation sequence.
+  - action_id: NRP-002
+    addresses_findings:
+      - NAR-002
+    priority: major
+    dossier_locator:
+      section_heading: Feasibility, resources, risks, alternatives, and stop conditions
+      subsection_heading: Limitations and boundary conditions
+      content_anchor: '1. **资源、访问与团队状态：**'
+    operation: consolidate
+    current_problem: >-
+      The eleven-item limitations subsection is complete, but many of the same access, support,
+      isolation, interpretation, trial-semantics, and result-status boundaries recur elsewhere without
+      adding a new local reader function.
+    target_state: >-
+      Section 14 remains the sole complete limitations authority. Elsewhere, a boundary remains only
+      when omitting it would distort the immediately connected design, current-status, evidence-chain,
+      falsification, interpretation, or risk function, and every retained local boundary is concise and
+      self-contained rather than a pointer.
+    required_content_or_function: >-
+      Keep the complete limitations and assumptions in `Limitations and boundary conditions`; preserve
+      distinct current-resource facts in the resource-status table, operational eligibility and stopping
+      rules in methods, required evidence in evidence chains and analyses, falsification consequences in
+      their subsection, allowed and prohibited interpretations in the interpretation matrix, and concrete
+      risk triggers and responses in the risk table.
+    content_to_preserve:
+      - All eleven scientifically distinct limitations and boundary conditions in the authoritative subsection.
+      - Current versus planned resource and result status where the dossier reports what exists, what is unverified, and what must be confirmed.
+      - Local method eligibility, data-isolation, falsification, interpretation, and stopping rules that directly govern the adjacent analysis.
+      - The positive problem, significance, rationale, contribution, and bounded claim-support statements.
+      - All required H2 sections and all required evidence-chain fields.
+    content_to_remove_or_move:
+      - Repeated general cautions about unverified access, team commitments, or absent results when an adjacent section does not perform a distinct status or feasibility function.
+      - Repeated general cautions about test isolation and limited adaptation when an adjacent section does not define the corresponding method, evidence, interpretation, or risk consequence.
+      - Repeated noncausal and nondeployment disclaimers that add no distinct local interpretation or claim-audit function.
+      - Repeated trial-data and trial-semantics caveats already handled by NRP-001 or fully stated in the authoritative limitations subsection.
+      - Any residual sentence whose sole function is to direct the reader to section 14 rather than state a necessary local boundary.
+    destination_if_moved: Feasibility, resources, risks, alternatives, and stop conditions > Limitations and boundary conditions
+    dependencies:
+      - NRP-001
+    acceptance_test: >-
+      Each complete limitation appears once in section 14; every similar statement outside section 14
+      can be labeled as a necessary current-status fact, method rule, evidence requirement,
+      falsification consequence, interpretation boundary, or risk response; no outside statement merely
+      repeats a limitation, and no cross-reference or pointer replaces deleted limitation prose.
+  - action_id: NRP-003
+    addresses_findings:
+      - NAR-003
+    priority: minor
+    dossier_locator:
+      section_heading: Title, summary, audience, and positioning
+      subsection_heading: null
+      content_anchor: '**One-sentence complete-Idea summary:** 本研究计划在 24 个月内'
+    operation: replace
+    current_problem: >-
+      The one-sentence summary places the main aim inside a long sequence of evidence sources,
+      specialized constructs, validation modes, downstream eligibility, and interpretive qualifications.
+    target_state: >-
+      The sentence first exposes the sepsis-centered longitudinal study object, the main stage I–II
+      question, and the planned cross-database contribution, then retains only boundaries necessary to
+      identify the study; any indispensable cross-disciplinary construct is explained in plain language
+      at first use.
+    required_content_or_function: >-
+      Provide a one-pass account of what is being built, which disease-course intervals it covers, what
+      main evidence will test it, and what bounded contribution can result. Preserve the 24-month stage
+      I–II scope, the conditional and subordinate status of stage III, and the distinction between
+      predictive or generative evidence and causal claims.
+    content_to_preserve:
+      - The longitudinal sepsis-centered ICU study object spanning comparable at-risk, onset, post-onset, and outcome intervals.
+      - Knowledge constraints and uncertainty awareness as identity-defining properties of the candidate representation.
+      - Simulation recovery and untouched cross-database testing as the main evidence route.
+      - The conditional, subordinate trial extension and the noncausal evidence boundary.
+    content_to_remove_or_move:
+      - The current nested ordering that inserts all evidence sources and contingencies before completing the positive aim.
+      - Implementation-level detail that is already explained in the structured abstract and methods.
+      - Any specialized label whose function cannot be understood from the revised sentence or its immediate first-use explanation.
+    destination_if_moved: null
+    dependencies:
+      - NRP-001
+      - NRP-002
+    acceptance_test: >-
+      A reader from any declared audience can state the study object, main stage I–II question, planned
+      evidence route, and bounded contribution after one reading of the single sentence; the sentence
+      still preserves every identity-defining scope boundary and does not introduce an unexplained
+      cross-disciplinary concept essential to that account.

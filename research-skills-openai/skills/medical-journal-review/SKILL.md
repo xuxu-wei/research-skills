@@ -13,9 +13,13 @@ The substantive rigor review is medical-domain work. A requested probability ass
 ## Independent Execution Contract
 
 - Run only in a fresh independent subagent or delegated thread, never in the context that generated, drafted, or revised the artifact.
-- Receive frozen artifact IDs, paths, versions, and digests. Treat inputs as read-only and write only this review report.
+- Receive artifact IDs, paths, versions, and digests as applicable;
+  Idea matching uses `{artifact_id, version, path}` without a required digest.
+  Treat inputs as read-only and write only this review report.
 - Do not edit, rewrite, polish, repair, or modify the reviewed design, protocol, proposal, manuscript, cover letter, tables, figures, or supplements.
 - Do not use parent hidden reasoning, expected conclusions, prior reviewer outputs, or prior scores. Use only frozen allowed inputs and the declared rubric.
+- Idea matching must not read an evaluator report or receive its scores, gates,
+  decision, findings, or repairs; require a clean candidate brief.
 - Report exact files read, sections reviewed, missing materials, scope limits, and reviewer instance ID.
 - If a fresh subagent is unavailable, return `independent_review_pending` with a self-contained continuation brief and stop; never fall back to inline review.
 
@@ -28,6 +32,8 @@ Accept the available subset of:
 - data source, sample size, protocol/SAP, analysis plan, and results;
 - manuscript, Perspective, cover letter, tables, figures, appendices, and supplements;
 - target outlet, article type, supplied benchmark facts, and frozen artifact identity.
+- for Idea matching, one current dossier logical reference and one matching
+  embedded or file-backed `research-idea-journal-candidate-brief.v1`.
 
 When a manuscript cites supplementary material, inspect supplied task files and the artifact manifest. Do not infer association from upload proximity or search product caches; verify title, author, identifier, or manifest linkage. Distinguish what can and cannot be judged when inputs are incomplete.
 
@@ -39,8 +45,17 @@ Choose and record one route:
 - **Editorial review**: importance, gap, claim support, completeness, fit, and revision priority. Load `references/12-step-editorial-review.md`.
 - **Statistical review**: estimand, model–data fit, missingness, multiplicity, uncertainty, validation, sensitivity, and interpretation. Load `references/bmj-statistical-review-standards.md`.
 - **Cover-letter-only review**: editorial triage case, source-bounded claims, outlet fit, and limitations visible from the letter alone. Do not infer manuscript quality from unavailable material.
+- **Idea journal-match editorial review**: confirm, reject, or replace score-free
+  candidates under `references/idea-journal-match-editorial-route.md`; do not
+  load the 12-step or publication-probability frameworks.
 
 ## Workflow
+
+For `idea_journal_match_editorial_review`, follow its dedicated reference and
+template, return its decision, and stop without scoring the Idea or estimating
+publication probability.
+
+For every other route, continue with the established workflow:
 
 1. Record frozen inputs, route, target outlet, article type, requested assessment scope, and limitations.
 2. Identify the study and claim type plus the decision the evidence is meant to support.
@@ -61,6 +76,13 @@ Choose and record one route:
 - `redesign_required`
 - `not_reviewable_with_current_materials`
 - `fatal_flaw`
+
+The Idea journal-match route instead returns exactly one of:
+
+- `journal_candidates_confirmed`
+- `journal_candidates_revised`
+- `no_supported_journal_candidate`
+- `not_reviewable_with_current_materials`
 
 ## Report Contract
 
@@ -92,7 +114,8 @@ publication_probability_assessment: null | object
 unresolved_issues:
 ```
 
-The optional object must follow the conditional probability contract. Its absence never creates a separate workflow state.
+The optional object follows the conditional probability contract. Its absence
+never creates a separate workflow state.
 
 ## Boundaries
 
@@ -102,12 +125,16 @@ The optional object must follow the conditional probability contract. Its absenc
 - Do not present observational or predictive findings as causal, or method novelty as proof of importance.
 - Do not let a probability estimate override fatal, blocking, stale-input, or reviewer-isolation gates.
 - Preserve dissent, uncertainty, missing evidence, scope limits, and fatal flaws.
+- Evaluator-supplied candidates have no privileged status and reveal no hidden
+  evaluation.
 
 ## Verification
 
 - Review ran in a fresh independent subagent against frozen reported inputs; all files read are listed and source artifacts are unchanged.
 - Study and claim type, checked supplements, fatal findings, scope limits, and traceable recommendations are visible.
 - When probability is assessed, it remains in this report, scope and benchmark status are explicit, Search sources record URL/date/type/applicability, stage and overall estimates are coherent, and unsupported cases use `not_estimable`.
+- Idea matching binds the dossier and clean brief, separates URLs from files,
+  hides evaluator output, and disposes every candidate.
 
 ## Conditional Resources
 
@@ -115,3 +142,7 @@ The optional object must follow the conditional probability contract. Its absenc
 - Read `references/bmj-statistical-review-standards.md` only for a statistical route.
 - Read `references/publication-probability-assessment.md` only when producing or validating the optional probability block.
 - Use `templates/review-report.md` only when writing the review report.
+- Read `references/idea-journal-match-editorial-route.md` only for
+  `idea_journal_match_editorial_review`.
+- Use `templates/idea-journal-match-review.md` only for
+  `idea_journal_match_editorial_review`.

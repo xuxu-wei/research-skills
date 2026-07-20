@@ -1,0 +1,435 @@
+schema_version: research-idea-editorial-repair-writer-brief.v1
+brief_id: editorial-repair-writer-brief-I01-001-r102
+workflow_id: RID-SEPSIS-CSM-20260717-001
+round_id: r102
+active_plugin_version: 0.9.0-preview.3
+role: "Editorial-only complete-dossier repair; do not review, evaluate, rank, or change science."
+
+source_artifact:
+  artifact_id: idea-dossier-I01-001-v003
+  version: v003
+  path: tests/idea-test-0.9.0-preview.1/0.9.0-preview.1/03_ideas/nodes/I01-001/dossiers/idea-dossier-v003.md
+protected_content_register:
+  register_id: protected-content-register-I01-001-v004-r004
+  version: r004
+  path: tests/idea-narrative-forward-0.9.0-preview.3/run-001/inputs/protected-content-register-v004.yaml
+source_review_binding:
+  narrative_assessment:
+    artifact_id: narrative-assessment-I01-001-r079
+    version: r079
+    path: tests/idea-narrative-forward-0.9.0-preview.3/one-pass-current/baseline-current/narrative-assessment-r079.md
+  narrative_repair_plan:
+    artifact_id: narrative-repair-plan-I01-001-r079
+    version: r079
+    path: tests/idea-narrative-forward-0.9.0-preview.3/one-pass-current/baseline-current/narrative-repair-plan-r079.yaml
+  language_assessment:
+    artifact_id: language-assessment-r101
+    version: baseline-current-r101
+    path: tests/idea-narrative-forward-0.9.0-preview.3/one-pass-current/baseline-current/language-assessment-r101.md
+
+identity_anchor_verbatim_copy:
+  primary_research_question: "can a knowledge-constrained, uncertainty-aware dynamic system representation of ICU patients cover the sepsis-centered pre-onset, onset, post-onset, and outcome continuum, demonstrate cross-database state/structure validity, and then test limited randomized intervention perturbations without conflating prediction with causality?"
+  primary_objective: "construct and validate the sepsis complex-system model, with stage II completed within 24 months."
+  study_object: "the longitudinal sepsis-centered ICU patient system, including comparable at-risk non-onset intervals and post-onset trajectories."
+  core_data_or_evidence_base: "literature/expert priors; longitudinal public ICU data; conditionally available EXIT-SEP and XBJ-SCAP individual-level RCT data."
+  primary_unit_of_inference: "patient-time state and state transition, with patient and hospital clustering respected."
+
+included_repair_item_ids:
+  - NRP-001
+  - NRP-002
+  - NRP-003
+  - NRP-004
+  - NRP-005
+  - LANG-R101-01
+  - LANG-R101-02
+  - LANG-R101-03
+  - LANG-R101-04
+omitted_reported_nonblocking_findings: []
+included_nonblocking_finding_rationale:
+  NAR-005: "Included through NRP-005 because reproducible implementation records are part of the concentrated repair."
+  LANG-R101-02: "Included because inconsistent validation and update names affect the primary evidence path."
+  LANG-R101-03: "Included because project labels control scientific criteria and negative-result outputs."
+  LANG-R101-04: "Included as a bounded replacement of reader-facing internal status language."
+
+writer_access:
+  allowed_reads:
+    - tests/idea-test-0.9.0-preview.1/0.9.0-preview.1/03_ideas/nodes/I01-001/dossiers/idea-dossier-v003.md
+    - tests/idea-narrative-forward-0.9.0-preview.3/one-pass-current/baseline-current/editorial-repair-writer-brief-r102.yaml
+    - tests/idea-narrative-forward-0.9.0-preview.3/run-001/inputs/protected-content-register-v004.yaml
+  forbidden_reads:
+    - Any narrative or language assessment, assessor report, reviewer report, or assessor repair plan.
+    - Any other revision plan, prior dossier, revision delta, or history artifact.
+    - Any methodology preflight or preflight report.
+    - Any evaluation report, score, decision, portfolio, workflow state, or hidden parent context.
+  allowed_writes:
+    complete_dossier:
+      artifact_id: idea-dossier-I01-001-v050
+      version: v050
+      path: tests/idea-narrative-forward-0.9.0-preview.3/one-pass-current/direct-final-current-v16/idea-dossier-v050.md
+      change_type: editorial_repair
+    revision_delta:
+      artifact_id: revision-delta-I01-001-v003-to-v050
+      version: v003-to-v050
+      path: tests/idea-narrative-forward-0.9.0-preview.3/one-pass-current/direct-final-current-v16/revision-delta-v003-to-v050.md
+      change_type: editorial_repair_delta
+
+overlap_dispositions:
+  - finding_ids: [NRP-001, NRP-002, NRP-003, NRP-004, NRP-005, LANG-R101-01, LANG-R101-02, LANG-R101-03, LANG-R101-04]
+    disposition: >-
+      Narrative actions own section function, order, and placement. Language
+      actions own direct scientific wording, first-use definitions, modifier
+      attachment, and concordance inside the permitted placement. When the
+      narrative plan removes a technical role from reader entry, satisfy the
+      language finding by deletion there and direct definition at the first
+      permitted section-7 occurrence; do not force technical detail back into
+      the title or summary. Section 14 alone owns complete limitations and
+      assumptions; section 7 owns design logic and section 11 owns falsification
+      and result-dependent interpretation.
+unresolved_overlaps: []
+all_overlaps_resolved: true
+
+normalized_repair_actions:
+  - repair_item_id: NRP-001
+    source_item_ids: [NRP-001, NAR-001]
+    addresses_finding_ids: [NAR-001]
+    locator: "Section 3: Background, current state, gap, significance, and rationale"
+    operation: split
+    problem: >-
+      Five reasoning functions are mixed; the gap is mainly an absent-combination
+      claim, significance is implicit, and technical conditions substitute for rationale.
+    target: >-
+      Keep the H2 and create the five nonempty H3s in order. Gap states the
+      unanswered whole-course and cross-database evidence problem; Significance
+      states why answering it matters; Rationale connects that problem to the
+      stage-I/II design without importing technical thresholds.
+    required_function_or_term: >-
+      Each H3 performs one function and is understandable without later
+      definitions. Use direct scientific descriptions, not project labels.
+    content_to_preserve:
+      protected_ids: [PCR-001, PCR-003, PCR-004, PCR-005, PCR-009, PCR-011]
+    delete_move_disposition: >-
+      Move closest-work positioning to section 12 and computational criteria to
+      section 7. Omit the later trial detail except one purpose-level relation.
+    destination: ["Section 7", "Section 12"]
+    dependencies: []
+    acceptance_test: >-
+      All five H3s are nonempty and independently summarizable; Gap is not an
+      absent-combination claim, Significance names a scientific consequence, and
+      Rationale supplies a concise gap-to-design bridge.
+
+  - repair_item_id: NRP-002
+    source_item_ids: [NRP-002, NAR-002, NAR-003]
+    addresses_finding_ids: [NAR-002, NAR-003]
+    locator: "Sections 1-2: H1, Title, one-sentence summary, and structured abstract"
+    operation: replace
+    problem: >-
+      Reader entry gives a conditional extension, internal labels, thresholds,
+      alternatives, and defensive boundaries the same weight as the main study.
+    target: >-
+      Lead with the whole-course scientific object, stage-I/II objective, two
+      primary tasks, simulation-based recovery checks, independent external
+      validation, prospective value, and 24-month horizon. Mention only that
+      separate trial-specific secondary analyses may follow when their scientific
+      prerequisites are met.
+    required_function_or_term: >-
+      H1 and Title are identical. Keep one summary sentence. Omit trial names,
+      visit days, endpoint construction, branch labels, eligibility trees, and
+      complete limitation lists. Preserve the prospective goal of high-level
+      papers without presenting achieved prestige.
+    content_to_preserve:
+      protected_ids: [PCR-001, PCR-002, PCR-003, PCR-006, PCR-007, PCR-009, PCR-011]
+    delete_move_disposition: >-
+      Move trial quantities, ranking, eligibility, alternatives, and complete
+      interpretation boundaries to section 7; do not replace them with new short labels.
+    destination: "Section 7 conditional trial-analysis authority"
+    dependencies: [NRP-003]
+    acceptance_test: >-
+      A target reader can restate the problem, main objective, value, and design
+      from sections 1-2. The later trial work is subordinate, the summary is one
+      sentence, and no term requires a later lookup.
+
+  - repair_item_id: NRP-003
+    source_item_ids: [NRP-003, NAR-003]
+    addresses_finding_ids: [NAR-003]
+    locator: "Section 7: conditional trial-specific secondary analyses"
+    operation: consolidate
+    problem: >-
+      Trial eligibility, mapping, comparison, alternative, stopping, and
+      interpretation logic is repeated across many dossier functions.
+    target: >-
+      Make one section-7 subsection the sole technical authority. State shared
+      prerequisites first, then mutually exclusive mapping-based and independent
+      clinical-state routes, followed by the condition that stops a named outcome.
+      Analyse the trials separately.
+    required_function_or_term: >-
+      Preserve every R0/R1 requirement, anchor and frozen-equation definition,
+      fidelity criterion, randomized population, death/discharge/missingness rule,
+      multiplicity rule, route interpretation, and the inability of later work to
+      replace stage-II evidence. Name roles by direct scientific descriptions.
+    content_to_preserve:
+      protected_ids: [PCR-005, PCR-006, PCR-007, PCR-008, PCR-010, PCR-011, PCR-012]
+    delete_move_disposition: >-
+      Delete the repeated full route elsewhere. Retain only a section's necessary
+      input, output, audit, or claim function, with no pointer to section 14.
+    destination: "This section-7 subsection only"
+    dependencies: []
+    acceptance_test: >-
+      The full prerequisites, two routes, stopping condition, and permitted
+      interpretations occur continuously once; no route-specific condition is
+      promoted to a shared prerequisite and no other section repeats the tree.
+
+  - repair_item_id: NRP-004
+    source_item_ids: [NRP-004, NAR-004]
+    addresses_finding_ids: [NAR-004]
+    locator: "Section 14 and every limitation, assumption, or unsupported-claim occurrence"
+    operation: consolidate
+    problem: >-
+      Complete limitation families and failure consequences recur in the opening,
+      reasoning, evidence chains, interpretations, contribution, claims, and risks.
+    target: >-
+      Section 14 is the only complete authority for resources, working assumptions,
+      limitations, unsupported claims, and operational risks. Section 7 retains
+      design eligibility and alternatives; section 11 retains falsification and
+      result-dependent interpretation.
+    required_function_or_term: >-
+      Outside section 14, omit limitations entirely unless one minimal,
+      self-contained boundary is indispensable to the immediately adjacent
+      estimand or interpretation. Narrative continuity takes priority. Never add
+      a pointer or cross-reference to section 14.
+    content_to_preserve:
+      protected_ids: [PCR-004, PCR-005, PCR-006, PCR-007, PCR-008, PCR-009, PCR-010, PCR-011, PCR-012]
+    delete_move_disposition: >-
+      Delete every evidence-chain limits field and repeated defensive list. Keep
+      distinct methods, analyses, outputs, claim audits, and risks at their own authorities.
+    destination: ["Section 14", "Section 7 for design logic", "Section 11 for falsification and interpretations"]
+    dependencies: [NRP-003]
+    acceptance_test: >-
+      Section 14 contains each complete limitation, assumption, unsupported claim,
+      and operational consequence once. Other sections contain no repetition and
+      no section-14 pointer; any exception demonstrably advances local reasoning.
+
+  - repair_item_id: NRP-005
+    source_item_ids: [NRP-005, NAR-005]
+    addresses_finding_ids: [NAR-005]
+    locator: "Section 8: Key techniques and implementation"
+    operation: replace
+    problem: >-
+      Tool and control metaphors largely rename section-7 rules without identifying
+      reproducible inputs, computations, outputs, and review records.
+    target: >-
+      Organize concrete reproducibility records for clocks, variables and units,
+      cohorts and states, model inputs and outputs, simulations, hospital splits,
+      trial anchors and mappings, uncertainty, and negative controls.
+    required_function_or_term: >-
+      Each item states fields or constructs, computation, output record, audit use,
+      and dependency. Use scientific functions rather than project metaphors.
+    content_to_preserve:
+      protected_ids: [PCR-004, PCR-005, PCR-006, PCR-007, PCR-008, PCR-011]
+    delete_move_disposition: >-
+      Replace metaphorical headings and delete threshold/rationale repetition;
+      leave scientific reasoning in section 7.
+    destination: "Section 7 for method rationale only"
+    dependencies: [NRP-003, NRP-004]
+    acceptance_test: >-
+      A researcher can identify inputs, computation, output record, and audit
+      purpose for each item; no item merely renames section 7 or repeats limitations.
+
+  - repair_item_id: LANG-R101-01
+    source_item_ids: [LANG-R101-01]
+    addresses_finding_ids: [LANG-R101-01]
+    locator: "Reader entry and every section-7/11 occurrence of the trial endpoint, randomized comparison, and independent outcome"
+    operation: split
+    problem: >-
+      Compact and competing labels conflate the mapped one-dimensional quantity,
+      the visit-level ranked outcome, the randomized-group comparison, and the
+      independent death/discharge/SOFA outcome.
+    target: >-
+      Reader entry contains only a high-level conditional purpose. At the first
+      permitted section-7 occurrence, separately define: the one-dimensional
+      quantity computed from measured common anchors through the frozen stage-II
+      observation equation; the visit-level hierarchical outcome containing that
+      quantity; the randomized-group probabilistic comparison; and the independent
+      trial-specific death/discharge/SOFA hierarchical clinical-state outcome.
+    required_function_or_term: >-
+      Use one direct Chinese name per scientific role after definition. Introduce
+      P_obs only with its formula. Do not use generic projection, perturbation,
+      death-ranked, fallback, or an English project label as the role name.
+    content_to_preserve:
+      protected_ids: [PCR-005, PCR-011, PCR-012]
+    delete_move_disposition: >-
+      Remove the technical roles from title/summary under NRP-002. In section 7,
+      replace every competing form without changing mapping equations, visit days,
+      ranking, estimand, populations, missingness, or route conditions.
+    destination: "Full definitions in section 7; result-specific interpretation in section 11"
+    dependencies: [NRP-002, NRP-003]
+    acceptance_test: >-
+      Reader entry is understandable without the technical route. First section-7
+      use identifies measured variables, mapping, participant ranking, randomized
+      comparison, and independent outcome composition. Whole-text concordance finds
+      one defined name per role and no unexplained projection/perturbation/fallback label.
+
+  - repair_item_id: LANG-R101-02
+    source_item_ids: [LANG-R101-02]
+    addresses_finding_ids: [LANG-R101-02]
+    locator: "Whole dossier: external validation, allowed updating, and forecast scoring"
+    operation: split
+    problem: >-
+      Zero-update variants, recalibration, observation-layer updating, full
+      refitting, and proper score terminology obscure which parameters are frozen
+      and which scoring rule is used.
+    target: >-
+      Define the principal operation as applying the frozen model to external data
+      without re-estimating any parameter. Separately describe outcome recalibration,
+      re-estimation of only the observation equation, and full model refitting.
+      Name the applicable proper scoring rule and its Brier or CRPS measure.
+    required_function_or_term: >-
+      Prefer direct Chinese descriptions. If a short form is retained after a full
+      definition, use exactly one and do not mix zero-update English variants.
+      Replace `proper score` with `适当评分规则` or `严格适当评分规则` as warranted.
+    content_to_preserve:
+      protected_ids: [PCR-004, PCR-006, PCR-007, PCR-009, PCR-010]
+    delete_move_disposition: >-
+      Replace all competing forms while preserving hospital-prioritized splitting,
+      isolated final evaluation, update order, thresholds, and the rule that an
+      updated model cannot replace failure of the frozen model.
+    destination: "Placement follows section function; complete operations in section 7"
+    dependencies: [NRP-001, NRP-002, NRP-003, NRP-005]
+    acceptance_test: >-
+      Whole-text concordance finds one direct term for validation without parameter
+      updating, distinct names for each allowed update, no unexplained English
+      variant, and a proper scoring rule or named Brier/CRPS measure at every criterion.
+
+  - repair_item_id: LANG-R101-03
+    source_item_ids: [LANG-R101-03]
+    addresses_finding_ids: [LANG-R101-03]
+    locator: "Every data-support, simulation-error, failure-output, and consequence occurrence"
+    operation: replace
+    problem: >-
+      G1, false-confidence labels, and generic failure-figure names conceal the
+      measured support, error, criterion, displayed result, and consequence.
+    target: >-
+      Directly state the database sample/event/transition/hospital/anchor support
+      requirements; separately state the null-edge or misspecified-simulation error
+      quantity and decision rule; name every negative-result table or figure by the
+      failed object, criterion, stratification, and scientific consequence.
+    required_function_or_term: >-
+      Do not create a replacement audit/gate/error/failure shorthand. Each
+      condition-consequence statement names actor, operation, object or target,
+      criterion, retained output, and claim consequence where applicable.
+    content_to_preserve:
+      protected_ids: [PCR-004, PCR-006, PCR-007, PCR-008, PCR-009, PCR-010, PCR-011, PCR-012]
+    delete_move_disposition: >-
+      Replace every G1/false-confidence/failure-output competing form without
+      changing thresholds, dates, order, stopping consequences, negative-result
+      publication, or distinctions among failure mechanisms.
+    destination: "Scientific authority appropriate to each criterion or output"
+    dependencies: [NRP-002, NRP-003, NRP-004, NRP-005]
+    acceptance_test: >-
+      First use directly gives the measured quantity and criterion; every negative
+      output names what did not meet which standard and what follows. No generic
+      observability audit, gate, false-confidence, failure-figure, stop, or fallback
+      label carries the scientific meaning by itself.
+
+  - repair_item_id: LANG-R101-04
+    source_item_ids: [LANG-R101-04]
+    addresses_finding_ids: [LANG-R101-04]
+    locator: "Reader-facing prose and free-form table cells only"
+    operation: replace
+    problem: >-
+      English project labels and workflow-state tokens interrupt the Chinese
+      scientific reading path and require knowledge of internal state semantics.
+    target: >-
+      Use natural Chinese descriptions of evidence status, scope qualification,
+      stability, inability to interpret, preserved identity, or the need for a
+      substantively new Idea. Retain English only for standard technical terms
+      mapped at first use.
+    required_function_or_term: >-
+      Keep contract-fixed frontmatter, headings, field labels, formula symbols,
+      reference titles, and Claim-Support scaffolding unchanged.
+    content_to_preserve:
+      protected_ids: [PCR-004, PCR-009, PCR-010, PCR-011, PCR-012]
+    delete_move_disposition: >-
+      Replace only reader-facing free text and cells; do not alter the underlying
+      evidence status, identity boundary, stopping consequence, or machine metadata.
+    destination: null
+    dependencies: [NRP-004, NRP-005]
+    acceptance_test: >-
+      Reader-facing text can be understood without workflow-state vocabulary,
+      while each evidential distinction is preserved and required machine
+      scaffolding remains unchanged.
+
+mandatory_whole_dossier_checks:
+  not_new_findings: true
+  checks:
+    - check: "Verbatim identity-anchor equality"
+      instruction: "Copy all five identity_anchor scalars exactly; do not translate, paraphrase, or normalize them."
+      acceptance: "All five parsed output scalars equal the brief scalars."
+    - check: "Protected-content item audit"
+      instruction: >-
+        Reopen every PCR-001 through PCR-012 source locator and compare every
+        enumerated commitment with revised text; headings and delta claims are not evidence.
+      acceptance: >-
+        Each ID has revised locator evidence; no status, threshold, sequence,
+        branch, boundary, or claim strength changed.
+    - check: "Section-14 single authority"
+      instruction: >-
+        Put complete limitations, assumptions, unsupported claims, and operational
+        risk consequences only in section 14. Elsewhere omit them unless one minimal
+        boundary is indispensable to immediate scientific interpretation.
+      acceptance: >-
+        No repeated limitation or section-14 pointer; section 7 alone owns design
+        logic and section 11 alone owns falsification and result interpretation.
+    - check: "Reader-entry and scientific-role completeness"
+      instruction: >-
+        Inspect actor, operation, object or target, criterion, and consequence for
+        each reader-entry role and every validation, update, recovery, failure,
+        negative-result, stopping, endpoint, and randomized-comparison statement.
+      acceptance: >-
+        Every role is direct or defined at first permitted use; broad operations
+        name their model or mapping and target quantity in the same local context.
+    - check: "No unapproved reader-facing short form"
+      instruction: >-
+        Compare source and revision. Do not introduce a new compact reader-facing
+        label, metaphor, acronym, or adjective-plus-candidate name unless this brief
+        explicitly authorizes its exact form. Direct description is the default.
+      acceptance: >-
+        Every new reader-facing short form is either absent or explicitly authorized,
+        defined at first use, and used for one role only.
+    - check: "Terminology concordance"
+      instruction: >-
+        Scan every competing form listed by LANG-R101-01 through LANG-R101-04 and
+        recheck referent, modifier attachment, first use, and all later occurrences.
+      acceptance: >-
+        One name per role; all competing forms are removed or reclassified; no
+        replacement shorthand recreates the same comprehension burden.
+    - check: "Prospective publication aim and evidence status"
+      instruction: >-
+        Preserve the stated goal of one or more high-level papers as a future aim;
+        keep all models, validation, analyses, and contributions prospective.
+      acceptance: >-
+        The publication goal is locatable, work is not reduced to prediction, and
+        no completed result or achieved prestige is implied.
+    - check: "Complete-dossier structure and concordance"
+      instruction: >-
+        Preserve 15 H2s, five section-3 H3s, H1/Title equality, four-field evidence
+        chains, tables, citations, references, thresholds, and core-role naming.
+      acceptance: >-
+        Lint and concordance pass; references resolve; every repair and PCR ID has
+        text-grounded delta evidence.
+
+execution_and_handoff:
+  single_complete_target_dossier: true
+  partial_artifacts_forbidden: true
+  section_passes:
+    - "同一位 writer 完成 sections 1-4"
+    - "同一位 writer 完成 sections 5-11"
+    - "同一位 writer 完成 sections 12-14"
+    - "同一位 writer 完成 references and whole-dossier concordance"
+  delta_after_dossier_freeze_only: true
+  delta_requirements:
+    - "Map all 9 repair IDs to revised locator, operation, and text-grounded acceptance evidence."
+    - "Map PCR-001 through PCR-012 to revised locator(s) and item-level evidence without copying protected prose."
+    - "Record each retained reader-facing short form, first use, role, and authorization; state none if no new short form is retained."
+    - "Record source-to-revision competing-form checks for LANG-R101-01 through LANG-R101-04."
+    - "Write the delta only after dossier freeze, whole-text scan, and lint; any later dossier edit invalidates it."
+    - "If science must change or protected content cannot remain, mark unresolved and stop; do not guess."

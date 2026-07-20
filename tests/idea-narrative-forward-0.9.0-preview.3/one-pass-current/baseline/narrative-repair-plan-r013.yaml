@@ -1,0 +1,159 @@
+schema_version: research-idea-narrative-repair-plan.v1
+plan_id: narrative-repair-plan-I01-001-r013
+assessment_id: narrative-assessment-I01-001-r013
+source_artifact:
+  artifact_id: idea-dossier-I01-001-v003
+  version: v003
+  path: tests/idea-test-0.9.0-preview.1/0.9.0-preview.1/03_ideas/nodes/I01-001/dossiers/idea-dossier-v003.md
+decision: major_narrative_revision
+clarifications_required: []
+actions:
+  - action_id: NRP-001
+    addresses_findings:
+      - NAR-001
+    priority: major
+    dossier_locator:
+      section_heading: "Background, current state, gap, significance, and rationale"
+      subsection_heading: null
+      content_anchor: "从“脓毒症随时间形成”到“任何结果均不支持无条件国际临床推广”的五段正文"
+    operation: split
+    current_problem: >-
+      五项论证功能以连续段落混合呈现，科学意义没有明确承担者，现状、缺口、贡献定位和设计理由之间缺少可见连接。
+    target_state: >-
+      本节依次包含 Background、Current state、Gap、Significance 和 Rationale 五个 H3 小节，每节先完成标题承诺的功能；读者无需从方法或贡献章节反推研究意义和设计理由。
+    required_content_or_function: >-
+      Background 界定脓毒症时间性与标签问题；Current state 概括现有纵向、跨库与试验近邻能回答什么；Gap 明确它们尚不能共同回答什么；Significance 说明弥合该缺口对跨学科读者判断全病程证据与研究推进的价值；Rationale 将双时钟、状态—行动—观察分离、绝对恢复、未触碰外部检验和条件性试验扩展逐项回连到上述缺口。
+    content_to_preserve:
+      - Sepsis-3 操作基础、标签时间差异及禁止未来信息回填的内容
+      - 公共 ICU 数据库的跨中心、年代、采样和接口差异
+      - 各单项模块已有近邻、完整组合仅是有界检索下条件性缺口的定位
+      - 观察性数据不能自动识别治疗作用及测量过程携带政策信息的边界
+      - EXIT-SEP 与 XBJ-SCAP 的稀疏性、投影条件和独立 SOFA 降级分支
+      - SSC 2026 所限定的临床推广边界
+    content_to_remove_or_move: []
+    destination_if_moved: null
+    dependencies: []
+    acceptance_test: >-
+      第 3 节保留并明确显示五个 H3 功能；每个 H3 至少有一个非空段落且不以邻近事实清单替代；Significance 明确说明缺口为何值得解决，Rationale 中每项核心设计选择都能回指一个已陈述的缺口，且没有新增科学主张。
+
+  - action_id: NRP-002
+    addresses_findings:
+      - NAR-002
+      - NAR-004
+    priority: major
+    dossier_locator:
+      section_heading: "Title, summary, audience, and positioning"
+      subsection_heading: null
+      content_anchor: "Title、One-sentence complete-Idea summary 与 Positioning and contribution frame 三个条目"
+    operation: replace
+    current_problem: >-
+      开篇把阶段 I–II 核心研究与 24 个月后的条件性 RCT 次要分析并列，并在读者理解研究身份之前压入多个尚未解释的门槛、投影和降级术语。
+    target_state: >-
+      开篇先用跨学科可理解的语言稳定呈现 24 个月核心研究问题、主要证据路线和贡献，再以独立的后续扩展句说明阶段 III 的依赖关系；标题、摘要和定位的核心元素一致。
+    required_content_or_function: >-
+      标题和首个摘要句以全病程候选表征及计划性跨数据库检验为主轴；后续句再说明试验扩展只在阶段 II 完成且语义与投影条件成立时启动，不属于最低交付，也不补足阶段 II 失败。开篇需要出现的技术概念须在首次使用时给出简明功能性解释。
+    content_to_preserve:
+      - 24 个月阶段 I–II 的时间边界
+      - 发病前、首次发病、发病后和结局连续体
+      - 知识约束、不确定性感知、绝对恢复与未触碰跨数据库检验
+      - EXIT-SEP D7 与 XBJ-SCAP D8 分开分析、投影通过与独立 SOFA 失败分支
+      - 不支持真实因果网络、连续动力学、控制或数字孪生的边界
+      - integration、validation、benchmark/resource 的条件性贡献定位
+    content_to_remove_or_move:
+      - 当前标题中使阶段 III 与 24 个月核心研究并列的冒号后结构
+      - 当前单句摘要中把阶段 I–II、阶段 III、失败分支和全部否定性边界压入同一句的排列
+      - Positioning 条目中在核心贡献尚未稳定前展开的完整条件清单
+    destination_if_moved: >-
+      同一节内，在核心研究摘要和定位之后设置独立的“24 个月后条件性扩展”句或条目；完整投影门、降级规则和解释边界保留到 Research design and methods 及第 14 节。
+    dependencies:
+      - NRP-001
+    acceptance_test: >-
+      只读本节即可用一句话识别阶段 I–II 的核心问题、主要设计与贡献；阶段 III 被明确标示为后续且有条件的扩展；标题、摘要、定位三处不再给予其与核心研究相同的叙事权重；首次出现的必要概念无需查阅后文才能理解其功能。
+
+  - action_id: NRP-003
+    addresses_findings:
+      - NAR-002
+    priority: major
+    dossier_locator:
+      section_heading: "Research question, objectives, and core hypothesis"
+      subsection_heading: "Primary research question"
+      content_anchor: "主研究问题的三个编号分句及 Objectives 的第四项"
+    operation: split
+    current_problem: >-
+      单一主问题把阶段 I–II 的表征与跨库检验，同依赖阶段 II 且位于 24 个月后的试验扩展合并为一个同层级问题；目标列表虽给出条件，却没有改变这种层级印象。
+    target_state: >-
+      主问题先完整表达阶段 I–II 的研究对象、连续体和跨数据库检验；随后以明确标注的条件性扩展问题或段落承接 RCT 分支，Objectives 保持四项内容但清楚标示前三项属于最低交付、第四项属于阶段 III。
+    required_content_or_function: >-
+      核心问题须与标题、摘要、核心假设和阶段 II 成功定义使用兼容的核心元素；试验问题须写明其依赖阶段 II、独立失败分支及不参与阶段 II 成功判定的关系。
+    content_to_preserve:
+      - 知识约束、不确定性感知以及不混淆预测与因果的研究边界
+      - 发病前、首次发病、发病后和结局连续体
+      - 医院间与数据库间的患者状态和候选结构检验
+      - 四项目标的全部科学内容与顺序依赖
+      - 冻结投影成立时的有限随机化扰动和失败时的独立 SOFA 再分析
+    content_to_remove_or_move: []
+    destination_if_moved: null
+    dependencies:
+      - NRP-002
+    acceptance_test: >-
+      主问题的首个完整问句只定义阶段 I–II 核心研究；读者能在同一节中看到阶段 III 是依赖性扩展而非共同最低交付；四项目标与核心假设、日期门和阶段 II 成功定义没有核心元素冲突。
+
+  - action_id: NRP-004
+    addresses_findings:
+      - NAR-003
+    priority: major
+    dossier_locator:
+      section_heading: "Evidence chains"
+      subsection_heading: "五条 Evidence chain"
+      content_anchor: "每条证据链末尾的“Limits and failure conditions”字段"
+    operation: consolidate
+    current_problem: >-
+      五条证据链各自附有完整限制字段，同一科学边界又在摘要、核心非假设、方法、否证标准、解释矩阵、贡献、主张支持和风险章节重复，形成多个貌似权威的限制位置。
+    target_state: >-
+      第 14 节成为完整限制、假设、风险、替代方案与停止条件的唯一权威位置；五条证据链只保留 Input、Method / analysis / processing、Output 和 Supports；其他章节只留直接解释紧邻设计选择所必需的局部边界。
+    required_content_or_function: >-
+      合并时必须保留每个必需 H2 章节的独特功能：方法节保留设计规范，Required analyses 保留验收要求，Expected outputs 保留计划产物，解释矩阵保留允许解释，主张支持表保留主张审计。不得删除或重命名 15 个必需 H2 和第 3 节五个 H3，也不得以单一表格取代证据链或其他必需功能。
+    content_to_preserve:
+      - 五条证据链各自完整的 Input、Method / analysis / processing、Output 和 Supports
+      - EHR onset 非唯一真值、模拟生成族边界、主要任务不能由诊断挽救、有限更新不替代零更新、RCT 分支不支持完整潜在动力学等全部科学限制
+      - Core hypothesis and non-hypotheses 中界定研究身份所必需的简短非假设声明
+      - 方法节中直接决定门槛、降级或解释范围的局部边界
+      - Expected outputs、Interpretation matrix、Title and positioning claim-support table 各自不可替代的计划产物、解释和主张审计功能
+    content_to_remove_or_move:
+      - 五条证据链的五个独立“Limits and failure conditions”字段及其完整内容
+      - 标题摘要、结构化摘要和贡献段落中重复展开的因果、控制、数字孪生与 RCT 失败边界
+      - Falsification、Interpretation、claim-support 与 Risk matrix 之间逐字义重复的完整限制说明，只保留各节为履行本节功能所需的最小表述
+    destination_if_moved: >-
+      "Feasibility, resources, risks, alternatives, and stop conditions"（第 14 节）内的相应风险、剩余执行门或最终停止边界；按主题合并为单一完整陈述，并从局部必要边界链接到该权威位置。
+    dependencies:
+      - NRP-001
+      - NRP-003
+    acceptance_test: >-
+      五条证据链均且仅具有 Input、Method / analysis / processing、Output、Supports 四项；第 14 节能独立覆盖全部限制、假设与停止边界；搜索每个重复边界概念时，除第 14 节的完整陈述外，仅存在直接解释相邻设计决策所需的简短局部表述；15 个 H2、五个 H3 及所有必需章节功能均保留。
+
+  - action_id: NRP-005
+    addresses_findings:
+      - NAR-004
+    priority: major
+    dossier_locator:
+      section_heading: "Structured abstract"
+      subsection_heading: null
+      content_anchor: "Objective and hypothesis、Approach 与 Contribution and impact 条目中的首次术语使用"
+    operation: define
+    current_problem: >-
+      摘要在研究路线建立前集中使用多个跨学科非共享概念和项目标签，而相应功能说明散落在后续 Data、Methods 与 Evidence chains，迫使读者回读。
+    target_state: >-
+      摘要先以普通科学语言说明问题、两项主要任务、外部检验和条件性扩展；无法省略的核心概念在首次使用时获得一句简明功能定义，内部阶段门标签只在对应专门章节首次引入。
+    required_content_or_function: >-
+      对摘要中确有必要保留的 landmark/as-of、绝对恢复、zero update、观测投影和 death-ranked SOFA，说明它们在本研究中分别解决何种读者问题；G1、R0、R1、C_r、P_state、P_obs 等标签及映射细节留到相应审计或方法小节，并在首次出现处定义。
+    content_to_preserve:
+      - 所有核心设计步骤、顺序依赖和预设失败分支
+      - 方法节中的数学符号、SVD 映射、数值阈值、校准标准和停止条件
+      - Data 章节中的 G1 审计内容及 RCT 方法中的 R0/R1 内容
+      - 对技术概念精确含义的现有操作性描述
+    content_to_remove_or_move: []
+    destination_if_moved: null
+    dependencies:
+      - NRP-002
+    acceptance_test: >-
+      按从标题到 Structured abstract 再到 Background 的顺序阅读时，没有承担核心论证功能的术语早于其功能性解释；摘要能够被交接文件所列全部读者理解，而完整技术定义、符号和阈值仍可在后续专门章节准确找到。

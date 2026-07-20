@@ -8,7 +8,7 @@
 
 - Route:
 - Node or proposed direction:
-- Frozen input pointers and digests:
+- Frozen input references (artifact ID, version, path):
 
 ## Blocking reason
 
