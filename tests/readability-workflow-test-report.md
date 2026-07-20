@@ -54,10 +54,10 @@ These results refine the macro diagnosis. The first Perspective failure occurred
 
 ### MIN-002 — Source/cache line-ending differences
 
-- Plugin version: `0.10.0` development channel.
-- Symptom: logically identical source and installed files may report line-ending differences on Windows.
-- Suspected diagnosis: checkout/platform normalization, not semantic drift.
-- Proposed solution: compare normalized content in the development verifier while retaining exact inventory and version checks. No workflow reproduction is needed.
+- Plugin version: `0.10.0` development channel; observed again after the `0.11.0` Git release.
+- Symptom: `openai_plugin_dev.py verify --channel github` rejected the installed `0.11.0` cache although the source and cache both contained 428 files, declared the same version, 51 Skills, and 22 reviewers. Direct byte comparison reported 59 differing text files; an in-memory CRLF/LF normalization reduced the content difference count to zero.
+- Suspected diagnosis: Windows worktree conversion versus canonical Git LF content, not semantic drift or an incomplete Git installation.
+- Proposed solution: in a later low-priority development-tool pass, compare normalized text content while retaining exact inventory, version, Skill, reviewer, selector, and unexpected-file checks. Do not persist hashes. The current workflow and release do not require reproduction or correction for this verifier-only false negative.
 
 ### MIN-003 — Article readiness category-count wording
 
@@ -94,6 +94,13 @@ These results refine the macro diagnosis. The first Perspective failure occurred
 - Suspected diagnosis: localized text-serialization/escaping behavior during a long same-writer revision, not a claim, evidence, routing, or preservation defect.
 - Proposed solution: retain the existing literal-token check in pre-evaluation conformance. Per the minor-issue policy, do not add a plugin fix or separate reproduction unless this recurs beyond paragraph markers or escapes deterministic detection.
 
+### MIN-008 — Private-role CLI smoke falls back to file inspection
+
+- Plugin version: `0.11.0` Git channel.
+- Symptom: a fresh raw CLI prompt naming the private `research-narrative-assessor` did not receive that role in its exposed Skill catalog and inspected the installed cache to answer. A separate fresh, read-only, zero-tool task received the public `research-idea-orchestrator` entry at session start and accurately reported its role from injected instructions.
+- Suspected diagnosis: the smoke prompt used a private role with `allow_implicit_invocation: false`, so it did not cleanly distinguish runtime entry discovery from filesystem availability. There is no evidence that public entry discovery or orchestrated private-role delegation failed.
+- Proposed solution: use a public entry Skill for the no-tool Git discovery smoke, verify private-role inventory deterministically, and assess orchestrated private-role delegation only when a legitimate workflow branch reaches it. Do not open a new workflow correction or reproduction cycle for this test-design issue.
+
 ## Current `0.11.0` acceptance record
 
 | Check | Status | Evidence |
@@ -110,7 +117,7 @@ These results refine the macro diagnosis. The first Perspective failure occurred
 | Context-attention diagnosis | Meso execution cause supported | The pre-patch writer delayed all persistence while broadly loading the package and needed one reminder. With the same scientific inputs, the patched fresh writer wrote first, expanded section by section, and completed without intervention. This supports retrieval/order/checkpoint design as the actionable cause; it does not establish a universal token threshold. |
 | Content preservation | Contract pass; forward branch not reached | The current fixtures stopped before editorial revision. Protected-register and preservation-decision guards pass; no downstream artifact was created from unsupported science. |
 | DOCX semantic parity and visual QA | Pass for reached branch | The 13 deterministic DOCX guards pass. Article correctly stopped before drafting and generated no manuscript or DOCX; full render QA was therefore not applicable to this fixture. |
-| Local/Git plugin discovery | Local pass; Git pending | Local verify and fresh App task discovery pass for the final development build; Git verification follows release push. |
+| Local/Git plugin discovery | Pass with recorded verifier caveat | Local verification passed. The Git selector is uniquely enabled at `0.11.0`; source and cache inventories are 428/428, normalized content differences are zero, and a fresh read-only zero-tool task received the public Idea orchestrator from session-start Skill context. The raw-byte CRLF/LF false negative and private-role smoke limitation are recorded as MIN-002 and MIN-008. |
 
 ## Forward-test blinding
 
