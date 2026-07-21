@@ -3,6 +3,7 @@
 ```yaml
 opportunity_map:
   schema_version: research-idea.v3
+  output_profile: evidence_and_opportunity | idea_landscape
   scientific_gap:
     unanswered_problem:
     missing_knowledge_or_evidence:
@@ -43,6 +44,8 @@ opportunity_map:
       recommended_generation_paths: []
   idea_direction_evidence: {}
 ```
+
+Do not create this artifact for `evidence_only`.
 
 Every ID must have a readable title/label and resolve to evidence or be marked
 `not_verified`. `scientific_gap` states the unanswered problem and missing

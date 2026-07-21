@@ -1,97 +1,97 @@
-# Deep Research Request
+# Deep Research: [concise research topic]
 
-## State binding
+## Research objective and intended use
 
-- Handoff status: `deep_research_handoff_required`
-- Workflow ID / round ID / pending edge ID:
-- Plugin version:
-- Frozen input logical refs (`artifact_id`, `version`, `path`):
-- Resume target:
-- Expected returned artifact path or type:
+[State what the report should establish and which scientific or research
+decision it will inform.]
 
-Resume only the pending edge named above. Do not reuse this return for another
-workflow edge.
+## Core research question
 
-## Research objective
+[Write one direct, answerable question.]
 
-- Core question or landscape objective:
-- Downstream decision this evidence informs:
-- Why the question matters:
-- Required sufficiency criterion:
+## Scope and boundaries
 
-Retrieve and synthesize evidence. Do not generate or rank research Ideas, draft
-a proposal/protocol, or make an evaluator decision.
+- Population, system, or setting: [scope]
+- Concepts, interventions, exposures, or methods: [scope]
+- Outcomes or evidence of interest: [scope]
+- Date, language, and geography: [scope]
+- Explicit exclusions: [only decision-relevant exclusions]
 
-## Route profile
+## Known background and unresolved issues
 
-- Mode: `standard | focused | divergent`
-- Domain:
-- Date/freshness boundary:
-- Languages and geographies:
-- Required and preferred source classes:
-- Excluded source classes and reasons:
-- Search budget or breadth boundary:
-- Stop condition:
+[Briefly summarize verified starting facts, unresolved claims, known conflicts,
+and material access limits. Do not present a planned search as completed.]
 
-Mode adjustment:
+## Questions to answer
 
-- `standard`: cover the direct landscape, major conflicts, and decision-relevant
-  adjacent evidence.
-- `focused`: freeze one bounded question; verify the strongest for/against
-  evidence and perform a short targeted gap check.
-- `divergent`: use distinct direct, contrary, alternative-method, emerging, and
-  justified adjacent-field lanes; record each transfer rationale.
+1. [Primary subquestion]
+2. [Comparison or closest-work question]
+3. [Contrary-evidence or boundary question]
 
-## Current evidence and unresolved claims
+## Search scope and source requirements
 
-- Verified facts with source locators:
-- Claims requiring verification:
-- Known conflicts:
-- Searches already completed:
-- Inaccessible sources or known coverage limits:
+[Name the source classes and search breadth needed for this question. Prioritize
+primary or authoritative sources, trace material claims to the original source,
+and document negative or access-limited searches. Explain any justified
+adjacent-field search.]
 
-Do not describe planned retrieval as completed evidence.
+## Analysis and synthesis requirements
 
-## Search plan
+[Specify the comparisons, conflict analysis, applicability assessment, and
+domain-relevant extraction fields. Separate source findings from synthesis and
+do not force agreement where evidence conflicts.]
 
-1. **Landscape:** questions and terminology; priority sources and queries;
-   expected evidence.
-2. **Verification:** material claims and source chains; supporting and opposing
-   evidence; identity and version checks.
-3. **Gap resolution:** missing source classes or conflicts; negative searches;
-   final sufficiency check.
+## Report structure
 
-For a narrowly approved focused task, omit unnecessary stages but retain source
-verification, a sufficiency check, and limitations.
+1. Concise answer to the core question.
+2. Search scope and source classes covered.
+3. Verified source table.
+4. Findings organized by the questions above.
+5. Closest work and material contrary evidence.
+6. Conflicts, negative searches, access limits, and applicability boundaries.
+7. Remaining evidence gaps and implications for the intended decision.
 
-## Required extraction
+## Citation and link requirements
 
-For each material source, capture as applicable: full citation and direct URL or
-stable identifier; source type and version/date; design/method; population,
-sample, dataset, or setting; intervention/exposure/comparator; outcome or metric;
-key findings and estimates; limitations; conflicts; and the exact supporting
-locator.
+Give every formal reference in GB/T 7714—2015 format with its complete canonical
+URL and available DOI, PMID, PMCID, or ISBN. List papers in a research series
+separately. Label inferred, ambiguous, unverified, and access-limited identities.
 
-For each material claim, record:
+Treat each atomic claim as the citation unit. Bind one to five directly relevant
+works and place the clickable group immediately after the claim or clause it
+supports. Split independently testable clauses into separate claim IDs. The
+following placeholders define format only; they are not evidence:
 
-| Claim label | Claim | Sources and locators | Support status | Evidence confidence | Conflicts and limitations |
+```md
+One source:
+External validation showed poorer calibration
+(C001; [R001](https://doi.org/{verified-doi-1})).
+
+Several sources for one claim:
+Several external validations showed poorer calibration
+(C002; [R001](https://doi.org/{verified-doi-1}),
+[R002](https://doi.org/{verified-doi-2})).
+
+Different claims in one sentence:
+Discrimination remained acceptable
+(C003; [R003](https://doi.org/{verified-doi-3})),
+but calibration deteriorated
+(C004; [R003](https://doi.org/{verified-doi-3}),
+[R004](https://doi.org/{verified-doi-4})).
+```
+
+Do not move all references to the sentence end when they support different
+clauses. Do not use an unlinked numeric citation, a bare URL, or a pseudo-ID such
+as `R001-R003`. Background sources and negative searches are not direct support.
+Register each work once, for example:
+
+| ID | GB/T 7714—2015 reference | Canonical link | Identifier | Verification | Locator |
 |---|---|---|---|---|---|
+| R001 | AUTHOR A, AUTHOR B. Article title[J]. Journal, 2024, 12(3): 1-10. | [DOI](https://doi.org/{verified-doi-1}) | DOI: {verified-doi-1} | verified | Results, Table 2 |
 
-Use only `supported | weak | conflicting | single-source | unverified |
-access-limited` for support status.
+## Completion criteria
 
-## Required return
-
-1. Search-plan completion summary.
-2. Verified source table with direct links or stable identifiers.
-3. Claim table using the required support-status vocabulary.
-4. Conflicts and plausible explanations without forced consensus.
-5. Negative searches, inaccessible sources, and coverage limits.
-6. Remaining evidence gaps and whether the sufficiency criterion was met.
-7. Concise synthesis that distinguishes source statements from report-level
-   inference.
-
-Use one citation record per source with a GB/T 7714—2015 citation and complete
-canonical link. Save or return the report as `deep-research-report-vNNN.md`, include its completion time,
-and preserve the workflow, round, pending-edge, returned-artifact ID, version,
-and path for single-edge resume.
+The report is complete when it answers the core and subquestions, traces every
+material claim to an inspectable source, covers closest work and material
+contrary evidence, preserves conflicts and access limits, states applicability
+boundaries, and distinguishes established findings from report-level inference.

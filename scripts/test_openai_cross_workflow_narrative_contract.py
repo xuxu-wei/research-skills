@@ -43,8 +43,8 @@ def main() -> int:
     skill_files = sorted(SKILLS.glob("*/SKILL.md"))
     reviewers = [item for item in registry["skills"] if item.get("requires_independent_subagent")]
 
-    require(manifest["version"] == "0.12.0", "manifest version")
-    require(registry["plugin_version"] == "0.12.0", "registry version")
+    require(manifest["version"] == "0.13.0-preview.1", "manifest version")
+    require(registry["plugin_version"] == "0.13.0-preview.1", "registry version")
     require(registry["schema_version"] == 6, "registry schema")
     require(len(skill_files) == 51, "skill count")
     require(len(reviewers) == 22, "reviewer count")

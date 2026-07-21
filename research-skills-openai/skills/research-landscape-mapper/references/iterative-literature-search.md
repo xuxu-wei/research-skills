@@ -24,4 +24,6 @@ Stop when search results are mostly duplicates, evidence is sufficient, sources 
 
 ## Reminder
 
-This file describes routing logic. The mapper does not itself decide or execute tool calls.
+This file describes the retrieval sequence. The mapper selects and executes the
+broad retrieval route within the scope approved by the parent orchestrator or
+researcher.

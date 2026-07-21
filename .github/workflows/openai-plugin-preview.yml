@@ -53,6 +53,8 @@ jobs:
       - name: Run artifact delivery validations
         run: |
           python scripts/test_openai_article_docx_contract.py
+          python scripts/test_validate_deep_research_package.py
+          python scripts/test_openai_search_module_contract.py
           python scripts/test_openai_plugin_dev.py
       - name: Run canonical OpenAI plugin validator
         env:

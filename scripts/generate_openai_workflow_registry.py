@@ -207,7 +207,7 @@ RELATED_SKILL_ADDITIONS = {
 # output contract, failure route
 WORKFLOW_EDGES = [
     ("idea", "research-idea-orchestrator", "research-context-builder", "orchestrated", "context_required", "user_inputs_and_constraints", "research_context_brief_and_direction_clarity_signal", "clarification_required"),
-    ("idea", "research-idea-orchestrator", "research-landscape-mapper", "orchestrated", "major_evidence_or_novelty_landscape_change", "context_sources_scope_and_current_dossier_when_remapping", "evidence_opportunity_maps_and_direction_support_signals", "evidence_mapping_pending"),
+    ("idea", "research-idea-orchestrator", "research-landscape-mapper", "orchestrated", "major_evidence_or_novelty_landscape_change", "context_sources_scope_current_dossier_when_remapping_and_idea_landscape_profile", "evidence_opportunity_maps_reader_handoff_and_direction_support_signals", "evidence_mapping_pending"),
     ("idea", "research-idea-orchestrator", "focused-literature-synthesizer", "orchestrated", "bounded_two_to_five_paper_synthesis_required", "one_bounded_question_scope_and_source_constraints", "focused_literature_synthesis", "evidence_mapping_pending"),
     ("idea", "research-idea-orchestrator", "multi-path-idea-generator", "orchestrated", "routing_decision_ready_or_revision_authorized", "frozen_context_evidence_opportunities_routing_decision_current_dossiers_and_applicable_revision_plan_or_approved_editorial_repair_writer_brief_or_current_preflight_approved_working_assumptions", "versioned_complete_idea_dossiers_revision_delta_and_proposed_navigation_metadata", "generation_blocked"),
     ("idea", "research-idea-orchestrator", "methodology-statistics-preflight", "delegated", "method_or_endpoint_fit_needs_review", "frozen_complete_idea_dossiers_and_method_facts", "preflight_report_and_idea_handoff", "independent_review_pending"),
@@ -220,7 +220,7 @@ WORKFLOW_EDGES = [
     ("idea", "research-idea-orchestrator", "proposal-orchestrator", "handoff", "focused_or_human_selected_direction_fresh_promote_and_handoff_gate_passed", "promoted_idea_package_with_section_14_and_unresolved_finding_locators", "proposal_workflow_state", "proposal_handoff_blocked"),
 
     ("proposal", "proposal-orchestrator", "proposal-context-brief-builder", "orchestrated", "context_brief_required", "idea_draft_call_and_constraints", "proposal_context_brief", "clarification_required"),
-    ("proposal", "proposal-orchestrator", "research-landscape-mapper", "orchestrated", "major_core_claim_novelty_landscape_or_conflict_change", "context_sources_and_retrieval_scope", "evidence_and_opportunity_maps", "evidence_mapping_pending"),
+    ("proposal", "proposal-orchestrator", "research-landscape-mapper", "orchestrated", "major_core_claim_novelty_landscape_or_conflict_change", "context_sources_retrieval_scope_and_evidence_and_opportunity_profile", "evidence_and_opportunity_maps", "evidence_mapping_pending"),
     ("proposal", "proposal-orchestrator", "focused-literature-synthesizer", "orchestrated", "bounded_two_to_five_paper_synthesis_required", "one_bounded_question_scope_and_source_constraints", "focused_literature_synthesis", "evidence_mapping_pending"),
     ("proposal", "proposal-orchestrator", "proposal-readiness-triage", "delegated", "context_and_evidence_ready", "frozen_context_evidence_and_scope", "readiness_report", "independent_review_pending"),
     ("proposal", "proposal-orchestrator", "methodology-statistics-preflight", "delegated", "readiness_or_sap_requires_method_preflight", "frozen_design_endpoint_and_data_facts", "preflight_report", "independent_review_pending"),
@@ -243,7 +243,7 @@ WORKFLOW_EDGES = [
     ("article", "article-orchestrator", "article-readiness-triage", "delegated", "complete_material_inventory_and_minimal_intake_frozen", "frozen_minimal_intake_complete_material_inventory_semantic_authority_and_entry_scope", "article_readiness_report", "independent_review_pending"),
     ("article", "article-orchestrator", "article-context-builder", "orchestrated", "readiness_allows_context_build", "approved_intake_and_scope", "article_context_brief", "clarification_required"),
     ("article", "article-orchestrator", "article-literature-grounder", "orchestrated", "context_ready_and_grounding_required", "context_sources_and_scope", "literature_grounding_report", "grounding_blocked"),
-    ("article", "article-literature-grounder", "research-landscape-mapper", "orchestrated", "major_grounding_novelty_landscape_or_conflict_change", "research_question_sources_and_scope", "evidence_map_and_limitations", "evidence_mapping_pending"),
+    ("article", "article-literature-grounder", "research-landscape-mapper", "orchestrated", "major_grounding_novelty_landscape_or_conflict_change", "research_question_sources_scope_and_evidence_only_profile", "evidence_map_and_limitations", "evidence_mapping_pending"),
     ("article", "article-literature-grounder", "focused-literature-synthesizer", "orchestrated", "bounded_two_to_five_paper_synthesis_required", "one_bounded_question_scope_and_source_constraints", "focused_literature_synthesis", "evidence_mapping_pending"),
     ("article", "article-orchestrator", "article-architect", "orchestrated", "context_and_grounding_ready", "frozen_context_grounding_and_results", "article_blueprint_and_evidence_contracts", "architecture_blocked"),
     ("article", "article-orchestrator", "methodology-statistics-preflight", "delegated", "quick_method_feasibility_screen_needed", "frozen_design_endpoint_and_data_facts", "preflight_report", "independent_review_pending"),
@@ -263,7 +263,7 @@ WORKFLOW_EDGES = [
 
     ("perspective", "perspective-orchestrator", "perspective-input-builder", "orchestrated", "input_brief_required", "user_thesis_outlet_evidence_and_constraints", "perspective_input_brief", "clarification_required"),
     ("perspective", "perspective-orchestrator", "perspective-claim-evidence-curator", "orchestrated", "input_brief_ready_or_claim_change_approved", "frozen_input_evidence_and_change_requests", "claim_ledger_and_evidence_artifacts", "curation_blocked"),
-    ("perspective", "perspective-orchestrator", "research-landscape-mapper", "orchestrated", "major_discourse_novelty_landscape_or_conflict_change", "claims_sources_and_retrieval_scope", "evidence_map_and_limitations", "evidence_mapping_pending"),
+    ("perspective", "perspective-orchestrator", "research-landscape-mapper", "orchestrated", "major_discourse_novelty_landscape_or_conflict_change", "claims_sources_retrieval_scope_and_evidence_only_profile", "evidence_map_and_limitations", "evidence_mapping_pending"),
     ("perspective", "perspective-claim-evidence-curator", "focused-literature-synthesizer", "orchestrated", "bounded_two_to_five_paper_synthesis_required", "one_bounded_question_scope_and_source_constraints", "focused_literature_synthesis", "evidence_mapping_pending"),
     ("perspective", "perspective-orchestrator", "perspective-argument-architect", "orchestrated", "claim_and_evidence_artifacts_ready", "frozen_input_claims_evidence_and_outlet", "argument_skeleton_and_paragraph_plan", "architecture_blocked"),
     ("perspective", "perspective-orchestrator", "perspective-drafter", "orchestrated", "argument_architecture_ready_revision_plan_or_editorial_brief_frozen", "approved_architecture_claims_revision_plan_or_editorial_brief_and_protected_register", "versioned_complete_perspective_paragraph_map_delta_and_action_conformance", "drafting_blocked"),
@@ -278,7 +278,7 @@ WORKFLOW_EDGES = [
     ("perspective", "perspective-orchestrator", "perspective-final-compositor", "delegated", "all_required_artifacts_and_reviews_frozen", "frozen_final_artifacts_reviews_and_dissent", "verified_human_review_package", "independent_review_pending"),
 
     ("research_polisher", "research-polisher-orchestrator", "article-context-builder", "orchestrated", "dossier_normalization_required", "frozen_research_assets_scope_and_constraints", "article_context_brief_for_research_polisher", "clarification_required"),
-    ("research_polisher", "research-polisher-orchestrator", "research-landscape-mapper", "orchestrated", "major_core_positioning_novelty_landscape_or_conflict_change", "frozen_dossier_questions_sources_and_scope", "evidence_and_opportunity_maps", "evidence_mapping_pending"),
+    ("research_polisher", "research-polisher-orchestrator", "research-landscape-mapper", "orchestrated", "major_core_positioning_novelty_landscape_or_conflict_change", "frozen_dossier_questions_sources_scope_and_evidence_and_opportunity_profile", "evidence_and_opportunity_maps", "evidence_mapping_pending"),
     ("research_polisher", "research-polisher-orchestrator", "focused-literature-synthesizer", "orchestrated", "bounded_two_to_five_paper_question_required", "one_bounded_question_scope_and_source_constraints", "focused_literature_synthesis", "evidence_mapping_pending"),
     ("research_polisher", "research-polisher-orchestrator", "research-polisher-strategy-reviewer", "delegated", "dossier_frozen_or_anonymous_revision_brief_ready", "frozen_dossier_evidence_one_lens_and_three_tiers", "sealed_research_polisher_strategy_report", "independent_review_pending"),
     ("research_polisher", "research-polisher-orchestrator", "research-polisher-plan-assembler", "orchestrated", "strategy_reports_evaluation_or_specialist_reports_ready", "sealed_strategy_reports_evaluation_or_current_requested_specialist_reports_with_lineage", "candidate_portfolio_revision_brief_sanitized_specialist_findings_or_selection_dossier", "assembly_blocked"),
@@ -287,6 +287,95 @@ WORKFLOW_EDGES = [
     ("research_polisher", "research-polisher-orchestrator", "medical-journal-review", "delegated", "biomedical_specialist_review_requested", "frozen_selected_option_research_facts_and_review_scope", "medical_journal_review_report", "independent_review_pending"),
     ("research_polisher", "research-polisher-orchestrator", "article-architect", "handoff", "human_selected_reposition_only_option", "selected_evaluator_qualified_repositioning_constraints", "article_blueprint_state", "handoff_blocked"),
 ]
+
+EVIDENCE_RETRIEVAL_POLICY = {
+    "production_retrieval_mode": "auto",
+    "allowed_retrieval_modes": ["auto", "built_in_web_search", "deep_research"],
+    "allowed_exploration_modes": ["standard", "focused", "divergent"],
+    "output_profiles": {
+        "evidence_only": {
+            "required_artifact_roles": ["evidence_map"],
+            "default_consumers": ["article", "perspective"],
+        },
+        "evidence_and_opportunity": {
+            "required_artifact_roles": ["evidence_map", "opportunity_map"],
+            "default_consumers": ["proposal", "research_polisher"],
+        },
+        "idea_landscape": {
+            "required_artifact_roles": ["evidence_map", "opportunity_map", "reader_reasoning_handoff", "idea_direction_signals"],
+            "default_consumers": ["idea"],
+        },
+    },
+    "artifact_assembly": {
+        "dependency_order": [
+            "verification_log_when_required",
+            "evidence_map",
+            "opportunity_map_when_required",
+            "reader_handoff_when_required",
+            "routing_signals_when_required",
+        ],
+        "row_dense_artifacts_use_incremental_persistence": True,
+        "single_writer_per_artifact": True,
+        "freeze_only_after_read_only_consistency_check": True,
+        "incomplete_artifact_available_to_consumers": False,
+        "completion_signal": "passing_artifact_check_without_separate_delegate_final_message",
+        "no_progress_recovery": {
+            "scope": "current_incomplete_artifact_or_batch_only",
+            "fresh_retry_limit": 1,
+            "preserve_completed_outputs": True,
+            "content_hash_required": False,
+        },
+    },
+    "claim_source_binding": {
+        "citation_unit": "atomic_claim",
+        "direct_support_minimum": 1,
+        "direct_support_maximum": 5,
+        "single_source_status_requires_exactly_one": True,
+        "zero_source_claim_cannot_be_supported": True,
+        "sixth_source_requires_representative_selection_or_claim_split": True,
+        "linked_reference_ids_resolve_exactly_once": True,
+        "allowed_source_roles": [
+            "direct_support",
+            "direct_contradiction",
+            "background_only",
+            "negative_search_result",
+        ],
+        "clause_local_citation_binding": True,
+    },
+    "deep_research_continuation": {
+        "outgoing_artifact_roles": ["deep_research_request", "deep_research_follow_up_guide"],
+        "returned_artifact_role": "deep_research_report",
+        "request_is_exact_sendable_prompt": True,
+        "request_preferred_characters": {"minimum": 2500, "maximum": 6000},
+        "request_warning_characters": 8000,
+        "request_hard_maximum_characters": 12000,
+        "follow_up_guide_hard_maximum_characters": 5000,
+        "logical_refs_only": True,
+        "stored_hashes_or_digests": False,
+        "raw_package_visible_to_final_evaluators": False,
+        "post_return_repair": {
+            "report_acceptance_does_not_select_retrieval_route": True,
+            "route_order": [
+                "deterministic_normalization",
+                "built_in_search_and_agent_repair",
+                "focused_literature_synthesis",
+                "second_deep_research",
+            ],
+            "second_deep_research_requires_prior_lower_cost_repair": True,
+            "second_deep_research_requires_severe_scientific_condition": True,
+            "second_deep_research_requires_owner_approval": True,
+            "prepare_second_round_before_approval": False,
+            "citation_mechanics_alone_trigger_second_deep_research": False,
+        },
+        "paths_by_consumer": {
+            "idea": "02_evidence/deep-research/round-NNN/",
+            "proposal": "02_evidence/deep-research/round-NNN/",
+            "perspective": "02_evidence/deep-research/round-NNN/",
+            "article": "03_literature/deep-research/round-NNN/",
+            "research_polisher": "02_evidence/deep-research/round-NNN/",
+        },
+    },
+}
 
 WORKFLOW_STATE_POLICY = {
     "state_field": "workflow_state",
@@ -1718,7 +1807,7 @@ SCENARIO_EVAL_CONTRACT = {
             "perspective-input-builder": ["perspective_input_brief", "target_outlet_profile"],
             "perspective-claim-evidence-curator": ["claim_ledger", "claim_evidence_matrix", "evidence_limitations", "citation_risk_log", "contrary_evidence_log", "reference_list", "provisional_claim_ledger"],
             "perspective-argument-architect": ["argument_architecture", "paragraph_map"],
-            "research-landscape-mapper": ["evidence_map", "opportunity_map"],
+            "research-landscape-mapper": ["evidence_map", "opportunity_map", "deep_research_request", "deep_research_follow_up_guide"],
             "focused-literature-synthesizer": ["focused_literature_synthesis"],
             "article-literature-grounder": ["evidence_ledger", "evidence_map", "literature_grounding_report"],
             "multi-path-idea-generator": ["idea_dossier", "revision_delta", "proposed_navigation_metadata"],
@@ -2417,6 +2506,7 @@ def main() -> int:
         )
 
     state_registry = {
+        "evidence_retrieval_policy": EVIDENCE_RETRIEVAL_POLICY,
         "workflow_state_policy": WORKFLOW_STATE_POLICY,
         "workflow_state_machines": WORKFLOW_STATE_MACHINES,
         "scenario_eval_contract": SCENARIO_EVAL_CONTRACT,

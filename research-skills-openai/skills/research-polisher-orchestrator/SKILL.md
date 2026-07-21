@@ -30,8 +30,11 @@ Record `evidence_change_assessment` before retrieval. Reuse on `none`; use
 Built-in Search or `focused-literature-synthesizer` for a bounded citation,
 claim, or 2-5-paper question; call `research-landscape-mapper` only when core
 positioning, novelty, the evidence landscape, or a material conflict changes
-substantively. Inactive required research pauses at
-`deep_research_handoff_required`.
+substantively, using `consumer_workflow: research_polisher` and
+`output_profile: evidence_and_opportunity`. Store any deep-research round under
+`02_evidence/deep-research/`. Inactive required research pauses at
+`deep_research_handoff_required`; raw request/guide/report files stay outside
+reviewer input packages.
 
 ## Workflow Kernel
 

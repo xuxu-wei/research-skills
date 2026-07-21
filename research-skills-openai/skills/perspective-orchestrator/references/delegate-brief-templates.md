@@ -27,6 +27,7 @@ Use logical artifact identity (`artifact_id`, `version`, `path`) and exact file
 whitelists. New LLM-facing briefs and reports never require or generate SHA, content
 hashes, or digests. Legacy digest metadata may be ignored on read.
 
+Initial Standard/Full curator briefs must cite the staged write order in `perspective-claim-evidence-curator/SKILL.md`, serialize one writer, persist row-dense files as a header plus bounded stable-ID groups plus a final read-only check, retry only an idle/interrupted or non-progressing current file/batch once, preserve completed batches, treat a passing artifact check as sufficient without waiting for delegate final text, and never ask for hashes or digests.
 ---
 
 ## Input Builder Brief

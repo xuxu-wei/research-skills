@@ -45,8 +45,8 @@ Mark fast-track backfill `confidence: low` and `scope_limitation: fast_track_bac
    source intent, constraints, and missing facts; unresolved blocking facts stop.
 4. **Ground.** `article-literature-grounder` handles literature. It reuses or
    relinks existing evidence on `none`, uses Search or one focused synthesis on
-   `bounded`, and calls `research-landscape-mapper` only for a `major` grounding
-   or novelty rebuild.
+   `bounded`; major rebuilds call `research-landscape-mapper` with
+   `output_profile: evidence_only`.
 5. **Architect.** `article-architect` creates the full section-content plan, reader
    handoffs, claims/provenance, displays, supplements, results skeleton, and adapter.
 6. **Audit methods.** Use the shared preflight when needed and a fresh

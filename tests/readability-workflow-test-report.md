@@ -2,7 +2,7 @@
 
 ## Scope and handling rules
 
-- Current candidate: `research-skills-openai` `0.12.0`.
+- Current candidate: `research-skills-openai` `0.13.0-preview.1`.
 - Frozen comparison baseline: `0.10.0` runs for Idea, Proposal, Perspective, and Article, created before source modification.
 - Original inputs under `tests/test-*` are read-only. Versioned run directories are generated evidence and are not release assets.
 - This report contains contract-level observations only; it does not reproduce confidential scientific content.
@@ -33,6 +33,15 @@ The `0.11.0` design therefore separates macro narrative assessment from language
 - Article now discovers the complete supplied inventory and applies the owner-designated semantic authority without discarding compatible execution evidence. Independent preflight found that the unresolved plan-execution choice changes the analysis route, evidence strength, and article objective. It therefore returned `clarification_stop` with no accepted working assumption; prose repair is not allowed to conceal or choose that scientific route.
 
 These results refine the macro diagnosis. The first Perspective failure occurred before a long writer context existed, so raw context length was not the primary cause. The later writer did receive a substantially larger package and completed only after a write-now reminder; the patched writer completed without intervention when persistence occurred before broad evidence loading. Context attention therefore matters at the meso execution layer—input ordering, targeted retrieval, and checkpoint timing—rather than as a blanket model-capacity explanation. The Article stop remains a genuine scientific decision boundary rather than a language problem.
+
+### `0.11.0` dual evidence-route rerun
+
+The four frozen fixtures were rerun under both a standard Deep Research route and a built-in web-search route. The original `tests/test-*` inputs remained unchanged.
+
+- Idea deep-search stopped with a self-contained Deep Research continuation package; Idea web-search reached a direction-confirmation boundary because the supplied concept did not uniquely select a predictive, mechanistic, or control identity.
+- Proposal deep-search stopped with a Deep Research continuation package; Proposal web-search reached `independent_review_pending` after a bounded evidence map and did not inline the unavailable reviewer.
+- Perspective deep-search preserved the correct evidence boundary but its fresh revalidation returned `corrections_required`: the live ledger/reference versions were not synchronized with the continuation package, and researcher-facing navigation leaked validation history. Perspective web-search completed nine evidence artifacts and 23 unique evidence bindings, then stopped before drafting because the stored Chinese argument skeleton was systemically corrupted by UTF-8 serialization. This is a severe architecture-delivery failure, not a language-assessment or writer-revision failure; the corrupted skeleton was not passed downstream.
+- Article deep-search and web-search both accepted and read the owner-designated SAP v1.2.6 as the sole methods authority. Both stopped before literature retrieval because the supplied executed results used a materially different full-sample analysis route. The SAP filename was not a refusal criterion.
 
 ## Frozen `0.10.0` baseline
 
@@ -108,14 +117,68 @@ These results refine the macro diagnosis. The first Perspective failure occurred
 - Suspected diagnosis: the synthetic multi-entry prompt crossed the explicit-only discovery boundary; deterministic Registry and Local-channel verification still report Research Polisher as the seventh declared entry. No failure was observed in either renamed evidence entry or in a legitimate orchestrated Research Polisher branch.
 - Proposed solution: keep explicit-only discovery verification separate from multi-entry routing comparisons and test it only through an explicit single-entry task or a legitimate workflow branch in a later owner-prioritized pass. Per the minor-issue policy, do not reproduce or open a correction cycle now.
 
-### MIN-010 — Article artifact-index punctuation encoding
+### MIN-010 — Idea Deep Research dialogue mentions an input hash
 
-- Plugin version: `0.11.0` Git-tag test run, Article deep-search and web-search routes.
-- Symptom: the two generated `13_state/artifact-index.md` files contain Unicode replacement characters where an em dash was intended in the heading and in non-applicable current-pointer cells. Registered artifact paths, the SAP authority decision, readiness outcome, and workflow route remain intact.
-- Suspected diagnosis: localized text-encoding loss while the fresh test agent serialized punctuation into the Markdown index; this did not affect YAML state or scientific content.
-- Proposed solution: in a later low-priority artifact-serialization pass, require UTF-8 round-trip validation for generated state/index Markdown and use a plain `-` or explicit `not_applicable` value in machine-relevant table cells. Per the minor-issue policy, do not modify or rerun the sealed `0.11.0` outputs for this isolated presentation defect.
+- Plugin version: `0.13.0` Local development channel, Idea Landscape Deep Research run 001.
+- Symptom: the fresh agent stated in dialogue that it had checked an input hash, although no hash, digest, or checksum was written to the run status or continuation package and the generated package passed its contract checks.
+- Suspected diagnosis: a residual model habit from generic provenance workflows rather than an active artifact contract.
+- Proposed solution: retain the explicit no-hash instruction in the test guide and workflow contract. Do not reproduce or open a separate correction cycle unless a future run persists such a field or makes continuation depend on it.
 
-## Current `0.11.0` acceptance record
+### MIN-011 — Perspective run status briefly persists SHA-256 fields
+
+- Plugin version: `0.13.0` Local development channel, Perspective Deep Research run 001.
+- Symptom: the fresh agent initially wrote SHA-256 fields to `run-status.yaml`; after a focused correction it removed them and retained only the simple `unchanged_at_pause: true` confirmation. The evidence package itself did not depend on hashes.
+- Suspected diagnosis: the initial unchanged-input instruction did not explicitly exclude generic hash/checksum conventions, and the input builder did not yet state the repository's simpler continuity rule.
+- Proposed solution: the mapper, input builder, test guides, and deterministic contract now prohibit SHA/content hashes/checksums/digests and use a simple unchanged flag. Treat run 001 as diagnostic; validate the correction in the already-required fresh Perspective run 002 rather than opening an additional reproduction.
+
+### MIN-012 — Perspective writer needs one bounded section reminder
+
+- Plugin version: `0.13.0` Local development channel, Perspective Deep Research run 002.
+- Symptom: the single writer created the Perspective and paragraph-map files early, then stopped after the opening checkpoint until the parent sent one bounded next-section reminder. The same writer resumed with only the next section's Claim/Binding list; no replacement writer or scientific change occurred.
+- Suspected diagnosis: attention/persistence drift after a large evidence and architecture handoff, not failure to understand the research question. The early files and successful bounded continuation argue against a universal context-capacity failure.
+- Proposed solution: retain the existing early-checkpoint and section-targeted-read contract. Do not open a separate fix or reproduction cycle unless the post-reinstall built-in-search test again requires manual writer prompting or the pause affects fidelity, content preservation, or final decisions.
+
+### MIN-013 — Perspective architect recovery reuses the original instance
+
+- Plugin version: `0.13.0` Local development channel, Perspective Deep Research run 002.
+- Symptom: after the first architecture checkpoint stopped with steps 2–5 incomplete, the parent resumed the original architect instead of using a fresh current-file recovery instance. The completed skeleton subsequently passed the architecture checks and did not alter frozen evidence.
+- Suspected diagnosis: the parent prioritized single-artifact continuity over the orchestrator's fresh-retry wording. No concurrent writer, scientific promotion, or broad output contamination occurred.
+- Proposed solution: keep the corrected orchestrator rule that a non-progressing current file is retried once in a fresh instance while preserving valid content. Per the minor-deviation policy, do not separately reproduce this run unless it recurs after Local reinstall or affects output correctness.
+
+### MIN-014 — Perspective paragraph map omits one reused Claim association
+
+- Plugin version: `0.13.0` Local development channel, Perspective Deep Research run 002.
+- Symptom: paragraph 6 reused Binding `B009`, which belongs to Claim `C2`, but the paragraph map initially listed only `C3`. The manuscript statement and citation were correct. The deterministic conformance pass found the mismatch, and the same writer corrected only the paragraph map while leaving the frozen manuscript unchanged.
+- Suspected diagnosis: a localized cross-reference omission during section-by-section drafting, not evidence loss, claim drift, or a scientific-content error.
+- Proposed solution: retain the existing deterministic paragraph-to-Claim/Binding resolution check before independent evaluation. Per the minor-issue policy, do not open a separate correction or reproduction cycle unless the omission escapes that check or affects a downstream decision.
+
+## `0.13.0` search-module feedback-loop findings
+
+### FB-001 — Perspective one-shot evidence curation stalls before persistence
+
+- Plugin version: `0.13.0` Local development channel, Perspective Deep Research run 001.
+- Symptom: two fresh curator attempts were interrupted or became idle without artifacts while asked to create the complete evidence set in one response; the parent continued waiting for a stale delegate. A replacement curator completed the same work after it was divided into ordered batches with a final consistency pass.
+- Diagnosis: the failure arose at the workflow-execution level: excessive output fan-out in one turn plus no bounded recovery rule for an idle/interrupted delegate. It does not show that the scientific input was invalid or that one universal context-length threshold was exceeded.
+- Implemented correction: the Perspective orchestrator and curator now require sequential staged persistence—ledger, matrix, baseline/limits, then risk/reference logs—followed by a read-only consistency pass. If a delegate stops without output, the parent retries only the current batch once in a fresh instance and does not keep waiting on the stale delegate.
+- Acceptance consequence: run 001 remains a diagnostic run. A fresh run 002 must complete without manual runtime intervention before the Deep Research case is accepted.
+
+### FB-002 — Source checkout omitted the Deep Research package validator
+
+- Plugin version: `0.13.0` Local development channel, initial run 001 environment.
+- Symptom: the installed Local plugin contained `validate_deep_research_package.py`, but the source checkout contained only its compiled cache, causing fresh agents' repository-level validation to fail even though runtime validation succeeded.
+- Diagnosis: source/install drift in the development tree, not a search-routing or evidence-quality failure.
+- Implemented correction: restore the deterministic validator to the source Skill, run its unit fixtures, and reinstall the Local plugin from the corrected source before run 002.
+- Acceptance consequence: source and installed Local copies must both expose the validator, and the package tests must pass before the forward test resumes.
+
+### FB-003 — Row-dense evidence artifacts stall after planning or a partial write
+
+- Plugin version: `0.13.0` Local development channel, Idea Landscape Deep Research run 001 and Perspective Deep Research run 002.
+- Symptom: a one-shot Idea repair requested six evidence outputs and produced none; a later single 40-source/21-claim Evidence Map also stopped until its own rows were persisted in stages. The Idea direction-signals YAML then stopped after two of three direction groups, and Perspective evidence compilation showed the same pattern around a large Binding bundle. In several cases the parent kept waiting even after the target file was complete enough for a deterministic check.
+- Diagnosis: this is a meso-level orchestration and output-persistence defect. The fragile unit is a high-density artifact or artifact fan-out held in context until a final write, compounded by treating a delegate terminal message as more authoritative than the persisted artifact. Input validity, evidence difficulty, and one universal token threshold do not explain the paired recoveries: the same scientific content completed when written as structure, bounded source/Claim/Binding groups, and a final read-only check.
+- Implemented correction: `research-landscape-mapper` now writes profile outputs in dependency order and row-dense files incrementally; the Idea and Perspective orchestrators recover only the current incomplete file or batch once, preserve completed work, and continue when the artifact itself passes its check. The Perspective curator applies the same rule inside the Claim–Evidence Matrix and completes multi-file batches one file at a time. No hashes or new workflow artifacts are required.
+- Acceptance consequence: the current Deep Research runs remain diagnostic because runtime recovery was needed. After reinstalling the corrected Local plugin, the two already-planned fresh built-in Web Search cases must complete their evidence phase without manual write-now or stale-delegate intervention.
+
+## Historical `0.11.0` acceptance record
 
 | Check | Status | Evidence |
 |---|---|---|

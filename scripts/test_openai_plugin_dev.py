@@ -13,7 +13,7 @@ from pathlib import Path
 import openai_plugin_dev as dev
 
 
-VERSION = "0.12.0"
+VERSION = "0.13.0-preview.1"
 
 
 def require(condition: bool, label: str) -> None:

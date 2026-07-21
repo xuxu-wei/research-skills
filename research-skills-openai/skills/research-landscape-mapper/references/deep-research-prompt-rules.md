@@ -1,17 +1,28 @@
-# ChatGPT Deep Research Rules
+# Deep Research Prompt and Return Rules
 
 ## Contents
 
-- [Required package sections](#required-package-sections)
-- [Search plan](#search-plan)
-- [Mode adjustments](#mode-adjustments)
-- [Claim contract](#claim-contract)
-- [Domain adaptation](#domain-adaptation)
-- [Scope boundary and return](#scope-boundary-and-return)
+- [When to use Deep Research](#when-to-use-deep-research)
+- [Continuation package](#continuation-package)
+- [Direct-send request](#direct-send-request)
+- [Length and compression](#length-and-compression)
+- [Search and synthesis requirements](#search-and-synthesis-requirements)
+- [Return assessment](#return-assessment)
+- [Continuation state](#continuation-state)
 
-Load this file only when the task needs multi-stage, multi-direction, or
-multi-source synthesis. If Deep Research is inactive or unknown, create exactly
-these two files and stop:
+## When to use Deep Research
+
+Use Deep Research for a major multi-stage, multi-direction, or multi-source
+landscape whose result changes a core claim, novelty position, evidence
+landscape, or material conflict. Do not chain focused syntheses to imitate it.
+
+If Deep Research is inactive or unknown, create the continuation package,
+return `deep_research_handoff_required`, and stop. Do not use ordinary chat or
+Built-in Search as a substitute for the returned report.
+
+## Continuation package
+
+Create exactly two outgoing files:
 
 ```text
 deep-research/round-NNN/
@@ -19,110 +30,161 @@ deep-research/round-NNN/
 └── deep-research-follow-up-guide-vNNN.md
 ```
 
-Return `deep_research_handoff_required`. The returned report is saved as
-`deep-research-report-vNNN.md`. Do not imitate Deep Research with ordinary chat,
-Built-in Search, or repeated focused syntheses.
+Save the returned report as `deep-research-report-vNNN.md` in the same round.
+The request is the only file sent to Deep Research. The follow-up guide is for
+the researcher who transfers the request and returns the report.
 
-## Required package sections
+Run `scripts/validate_deep_research_package.py` before returning the package.
 
-1. **State binding:** workflow ID, round ID, pending edge ID, plugin version,
-   frozen input logical references (`artifact_id`, `version`, `path`), and the
-   exact resume target.
-2. **Research objective:** one bounded question or landscape objective, why it
-   matters to the downstream decision, and what decision the evidence will
-   inform.
-3. **Route profile:** `standard | focused | divergent`, source priorities,
-   dates, languages, geographies, required and excluded source classes, budget,
-   and stop condition.
-4. **Current evidence:** verified facts, unresolved claims, known conflicts,
-   inaccessible sources, and searches already completed. Do not present planned
-   searches as completed.
-5. **Search plan:** staged retrieval with source verification and citation
-   tracing, adapted to the route profile.
-6. **Extraction fields:** source identity, design/method, population/sample/data,
-   exposure/intervention, outcome/metric, findings, uncertainty, limitations,
-   contradictions, and stable locator when relevant.
-7. **Output contract:** search summary, source table, claim table, conflicts,
-   negative/inaccessible searches, remaining gaps, and limitations.
-8. **Return contract:** required local filename or artifact type, source links,
-   completion signal, returned artifact logical reference, and instructions to
-   resume only the named pending edge.
+## Direct-send request
 
-## Search plan
+Everything from the first heading through the end of
+`deep-research-request-vNNN.md` is the exact prompt. It must be understandable
+without local workflow knowledge and contain these sections in order:
 
-- **Landscape:** establish terminology, major source classes, established
-  findings, and disagreements.
-- **Verification:** open and trace the primary or authoritative sources behind
-  material claims; distinguish source statements from synthesis.
-- **Gap resolution:** target unresolved conflicts and missing required source
-  classes, then document negative and access-limited searches.
+1. Research objective and intended use
+2. Core research question
+3. Scope and boundaries
+4. Known background and unresolved issues
+5. Questions to answer
+6. Search scope and source requirements
+7. Analysis and synthesis requirements
+8. Report structure
+9. Citation and link requirements
+10. Completion criteria
 
-Do not force all three stages when the approved focused plan is narrower. Do not
-stop at snippets or search-result summaries for material claims.
+Do not include workflow IDs, round or edge IDs, plugin versions, artifact IDs,
+local paths, state names, resume instructions, SHA/digests, or other local
+orchestration language. Name an attachment only when it is genuinely supplied;
+the prompt must still explain the task without requiring the attachment merely
+to discover the core question.
 
-## Mode adjustments
+## Length and compression
 
-### Standard
+- Keep the empty template at or below 4,000 Unicode characters, including the
+  compact citation examples.
+- Prefer 2,500–6,000 characters for a rendered request.
+- Treat more than 8,000 characters as a warning.
+- Never exceed 12,000 characters.
+- Do not pad a short but complete request.
 
-Cover the direct field, major contrary evidence, and only those adjacent sources
-needed for the downstream decision. Stop at declared decision sufficiency.
+If a request is too long, compress in this order:
 
-### Focused
+1. remove internal instructions and repeated boundaries;
+2. summarize known evidence, conflicts, and key sources;
+3. merge questions that lead to the same decision;
+4. move long source lists or background material to named attachments.
 
-Freeze one question and prioritize directly relevant sources. Verify the
-strongest supporting and opposing evidence, perform a brief targeted gap check,
-and stop when the sufficiency criterion is met or an evidence limitation is
-established.
+Never truncate the core question, decision-changing scope, required comparison,
+contrary-evidence search, report structure, or citation requirements.
 
-### Divergent
+## Search and synthesis requirements
 
-Use distinct search lanes for direct, contrary, alternative-method, emerging,
-and justified adjacent-field evidence. Record each transfer rationale. Preserve
-analogy and emerging signals without upgrading them to direct support.
+- Establish the direct field, closest relevant work, and material contrary
+  evidence. Add adjacent fields only when their relevance is explained.
+- Verify primary or authoritative sources behind material claims; do not rely on
+  snippets or search-result summaries.
+- Distinguish source findings from report-level inference.
+- Record negative, inaccessible, conflicting, and access-limited evidence.
+- Adapt extraction fields to the domain rather than forcing irrelevant fields.
+- Do not generate or rank research Ideas, draft a proposal or protocol, or make
+  a downstream evaluator decision.
 
-## Claim contract
+For clinical questions, capture design, population, setting,
+intervention/exposure, comparator, outcomes, estimates, and applicable guidance.
+For computational or engineering questions, capture task, dataset, split,
+baseline, metric, evaluation protocol, and reproducibility facts. For
+qualitative work, capture sampling, setting, analysis, reported reflexivity or
+triangulation, themes, and transfer limits.
 
-Every material claim must include a readable label, source locator,
-`support_status: supported | weak | conflicting | single-source | unverified |
-access-limited`, evidence confidence, and limitations. Use `single-source` when
-only one verified source supports a claim. A Deep Research report is not itself
-independent corroboration of the sources it summarizes.
+Every formal reference must have a GB/T 7714—2015 citation and complete
+canonical link. When a user supplied only a citation clue, apply the shared
+citation-record contract and label the identification and verification status.
+Treat each atomic claim as the citation unit: bind one to five direct-support
+works, place each clickable reference group next to the clause it supports, and
+split a sentence into several claim IDs when its clauses need different
+sources. Keep the compact format examples in the direct-send request.
 
-## Domain adaptation
+## Return assessment
 
-- For clinical or health questions, extract study design, population, setting,
-  intervention/exposure, comparator, outcomes, effect estimates, and applicable
-  guideline or consensus context.
-- For computational, statistical, or engineering questions, extract task,
-  dataset, split, baseline, metric, evaluation protocol, reproducibility facts,
-  and venue/version identity.
-- For qualitative or mixed-methods questions, extract sampling, setting,
-  analytic approach, reflexivity/triangulation facts when reported, themes, and
-  transfer limits.
-
-Apply only fields relevant to the question. Record language, geography, and
-access limits rather than inferring no evidence.
-
-## Scope boundary and return
-
-Retrieve and synthesize evidence only. Do not generate or rank Ideas, draft a
-proposal/protocol, or make an evaluator decision. When the report returns, the
-mapper verifies source identity and material locators, converts findings into
-Evidence and Opportunity Maps, preserves conflicts and access limits, records
-the returned artifact's ID, version, and path, and resumes the named pending
-edge once.
-
-An accepted report is direct evidence for the novelty assessment and has no
-lower standing than a formal novelty search. Acceptance still requires source
-identity, closest-work coverage, contrary-evidence coverage, and citation
-traceability:
+Preserve the raw report. The mapper verifies material source identities and
+locators, integrates accepted findings into a new Evidence Map and any
+profile-required Opportunity Map, and records:
 
 ```yaml
 deep_research_return:
-  report_ref: {artifact_id: "", version: "", path: ""}
-  acceptance: accepted | revision_required | supplemental_search_required
-  closest_work_coverage: complete | partial | insufficient
-  contrary_evidence_coverage: complete | partial | insufficient
-  citation_traceability: passed | failed
+  report_ref: {artifact_id: "", version: "", exact_path: ""}
+  decision: accepted | revision_required | supplemental_search_required
+  main_question_coverage: sufficient | partial | insufficient
+  subquestion_coverage: sufficient | partial | insufficient
+  claim_source_traceability: passed | failed
+  citation_and_link_completeness: passed | failed
+  closest_work_coverage: sufficient | partial | insufficient | not_applicable
+  contrary_evidence_coverage: sufficient | partial | insufficient
+  applicability_bounds_explicit: true | false
   novelty_evidence_usable: true | false
+  unresolved_items: []
+repairability_assessment:
+  core_scientific_answer: usable | partially_usable | unusable
+  evidence_landscape: recoverable | materially_incomplete | invalid
+  source_identity_recoverability: high | moderate | low
+  selected_route: deterministic_normalization | built_in_search_and_agent_repair | focused_literature_synthesis | second_deep_research
+  severe_conditions_met: []
+  prior_lower_cost_repairs_attempted: []
+  route_reason: ""
+  owner_approval_required: false
 ```
+
+An accepted report is direct evidence for novelty assessment and has no lower
+standing than a formal novelty search. Acceptance still depends on the fields
+above. `revision_required` describes the report; it does not select the next
+retrieval route.
+
+## Post-return repair ladder
+
+Use the least costly route that can recover the scientific evidence:
+
+1. split compound statements into atomic claims and restore stable claim/source
+   bindings;
+2. deterministically normalize links, tracking parameters, duplicate works,
+   and reference records while preserving the raw return;
+3. use Built-in Search and agent reasoning to verify identities, metadata,
+   locators, corrections, closest work, and contrary evidence;
+4. rebuild the Evidence Map and obtain a fresh review;
+5. request one focused synthesis only when the remaining question is bounded to
+   two to five papers;
+6. recommend a second Deep Research run only after the lower-cost repairs were
+   actually attempted and a fresh reviewer still finds the core scientific
+   answer or evidence landscape unusable.
+
+Citation formatting, tracking parameters, aggregator links, missing locators,
+an unclosed reference table, recoverable compound-claim bindings, recoverable
+DOI or journal errors, access limits, or partial noncritical subquestions never
+justify a second Deep Research run by themselves. The number of citation errors
+is not decisive when the underlying works remain recoverable.
+
+A second run requires at least one severe scientific condition: the report
+answers the wrong core question or scope; the core answer is unusable and cannot
+be reconstructed; a decision-changing evidence direction such as closest or
+contrary work is wholly absent; central evidence is fabricated, unrecoverable,
+or materially opposite to the cited source; or the landscape is materially
+one-sided or invalid. Set `owner_approval_required: true`, obtain explicit owner
+approval, and only then create a new continuation package. Do not prepare a
+second-round package speculatively.
+
+## Continuation state
+
+Keep local binding outside the sendable request:
+
+```yaml
+deep_research_continuation:
+  round: 1
+  request_ref: {artifact_id: "", version: "", exact_path: ""}
+  follow_up_guide_ref: {artifact_id: "", version: "", exact_path: ""}
+  expected_report_path: ""
+  originating_evidence_route: ""
+  resume_consumer: ""
+  status: prepared | report_received | accepted | revision_required | supplemental_search_required
+```
+
+Use logical references and exact paths. Do not store hashes or digests.

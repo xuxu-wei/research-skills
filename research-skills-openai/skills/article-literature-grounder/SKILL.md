@@ -18,7 +18,8 @@ This skill does NOT design the manuscript architecture, draft content, judge rea
 - Prioritize guidelines/consensus → landmark studies → systematic reviews → recent original studies → editorials.
 - When confidence is low, classify evidence-change materiality. Use direct
   Search or one focused synthesis for bounded gaps and call
-  `research-landscape-mapper` only for a major grounding rebuild.
+  `research-landscape-mapper` only for a major grounding rebuild, with
+  `consumer_workflow: article` and `output_profile: evidence_only`.
 - Do not fabricate references. If a reference cannot be verified, mark it `verification_status: unverified`.
 - Store every formal reference in GB/T 7714—2015 format with a complete
   clickable link and available DOI, PMID, PMCID, or ISBN.

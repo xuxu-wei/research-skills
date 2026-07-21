@@ -6,7 +6,7 @@
 |---|---|
 | 文档状态 | Personal Experimental/Preview |
 | 规划基线 | 2026-07-21 |
-| 当前插件版本 | `0.12.0` |
+| 当前插件版本 | `0.13.0-preview.1` |
 | 当前范围 | 51 个 Skill、22 个独立 Reviewer、5 个完整工作流 |
 | 发现面 | 7 个声明入口、6 个隐式入口、1 个 explicit-only 入口 |
 | 当前路线图状态 | Phase 0–9 均已完成；已完成 Phase 只作为历史记录，不自动复验 |
@@ -21,10 +21,10 @@
 
 ## 当前状态
 
-- 当前源码为 `0.12.0`，包含 51 个 Skill、22 个独立 Reviewer 和 76 条工作流边。
+- 当前源码为 `0.13.0-preview.1`，包含 51 个 Skill、22 个独立 Reviewer 和 76 条工作流边。
 - 五个完整工作流为 Idea、Proposal、Article、Perspective 和 Research Polisher。
 - 七个声明入口中，六个允许隐式调用；Research Polisher 永久保持 explicit-only。
-- 旧版确定性回放和匿名语料结论保留在各自已完成 Phase 中；它们不是 `0.12.0` 的重复执行清单。
+- 旧版确定性回放和匿名语料结论保留在各自已完成 Phase 中；它们不是 `0.13.0-preview.1` 的重复执行清单。
 - GitHub Marketplace 安装、缓存发现和路由机制已经诊断；所有者接受其作为当前个人使用基线，但不将此表述扩展为严格全量工作流已验证。
 - Phase 7 和 Phase 8 已关闭；完整 Search/Deep Research 原生闭环仅在所有者明确要求时复验。
 - `0.10.0` 的四条原始测试基线已经先于源码改动冻结；`0.11.0` 只运行本次改造直接需要的静态、单元、fixture 和 fresh-agent forward tests。
@@ -323,6 +323,28 @@
 
 `0.10.0` 基线已冻结；`0.11.0` 已用当前四条原始 fixture 的可达分支、fresh-agent 产物、隔离合同、索引完整性、Local 安装发现和无下游越权证据完成验收。Phase 0–9 均为已关闭历史，只有所有者明确重开时才能复验；后续版本不得把历史完成条件当作自动重复执行清单。
 
+### 当前开发：v0.13.0 联网证据接续与反馈闭环
+
+- 状态：`进行中`
+- 优先级：`P0`
+- 目标版本：`0.13.0`
+- 目标：让 broad landscape mapping 按下游任务只产生必要证据产物，并让 Deep Research 请求能够脱离插件直接发送、返回和验收。
+
+### 当前范围
+
+- `research-landscape-mapper` 保留为 broad evidence/novelty 入口；`focused-literature-synthesizer` 继续负责单一 2–5 篇全文问题。
+- Deep Research 每轮只生成 request 与 researcher follow-up guide；本地状态、路径和恢复节点不得进入可发送 request。
+- Article/Perspective 默认使用 `evidence_only`，Proposal/Research Polisher 使用 `evidence_and_opportunity`，Idea 使用 `idea_landscape`。
+- 在 `tests/test-search-module/` 先运行 Perspective 与完整 Idea 的真实 Deep Research 双会话测试；通过后补齐两条内建 Web Search 测试。原始测试例只读。
+- 每次源码修改后重新安装 Local cachebuster 并使用 fresh Codex App task；严重问题进入最小修复与新 run，轻微局部问题只追加既有测试报告。
+
+### 完成条件
+
+- Deep Research request 满足结构、长度、无内部状态泄漏和 GB/T 7714—2015完整链接合同，返回报告通过逐项覆盖与可追溯性验收。
+- 四个 fresh-session 测试例全部在指定目录形成完整结果，原始 fixture 未修改，无未解决严重问题。
+- 适用的 Skill、Registry、插件、版本和本地开发通道验证通过；随后提交并推送 `v0.13.0`，切回 GitHub 通道并完成 fresh smoke test。
+- 不重跑 Phase 0–9；Hermes 同步继续作为 P2。
+
 ### 后续优先事项
 
 - `P1`：规范 Deep Research 接续包（已在 `0.12.0` 实现）。每次需要转交 Deep Research 时，在同一接续目录生成且只生成以下两个配套文件：
@@ -333,6 +355,7 @@
   实施时应在相关编排流程和接续模板中统一这两个文件的命名、版本关系与生成条件，不增加第三份内容重复的说明文件。两份文档均使用自然科研语言；内部状态、调度和审计用语不得进入可发送请求或研究者指引。
 
   验收标准：两个文件必须版本一致且相互链接；请求文件可脱离插件和本地目录直接使用；输出结构与逐项验收要求明确；指引能够让未参与前序工作的研究者独立判断报告是否合格并完成下一步；缺少来源、链接、关键问题答案、冲突说明或适用范围时不得视为通过；收到报告后必须保留原文，任何影响研究主张、方法或结论的整合都须进入相应工作流的独立复核环节。
+- `P1`：完成 `0.13.0-preview.1` 引文绑定与 Deep Research 返回修复路由的功能验证。该预览版只完成静态、schema、模板和插件合同验证，不视为完整运行验收。后续使用只读 fixture 和 fresh agent 验证：每项原子主张绑定1篇、2篇或5篇直接支持文献时通过；零篇却标记为 supported 以及第6篇直接支持文献时失败；一句多主张的引文分别就近绑定；支持、相反、背景和阴性检索角色不混用；所有正文引用唯一解析到完整记录。使用现有 Idea 与 Perspective Deep Research 返回验证格式或可恢复身份错误只进入确定性规范化、内建联网搜索和 agent 修复；另以错误核心问题、不可恢复核心证据或实质失真证据格局验证第二轮 Deep Research 只在低成本修复失败且所有者批准后启动。不得为该 P1 重跑任何已完成 Phase。
 - `P2`：仅在 OpenAI 插件的职责边界、合同和验收负担稳定后，将改造后的插件同步到 Hermes 源；不得直接复制 OpenAI 平台元数据或运行时语法。
 
 ## 非目标

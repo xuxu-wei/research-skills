@@ -1,5 +1,7 @@
 # Opportunity Map
 
+Use only for `evidence_and_opportunity` or `idea_landscape`.
+
 ## Summary
 
 - Number of opportunities:

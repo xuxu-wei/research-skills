@@ -78,7 +78,13 @@ current reviews. A substantive change invalidates them.
 1. **Initialize.** Record scope, constraints, sources, schema, and pointers;
    return `layout_migration_required` for read-only v1/v2 projects.
 2. **Ground and route.** Dispatch `research-context-builder`, then
-   `research-landscape-mapper`; freeze an unscored routing decision.
+   `research-landscape-mapper` with `consumer_workflow: idea` and
+   `output_profile: idea_landscape`; freeze an unscored routing decision. Store
+   any deep-research round under `02_evidence/deep-research/` and pause until
+   the returned report is accepted. Use staged writes for dense evidence. On
+   idle/interrupted/no target-file progress, retry only that incomplete artifact
+   once with frozen reads; keep completed outputs. A passing artifact check is
+   sufficient to register and continue without a delegate final message.
 3. **Write.** Produce one focused dossier or two/three evidence-supported
    directions with complete chains, claim table, metadata, and structural lint.
 4. **Preflight and revise science.** When methods are material, put required
@@ -94,6 +100,8 @@ current reviews. A substantive change invalidates them.
    `evidence_change_assessment`: reuse on `none`, use Built-in Search or one focused
    synthesis on `bounded`, and re-enter `research-landscape-mapper` on `major`.
    Synchronize changed claims, then run readiness and terminal evaluation.
+   Never expose a raw search history or deep-research request, guide, or report
+   to `idea-evaluator`.
 8. **Review journal fit.** Persist the evaluator's frozen score-free candidate
    payload; send it and the dossier to fresh `medical-journal-review`. Do not rematch.
 9. **Run adversarial handoff.** For a focused Proposal candidate, dispatch the

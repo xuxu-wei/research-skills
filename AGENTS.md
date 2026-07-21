@@ -11,3 +11,4 @@
 - 源文件、生成的 Registry、Manifest、文档和验证预期必须同步更新。
 - 交付前运行适用的仓库与插件审计；修复所有错误，并报告仍然存在的警告。
 - 涉及 OpenAI 插件的本地开发、安装、测试或发布时，遵循 `research-skills-openai/docs/development-test-release-workflow.md`；插件子树内更具体的 `AGENTS.md` 规则仍然优先。
+- **所有面向研究者和用户的文本使用自然语言和标准科学术语；模型内部工作术语/状态机术语不允许出现在任何面向用户的内容中。**

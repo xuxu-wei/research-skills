@@ -1,5 +1,15 @@
 # Search Routing Rules
 
+## Contents
+
+- [Evidence-change decision](#evidence-change-decision)
+- [Routing by domain](#routing-by-domain)
+- [Reuse before retrieval](#reuse-before-retrieval)
+- [Retrieval depth](#retrieval-depth)
+- [Routing output](#routing-output)
+
+## Evidence-change decision
+
 Record this decision before new retrieval during an iteration:
 
 ```yaml
@@ -16,6 +26,21 @@ evidence_change_assessment:
   route_reason: ""
 ```
 
+The mapper request also records:
+
+```yaml
+consumer_workflow: idea | proposal | perspective | article | research_polisher
+output_profile: evidence_only | evidence_and_opportunity | idea_landscape
+retrieval_mode: auto | built_in_web_search | deep_research
+exploration_mode: standard | focused | divergent
+```
+
+Use `auto` in production unless the researcher explicitly selects a search
+mode. A test fixture may force one mode. A forced Built-in Search run must not
+silently switch to Deep Research; report remaining coverage limits instead. A
+forced Deep Research run must not use ordinary Search as a substitute for the
+returned report.
+
 - `none`: reuse verified evidence whose scope and freshness still match.
 - `bounded`: use Built-in Search for an exact source or claim; use
   `focused-literature-synthesizer` only when 2-5 papers require close full-text
@@ -28,7 +53,9 @@ multiple focused syntheses to approximate field-level Deep Research.
 
 The mapper owns broad retrieval planning and execution. Orchestrators classify
 materiality and provide task scope, constraints, existing evidence artifacts,
-and resource budget.
+resource budget, consumer workflow, and output profile. Within an orchestrated
+workflow, the mapper returns one bounded focused-synthesis request to the parent
+orchestrator rather than creating a hidden nested chain.
 
 Use ChatGPT/Codex built-in Search for quick, recent, or targeted retrieval. Use ChatGPT Deep Research for multi-stage, multi-direction, multi-source synthesis. If Deep Research is needed but the current task is not running in that mode, save a self-contained continuation package, return `deep_research_handoff_required`, and pause.
 

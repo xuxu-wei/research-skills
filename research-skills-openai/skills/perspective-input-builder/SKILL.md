@@ -20,6 +20,8 @@ description: "Normalize a Perspective thesis, audience, outlet, evidence, and co
 - 用户材料或文献线索必须记录预期用途和允许支撑的命题；未经 curator 核验，不得把初步用途当作已验证的引文绑定
 - 用户提供已有稿件时，可读取但不自动修改
 - 所有候选选项必须标注来源（`user-provided` 或 `system-proposed`）
+- 输入完整性只记录只读路径和简单的未修改确认；不得计算、报告或持久化
+  SHA、content hash、checksum 或 digest
 
 ## I/O Contract
 

@@ -1,5 +1,5 @@
 schema_version: 6
-plugin_version: "0.12.0"
+plugin_version: "0.13.0-preview.1"
 legacy_skill_name_aliases:
   academic-deep-search: focused-literature-synthesizer
   research-opportunity-mapper: research-landscape-mapper
@@ -455,8 +455,8 @@ workflow_edges:
     destination: "research-landscape-mapper"
     dispatch_mode: "orchestrated"
     trigger: "major_evidence_or_novelty_landscape_change"
-    input_contract: "context_sources_scope_and_current_dossier_when_remapping"
-    output_contract: "evidence_opportunity_maps_and_direction_support_signals"
+    input_contract: "context_sources_scope_current_dossier_when_remapping_and_idea_landscape_profile"
+    output_contract: "evidence_opportunity_maps_reader_handoff_and_direction_support_signals"
     failure_route: "evidence_mapping_pending"
   - workflow: "idea"
     source: "research-idea-orchestrator"
@@ -551,7 +551,7 @@ workflow_edges:
     destination: "research-landscape-mapper"
     dispatch_mode: "orchestrated"
     trigger: "major_core_claim_novelty_landscape_or_conflict_change"
-    input_contract: "context_sources_and_retrieval_scope"
+    input_contract: "context_sources_retrieval_scope_and_evidence_and_opportunity_profile"
     output_contract: "evidence_and_opportunity_maps"
     failure_route: "evidence_mapping_pending"
   - workflow: "proposal"
@@ -727,7 +727,7 @@ workflow_edges:
     destination: "research-landscape-mapper"
     dispatch_mode: "orchestrated"
     trigger: "major_grounding_novelty_landscape_or_conflict_change"
-    input_contract: "research_question_sources_and_scope"
+    input_contract: "research_question_sources_scope_and_evidence_only_profile"
     output_contract: "evidence_map_and_limitations"
     failure_route: "evidence_mapping_pending"
   - workflow: "article"
@@ -879,7 +879,7 @@ workflow_edges:
     destination: "research-landscape-mapper"
     dispatch_mode: "orchestrated"
     trigger: "major_discourse_novelty_landscape_or_conflict_change"
-    input_contract: "claims_sources_and_retrieval_scope"
+    input_contract: "claims_sources_retrieval_scope_and_evidence_only_profile"
     output_contract: "evidence_map_and_limitations"
     failure_route: "evidence_mapping_pending"
   - workflow: "perspective"
@@ -991,7 +991,7 @@ workflow_edges:
     destination: "research-landscape-mapper"
     dispatch_mode: "orchestrated"
     trigger: "major_core_positioning_novelty_landscape_or_conflict_change"
-    input_contract: "frozen_dossier_questions_sources_and_scope"
+    input_contract: "frozen_dossier_questions_sources_scope_and_evidence_and_opportunity_profile"
     output_contract: "evidence_and_opportunity_maps"
     failure_route: "evidence_mapping_pending"
   - workflow: "research_polisher"
@@ -1050,6 +1050,102 @@ workflow_edges:
     input_contract: "selected_evaluator_qualified_repositioning_constraints"
     output_contract: "article_blueprint_state"
     failure_route: "handoff_blocked"
+evidence_retrieval_policy:
+  production_retrieval_mode: auto
+  allowed_retrieval_modes:
+  - auto
+  - built_in_web_search
+  - deep_research
+  allowed_exploration_modes:
+  - standard
+  - focused
+  - divergent
+  output_profiles:
+    evidence_only:
+      required_artifact_roles:
+      - evidence_map
+      default_consumers:
+      - article
+      - perspective
+    evidence_and_opportunity:
+      required_artifact_roles:
+      - evidence_map
+      - opportunity_map
+      default_consumers:
+      - proposal
+      - research_polisher
+    idea_landscape:
+      required_artifact_roles:
+      - evidence_map
+      - opportunity_map
+      - reader_reasoning_handoff
+      - idea_direction_signals
+      default_consumers:
+      - idea
+  artifact_assembly:
+    dependency_order:
+    - verification_log_when_required
+    - evidence_map
+    - opportunity_map_when_required
+    - reader_handoff_when_required
+    - routing_signals_when_required
+    row_dense_artifacts_use_incremental_persistence: true
+    single_writer_per_artifact: true
+    freeze_only_after_read_only_consistency_check: true
+    incomplete_artifact_available_to_consumers: false
+    completion_signal: passing_artifact_check_without_separate_delegate_final_message
+    no_progress_recovery:
+      scope: current_incomplete_artifact_or_batch_only
+      fresh_retry_limit: 1
+      preserve_completed_outputs: true
+      content_hash_required: false
+  claim_source_binding:
+    citation_unit: atomic_claim
+    direct_support_minimum: 1
+    direct_support_maximum: 5
+    single_source_status_requires_exactly_one: true
+    zero_source_claim_cannot_be_supported: true
+    sixth_source_requires_representative_selection_or_claim_split: true
+    linked_reference_ids_resolve_exactly_once: true
+    allowed_source_roles:
+    - direct_support
+    - direct_contradiction
+    - background_only
+    - negative_search_result
+    clause_local_citation_binding: true
+  deep_research_continuation:
+    outgoing_artifact_roles:
+    - deep_research_request
+    - deep_research_follow_up_guide
+    returned_artifact_role: deep_research_report
+    request_is_exact_sendable_prompt: true
+    request_preferred_characters:
+      minimum: 2500
+      maximum: 6000
+    request_warning_characters: 8000
+    request_hard_maximum_characters: 12000
+    follow_up_guide_hard_maximum_characters: 5000
+    logical_refs_only: true
+    stored_hashes_or_digests: false
+    raw_package_visible_to_final_evaluators: false
+    post_return_repair:
+      report_acceptance_does_not_select_retrieval_route: true
+      route_order:
+      - deterministic_normalization
+      - built_in_search_and_agent_repair
+      - focused_literature_synthesis
+      - second_deep_research
+      second_deep_research_requires_prior_lower_cost_repair: true
+      second_deep_research_requires_severe_scientific_condition: true
+      second_deep_research_requires_owner_approval: true
+      prepare_second_round_before_approval: false
+      citation_mechanics_alone_trigger_second_deep_research: false
+    paths_by_consumer:
+      idea: 02_evidence/deep-research/round-NNN/
+      proposal: 02_evidence/deep-research/round-NNN/
+      perspective: 02_evidence/deep-research/round-NNN/
+      article: 03_literature/deep-research/round-NNN/
+      research_polisher: 02_evidence/deep-research/round-NNN/
 workflow_state_policy:
   state_field: workflow_state
   active_states:
@@ -3273,6 +3369,8 @@ scenario_eval_contract:
       research-landscape-mapper:
       - evidence_map
       - opportunity_map
+      - deep_research_request
+      - deep_research_follow_up_guide
       focused-literature-synthesizer:
       - focused_literature_synthesis
       article-literature-grounder:

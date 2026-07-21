@@ -8,13 +8,14 @@ presented as a production-stable, supported, shared, or public distribution.
 
 The maintained deterministic suite covers static audits, workflow fixtures,
 reviewer isolation, context budgets, registry generation, and plugin packaging.
-The `0.12.0` checkpoint renames the two evidence entry skills to distinguish
-bounded full-text synthesis from broad landscape and novelty mapping. It also
-adds evidence-change materiality routing, a two-file Deep Research continuation
-package, and one citation record shared across retrieval routes. Historical
-Roadmap phases remain closed records and are not rerun merely because later
-versions change their assumptions. Complete Search/Deep Research runtime
-revalidation is not an active priority unless the owner explicitly reopens it.
+The `0.13.0-preview.1` checkpoint keeps the two evidence entry skills separate,
+makes the broad mapper consumer-aware, and binds each atomic claim to one to five
+directly relevant works. Its Deep Research request is directly sendable, while
+local continuation state remains outside the prompt; recoverable return defects
+use lower-cost repair before any owner-approved second Deep Research run.
+Historical Roadmap phases remain closed records. Fresh runtime validation of the
+new citation and repair behavior remains a P1 item, so this prerelease is not a
+complete functional acceptance.
 
 Research Polisher is already implemented as the seventh declared entry and is
 permanently explicit-only under the current personal routing policy. See
@@ -82,24 +83,28 @@ $env:PYTHONUTF8 = "1"
 python -m pip install -r requirements-dev.txt
 ```
 
-Keep exactly one plugin channel enabled. After disabling the Git-installed copy,
+Keep exactly one channel enabled. After disabling the Git-installed copy,
 run the local update loop from the repository root:
 
 ```powershell
-$sourceVersion = (Get-Content -Raw -Encoding utf8 research-skills-openai/.codex-plugin/plugin.json | ConvertFrom-Json).version
 python scripts/openai_plugin_dev.py status
 python scripts/openai_plugin_dev.py install-local
-python scripts/openai_plugin_dev.py verify --channel local --expected-version $sourceVersion
+python scripts/openai_plugin_dev.py verify --channel local --expected-version 0.13.0-preview.1
 ```
 
-Codex does not hot-reload Skill files. Reinstall after every Skill change and
-start a new task for behavioral testing. Never commit or push a
+Codex does not hot-reload Skill files. After every Skill change, rerun
+`install-local` and start a new Codex task. Never commit or push a
 `+codex.local-*` version. See the canonical process for first-time marketplace
 setup, test-run metadata, monitoring, GitHub-channel verification, and rollback.
+After release and Git-channel activation, verify the clean source version with:
+
+```powershell
+python scripts/openai_plugin_dev.py verify --channel github --expected-version 0.13.0-preview.1
+```
 
 ## Inventory and invocation policy
 
-The maintained `0.12.0` source contains 51 skill contracts and declares
+The maintained `0.13.0-preview.1` source contains 51 skill contracts and declares
 seven discoverable entry skills. Six currently set
 `allow_implicit_invocation: true`:
 
@@ -282,6 +287,8 @@ python scripts/test_openai_release_contract.py
 python scripts/test_openai_cross_workflow_narrative_contract.py
 python scripts/test_openai_article_docx_contract.py
 python research-skills-openai/skills/academic-language-assessor/scripts/test_validate_language_assessment.py
+python scripts/test_validate_deep_research_package.py
+python scripts/test_openai_search_module_contract.py
 python scripts/test_openai_plugin_dev.py
 python scripts/codex_plugin_converter.py --mode codex --fail-on-invalid
 python "$env:USERPROFILE\.codex\skills\.system\plugin-creator\scripts\validate_plugin.py" research-skills-openai

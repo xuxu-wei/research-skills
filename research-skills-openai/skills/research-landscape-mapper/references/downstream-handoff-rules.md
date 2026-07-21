@@ -30,6 +30,19 @@ Provide evidence summary, exact per-claim support statuses, source limits, and
 novelty/gap status as requested by the Proposal role. Do not draft proposal text
 or make evaluator decisions.
 
+## Perspective and Article workflows
+
+Use `evidence_only` unless the downstream decision explicitly requires an
+Opportunity Map. Return source-grounded claims, contrary evidence, limitations,
+and stable references to the curator or grounder. Do not pass the raw Deep
+Research request, follow-up guide, report, or search history to final evaluators.
+
+## Research Polisher
+
+Use `evidence_and_opportunity` for major positioning or novelty changes. Return
+the maps to the strategy workflow; do not turn evidence retrieval into an
+unrequested new research direction.
+
 ## Portfolio assembler
 
 Provide map and ledger links plus remaining uncertainties. The portfolio links

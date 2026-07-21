@@ -39,6 +39,13 @@ Required Outputs:
   - existing-discourse-baseline.md
   - reference-list.md
 
+Initial Standard/Full Write Order:
+  - Batch 1: claim-ledger.md; freeze Claim IDs and preliminary wording
+  - Batch 2: claim-evidence-matrix.md; persist its header/claim index, then Binding groups in Claim-ID order, then its summary/check
+  - Batch 3: evidence-map.md, evidence-limitations.md, existing-discourse-baseline.md; complete one file at a time
+  - Batch 4: citation-risk-log.md, contrary-evidence-log.md, reference-list.md; complete one file at a time
+  - Final pass: read-only cross-file ID/status check; patch only concrete inconsistencies
+
 May Read:
   - 00_input/ 目录下所有文件
   - 用户提供的证据文件
@@ -57,7 +64,7 @@ Must Not Write:
 
 May Call:
   - focused-literature-synthesizer（精读 2–5 篇论文的有界问题）
-  - research-landscape-mapper（A/B 路径，按需——如 skill 在环境中可用）
+  - research-landscape-mapper（仅重大证据格局或创新定位变化；`output_profile: evidence_only`）
   - ChatGPT/Codex 内置 Search；多阶段综合任务可由 orchestrator 路由至 Deep Research
 
 Must Not Call:
@@ -83,6 +90,13 @@ Escalation Route:
 在 `01_claims/claim-ledger.md` 创建初始账本。每条 claim 记录：
 
 - Claim text, Claim type (empirical/conceptual/normative/translational/policy), Claim strength (strong/moderate/weak/speculative/preliminary), Supported by, Contrary evidence, Boundary condition, Allowed/Forbidden wording, Status (keep/weaken/delete/move_to_future_agenda), Last modified.
+
+在 Standard/Full 初始构建中，先单独写入并冻结该账本，再分批完成其余产物。
+同一 curator 依次处理各批次，不并发写入，也不在一个响应中同时起草全部产物。
+后续批次不得重新编号或静默合并 Claim；最终只读一致性检查仅修补明确冲突。
+对于包含大量来源、Claim 或 Binding 行的单个文件，先持久化标题和字段结构，再按
+稳定 ID 顺序分组写入记录，最后补齐汇总并做只读检查；不得等整份高密度文件在
+上下文中完全组装后才首次写入。未完成文件不得冻结或提供给下游使用。
 
 ### 3. Match Evidence to Claims
 
@@ -124,7 +138,7 @@ Escalation Route:
 
 ### 9. Trigger Retrieval (Standard/Full Mode)
 
-先记录 `evidence_change_assessment`：已有证据可用时复用；单一引用或主张核对使用内建 Search，需精读 2–5 篇全文时调用 `focused-literature-synthesizer`；只有核心主张、创新定位、证据格局或重大冲突发生实质改变时才调用 `research-landscape-mapper`。Lite Mode 跳过。
+先记录 `evidence_change_assessment`：已有证据可用时复用；单一引用或主张核对使用内建 Search，需精读 2–5 篇全文时调用 `focused-literature-synthesizer`；只有核心主张、创新定位、证据格局或重大冲突发生实质改变时才调用 `research-landscape-mapper`，并请求 `evidence_only`。Lite Mode 跳过。
 
 ## Lite Mode
 

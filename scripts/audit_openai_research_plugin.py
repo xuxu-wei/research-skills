@@ -1225,6 +1225,80 @@ def main() -> int:
         errors.append("Deep Research Focused template skips required phases")
     if "deep-research-report-vNNN.md" not in deep_research_template + deep_research_follow_up:
         errors.append("Deep Research continuation package lacks the versioned return report contract")
+    if len(deep_research_template) > 4000:
+        errors.append("Deep Research request template exceeds the 4000-character template budget")
+    required_deep_research_headings = (
+        "## Research objective and intended use",
+        "## Core research question",
+        "## Scope and boundaries",
+        "## Known background and unresolved issues",
+        "## Questions to answer",
+        "## Search scope and source requirements",
+        "## Analysis and synthesis requirements",
+        "## Report structure",
+        "## Citation and link requirements",
+        "## Completion criteria",
+    )
+    heading_positions = [deep_research_template.find(value) for value in required_deep_research_headings]
+    if any(position < 0 for position in heading_positions) or heading_positions != sorted(heading_positions):
+        errors.append("Deep Research request template lacks the required ordered prompt structure")
+    for residue in (
+        "workflow id",
+        "pending edge",
+        "plugin version",
+        "artifact_id",
+        "resume target",
+        "deep_research_handoff_required",
+        "sha256",
+        "digest",
+    ):
+        if residue in deep_research_template.lower():
+            errors.append(f"Deep Research request template leaks internal field `{residue}`")
+    deep_research_validator = (
+        SKILLS
+        / "research-landscape-mapper"
+        / "scripts"
+        / "validate_deep_research_package.py"
+    )
+    if not deep_research_validator.exists():
+        errors.append("research-landscape-mapper lacks the deterministic Deep Research package validator")
+    evidence_policy = registry_data.get("evidence_retrieval_policy", {})
+    if set(evidence_policy.get("output_profiles", {})) != {
+        "evidence_only",
+        "evidence_and_opportunity",
+        "idea_landscape",
+    }:
+        errors.append("registry lacks the three consumer-specific evidence output profiles")
+    continuation_policy = evidence_policy.get("deep_research_continuation", {})
+    if (
+        continuation_policy.get("request_is_exact_sendable_prompt") is not True
+        or continuation_policy.get("stored_hashes_or_digests") is not False
+        or continuation_policy.get("request_hard_maximum_characters") != 12000
+    ):
+        errors.append("registry Deep Research continuation contract is incomplete")
+    claim_binding_policy = evidence_policy.get("claim_source_binding", {})
+    if (
+        claim_binding_policy.get("citation_unit") != "atomic_claim"
+        or claim_binding_policy.get("direct_support_minimum") != 1
+        or claim_binding_policy.get("direct_support_maximum") != 5
+        or claim_binding_policy.get("clause_local_citation_binding") is not True
+    ):
+        errors.append("registry claim/source binding contract is incomplete")
+    post_return_repair = continuation_policy.get("post_return_repair", {})
+    if (
+        post_return_repair.get("second_deep_research_requires_prior_lower_cost_repair") is not True
+        or post_return_repair.get("second_deep_research_requires_owner_approval") is not True
+        or post_return_repair.get("prepare_second_round_before_approval") is not False
+        or post_return_repair.get("citation_mechanics_alone_trigger_second_deep_research") is not False
+    ):
+        errors.append("registry Deep Research post-return repair contract is incomplete")
+    for citation_marker in (
+        "one to five",
+        "atomic claim",
+        "[R001](https://doi.org/{verified-doi-1})",
+    ):
+        if citation_marker not in deep_research_template:
+            errors.append(f"Deep Research request template lacks citation marker `{citation_marker}`")
     academic_deep_search = read(SKILLS / "focused-literature-synthesizer" / "SKILL.md")
     if (
         "2-5" not in academic_deep_search
@@ -1237,7 +1311,6 @@ def main() -> int:
         "single owner of broad retrieval policy" not in opportunity_mapper
         or "Built-in Search" not in opportunity_mapper
         or "deep_research_handoff_required" not in opportunity_mapper
-        or "Local scripts are never the default" not in opportunity_mapper
     ):
         errors.append("research-landscape-mapper does not exclusively own native Search/Deep Research routing")
     if "evidence_change_assessment" not in read(

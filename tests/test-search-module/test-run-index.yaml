@@ -1,0 +1,51 @@
+schema_version: 1
+plugin_base_version: 0.13.0
+workspace: research-skills
+original_inputs_read_only: true
+cases:
+  - case_id: perspective-deep-research
+    workflow: perspective-orchestrator
+    retrieval_mode: deep_research
+    input_path: tests/test-perspective/init-perspective.md
+    output_path: tests/test-search-module/perspective-deep-research/runs/run-002/
+    session_name: codex-test-perspective-deep-research-r2
+    thread_id: 019f83ff-b641-7923-84d1-4aaaa98cf1bc
+    deep_link: null
+    status: awaiting_deep_research_report
+    prior_attempt:
+      output_path: tests/test-search-module/perspective-deep-research/runs/run-001/
+      thread_id: 019f839c-da64-7750-be39-ef546f1e69b5
+      result: runtime_recovery_required
+    result_summary_path: null
+  - case_id: idea-landscape-deep-research
+    workflow: research-idea-orchestrator
+    mapper_output_profile: idea_landscape
+    retrieval_mode: deep_research
+    input_path: tests/test-idea/idea-initial.md
+    output_path: tests/test-search-module/idea-landscape-deep-research/runs/run-001/
+    session_name: codex-test-idea-landscape-deep-research
+    thread_id: 019f839d-ffe4-79d0-af28-a8a0a572f710
+    deep_link: null
+    status: awaiting_deep_research_report
+    result_summary_path: null
+  - case_id: perspective-web-search
+    workflow: perspective-orchestrator
+    retrieval_mode: built_in_web_search
+    input_path: tests/test-perspective/init-perspective.md
+    output_path: tests/test-search-module/perspective-web-search/runs/run-001/
+    session_name: codex-test-perspective-web-search
+    thread_id: null
+    deep_link: null
+    status: planned_after_deep_research_cases_pass
+    result_summary_path: null
+  - case_id: idea-landscape-web-search
+    workflow: research-idea-orchestrator
+    mapper_output_profile: idea_landscape
+    retrieval_mode: built_in_web_search
+    input_path: tests/test-idea/idea-initial.md
+    output_path: tests/test-search-module/idea-landscape-web-search/runs/run-001/
+    session_name: codex-test-idea-landscape-web-search
+    thread_id: null
+    deep_link: null
+    status: planned_after_deep_research_cases_pass
+    result_summary_path: null

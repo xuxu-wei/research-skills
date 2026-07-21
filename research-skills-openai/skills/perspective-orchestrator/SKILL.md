@@ -17,6 +17,8 @@ unfixable/no-gain work is `stopped`.
   work runs in fresh independent subagents.
 - Register `{artifact_id, version, path}` plus complete index membership. Legacy
   digests are read-only and never gates.
+- Confirm frozen inputs with read-only paths and a simple unchanged flag; never
+  compute, request, report, or persist a hash or digest.
 - Preserve unresolved issues, conflicts, fatal findings, and dissent. Never submit.
 
 Select mode with `references/workflow-modes.md`. Lite performs provisional claims/evidence
@@ -28,7 +30,20 @@ preprocessing and cannot claim readiness; full reaches STEP 12.
 2. **Curate.** Use `perspective-claim-evidence-curator` for ledger, bindings,
    discourse, contrary evidence, citation risks, and limits. On later evidence
    findings, the curator reuses evidence on `none`, uses Search or one focused
-   synthesis on `bounded`, and requests broad landscape mapping only on `major`.
+   synthesis on `bounded`, and requests broad landscape mapping only on `major`,
+   with `consumer_workflow: perspective` and `output_profile: evidence_only`.
+   Store any deep-research round under `02_evidence/deep-research/` and pause
+   until its report is accepted. Initial Standard/Full curation is staged by one
+   curator: freeze claims in the ledger first, then write the matrix, evidence
+   baseline/limits, and risk/reference logs in bounded batches followed by one
+   read-only consistency pass. Never request all interdependent outputs in one
+   response. Row-dense files must also persist their structure and bounded ID
+   groups before the final summary/check. If a delegate is idle/interrupted or
+   its current target shows no meaningful file progress, stop waiting and retry
+   only that file or batch once in a fresh instance with frozen reads; preserve
+   completed batches and do not restart curation. When the current artifact
+   passes its check, register it and continue without waiting for a separate
+   delegate final message.
 3. **Architect.** Use `perspective-argument-architect`; freeze the complete embedded
    reader-handoff payload and copy it, not the manifest/skeleton, into later briefs.
 4. **Draft/check.** Use `perspective-drafter`. Require a registered draft/map, then
@@ -66,6 +81,8 @@ installed evaluation resources are the stable rubric and anti-pattern checklist.
 must never receive the brief, skeleton, map, ledger/matrix, readiness/state, repair,
 delta, conformance/preservation output, narrative/language report, artifact index,
 panel/prior review, score, finding, gate, or decision.
+Raw search histories and deep-research request/guide/report files are also
+excluded.
 
 ### STEP 11: Outlet and Medical Review
 

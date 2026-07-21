@@ -40,3 +40,10 @@ skills-openai-plugin/
 /tests/test-*/
 /tests/0.10.0-*/
 /tests/0.11.0-*/
+
+# Search-module forward-test prompts are release fixtures; generated runs remain private.
+!/tests/test-search-module/
+!/tests/test-search-module/test-run-index.yaml
+!/tests/test-search-module/*/
+!/tests/test-search-module/*/follow-up-guide.md
+/tests/test-search-module/*/runs/

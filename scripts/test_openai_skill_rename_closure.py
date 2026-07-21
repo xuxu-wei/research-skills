@@ -46,7 +46,7 @@ def without_mapping_block(text: str, variable: str) -> str:
 def main() -> int:
     registry = load_yaml(PLUGIN / "workflow-registry.yaml")
     manifest = json.loads((PLUGIN / ".codex-plugin" / "plugin.json").read_text(encoding="utf-8"))
-    require(manifest["version"] == registry["plugin_version"] == "0.12.0", "version mismatch")
+    require(manifest["version"] == registry["plugin_version"] == "0.13.0-preview.1", "version mismatch")
 
     skill_dirs = sorted(path for path in SKILLS.iterdir() if path.is_dir())
     require(len(skill_dirs) == 51, f"expected 51 skills, found {len(skill_dirs)}")
