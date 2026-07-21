@@ -9,7 +9,7 @@ and opportunity mapping.
   or prior evidence work, record their exact paths or source locators and do not
   ask for them again.
 - If no usable evidence is supplied, route retrieval and mapping to
-  `research-opportunity-mapper`.
+  `research-landscape-mapper`.
 - Treat a single research article as a hypothesis-generating source, not a field
   consensus or novelty verdict. Verify its proposed gap against broader sources.
 - Do not let the orchestrator or context builder judge evidence quality,

@@ -91,17 +91,17 @@ Extract:
 ```markdown
 ### Experiment Type: Western Blot
 
-| Marker | Reported Change | Context | Reference |
+| Marker | Reported Change | Context | GB/T 7714—2015 reference and link |
 |--------|------------------|---------|-----------|
 | X | Increased | Mouse lung tissue | PMID/PMCID |
 
-Sources: PMID1, PMID2
+Sources: full GB/T 7714—2015 citations with complete links and available identifiers
 ```
 
 ### Figure Mode
 
 ```markdown
-[Paper Title] | [Journal] | [Year] | [PMID/PMCID/DOI]
+[GB/T 7714—2015 citation] | [complete link] | [PMID/PMCID/DOI]
 Figure: Fig. 2A
 What it shows: Brief explanation
 Caption note: Short direct summary or careful paraphrase

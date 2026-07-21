@@ -15,8 +15,8 @@ Rationale:
 
 ## Source Records
 
-| Source ID | Citation / title | Source type | How obtained | Retrieval date | Verified? | Supports claims | Limitations |
-|---|---|---|---|---|---|---|---|
+| Reference ID | GB/T 7714—2015 citation | Complete link | Identifiers | Identification status | Verification status | Original locator | Verification date | Supports claims | Limitations |
+|---|---|---|---|---|---|---|---|---|---|
 
 ## Conflicts or Duplicates
 

@@ -17,6 +17,15 @@ evidence_map:
     retrieval_routes_executed: []
     retrieved_or_available_sources: []
     inaccessible_or_missing_sources: []
+  references:
+    - reference_id: R001
+      citation_gbt7714_2015: ""
+      canonical_url: ""
+      identifiers: {doi: "", pmid: "", pmcid: "", isbn: ""}
+      identification_status: explicitly_identified | inferred_unique_match | inferred_series_match | ambiguous_candidates | not_found
+      verification_status: verified | unverified | access_limited
+      original_source_locator: ""
+      verification_date: ""
   key_claims:
     - claim_id: C1
       label: ""
@@ -24,8 +33,7 @@ evidence_map:
       claim_type: background | gap | value | method | data | metric | guideline | implementation | other
       support_status: supported | weak | conflicting | single-source | unverified | access-limited
       supporting_sources:
-        - citation: ""
-          original_source: ""
+        - reference_id: R001
           locator: ""
       opposing_sources: []
       evidence_confidence: high | moderate | low | speculative | not_verified

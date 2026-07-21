@@ -1,4 +1,4 @@
-﻿# Readiness Report Field Requirements
+# Readiness Report Field Requirements
 
 This file defines the required fields for a proposal readiness report. It is a structural guide, not executable code.
 
@@ -63,7 +63,7 @@ One of:
 
 - `proposal-drafter`
 - `proposal-context-brief-builder`
-- `research-opportunity-mapper`
+- `research-landscape-mapper`
 - `methodology-statistics-preflight`
 - `research-idea-orchestrator`
 - `idea-evaluator`

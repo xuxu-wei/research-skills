@@ -1,8 +1,8 @@
 ---
-name: academic-deep-search
-description: "Answer one bounded academic question from 2-5 closely read papers; route broader or multi-stage synthesis to research-opportunity-mapper."
+name: focused-literature-synthesizer
+description: "Synthesize one bounded academic question from 2-5 closely read papers; use for narrow method, marker, finding, or figure questions."
 ---
-# Academic Deep Search
+# Focused Literature Synthesizer
 
 Use this skill for requests such as:
 
@@ -21,13 +21,13 @@ Use this skill only when all conditions hold:
 - the requested output is a focused synthesis, not a comprehensive evidence map, novelty landscape, systematic review, or research-gap analysis;
 - the source, population/problem, method, marker, result type, or figure type can be stated precisely enough to guide a small search.
 
-If more than five papers, several evidence directions, broad field coverage, or iterative gap mapping are needed, route to `research-opportunity-mapper`. Do not broaden this skill into Deep Research.
+If more than five papers, several evidence directions, broad field coverage, or iterative gap mapping are needed, route to `research-landscape-mapper`. Do not broaden this skill into Deep Research.
 
 ## Search Capability Routing
 
 - Use ChatGPT/Codex built-in Search for targeted discovery, current literature checks, exact source verification, and opening candidate papers.
 - Require live search when recency is material. If only indexed/cached results are available, state the freshness limitation.
-- If the question requires multi-stage synthesis across several evidence directions or source classes, stop this skill and route to `research-opportunity-mapper`, which owns Deep Research handoffs.
+- If the question requires multi-stage synthesis across several evidence directions or source classes, stop this skill and route to `research-landscape-mapper`, which owns Deep Research handoffs.
 - Do not encode product-internal tool function names. Describe the required capability, source scope, and output contract.
 
 ## Two Output Modes
@@ -99,7 +99,7 @@ Prefer the best database for the topic:
 - quantitative or engineering topics: field-appropriate databases
 - broad discovery: web search only when a better native source is unavailable
 
-Aim to identify 2-5 relevant papers with accessible full text. A few well-read papers are better than many shallow hits. If five papers are insufficient after focused query refinement, stop and route to `research-opportunity-mapper` rather than continuing to accumulate sources.
+Aim to identify 2-5 relevant papers with accessible full text. A few well-read papers are better than many shallow hits. If five papers are insufficient after focused query refinement, stop and route to `research-landscape-mapper` rather than continuing to accumulate sources.
 
 ### 5. Verify Source Membership Before Citing
 
@@ -138,7 +138,8 @@ Then synthesize across papers instead of writing a paper-by-paper summary unless
 ## Output Rules
 
 - Answer directly in chat unless the user asks for a file.
-- Use inline citations such as PMID, PMCID, DOI, or direct links.
+- Give every cited source a GB/T 7714—2015 citation and a complete clickable
+  link; retain DOI, PMID, PMCID, or ISBN when available.
 - Be explicit about what was actually read.
 - If evidence is limited, say so plainly.
 

@@ -38,12 +38,12 @@ RECEIPTS = REPO / "tests" / "openai_personal" / "current-version-owner-observed-
 REPORT = PLUGIN / "reports" / "personal-readiness.json"
 
 EXPECTED_DECLARED = {
-    "academic-deep-search",
+    "focused-literature-synthesizer",
     "article-orchestrator",
     "perspective-orchestrator",
     "proposal-orchestrator",
     "research-idea-orchestrator",
-    "research-opportunity-mapper",
+    "research-landscape-mapper",
     "research-polisher-orchestrator",
 }
 EXPECTED_IMPLICIT = EXPECTED_DECLARED - {"research-polisher-orchestrator"}

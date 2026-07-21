@@ -56,7 +56,8 @@ Must Not Write:
   - draft 内容
 
 May Call:
-  - research-opportunity-mapper（A/B 路径，按需——如 skill 在环境中可用）
+  - focused-literature-synthesizer（精读 2–5 篇论文的有界问题）
+  - research-landscape-mapper（A/B 路径，按需——如 skill 在环境中可用）
   - ChatGPT/Codex 内置 Search；多阶段综合任务可由 orchestrator 路由至 Deep Research
 
 Must Not Call:
@@ -119,11 +120,11 @@ Escalation Route:
 
 ### 8. Build Reference List
 
-→ `reference-list.md`：完整引用、来源标识（DOI/PMID/URL/用户材料）、Binding ID、source intent、用于哪个 claim、允许支持的具体论述、原文 locator、禁止外推、检索/验证日期、风险。
+→ `reference-list.md`：GB/T 7714—2015 完整引用、可点击的完整链接、来源标识（DOI/PMID/PMCID/ISBN/用户材料）、Binding ID、source intent、用于哪个 claim、允许支持的具体论述、原文 locator、禁止外推、检索/验证日期、风险。
 
 ### 9. Trigger Retrieval (Standard/Full Mode)
 
-若证据缺口阻塞后续 → 调用 research-opportunity-mapper（A/B 路径）。Lite Mode 跳过。
+先记录 `evidence_change_assessment`：已有证据可用时复用；单一引用或主张核对使用内建 Search，需精读 2–5 篇全文时调用 `focused-literature-synthesizer`；只有核心主张、创新定位、证据格局或重大冲突发生实质改变时才调用 `research-landscape-mapper`。Lite Mode 跳过。
 
 ## Lite Mode
 

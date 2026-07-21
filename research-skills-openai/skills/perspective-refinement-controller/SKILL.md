@@ -79,7 +79,7 @@ Must Not Call: panel reviewer, architect/curator(通过routing上报)
 | minor_revision | 表述/措辞 | drafter, 1轮 |
 | major_revision_draft | 部分论证不足 | drafter, ≤2轮 |
 | argument_rebuild | 论证链跳跃 | → architect |
-| evidence_rebuild | 证据不足 | → curator |
+| evidence_rebuild | 证据不足 | → curator 进行 materiality 分类与定向返回 |
 | thesis_redesign | 核心判断问题 | → input-builder+用户确认 |
 | outlet_retarget | outlet 不匹配 | → 更新profile+用户确认 |
 | reject_not_salvageable | 不可修复 | → 停止 |

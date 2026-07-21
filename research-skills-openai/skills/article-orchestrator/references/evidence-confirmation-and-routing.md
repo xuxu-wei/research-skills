@@ -1,6 +1,6 @@
 # Evidence Confirmation and Routing Rules
 
-Rules for confirming user-provided evidence materials and routing to `research-opportunity-mapper` when evidence is insufficient.
+Rules for confirming user-provided evidence materials and routing to `research-landscape-mapper` when evidence is insufficient.
 
 ## Evidence Confirmation Flow
 
@@ -38,18 +38,23 @@ Before Step 9 (Claim Audit), check:
 
 If claims lack evidence sources, mark them in the Evidence Provenance Ledger as `verification_status: user_supplied_unverified` or `inferred`.
 
-## Routing to research-opportunity-mapper
+## Evidence-change routing
 
-Call `research-opportunity-mapper` when:
-1. Literature grounding finds insufficient references for Introduction gap or Discussion comparison
-2. Evaluator flags `[evidence]` revision priorities
-3. Reviewer panel flags missing seminal work or competing evidence
-4. Novelty claim cannot be verified against existing literature
-5. User explicitly requests evidence retrieval
+For literature gaps, `[evidence]` findings, missing seminal or competing work,
+or an unverified novelty position, first record `evidence_change_assessment`:
 
-### Mapper Invocation Pattern
+- `none`: reuse the current grounding and relink claims if needed;
+- `bounded`: use Built-in Search for exact citations or one claim, or
+  `focused-literature-synthesizer` for a 2-5-paper close synthesis;
+- `major`: call `research-landscape-mapper` for a core-claim, novelty,
+  landscape, or material-conflict rebuild.
 
-Invoke `research-opportunity-mapper` as a named skill using the host's native skill mechanism.
+Language and editorial revision never triggers retrieval. Do not combine
+several focused syntheses into a broad grounding rebuild.
+
+### Landscape Mapper Invocation Pattern
+
+Invoke `research-landscape-mapper` as a named skill using the host's native skill mechanism.
 
 Provide:
 - Research question and domain

@@ -36,7 +36,7 @@ Mark an idea as ready for proposal workflow only when:
 
 Do not hand off directly to proposal drafting when:
 
-- evidence is missing or stale and should return to `research-opportunity-mapper`;
+- evidence is missing or stale and should return to `research-landscape-mapper`;
 - endpoint, metric, data source, or minimal analysis route is unclear and should return to `methodology-statistics-preflight`;
 - the idea remains too broad and should return to `multi-path-idea-generator` or `idea-evaluator`;
 - adversarial review finds a blocking novelty, feasibility, strategy, or reviewer-defensibility objection;

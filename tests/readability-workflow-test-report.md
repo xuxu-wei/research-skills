@@ -2,7 +2,7 @@
 
 ## Scope and handling rules
 
-- Current candidate: `research-skills-openai` `0.11.0`.
+- Current candidate: `research-skills-openai` `0.12.0`.
 - Frozen comparison baseline: `0.10.0` runs for Idea, Proposal, Perspective, and Article, created before source modification.
 - Original inputs under `tests/test-*` are read-only. Versioned run directories are generated evidence and are not release assets.
 - This report contains contract-level observations only; it does not reproduce confidential scientific content.
@@ -100,6 +100,20 @@ These results refine the macro diagnosis. The first Perspective failure occurred
 - Symptom: a fresh raw CLI prompt naming the private `research-narrative-assessor` did not receive that role in its exposed Skill catalog and inspected the installed cache to answer. A separate fresh, read-only, zero-tool task received the public `research-idea-orchestrator` entry at session start and accurately reported its role from injected instructions.
 - Suspected diagnosis: the smoke prompt used a private role with `allow_implicit_invocation: false`, so it did not cleanly distinguish runtime entry discovery from filesystem availability. There is no evidence that public entry discovery or orchestrated private-role delegation failed.
 - Proposed solution: use a public entry Skill for the no-tool Git discovery smoke, verify private-role inventory deterministically, and assess orchestrated private-role delegation only when a legitimate workflow branch reaches it. Do not open a new workflow correction or reproduction cycle for this test-design issue.
+
+### MIN-009 — Multi-entry CLI smoke falls back for Research Polisher
+
+- Plugin version: `0.12.0` Local development channel.
+- Symptom: a fresh read-only CLI task simultaneously named five workflow entries. The four implicit workflow entries loaded from the installed `0.12.0+codex.local-*` cache, while the explicit-only `research-polisher-orchestrator` was not registered in that session and the tester read its local source definition to complete the comparison.
+- Suspected diagnosis: the synthetic multi-entry prompt crossed the explicit-only discovery boundary; deterministic Registry and Local-channel verification still report Research Polisher as the seventh declared entry. No failure was observed in either renamed evidence entry or in a legitimate orchestrated Research Polisher branch.
+- Proposed solution: keep explicit-only discovery verification separate from multi-entry routing comparisons and test it only through an explicit single-entry task or a legitimate workflow branch in a later owner-prioritized pass. Per the minor-issue policy, do not reproduce or open a correction cycle now.
+
+### MIN-010 — Article artifact-index punctuation encoding
+
+- Plugin version: `0.11.0` Git-tag test run, Article deep-search and web-search routes.
+- Symptom: the two generated `13_state/artifact-index.md` files contain Unicode replacement characters where an em dash was intended in the heading and in non-applicable current-pointer cells. Registered artifact paths, the SAP authority decision, readiness outcome, and workflow route remain intact.
+- Suspected diagnosis: localized text-encoding loss while the fresh test agent serialized punctuation into the Markdown index; this did not affect YAML state or scientific content.
+- Proposed solution: in a later low-priority artifact-serialization pass, require UTF-8 round-trip validation for generated state/index Markdown and use a plain `-` or explicit `not_applicable` value in machine-relevant table cells. Per the minor-issue policy, do not modify or rerun the sealed `0.11.0` outputs for this isolated presentation defect.
 
 ## Current `0.11.0` acceptance record
 

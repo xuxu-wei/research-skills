@@ -15,6 +15,14 @@ PLUGIN = REPO / "research-skills-openai"
 SKILLS = PLUGIN / "skills"
 HERMES_SKILLS = REPO / "research-skills"
 
+LEGACY_SKILL_NAME_ALIASES = {
+    "academic-deep-search": "focused-literature-synthesizer",
+    "research-opportunity-mapper": "research-landscape-mapper",
+}
+LEGACY_ARTIFACT_ROLE_ALIASES = {
+    "focused_academic_synthesis": "focused_literature_synthesis",
+}
+
 REVIEWERS = {
     "academic-language-assessor",
     "idea-narrative-assessor",
@@ -51,8 +59,8 @@ PUBLIC_ENTRY_SKILLS = {
     "article-orchestrator",
     "perspective-orchestrator",
     "research-polisher-orchestrator",
-    "research-opportunity-mapper",
-    "academic-deep-search",
+    "research-landscape-mapper",
+    "focused-literature-synthesizer",
 }
 RESEARCH_POLISHER_ENTRY = "research-polisher-orchestrator"
 PERSONAL_IMPLICIT_ENTRY_SKILLS = PUBLIC_ENTRY_SKILLS - {RESEARCH_POLISHER_ENTRY}
@@ -61,6 +69,21 @@ PERSONAL_IMPLICIT_ENTRY_SKILLS = PUBLIC_ENTRY_SKILLS - {RESEARCH_POLISHER_ENTRY}
 # Hermes profile. Keep their package and dependency declarations explicit so
 # registry generation never infers a nonexistent Hermes source directory.
 OPENAI_NATIVE_SKILLS = {
+    "focused-literature-synthesizer": {
+        "package": "research",
+        "related_skills": ["research-landscape-mapper"],
+    },
+    "research-landscape-mapper": {
+        "package": "research",
+        "related_skills": [
+            "focused-literature-synthesizer",
+            "research-idea-orchestrator",
+            "proposal-orchestrator",
+            "article-literature-grounder",
+            "perspective-claim-evidence-curator",
+            "research-polisher-orchestrator",
+        ],
+    },
     "idea-narrative-assessor": {
         "package": "research-idea",
         "related_skills": [
@@ -86,12 +109,12 @@ OPENAI_NATIVE_SKILLS = {
     "research-polisher-orchestrator": {
         "package": "research-polisher",
         "related_skills": [
-            "academic-deep-search",
+            "focused-literature-synthesizer",
             "article-architect",
             "article-context-builder",
             "medical-journal-review",
             "methodology-statistics-preflight",
-            "research-opportunity-mapper",
+            "research-landscape-mapper",
             "research-polisher-methodology-publishability-reviewer",
             "research-polisher-plan-assembler",
             "research-polisher-strategy-reviewer",
@@ -100,7 +123,7 @@ OPENAI_NATIVE_SKILLS = {
     "research-polisher-strategy-reviewer": {
         "package": "research-polisher",
         "related_skills": [
-            "research-opportunity-mapper",
+            "research-landscape-mapper",
             "research-polisher-orchestrator",
         ],
     },
@@ -167,12 +190,14 @@ SKILL_IO_OVERRIDES = {
 }
 
 RELATED_SKILL_ADDITIONS = {
+    "article-literature-grounder": {"focused-literature-synthesizer"},
     "article-cover-letter": {"perspective-orchestrator", "perspective-final-compositor"},
     "perspective-orchestrator": {"article-cover-letter"},
     "perspective-final-compositor": {"article-cover-letter"},
-    "research-idea-orchestrator": {"idea-narrative-assessor", "research-narrative-assessor", "medical-journal-review"},
-    "proposal-orchestrator": {"research-narrative-assessor", "medical-journal-review"},
-    "perspective-orchestrator": {"research-narrative-assessor", "medical-journal-review"},
+    "research-idea-orchestrator": {"idea-narrative-assessor", "research-narrative-assessor", "medical-journal-review", "focused-literature-synthesizer"},
+    "proposal-orchestrator": {"research-narrative-assessor", "medical-journal-review", "focused-literature-synthesizer"},
+    "perspective-orchestrator": {"research-narrative-assessor", "medical-journal-review", "focused-literature-synthesizer"},
+    "perspective-claim-evidence-curator": {"focused-literature-synthesizer"},
     "article-orchestrator": {"research-narrative-assessor", "medical-journal-review"},
     "idea-portfolio-assembler": {"medical-journal-review"},
     "academic-language-assessor": {"idea-narrative-assessor", "research-narrative-assessor", "research-idea-orchestrator", "proposal-orchestrator", "perspective-orchestrator", "article-orchestrator"},
@@ -182,7 +207,8 @@ RELATED_SKILL_ADDITIONS = {
 # output contract, failure route
 WORKFLOW_EDGES = [
     ("idea", "research-idea-orchestrator", "research-context-builder", "orchestrated", "context_required", "user_inputs_and_constraints", "research_context_brief_and_direction_clarity_signal", "clarification_required"),
-    ("idea", "research-idea-orchestrator", "research-opportunity-mapper", "orchestrated", "evidence_opportunity_or_direction_route_required", "context_sources_scope_and_current_dossier_when_remapping", "evidence_opportunity_maps_and_direction_support_signals", "evidence_mapping_pending"),
+    ("idea", "research-idea-orchestrator", "research-landscape-mapper", "orchestrated", "major_evidence_or_novelty_landscape_change", "context_sources_scope_and_current_dossier_when_remapping", "evidence_opportunity_maps_and_direction_support_signals", "evidence_mapping_pending"),
+    ("idea", "research-idea-orchestrator", "focused-literature-synthesizer", "orchestrated", "bounded_two_to_five_paper_synthesis_required", "one_bounded_question_scope_and_source_constraints", "focused_literature_synthesis", "evidence_mapping_pending"),
     ("idea", "research-idea-orchestrator", "multi-path-idea-generator", "orchestrated", "routing_decision_ready_or_revision_authorized", "frozen_context_evidence_opportunities_routing_decision_current_dossiers_and_applicable_revision_plan_or_approved_editorial_repair_writer_brief_or_current_preflight_approved_working_assumptions", "versioned_complete_idea_dossiers_revision_delta_and_proposed_navigation_metadata", "generation_blocked"),
     ("idea", "research-idea-orchestrator", "methodology-statistics-preflight", "delegated", "method_or_endpoint_fit_needs_review", "frozen_complete_idea_dossiers_and_method_facts", "preflight_report_and_idea_handoff", "independent_review_pending"),
     ("idea", "research-idea-orchestrator", "research-narrative-assessor", "delegated", "scientific_revision_frozen_or_editorial_repair_completed", "one_current_idea_dossier_and_reader_handoff_or_preservation_comparison_bundle", "narrative_assessment_and_yaml_repair_plan_or_content_preservation_report", "independent_review_pending"),
@@ -194,7 +220,8 @@ WORKFLOW_EDGES = [
     ("idea", "research-idea-orchestrator", "proposal-orchestrator", "handoff", "focused_or_human_selected_direction_fresh_promote_and_handoff_gate_passed", "promoted_idea_package_with_section_14_and_unresolved_finding_locators", "proposal_workflow_state", "proposal_handoff_blocked"),
 
     ("proposal", "proposal-orchestrator", "proposal-context-brief-builder", "orchestrated", "context_brief_required", "idea_draft_call_and_constraints", "proposal_context_brief", "clarification_required"),
-    ("proposal", "proposal-orchestrator", "research-opportunity-mapper", "orchestrated", "broad_or_stale_evidence_required", "context_sources_and_retrieval_scope", "evidence_and_opportunity_maps", "evidence_mapping_pending"),
+    ("proposal", "proposal-orchestrator", "research-landscape-mapper", "orchestrated", "major_core_claim_novelty_landscape_or_conflict_change", "context_sources_and_retrieval_scope", "evidence_and_opportunity_maps", "evidence_mapping_pending"),
+    ("proposal", "proposal-orchestrator", "focused-literature-synthesizer", "orchestrated", "bounded_two_to_five_paper_synthesis_required", "one_bounded_question_scope_and_source_constraints", "focused_literature_synthesis", "evidence_mapping_pending"),
     ("proposal", "proposal-orchestrator", "proposal-readiness-triage", "delegated", "context_and_evidence_ready", "frozen_context_evidence_and_scope", "readiness_report", "independent_review_pending"),
     ("proposal", "proposal-orchestrator", "methodology-statistics-preflight", "delegated", "readiness_or_sap_requires_method_preflight", "frozen_design_endpoint_and_data_facts", "preflight_report", "independent_review_pending"),
     ("proposal", "proposal-orchestrator", "proposal-drafter", "delegated", "content_plan_required", "frozen_context_evidence_reader_handoff_and_constraints", "proposal_content_plan_yaml", "independent_review_pending"),
@@ -216,7 +243,8 @@ WORKFLOW_EDGES = [
     ("article", "article-orchestrator", "article-readiness-triage", "delegated", "complete_material_inventory_and_minimal_intake_frozen", "frozen_minimal_intake_complete_material_inventory_semantic_authority_and_entry_scope", "article_readiness_report", "independent_review_pending"),
     ("article", "article-orchestrator", "article-context-builder", "orchestrated", "readiness_allows_context_build", "approved_intake_and_scope", "article_context_brief", "clarification_required"),
     ("article", "article-orchestrator", "article-literature-grounder", "orchestrated", "context_ready_and_grounding_required", "context_sources_and_scope", "literature_grounding_report", "grounding_blocked"),
-    ("article", "article-literature-grounder", "research-opportunity-mapper", "orchestrated", "broad_stale_or_conflicting_evidence", "research_question_sources_and_scope", "evidence_map_and_limitations", "evidence_mapping_pending"),
+    ("article", "article-literature-grounder", "research-landscape-mapper", "orchestrated", "major_grounding_novelty_landscape_or_conflict_change", "research_question_sources_and_scope", "evidence_map_and_limitations", "evidence_mapping_pending"),
+    ("article", "article-literature-grounder", "focused-literature-synthesizer", "orchestrated", "bounded_two_to_five_paper_synthesis_required", "one_bounded_question_scope_and_source_constraints", "focused_literature_synthesis", "evidence_mapping_pending"),
     ("article", "article-orchestrator", "article-architect", "orchestrated", "context_and_grounding_ready", "frozen_context_grounding_and_results", "article_blueprint_and_evidence_contracts", "architecture_blocked"),
     ("article", "article-orchestrator", "methodology-statistics-preflight", "delegated", "quick_method_feasibility_screen_needed", "frozen_design_endpoint_and_data_facts", "preflight_report", "independent_review_pending"),
     ("article", "article-orchestrator", "article-methods-statistics-auditor", "delegated", "blueprint_and_method_inputs_frozen", "frozen_context_protocol_outputs_and_scope", "methods_statistics_audit_report", "independent_review_pending"),
@@ -235,7 +263,8 @@ WORKFLOW_EDGES = [
 
     ("perspective", "perspective-orchestrator", "perspective-input-builder", "orchestrated", "input_brief_required", "user_thesis_outlet_evidence_and_constraints", "perspective_input_brief", "clarification_required"),
     ("perspective", "perspective-orchestrator", "perspective-claim-evidence-curator", "orchestrated", "input_brief_ready_or_claim_change_approved", "frozen_input_evidence_and_change_requests", "claim_ledger_and_evidence_artifacts", "curation_blocked"),
-    ("perspective", "perspective-orchestrator", "research-opportunity-mapper", "orchestrated", "standard_or_full_mode_has_broad_evidence_gap", "claims_sources_and_retrieval_scope", "evidence_map_and_limitations", "evidence_mapping_pending"),
+    ("perspective", "perspective-orchestrator", "research-landscape-mapper", "orchestrated", "major_discourse_novelty_landscape_or_conflict_change", "claims_sources_and_retrieval_scope", "evidence_map_and_limitations", "evidence_mapping_pending"),
+    ("perspective", "perspective-claim-evidence-curator", "focused-literature-synthesizer", "orchestrated", "bounded_two_to_five_paper_synthesis_required", "one_bounded_question_scope_and_source_constraints", "focused_literature_synthesis", "evidence_mapping_pending"),
     ("perspective", "perspective-orchestrator", "perspective-argument-architect", "orchestrated", "claim_and_evidence_artifacts_ready", "frozen_input_claims_evidence_and_outlet", "argument_skeleton_and_paragraph_plan", "architecture_blocked"),
     ("perspective", "perspective-orchestrator", "perspective-drafter", "orchestrated", "argument_architecture_ready_revision_plan_or_editorial_brief_frozen", "approved_architecture_claims_revision_plan_or_editorial_brief_and_protected_register", "versioned_complete_perspective_paragraph_map_delta_and_action_conformance", "drafting_blocked"),
     ("perspective", "perspective-orchestrator", "perspective-refinement-controller", "orchestrated", "scientific_panel_or_editorial_readiness_requests_fixable_revision", "sealed_scientific_findings_or_single_editorial_brief_current_version_and_history", "revision_handoff", "revision_blocked"),
@@ -249,8 +278,8 @@ WORKFLOW_EDGES = [
     ("perspective", "perspective-orchestrator", "perspective-final-compositor", "delegated", "all_required_artifacts_and_reviews_frozen", "frozen_final_artifacts_reviews_and_dissent", "verified_human_review_package", "independent_review_pending"),
 
     ("research_polisher", "research-polisher-orchestrator", "article-context-builder", "orchestrated", "dossier_normalization_required", "frozen_research_assets_scope_and_constraints", "article_context_brief_for_research_polisher", "clarification_required"),
-    ("research_polisher", "research-polisher-orchestrator", "research-opportunity-mapper", "orchestrated", "broad_positioning_evidence_required", "frozen_dossier_questions_sources_and_scope", "evidence_and_opportunity_maps", "evidence_mapping_pending"),
-    ("research_polisher", "research-polisher-orchestrator", "academic-deep-search", "orchestrated", "bounded_two_to_five_paper_question_required", "one_bounded_question_scope_and_source_constraints", "focused_academic_synthesis", "evidence_mapping_pending"),
+    ("research_polisher", "research-polisher-orchestrator", "research-landscape-mapper", "orchestrated", "major_core_positioning_novelty_landscape_or_conflict_change", "frozen_dossier_questions_sources_and_scope", "evidence_and_opportunity_maps", "evidence_mapping_pending"),
+    ("research_polisher", "research-polisher-orchestrator", "focused-literature-synthesizer", "orchestrated", "bounded_two_to_five_paper_question_required", "one_bounded_question_scope_and_source_constraints", "focused_literature_synthesis", "evidence_mapping_pending"),
     ("research_polisher", "research-polisher-orchestrator", "research-polisher-strategy-reviewer", "delegated", "dossier_frozen_or_anonymous_revision_brief_ready", "frozen_dossier_evidence_one_lens_and_three_tiers", "sealed_research_polisher_strategy_report", "independent_review_pending"),
     ("research_polisher", "research-polisher-orchestrator", "research-polisher-plan-assembler", "orchestrated", "strategy_reports_evaluation_or_specialist_reports_ready", "sealed_strategy_reports_evaluation_or_current_requested_specialist_reports_with_lineage", "candidate_portfolio_revision_brief_sanitized_specialist_findings_or_selection_dossier", "assembly_blocked"),
     ("research_polisher", "research-polisher-orchestrator", "research-polisher-methodology-publishability-reviewer", "delegated", "candidate_portfolio_version_frozen_or_revised", "frozen_anonymous_candidate_portfolio_dossier_and_necessary_evidence", "research_polisher_evaluation_report", "independent_review_pending"),
@@ -1077,8 +1106,8 @@ PACKAGE_INPUT_CONTRACTS = {
         "allowed_roles": ["research_context", "evidence_map", "opportunity_map", "idea_routing_decision", "idea_index", "idea_dossier", "reference_ledger", "preflight_report", "protected_content_register", "narrative_assessment", "narrative_repair_plan", "language_assessment_report", "editorial_repair_writer_brief", "content_preservation_report", "evaluation_report", "candidate_journal_match_brief", "medical_journal_review_report", "panel_report", "revision_plan", "revision_delta"],
         "required_inputs": [
             {"artifact_role": "research_context", "source_skill": "research-context-builder", "count": 1},
-            {"artifact_role": "evidence_map", "source_skill": "research-opportunity-mapper", "count": 1, "count_by_direction_profile": {"focused_optimization": 1, "bounded_exploration": {"minimum": 2, "maximum": 3}}},
-            {"artifact_role": "opportunity_map", "source_skill": "research-opportunity-mapper", "count_per_current_idea_node": 1, "required_when_direction_profile": "bounded_exploration"},
+            {"artifact_role": "evidence_map", "source_skill": "research-landscape-mapper", "count": 1, "count_by_direction_profile": {"focused_optimization": 1, "bounded_exploration": {"minimum": 2, "maximum": 3}}},
+            {"artifact_role": "opportunity_map", "source_skill": "research-landscape-mapper", "count_per_current_idea_node": 1, "required_when_direction_profile": "bounded_exploration"},
             {"artifact_role": "idea_routing_decision", "source_skill": "research-idea-orchestrator", "count": 1},
             {"artifact_role": "idea_index", "source_skills": ["research-idea-orchestrator", "external-input"], "count": 1},
             {"artifact_role": "idea_dossier", "source_skills": ["multi-path-idea-generator", "external-input"], "current_by_idea_index": True, "minimum_count": 1, "maximum_count": 3, "count_by_direction_profile": {"focused_optimization": 1, "bounded_exploration": {"minimum": 2, "maximum": 3}}},
@@ -1174,7 +1203,7 @@ PACKAGE_INPUT_CONTRACTS = {
         ],
         "required_inputs": [
             {"artifact_role": "research_polisher_dossier", "source_skill": "article-context-builder", "count": 1},
-            {"artifact_role": "evidence_map", "source_skill": "research-opportunity-mapper", "count": 1},
+            {"artifact_role": "evidence_map", "source_skill": "research-landscape-mapper", "count": 1},
             {
                 "artifact_role": "research_polisher_sealed_provenance",
                 "source_skill": "research-polisher-plan-assembler",
@@ -1689,8 +1718,8 @@ SCENARIO_EVAL_CONTRACT = {
             "perspective-input-builder": ["perspective_input_brief", "target_outlet_profile"],
             "perspective-claim-evidence-curator": ["claim_ledger", "claim_evidence_matrix", "evidence_limitations", "citation_risk_log", "contrary_evidence_log", "reference_list", "provisional_claim_ledger"],
             "perspective-argument-architect": ["argument_architecture", "paragraph_map"],
-            "research-opportunity-mapper": ["evidence_map", "opportunity_map"],
-            "academic-deep-search": ["focused_academic_synthesis"],
+            "research-landscape-mapper": ["evidence_map", "opportunity_map"],
+            "focused-literature-synthesizer": ["focused_literature_synthesis"],
             "article-literature-grounder": ["evidence_ledger", "evidence_map", "literature_grounding_report"],
             "multi-path-idea-generator": ["idea_dossier", "revision_delta", "proposed_navigation_metadata"],
             "proposal-drafter": ["proposal", "response_to_reviewers", "revision_delta"],
@@ -2216,6 +2245,7 @@ def related_skills(source_skill: Path, installed: set[str]) -> list[str]:
         values = [item.strip().strip("'\"") for item in match.group(1).split(",")]
     else:
         values = re.findall(r"^\s+-\s+([A-Za-z0-9_-]+)\s*$", match.group(2), re.M)
+    values = [LEGACY_SKILL_NAME_ALIASES.get(value, value) for value in values]
     return sorted({value for value in values if value in installed})
 
 
@@ -2232,7 +2262,7 @@ def role_for(name: str) -> str:
         return "drafter"
     if "generator" in name:
         return "generator"
-    if name in {"research-opportunity-mapper", "academic-deep-search"}:
+    if name in {"research-landscape-mapper", "focused-literature-synthesizer"}:
         return "retrieval"
     if any(token in name for token in ("builder", "curator", "architect", "grounder", "cover-letter")):
         return "builder"
@@ -2310,6 +2340,10 @@ def main() -> int:
     lines = [
         "schema_version: 6",
         f"plugin_version: {quote(plugin_version)}",
+        "legacy_skill_name_aliases:",
+        *[f"  {old}: {new}" for old, new in LEGACY_SKILL_NAME_ALIASES.items()],
+        "legacy_artifact_role_aliases:",
+        *[f"  {old}: {new}" for old, new in LEGACY_ARTIFACT_ROLE_ALIASES.items()],
         "public_entry_policy:",
         "  declared_entries:",
         *[f"    - {name}" for name in sorted(PUBLIC_ENTRY_SKILLS)],

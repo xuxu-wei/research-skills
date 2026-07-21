@@ -16,8 +16,12 @@ This skill does NOT design the manuscript architecture, draft content, judge rea
 - Cover five dimensions: seminal literature, recent literature, competing/contradictory evidence, prior reviews/guidelines, and citation prerequisites.
 - Assess coverage honestly. `partial` coverage on a dimension is better than silent gaps.
 - Prioritize guidelines/consensus → landmark studies → systematic reviews → recent original studies → editorials.
-- When confidence is low, call `research-opportunity-mapper` for supplementary retrieval.
+- When confidence is low, classify evidence-change materiality. Use direct
+  Search or one focused synthesis for bounded gaps and call
+  `research-landscape-mapper` only for a major grounding rebuild.
 - Do not fabricate references. If a reference cannot be verified, mark it `verification_status: unverified`.
+- Store every formal reference in GB/T 7714—2015 format with a complete
+  clickable link and available DOI, PMID, PMCID, or ISBN.
 
 ## I/O Contract
 
@@ -40,7 +44,8 @@ io_contract:
     - "04_blueprint/**"
     - "06_drafts/**"
   may_call:
-    - research-opportunity-mapper
+    - focused-literature-synthesizer
+    - research-landscape-mapper
   must_not_call:
     - article-architect
     - article-drafter
@@ -155,7 +160,8 @@ Write `03_literature/literature-grounding.md` containing the full grounding repo
 - Competing evidence explicitly searched for and recorded
 - Citation risk assessment includes specific missing references (not just "may be missing")
 - Novelty position is grounded in literature, not just user assertion
-- `research-opportunity-mapper` was called if coverage is `partial` or `no` on key dimensions
+- every `partial` or `no` key dimension has an evidence-change assessment, and
+  `research-landscape-mapper` was called when that change was `major`
 
 ## References
 

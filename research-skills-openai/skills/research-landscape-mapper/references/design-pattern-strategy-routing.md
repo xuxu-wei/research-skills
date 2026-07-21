@@ -1,6 +1,6 @@
 # Design Pattern: Strategy + Path Routing with Shorthand Inputs
 
-This document captures the UX pattern designed for `research-opportunity-mapper` v2.0+.
+This document captures the UX pattern designed for `research-landscape-mapper` v2.0+.
 Other skills that need to offer users a choice of execution mode can reuse this pattern.
 
 ## When to Use

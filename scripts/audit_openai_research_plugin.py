@@ -24,12 +24,12 @@ MARKETPLACE = REPO / ".agents" / "plugins" / "marketplace.json"
 EXPECTED_REVIEWERS = 22
 RESEARCH_POLISHER_ENTRY = "research-polisher-orchestrator"
 EXPECTED_PUBLIC_ENTRY_SKILLS = {
-    "academic-deep-search",
+    "focused-literature-synthesizer",
     "article-orchestrator",
     "perspective-orchestrator",
     "proposal-orchestrator",
     "research-idea-orchestrator",
-    "research-opportunity-mapper",
+    "research-landscape-mapper",
     RESEARCH_POLISHER_ENTRY,
 }
 EXPECTED_PUBLIC_ENTRIES = len(EXPECTED_PUBLIC_ENTRY_SKILLS)
@@ -54,7 +54,9 @@ EXPECTED_WORKFLOWS = {
     "research_polisher",
 }
 OPENAI_NATIVE_SKILL_PACKAGES = {
+    "focused-literature-synthesizer": "research",
     "idea-narrative-assessor": "research-idea",
+    "research-landscape-mapper": "research",
     "research-narrative-assessor": "research",
     "research-polisher-methodology-publishability-reviewer": "research-polisher",
     "research-polisher-orchestrator": "research-polisher",
@@ -1209,30 +1211,39 @@ def main() -> int:
     ):
         errors.append("perspective: workflow manifest location or schema route is missing")
     deep_research_rules = read(
-        SKILLS / "research-opportunity-mapper" / "references" / "deep-research-prompt-rules.md"
+        SKILLS / "research-landscape-mapper" / "references" / "deep-research-prompt-rules.md"
     )
     deep_research_template = read(
-        SKILLS / "research-opportunity-mapper" / "templates" / "deep-research-prompt-template.md"
+        SKILLS / "research-landscape-mapper" / "templates" / "deep-research-request.md"
+    )
+    deep_research_follow_up = read(
+        SKILLS / "research-landscape-mapper" / "templates" / "deep-research-follow-up-guide.md"
     )
     if "Single-stage targeted retrieval" in deep_research_rules or "All six sections present" in deep_research_rules:
         errors.append("Deep Research Focused mode conflicts with the global phased contract")
     if "[F] 单阶段 targeted retrieval" in deep_research_template or "[F] 跳过此阶段" in deep_research_template:
         errors.append("Deep Research Focused template skips required phases")
-    academic_deep_search = read(SKILLS / "academic-deep-search" / "SKILL.md")
+    if "deep-research-report-vNNN.md" not in deep_research_template + deep_research_follow_up:
+        errors.append("Deep Research continuation package lacks the versioned return report contract")
+    academic_deep_search = read(SKILLS / "focused-literature-synthesizer" / "SKILL.md")
     if (
         "2-5" not in academic_deep_search
-        or "route to `research-opportunity-mapper`" not in academic_deep_search
+        or "route to `research-landscape-mapper`" not in academic_deep_search
         or "Do not broaden this skill into Deep Research" not in academic_deep_search
     ):
-        errors.append("academic-deep-search must remain limited to narrow questions answerable from 2-5 papers")
-    opportunity_mapper = read(SKILLS / "research-opportunity-mapper" / "SKILL.md")
+        errors.append("focused-literature-synthesizer must remain limited to narrow questions answerable from 2-5 papers")
+    opportunity_mapper = read(SKILLS / "research-landscape-mapper" / "SKILL.md")
     if (
         "single owner of broad retrieval policy" not in opportunity_mapper
         or "Built-in Search" not in opportunity_mapper
         or "deep_research_handoff_required" not in opportunity_mapper
         or "Local scripts are never the default" not in opportunity_mapper
     ):
-        errors.append("research-opportunity-mapper does not exclusively own native Search/Deep Research routing")
+        errors.append("research-landscape-mapper does not exclusively own native Search/Deep Research routing")
+    if "evidence_change_assessment" not in read(
+        SKILLS / "research-landscape-mapper" / "references" / "search-routing-rules.md"
+    ):
+        errors.append("research-landscape-mapper lacks the evidence-change routing contract")
     for orchestrator_name in orchestrators:
         orchestrator_text = read(names[orchestrator_name])
         for residue in ("built-in Search", "Deep Research", "evidence_search.py", "local retrieval script"):

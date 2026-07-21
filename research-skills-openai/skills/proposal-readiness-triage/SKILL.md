@@ -124,7 +124,7 @@ Return `needs_idea_refinement` when the idea is too vague, too broad, or still r
 
 Return `needs_methodology_preflight` when the main uncertainty is methodological and should be checked by `methodology-statistics-preflight`.
 
-If the main blocker is missing, stale, conflicting, or unverified evidence rather than methods readiness, recommend returning to `research-opportunity-mapper` before drafting.
+If the main blocker is missing, stale, conflicting, or unverified evidence rather than methods readiness, recommend returning to `research-landscape-mapper` before drafting.
 
 Return `not_proposalizable_yet` when there is a fatal flaw or the current input cannot responsibly support proposal drafting.
 

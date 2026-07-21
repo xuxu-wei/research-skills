@@ -1,6 +1,0 @@
-interface:
-  display_name: "Academic Deep Search"
-  short_description: "Answer narrow academic questions from 2-5 papers"
-  default_prompt: "Use $academic-deep-search for this task and follow its workflow and output contract."
-policy:
-  allow_implicit_invocation: true

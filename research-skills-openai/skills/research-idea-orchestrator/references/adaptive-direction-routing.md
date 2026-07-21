@@ -20,7 +20,7 @@ idea_direction_routing:
 ```
 
 `research-context-builder` characterizes clarity without judging value.
-`research-opportunity-mapper` supplies evidence-grounded value, confidence, and
+`research-landscape-mapper` supplies evidence-grounded value, confidence, and
 distinct directions. Conflicting or low-confidence signals require owner input.
 
 ## Deterministic route

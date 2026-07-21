@@ -13,6 +13,12 @@ opportunity_map:
     overlap:
     differentiation:
     novelty_risk: low | medium | high | unverified
+    novelty_evidence_basis:
+      source_type: accepted_deep_research_report | built_in_search | supplied_evidence | mixed
+      source_refs: []
+      verification_scope: ""
+      closest_work_checked: []
+      status: accepted | partial | disputed | unverified
   reader_reasoning_handoff:
     background:
     current_state:
@@ -28,8 +34,7 @@ opportunity_map:
         - claim_id:
           label:
       supporting_sources:
-        - citation:
-          original_source:
+        - reference_id:
           locator:
       evidence_confidence: high | moderate | low | speculative | not_verified
       novelty_risk: low | medium | high | unverified

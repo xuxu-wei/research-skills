@@ -147,8 +147,9 @@ def validate(text: str, *, version: str, registry: dict[str, Any]) -> list[str]:
     if f"{edge_count} 条工作流边" not in text:
         errors.append("ROADMAP 工作流边计数与 Registry 不一致")
     priorities = (
-        "`P0 已关闭`：公共 `research-narrative-assessor`",
-        "Idea、Proposal、Perspective 和 Article",
+        "`P1`：规范 Deep Research 接续包",
+        "deep-research-request-vNNN.md",
+        "deep-research-follow-up-guide-vNNN.md",
         "`P2`：仅在 OpenAI 插件",
         "同步到 Hermes",
     )

@@ -12,7 +12,7 @@
 |---|---|---|
 | Independent evaluation report | Re-run isolated evaluation | idea-evaluator |
 | Methodology preflight | Run preflight | methodology-statistics-preflight |
-| Evidence map | Complete evidence mapping | research-opportunity-mapper |
+| Evidence map | Complete evidence mapping | research-landscape-mapper |
 | Lineage record | Reconstruct lineage | research-idea-orchestrator |
 
 ## 3. Assembly Status

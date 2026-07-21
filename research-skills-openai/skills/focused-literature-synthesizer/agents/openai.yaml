@@ -1,0 +1,6 @@
+interface:
+  display_name: "Focused Literature Synthesizer"
+  short_description: "Synthesize one question from 2-5 papers"
+  default_prompt: "Use $focused-literature-synthesizer for this task and follow its workflow and output contract."
+policy:
+  allow_implicit_invocation: true

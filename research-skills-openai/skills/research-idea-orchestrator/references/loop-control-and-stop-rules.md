@@ -29,11 +29,16 @@ For each of two or three route-authorized directions, allow exactly:
 
 1. one complete initial dossier;
 2. one bounded optimization and new complete version;
-3. one direction-specific evidence/opportunity remap;
-4. one evidence-and-claim synchronization version when needed; and
+3. one evidence-change assessment; call `research-landscape-mapper` only for a
+   `major` core-claim, novelty-position, landscape, or material-conflict change;
+4. one evidence-and-claim synchronization version when retrieval changed
+   evidence; and
 5. fresh editorial readiness and one terminal fresh dossier-only evaluation.
 
-Remap synchronization cannot add objectives, data, methods, or work packages.
+Bounded citation or single-claim checks use Built-in Search, or one
+`focused-literature-synthesizer` task when 2-5 papers require close synthesis.
+Editorial changes reuse evidence. Synchronization cannot add objectives, data,
+methods, or work packages.
 If structural repair is needed, return `revision_required`. After all terminal
   evaluations, stop at `human_direction_selection_required`; do not optimize a
   second time, select a winner, merge directions, or enter Proposal.

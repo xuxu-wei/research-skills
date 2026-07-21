@@ -1,6 +1,34 @@
 # Search Routing Rules
 
-The mapper owns retrieval planning and retrieval execution. Orchestrators provide task scope, constraints, existing evidence artifacts, and resource budget; they do not directly call retrieval tools for evidence mapping.
+Record this decision before new retrieval during an iteration:
+
+```yaml
+evidence_change_assessment:
+  materiality: none | bounded | major
+  change_type:
+    - citation_identity
+    - single_claim_support
+    - core_claim
+    - novelty_position
+    - evidence_landscape
+    - material_conflict
+  selected_route: reuse_existing_evidence | built_in_search | focused_literature_synthesizer | research_landscape_mapper
+  route_reason: ""
+```
+
+- `none`: reuse verified evidence whose scope and freshness still match.
+- `bounded`: use Built-in Search for an exact source or claim; use
+  `focused-literature-synthesizer` only when 2-5 papers require close full-text
+  synthesis.
+- `major`: use `research-landscape-mapper`, which chooses broad Built-in Search
+  or Deep Research.
+
+Do not route editorial or language-only changes to retrieval. Do not chain
+multiple focused syntheses to approximate field-level Deep Research.
+
+The mapper owns broad retrieval planning and execution. Orchestrators classify
+materiality and provide task scope, constraints, existing evidence artifacts,
+and resource budget.
 
 Use ChatGPT/Codex built-in Search for quick, recent, or targeted retrieval. Use ChatGPT Deep Research for multi-stage, multi-direction, multi-source synthesis. If Deep Research is needed but the current task is not running in that mode, save a self-contained continuation package, return `deep_research_handoff_required`, and pause.
 

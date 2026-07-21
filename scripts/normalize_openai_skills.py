@@ -25,17 +25,19 @@ PUBLIC_ENTRY_SKILLS = {
     "article-orchestrator",
     "perspective-orchestrator",
     "research-polisher-orchestrator",
-    "research-opportunity-mapper",
-    "academic-deep-search",
+    "research-landscape-mapper",
+    "focused-literature-synthesizer",
 }
 
 DISPLAY_NAMES = {
     "article-cover-letter": "Journal Cover Letter",
+    "focused-literature-synthesizer": "Focused Literature Synthesizer",
+    "research-landscape-mapper": "Research Landscape Mapper",
     "research-polisher-orchestrator": "Research Polisher",
 }
 
 DESCRIPTIONS = {
-    "academic-deep-search": "Answer one bounded academic question from 2-5 closely read papers; route broader or multi-stage synthesis to research-opportunity-mapper.",
+    "focused-literature-synthesizer": "Synthesize one bounded academic question from 2-5 closely read papers; use for narrow method, marker, finding, or figure questions.",
     "academic-language-assessor": "Assess language and reader-aware terminology in a frozen research artifact.",
     "article-architect": "Plan reader-facing manuscript sections, handoffs, claims, evidence, and displays.",
     "article-claim-auditor": "Independently audit frozen manuscript claims against evidence; report unsupported inference, overclaiming, and wording mismatch.",
@@ -78,7 +80,7 @@ DESCRIPTIONS = {
     "research-context-builder": "Normalize a research direction, problem, evidence set, funding call, or data asset into a structured brief for idea generation.",
     "research-idea-orchestrator": "Orchestrate a topic, evidence, call, problem, or data asset into independently evaluated ideas and a PI-review portfolio.",
     "research-narrative-assessor": "Assess research argument architecture and produce executable YAML repairs.",
-    "research-opportunity-mapper": "Build source-grounded evidence and opportunity maps for broad retrieval, claim checks, novelty, evidence limits, and research gaps.",
+    "research-landscape-mapper": "Map broad research evidence, conflicts, gaps, opportunities, and novelty; use for field-level synthesis and Deep Research handoffs, not bounded 2-5-paper questions.",
     "research-polisher-methodology-publishability-reviewer": "Independently review a frozen impact portfolio for method rigor, claim fit, feasibility, tier validity, and publishability.",
     "research-polisher-orchestrator": "Orchestrate reviewed impact strategies for completed research. Use for reframing or bounded extensions; exclude language editing, drafting, idea generation, and general search.",
     "research-polisher-plan-assembler": "Assemble sealed Research Polisher reports into an anonymous portfolio without scoring, inventing options, or hiding dissent.",
@@ -89,7 +91,7 @@ DESCRIPTIONS = {
 }
 
 SHORT_DESCRIPTIONS = {
-    "academic-deep-search": "Answer narrow academic questions from 2-5 papers",
+    "focused-literature-synthesizer": "Synthesize one question from 2-5 papers",
     "academic-language-assessor": "Assess language and reader-aware terminology",
     "article-architect": "Design manuscript structure, displays, and claim strategy",
     "article-claim-auditor": "Independently audit manuscript claims against evidence",
@@ -132,7 +134,7 @@ SHORT_DESCRIPTIONS = {
     "research-context-builder": "Normalize research inputs into an idea-generation brief",
     "research-idea-orchestrator": "Orchestrate research ideas into evaluated PI-review portfolios",
     "research-narrative-assessor": "Assess research narratives and plan YAML repairs",
-    "research-opportunity-mapper": "Build source-grounded evidence and opportunity maps.",
+    "research-landscape-mapper": "Map broad evidence, gaps, and novelty",
     "research-polisher-methodology-publishability-reviewer": "Independently review strategy rigor and publishability",
     "research-polisher-orchestrator": "Orchestrate research impact strategies and independent review",
     "research-polisher-plan-assembler": "Assemble anonymous Research Polisher strategy portfolios",

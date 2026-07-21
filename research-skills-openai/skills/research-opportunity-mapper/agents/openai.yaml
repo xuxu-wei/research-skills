@@ -1,6 +1,0 @@
-interface:
-  display_name: "Research Opportunity Mapper"
-  short_description: "Build source-grounded evidence and opportunity maps."
-  default_prompt: "Use $research-opportunity-mapper for this task and follow its workflow and output contract."
-policy:
-  allow_implicit_invocation: true

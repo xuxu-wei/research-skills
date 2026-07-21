@@ -25,8 +25,10 @@ preprocessing and cannot claim readiness; full reaches STEP 12.
 ## Core Route
 
 1. **Input.** Initialize state/layout; use `perspective-input-builder` for brief/outlet.
-2. **Curate.** Use `perspective-claim-evidence-curator` for ledger, bindings, discourse,
-   contrary evidence, citation risks, and limits; standard/full may add broad mapping.
+2. **Curate.** Use `perspective-claim-evidence-curator` for ledger, bindings,
+   discourse, contrary evidence, citation risks, and limits. On later evidence
+   findings, the curator reuses evidence on `none`, uses Search or one focused
+   synthesis on `bounded`, and requests broad landscape mapping only on `major`.
 3. **Architect.** Use `perspective-argument-architect`; freeze the complete embedded
    reader-handoff payload and copy it, not the manifest/skeleton, into later briefs.
 4. **Draft/check.** Use `perspective-drafter`. Require a registered draft/map, then

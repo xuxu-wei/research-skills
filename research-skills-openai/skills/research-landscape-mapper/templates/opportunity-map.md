@@ -19,6 +19,9 @@
 - Overlap with closest work:
 - Evidence-supported differentiation:
 - Novelty risk: `low` / `medium` / `high` / `unverified`
+- Novelty evidence basis: `accepted_deep_research_report` / `built_in_search` /
+  `supplied_evidence` / `mixed`
+- Source refs, verification scope, closest work checked, and status:
 
 Do not use novelty wording as a substitute for the unanswered scientific
 problem or missing evidence.

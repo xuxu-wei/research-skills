@@ -1,0 +1,6 @@
+interface:
+  display_name: "Research Landscape Mapper"
+  short_description: "Map broad evidence, gaps, and novelty"
+  default_prompt: "Use $research-landscape-mapper for this task and follow its workflow and output contract."
+policy:
+  allow_implicit_invocation: true

@@ -16,6 +16,11 @@ For each clue:
 - identify whether it is author-stated or evidence-supported;
 - require external verification through reviews, guidelines, consensus, later studies, or citation graph.
 
+If the article or supplied material alludes to another work without a complete
+reference, infer possible single-work or series matches from the available
+identity clues and record the result through `citation-record-contract.md`.
+Never treat an ambiguous inference as a verified citation.
+
 ## Confidence Rule
 
 Until externally verified, extracted article clues must be labeled `clue_only`, `unverified`, or low confidence.

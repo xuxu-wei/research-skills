@@ -21,6 +21,11 @@ Use only when evidence was reused, retrieval failed, access was limited, or audi
 | Retrieved / available sources |  |  |  |
 | Missing / inaccessible sources |  |  |  |
 
+## Reference Records
+
+| Reference ID | GB/T 7714—2015 citation | Complete link | DOI/PMID/PMCID/ISBN | Identification status | Verification status | Original locator | Verification date |
+|---|---|---|---|---|---|---|---|
+
 ## Key Claims
 
 | Claim ID | Human-readable label and claim | Type | Support status | Supporting source and locator | Opposing evidence | Confidence | Novelty verification | Guideline alignment | Limitations |

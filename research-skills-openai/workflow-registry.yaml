@@ -1,21 +1,26 @@
 schema_version: 6
-plugin_version: "0.11.0"
+plugin_version: "0.12.0"
+legacy_skill_name_aliases:
+  academic-deep-search: focused-literature-synthesizer
+  research-opportunity-mapper: research-landscape-mapper
+legacy_artifact_role_aliases:
+  focused_academic_synthesis: focused_literature_synthesis
 public_entry_policy:
   declared_entries:
-    - academic-deep-search
     - article-orchestrator
+    - focused-literature-synthesizer
     - perspective-orchestrator
     - proposal-orchestrator
     - research-idea-orchestrator
-    - research-opportunity-mapper
+    - research-landscape-mapper
     - research-polisher-orchestrator
   implicit_active_entries:
-    - academic-deep-search
     - article-orchestrator
+    - focused-literature-synthesizer
     - perspective-orchestrator
     - proposal-orchestrator
     - research-idea-orchestrator
-    - research-opportunity-mapper
+    - research-landscape-mapper
   explicit_only_entries:
     research-polisher-orchestrator:
       status: explicit_only_personal_routing_policy
@@ -28,14 +33,6 @@ review_execution:
   revision_deltas_visible_to_reviewer: false
   source_artifacts_read_only: true
 skills:
-  - name: "academic-deep-search"
-    package: "research"
-    role: "retrieval"
-    related_skills: []
-    invocation_policy: "implicit"
-    requires_independent_subagent: false
-    allowed_input_artifacts: "research_question_source_scope_and_existing_evidence"
-    output_artifact_type: "source_grounded_retrieval_artifact"
   - name: "academic-language-assessor"
     package: "research"
     role: "reviewer"
@@ -103,7 +100,7 @@ skills:
   - name: "article-literature-grounder"
     package: "research-article"
     role: "builder"
-    related_skills: ["article-architect", "article-context-builder", "article-orchestrator", "research-opportunity-mapper"]
+    related_skills: ["article-architect", "article-context-builder", "article-orchestrator", "focused-literature-synthesizer", "research-landscape-mapper"]
     invocation_policy: "explicit_or_orchestrated"
     requires_independent_subagent: false
     allowed_input_artifacts: "approved_upstream_artifacts"
@@ -119,7 +116,7 @@ skills:
   - name: "article-orchestrator"
     package: "research-article"
     role: "orchestrator"
-    related_skills: ["academic-language-assessor", "article-architect", "article-claim-auditor", "article-context-builder", "article-cover-letter", "article-drafter", "article-evaluator", "article-frontmatter-drafter", "article-literature-grounder", "article-methods-statistics-auditor", "article-readiness-triage", "article-refinement-controller", "article-review-panel", "article-submission-compositor", "medical-journal-review", "methodology-statistics-preflight", "research-narrative-assessor", "research-opportunity-mapper"]
+    related_skills: ["academic-language-assessor", "article-architect", "article-claim-auditor", "article-context-builder", "article-cover-letter", "article-drafter", "article-evaluator", "article-frontmatter-drafter", "article-literature-grounder", "article-methods-statistics-auditor", "article-readiness-triage", "article-refinement-controller", "article-review-panel", "article-submission-compositor", "medical-journal-review", "methodology-statistics-preflight", "research-landscape-mapper", "research-narrative-assessor"]
     invocation_policy: "implicit"
     requires_independent_subagent: false
     allowed_input_artifacts: "user_inputs_and_existing_workflow_artifacts"
@@ -156,10 +153,18 @@ skills:
     requires_independent_subagent: true
     allowed_input_artifacts: "frozen_artifacts_and_review_brief"
     output_artifact_type: "verification_report_and_final_handoff_package"
+  - name: "focused-literature-synthesizer"
+    package: "research"
+    role: "retrieval"
+    related_skills: ["research-landscape-mapper"]
+    invocation_policy: "implicit"
+    requires_independent_subagent: false
+    allowed_input_artifacts: "research_question_source_scope_and_existing_evidence"
+    output_artifact_type: "source_grounded_retrieval_artifact"
   - name: "idea-adversarial-review-panel"
     package: "research-idea"
     role: "reviewer"
-    related_skills: ["idea-evaluator", "idea-portfolio-assembler", "methodology-statistics-preflight", "proposal-orchestrator", "research-idea-orchestrator", "research-opportunity-mapper"]
+    related_skills: ["idea-evaluator", "idea-portfolio-assembler", "methodology-statistics-preflight", "proposal-orchestrator", "research-idea-orchestrator", "research-landscape-mapper"]
     invocation_policy: "explicit_or_orchestrated"
     requires_independent_subagent: true
     allowed_input_artifacts: "frozen_artifacts_and_review_brief"
@@ -167,7 +172,7 @@ skills:
   - name: "idea-evaluator"
     package: "research-idea"
     role: "reviewer"
-    related_skills: ["idea-portfolio-assembler", "methodology-statistics-preflight", "multi-path-idea-generator", "research-context-builder", "research-idea-orchestrator", "research-opportunity-mapper"]
+    related_skills: ["idea-portfolio-assembler", "methodology-statistics-preflight", "multi-path-idea-generator", "research-context-builder", "research-idea-orchestrator", "research-landscape-mapper"]
     invocation_policy: "explicit_or_orchestrated"
     requires_independent_subagent: true
     allowed_input_artifacts: "one_frozen_complete_idea_dossier_only"
@@ -183,7 +188,7 @@ skills:
   - name: "idea-portfolio-assembler"
     package: "research-idea"
     role: "assembler"
-    related_skills: ["idea-evaluator", "medical-journal-review", "methodology-statistics-preflight", "multi-path-idea-generator", "research-context-builder", "research-idea-orchestrator", "research-opportunity-mapper"]
+    related_skills: ["idea-evaluator", "medical-journal-review", "methodology-statistics-preflight", "multi-path-idea-generator", "research-context-builder", "research-idea-orchestrator", "research-landscape-mapper"]
     invocation_policy: "explicit_or_orchestrated"
     requires_independent_subagent: false
     allowed_input_artifacts: "evaluated_current_idea_dossiers_applicable_candidate_journal_matches_medical_reviews_index_lineage_findings_and_dissent"
@@ -207,7 +212,7 @@ skills:
   - name: "multi-path-idea-generator"
     package: "research-idea"
     role: "generator"
-    related_skills: ["idea-evaluator", "idea-portfolio-assembler", "methodology-statistics-preflight", "research-context-builder", "research-idea-orchestrator", "research-opportunity-mapper"]
+    related_skills: ["idea-evaluator", "idea-portfolio-assembler", "methodology-statistics-preflight", "research-context-builder", "research-idea-orchestrator", "research-landscape-mapper"]
     invocation_policy: "explicit_or_orchestrated"
     requires_independent_subagent: false
     allowed_input_artifacts: "frozen_context_evidence_opportunities_routing_decision_current_dossiers_and_applicable_revision_plan_or_approved_editorial_repair_writer_brief_or_preflight_approved_working_assumptions"
@@ -223,7 +228,7 @@ skills:
   - name: "perspective-claim-evidence-curator"
     package: "research-perspective"
     role: "builder"
-    related_skills: ["perspective-orchestrator", "research-opportunity-mapper"]
+    related_skills: ["focused-literature-synthesizer", "perspective-orchestrator", "research-landscape-mapper"]
     invocation_policy: "explicit_or_orchestrated"
     requires_independent_subagent: false
     allowed_input_artifacts: "approved_upstream_artifacts"
@@ -263,7 +268,7 @@ skills:
   - name: "perspective-orchestrator"
     package: "research-perspective"
     role: "orchestrator"
-    related_skills: ["academic-language-assessor", "medical-journal-review", "perspective-argument-architect", "perspective-claim-evidence-curator", "perspective-drafter", "perspective-evaluator", "perspective-final-compositor", "perspective-input-builder", "perspective-refinement-controller", "perspective-review-panel", "research-narrative-assessor", "research-opportunity-mapper"]
+    related_skills: ["academic-language-assessor", "focused-literature-synthesizer", "medical-journal-review", "perspective-argument-architect", "perspective-claim-evidence-curator", "perspective-drafter", "perspective-evaluator", "perspective-final-compositor", "perspective-input-builder", "perspective-refinement-controller", "perspective-review-panel", "research-landscape-mapper", "research-narrative-assessor"]
     invocation_policy: "implicit"
     requires_independent_subagent: false
     allowed_input_artifacts: "user_inputs_and_existing_workflow_artifacts"
@@ -287,7 +292,7 @@ skills:
   - name: "proposal-context-brief-builder"
     package: "research-proposal"
     role: "builder"
-    related_skills: ["methodology-statistics-preflight", "proposal-drafter", "proposal-evaluator", "proposal-orchestrator", "proposal-package-assembler", "proposal-readiness-triage", "proposal-refinement-controller", "proposal-review-panel", "research-opportunity-mapper", "sap-evaluator", "sap-refinement-controller", "sap-writer"]
+    related_skills: ["methodology-statistics-preflight", "proposal-drafter", "proposal-evaluator", "proposal-orchestrator", "proposal-package-assembler", "proposal-readiness-triage", "proposal-refinement-controller", "proposal-review-panel", "research-landscape-mapper", "sap-evaluator", "sap-refinement-controller", "sap-writer"]
     invocation_policy: "explicit_or_orchestrated"
     requires_independent_subagent: false
     allowed_input_artifacts: "approved_upstream_artifacts"
@@ -311,7 +316,7 @@ skills:
   - name: "proposal-orchestrator"
     package: "research-proposal"
     role: "orchestrator"
-    related_skills: ["academic-language-assessor", "medical-journal-review", "methodology-statistics-preflight", "proposal-context-brief-builder", "proposal-drafter", "proposal-evaluator", "proposal-package-assembler", "proposal-readiness-triage", "proposal-refinement-controller", "proposal-review-panel", "research-narrative-assessor", "research-opportunity-mapper", "sap-evaluator", "sap-refinement-controller", "sap-writer"]
+    related_skills: ["academic-language-assessor", "focused-literature-synthesizer", "medical-journal-review", "methodology-statistics-preflight", "proposal-context-brief-builder", "proposal-drafter", "proposal-evaluator", "proposal-package-assembler", "proposal-readiness-triage", "proposal-refinement-controller", "proposal-review-panel", "research-landscape-mapper", "research-narrative-assessor", "sap-evaluator", "sap-refinement-controller", "sap-writer"]
     invocation_policy: "implicit"
     requires_independent_subagent: false
     allowed_input_artifacts: "user_inputs_and_existing_workflow_artifacts"
@@ -327,7 +332,7 @@ skills:
   - name: "proposal-readiness-triage"
     package: "research-proposal"
     role: "reviewer"
-    related_skills: ["idea-evaluator", "methodology-statistics-preflight", "proposal-context-brief-builder", "proposal-drafter", "proposal-orchestrator", "research-idea-orchestrator", "research-opportunity-mapper"]
+    related_skills: ["idea-evaluator", "methodology-statistics-preflight", "proposal-context-brief-builder", "proposal-drafter", "proposal-orchestrator", "research-idea-orchestrator", "research-landscape-mapper"]
     invocation_policy: "explicit_or_orchestrated"
     requires_independent_subagent: true
     allowed_input_artifacts: "frozen_artifacts_and_review_brief"
@@ -351,7 +356,7 @@ skills:
   - name: "research-context-builder"
     package: "research-idea"
     role: "builder"
-    related_skills: ["idea-evaluator", "methodology-statistics-preflight", "multi-path-idea-generator", "proposal-orchestrator", "research-idea-orchestrator", "research-opportunity-mapper"]
+    related_skills: ["idea-evaluator", "methodology-statistics-preflight", "multi-path-idea-generator", "proposal-orchestrator", "research-idea-orchestrator", "research-landscape-mapper"]
     invocation_policy: "explicit_or_orchestrated"
     requires_independent_subagent: false
     allowed_input_artifacts: "approved_upstream_artifacts"
@@ -359,11 +364,19 @@ skills:
   - name: "research-idea-orchestrator"
     package: "research-idea"
     role: "orchestrator"
-    related_skills: ["academic-language-assessor", "idea-adversarial-review-panel", "idea-evaluator", "idea-narrative-assessor", "idea-portfolio-assembler", "medical-journal-review", "methodology-statistics-preflight", "multi-path-idea-generator", "proposal-orchestrator", "research-context-builder", "research-narrative-assessor", "research-opportunity-mapper"]
+    related_skills: ["academic-language-assessor", "focused-literature-synthesizer", "idea-adversarial-review-panel", "idea-evaluator", "idea-narrative-assessor", "idea-portfolio-assembler", "medical-journal-review", "methodology-statistics-preflight", "multi-path-idea-generator", "proposal-orchestrator", "research-context-builder", "research-landscape-mapper", "research-narrative-assessor"]
     invocation_policy: "implicit"
     requires_independent_subagent: false
     allowed_input_artifacts: "user_inputs_and_existing_workflow_artifacts"
     output_artifact_type: "workflow_state_and_final_handoff"
+  - name: "research-landscape-mapper"
+    package: "research"
+    role: "retrieval"
+    related_skills: ["article-literature-grounder", "focused-literature-synthesizer", "perspective-claim-evidence-curator", "proposal-orchestrator", "research-idea-orchestrator", "research-polisher-orchestrator"]
+    invocation_policy: "implicit"
+    requires_independent_subagent: false
+    allowed_input_artifacts: "research_question_source_scope_and_existing_evidence"
+    output_artifact_type: "source_grounded_retrieval_artifact"
   - name: "research-narrative-assessor"
     package: "research"
     role: "reviewer"
@@ -372,14 +385,6 @@ skills:
     requires_independent_subagent: true
     allowed_input_artifacts: "one_frozen_current_artifact_or_reader_bundle_and_reader_handoff_or_preservation_comparison_bundle"
     output_artifact_type: "narrative_assessment_and_yaml_repair_plan_or_content_preservation_report"
-  - name: "research-opportunity-mapper"
-    package: "research"
-    role: "retrieval"
-    related_skills: ["idea-evaluator", "methodology-statistics-preflight", "multi-path-idea-generator", "proposal-context-brief-builder", "proposal-evaluator", "research-context-builder"]
-    invocation_policy: "implicit"
-    requires_independent_subagent: false
-    allowed_input_artifacts: "research_question_source_scope_and_existing_evidence"
-    output_artifact_type: "source_grounded_retrieval_artifact"
   - name: "research-polisher-methodology-publishability-reviewer"
     package: "research-polisher"
     role: "reviewer"
@@ -391,7 +396,7 @@ skills:
   - name: "research-polisher-orchestrator"
     package: "research-polisher"
     role: "orchestrator"
-    related_skills: ["academic-deep-search", "article-architect", "article-context-builder", "medical-journal-review", "methodology-statistics-preflight", "research-opportunity-mapper", "research-polisher-methodology-publishability-reviewer", "research-polisher-plan-assembler", "research-polisher-strategy-reviewer"]
+    related_skills: ["article-architect", "article-context-builder", "focused-literature-synthesizer", "medical-journal-review", "methodology-statistics-preflight", "research-landscape-mapper", "research-polisher-methodology-publishability-reviewer", "research-polisher-plan-assembler", "research-polisher-strategy-reviewer"]
     invocation_policy: "explicit_or_orchestrated"
     requires_independent_subagent: false
     allowed_input_artifacts: "completed_or_near_complete_research_assets_and_constraints"
@@ -407,7 +412,7 @@ skills:
   - name: "research-polisher-strategy-reviewer"
     package: "research-polisher"
     role: "reviewer"
-    related_skills: ["research-opportunity-mapper", "research-polisher-orchestrator"]
+    related_skills: ["research-landscape-mapper", "research-polisher-orchestrator"]
     invocation_policy: "explicit_or_orchestrated"
     requires_independent_subagent: true
     allowed_input_artifacts: "frozen_research_polisher_dossier_evidence_optional_verified_target_adapter_one_lens_and_optional_anonymous_must_fix_brief"
@@ -447,11 +452,19 @@ workflow_edges:
     failure_route: "clarification_required"
   - workflow: "idea"
     source: "research-idea-orchestrator"
-    destination: "research-opportunity-mapper"
+    destination: "research-landscape-mapper"
     dispatch_mode: "orchestrated"
-    trigger: "evidence_opportunity_or_direction_route_required"
+    trigger: "major_evidence_or_novelty_landscape_change"
     input_contract: "context_sources_scope_and_current_dossier_when_remapping"
     output_contract: "evidence_opportunity_maps_and_direction_support_signals"
+    failure_route: "evidence_mapping_pending"
+  - workflow: "idea"
+    source: "research-idea-orchestrator"
+    destination: "focused-literature-synthesizer"
+    dispatch_mode: "orchestrated"
+    trigger: "bounded_two_to_five_paper_synthesis_required"
+    input_contract: "one_bounded_question_scope_and_source_constraints"
+    output_contract: "focused_literature_synthesis"
     failure_route: "evidence_mapping_pending"
   - workflow: "idea"
     source: "research-idea-orchestrator"
@@ -535,11 +548,19 @@ workflow_edges:
     failure_route: "clarification_required"
   - workflow: "proposal"
     source: "proposal-orchestrator"
-    destination: "research-opportunity-mapper"
+    destination: "research-landscape-mapper"
     dispatch_mode: "orchestrated"
-    trigger: "broad_or_stale_evidence_required"
+    trigger: "major_core_claim_novelty_landscape_or_conflict_change"
     input_contract: "context_sources_and_retrieval_scope"
     output_contract: "evidence_and_opportunity_maps"
+    failure_route: "evidence_mapping_pending"
+  - workflow: "proposal"
+    source: "proposal-orchestrator"
+    destination: "focused-literature-synthesizer"
+    dispatch_mode: "orchestrated"
+    trigger: "bounded_two_to_five_paper_synthesis_required"
+    input_contract: "one_bounded_question_scope_and_source_constraints"
+    output_contract: "focused_literature_synthesis"
     failure_route: "evidence_mapping_pending"
   - workflow: "proposal"
     source: "proposal-orchestrator"
@@ -703,11 +724,19 @@ workflow_edges:
     failure_route: "grounding_blocked"
   - workflow: "article"
     source: "article-literature-grounder"
-    destination: "research-opportunity-mapper"
+    destination: "research-landscape-mapper"
     dispatch_mode: "orchestrated"
-    trigger: "broad_stale_or_conflicting_evidence"
+    trigger: "major_grounding_novelty_landscape_or_conflict_change"
     input_contract: "research_question_sources_and_scope"
     output_contract: "evidence_map_and_limitations"
+    failure_route: "evidence_mapping_pending"
+  - workflow: "article"
+    source: "article-literature-grounder"
+    destination: "focused-literature-synthesizer"
+    dispatch_mode: "orchestrated"
+    trigger: "bounded_two_to_five_paper_synthesis_required"
+    input_contract: "one_bounded_question_scope_and_source_constraints"
+    output_contract: "focused_literature_synthesis"
     failure_route: "evidence_mapping_pending"
   - workflow: "article"
     source: "article-orchestrator"
@@ -847,11 +876,19 @@ workflow_edges:
     failure_route: "curation_blocked"
   - workflow: "perspective"
     source: "perspective-orchestrator"
-    destination: "research-opportunity-mapper"
+    destination: "research-landscape-mapper"
     dispatch_mode: "orchestrated"
-    trigger: "standard_or_full_mode_has_broad_evidence_gap"
+    trigger: "major_discourse_novelty_landscape_or_conflict_change"
     input_contract: "claims_sources_and_retrieval_scope"
     output_contract: "evidence_map_and_limitations"
+    failure_route: "evidence_mapping_pending"
+  - workflow: "perspective"
+    source: "perspective-claim-evidence-curator"
+    destination: "focused-literature-synthesizer"
+    dispatch_mode: "orchestrated"
+    trigger: "bounded_two_to_five_paper_synthesis_required"
+    input_contract: "one_bounded_question_scope_and_source_constraints"
+    output_contract: "focused_literature_synthesis"
     failure_route: "evidence_mapping_pending"
   - workflow: "perspective"
     source: "perspective-orchestrator"
@@ -951,19 +988,19 @@ workflow_edges:
     failure_route: "clarification_required"
   - workflow: "research_polisher"
     source: "research-polisher-orchestrator"
-    destination: "research-opportunity-mapper"
+    destination: "research-landscape-mapper"
     dispatch_mode: "orchestrated"
-    trigger: "broad_positioning_evidence_required"
+    trigger: "major_core_positioning_novelty_landscape_or_conflict_change"
     input_contract: "frozen_dossier_questions_sources_and_scope"
     output_contract: "evidence_and_opportunity_maps"
     failure_route: "evidence_mapping_pending"
   - workflow: "research_polisher"
     source: "research-polisher-orchestrator"
-    destination: "academic-deep-search"
+    destination: "focused-literature-synthesizer"
     dispatch_mode: "orchestrated"
     trigger: "bounded_two_to_five_paper_question_required"
     input_contract: "one_bounded_question_scope_and_source_constraints"
-    output_contract: "focused_academic_synthesis"
+    output_contract: "focused_literature_synthesis"
     failure_route: "evidence_mapping_pending"
   - workflow: "research_polisher"
     source: "research-polisher-orchestrator"
@@ -2632,7 +2669,7 @@ scenario_eval_contract:
         source_skill: research-context-builder
         count: 1
       - artifact_role: evidence_map
-        source_skill: research-opportunity-mapper
+        source_skill: research-landscape-mapper
         count: 1
         count_by_direction_profile:
           focused_optimization: 1
@@ -2640,7 +2677,7 @@ scenario_eval_contract:
             minimum: 2
             maximum: 3
       - artifact_role: opportunity_map
-        source_skill: research-opportunity-mapper
+        source_skill: research-landscape-mapper
         count_per_current_idea_node: 1
         required_when_direction_profile: bounded_exploration
       - artifact_role: idea_routing_decision
@@ -3016,7 +3053,7 @@ scenario_eval_contract:
         source_skill: article-context-builder
         count: 1
       - artifact_role: evidence_map
-        source_skill: research-opportunity-mapper
+        source_skill: research-landscape-mapper
         count: 1
       - artifact_role: research_polisher_sealed_provenance
         source_skill: research-polisher-plan-assembler
@@ -3233,11 +3270,11 @@ scenario_eval_contract:
       perspective-argument-architect:
       - argument_architecture
       - paragraph_map
-      research-opportunity-mapper:
+      research-landscape-mapper:
       - evidence_map
       - opportunity_map
-      academic-deep-search:
-      - focused_academic_synthesis
+      focused-literature-synthesizer:
+      - focused_literature_synthesis
       article-literature-grounder:
       - evidence_ledger
       - evidence_map

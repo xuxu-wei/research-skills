@@ -1,4 +1,4 @@
-﻿# Proposal Readiness Report
+# Proposal Readiness Report
 
 ## Independent Review Metadata
 
@@ -55,7 +55,7 @@
 
 ## Recommended Next Skill
 
-`<proposal-drafter | proposal-context-brief-builder | research-opportunity-mapper | methodology-statistics-preflight | research-idea-orchestrator | idea-evaluator | stop>`
+`<proposal-drafter | proposal-context-brief-builder | research-landscape-mapper | methodology-statistics-preflight | research-idea-orchestrator | idea-evaluator | stop>`
 
 ## Downstream Notes
 

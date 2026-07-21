@@ -1,9 +1,27 @@
 # ChatGPT Deep Research Rules
 
+## Contents
+
+- [Required package sections](#required-package-sections)
+- [Search plan](#search-plan)
+- [Mode adjustments](#mode-adjustments)
+- [Claim contract](#claim-contract)
+- [Domain adaptation](#domain-adaptation)
+- [Scope boundary and return](#scope-boundary-and-return)
+
 Load this file only when the task needs multi-stage, multi-direction, or
-multi-source synthesis. If Deep Research is inactive or unknown, create a
-self-contained continuation package, return `deep_research_handoff_required`,
-and stop. Do not imitate Deep Research with ordinary chat or Built-in Search.
+multi-source synthesis. If Deep Research is inactive or unknown, create exactly
+these two files and stop:
+
+```text
+deep-research/round-NNN/
+├── deep-research-request-vNNN.md
+└── deep-research-follow-up-guide-vNNN.md
+```
+
+Return `deep_research_handoff_required`. The returned report is saved as
+`deep-research-report-vNNN.md`. Do not imitate Deep Research with ordinary chat,
+Built-in Search, or repeated focused syntheses.
 
 ## Required package sections
 
@@ -93,3 +111,18 @@ mapper verifies source identity and material locators, converts findings into
 Evidence and Opportunity Maps, preserves conflicts and access limits, records
 the returned artifact's ID, version, and path, and resumes the named pending
 edge once.
+
+An accepted report is direct evidence for the novelty assessment and has no
+lower standing than a formal novelty search. Acceptance still requires source
+identity, closest-work coverage, contrary-evidence coverage, and citation
+traceability:
+
+```yaml
+deep_research_return:
+  report_ref: {artifact_id: "", version: "", path: ""}
+  acceptance: accepted | revision_required | supplemental_search_required
+  closest_work_coverage: complete | partial | insufficient
+  contrary_evidence_coverage: complete | partial | insufficient
+  citation_traceability: passed | failed
+  novelty_evidence_usable: true | false
+```

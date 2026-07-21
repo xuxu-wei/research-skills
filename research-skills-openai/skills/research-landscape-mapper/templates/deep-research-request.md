@@ -1,4 +1,4 @@
-# ChatGPT Deep Research Continuation Package
+# Deep Research Request
 
 ## State binding
 
@@ -91,6 +91,7 @@ access-limited` for support status.
 7. Concise synthesis that distinguishes source statements from report-level
    inference.
 
-Save or return the report as the named artifact, include its completion time,
+Use one citation record per source with a GB/T 7714—2015 citation and complete
+canonical link. Save or return the report as `deep-research-report-vNNN.md`, include its completion time,
 and preserve the workflow, round, pending-edge, returned-artifact ID, version,
 and path for single-edge resume.

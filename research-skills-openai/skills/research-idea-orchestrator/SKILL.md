@@ -53,7 +53,7 @@ entry_gates_by_route:
   focused_optimization:
     - adversarial_reports_complete_when_proposal_handoff_candidate
   bounded_exploration:
-    - evidence_and_opportunity_remap_complete
+    - evidence_change_assessed_and_required_sync_complete
     - fresh_evaluation_complete_for_each_current_dossier
 non_bypass_gates:
   - current_dossier_editorial_readiness_complete
@@ -65,7 +65,7 @@ non_bypass_gates_by_route:
   focused_optimization:
     - adversarial_reports_complete_when_proposal_handoff_candidate
   bounded_exploration:
-    - evidence_and_opportunity_remap_complete
+    - evidence_change_assessed_and_required_sync_complete
     - fresh_evaluation_complete_for_each_current_dossier
 ```
 <!-- idea-entry-mode-contract:end -->
@@ -78,7 +78,7 @@ current reviews. A substantive change invalidates them.
 1. **Initialize.** Record scope, constraints, sources, schema, and pointers;
    return `layout_migration_required` for read-only v1/v2 projects.
 2. **Ground and route.** Dispatch `research-context-builder`, then
-   `research-opportunity-mapper`; freeze an unscored routing decision.
+   `research-landscape-mapper`; freeze an unscored routing decision.
 3. **Write.** Produce one focused dossier or two/three evidence-supported
    directions with complete chains, claim table, metadata, and structural lint.
 4. **Preflight and revise science.** When methods are material, put required
@@ -90,8 +90,10 @@ current reviews. A substantive change invalidates them.
    register, then require preservation and fresh reassessment.
 6. **Evaluate.** Give a fresh `idea-evaluator` only the eligible current dossier.
 7. **Apply the route loop.** Focused revisions repeat preflight/readiness/
-   evaluation within stop limits. Bounded directions receive one optimization,
-   remap, synchronization, readiness pass, and terminal evaluation.
+   evaluation within stop limits. After a bounded direction changes, record
+   `evidence_change_assessment`: reuse on `none`, use Built-in Search or one focused
+   synthesis on `bounded`, and re-enter `research-landscape-mapper` on `major`.
+   Synchronize changed claims, then run readiness and terminal evaluation.
 8. **Review journal fit.** Persist the evaluator's frozen score-free candidate
    payload; send it and the dossier to fresh `medical-journal-review`. Do not rematch.
 9. **Run adversarial handoff.** For a focused Proposal candidate, dispatch the

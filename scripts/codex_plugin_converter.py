@@ -34,10 +34,10 @@ SKILLS_DIR_NAME = "research-skills"
 
 RESEARCH_DEPENDENCIES = [
     "methodology-statistics-preflight",
-    "research-opportunity-mapper",
+    "research-landscape-mapper",
     "pubmed",
     "arxiv",
-    "academic-deep-search",
+    "focused-literature-synthesizer",
     "academic-language-assessor",
     "medical-journal-review",
     "llm-wiki",
@@ -211,10 +211,25 @@ def discover_leaf_skills(root: Path) -> list[Path]:
     return sorted(path.parent for path in root.rglob("SKILL.md"))
 
 
+def legacy_hermes_skill_source_aliases(root: Path) -> dict[str, str]:
+    registry_path = root / PLUGIN_VARIANTS["openai"] / "workflow-registry.yaml"
+    registry = yaml.safe_load(read_text(registry_path)) or {}
+    aliases = registry.get("legacy_skill_name_aliases", {})
+    if not isinstance(aliases, dict):
+        raise RuntimeError("Registry legacy_skill_name_aliases must be a mapping")
+    return {str(current): str(legacy) for legacy, current in aliases.items()}
+
+
 def source_packages(root: Path) -> list[Path]:
     root_skills = skills_root(root)
+    hermes_aliases = legacy_hermes_skill_source_aliases(root)
     paths = [root_skills / package for package in CORE_PACKAGES]
-    paths.extend(root_skills / "research" / name for name in RESEARCH_DEPENDENCIES)
+    paths.extend(
+        root_skills
+        / "research"
+        / hermes_aliases.get(name, name)
+        for name in RESEARCH_DEPENDENCIES
+    )
     paths.extend(root_skills / "obsidian-skills" / name for name in OBSIDIAN_DEPENDENCIES)
     paths.extend(root_skills / "productivity" / name for name in PRODUCTIVITY_DEPENDENCIES)
     return paths

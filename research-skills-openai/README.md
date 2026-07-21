@@ -8,11 +8,13 @@ presented as a production-stable, supported, shared, or public distribution.
 
 The maintained deterministic suite covers static audits, workflow fixtures,
 reviewer isolation, context budgets, registry generation, and plugin packaging.
-The `0.11.0` checkpoint adds one shared narrative assessor and reader-readiness
-contracts for Idea, Proposal, Perspective, and Article. Historical Roadmap phases
-remain closed records and are not rerun merely because later versions change
-their assumptions. Complete Search/Deep Research runtime revalidation is not an
-active priority unless the owner explicitly reopens it.
+The `0.12.0` checkpoint renames the two evidence entry skills to distinguish
+bounded full-text synthesis from broad landscape and novelty mapping. It also
+adds evidence-change materiality routing, a two-file Deep Research continuation
+package, and one citation record shared across retrieval routes. Historical
+Roadmap phases remain closed records and are not rerun merely because later
+versions change their assumptions. Complete Search/Deep Research runtime
+revalidation is not an active priority unless the owner explicitly reopens it.
 
 Research Polisher is already implemented as the seventh declared entry and is
 permanently explicit-only under the current personal routing policy. See
@@ -102,7 +104,7 @@ In the Codex App, temporarily disable the Git-installed
 
 ```powershell
 python scripts/openai_plugin_dev.py install-local
-python scripts/openai_plugin_dev.py verify --channel local --expected-version 0.11.0
+python scripts/openai_plugin_dev.py verify --channel local --expected-version 0.12.0
 ```
 
 The equivalent CLI switch is
@@ -115,7 +117,7 @@ the only enabled channel during this loop.
 The helper validates the existing marketplace entry and tracked source, then
 copies the source to the personal Local
 plugin directory. It writes `+codex.local-YYYYMMDD-HHMMSS-ffffff` only into that copy;
-the worktree remains `0.11.0`. It refuses installation while the Git
+the worktree remains `0.12.0`. It refuses installation while the Git
 channel is enabled, never edits marketplace JSON, and restores the previous
 Local copy if installation fails. Do not delete plugin caches.
 
@@ -134,7 +136,7 @@ $codexCli = (python scripts/openai_plugin_dev.py status --json | ConvertFrom-Jso
 & $codexCli plugin remove research-skills-openai@local --json
 & $codexCli plugin marketplace upgrade xuxu-research-preview
 & $codexCli plugin add research-skills-openai@xuxu-research-preview --json
-python scripts/openai_plugin_dev.py verify --channel github --expected-version 0.11.0
+python scripts/openai_plugin_dev.py verify --channel github --expected-version 0.12.0
 ```
 
 For a non-mutating discovery smoke test, run a fresh ephemeral task after either
@@ -150,16 +152,16 @@ Never commit or push a `+codex.local-*` version.
 
 ## Inventory and invocation policy
 
-The maintained `0.11.0` source contains 51 skill contracts and declares
+The maintained `0.12.0` source contains 51 skill contracts and declares
 seven discoverable entry skills. Six currently set
 `allow_implicit_invocation: true`:
 
-- `academic-deep-search`
+- `focused-literature-synthesizer`
 - `article-orchestrator`
 - `perspective-orchestrator`
 - `proposal-orchestrator`
 - `research-idea-orchestrator`
-- `research-opportunity-mapper`
+- `research-landscape-mapper`
 
 `research-polisher-orchestrator` is the seventh declared entry and has a complete
 quickstart. It remains explicit-only as a permanent personal routing boundary;
@@ -167,6 +169,13 @@ it must not take over language polishing, ordinary drafting, new-idea
 generation, or general literature-search requests. The other 44 private roles
 also set the policy to `false` and remain available for explicit or
 orchestrated delegation.
+
+Evidence iteration records `none | bounded | major`. Editorial changes reuse
+evidence; a bounded citation or claim check uses built-in search, and a bounded
+2-5-paper full-text question may use `focused-literature-synthesizer`. Only a
+major change to a core claim, novelty position, evidence landscape, or material
+conflict re-enters `research-landscape-mapper`. Multiple focused syntheses may
+not substitute for Deep Research.
 
 A prior current-environment diagnostic confirmed the GitHub marketplace,
 enabled-plugin, and fresh-task discovery mechanism. Current workflow artifacts
@@ -231,10 +240,10 @@ a unique current pointer; new LLM-facing interfaces do not persist hashes.
 Each prompt explicitly names one declared entry so it can be pasted into a fresh
 task without asking the router to choose among unrelated workflows.
 
-### `$academic-deep-search`
+### `$focused-literature-synthesizer`
 
 ```text
-Use $academic-deep-search to answer this specific academic question by closely reading 2-5 papers: [question]. Population/context: [scope]. Date or source constraints: [constraints or none]. Return cited findings, disagreements, access limits, and a concise answer.
+Use $focused-literature-synthesizer to answer this specific academic question by closely reading 2-5 papers: [question]. Population/context: [scope]. Date or source constraints: [constraints or none]. Return cited findings, disagreements, access limits, and a concise answer.
 ```
 
 - Minimum input: one bounded academic question plus any scope constraints.
@@ -304,10 +313,10 @@ Use $research-polisher-orchestrator in standard mode for this completed or subst
 - Stop states: `revision_required`, `specialist_review_pending`, `no_defensible_option`, `independent_review_pending`, `deep_research_handoff_required`, `clarification_stop`, `blocked`, or `stopped`; a qualifying package stops at human strategy selection.
 - Resume: paste the self-contained continuation brief with the missing frozen artifacts, evidence return, resource constraints, or reviewer availability.
 
-### `$research-opportunity-mapper`
+### `$research-landscape-mapper`
 
 ```text
-Use $research-opportunity-mapper for this broad evidence question: [question]. Decision the map must support: [decision]. Scope, dates, languages, and preferred/excluded sources: [constraints]. Return an evidence map, opportunity map, conflicts, gaps, and stable citations.
+Use $research-landscape-mapper for this broad evidence question: [question]. Decision the map must support: [decision]. Scope, dates, languages, and preferred/excluded sources: [constraints]. Return an evidence map, opportunity map, conflicts, gaps, and stable citations.
 ```
 
 - Minimum input: a broad evidence question, downstream decision, and retrieval scope.

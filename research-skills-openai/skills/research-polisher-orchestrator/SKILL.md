@@ -26,7 +26,12 @@ Use `standard` mode. Route language polishing, ordinary drafting, new-idea gener
 
 Accept sources, framing, audience/outlet, constraints, evidence map, and any verified target requirements. Route unstructured material to `article-context-builder`; reference its normalized facts.
 
-Route stale positioning evidence to `research-opportunity-mapper`; use `academic-deep-search` only for a 2-5-paper question. Inactive required research pauses at `deep_research_handoff_required`.
+Record `evidence_change_assessment` before retrieval. Reuse on `none`; use
+Built-in Search or `focused-literature-synthesizer` for a bounded citation,
+claim, or 2-5-paper question; call `research-landscape-mapper` only when core
+positioning, novelty, the evidence landscape, or a material conflict changes
+substantively. Inactive required research pauses at
+`deep_research_handoff_required`.
 
 ## Workflow Kernel
 
