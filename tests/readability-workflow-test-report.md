@@ -54,8 +54,8 @@ These results refine the macro diagnosis. The first Perspective failure occurred
 
 ### MIN-002 — Source/cache line-ending differences
 
-- Plugin version: `0.10.0` development channel; observed again after the `0.11.0` Git release.
-- Symptom: `openai_plugin_dev.py verify --channel github` rejected the installed `0.11.0` cache although the source and cache both contained 428 files, declared the same version, 51 Skills, and 22 reviewers. Direct byte comparison reported 59 differing text files; an in-memory CRLF/LF normalization reduced the content difference count to zero.
+- Plugin version: `0.10.0` development channel; observed again after the `0.11.0` and `0.12.0` Git releases.
+- Symptom: `openai_plugin_dev.py verify --channel github` rejected an otherwise matching Git cache because the Windows worktree and canonical Git copy used different line endings. For `0.12.0`, the enabled plugin declared the correct version, 51 Skills, and 22 reviewers, and its marketplace clone resolved to release commit `c4c68c3`; the verifier-only false negative remained.
 - Suspected diagnosis: Windows worktree conversion versus canonical Git LF content, not semantic drift or an incomplete Git installation.
 - Proposed solution: in a later low-priority development-tool pass, compare normalized text content while retaining exact inventory, version, Skill, reviewer, selector, and unexpected-file checks. Do not persist hashes. The current workflow and release do not require reproduction or correction for this verifier-only false negative.
 
