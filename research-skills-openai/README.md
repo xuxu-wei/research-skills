@@ -71,84 +71,31 @@ current-version cache.
 
 ## Local development and version debugging
 
-GitHub reinstall never reads unpushed working-tree changes, and an existing
-Codex task does not hot-reload changed Skill files. Use Python 3.11 or later and
-create an isolated environment once from the repository root:
+The canonical development, testing, monitoring, release, and rollback process
+is [docs/development-test-release-workflow.md](docs/development-test-release-workflow.md).
+Use Python 3.11 or later and create the repository environment once:
 
 ```powershell
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 $env:PYTHONUTF8 = "1"
 python -m pip install -r requirements-dev.txt
+```
+
+Keep exactly one plugin channel enabled. After disabling the Git-installed copy,
+run the local update loop from the repository root:
+
+```powershell
+$sourceVersion = (Get-Content -Raw -Encoding utf8 research-skills-openai/.codex-plugin/plugin.json | ConvertFrom-Json).version
 python scripts/openai_plugin_dev.py status
-```
-
-Keep `PYTHONUTF8=1` in Windows validation shells so `quick_validate.py` reads
-UTF-8 Skill files independently of the system locale.
-
-`install-local` is an update loop and requires the personal marketplace entry
-to already point to `./plugins/research-skills-openai`. On a first setup only,
-when neither that entry nor the personal Local copy exists, create them through
-plugin-creator rather than editing `marketplace.json`:
-
-```powershell
-python "$env:USERPROFILE\.codex\skills\.system\plugin-creator\scripts\create_basic_plugin.py" research-skills-openai --with-marketplace --category Research
-```
-
-If `status --json` instead reports an existing but mismatched entry, stop and
-repair it through plugin-creator; the update helper intentionally does not
-rewrite marketplace configuration.
-
-In the Codex App, temporarily disable the Git-installed
-`research-skills-openai` plugin. Then install and verify an isolated Local copy:
-
-```powershell
 python scripts/openai_plugin_dev.py install-local
-python scripts/openai_plugin_dev.py verify --channel local --expected-version 0.12.0
+python scripts/openai_plugin_dev.py verify --channel local --expected-version $sourceVersion
 ```
 
-The equivalent CLI switch is
-`& $codexCli plugin remove research-skills-openai@xuxu-research-preview --json`.
-Removing that installed selector does not remove the Git marketplace itself.
-If Windows holds the active Local copy open, close the Codex App before
-`install-local`, then reopen it after verification; keep the Local selector as
-the only enabled channel during this loop.
-
-The helper validates the existing marketplace entry and tracked source, then
-copies the source to the personal Local
-plugin directory. It writes `+codex.local-YYYYMMDD-HHMMSS-ffffff` only into that copy;
-the worktree remains `0.12.0`. It refuses installation while the Git
-channel is enabled, never edits marketplace JSON, and restores the previous
-Local copy if installation fails. Do not delete plugin caches.
-
-`verify --channel local` compares the complete file inventory and file contents
-against the current worktree, allowing only the two local version fields to
-differ; it does not save hashes. The cachebuster includes microseconds, so each
-rapid reinstall is separately discoverable.
-
-After every Skill change, rerun `install-local` and start a new Codex task. Keep
-exactly one channel enabled: Local during iteration, Git after acceptance. Once
-tests pass, commit and push the source, disable the Local plugin, enable or
-upgrade the Git plugin, verify it, and start another new task:
-
-```powershell
-$codexCli = (python scripts/openai_plugin_dev.py status --json | ConvertFrom-Json).codex_cli
-& $codexCli plugin remove research-skills-openai@local --json
-& $codexCli plugin marketplace upgrade xuxu-research-preview
-& $codexCli plugin add research-skills-openai@xuxu-research-preview --json
-python scripts/openai_plugin_dev.py verify --channel github --expected-version 0.12.0
-```
-
-For a non-mutating discovery smoke test, run a fresh ephemeral task after either
-channel verifies. The response must identify the requested installed Skill and
-the expected base version; it must not edit the repository:
-
-```powershell
-& $codexCli exec --ephemeral --sandbox read-only --cd (Get-Location) `
-  'Use $research-narrative-assessor. Report its installed plugin version and its two required assessment outputs; do not edit files.'
-```
-
-Never commit or push a `+codex.local-*` version.
+Codex does not hot-reload Skill files. Reinstall after every Skill change and
+start a new task for behavioral testing. Never commit or push a
+`+codex.local-*` version. See the canonical process for first-time marketplace
+setup, test-run metadata, monitoring, GitHub-channel verification, and rollback.
 
 ## Inventory and invocation policy
 

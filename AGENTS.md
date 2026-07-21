@@ -10,3 +10,4 @@
 - 生成器、评估器、Reviewer 与汇编器必须保持角色分离。实质性产物发生变化后，必须由新的独立实例重新评估，才能晋级或最终交付。
 - 源文件、生成的 Registry、Manifest、文档和验证预期必须同步更新。
 - 交付前运行适用的仓库与插件审计；修复所有错误，并报告仍然存在的警告。
+- 涉及 OpenAI 插件的本地开发、安装、测试或发布时，遵循 `research-skills-openai/docs/development-test-release-workflow.md`；插件子树内更具体的 `AGENTS.md` 规则仍然优先。

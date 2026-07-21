@@ -41,6 +41,7 @@
 
 ## 版本化开发与交付
 
+- 本地开发、安装、测试、任务监控、发布与回滚的唯一权威流程是 `docs/development-test-release-workflow.md`；本文件只保留不可变约束。
 - `.codex-plugin/plugin.json` 与 `workflow-registry.yaml` 必须使用相同 SemVer。
 - 版本变化时同步所有当前版本声明，同时保留明确标记为历史记录的版本信息。
 - 交付前运行适用的仓库和插件审计，修复全部错误并报告剩余警告。
@@ -52,7 +53,8 @@
 仅在任务需要时加载对应细节：
 
 - `workflow-registry.yaml`：库存、角色、边、模式和调用策略。
-- `README.md`：安装、更新、Quickstart、产物默认值、个人验收操作和验证命令。
+- `README.md`：安装、更新、Quickstart、产物默认值和验证入口。
+- `docs/development-test-release-workflow.md`：OpenAI 插件开发环境、本地即时生效、测试隔离、任务监控、版本发布和回滚。
 - `ROADMAP.md`：过去与现在的记录及未来规划。已完成 Phase 是历史快照，即使后续版本使其不再适用也不得自动重跑；只有所有者明确重新开启时才能复验。
 - 目标 `SKILL.md` 及其显式链接的引用：工作流局部流程、Schema、Rubric、Template 和资源加载条件。
 - 根目录 `AGENTS.md`：仓库级配置隔离、Authoring 工具、审计要求以及 Hermes/OpenAI 边界。
