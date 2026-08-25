@@ -13,7 +13,9 @@ from pathlib import Path
 import openai_plugin_dev as dev
 
 
-VERSION = "0.13.0-preview.1"
+VERSION = "0.14.0"
+REPO = Path(__file__).resolve().parents[1]
+DEVELOPMENT_WORKFLOW = REPO / "research-skills-openai" / "docs" / "development-test-release-workflow.md"
 
 
 def require(condition: bool, label: str) -> None:
@@ -462,6 +464,24 @@ def test_failed_add_rolls_back(base: Path) -> None:
     require(not (home / "plugins" / f".{dev.PLUGIN_NAME}.backup").exists(), "backup leaked")
 
 
+def test_risk_based_validation_policy(base: Path) -> None:
+    del base
+    policy = DEVELOPMENT_WORKFLOW.read_text(encoding="utf-8-sig")
+    required_markers = (
+        "确定性验证是每次改动的默认门槛；LLM 测试是风险触发项",
+        "A. 文档/报告",
+        "B. 确定性实现",
+        "C. 单工作流行为",
+        "D. 共享行为",
+        "E. 通道发布",
+        "不得默认扩大到无关工作流",
+        "同一源码身份不重复行为测试",
+        "全量多工作流 LLM 测试只在以下情况运行",
+    )
+    for marker in required_markers:
+        require(marker in policy, f"risk-based validation policy missing: {marker}")
+
+
 def main() -> int:
     tests = (
         test_status_and_duplicate_detection,
@@ -473,6 +493,7 @@ def main() -> int:
         test_github_verify,
         test_github_verify_rejects_disabled_correct_cache,
         test_failed_add_rolls_back,
+        test_risk_based_validation_policy,
     )
     for test in tests:
         with tempfile.TemporaryDirectory(prefix="openai-plugin-dev-test-") as raw:

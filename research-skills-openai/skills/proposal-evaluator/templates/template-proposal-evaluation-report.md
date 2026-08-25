@@ -19,6 +19,9 @@
 - Prior versions visible: `false`
 - Revision delta visible: `false`
 - Readiness report visible: `false`
+- Background path options visible: `false`
+- Background path selection visible: `false`
+- Content plan visible: `false`
 - Repair artifacts visible: `false`
 - Prior evaluation visible: `false`
 - Source edits performed: `false`
@@ -59,6 +62,14 @@
 | Completion gate |  |  |
 | Genre Fit gate |  |  |
 | No fatal flaws gate |  |  |
+
+### Background argumentation checks
+
+- Opening establishes a high-value real/scientific problem and core constraint: pass / fail
+- Systematic units land on project components and cover research content: pass / fail / not applicable
+- Progressive headings, entry claims, and exit handoffs form a research-route chain: pass / fail / not applicable
+- Synthesis completes gap → project route → innovation position → significance without new evidence: pass / fail
+- Fixed labels, headings, numbering, or literal transition words used as a gate: `false`
 
 ## 5. Fatal Flaws
 

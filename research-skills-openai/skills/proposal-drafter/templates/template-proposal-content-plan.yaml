@@ -1,10 +1,11 @@
-schema: proposal-content-plan.v1
+schema: proposal-content-plan.v2
 artifact_id:
 version_id:
 workflow_id:
 round_id:
 source_skill: proposal-drafter
 planner_instance_id:
+candidate_planner_instance_id:
 path: 04_drafts/proposal-content-plan-vNNN.yaml
 based_on: []
 target_proposal_path: 04_drafts/proposal-vNNN.md
@@ -16,6 +17,38 @@ reader_reasoning_chain: []
 binding_constraints: []
 source_intent_coverage: []
 authoritative_assumptions_feasibility_risks_section:
+background_argumentation:
+  selection_source: user | user_explicit | binding_constraint
+  selection_mode: option_selection | sole_path_acceptance | bypass
+  user_authorization_text:
+  selected_path_ref:
+    artifact_id:
+    version:
+    path:
+  primary_mode: systematic | progressive
+  heading_policy:
+  opening:
+    macro_context:
+    high_value_real_or_scientific_problem:
+    breadth_or_importance:
+    project_core_bottleneck:
+  argument_units:
+    - unit_id:
+      heading:
+      entry_claim:
+      evidence_bindings: []
+      gap_or_constraint:
+      project_mapping:
+        research_content: []
+        research_route: []
+        key_technical_or_scientific_problems: []
+      exit_handoff:
+  synthesis:
+    project_summary:
+    route_or_method:
+    innovation_position:
+    significance:
+    transition_policy:
 sections:
   - section_id:
     heading:
@@ -28,4 +61,4 @@ sections:
     terms_defined_here: []
     reader_handoff:
 unresolved_inputs: []
-completion_rule: "Every required source intent and binding constraint is assigned, the reader chain is continuous, and each section has a distinct rhetorical function and reader handoff."
+completion_rule: "Selection authority is explicit; background opening, units, mappings, and synthesis form a continuous gap-to-project argument; every required source intent and binding constraint is assigned; and each section has a distinct rhetorical function and reader handoff."

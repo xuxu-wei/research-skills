@@ -6,7 +6,7 @@
 |---|---|
 | 文档状态 | Personal Experimental/Preview |
 | 规划基线 | 2026-07-21 |
-| 当前插件版本 | `0.13.0-preview.1` |
+| 当前插件版本 | `0.14.0` |
 | 当前范围 | 51 个 Skill、22 个独立 Reviewer、5 个完整工作流 |
 | 发现面 | 7 个声明入口、6 个隐式入口、1 个 explicit-only 入口 |
 | 当前路线图状态 | Phase 0–9 均已完成；已完成 Phase 只作为历史记录，不自动复验 |
@@ -21,10 +21,10 @@
 
 ## 当前状态
 
-- 当前源码为 `0.13.0-preview.1`，包含 51 个 Skill、22 个独立 Reviewer 和 76 条工作流边。
+- 当前源码为 `0.14.0`，包含 51 个 Skill、22 个独立 Reviewer 和 77 条工作流边。
 - 五个完整工作流为 Idea、Proposal、Article、Perspective 和 Research Polisher。
 - 七个声明入口中，六个允许隐式调用；Research Polisher 永久保持 explicit-only。
-- 旧版确定性回放和匿名语料结论保留在各自已完成 Phase 中；它们不是 `0.13.0-preview.1` 的重复执行清单。
+- 旧版确定性回放和匿名语料结论保留在各自已完成 Phase 中；它们不是 `0.14.0` 的重复执行清单。
 - GitHub Marketplace 安装、缓存发现和路由机制已经诊断；所有者接受其作为当前个人使用基线，但不将此表述扩展为严格全量工作流已验证。
 - Phase 7 和 Phase 8 已关闭；完整 Search/Deep Research 原生闭环仅在所有者明确要求时复验。
 - `0.10.0` 的四条原始测试基线已经先于源码改动冻结；`0.11.0` 只运行本次改造直接需要的静态、单元、fixture 和 fresh-agent forward tests。
@@ -323,7 +323,15 @@
 
 `0.10.0` 基线已冻结；`0.11.0` 已用当前四条原始 fixture 的可达分支、fresh-agent 产物、隔离合同、索引完整性、Local 安装发现和无下游越权证据完成验收。Phase 0–9 均为已关闭历史，只有所有者明确重开时才能复验；后续版本不得把历史完成条件当作自动重复执行清单。
 
-### 当前开发：v0.13.0 联网证据接续与反馈闭环
+### 当前开发：v0.14.0 Proposal 背景论证路径
+
+- 状态：`进行中`
+- 优先级：`P0`
+- 目标版本：`0.14.0`
+- 目标：默认生成 2–3 个中立、可行且证据可支持的背景/研究现状路径，暂停等待所有者选择；选择后由新 planner 生成 `proposal-content-plan.v2`，再由不同 writer 撰写完整 proposal，并保持 final evaluator 对 options、selection 和 plan 的隔离。
+- 范围：仅 OpenAI 插件；不改 Marketplace，不自动提交或推送。
+
+### 历史开发记录：v0.13.0 联网证据接续与反馈闭环
 
 - 状态：`进行中`
 - 优先级：`P0`

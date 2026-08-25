@@ -1,0 +1,19 @@
+schema: proposal-background-path-selection.v1
+artifact_id:
+version_id:
+workflow_id:
+round_id:
+source_skill: proposal-orchestrator
+created_by_instance_id:
+path: 04_drafts/proposal-background-path-selection-vNNN.yaml
+selection_source: user
+selection_mode:
+user_authorization_text:
+selected_option_id: null
+accepted_sole_path: null
+user_requested_local_modifications: []
+rejected_option_ids: []
+options_ref: null
+candidate_planner_instance_id:
+next_route: planning_only
+completion_rule: "Exactly one authority form is complete: option_selection records selected_option_id and an exact options_ref with accepted_sole_path null; sole_path_acceptance records the accepted functional outline with selected_option_id and options_ref null. The user's authorization text and local modifications are preserved, and a multi-option hybrid is routed to a new candidate round instead."

@@ -161,6 +161,270 @@ def require(condition: bool, code: str, message: str) -> None:
         raise ScenarioViolation(code, message)
 
 
+def package_requirement_condition_met(
+    required_condition: str,
+    *,
+    workflow: str,
+    entry_mode: str,
+    proposal_background_authority_mode: str | None,
+    new_full_proposal: bool,
+    editorial_repair_occurred: bool,
+    proposal_handoff_candidate: bool,
+    current_dossier_biomedical_or_clinical: bool,
+    journal_matching_requested: bool,
+    biomedical_candidate_route: bool,
+) -> bool:
+    if required_condition == "editorial_repair_occurred":
+        return editorial_repair_occurred
+    if required_condition == "proposal_handoff_candidate":
+        return proposal_handoff_candidate
+    if required_condition == "current_dossier_biomedical_or_clinical":
+        return current_dossier_biomedical_or_clinical
+    if required_condition == "standard_default_candidate_route":
+        return (
+            workflow == "proposal"
+            and entry_mode == "standard"
+            and proposal_background_authority_mode == "option_selection"
+        )
+    if required_condition == "background_options_selected_or_sole_path_accepted":
+        return (
+            workflow == "proposal"
+            and proposal_background_authority_mode
+            in {"option_selection", "sole_path_acceptance"}
+        )
+    if required_condition == "new_full_proposal":
+        return workflow == "proposal" and new_full_proposal
+    if required_condition == "journal_matching_requested_or_biomedical_candidate_route":
+        return (
+            workflow == "proposal"
+            and (journal_matching_requested or biomedical_candidate_route)
+        )
+    raise ScenarioViolation(
+        "package_input_contract",
+        f"unsupported required_when_condition {required_condition}",
+    )
+
+
+def artifact_schema(artifact: dict[str, Any]) -> str | None:
+    value = artifact.get("schema_version", artifact.get("schema"))
+    return str(value) if value is not None else None
+
+
+def logical_ref_complete(value: Any) -> bool:
+    return isinstance(value, dict) and all(
+        isinstance(value.get(key), str) and value[key].strip()
+        for key in ("artifact_id", "version", "path")
+    )
+
+
+def logical_ref_matches(value: Any, artifact: dict[str, Any]) -> bool:
+    return logical_ref_complete(value) and (
+        value["artifact_id"] == artifact.get("artifact_id")
+        and value["version"] == artifact.get("version_id")
+        and value["path"] == artifact.get("path")
+    )
+
+
+def nonempty_text(value: Any) -> bool:
+    return isinstance(value, str) and bool(value.strip())
+
+
+def meaningful_list(value: Any) -> bool:
+    def meaningful(item: Any) -> bool:
+        if isinstance(item, str):
+            return bool(item.strip())
+        if isinstance(item, list):
+            return bool(item) and all(meaningful(member) for member in item)
+        if isinstance(item, dict):
+            return bool(item) and any(meaningful(member) for member in item.values())
+        return item is not None
+
+    return isinstance(value, list) and bool(value) and all(meaningful(item) for item in value)
+
+
+def validate_proposal_path_outline(value: Any, *, label: str) -> None:
+    require(isinstance(value, dict), "proposal_background_authority", f"{label} must be a mapping")
+    for key in ("primary_mode", "organizing_axis", "one_sentence_argument_logic"):
+        require(nonempty_text(value.get(key)), "proposal_background_authority", f"{label}.{key} is required")
+
+    opening = value.get("opening")
+    require(isinstance(opening, dict), "proposal_background_authority", f"{label}.opening is required")
+    for key in (
+        "macro_context",
+        "high_value_real_or_scientific_problem",
+        "breadth_or_importance",
+        "project_core_bottleneck",
+    ):
+        require(nonempty_text(opening.get(key)), "proposal_background_authority", f"{label}.opening.{key} is required")
+
+    units = value.get("current_status_units")
+    require(isinstance(units, list) and bool(units), "proposal_background_authority", f"{label}.current_status_units is required")
+    for index, unit in enumerate(units):
+        require(isinstance(unit, dict), "proposal_background_authority", f"{label}.current_status_units[{index}] must be a mapping")
+        for key in ("unit_id", "heading", "entry_claim", "gap_or_constraint", "project_landing", "exit_handoff"):
+            require(nonempty_text(unit.get(key)), "proposal_background_authority", f"{label}.current_status_units[{index}].{key} is required")
+        require(
+            meaningful_list(unit.get("evidence_scope")),
+            "proposal_background_authority",
+            f"{label}.current_status_units[{index}].evidence_scope is required",
+        )
+
+    mappings = value.get("mappings")
+    require(isinstance(mappings, dict), "proposal_background_authority", f"{label}.mappings is required")
+    for key in ("research_content", "research_route", "key_technical_or_scientific_problems"):
+        require(
+            meaningful_list(mappings.get(key)),
+            "proposal_background_authority",
+            f"{label}.mappings.{key} is required",
+        )
+
+    synthesis = value.get("synthesis")
+    require(isinstance(synthesis, dict), "proposal_background_authority", f"{label}.synthesis is required")
+    for key in ("project_summary", "route_or_method", "innovation_position", "significance", "transition_policy"):
+        require(nonempty_text(synthesis.get(key)), "proposal_background_authority", f"{label}.synthesis.{key} is required")
+    require(
+        meaningful_list(value.get("evidence_requirements")),
+        "proposal_background_authority",
+        f"{label}.evidence_requirements is required",
+    )
+
+
+def validate_proposal_background_authority_bundle(
+    artifacts: list[dict[str, Any]],
+    *,
+    authority_mode: str,
+    new_full_proposal: bool,
+) -> None:
+    by_role: dict[str, list[dict[str, Any]]] = {}
+    for artifact in artifacts:
+        by_role.setdefault(str(artifact.get("artifact_role", "")), []).append(artifact)
+    options = by_role.get("proposal_background_path_options", [])
+    selections = by_role.get("proposal_background_path_selection", [])
+    plans = by_role.get("proposal_content_plan", [])
+
+    require(
+        authority_mode in {"option_selection", "sole_path_acceptance", "bypass"},
+        "proposal_background_authority",
+        f"unsupported authority mode {authority_mode}",
+    )
+    if authority_mode == "option_selection":
+        require(bool(options) and len(selections) == 1, "proposal_background_authority", "option selection requires options and one selection")
+        require(
+            all(artifact_schema(option) == "proposal-background-path-options.v1" for option in options),
+            "proposal_background_authority",
+            "options schema",
+        )
+        for option_artifact in options:
+            option_items = option_artifact.get("options")
+            require(
+                isinstance(option_items, list) and 2 <= len(option_items) <= 3,
+                "proposal_background_authority",
+                "each options artifact must contain two or three options",
+            )
+            require(
+                option_artifact.get("option_count") == len(option_items),
+                "proposal_background_authority",
+                "option_count must match the options list",
+            )
+            option_ids = [
+                item.get("option_id") if isinstance(item, dict) else None
+                for item in option_items
+            ]
+            require(
+                all(nonempty_text(option_id) for option_id in option_ids)
+                and len(set(option_ids)) == len(option_ids),
+                "proposal_background_authority",
+                "option ids must be non-empty and unique",
+            )
+            for index, item in enumerate(option_items):
+                validate_proposal_path_outline(item, label=f"option[{index}]")
+    elif authority_mode == "sole_path_acceptance":
+        require(not options and len(selections) == 1, "proposal_background_authority", "sole-path acceptance forbids options and requires one selection")
+    else:
+        require(not options and not selections, "proposal_background_authority", "bypass forbids options and selection artifacts")
+
+    if authority_mode in {"option_selection", "sole_path_acceptance"}:
+        selection = selections[0]
+        require(artifact_schema(selection) == "proposal-background-path-selection.v1", "proposal_background_authority", "selection schema")
+        require(selection.get("selection_source") == "user", "proposal_background_authority", "selection source must be user")
+        require(selection.get("selection_mode") == authority_mode, "proposal_background_authority", "selection mode mismatch")
+        require(
+            isinstance(selection.get("user_authorization_text"), str)
+            and bool(selection["user_authorization_text"].strip()),
+            "proposal_background_authority",
+            "user authorization text is required",
+        )
+        if authority_mode == "option_selection":
+            require(
+                isinstance(selection.get("selected_option_id"), str)
+                and bool(selection["selected_option_id"].strip()),
+                "proposal_background_authority",
+                "selected option id is required",
+            )
+            referenced_options = [
+                option
+                for option in options
+                if logical_ref_matches(selection.get("options_ref"), option)
+            ]
+            require(len(referenced_options) == 1, "proposal_background_authority", "options ref must resolve exactly once")
+            option_items = referenced_options[0]["options"]
+            selected_items = [
+                option
+                for option in option_items
+                if isinstance(option, dict)
+                and option.get("option_id") == selection.get("selected_option_id")
+            ]
+            require(len(selected_items) == 1, "proposal_background_authority", "selected option must resolve exactly once")
+            validate_proposal_path_outline(selected_items[0], label="selected option")
+            require(selection.get("accepted_sole_path") is None, "proposal_background_authority", "option selection must null sole-path branch")
+        else:
+            accepted = selection.get("accepted_sole_path")
+            require(selection.get("selected_option_id") is None, "proposal_background_authority", "sole-path acceptance must null selected option")
+            require(selection.get("options_ref") is None, "proposal_background_authority", "sole-path acceptance must null options ref")
+            validate_proposal_path_outline(accepted, label="accepted sole path")
+
+    if new_full_proposal:
+        require(len(plans) == 1, "proposal_content_plan_schema", "new full proposal requires one content plan")
+        plan = plans[0]
+        require(artifact_schema(plan) == "proposal-content-plan.v2", "proposal_content_plan_schema", "new full proposal requires v2 plan")
+        background = plan.get("background_argumentation")
+        require(isinstance(background, dict), "proposal_background_authority", "background argumentation is required")
+        require(background.get("selection_mode") == authority_mode, "proposal_background_authority", "plan authority mode mismatch")
+        require(logical_ref_complete(background.get("selected_path_ref")), "proposal_background_authority", "selected path ref is incomplete")
+        if authority_mode in {"option_selection", "sole_path_acceptance"}:
+            selection = selections[0]
+            require(background.get("selection_source") == "user", "proposal_background_authority", "plan selection source must be user")
+            require(
+                isinstance(background.get("user_authorization_text"), str)
+                and bool(background["user_authorization_text"].strip()),
+                "proposal_background_authority",
+                "plan must preserve user authorization",
+            )
+            require(
+                background["user_authorization_text"] == selection["user_authorization_text"],
+                "proposal_background_authority",
+                "plan authorization must exactly match selection",
+            )
+            require(
+                logical_ref_matches(background.get("selected_path_ref"), selection),
+                "proposal_background_authority",
+                "plan selected path must resolve to the frozen selection artifact",
+            )
+        else:
+            require(
+                background.get("selection_source") in {"user_explicit", "binding_constraint"},
+                "proposal_background_authority",
+                "invalid bypass selection source",
+            )
+            if background.get("selection_source") == "user_explicit":
+                require(
+                    isinstance(background.get("user_authorization_text"), str)
+                    and bool(background["user_authorization_text"].strip()),
+                    "proposal_background_authority",
+                    "user-explicit bypass requires exact authorization text",
+                )
+
+
 def load_yaml(path: Path) -> dict[str, Any]:
     return yaml.safe_load(path.read_text(encoding="utf-8-sig"))
 
@@ -1970,7 +2234,42 @@ class ScenarioEngine:
                     "entry_gate_receipts",
                     gate_name,
                 )
-                expected_roles = gate_contracts[gate_name].get("artifact_roles")
+                gate_contract = gate_contracts[gate_name]
+                expected_roles = gate_contract.get("artifact_roles")
+                authority_mode = None
+                active_gate_contract = gate_contract
+                if expected_roles is None and "authority_modes" in gate_contract:
+                    actual_roles = sorted(
+                        self.canonical_artifact_role(artifact["artifact_role"])
+                        for artifact in artifacts
+                    )
+                    explicit_mode = self.fixture.get("proposal_background_authority_mode")
+                    matching_modes = []
+                    for mode, mode_contract in gate_contract["authority_modes"].items():
+                        required_roles = sorted(
+                            self.canonical_artifact_role(role)
+                            for role in mode_contract["required_artifact_roles"]
+                        )
+                        forbidden_roles = {
+                            self.canonical_artifact_role(role)
+                            for role in mode_contract.get("forbidden_artifact_roles", [])
+                        }
+                        if actual_roles == required_roles and not forbidden_roles.intersection(actual_roles):
+                            matching_modes.append(mode)
+                    require(
+                        len(matching_modes) == 1,
+                        "entry_gate_contract",
+                        f"{gate_name}: authority roles {actual_roles} are not mutually exclusive",
+                    )
+                    if explicit_mode is not None:
+                        require(
+                            explicit_mode == matching_modes[0],
+                            "entry_gate_contract",
+                            f"{gate_name}: {explicit_mode} != {matching_modes[0]}",
+                        )
+                    authority_mode = matching_modes[0]
+                    active_gate_contract = gate_contract["authority_modes"][authority_mode]
+                    expected_roles = active_gate_contract["required_artifact_roles"]
                 require(
                     expected_roles is not None
                     and sorted(
@@ -1983,6 +2282,19 @@ class ScenarioEngine:
                     "entry_gate_contract",
                     gate_name,
                 )
+                required_schema = active_gate_contract.get("required_schema")
+                if required_schema is not None:
+                    require(
+                        all(artifact_schema(artifact) == required_schema for artifact in artifacts),
+                        "entry_gate_contract",
+                        f"{gate_name}: required schema {required_schema}",
+                    )
+                if authority_mode is not None:
+                    validate_proposal_background_authority_bundle(
+                        artifacts,
+                        authority_mode=authority_mode,
+                        new_full_proposal=authority_mode == "bypass",
+                    )
                 if "versioned" in gate_name:
                     require(
                         artifact_ids == [self.current_primary["artifact_id"]],
@@ -2567,6 +2879,30 @@ class ScenarioEngine:
         )
         current_ref = f"{self.current_primary['artifact_id']}@{self.current_primary['version_id']}"
         direction_profile = self.fixture.get("direction_profile", "focused_optimization")
+        input_roles = {
+            self.canonical_artifact_role(artifact["artifact_role"])
+            for artifact in input_artifacts
+        }
+        proposal_background_authority_mode = self.fixture.get("proposal_background_authority_mode")
+        if self.workflow == "proposal" and proposal_background_authority_mode is None:
+            if {"proposal_background_path_options", "proposal_background_path_selection"} <= input_roles:
+                proposal_background_authority_mode = "option_selection"
+            elif "proposal_background_path_selection" in input_roles:
+                proposal_background_authority_mode = "sole_path_acceptance"
+            else:
+                proposal_background_authority_mode = "bypass"
+        new_full_proposal = bool(
+            event.get(
+                "new_full_proposal",
+                self.fixture.get("new_full_proposal", self.fixture["entry_mode"] == "standard"),
+            )
+        )
+        if self.workflow == "proposal":
+            validate_proposal_background_authority_bundle(
+                input_artifacts,
+                authority_mode=str(proposal_background_authority_mode),
+                new_full_proposal=new_full_proposal,
+            )
         current_dossier_count = len([
             artifact
             for artifact in input_artifacts
@@ -2589,20 +2925,24 @@ class ScenarioEngine:
             ]
             required_condition = requirement.get("required_when_condition")
             if required_condition:
-                if required_condition == "editorial_repair_occurred":
-                    condition_met = current_ref in self.idea_editorially_repaired_refs
-                elif required_condition == "proposal_handoff_candidate":
-                    condition_met = self.post_evaluation_panel_required()
-                elif required_condition == "current_dossier_biomedical_or_clinical":
-                    condition_met = (
-                        self.fixture.get("current_dossier_domain")
-                        == "biomedical_or_clinical"
-                    )
-                else:
-                    raise ScenarioViolation(
-                        "package_input_contract",
-                        f"{event['event_id']}: unsupported required_when_condition {required_condition}",
-                    )
+                condition_met = package_requirement_condition_met(
+                    required_condition,
+                    workflow=self.workflow,
+                    entry_mode=self.fixture["entry_mode"],
+                    proposal_background_authority_mode=proposal_background_authority_mode,
+                    new_full_proposal=new_full_proposal,
+                    editorial_repair_occurred=current_ref in self.idea_editorially_repaired_refs,
+                    proposal_handoff_candidate=self.post_evaluation_panel_required(),
+                    current_dossier_biomedical_or_clinical=(
+                        self.fixture.get("current_dossier_domain") == "biomedical_or_clinical"
+                    ),
+                    journal_matching_requested=bool(
+                        event.get("journal_matching_requested", self.fixture.get("journal_matching_requested", False))
+                    ),
+                    biomedical_candidate_route=bool(
+                        event.get("biomedical_candidate_route", self.fixture.get("biomedical_candidate_route", False))
+                    ),
+                )
                 if not condition_met:
                     require(not matches, "package_input_contract", f"{event['event_id']}: {requirement}")
                     continue
@@ -2656,6 +2996,27 @@ class ScenarioEngine:
             else:
                 require(len(matches) == requirement["count"], "package_input_contract", f"{event['event_id']}: {requirement}")
             require(all(artifact["frozen"] is True for artifact in matches), "package_input_contract", event["event_id"])
+            expected_schema = requirement.get("schema_version")
+            if expected_schema is not None:
+                require(
+                    all(artifact_schema(artifact) == expected_schema for artifact in matches),
+                    "package_input_contract",
+                    f"{event['event_id']}: expected schema {expected_schema}",
+                )
+            allowed_schemas = set(requirement.get("allowed_schema_versions", []))
+            if allowed_schemas:
+                require(
+                    all(artifact_schema(artifact) in allowed_schemas for artifact in matches),
+                    "package_input_contract",
+                    f"{event['event_id']}: allowed schemas {sorted(allowed_schemas)}",
+                )
+            required_new_schema = requirement.get("required_schema_when_new_full_proposal")
+            if required_new_schema is not None and new_full_proposal:
+                require(
+                    all(artifact_schema(artifact) == required_new_schema for artifact in matches),
+                    "package_input_contract",
+                    f"{event['event_id']}: new full proposal requires {required_new_schema}",
+                )
             if requirement.get("include_all_created"):
                 all_created = {
                     artifact_id

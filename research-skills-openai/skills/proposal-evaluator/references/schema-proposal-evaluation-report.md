@@ -23,6 +23,9 @@ The report should include the following fields. This file defines structure only
 - prior_versions_visible: false
 - revision_delta_visible: false
 - readiness_report_visible: false
+- background_path_options_visible: false
+- background_path_selection_visible: false
+- content_plan_visible: false
 - repair_artifacts_visible: false
 - prior_evaluation_visible: false
 - source_edits_performed: false
@@ -48,6 +51,12 @@ The report should include the following fields. This file defines structure only
   - completion_gate
   - genre_fit_gate
   - no_fatal_flaws_gate
+- background_argumentation_checks
+  - opening_value_problem_and_core_constraint
+  - systematic_project_landings: pass | fail | not_applicable
+  - progressive_research_route_chain: pass | fail | not_applicable
+  - synthesis_gap_to_project_route_innovation_significance
+  - fixed_wording_used_as_gate: false
 - fatal_flaws
 - major_strengths
 - major_weaknesses
@@ -59,4 +68,4 @@ The report should include the following fields. This file defines structure only
   - prior_versions_visible: false
   - revision_delta_visible: false
 
-For `final_scientific`, `anonymized_must_fix_list_used` must be `false`, and the files-read list may contain only the revised final proposal, stable rubric/gates, and minimal call/factual inputs.
+For `final_scientific`, `anonymized_must_fix_list_used` must be `false`, all three background planning visibility fields must be `false`, and the files-read list may contain only the revised final proposal, stable rubric/gates, and minimal call/factual inputs.

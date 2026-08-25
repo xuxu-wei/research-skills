@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Check the v0.13.0-preview.1 landscape-search contracts."""
+"""Check the current landscape-search contracts."""
 
 from __future__ import annotations
 
@@ -28,7 +28,7 @@ def main() -> int:
     manifest = json.loads(read(PLUGIN / ".codex-plugin" / "plugin.json"))
     registry = yaml.safe_load(read(PLUGIN / "workflow-registry.yaml"))
     require(
-        manifest["version"] == registry["plugin_version"] == "0.13.0-preview.1",
+        manifest["version"] == registry["plugin_version"] == "0.14.0",
         "version mismatch",
     )
 

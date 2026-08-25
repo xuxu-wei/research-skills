@@ -8,6 +8,8 @@ import re
 import sys
 from pathlib import Path
 
+import yaml
+
 
 REPO = Path(__file__).resolve().parents[1]
 ROOT = REPO / "research-skills-openai" / "skills"
@@ -154,6 +156,102 @@ def route_consistency_errors() -> list[str]:
     return errors
 
 
+def background_argumentation_contract_errors() -> list[str]:
+    errors: list[str] = []
+    drafter = read(ROOT / "proposal-drafter" / "SKILL.md")
+    orchestrator = read(ROOT / "proposal-orchestrator" / "SKILL.md")
+    evaluator = read(ROOT / "proposal-evaluator" / "SKILL.md")
+    background_workflow = read(ROOT / "proposal-orchestrator" / "references" / "proposal-background-path-workflow.md")
+    state = read(ROOT / "proposal-orchestrator" / "references" / "workflow-state-schema.md")
+    naming = read(ROOT / "proposal-orchestrator" / "references" / "artifact-naming-and-directory-rules.md")
+    delegate = "\n".join(
+        (
+            read(ROOT / "proposal-orchestrator" / "references" / "delegate-background-path-options-brief.md"),
+            read(ROOT / "proposal-orchestrator" / "references" / "delegate-brief-templates.md"),
+        )
+    )
+
+    options_path = ROOT / "proposal-drafter" / "templates" / "template-proposal-background-path-options.yaml"
+    selection_path = ROOT / "proposal-orchestrator" / "templates" / "template-proposal-background-path-selection.yaml"
+    plan_path = ROOT / "proposal-drafter" / "templates" / "template-proposal-content-plan.yaml"
+    options = yaml.safe_load(read(options_path))
+    selection = yaml.safe_load(read(selection_path))
+    plan = yaml.safe_load(read(plan_path))
+
+    if options.get("schema") != "proposal-background-path-options.v1":
+        errors.append("background options schema must be proposal-background-path-options.v1")
+    if options.get("recommendation", "missing") is not None or options.get("ranking", "missing") is not None:
+        errors.append("background options must keep recommendation and ranking null")
+    if options.get("selection_status") != "human_background_path_selection_required":
+        errors.append("background options missing human selection stop")
+    if options.get("option_count") not in (2, 3):
+        errors.append("background options template must demonstrate a 2-3 option count")
+    required_option_fields = {
+        "option_id", "primary_mode", "organizing_axis", "one_sentence_argument_logic",
+        "opening", "current_status_units", "mappings", "synthesis",
+        "evidence_requirements", "strengths", "tradeoffs", "loss_of_focus_risks",
+    }
+    sample_option = (options.get("options") or [{}])[0]
+    if not required_option_fields <= set(sample_option):
+        errors.append("background options sample is missing required per-option fields")
+
+    if selection.get("schema") != "proposal-background-path-selection.v1":
+        errors.append("background selection schema must be proposal-background-path-selection.v1")
+    for key in ("selection_mode", "user_authorization_text", "selected_option_id", "accepted_sole_path", "user_requested_local_modifications", "rejected_option_ids", "selection_source", "options_ref"):
+        if key not in selection:
+            errors.append(f"background selection template missing {key}")
+    if selection.get("selection_source") != "user":
+        errors.append("background selection source must be user")
+    for key in ("selection_mode", "selected_option_id", "accepted_sole_path", "options_ref"):
+        if selection.get(key) is not None:
+            errors.append(f"background selection template must leave {key} null until user authorization")
+
+    if plan.get("schema") != "proposal-content-plan.v2":
+        errors.append("new proposal content plan must use proposal-content-plan.v2")
+    background = plan.get("background_argumentation") or {}
+    for key in ("selection_source", "selection_mode", "user_authorization_text", "selected_path_ref", "primary_mode", "opening", "argument_units", "synthesis"):
+        if key not in background:
+            errors.append(f"v2 content plan background_argumentation missing {key}")
+
+    combined_planning = "\n".join((drafter, orchestrator, background_workflow, delegate)).lower()
+    for term in (
+        "background_path_options", "two or three", "recommendation: null", "ranking: null",
+        "only one", "sole_path_acceptance", "user_explicit", "binding_constraint", "hybrid", "pairwise distinct",
+        "proposal-content-plan.v2", "human_background_path_selection_required",
+    ):
+        if term not in combined_planning:
+            errors.append(f"background planning contract missing term: {term}")
+    for term in ("rejects all", "local modifications", "new candidate round"):
+        if term not in (orchestrator + background_workflow).lower():
+            errors.append(f"proposal orchestrator recovery contract missing term: {term}")
+
+    for term in (
+        "background_path_options_visible: false",
+        "background_path_selection_visible: false",
+        "content_plan_visible: false",
+        "systematic background",
+        "progressive background",
+        "literal word `综上`",
+    ):
+        if term not in evaluator:
+            errors.append(f"proposal evaluator background/isolation contract missing term: {term}")
+
+    for term in (
+        "proposal_background_path_options", "proposal_background_path_selection",
+        "human_background_path_selection_required", "clarification_stop", "proposal-content-plan.v2",
+    ):
+        if term not in state:
+            errors.append(f"workflow state missing background contract term: {term}")
+    for term in (
+        "proposal-background-path-options-v001.yaml",
+        "proposal-background-path-selection-v001.yaml",
+        "must never be sent to the full writer or blind final evaluator",
+    ):
+        if term not in naming:
+            errors.append(f"artifact naming/isolation rules missing term: {term}")
+    return errors
+
+
 def orphan_support_warnings() -> list[str]:
     warnings: list[str] = []
     for skill_dir in [ROOT / name for name in sorted(PROPOSAL_SKILLS)]:
@@ -179,6 +277,7 @@ def main() -> int:
     errors.extend(reference_errors())
     errors.extend(placeholder_errors())
     errors.extend(route_consistency_errors())
+    errors.extend(background_argumentation_contract_errors())
     warnings = orphan_support_warnings()
 
     if args.strict_orphans:

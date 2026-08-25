@@ -22,7 +22,7 @@ Every entry path, skipped step, revision loop, SAP branch, review panel, and fin
 - `project_root`: writable project directory containing all workflow artifacts.
 - `artifact_index_path`: path to `10_state/artifact-index.md`.
 - `entry_mode`: one of `standard`, `existing_draft`, `draft_and_external_review`, `package_only`.
-- `workflow_status`: one of `initialized`, `preprocessing`, `planning`, `writing`, `artifact_frozen`, `pending_review`, `independent_review_pending`, `revision_required`, `editorial_review_pending`, `editorial_repair_required`, `journal_review_pending`, `panel_pending`, `packaging_pending`, `blocked`, `stopped`, `human_signoff_required`.
+- `workflow_status`: one of `initialized`, `preprocessing`, `planning`, `human_background_path_selection_required`, `clarification_stop`, `writing`, `artifact_frozen`, `pending_review`, `independent_review_pending`, `revision_required`, `editorial_review_pending`, `editorial_revision_required`, `specialist_review_pending`, `panel_pending`, `packaging_pending`, `blocked`, `stopped`, `human_signoff_required`.
 - `user_goal`: user's stated purpose for the proposal workflow.
 - `target_output`: grant proposal, protocol, internal review package, mock review, SAP bundle, or other target.
 - `context_brief_path`: path to the proposal context brief, or `null` if intentionally skipped.
@@ -31,8 +31,15 @@ Every entry path, skipped step, revision loop, SAP branch, review panel, and fin
 - `evidence_map_path`: path to evidence map, or `null`.
 - `evidence_limitations_path`: path to evidence limitations, or `null`.
 - `readiness_report_path`: path to readiness report, or `null` if skipped in fast-track mode.
+- `background_path_options_path`: current `04_drafts/proposal-background-path-options-vNNN.yaml`, or `null` when options are bypassed or no valid multi-option set exists.
+- `background_path_options_version`: logical version of the current options artifact, or `null`.
+- `background_path_selection_path`: current `04_drafts/proposal-background-path-selection-vNNN.yaml`, or `null` when selection is pending or options are bypassed.
+- `background_path_selection_version`: logical version of the current selection artifact, or `null`.
+- `background_path_selection_source`: one of `user`, `user_explicit`, `binding_constraint`, or `null` before authority is established. User authority may be an option selection or acceptance of the sole defensible path.
+- `candidate_planner_instance_id`: fresh `background_path_options` drafter instance, or `null` when candidate generation is legitimately bypassed.
 - `content_plan_path`: current `04_drafts/proposal-content-plan-vNNN.yaml`, or `null` only when an existing-draft mode records why planning is skipped.
 - `content_plan_version`: logical version of the current content plan, or `null`.
+- `content_plan_schema`: `proposal-content-plan.v2` for every new full proposal; historical v1 remains readable but is not valid authority for new prose under this version.
 - `planner_instance_id`: fresh planning-mode drafter instance, or `null` when planning is legitimately skipped.
 - `writer_instance_id`: writer of the current proposal; for a new full proposal it must differ from `planner_instance_id`.
 - `proposal_file_path`: current proposal file path.
@@ -79,7 +86,7 @@ Legacy states may contain `content_digest`, `sha256`, or similarly named digest 
 `workflow-state.yaml` must include an artifact registry that mirrors `10_state/artifact-index.md`:
 
 - `artifact_id`
-- `role`: context, reader_handoff, evidence, readiness, content_plan, proposal, evaluation, revision_plan, response, delta, narrative_assessment, language_assessment, protected_content_register, editorial_repair_brief, editorial_action_execution, content_preservation, narrative_reassessment, language_reassessment, journal_candidate_brief, medical_journal_review, sap, panel, package.
+- `role`: context, reader_handoff, evidence, readiness, proposal_background_path_options, proposal_background_path_selection, content_plan, proposal, evaluation, revision_plan, response, delta, narrative_assessment, language_assessment, protected_content_register, editorial_repair_brief, editorial_action_execution, content_preservation, narrative_reassessment, language_reassessment, journal_candidate_brief, medical_journal_review, sap, panel, package.
 - `version_id`
 - `workflow_id`
 - `round_id`
@@ -97,6 +104,8 @@ Legacy states may contain `content_digest`, `sha256`, or similarly named digest 
 This registry and `10_state/artifact-index.md` use the same complete row. A missing key is an incomplete index; use explicit `null` or an empty list where a field is not applicable.
 
 See `artifact-naming-and-directory-rules.md` for directory and filename rules.
+
+After readiness, set `workflow_status: planning`. When valid background options are frozen, or when only one defensible path needs user acceptance, set `workflow_status: human_background_path_selection_required` and stop. Resume only from an explicit user reply. A selected option creates a selection artifact and routes back to planning. For a sole path, user acceptance creates a `sole_path_acceptance` selection artifact with `options_ref: null` and the normalized accepted path, then resumes planning; an added organizing constraint starts a new candidate round. Local modifications are recorded in the selection artifact. Rejecting all options or requesting a hybrid also starts a new candidate round; neither can route directly to the writer. Freezing `proposal-content-plan.v2` moves to `artifact_frozen`; dispatching the full writer moves to `writing`; freezing the complete proposal returns to `artifact_frozen` before review. Candidate planner, formal planner, and writer IDs must be pairwise distinct.
 
 ## Revision Entry
 

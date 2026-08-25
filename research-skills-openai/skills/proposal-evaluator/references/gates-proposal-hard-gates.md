@@ -13,7 +13,7 @@ The proposal must pass all hard gates before the evaluator may return `accept`.
 ### Gate Interpretation
 
 ### Clarity Gate
-The proposal must state a reviewable research question or objective, define the research object, and align aims, methods, and expected outputs. The reader must be able to follow problem → current knowledge → gap → significance → design rationale with progressive disclosure and manageable terminology. Missing significance or a broken gap-to-rationale transition is a gate failure.
+The proposal must state a reviewable research question or objective, define the research object, and align aims, methods, and expected outputs. The reader must be able to follow `problem -> current knowledge -> gap -> significance -> design rationale` with progressive disclosure and manageable terminology. The opening must establish the value problem and core constraint; current-status units must either land systematically on project components or form a continuous progressive research-route chain; and the synthesis must hand the gap into the project, innovation position, and significance. Missing significance, a functional background component, or a broken gap-to-rationale transition is a gate failure. Do not fail this gate solely because the proposal omits the labels `systematic` or `progressive`, fixed Chinese headings or numbering, or the literal word `综上`.
 
 ### Feasibility Gate
 The proposal must describe a plausible execution path given available or required data, methods, resources, timeline, and operational constraints.

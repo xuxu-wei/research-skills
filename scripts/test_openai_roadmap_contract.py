@@ -171,7 +171,7 @@ def validate_readme(text: str, *, version: str, registry: dict[str, Any]) -> lis
             errors.append(f"README 仍声明已关闭的 Phase 7–8 优先任务：{phrase}")
     required = (
         "Historical Roadmap phases remain closed records",
-        "unless the owner explicitly reopens it",
+        "unless the owner explicitly reopens them",
         "research-narrative-assessor",
         "new LLM-facing interfaces do not persist hashes",
         "Completed Roadmap phase suites are historical",

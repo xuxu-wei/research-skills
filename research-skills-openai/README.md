@@ -8,14 +8,14 @@ presented as a production-stable, supported, shared, or public distribution.
 
 The maintained deterministic suite covers static audits, workflow fixtures,
 reviewer isolation, context budgets, registry generation, and plugin packaging.
-The `0.13.0-preview.1` checkpoint keeps the two evidence entry skills separate,
-makes the broad mapper consumer-aware, and binds each atomic claim to one to five
-directly relevant works. Its Deep Research request is directly sendable, while
-local continuation state remains outside the prompt; recoverable return defects
-use lower-cost repair before any owner-approved second Deep Research run.
-Historical Roadmap phases remain closed records. Fresh runtime validation of the
-new citation and repair behavior remains a P1 item, so this prerelease is not a
-complete functional acceptance.
+The `0.14.0` checkpoint adds a human-controlled proposal-background argumentation
+stage. New proposals normally receive two or three neutral, evidence-supportable
+current-status paths and pause for the owner's selection before a fresh planner
+creates `proposal-content-plan.v2` and a different writer drafts the proposal.
+Systematic and progressive paths are validated by their functional argument,
+not by fixed labels or wording; the final evaluator sees only the proposal.
+The v0.13 evidence-entry, citation-binding, and recoverable Deep Research return
+contracts remain in force. Historical Roadmap phases remain closed records unless the owner explicitly reopens them.
 
 Research Polisher is already implemented as the seventh declared entry and is
 permanently explicit-only under the current personal routing policy. See
@@ -89,7 +89,7 @@ run the local update loop from the repository root:
 ```powershell
 python scripts/openai_plugin_dev.py status
 python scripts/openai_plugin_dev.py install-local
-python scripts/openai_plugin_dev.py verify --channel local --expected-version 0.13.0-preview.1
+python scripts/openai_plugin_dev.py verify --channel local --expected-version 0.14.0
 ```
 
 Codex does not hot-reload Skill files. After every Skill change, rerun
@@ -99,12 +99,12 @@ setup, test-run metadata, monitoring, GitHub-channel verification, and rollback.
 After release and Git-channel activation, verify the clean source version with:
 
 ```powershell
-python scripts/openai_plugin_dev.py verify --channel github --expected-version 0.13.0-preview.1
+python scripts/openai_plugin_dev.py verify --channel github --expected-version 0.14.0
 ```
 
 ## Inventory and invocation policy
 
-The maintained `0.13.0-preview.1` source contains 51 skill contracts and declares
+The maintained `0.14.0` source contains 51 skill contracts and declares
 seven discoverable entry skills. Six currently set
 `allow_implicit_invocation: true`:
 
@@ -160,8 +160,12 @@ a unique current pointer; new LLM-facing interfaces do not persist hashes.
 - Opaque workflow markers do not appear in an Idea Dossier. Historical or
   internal reports resolve them through the node's reference ledger with a
   readable label and source locator. Legacy v1/v2 layouts remain read-only.
-- Proposal creates a reader-facing section-content plan before a separate writer
-  instance drafts prose. Perspective retains its argument architecture and
+- Proposal defaults to two or three neutral background/current-status path
+  options and pauses for user selection. A new formal planner then creates
+  `proposal-content-plan.v2`, and a third instance drafts the complete proposal.
+  User-explicit paths and fully binding templates may bypass options. The path
+  artifacts and content plan remain hidden from the blind final evaluator.
+  Perspective retains its argument architecture and
   paragraph map. Article inventories every supplied material, records one
   semantic authority while retaining compatible supporting assets, and builds a
   full section-content blueprint before drafting.
@@ -233,8 +237,8 @@ Use $proposal-orchestrator in [standard | existing_draft | draft_and_external_re
 
 - Minimum input: an entry mode, proposal objective, applicable constraints, and available source artifacts.
 - Expected output: the selected proposal, revision, or SAP package with evaluation, lineage, dissent, and unresolved issues.
-- Stop states: `blocked`, `stopped`, `independent_review_pending`, or `context_handoff_required`.
-- Resume: paste the continuation brief and supply the requested clarification, frozen draft, review capacity, or missing evidence.
+- Stop conditions: the workflow is waiting for your background-path choice, a critical issue blocks progress, independent review is unavailable, or the current context must be handed off.
+- Resume: select or revise a reported background path, or supply the requested clarification, frozen draft, review capacity, or missing evidence. Requests to mix paths trigger a new coherence-checked candidate round.
 
 ### `$research-idea-orchestrator`
 
@@ -297,6 +301,10 @@ python "$env:USERPROFILE\.codex\skills\.system\plugin-creator\scripts\validate_p
 Run `skill-creator/scripts/quick_validate.py` for every new or modified Skill.
 These commands validate the current change only. Completed Roadmap phase suites
 are historical and run again only when the owner explicitly reopens them.
+LLM forward tests are risk-triggered: run only the smallest representative
+scenario for each behaviorally affected workflow, and do not rerun unrelated
+workflows merely because a release is being prepared. Publishing the same source
+identity from Local to GitHub adds a discovery smoke, not a duplicate behavior run.
 
 GitHub Actions runs the portable audits, context budgets, workflow fixtures,
 package checks, and SemVer checks on pull requests and pushes to `main`.

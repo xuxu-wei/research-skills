@@ -15,7 +15,7 @@ Evaluate a frozen proposal and return a defensible decision plus repair prioriti
 - Write only the evaluation report. Do not edit, draft, rewrite, polish, repair, or fix any source.
 - Do not read parent hidden reasoning, expected conclusions, prior scores/decisions, language-assessor reports, panel reports, or other reviewer outputs.
 - Require one complete frozen proposal bound by logical artifact ID, path, and version. Do not require, compute, or persist a hash or digest; accept a legacy digest field only as ignored metadata.
-- In non-final scientific reassessment, an optional anonymized must-fix list may be allowed. In final evaluation, read only the revised final proposal, stable rubric, and minimal call/factual inputs—never an anonymized list or any old draft, context/readiness report, repair brief, delta, preservation/editorial report, or prior evaluation.
+- In non-final scientific reassessment, an optional anonymized must-fix list may be allowed. In final evaluation, read only the revised final proposal, stable rubric, and minimal call/factual inputs—never an anonymized list or any old draft, context/readiness report, proposal-background path options or selection, content plan, repair brief, delta, preservation/editorial report, or prior evaluation.
 - Report exact files read, scope, limitations, and reviewer instance ID.
 - If independent execution is unavailable, return `independent_review_pending` with a continuation brief and stop; never review inline or emit `accept`.
 
@@ -24,7 +24,7 @@ Evaluate a frozen proposal and return a defensible decision plus repair prioriti
 1. Confirm proposal-only scope and sufficient frozen inputs.
 2. Score Novelty, Feasibility, Impact, Relevance, Clarity, and Completion with evidence-linked rationales. Editorial polish may affect Clarity only; it cannot raise Novelty, Feasibility, or Impact without new substantive support in the proposal.
 3. Check question-answerability, aim-method-data alignment, feasibility, gap/novelty support, genre fit, completion, and target-output alignment.
-4. For Clarity, trace the target reader's chain from problem through current knowledge, gap, significance, and design rationale. Check progressive disclosure, each section's rhetorical function and handoff, and terminology burden. Fail the Clarity gate when significance is missing or the gap-to-rationale transition is broken.
+4. For Clarity, trace the target reader's chain from problem through current knowledge, gap, significance, and design rationale. Check whether the opening quickly establishes a high-value real or scientific problem and evidence-proportionate core constraint. For a systematic background, verify that every current-status unit lands on a project component and that the units collectively cover the research content. For a progressive background, verify that headings, opening claims, and closing handoffs form a continuous research-route chain ending at the project. Verify that the synthesis completes `gap -> project route -> innovation position -> significance` without introducing new evidence or duplicating later method detail. Fail the Clarity gate for functional absence or a broken gap-to-rationale transition, not for missing mode names, fixed headings, numbering, or the literal word `综上`.
 5. Confirm assumptions, feasibility, risks, and conditional method assumptions have one authoritative location; do not demand duplicated limitations unless a local boundary is necessary to prevent distortion of the immediately connected logic.
 6. Check fatal flaws and hard gates; distinguish fixable from unfixable findings.
 7. Assess reviewer defensibility across rationale, gap, aims/content, scientific questions, methods, feasibility, innovation, timeline, and outputs.
@@ -53,6 +53,9 @@ prior_scores_visible: false
 prior_versions_visible: false
 revision_delta_visible: false
 readiness_report_visible: false
+background_path_options_visible: false
+background_path_selection_visible: false
+content_plan_visible: false
 repair_artifacts_visible: false
 prior_evaluation_visible: false
 source_edits_performed: false
@@ -78,4 +81,4 @@ revision_priorities: []
 
 ## Completion Check
 
-Confirm proposal-only scope, logical artifact binding, forbidden-history blindness, final-stage input minimization when applicable, six scores with editorial/scientific separation, reader-chain clarity, all gates/fatal flaws, defensibility, locatable priorities, one consistent decision, and unchanged sources.
+Confirm proposal-only scope, logical artifact binding, forbidden-history blindness including options/selection/plan isolation, final-stage input minimization when applicable, six scores with editorial/scientific separation, functional opening/current-status/synthesis argument continuity, no fixed-wording gate, all gates/fatal flaws, defensibility, locatable priorities, one consistent decision, and unchanged sources.

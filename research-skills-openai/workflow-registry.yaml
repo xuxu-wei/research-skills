@@ -1,5 +1,5 @@
 schema_version: 6
-plugin_version: "0.13.0-preview.1"
+plugin_version: "0.14.0"
 legacy_skill_name_aliases:
   academic-deep-search: focused-literature-synthesizer
   research-opportunity-mapper: research-landscape-mapper
@@ -303,8 +303,8 @@ skills:
     related_skills: ["academic-language-assessor", "proposal-context-brief-builder", "proposal-evaluator", "proposal-orchestrator", "proposal-package-assembler", "proposal-readiness-triage", "proposal-refinement-controller", "proposal-review-panel"]
     invocation_policy: "explicit_or_orchestrated"
     requires_independent_subagent: false
-    allowed_input_artifacts: "approved_context_evidence_and_revision_plan"
-    output_artifact_type: "versioned_draft_artifact"
+    allowed_input_artifacts: "approved_context_evidence_background_selection_content_plan_or_revision_authority"
+    output_artifact_type: "proposal_background_path_options_proposal_content_plan_v2_or_versioned_complete_proposal"
   - name: "proposal-evaluator"
     package: "research-proposal"
     role: "reviewer"
@@ -582,10 +582,18 @@ workflow_edges:
     source: "proposal-orchestrator"
     destination: "proposal-drafter"
     dispatch_mode: "delegated"
-    trigger: "content_plan_required"
-    input_contract: "frozen_context_evidence_reader_handoff_and_constraints"
-    output_contract: "proposal_content_plan_yaml"
-    failure_route: "independent_review_pending"
+    trigger: "background_path_options_required"
+    input_contract: "frozen_context_readiness_evidence_reader_constraints_and_research_content_route_problem_map"
+    output_contract: "proposal_background_path_options_v1_and_human_selection_stop_or_one_path_clarification"
+    failure_route: "clarification_required"
+  - workflow: "proposal"
+    source: "proposal-orchestrator"
+    destination: "proposal-drafter"
+    dispatch_mode: "delegated"
+    trigger: "background_path_selection_recorded_or_user_explicit_or_binding_constraint"
+    input_contract: "frozen_context_evidence_reader_constraints_and_selection_or_bypass_authority"
+    output_contract: "proposal_content_plan_v2_yaml"
+    failure_route: "planning_blocked"
   - workflow: "proposal"
     source: "proposal-orchestrator"
     destination: "proposal-drafter"
@@ -1151,6 +1159,8 @@ workflow_state_policy:
   active_states:
   - initialized
   - preprocessing
+  - planning
+  - writing
   - artifact_frozen
   - revision_required
   - editorial_revision_required
@@ -1166,6 +1176,7 @@ workflow_state_policy:
   - deep_research_handoff_required
   - new_idea_required
   - layout_migration_required
+  - human_background_path_selection_required
   terminal_states:
   - stopped
   - blocked
@@ -1187,6 +1198,7 @@ workflow_state_policy:
     editorial_review_pending: artifact_frozen
     new_idea_required: preprocessing
     layout_migration_required: preprocessing
+    human_background_path_selection_required: planning
   version_gate:
     changed_artifact_requires_new_version: true
     evaluator_instance_must_be_fresh: true
@@ -1216,8 +1228,41 @@ workflow_state_policy:
     to: preprocessing
     trigger: entry_gate_passed
   - from: preprocessing
+    to: planning
+    trigger: proposal_readiness_passed_and_background_planning_started
+  - from: preprocessing
     to: artifact_frozen
     trigger: versioned_artifact_created
+  - from: planning
+    to: human_background_path_selection_required
+    trigger: proposal_background_path_options_frozen
+  - from: planning
+    to: human_background_path_selection_required
+    trigger: sole_background_path_requires_user_acceptance_or_constraint
+  - from: human_background_path_selection_required
+    to: planning
+    trigger: user_background_path_selected_and_selection_artifact_frozen
+  - from: human_background_path_selection_required
+    to: planning
+    trigger: user_requests_coherent_new_candidate_round
+  - from: human_background_path_selection_required
+    to: clarification_stop
+    trigger: user_rejects_all_without_new_organizing_constraint
+  - from: human_background_path_selection_required
+    to: planning
+    trigger: user_accepts_sole_background_path_and_selection_artifact_frozen
+  - from: human_background_path_selection_required
+    to: planning
+    trigger: user_supplies_additional_background_organizing_constraint
+  - from: planning
+    to: artifact_frozen
+    trigger: proposal_content_plan_v2_frozen
+  - from: artifact_frozen
+    to: writing
+    trigger: full_proposal_writer_dispatched
+  - from: writing
+    to: artifact_frozen
+    trigger: complete_proposal_version_frozen
   - from: artifact_frozen
     to: editorial_review_pending
     trigger: workflow_editorial_readiness_dispatched
@@ -1576,6 +1621,7 @@ workflow_state_machines:
       standard:
       - context_frozen
       - readiness_passed
+      - background_path_authority_frozen
       - proposal_content_plan_frozen
       - proposal_versioned
       existing_draft:
@@ -1602,9 +1648,34 @@ workflow_state_machines:
           input_artifact_roles:
           - proposal_context
           - evidence_map
+        background_path_authority_frozen:
+          authority_modes:
+            option_selection:
+              required_artifact_roles:
+              - proposal_background_path_options
+              - proposal_background_path_selection
+              selection_source: user
+            sole_path_acceptance:
+              required_artifact_roles:
+              - proposal_background_path_selection
+              forbidden_artifact_roles:
+              - proposal_background_path_options
+              selection_source: user
+            bypass:
+              required_artifact_roles:
+              - proposal_content_plan
+              forbidden_artifact_roles:
+              - proposal_background_path_options
+              - proposal_background_path_selection
+              selection_sources:
+              - user_explicit
+              - binding_constraint
+              authority_recorded_in: proposal_content_plan
+              required_schema: proposal-content-plan.v2
         proposal_content_plan_frozen:
           artifact_roles:
           - proposal_content_plan
+          required_schema: proposal-content-plan.v2
         proposal_versioned:
           artifact_roles:
           - proposal
@@ -2635,6 +2706,9 @@ scenario_eval_contract:
         - proposal_context
         - readiness_report
         - evidence_map
+        - proposal_background_path_options
+        - proposal_background_path_selection
+        - proposal_content_plan
         - evaluation_report
         - revision_plan
         - revision_delta
@@ -2881,6 +2955,8 @@ scenario_eval_contract:
       allowed_roles:
       - proposal_context
       - readiness_report
+      - proposal_background_path_options
+      - proposal_background_path_selection
       - proposal_content_plan
       - proposal
       - protected_content_register
@@ -2905,10 +2981,26 @@ scenario_eval_contract:
       - artifact_role: readiness_report
         source_skill: proposal-readiness-triage
         count: 1
+      - artifact_role: proposal_background_path_options
+        source_skill: proposal-drafter
+        minimum_count: 1
+        required_when_condition: standard_default_candidate_route
+        schema_version: proposal-background-path-options.v1
+        include_all_created: true
+      - artifact_role: proposal_background_path_selection
+        source_skill: proposal-orchestrator
+        count: 1
+        required_when_condition: background_options_selected_or_sole_path_accepted
+        schema_version: proposal-background-path-selection.v1
       - artifact_role: proposal_content_plan
         source_skill: proposal-drafter
         count: 1
-        fresh_planner_required: true
+        required_when_condition: new_full_proposal
+        allowed_schema_versions:
+        - proposal-content-plan.v1
+        - proposal-content-plan.v2
+        required_schema_when_new_full_proposal: proposal-content-plan.v2
+        fresh_planner_required_when_new_full_proposal: true
       - artifact_role: proposal
         source_skills:
         - proposal-drafter
@@ -3337,6 +3429,7 @@ scenario_eval_contract:
       - candidate_journal_match_brief
       - continuation_brief
       proposal-orchestrator:
+      - proposal_background_path_selection
       - minimal_workflow_state
       - continuation_brief
       article-orchestrator:
@@ -3382,6 +3475,8 @@ scenario_eval_contract:
       - revision_delta
       - proposed_navigation_metadata
       proposal-drafter:
+      - proposal_background_path_options
+      - proposal_content_plan
       - proposal
       - response_to_reviewers
       - revision_delta
@@ -3888,8 +3983,117 @@ artifact_completeness_policy:
       - same_writer_instance_succeeds_in_deterministic_bounded_section_view
       - no_better_supported_alternative_attribution
   proposal_current_artifact: complete_proposal
+  proposal_background_argumentation_contract:
+    default_sequence:
+    - readiness
+    - candidate_background_path_planning
+    - human_background_path_selection
+    - formal_content_planning
+    - complete_proposal_writing
+    - independent_evaluation
+    options_artifact:
+      role: proposal_background_path_options
+      schema: proposal-background-path-options.v1
+      path: 04_drafts/proposal-background-path-options-vNNN.yaml
+      minimum_options: 2
+      maximum_options: 3
+      materially_distinct_and_evidence_supportable: true
+      fixed_systematic_plus_progressive_mix_required: false
+      score_forbidden: true
+      recommendation: null
+      ranking: null
+      selection_status: human_background_path_selection_required
+      only_one_feasible_path_route: user_acceptance_creates_frozen_sole_path_selection_or_additional_organizing_constraint_starts_new_round
+      fabricated_alternative_forbidden: true
+    selection_artifact:
+      role: proposal_background_path_selection
+      schema: proposal-background-path-selection.v1
+      path: 04_drafts/proposal-background-path-selection-vNNN.yaml
+      source_skill: proposal-orchestrator
+      selection_source: user
+      required_fields:
+      - selection_mode
+      - user_authorization_text
+      - user_requested_local_modifications
+      - rejected_option_ids
+      selection_modes:
+        option_selection:
+          required_fields:
+          - selected_option_id
+          - options_ref
+          accepted_sole_path: null
+          options_ref_must_resolve_to_packaged_options_artifact: true
+          selected_option_id_must_resolve_exactly_once_in_referenced_options: true
+        sole_path_acceptance:
+          required_fields:
+          - accepted_sole_path
+          selected_option_id: null
+          options_ref: null
+          user_acceptance_required: true
+          accepted_outline_must_be_functionally_complete: true
+      hybrid_request_route: new_candidate_background_path_round
+      direct_option_splicing_to_writer_forbidden: true
+    selection_bypass_sources:
+    - user_explicit
+    - binding_constraint
+    content_plan:
+      role: proposal_content_plan
+      required_schema_for_new_full_proposal: proposal-content-plan.v2
+      legacy_schema: proposal-content-plan.v1
+      legacy_v1_readable: true
+      unwritten_v1_requires_fresh_v2_planner: true
+      existing_draft_targeted_revision_requires_migration: false
+      required_background_argumentation_fields:
+      - selection_source
+      - selection_mode
+      - user_authorization_text
+      - selected_path_ref
+      - primary_mode
+      - opening
+      - argument_units
+      - synthesis
+      bypass_authority:
+        selection_mode: bypass
+        selection_artifact_forbidden: true
+        user_explicit_requires_user_authorization_text: true
+        binding_constraint_requires_selected_path_ref: true
+      selection_authority_binding:
+        selected_path_ref_must_resolve_to_frozen_selection_artifact: true
+        user_authorization_text_must_match_selection_exactly: true
+    instance_separation:
+      roles:
+      - candidate_planner
+      - formal_planner
+      - full_writer
+      pairwise_distinct_instance_ids_required: true
+    writing_modes:
+      systematic: every_current_status_unit_lands_on_project_component_and_units_cover_research_content
+      progressive: headings_entry_claims_and_exit_handoffs_form_recoverable_chain_mapping_research_route_to_project
+    default_chinese_headings_without_binding_template:
+    - 1.1 选题价值
+    - 1.2 国内外研究现状
+    default_chinese_synthesis_transition: 综上
+    other_languages_or_binding_templates_use_functional_equivalence: true
+    synthesis_forbids_new_evidence_or_later_method_detail_duplication: true
+    superlatives_require_matching_evidence_strength: true
+    theory_led_projects_use_scientific_or_methodological_bottleneck: true
+    blind_final_evaluator:
+      allowed_project_artifacts:
+      - current_complete_proposal
+      forbidden_project_artifact_roles:
+      - proposal_background_path_options
+      - proposal_background_path_selection
+      - proposal_content_plan
+      checks:
+      - opening_establishes_value_problem_and_core_constraint
+      - systematic_units_land_on_project_components_when_applicable
+      - progressive_chain_maps_research_route_when_applicable
+      - synthesis_completes_gap_to_project_route_innovation_and_significance_handoff
+      fixed_mode_names_headings_numbering_or_literal_transition_are_hard_gates: false
+      functional_absence_or_gap_to_rationale_break_is_clarity_failure: true
   proposal_content_plan_role: proposal_content_plan
   proposal_content_plan_required_before_new_full_draft: true
+  proposal_content_plan_required_schema_before_new_full_draft: proposal-content-plan.v2
   proposal_reader_bundle:
   - current_complete_proposal
   article_schema: research-article.v7
@@ -3916,6 +4120,9 @@ artifact_completeness_policy:
     forbidden:
     - prior_artifact
     - planning_or_context_artifact
+    - proposal_background_path_options
+    - proposal_background_path_selection
+    - proposal_content_plan
     - scientific_audit
     - narrative_or_language_report
     - repair_plan_or_brief

@@ -78,14 +78,16 @@ Input:
 - User/funder structure: {{required_structure}}
 - Source-intent coverage: {{source_intent_coverage}}
 - Binding constraints: {{binding_constraints}}
+- Frozen user selection or explicit/binding path authority: {{background_path_selection_or_bypass_authority}}
 - Target plan logical identity/path/version: {{content_plan_ref}}
 
 Task:
-1. Bind every required source intent and constraint.
-2. Plan a continuous problem -> current knowledge -> gap -> significance -> design rationale chain.
-3. Give every section a rhetorical function and reader handoff.
-4. Identify the one authoritative Assumptions, feasibility, and risks section.
-5. Write the concise YAML plan using proposal-drafter/templates/template-proposal-content-plan.yaml, return its logical reference, and stop.
+1. Verify `selection_source: user | user_explicit | binding_constraint`, `selection_mode: option_selection | sole_path_acceptance | bypass`, the applicable non-empty user authorization text, and the selected logical path reference. For `option_selection`, resolve `options_ref`, verify the selected option ID exactly once, point the v2 plan to the frozen selection artifact, and preserve the authorization text exactly. For `sole_path_acceptance`, require a frozen selection artifact with `options_ref: null` and a functionally complete accepted sole-path outline; never treat the clarification handoff alone as authority. For `user_explicit` bypass, copy the exact user authorization into the v2 plan.
+2. Bind every required source intent and constraint.
+3. Plan the selected background opening, systematic/progressive argument units, project mappings, and synthesis, then a continuous problem -> current knowledge -> gap -> significance -> design rationale chain.
+4. Give every section a rhetorical function and reader handoff.
+5. Identify the one authoritative Assumptions, feasibility, and risks section.
+6. Write only `proposal-content-plan.v2` using proposal-drafter/templates/template-proposal-content-plan.yaml, return its logical reference, and stop.
 ```
 
 ## Full Proposal Writer Brief
@@ -93,7 +95,7 @@ Task:
 ```text
 You are a fresh proposal-drafter instance in write_full_proposal mode.
 
-Critical separation rule: planner_instance_id={{planner_instance_id}} and writer_instance_id={{writer_instance_id}} must differ. Read the frozen plan; do not revise or evaluate it.
+Critical separation rule: candidate_planner_instance_id={{candidate_planner_instance_id}}, planner_instance_id={{planner_instance_id}}, and writer_instance_id={{writer_instance_id}} must be pairwise different when candidate planning applied. Read the frozen v2 plan; do not revise or evaluate it.
 
 Input:
 - Frozen content plan: {{content_plan_ref}}
@@ -103,6 +105,8 @@ Input:
 - Target complete proposal logical identity/path/version: {{target_proposal_ref}}
 
 Write one complete proposal. Keep assumptions, feasibility, risks, and conditional method assumptions in one authoritative location. Keep unresolved workflow items outside reader-facing prose. Return the draft handoff without a verdict or digest.
+
+Do not read the proposal-background path options or selection artifact; the frozen v2 content plan is the writer's sole path authority.
 ```
 
 ## Proposal Evaluation Brief
@@ -121,7 +125,7 @@ Input:
 - Stable rubric and gates: {{stable_rubric_and_gates}}
 - Minimal call requirements or factual inputs only: {{minimal_call_or_factual_inputs}}
 - Anonymized must-fix issue list for non-final scientific reassessment only: {{anonymized_must_fix_list_or_none}}
-- Forbidden: old proposal, context/readiness report, repair brief, revision delta, preservation/editorial report, prior evaluation, score, finding, rationale, or decision
+- Forbidden: old proposal, context/readiness report, proposal-background path options or selection, content plan, repair brief, revision delta, preservation/editorial report, prior evaluation, score, finding, rationale, or decision
 - Prior scores, overall rationale, and decision visible: false
 - Readiness report visible: false
 - Repair artifacts visible: false
@@ -152,9 +156,9 @@ Allowed inputs only:
 - Stable rubric and gates: {{stable_rubric_and_gates}}
 - Minimal call requirements or factual inputs: {{minimal_call_or_factual_inputs}}
 
-Forbidden: old drafts, context brief, readiness report, content plan, repair brief, action-execution report, protected register, revision delta, preservation report, narrative/language reports, anonymous must-fix list, prior evaluation, scores, findings, rationale, or decision.
+Forbidden: old drafts, context brief, readiness report, proposal-background path options, proposal-background path selection, content plan, repair brief, action-execution report, protected register, revision delta, preservation report, narrative/language reports, anonymous must-fix list, prior evaluation, scores, findings, rationale, or decision.
 
-Evaluate de novo. Check significance, the gap-to-rationale chain, progressive disclosure, section function, terminology burden, scientific alignment, feasibility, impact, relevance, and completion. Prose polish may affect Clarity only and cannot raise Novelty, Feasibility, or Impact without substantive support in the current proposal. Return accept | revise | reject using the proposal-evaluator report template. Do not compute or record a digest.
+Evaluate de novo. Check whether the opening quickly establishes a high-value problem and core constraint; whether systematic units land on project components or progressive units form a continuous research-route chain; whether synthesis completes the gap-to-project-route-to-innovation-to-significance handoff; and whether the whole gap-to-rationale chain, progressive disclosure, section function, terminology, scientific alignment, feasibility, impact, relevance, and completion hold. Do not require fixed mode labels, headings, numbering, or the literal word `综上`. Prose polish may affect Clarity only and cannot raise Novelty, Feasibility, or Impact without substantive support in the current proposal. Return accept | revise | reject using the proposal-evaluator report template. Do not compute or record a digest.
 ```
 
 ## Editorial Assessment and Repair Briefs

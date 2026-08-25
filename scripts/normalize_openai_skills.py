@@ -70,7 +70,7 @@ DESCRIPTIONS = {
     "perspective-refinement-controller": "Normalize Perspective findings into one writer interface, verify preservation, and require fresh review.",
     "perspective-review-panel": "Independently review a frozen Perspective from one assigned counter-position, evidence, narrative, method, or outlet role.",
     "proposal-context-brief-builder": "Normalize proposal inputs, reader needs, source intent, constraints, and gaps.",
-    "proposal-drafter": "Plan proposal section functions, then use a separate writer instance for one complete proposal.",
+    "proposal-drafter": "Plan neutral proposal-background paths and content, then use a separate writer for one complete proposal.",
     "proposal-evaluator": "Evaluate only the final reader-ready proposal with a stable rubric.",
     "proposal-orchestrator": "Orchestrate proposal planning, review, reader readiness, and handoff.",
     "proposal-package-assembler": "Assemble evaluated proposal, review, revision, panel, issue, and optional SAP artifacts without rewriting.",

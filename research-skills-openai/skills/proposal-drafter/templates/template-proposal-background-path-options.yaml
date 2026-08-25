@@ -1,0 +1,56 @@
+schema: proposal-background-path-options.v1
+artifact_id:
+version_id:
+workflow_id:
+round_id:
+source_skill: proposal-drafter
+candidate_planner_instance_id:
+path: 04_drafts/proposal-background-path-options-vNNN.yaml
+based_on: []
+binding_constraints: []
+option_count: 2
+options:
+  - option_id:
+    primary_mode: systematic | progressive
+    organizing_axis:
+    one_sentence_argument_logic:
+    opening:
+      macro_context:
+      high_value_real_or_scientific_problem:
+      breadth_or_importance:
+      project_core_bottleneck:
+    current_status_units:
+      - unit_id:
+        heading:
+        entry_claim:
+        evidence_scope: []
+        gap_or_constraint:
+        project_landing:
+        exit_handoff:
+    mappings:
+      research_content: []
+      research_route: []
+      key_technical_or_scientific_problems: []
+    synthesis:
+      project_summary:
+      route_or_method:
+      innovation_position:
+      significance:
+      transition_policy:
+    evidence_requirements: []
+    strengths: []
+    tradeoffs: []
+    loss_of_focus_risks: []
+comparison_dimensions:
+  - focus
+  - coverage
+  - evidence_burden
+  - research_content_traceability
+  - research_route_clarity
+  - tradeoffs
+  - loss_of_focus_risk
+recommendation: null
+ranking: null
+selection_status: human_background_path_selection_required
+unresolved_inputs: []
+completion_rule: "Contains two or three materially distinct, evidence-supportable options compared neutrally; no score, ranking, or recommendation is present, and the workflow stops for user selection."

@@ -38,7 +38,7 @@ The user may provide another writable project directory. Do not store workflow a
 01_context/     # proposal context brief
 02_evidence/    # evidence and opportunity materials
 03_readiness/   # readiness triage
-04_drafts/      # proposal-content-plan-vNNN.yaml, proposal-vNNN.md, and current pointer notes
+04_drafts/      # background path options/selection, proposal content plans, proposals, and current pointer notes
 05_evaluations/ # scientific, narrative, language, preservation, and reassessment reports
 06_revisions/   # revision rounds, reviewer responses, deltas
 07_sap/         # SAP drafts, evaluations, SAP revision rounds
@@ -84,11 +84,15 @@ Role-specific contracts that use the shorter field `version` serialize the same 
 ## Planning and Reader Naming
 
 ```text
+04_drafts/proposal-background-path-options-v001.yaml
+04_drafts/proposal-background-path-selection-v001.yaml
 04_drafts/proposal-content-plan-v001.yaml
 01_context/proposal-reader-handoff-v001.yaml
 ```
 
-The planning instance writes only the content plan. Its `planner_instance_id` must differ from the `writer_instance_id` that creates a new full proposal. The reader handoff is a frozen minimal projection of reader, gap, terminology, reasoning-chain, and binding-constraint fields; it is not a review report.
+The candidate-planning instance writes only background path options and stops for user selection. If only one path is defensible, it returns a normalized clarification handoff but no valid options artifact. The orchestrator records either an option choice or the user's acceptance of that sole path in the selection artifact; sole-path acceptance uses `options_ref: null` and embeds the accepted functional outline. A new formal-planning instance writes only `proposal-content-plan.v2`. Its `planner_instance_id`, the `candidate_planner_instance_id`, and the `writer_instance_id` that creates a new full proposal must be pairwise distinct. The reader handoff is a frozen minimal projection of reader, gap, terminology, reasoning-chain, and binding-constraint fields; it is not a review report.
+
+Options and selection artifacts remain workflow history and must never be sent to the full writer or blind final evaluator. A user-requested hybrid receives a new options version before it may be selected.
 
 ## Proposal Version Naming
 
