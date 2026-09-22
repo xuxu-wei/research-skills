@@ -38,8 +38,11 @@ skills-openai-plugin/
 
 # Confidential workflow fixtures and generated versioned runs
 /tests/test-*/
+/tests/0.9.0-preview.3-idea/
 /tests/0.10.0-*/
 /tests/0.11.0-*/
+/tests/0.12.0-research-idea-orchestrator/
+/tests/0.13.0-perspective-orchestrator/
 
 # Search-module forward-test prompts are release fixtures; generated runs remain private.
 !/tests/test-search-module/
