@@ -1,7 +1,7 @@
 {
   "name": "research-skills-openai",
-  "version": "0.14.0",
-  "description": "Experimental personal preview of evidence-grounded research workflows for ChatGPT and Codex.",
+  "version": "0.15.0",
+  "description": "Scientific research workflows and independent review for the OpenAI ecosystem.",
   "author": {
     "name": "Xuxu Wei",
     "url": "https://github.com/xuxu-wei"
@@ -21,8 +21,8 @@
   "skills": "./skills/",
   "interface": {
     "displayName": "Research Skills (Personal Preview)",
-    "shortDescription": "Personal research workflows for ChatGPT and Codex",
-    "longDescription": "An owner-operated personal preview for evidence mapping, research ideas, proposals, articles, perspectives, research-impact positioning, independent review, revision, and human-review packaging. It is experimental, carries no public-support or production-stability promise, and may change during the 0.x series.",
+    "shortDescription": "Research development and independent scientific review",
+    "longDescription": "Develop research ideas, proposals, articles, Perspectives, and improvements to existing studies. Includes independent scientific review, methodology consultation, medical journal review, and statistical analysis planning. Uses the tools available in the OpenAI environment for general capabilities. An experimental personal project.",
     "developerName": "Xuxu Wei",
     "category": "Research",
     "capabilities": [
@@ -32,9 +32,9 @@
     ],
     "websiteURL": "https://github.com/xuxu-wei/research-skills",
     "defaultPrompt": [
-      "Turn a research direction into an evidence-grounded idea portfolio.",
-      "Evaluate a proposal or build a reviewed manuscript package.",
-      "Reposition a completed study and compare bounded impact-enhancement strategies."
+      "Develop and compare evidence-grounded research ideas.",
+      "Develop a research proposal or manuscript with independent scientific review.",
+      "Compare worthwhile improvements to an existing study and their costs."
     ]
   }
 }

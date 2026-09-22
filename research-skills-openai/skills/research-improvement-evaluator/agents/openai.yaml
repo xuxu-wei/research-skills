@@ -1,0 +1,6 @@
+interface:
+  display_name: "Research Improvement Review"
+  short_description: "Assess the value and feasibility of proposed improvements"
+  default_prompt: "Use $research-improvement-evaluator to independently assess this research improvement plan."
+policy:
+  allow_implicit_invocation: false

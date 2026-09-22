@@ -1,6 +1,0 @@
-interface:
-  display_name: "Academic Language Assessor"
-  short_description: "Assess language and reader-aware terminology"
-  default_prompt: "Use $academic-language-assessor for this task and follow its workflow and output contract."
-policy:
-  allow_implicit_invocation: false

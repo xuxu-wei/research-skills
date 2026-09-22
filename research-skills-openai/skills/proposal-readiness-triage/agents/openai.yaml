@@ -1,6 +1,0 @@
-interface:
-  display_name: "Proposal Readiness Triage"
-  short_description: "Independently triage ideas for proposal drafting readiness"
-  default_prompt: "Use $proposal-readiness-triage for this task and follow its workflow and output contract."
-policy:
-  allow_implicit_invocation: false

@@ -1,70 +1,22 @@
 ---
 name: sap-evaluator
-description: "Independently evaluate a frozen SAP for endpoint alignment, data-method fit, feasibility, sensitivity, and reproducibility."
+description: Independently review a statistical analysis plan for alignment with the protocol and scientific question, defensible methods, implementable decisions, and transparent assumptions.
 ---
-# sap-evaluator
 
-## Role
+# Statistical Analysis Plan Review
 
-Evaluate a frozen Statistical Analysis Plan for methodological/statistical executability. Do not score proposal novelty/impact, draft or revise SAP content, or coordinate panels.
+Assess whether the plan can guide a valid and interpretable analysis. Do not revise the plan or execute the analysis as part of the review.
 
-## Independent Execution Contract
+## Review
 
-- Run only in a fresh independent subagent or delegated thread, never in the context that wrote or revised the SAP.
-- Require the frozen SAP, necessary proposal/context, endpoint, data, population, goal, constraint, version, and anonymous methods-facts artifacts. Treat sources as read-only; do not read preflight or other reviewer reports.
-- Write only the SAP evaluation report. Do not edit, draft, rewrite, polish, repair, or fix any source.
-- Do not read parent hidden reasoning, expected conclusions, prior scores/decisions, or other reviewer outputs.
-- Require a complete frozen SAP and matching digest. In re-evaluation, read only that SAP, the stable rubric, necessary facts, and optionally an anonymized must-fix list; never read a prior SAP or revision delta.
-- Report exact files read, scope, limitations, and reviewer instance ID.
-- If independent execution is unavailable, return `independent_review_pending` with a continuation brief and stop; never review inline or emit `accept`.
+Read the current SAP, the relevant protocol, available data documentation, and the study team's constraints. If you helped write this version, a fresh reviewer must conduct its independent assessment.
 
-## Procedure
+Trace the objectives through estimands, populations, endpoints, analysis methods, assumptions, and interpretation. Use [review considerations](references/review-considerations.md) when examining statistical or implementation risks.
 
-1. Confirm SAP-only scope and sufficient frozen inputs.
-2. Assess Clarity, Feasibility, Completion, Methodological Rigor, Endpoint-Analysis Alignment, Data-Method Fit, Clinical Data Readiness, Clinical Feature Descriptives, Prespecification Discipline, Missing Data, Sensitivity/Robustness, and Reproducibility.
-3. Check endpoint/population/primary route definitions, method/data fit, clinical source/windows/ascertainment, relevant descriptive features, prespecified versus post hoc separation, confounding, missingness, sensitivity, alignment with the proposal and frozen source facts, and executability.
-4. Mark each hard-gate/fatal finding and fixability; never assume unstated data, sample, variables, models, or feasibility.
-5. Return `accept`, `revise`, or `reject`. Do not derive cross-round `stop_no_gain`; the orchestrator compares sealed reports.
+Distinguish a demonstrated inconsistency from missing information. Check available documentation rather than assuming variables, sample sizes, or data properties. Assess whether prospective and post hoc decisions are accurately described.
 
-## Review Report Contract
+## Report
 
-```yaml
-review_id:
-reviewer_skill: sap-evaluator
-reviewer_instance_id:
-workflow_id:
-round_id:
-input_artifact_ids: []
-input_versions: []
-files_read: []
-review_scope: []
-isolation_mode: fresh_subagent
-prior_scores_visible: false
-prior_versions_visible: false
-revision_delta_visible: false
-source_edits_performed: false
-reviewed_artifact_digest: "sha256:"
-complete_artifact_confirmed: true
-decision: accept | revise | reject
-findings: []
-unresolved_issues: []
-dimension_scores: {}
-hard_gates: {}
-fatal_flaws: []
-revision_priorities: []
-```
+Explain whether the plan is adequate for its intended use and which decisions need resolution first. For consequential findings, identify the relevant analysis or passage, its scientific consequence, and a proportionate remedy.
 
-## Conditional Resources
-
-- Read `references/rubric-sap-evaluation.md` when scoring dimensions.
-- Read `references/gates-sap-hard-gates.md` when applying minimum gates.
-- Read `references/criteria-sap-fatal-flaws.md` when classifying fatal findings and repairability.
-- Read `references/policy-sap-re-evaluation.md` when preparing fresh re-evaluation scope.
-- Read `references/policy-endpoint-analysis-alignment.md` when checking endpoint, population, and primary analysis.
-- Read `references/policy-data-method-fit.md` when checking data structure and method fit.
-- Read `references/schema-sap-evaluation-report.md` when validating report fields.
-- Use `templates/template-sap-evaluation-report.md` when producing the report.
-
-## Completion Check
-
-Confirm SAP-only scope, complete-artifact/digest binding, forbidden-history blindness, all method checks, every gate/fatal flaw, one consistent decision, and unchanged sources.
+Separate threats to validity from implementation ambiguity and optional improvements. Identify the version reviewed and limits on verification. Keep the review separate, preserve justified disagreements, and do not endorse an unseen revision.

@@ -1,129 +1,24 @@
 ---
 name: perspective-orchestrator
-description: "Orchestrate Perspective planning, review, reader readiness, and delivery."
+description: Develop or revise a Perspective, Viewpoint, or scholarly Commentary around a defensible thesis, evidence, counterarguments, and implications, with independent review.
 ---
-# perspective-orchestrator
 
-## Role and Gates
+# Perspective Development
 
-Control state/routing; never write prose, score work, edit the ledger, or repair a
-package. Keep state/logs in `09_state/`: review waits use `pending_review`, unavailable
-independent review uses `independent_review_pending`, fatal work is `blocked`, and
-unfixable/no-gain work is `stopped`.
+Build a scholarly argument that offers a useful interpretation, position, or agenda. Own the thesis, structure, writing, revision, and requested supporting materials.
 
-- The curator alone writes the ledger; every text change creates a draft/map version
-  and needs fresh qualifying evaluation.
-- Use one writer per source version; never allow concurrent source writes. Reviewer
-  work runs in fresh independent subagents.
-- Register `{artifact_id, version, path}` plus complete index membership. Legacy
-  digests are read-only and never gates.
-- Confirm frozen inputs with read-only paths and a simple unchanged flag; never
-  compute, request, report, or persist a hash or digest.
-- Preserve unresolved issues, conflicts, fatal findings, and dissent. Never submit.
+## Approach
 
-Select mode with `references/workflow-modes.md`. Lite performs provisional claims/evidence
-preprocessing and cannot claim readiness; full reaches STEP 12.
+1. Establish the intended audience, topic, purpose, and any venue constraints. Read the user's materials and identify the position they want to explore.
+2. Develop a thesis that an informed reader could examine or dispute. Explain what it adds to the existing conversation and what evidence could weaken it.
+3. Gather and assess the evidence needed for that argument using available tools. Engage the strongest relevant counterarguments, not only supporting examples. Keep unsupported novelty or consensus claims provisional.
+4. Structure and draft the piece so that each part advances the thesis. Consult [argument guidance](references/argument-guidance.md) when choosing its contribution or handling mixed evidence.
+5. Ask a fresh instance to use $perspective-evaluator on the current piece, relevant sources, and user or venue requirements. Withhold the drafter's private reasoning and preferred verdict.
+6. Revise supported findings while preserving legitimate differences in interpretation. Substantive changes to the thesis, evidence, or implications require a new version and fresh independent review.
+7. Deliver the piece with sources, the review, and unresolved questions for the author.
 
-## Core Route
+## Completion
 
-1. **Input.** Initialize state/layout; use `perspective-input-builder` for brief/outlet.
-2. **Curate.** Use `perspective-claim-evidence-curator` for ledger, bindings,
-   discourse, contrary evidence, citation risks, and limits. On later evidence
-   findings, the curator reuses evidence on `none`, uses Search or one focused
-   synthesis on `bounded`, and requests broad landscape mapping only on `major`,
-   with `consumer_workflow: perspective` and `output_profile: evidence_only`.
-   Store any deep-research round under `02_evidence/deep-research/` and pause
-   until its report is accepted. Initial Standard/Full curation is staged by one
-   curator: freeze claims in the ledger first, then write the matrix, evidence
-   baseline/limits, and risk/reference logs in bounded batches followed by one
-   read-only consistency pass. Never request all interdependent outputs in one
-   response. Row-dense files must also persist their structure and bounded ID
-   groups before the final summary/check. If a delegate is idle/interrupted or
-   its current target shows no meaningful file progress, stop waiting and retry
-   only that file or batch once in a fresh instance with frozen reads; preserve
-   completed batches and do not restart curation. When the current artifact
-   passes its check, register it and continue without waiting for a separate
-   delegate final message.
-3. **Architect.** Use `perspective-argument-architect`; freeze the complete embedded
-   reader-handoff payload and copy it, not the manifest/skeleton, into later briefs.
-4. **Draft/check.** Use `perspective-drafter`. Require a registered draft/map, then
-   fail-closed plan/ledger/Binding/terminology/authority/map checks outside evaluation.
-5. **Evaluate/revise.** A fresh `perspective-evaluator` routes non-accept work upstream.
-   Changed versions get fresh evaluation without prior scores/decisions.
-6. **Panel.** In full mode, run counter-position and evidence roles in parallel. An
-   optional target-reader/outlet simulation is advisory only. Hide peer/evaluator
-   reports and preserve dissent.
-7. **Route.** Support enters STEP 9; minor edits use STEP 8.5; substantive work returns
-   upstream and gets fresh evaluation; unfixable redesign/rejection stops.
+Use the form and level of detail appropriate to the audience. Separate factual statements, interpretations, and recommendations in ordinary scholarly language. Routine organization and phrasing are drafting decisions; consult the user when alternatives would change the substantive position.
 
-### STEP 8.5: Panel Minor Revision Patch
-
-Save the bounded patch/map/delta and require a fresh evaluator. No changed draft goes directly to the compositor.
-
-### STEP 9: Editorial Quality Cycle
-
-After scientific/panel closure: freeze the accepted Perspective, writer, reader
-handoff, and protected register; run fresh `research-narrative-assessor`
-(`perspective` profile) and `academic-language-assessor` instances in parallel,
-mutually isolated from review/history. The
-controller creates one YAML brief; the same writer receives only source, brief, and
-register. Then run fail-closed conformance, fresh content preservation, and fresh
-parallel reassessments with minimal handoffs. Missing writer yields
-`editorial_repair_pending`; any scientific change restarts scientific revision. Final
-evaluation requires conformance, `scientific_content_preserved`, `narrative_ready`,
-and `submission_ready`.
-
-### STEP 10: Final Evaluator
-
-Delegate a fresh final `perspective-evaluator`. Its exact project whitelist is the
-final frozen Perspective plus one clean minimal evidence/outlet facts bundle; its only
-installed evaluation resources are the stable rubric and anti-pattern checklist. It
-must never receive the brief, skeleton, map, ledger/matrix, readiness/state, repair,
-delta, conformance/preservation output, narrative/language report, artifact index,
-panel/prior review, score, finding, gate, or decision.
-Raw search histories and deep-research request/guide/report files are also
-excluded.
-
-### STEP 11: Outlet and Medical Review
-
-Create concrete journal matching from official facts, outside evaluator
-scoring. If requested, freeze the `article-cover-letter` pair under `08_cover-letter/`
-before medical review. For biomedical/clinical work or an explicit medical or
-publication probability request, run a fresh
-`medical-journal-review` on only the final Perspective, clean outlet facts/brief, and
-optional current letter—never evaluator, panel, repair, readiness, score, finding,
-gate, or decision material. Any later text/letter change makes applicable review
-stale.
-
-### STEP 12: Final Compositor
-
-Give frozen qualifying sources, the read-only index, a score-free final-evaluation
-receipt, optional letter, and applicable specialist report to a fresh compositor. It
-copies/verifies only, writes under `08_final/`, and returns `packaging_pending` with
-proposed index entries. The orchestrator registers and verifies them; only then set
-`human_signoff_required` for a concrete qualifying outlet or
-`outlet_targeting_only` for a generic profile.
-
-## Promotion Boundary
-
-Delegates return a concise phase summary with artifact pointers and `next_route`.
-Never promote a fatal finding; final draft identity/version must match the blind final
-evaluation after conformance, preservation, and reassessment.
-
-## Conditional Resources
-
-- Read `../research-idea-orchestrator/references/project-readme-contract.md` when finishing, pausing, or stopping.
-- Read `references/workflow-modes.md` when selecting mode; read `references/workflow-manifest-schema.md` when updating state.
-- Read `references/decision-log-schema.md` for decisions; read `references/artifact-naming-and-directory-rules.md` for identity/index.
-- Read `references/io-contracts.md` for handoffs; read `references/delegate-brief-templates.md` before delegation.
-- Read `references/loop-control-rules.md` for revision/stop; read `references/panel-decision-routing.md` before panel aggregation.
-- Before STEP 9, read `../perspective-refinement-controller/references/editorial-repair-contract.md`.
-- Before STEP 11, read `references/journal-matching-and-medical-review.md`; use `templates/candidate-journal-match-brief.yaml` for every journal brief.
-- Before evaluation, use `templates/pre-evaluation-conformance.yaml` outside the evaluator package.
-- Read `references/generic-outlet-profiles.md` when no outlet is selected; read `references/anti-patterns.md` for the final scan.
-
-## Completion Check
-
-Confirm state/log, ledger ownership, version/preservation gates, same-writer repair,
-blind final evaluation, dissent, specialist isolation, identity/index completeness,
-status caps, and human-only handoff.
+If independent review or essential evidence is unavailable, deliver a useful draft with the limitation stated. Stop when remaining improvements require a new evidence base or the author's judgment. External submission requires explicit user instruction.

@@ -1,6 +1,6 @@
 interface:
-  display_name: "Article Orchestrator"
-  short_description: "Orchestrate articles through independent review and packaging"
-  default_prompt: "Use $article-orchestrator for this task and follow its workflow and output contract."
+  display_name: "Research Article Development"
+  short_description: "Develop a manuscript grounded in study evidence"
+  default_prompt: "Use $article-orchestrator to develop or revise this research article."
 policy:
   allow_implicit_invocation: true

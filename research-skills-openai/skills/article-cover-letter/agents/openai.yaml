@@ -1,6 +1,0 @@
-interface:
-  display_name: "Journal Cover Letter"
-  short_description: "Draft Article or Perspective journal cover letters"
-  default_prompt: "Use $article-cover-letter for this task and follow its workflow and output contract."
-policy:
-  allow_implicit_invocation: false

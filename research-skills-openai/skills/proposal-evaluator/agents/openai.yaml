@@ -1,6 +1,6 @@
 interface:
-  display_name: "Proposal Evaluator"
-  short_description: "Independently evaluate proposal quality and defensibility"
-  default_prompt: "Use $proposal-evaluator for this task and follow its workflow and output contract."
+  display_name: "Research Proposal Review"
+  short_description: "Review a proposal's science and feasibility"
+  default_prompt: "Use $proposal-evaluator to independently review this research proposal."
 policy:
   allow_implicit_invocation: false

@@ -1,6 +1,0 @@
-interface:
-  display_name: "Article Context Builder"
-  short_description: "Normalize study materials into an article context brief."
-  default_prompt: "Use $article-context-builder for this task and follow its workflow and output contract."
-policy:
-  allow_implicit_invocation: false

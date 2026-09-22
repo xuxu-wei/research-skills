@@ -1,6 +1,6 @@
 interface:
-  display_name: "Article Evaluator"
-  short_description: "Independently evaluate manuscript quality and readiness"
-  default_prompt: "Use $article-evaluator for this task and follow its workflow and output contract."
+  display_name: "Research Article Review"
+  short_description: "Review a manuscript's claims and scientific support"
+  default_prompt: "Use $article-evaluator to independently review this research manuscript."
 policy:
   allow_implicit_invocation: false

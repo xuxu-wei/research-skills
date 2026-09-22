@@ -1,6 +1,0 @@
-interface:
-  display_name: "Idea Narrative Assessor"
-  short_description: "Assess Idea narrative readiness and plan repairs"
-  default_prompt: "Use $idea-narrative-assessor for this task and follow its workflow and output contract."
-policy:
-  allow_implicit_invocation: false

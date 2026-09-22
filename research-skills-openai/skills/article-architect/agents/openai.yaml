@@ -1,6 +1,0 @@
-interface:
-  display_name: "Article Architect"
-  short_description: "Design manuscript structure, displays, and claim strategy"
-  default_prompt: "Use $article-architect for this task and follow its workflow and output contract."
-policy:
-  allow_implicit_invocation: false

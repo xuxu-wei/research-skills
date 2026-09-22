@@ -1,6 +1,0 @@
-interface:
-  display_name: "Article Readiness Triage"
-  short_description: "Independently triage study materials for article readiness"
-  default_prompt: "Use $article-readiness-triage for this task and follow its workflow and output contract."
-policy:
-  allow_implicit_invocation: false

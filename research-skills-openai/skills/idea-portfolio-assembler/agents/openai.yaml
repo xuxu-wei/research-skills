@@ -1,6 +1,0 @@
-interface:
-  display_name: "Idea Portfolio Assembler"
-  short_description: "Assemble evaluated ideas into ranked PI-review portfolios"
-  default_prompt: "Use $idea-portfolio-assembler for this task and follow its workflow and output contract."
-policy:
-  allow_implicit_invocation: false

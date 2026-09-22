@@ -1,6 +1,0 @@
-interface:
-  display_name: "Article Literature Grounder"
-  short_description: "Build auditable manuscript literature-grounding reports"
-  default_prompt: "Use $article-literature-grounder for this task and follow its workflow and output contract."
-policy:
-  allow_implicit_invocation: false
