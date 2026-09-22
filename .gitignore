@@ -1,52 +1,27 @@
+# Python environments and caches
 __pycache__/
-**/__pycache__/
-*.pyc
-*.pyo
-*.pyd
+*.py[cod]
 *.egg-info/
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
 .coverage
 htmlcov/
-
-# Local environments
 .venv/
 venv/
 env/
 .env
 .env.*
 
+# Local research files, exports, and agent configuration
+.local/
+dist/
+.claude/
+skills-flatten/
+skills-openai-plugin/
+
 # OS and editor files
 .DS_Store
 Thumbs.db
 .idea/
 .vscode/
-
-# Local agent/session config
-.claude/
-
-# Generated skill packages
-skills-flatten/
-skills-openai-plugin/
-
-# Owner-only Phase 7-8 research inputs and compressed backup
-/tests/article/
-/tests/idea-to-proposal/
-/tests/idea-test-0.9.0-preview.1/
-/tests/test-examples.rar
-
-# Confidential workflow fixtures and generated versioned runs
-/tests/test-*/
-/tests/0.9.0-preview.3-idea/
-/tests/0.10.0-*/
-/tests/0.11.0-*/
-/tests/0.12.0-research-idea-orchestrator/
-/tests/0.13.0-perspective-orchestrator/
-
-# Search-module forward-test prompts are release fixtures; generated runs remain private.
-!/tests/test-search-module/
-!/tests/test-search-module/test-run-index.yaml
-!/tests/test-search-module/*/
-!/tests/test-search-module/*/follow-up-guide.md
-/tests/test-search-module/*/runs/
