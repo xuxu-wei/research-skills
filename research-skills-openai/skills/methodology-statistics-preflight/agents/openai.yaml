@@ -1,6 +1,0 @@
-interface:
-  display_name: "Methodology and Statistics Preflight"
-  short_description: "Check the fit of research questions, data, and methods"
-  default_prompt: "Use $methodology-statistics-preflight to assess whether this design and analysis can answer the research question."
-policy:
-  allow_implicit_invocation: false

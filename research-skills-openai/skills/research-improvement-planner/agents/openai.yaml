@@ -1,6 +1,0 @@
-interface:
-  display_name: "Research Improvement Planning"
-  short_description: "Plan worthwhile improvements to existing research"
-  default_prompt: "Use $research-improvement-planner to compare scientifically justified improvements to this existing study."
-policy:
-  allow_implicit_invocation: false

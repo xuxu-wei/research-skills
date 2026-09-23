@@ -1,6 +1,6 @@
 # Research Skills
 
-面向 OpenAI 生态的科研流程 Skill 仓库。唯一维护的插件是 `research-skills-openai`，包含 10 个 Skill，用于 Codex 中的通用学术写作与编辑，以及选题、标书、论文、Perspective、已有研究改进、统计分析计划和统一科研评估。
+面向 OpenAI 生态的科研流程 Skill 仓库。唯一维护的插件是 `research-skills-openai`，包含 8 个 Skill，用于 Codex 中的通用学术写作与编辑，以及选题、标书、论文、Perspective、已有研究改进、统计分析计划和统一科研评估。
 
 Skill 提供研究流程和判断依据。搜索、数据库访问、文档处理等通用能力使用当前环境可用的工具与插件，不在本仓库重复构建。主任务负责整理、规划、撰写、修订和汇编，独立评审检查科学内容。
 
@@ -15,7 +15,7 @@ Skill 提供研究流程和判断依据。搜索、数据库访问、文档处�
 
 两份技能正文与参考说明使用中文，便于审阅修改；成稿语言遵循任务要求，支持中英文材料。它们可在其他学术任务中单独使用，也已接入下面全部研究流程、专业建议和评审报告的写作与编辑。
 
-六个撰写流程均调用未参与当前版本撰写的 `research-evaluator` 实例完成独立评估：
+五个撰写流程均调用未参与当前版本撰写的 `research-evaluator` 实例完成独立评估：
 
 | 任务 | 主流程 | 主要用途 |
 | --- | --- | --- |
@@ -23,17 +23,11 @@ Skill 提供研究流程和判断依据。搜索、数据库访问、文档处�
 | 研究标书 | `proposal-orchestrator` | 将研究问题、论证、方法和资源组织成可行方案 |
 | 研究论文 | `article-orchestrator` | 根据实际研究材料撰写和修订论文，在一次评估中按需结合医学和编辑判断 |
 | Perspective | `perspective-orchestrator` | 构建有证据、反论证和明确贡献的学术观点 |
-| 已有研究改进 | `research-improvement-planner` | 比较重新定位、补充分析和研究扩展的科学价值与代价 |
 | 统计分析计划 | `sap-writer` | 编写或修订目标明确、方法连贯、能够实施的分析计划 |
 
-另有两个按需使用的专业 Skill：
+科研评估统一使用 [research-evaluator](research-skills-openai/skills/research-evaluator/SKILL.md)，涵盖科学价值、方法与证据、任务准备程度、已有研究改进，以及投稿咨询、初筛、修回和评论核查。方法学问题并入各撰写流程已有的独立评估，也可直接调用进行咨询。
 
-| Skill | 用途 |
-| --- | --- |
-| [research-evaluator](research-skills-openai/skills/research-evaluator/SKILL.md) | 统一独立评估科学价值、证据和任务准备程度，按需处理投稿咨询、初筛、修回及评论核查 |
-| `methodology-statistics-preflight` | 在起草或继续工作前检查研究问题、设计、数据和分析是否匹配 |
-
-前四个主流程和两个通用写作、编辑技能允许 Codex 按任务自动匹配。研究改进入口及其余专业和评审 Skill 保持显式调用，可由用户或主流程按需使用。
+前四个主流程和两个通用写作、编辑技能允许 Codex 按任务自动匹配。`sap-writer` 和 `research-evaluator` 保持显式调用，可由用户或主流程按需使用。
 
 例如：
 
@@ -44,7 +38,7 @@ Skill 提供研究流程和判断依据。搜索、数据库访问、文档处�
 用 $proposal-orchestrator 将这份研究构想发展为符合所附指南的标书。
 用 $article-orchestrator 根据研究方法、结果表和草稿修订论文。
 用 $perspective-orchestrator 围绕这个观点形成一篇有证据和反论证的 Perspective。
-用 $research-improvement-planner 评估这项已完成研究还值得补做哪些工作，并比较收益和成本。
+用 $sap-writer 根据研究方案和数据说明编写统计分析计划。
 ```
 
 评估也可直接调用：
@@ -53,6 +47,8 @@ Skill 提供研究流程和判断依据。搜索、数据库访问、文档处�
 用 $research-evaluator 独立评估这份论文和研究结果，解释适用评分及下一步。
 用 $research-evaluator 评阅这份标书，分别说明研究价值、科学依据和申请准备情况。
 用 $research-evaluator 检查这份统计分析计划，说明哪些分析可以实施、哪些决定仍待确认。
+用 $research-evaluator 评估这项已完成研究还值得补做哪些工作，并比较收益和成本。
+用 $research-evaluator 检查这项研究的设计、数据和分析能否回答研究问题。
 ```
 
 统一评估的正文与参考资料使用中文，发现描述保持英文，继续显式调用。它按任务加载共同价值、科学依据、文章类型，以及标书、分析计划或编辑决策标准；评论来信和更正线索采用专门核查。
@@ -114,7 +110,7 @@ python scripts/auxiliary/generate_flatten_skills.py --output .local/exports/rese
 ```text
 research-skills-openai/
   .codex-plugin/plugin.json       插件信息与唯一版本号
-  skills/                        10 个 Skill 及其按需参考资料
+  skills/                        8 个 Skill 及其按需参考资料
   README.md                      插件导航
 .agents/plugins/marketplace.json GitHub Marketplace
 scripts/auxiliary/               辅助自动化脚本
@@ -137,7 +133,9 @@ CI 保留原检查名称 `OpenAI Plugin Preview / validate`，内容仅为上述
 
 此前结构重构将 51 个 Skill 收敛为 14 个：写作、组织、修订和汇编职责合并到主流程；通用检索交给可用工具和其他插件；独立科学评审保留。当时移除了工作流 Registry、状态协议、固定评分与报告模板，以及旧审计、安装包装脚本和自动 Skill 测试。
 
-随后加入通用的 `academic-writer` 和 `academic-humanizer`，形成 16 个 Skill。本次将六个 evaluator 与医学期刊评审合并为 `research-evaluator`，当前为 10 个 Skill。按所有者指定的编辑部流程恢复并扩展有领域依据的评分，定义与适用条件集中在参考标准中；不恢复脱离证据的通用晋级规则、评分脚本或固定报告模板。
+随后加入通用的 `academic-writer` 和 `academic-humanizer`，形成 16 个 Skill。之后将六个 evaluator 与医学期刊评审合并为 `research-evaluator`，收敛为 10 个 Skill。按所有者指定的编辑部流程恢复并扩展有领域依据的评分，定义与适用条件集中在参考标准中；不恢复脱离证据的通用晋级规则、评分脚本或固定报告模板。
+
+本次进一步删除独立的研究改进规划与方法学预检入口，由已有 `research-evaluator` 承接，当前共 8 个 Skill。统一评估技能及其参考资料保持原样，没有新增流程或迁入重复提示。
 
 | 删除的入口 | 当前入口与用途 |
 | --- | --- |
@@ -148,8 +146,10 @@ CI 保留原检查名称 `OpenAI Plugin Preview / validate`，内容仅为上述
 | `research-improvement-evaluator` | `research-evaluator`：已有研究改进比较 |
 | `sap-evaluator` | `research-evaluator`：分析计划的科学依据与可执行性 |
 | `medical-journal-review` | `research-evaluator`：医学解释、投稿咨询及编辑处理 |
+| `research-improvement-planner` | `research-evaluator`：已有研究改进建议与收益、代价比较 |
+| `methodology-statistics-preflight` | `research-evaluator`：研究问题、设计、数据与分析的匹配检查 |
 
-更早的 `research-polisher-orchestrator` 已改名为 `research-improvement-planner`；`research-polisher-methodology-publishability-reviewer` 曾改名为 `research-improvement-evaluator`，现在同样迁入统一评估。七个旧入口均已删除，不保留转发技能。
+更早的 `research-polisher-orchestrator` 曾改名为 `research-improvement-planner`；`research-polisher-methodology-publishability-reviewer` 曾改名为 `research-improvement-evaluator`，两者现在均由统一评估承接。上述旧入口均已删除，不保留转发技能。
 
 旧名称不保留别名，请更新个人提示词。历史实现和记录可从 Git 历史查看。个人研究输入与运行产物放在已忽略的 `.local/research-runs/`，不放入 `tests/`。
 
