@@ -3,6 +3,7 @@
 ## 维护范围
 
 - 修改文件前读取距离目标文件最近的 AGENTS.md；子目录规则只在其范围内生效。
+- 默认直接在 `main` 上工作，只保留 `main` 分支；只有用户明确要求时才创建其他分支。
 - 仓库只维护 OpenAI 生态的 Skills 插件；唯一技能源为 research-skills-openai/skills/。保持现有插件名称和 Marketplace 身份。
 - 新建或大幅改写 Skill 时使用 skill-creator；涉及插件结构或安装流程时使用 plugin-creator。
 - 保留无关用户工作，不修改外部 Skill、个人安装配置或插件缓存。兼容导出和个人研究材料不纳入版本控制。
