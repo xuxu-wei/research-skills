@@ -17,7 +17,7 @@ Use [$academic-writer](../academic-writer/SKILL.md) to draft researcher-facing p
 2. Develop a thesis that an informed reader could examine or dispute. Explain what it adds to the existing conversation and what evidence could weaken it.
 3. Gather and assess the evidence needed for that argument using available tools. Engage the strongest relevant counterarguments, not only supporting examples. Keep unsupported novelty or consensus claims provisional.
 4. Structure and draft the piece so that each part advances the thesis. Consult [argument guidance](references/argument-guidance.md) when choosing its contribution or handling mixed evidence.
-5. Ask a fresh instance to use $perspective-evaluator on the current piece, relevant sources, and user or venue requirements. Withhold the drafter's private reasoning and preferred verdict.
+5. Ask a fresh instance to use [$research-evaluator](../research-evaluator/SKILL.md) on the current piece, relevant sources, and user or venue requirements. Withhold the drafter's private reasoning and preferred verdict.
 6. Revise supported findings while preserving legitimate differences in interpretation. Substantive changes to the thesis, evidence, or implications require a new version and fresh independent review.
 7. Deliver the piece with sources, the review, and unresolved questions for the author.
 

@@ -17,7 +17,7 @@ Use [$academic-writer](../academic-writer/SKILL.md) to draft researcher-facing p
 2. Diagnose the largest scientific or interpretive limitation and the most useful unrealized contribution. Use the available literature and tools to check relevant precedents or assumptions; state gaps in that evidence.
 3. Develop options that fit the study and constraints. These may include clearer interpretation, a different audience or research framing, additional analyses, validation, or new data collection. Do not force every study into the same menu.
 4. For each useful option, explain the scientific benefit, its evidence basis, required work, dependencies, cost or effort, main risk, and what would count as a meaningful result. Distinguish work possible with existing resources from extensions requiring new commitments. Consult [improvement considerations](references/improvement-considerations.md) when weighing these tradeoffs.
-5. Ask a fresh instance to use $research-improvement-evaluator on the current plan, underlying study evidence, and researcher constraints. Do not supply the drafter's private reasoning or a preferred recommendation.
+5. Ask a fresh instance to use [$research-evaluator](../research-evaluator/SKILL.md) on the current plan, underlying study evidence, and researcher constraints. Do not supply the drafter's private reasoning or a preferred recommendation.
 6. Revise supported findings and retain meaningful disagreements. New scientific claims or material changes in the proposed work require a new version and fresh independent review.
 7. Deliver a comparison and recommendation that makes the next decision clear. Let the researcher choose which additional work to authorize.
 

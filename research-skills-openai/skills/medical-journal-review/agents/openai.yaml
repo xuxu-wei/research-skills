@@ -1,6 +1,0 @@
-interface:
-  display_name: "Medical Journal Review"
-  short_description: "Review medical research and its clinical interpretation"
-  default_prompt: "Use $medical-journal-review to review this medical manuscript's science and clinical relevance."
-policy:
-  allow_implicit_invocation: false

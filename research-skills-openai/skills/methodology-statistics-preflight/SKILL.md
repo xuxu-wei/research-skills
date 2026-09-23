@@ -23,4 +23,4 @@ Use [$academic-writer](../academic-writer/SKILL.md) to draft the methodological 
 
 Provide a concise scientific assessment with the basis for each consequential concern and proportionate recommendations. Separate verified facts from assumptions and identify what could not be checked. Do not invent a sample size, power calculation, data property, or approval.
 
-Adapt the depth to the decision; an early idea need not have a completed SAP. A preflight is not a final independent review. If the assessment is requested as independent, use a fresh reviewer who did not develop the design. The researcher decides changes requiring new data, resources, or a different research direction.
+Adapt the depth to the decision; an early idea need not have a completed SAP. A preflight is not a final independent review. For an independent assessment and applicable scores, ask a fresh instance to use [$research-evaluator](../research-evaluator/SKILL.md) with the study materials and constraints. The researcher decides changes requiring new data, resources, or a different research direction.

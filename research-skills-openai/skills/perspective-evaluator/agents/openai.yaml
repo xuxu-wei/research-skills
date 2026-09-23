@@ -1,6 +1,0 @@
-interface:
-  display_name: "Perspective Review"
-  short_description: "Review a scholarly thesis, evidence, and reasoning"
-  default_prompt: "Use $perspective-evaluator to independently review this Perspective."
-policy:
-  allow_implicit_invocation: false

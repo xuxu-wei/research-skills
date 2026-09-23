@@ -1,6 +1,0 @@
-interface:
-  display_name: "Statistical Analysis Plan Review"
-  short_description: "Review a statistical analysis plan independently"
-  default_prompt: "Use $sap-evaluator to independently review this statistical analysis plan."
-policy:
-  allow_implicit_invocation: false

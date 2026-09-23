@@ -1,0 +1,6 @@
+interface:
+  display_name: "Research Evaluation"
+  short_description: "Evaluate research, evidence, readiness, and publication fit"
+  default_prompt: "Use $research-evaluator to independently assess these research materials and explain the applicable scores and next steps."
+policy:
+  allow_implicit_invocation: false

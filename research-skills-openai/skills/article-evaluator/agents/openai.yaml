@@ -1,6 +1,0 @@
-interface:
-  display_name: "Research Article Review"
-  short_description: "Review a manuscript's claims and scientific support"
-  default_prompt: "Use $article-evaluator to independently review this research manuscript."
-policy:
-  allow_implicit_invocation: false

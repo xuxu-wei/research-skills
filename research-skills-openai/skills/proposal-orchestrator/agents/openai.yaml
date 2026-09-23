@@ -1,6 +1,6 @@
 interface:
   display_name: "Research Proposal Development"
   short_description: "Develop a coherent and feasible research proposal"
-  default_prompt: "Use $proposal-orchestrator to develop or revise this research proposal."
+  default_prompt: "Use $proposal-orchestrator to develop or revise this proposal with independent research evaluation."
 policy:
   allow_implicit_invocation: true

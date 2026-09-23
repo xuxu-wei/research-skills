@@ -1,6 +1,0 @@
-interface:
-  display_name: "Research Proposal Review"
-  short_description: "Review a proposal's science and feasibility"
-  default_prompt: "Use $proposal-evaluator to independently review this research proposal."
-policy:
-  allow_implicit_invocation: false

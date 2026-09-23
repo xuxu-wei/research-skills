@@ -17,7 +17,7 @@ Use [$academic-writer](../academic-writer/SKILL.md) to draft researcher-facing p
 2. Connect each research objective to its target quantity, analysis population, endpoint, timing, and comparison. Identify missing definitions or data dependencies that materially affect the analysis.
 3. Specify the primary analyses and the assumptions that support them. Address variable derivation, covariates, missingness, dependence, diagnostics, sensitivity analyses, and multiplicity where relevant. Consult [analysis planning considerations](references/analysis-planning.md) for difficult choices.
 4. Make implementation decisions clear enough to avoid discretionary changes driven by favorable results. Distinguish confirmed decisions, alternatives awaiting evidence, and exploratory analyses.
-5. Have a fresh instance use $sap-evaluator to assess the current plan against the protocol, relevant data documentation, and user constraints. Keep the drafter's preferred verdict and private reasoning out of the review.
+5. Have a fresh instance use [$research-evaluator](../research-evaluator/SKILL.md) to assess the current plan against the protocol, relevant data documentation, and user constraints. Keep the drafter's preferred verdict and private reasoning out of the review.
 6. Revise supported findings, recording meaningful amendments and their rationale. Changes to estimands, populations, endpoints, or analysis methods require a new version and fresh independent review.
 
 ## Delivery

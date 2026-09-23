@@ -1,7 +1,7 @@
 {
   "name": "research-skills-openai",
-  "version": "0.16.0",
-  "description": "Academic writing, editing, scientific research workflows, and independent review for the OpenAI ecosystem.",
+  "version": "0.17.0",
+  "description": "Academic writing, research workflows, and unified independent scientific evaluation for the OpenAI ecosystem.",
   "author": {
     "name": "Xuxu Wei",
     "url": "https://github.com/xuxu-wei"
@@ -23,7 +23,7 @@
   "interface": {
     "displayName": "Research Skills (Personal Preview)",
     "shortDescription": "Academic writing and reviewed research workflows",
-    "longDescription": "Write and edit clear academic and educational prose across disciplines, or develop research ideas, proposals, articles, Perspectives, and improvements to existing studies. Includes independent scientific review, methodology consultation, medical journal review, and statistical analysis planning. Uses the tools available in the OpenAI environment for general capabilities. An experimental personal project.",
+    "longDescription": "Write and edit academic prose, develop research ideas, proposals, articles, Perspectives, study improvements, and statistical analysis plans. Includes methodology consultation and unified independent evaluation with explained scores, task readiness, publication consultation, and editorial review. Loads relevant criteria as needed and uses available OpenAI tools. An experimental personal project.",
     "developerName": "Xuxu Wei",
     "category": "Research",
     "capabilities": [
@@ -35,7 +35,8 @@
     "defaultPrompt": [
       "Write or edit clear, coherent academic and educational prose.",
       "Develop research ideas, proposals, or manuscripts with independent scientific review.",
-      "Compare worthwhile improvements to an existing study and their costs."
+      "Compare worthwhile improvements to an existing study and their costs.",
+      "Independently evaluate research value, scientific support, and task readiness with clear explanations."
     ]
   }
 }

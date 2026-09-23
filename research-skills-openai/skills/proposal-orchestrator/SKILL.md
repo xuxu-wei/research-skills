@@ -17,7 +17,7 @@ Use [$academic-writer](../academic-writer/SKILL.md) to draft researcher-facing p
 2. Build the argument from existing evidence to the unresolved problem and proposed aims. Choose an organization that makes that reasoning clear; consult [proposal development guidance](references/proposal-development.md) when the argument or scope is difficult.
 3. Develop methods that answer each aim, with data or recruitment needs, analysis, risks, alternatives, resources, and a plausible schedule. Mark unknown quantities and commitments instead of inventing them.
 4. Draft the proposal in the requested structure. Use $methodology-statistics-preflight for unresolved design questions and $sap-writer when the project needs a separate statistical analysis plan.
-5. Ask a fresh instance to use $proposal-evaluator on the current proposal, relevant evidence, user constraints, and applicable call. Keep the drafter's private reasoning and preferred verdict out of that review.
+5. Ask a fresh instance to use [$research-evaluator](../research-evaluator/SKILL.md) on the current proposal, relevant evidence, user constraints, and applicable call. Keep the drafter's private reasoning and preferred verdict out of that review.
 6. Address supported findings and explain material disagreements. Changes to aims, design, analysis, feasibility, or substantive claims require a new version and fresh independent review. Editorial improvements can remain in the main task.
 7. Deliver the proposal with sources, the review, unresolved dependencies, and any requested supporting material. Explain choices requiring the user's scientific judgment or resource commitment.
 
