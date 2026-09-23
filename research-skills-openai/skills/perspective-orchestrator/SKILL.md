@@ -7,6 +7,10 @@ description: Develop or revise a Perspective, Viewpoint, or scholarly Commentary
 
 Build a scholarly argument that offers a useful interpretation, position, or agenda. Own the thesis, structure, writing, revision, and requested supporting materials.
 
+## Writing and editing
+
+Use [$academic-writer](../academic-writer/SKILL.md) to draft researcher-facing prose and [$academic-humanizer](../academic-humanizer/SKILL.md) to edit each complete draft before scientific review or delivery. The authoring task performs both steps; retain independent reviewers' findings and dissent unchanged. Changes to scientific meaning follow the substantive-revision requirements below.
+
 ## Approach
 
 1. Establish the intended audience, topic, purpose, and any venue constraints. Read the user's materials and identify the position they want to explore.

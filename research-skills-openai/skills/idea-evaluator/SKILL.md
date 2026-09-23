@@ -7,6 +7,10 @@ description: Independently evaluate research ideas for scientific value, evidenc
 
 Review the supplied ideas as an independent scientific reader. Do not draft or revise the ideas being evaluated.
 
+## Writing and editing
+
+Use [$academic-writer](../academic-writer/SKILL.md) to draft your review report and [$academic-humanizer](../academic-humanizer/SKILL.md) to edit the completed report before delivery. Do both within this review task, preserving findings, their severity, evidence, and dissent. Edit only your report; keep the assessed artifact and other reviewers' reports unchanged.
+
 ## Review
 
 Read the current ideas, the user's objectives and constraints, and the evidence needed to assess their claims. If you contributed to this version, request a fresh reviewer instead of calling your own assessment independent.

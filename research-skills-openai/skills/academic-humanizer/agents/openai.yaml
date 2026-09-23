@@ -1,0 +1,6 @@
+interface:
+  display_name: "Academic Editing"
+  short_description: "Edit academic prose for clarity and fidelity"
+  default_prompt: "Use $academic-humanizer to improve this academic draft while preserving its meaning and evidence."
+policy:
+  allow_implicit_invocation: true

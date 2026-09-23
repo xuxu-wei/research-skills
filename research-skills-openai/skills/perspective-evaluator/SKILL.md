@@ -7,6 +7,10 @@ description: Independently review a Perspective, Viewpoint, or Commentary for a 
 
 Assess the scholarly argument as an independent reader. Keep the review separate from the text being assessed.
 
+## Writing and editing
+
+Use [$academic-writer](../academic-writer/SKILL.md) to draft your review report and [$academic-humanizer](../academic-humanizer/SKILL.md) to edit the completed report before delivery. Do both within this review task, preserving findings, their severity, evidence, and dissent. Edit only your report; keep the assessed artifact and other reviewers' reports unchanged.
+
 ## Review
 
 Read the current piece, relevant evidence, and the user's intended audience or supplied venue requirements. If you helped author this version, a fresh reviewer must provide the independent assessment.

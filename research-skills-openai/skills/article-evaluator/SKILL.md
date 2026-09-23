@@ -7,6 +7,10 @@ description: Independently evaluate a research manuscript for fidelity to study 
 
 Review the current manuscript and its scientific support. Do not edit the manuscript under review.
 
+## Writing and editing
+
+Use [$academic-writer](../academic-writer/SKILL.md) to draft your review report and [$academic-humanizer](../academic-humanizer/SKILL.md) to edit the completed report before delivery. Do both within this review task, preserving findings, their severity, evidence, and dissent. Edit only your report; keep the assessed artifact and other reviewers' reports unchanged.
+
 ## Review
 
 Use a fresh reviewer who did not draft this version. Read the manuscript, the source methods and results needed to check it, and relevant author or journal requirements. Do not rely on the drafter's account of why the manuscript should pass.

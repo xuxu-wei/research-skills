@@ -7,6 +7,10 @@ description: Develop or revise a statistical analysis plan from a protocol, rese
 
 Write a plan detailed enough to guide the intended analysis while staying faithful to the study design and available data.
 
+## Writing and editing
+
+Use [$academic-writer](../academic-writer/SKILL.md) to draft researcher-facing prose and [$academic-humanizer](../academic-humanizer/SKILL.md) to edit each complete draft before scientific review or delivery. The authoring task performs both steps; retain independent reviewers' findings and dissent unchanged. Changes to scientific meaning follow the substantive-revision requirements below.
+
 ## Approach
 
 1. Read the protocol, objectives, data description, existing analysis decisions, and constraints. Establish whether the plan is prospective, an amendment, or a description of exploratory work after results were seen.

@@ -7,6 +7,10 @@ description: Develop research ideas from a topic, literature, funding call, prac
 
 Turn the user's starting point into research options that are scientifically meaningful and feasible. Own the planning, drafting, revision, and final comparison.
 
+## Writing and editing
+
+Use [$academic-writer](../academic-writer/SKILL.md) to draft researcher-facing prose and [$academic-humanizer](../academic-humanizer/SKILL.md) to edit each complete draft before scientific review or delivery. The authoring task performs both steps; retain independent reviewers' findings and dissent unchanged. Changes to scientific meaning follow the substantive-revision requirements below.
+
 ## Approach
 
 1. Establish the scientific question, intended contribution, available evidence or data, and practical constraints. Use what the user has provided; ask only for missing information that materially affects the direction.

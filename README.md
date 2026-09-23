@@ -1,10 +1,19 @@
 # Research Skills
 
-面向 OpenAI 生态的科研流程 Skill 仓库。唯一维护的插件是 `research-skills-openai`，用于 Codex 中的选题、标书、论文、Perspective、已有研究改进和科学评审。
+面向 OpenAI 生态的科研流程 Skill 仓库。唯一维护的插件是 `research-skills-openai`，包含 16 个 Skill，用于 Codex 中的通用学术写作与编辑，以及选题、标书、论文、Perspective、已有研究改进和科学评审。
 
 Skill 提供研究流程和判断依据。搜索、数据库访问、文档处理等通用能力使用当前环境可用的工具与插件，不在本仓库重复构建。主任务负责整理、规划、撰写、修订和汇编，独立评审检查科学内容。
 
 ## Skill 入口
+
+两个可独立使用的通用技能覆盖不同学科的论文、标书、报告、分析计划、教材和其他学术材料：
+
+| Skill | 用途 |
+| --- | --- |
+| [academic-writer](research-skills-openai/skills/academic-writer/SKILL.md) | 根据材料、笔记或提纲组织和撰写清楚、连贯的学术论述 |
+| [academic-humanizer](research-skills-openai/skills/academic-humanizer/SKILL.md) | 检查和修改已有材料的结构、衔接与表达，保留科学含义、证据和作者立场 |
+
+两份技能正文与参考说明使用中文，便于审阅修改；成稿语言遵循任务要求，支持中英文材料。它们可在其他学术任务中单独使用，也已接入下面全部研究流程、专业建议和评审报告的写作与编辑。
 
 | 任务 | 主流程 | 独立评审 | 主要用途 |
 | --- | --- | --- | --- |
@@ -23,11 +32,13 @@ Skill 提供研究流程和判断依据。搜索、数据库访问、文档处�
 | `sap-writer` | 编写或修订统计分析计划，并安排独立评审 |
 | `sap-evaluator` | 独立检查统计分析计划的合理性和可实施性 |
 
-前四个主流程允许 Codex 按任务自动匹配。研究改进入口及其余专业和评审 Skill 保持显式调用，可由用户或主流程按需使用。
+前四个主流程和两个通用写作、编辑技能允许 Codex 按任务自动匹配。研究改进入口及其余专业和评审 Skill 保持显式调用，可由用户或主流程按需使用。
 
 例如：
 
 ```text
+用 $academic-writer 将这些笔记写成一段面向研究生的学术说明。
+用 $academic-humanizer 修改这份英文报告的组织和表达，保留语言、数据、引文和结论强度。
 用 $research-idea-orchestrator 根据这些文献和可用数据，比较值得开展的研究方向。
 用 $proposal-orchestrator 将这份研究构想发展为符合所附指南的标书。
 用 $article-orchestrator 根据研究方法、结果表和草稿修订论文。
@@ -39,7 +50,9 @@ Skill 提供研究流程和判断依据。搜索、数据库访问、文档处�
 
 ## 工作方式
 
-先理解已有材料和研究目标，再按需要补充证据、检查设计、起草和修订。独立评审由未参与该版本撰写的评审者完成，保留有依据的异议。方法、结果或实质性结论发生变化时，保存新版本并重新评审；纯措辞和排版修改不需要重跑完整流程。
+先理解已有材料和研究目标，再按需要补充证据、检查设计、起草和修订。撰写读者材料时使用 `academic-writer`，完整草稿形成后，在科学评审或交付前使用 `academic-humanizer` 编辑。写作和编辑由产出材料的任务完成。
+
+独立科学评审由未参与该版本撰写的评审者完成，保留有依据的异议。评审者同样编辑自己撰写的报告，保持发现、批评程度和证据；主任务保留独立评审结论。方法、结果或实质性结论发生变化时，保存新版本并重新评审；纯措辞和排版修改不需要重跑完整流程。
 
 方向选择、额外资源投入和对外提交由研究者决定。缺少关键证据或独立评审时，可交付注明限制的草稿。默认提供可编辑的 Markdown，也可按要求使用可用工具制作其他格式。
 
@@ -88,7 +101,7 @@ python scripts/auxiliary/generate_flatten_skills.py --output .local/exports/rese
 ```text
 research-skills-openai/
   .codex-plugin/plugin.json       插件信息与唯一版本号
-  skills/                        14 个 Skill 及其按需参考资料
+  skills/                        16 个 Skill 及其按需参考资料
   README.md                      插件导航
 .agents/plugins/marketplace.json GitHub Marketplace
 scripts/auxiliary/               辅助自动化脚本
@@ -109,7 +122,9 @@ CI 保留原检查名称 `OpenAI Plugin Preview / validate`，内容仅为上述
 
 ## 从旧版迁移
 
-此次重构将 51 个 Skill 收敛为 14 个：写作、组织、修订和汇编职责合并到主流程；通用检索交给可用工具和其他插件；独立科学评审保留。移除工作流 Registry、状态协议、固定评分与报告模板，以及旧审计、安装包装脚本和自动 Skill 测试。
+此前结构重构将 51 个 Skill 收敛为 14 个：写作、组织、修订和汇编职责合并到主流程；通用检索交给可用工具和其他插件；独立科学评审保留。移除了工作流 Registry、状态协议、固定评分与报告模板，以及旧审计、安装包装脚本和自动 Skill 测试。
+
+本次增加通用的 `academic-writer` 和 `academic-humanizer`，当前共 16 个 Skill。它们提供所有读者材料共用的写作与编辑指引，主流程继续负责科学任务的组织和完成。
 
 | 原名称 | 新名称 | 定位 |
 | --- | --- | --- |

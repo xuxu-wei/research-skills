@@ -1,0 +1,6 @@
+interface:
+  display_name: "Academic Writing"
+  short_description: "Write clear and coherent academic prose"
+  default_prompt: "Use $academic-writer to turn these materials into clear, coherent academic prose."
+policy:
+  allow_implicit_invocation: true

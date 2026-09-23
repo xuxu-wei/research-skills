@@ -7,6 +7,10 @@ description: Develop or revise a research proposal from an idea, call, study pla
 
 Produce a coherent, feasible proposal for the specified audience or funding opportunity. Own the scientific outline, drafting, revisions, and assembly.
 
+## Writing and editing
+
+Use [$academic-writer](../academic-writer/SKILL.md) to draft researcher-facing prose and [$academic-humanizer](../academic-humanizer/SKILL.md) to edit each complete draft before scientific review or delivery. The authoring task performs both steps; retain independent reviewers' findings and dissent unchanged. Changes to scientific meaning follow the substantive-revision requirements below.
+
 ## Approach
 
 1. Read the user's materials and any supplied call or application requirements. Establish the problem, proposed contribution, resources, and submission constraints. Verify current external requirements when they affect the work.

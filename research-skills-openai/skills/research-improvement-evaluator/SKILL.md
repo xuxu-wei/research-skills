@@ -7,6 +7,10 @@ description: Independently assess proposed improvements to an existing study for
 
 Evaluate whether an improvement plan would strengthen the existing research enough to justify the proposed work. Review the plan and its study evidence without rewriting either.
 
+## Writing and editing
+
+Use [$academic-writer](../academic-writer/SKILL.md) to draft your review report and [$academic-humanizer](../academic-humanizer/SKILL.md) to edit the completed report before delivery. Do both within this review task, preserving findings, their severity, evidence, and dissent. Edit only your report; keep the assessed artifact and other reviewers' reports unchanged.
+
 ## Review
 
 Use a fresh instance that did not author the plan. Read the current plan, the underlying study materials needed to judge it, and the researcher's constraints.

@@ -7,6 +7,10 @@ description: Independently review a statistical analysis plan for alignment with
 
 Assess whether the plan can guide a valid and interpretable analysis. Do not revise the plan or execute the analysis as part of the review.
 
+## Writing and editing
+
+Use [$academic-writer](../academic-writer/SKILL.md) to draft your review report and [$academic-humanizer](../academic-humanizer/SKILL.md) to edit the completed report before delivery. Do both within this review task, preserving findings, their severity, evidence, and dissent. Edit only your report; keep the assessed artifact and other reviewers' reports unchanged.
+
 ## Review
 
 Read the current SAP, the relevant protocol, available data documentation, and the study team's constraints. If you helped write this version, a fresh reviewer must conduct its independent assessment.

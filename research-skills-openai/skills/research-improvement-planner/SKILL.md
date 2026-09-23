@@ -7,6 +7,10 @@ description: Plan scientifically justified improvements to an existing study wit
 
 Help a researcher decide how to strengthen work that already exists. The deliverable is a practical improvement plan grounded in the current study, including a defensible option to retain its present scope.
 
+## Writing and editing
+
+Use [$academic-writer](../academic-writer/SKILL.md) to draft researcher-facing prose and [$academic-humanizer](../academic-humanizer/SKILL.md) to edit each complete draft before scientific review or delivery. The authoring task performs both steps; retain independent reviewers' findings and dissent unchanged. Changes to scientific meaning follow the substantive-revision requirements below.
+
 ## Approach
 
 1. Read the study materials and establish what was actually done, what evidence exists, what the current claims support, and what the researcher wants to improve. Separate completed work from proposed work.

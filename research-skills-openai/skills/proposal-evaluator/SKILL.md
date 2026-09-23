@@ -7,6 +7,10 @@ description: Independently review a research proposal for scientific significanc
 
 Evaluate the proposal as a scientific reviewer. Keep your assessment separate from its authorship.
 
+## Writing and editing
+
+Use [$academic-writer](../academic-writer/SKILL.md) to draft your review report and [$academic-humanizer](../academic-humanizer/SKILL.md) to edit the completed report before delivery. Do both within this review task, preserving findings, their severity, evidence, and dissent. Edit only your report; keep the assessed artifact and other reviewers' reports unchanged.
+
 ## Review
 
 Read the current proposal, the relevant source evidence, the user's constraints, and any applicable call. If you helped write this version, have a fresh instance conduct the independent review.

@@ -7,6 +7,10 @@ description: Assess whether a research question, design, data source, endpoints,
 
 Check whether the proposed scientific inference is supported by the study design and available information. This can be a focused consultation within a larger research task.
 
+## Writing and editing
+
+Use [$academic-writer](../academic-writer/SKILL.md) to draft the methodological assessment and [$academic-humanizer](../academic-humanizer/SKILL.md) to edit it before delivery. Perform both within this task, preserving recommendations, evidence, and unresolved uncertainty. Revisit the methodological assessment if an edit changes a scientific recommendation.
+
 ## Approach
 
 1. Establish the intended question and type of inference: descriptive, causal, predictive, experimental, interpretive, or another relevant aim.

@@ -7,6 +7,10 @@ description: Review a medical or clinical research manuscript from an editorial 
 
 Provide a medical research review grounded in the actual manuscript and study evidence. Keep editorial fit separate from the validity of the science.
 
+## Writing and editing
+
+Use [$academic-writer](../academic-writer/SKILL.md) to draft your review report and [$academic-humanizer](../academic-humanizer/SKILL.md) to edit the completed report before delivery. Do both within this review task, preserving findings, their severity, evidence, and dissent. Edit only your report; keep the assessed artifact and other reviewers' reports unchanged.
+
 ## Approach
 
 1. Read the manuscript and the source methods or results needed to assess its claims. Establish the clinical question, design, intended population, and audience.
