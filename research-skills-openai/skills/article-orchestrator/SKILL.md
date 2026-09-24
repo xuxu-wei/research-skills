@@ -1,6 +1,6 @@
 ---
 name: article-orchestrator
-description: Develop or revise a research article from study materials, analyses, results, or a manuscript draft, with independent scientific review and preparation for the author's submission decision.
+description: Draft or revise research papers from study methods, results, or manuscripts, with independent scientific review.
 ---
 
 # Research Article Development

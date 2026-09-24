@@ -1,6 +1,6 @@
 ---
 name: research-evaluator
-description: Independently evaluate research ideas, proposals, manuscripts, arguments, improvement plans, and statistical analysis plans. Use for scientific assessment, evidence-based scoring, publication consultation, editorial review, or checking comments and correction concerns.
+description: Assess research designs, methods, evidence, and improvements. Review proposals, papers, analysis plans, publication fit, or correction concerns.
 ---
 
 # 科研评估

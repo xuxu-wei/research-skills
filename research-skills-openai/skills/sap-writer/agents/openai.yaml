@@ -1,6 +1,6 @@
 interface:
   display_name: "Statistical Analysis Plan Development"
-  short_description: "Develop a clear statistical analysis plan"
-  default_prompt: "Use $sap-writer to develop a statistical analysis plan with independent assessment of its scientific basis and executability."
+  short_description: "Connect research questions to an executable analysis plan"
+  default_prompt: "Use $sap-writer to organize this study's questions, data, methods, and reporting into a statistical analysis plan with independent evaluation."
 policy:
-  allow_implicit_invocation: false
+  allow_implicit_invocation: true

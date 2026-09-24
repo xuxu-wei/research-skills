@@ -1,6 +1,6 @@
 ---
 name: perspective-orchestrator
-description: Develop or revise a Perspective, Viewpoint, or scholarly Commentary around a defensible thesis, evidence, counterarguments, and implications, with independent review.
+description: Develop or revise Perspectives, Viewpoints, and scholarly Commentaries with a clear thesis, evidence, and counterarguments.
 ---
 
 # Perspective Development

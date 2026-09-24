@@ -1,27 +1,34 @@
 ---
 name: sap-writer
-description: Develop or revise a statistical analysis plan from a protocol, research question, data description, or analysis draft, making the intended estimands, methods, assumptions, and analysis decisions explicit.
+description: Write or revise statistical analysis plans (SAPs) that connect research questions, data, methods, and reporting.
 ---
 
-# Statistical Analysis Plan Development
+# 统计分析计划撰写
 
-Write a plan detailed enough to guide the intended analysis while staying faithful to the study design and available data.
+围绕研究问题组织统计分析计划，让读者理解分析怎样回答问题，让分析者能够据此作出关键决定。适用于不同研究设计的起草与修订；成稿语言和格式遵循任务要求。
 
-## Writing and editing
+## 理解研究与组织计划
 
-Use [$academic-writer](../academic-writer/SKILL.md) to draft researcher-facing prose and [$academic-humanizer](../academic-humanizer/SKILL.md) to edit each complete draft before scientific review or delivery. The authoring task performs both steps; retain independent reviewers' findings and dissent unchanged. Changes to scientific meaning follow the substantive-revision requirements below.
+1. 阅读研究方案、研究目标、数据说明、已有分析决定和用户约束。确认计划制定或修订的时间、哪些结果已经查看，以及本次工作属于预先规划、方案修订还是事后探索。
+2. 理清研究问题及其关系，按科学作用区分主要、次要、支持性和探索性分析。将每个目标对应到拟估计的量、分析人群、结局、时间和比较，找出影响分析的定义缺口与数据依赖。
+3. 新建完整计划、重组章节或安排正文与附录时，读取[按研究问题组织 SAP](references/sap-structure.md)。集中定义共同对象，再按研究问题展开分析；采用用户提供的机构格式，并按研究规模合并、拆分或调整内容。
 
-## Approach
+## 撰写与核对
 
-1. Read the protocol, objectives, data description, existing analysis decisions, and constraints. Establish whether the plan is prospective, an amendment, or a description of exploratory work after results were seen.
-2. Connect each research objective to its target quantity, analysis population, endpoint, timing, and comparison. Identify missing definitions or data dependencies that materially affect the analysis.
-3. Specify the primary analyses and the assumptions that support them. Address variable derivation, covariates, missingness, dependence, diagnostics, sensitivity analyses, and multiplicity where relevant. Consult [analysis planning considerations](references/analysis-planning.md) for difficult choices.
-4. Make implementation decisions clear enough to avoid discretionary changes driven by favorable results. Distinguish confirmed decisions, alternatives awaiting evidence, and exploratory analyses.
-5. Have a fresh instance use [$research-evaluator](../research-evaluator/SKILL.md) to assess the current plan against the protocol, relevant data documentation, and user constraints. Keep the drafter's preferred verdict and private reasoning out of the review.
-6. Revise supported findings, recording meaningful amendments and their rationale. Changes to estimands, populations, endpoints, or analysis methods require a new version and fresh independent review.
+用 [$academic-writer](../academic-writer/SKILL.md) 撰写计划。每个分析模块先说明问题和用途，再连贯交代对象、比较、方法及其依据、必要条件和拟报告的结果。首次需要共同定义时简要说明并引用；完整模型和复杂计算可放入附录，正文保留理解方法所需的信息。
 
-## Delivery
+定义分析方法、解决科学歧义或核对可执行性时，读取[分析规划要点](references/analysis-planning.md)。围绕实际研究处理变量推导、依赖结构、缺失、敏感性、多重比较和必要应变。涉及发现、验证或重采样时，说明哪些定义保持固定、哪些步骤重新估计。
 
-Provide an editable plan, the supporting assumptions or sources, the review where available, and decisions still needed from the study team. Use the required institutional format if supplied; otherwise choose a clear structure suited to the study.
+将已确认决定、待资料支持的选择和探索性安排区分清楚。科学冲突先核对方案与资料，无法确定的含义交由研究团队判断；措辞修改不得掩盖方法变化。完整草稿形成后，用 [$academic-humanizer](../academic-humanizer/SKILL.md) 编辑结构和表达，再提交科学评估或交付。
 
-Do not invent variable availability, sample size, effect assumptions, power results, or prior registration. Do not describe post hoc choices as prespecified. If essential information or independent review is unavailable, deliver the useful portion and state the limitation. Analysis execution is separate unless the user has requested it.
+## 独立评估与修订
+
+让未参与当前版本撰写的新实例使用 [$research-evaluator](../research-evaluator/SKILL.md)，对照研究方案、相关数据说明及用户约束评价科学依据和可执行性。提供待评材料与关键来源，不提供撰写者的私下推理或预设结论。评估者只读计划，主任务据有依据的意见修订，保留原评估报告及异议。
+
+记录实质修订的时间和理由。目标量、人群、结局、分析方法或其他科学内容改变后，保存新版本并重新独立评估；纯措辞和排版修改无需完整复评。无法取得独立实例时，仍可交付有用草稿，并说明尚未独立评估。
+
+## 交付
+
+提供可编辑的分析计划、支持其决定的来源与假设、已有评估，以及仍需研究团队决定的事项。按研究需要安排正文、表格和附录，使用读者可懂的名称与解释；必要科学术语和符号在使用时定义。
+
+不编造变量可用性、样本量、效应假设、功效计算或注册情况，不把事后选择写成预先设定。关键信息不足时交付能够成立的部分，明确具体缺口。实际分析仅在用户要求时执行，计划中的安排不表述为已经完成的工作。

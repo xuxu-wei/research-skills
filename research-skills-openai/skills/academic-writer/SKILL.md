@@ -1,6 +1,6 @@
 ---
 name: academic-writer
-description: Write clear, coherent academic and educational prose from source material, notes, or outlines. Use for papers, proposals, reports, analysis plans, textbooks, and other scholarly documents.
+description: Draft academic paragraphs, explanations, reports, and teaching materials, including writing within larger research tasks.
 ---
 
 # 学术写作

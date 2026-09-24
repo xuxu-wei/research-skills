@@ -1,6 +1,6 @@
 ---
 name: research-idea-orchestrator
-description: Develop research ideas from a topic, literature, funding call, practical problem, or available data, and prepare an independently reviewed comparison for choosing a direction.
+description: Develop and compare research ideas from topics, literature, funding calls, or data, with independent evaluation.
 ---
 
 # Research Idea Development

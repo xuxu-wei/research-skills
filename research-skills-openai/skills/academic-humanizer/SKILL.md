@@ -1,6 +1,6 @@
 ---
 name: academic-humanizer
-description: Edit existing academic and educational prose for clarity, coherence, and natural expression while preserving meaning and evidence. Use for revision, polishing, readability review, or reducing formulaic and defensive writing.
+description: Polish academic and educational drafts for clarity and natural expression, including existing text and drafts just written.
 ---
 
 # 学术编辑

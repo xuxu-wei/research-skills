@@ -1,29 +1,45 @@
-# Analysis planning considerations
+# 分析规划要点
 
-Read when defining analyses or resolving ambiguity in a statistical plan.
+在定义分析方法、解决科学歧义或核对关键决定能否实施时读取。根据研究问题选择适用内容；这些要点支持撰写，评分与独立评估仍使用统一评估技能的标准。
 
-## Objectives and estimands
+## 从研究问题到目标量
 
-Define the scientific question and the quantity the analysis should estimate. For treatment or causal questions, align population, comparison, outcome, timing, and the treatment of relevant intervening events. For descriptive and predictive studies, state the corresponding target and evaluation setting.
+写清希望估计什么、面向哪些对象，以及结果将如何回答研究问题。治疗或因果问题需对应人群、比较、结局、时间和相关伴发事件的处理；描述性或预测性研究则说明描述对象、预测目标及评价场景。
 
-Distinguish primary, secondary, sensitivity, and exploratory analyses according to their scientific role. Ensure the hierarchy is consistent with the protocol and the timing of decisions.
+定义比较方向、效应尺度和单位，说明正负值的科学含义。区分主要、次要、支持性、敏感性和探索性分析各自的用途，使分析层级与方案及决定时间一致。新增一个分析模块时，说明它补充回答哪个问题。
 
-## Data and methods
+## 数据、分析人群与变量
 
-Specify analysis populations, inclusion and exclusion rules, variable definitions, measurement windows, transformations, and units. Explain how repeated measures, clustering, sites, time, censoring, or competing events are handled where relevant.
+依据方案和实际资料说明纳入排除、分析集、基线、随访、测量窗口、变量推导、转换和单位。多个数据来源分别说明用途、可比性及必要的定义转换；针对部分可评价对象的分析，应交代其范围及对应的比较人群。
 
-Choose models and adjustment variables to answer the question. Subject-matter knowledge and the intended inference should guide covariate selection; indiscriminate adjustment and selection based only on observed significance can undermine that inference.
+区分尚未取得的变量、已记录但部分缺失的变量，以及需要推导或重建的信息。数据清单可集中放在附录，正文说明会影响目标量或方法选择的可用性问题。未知样本量、缺失比例和事件数保留为待确认信息。
 
-State assumptions and useful diagnostics, along with responses to plausible problems. Specify enough implementation detail to make important choices reproducible without prescribing irrelevant software syntax.
+## 方法、假设与可实施决定
 
-## Uncertainty and robustness
+先说明方法为何适合研究问题，再给足以复现关键选择的模型和估计说明。按需明确结局形式、预测变量或协变量、交互关系、效应提取、标准化对象及不确定性估计；科学问题和领域知识指导变量选择，避免只按观察到的显著性决定调整。
 
-Address missing data using assumptions appropriate to its cause and consequences. Explain the primary approach and sensitivities that probe materially different mechanisms.
+按设计处理重复测量、聚类、中心、时间、删失或竞争事件。假设与相应分析放在一起，说明能够检查什么、出现相关问题后如何处理。科学含义不明或方案与数据冲突时，先定位矛盾，不用熟悉的模型代替尚未确定的研究目标。
 
-Discuss multiplicity when families of tests or outcome selection affect interpretation. Report estimates and uncertainty suited to the question. Do not manufacture power or precision calculations when their inputs are unknown.
+对确实可能阻止分析的情况给出可执行安排，例如必要变量缺失、分组为空、模型无法估计或候选选择未得到结果。说明哪些结果仍能报告、哪些分析依赖该环节，以及替代做法的依据；失败或未知不作为零效应填入。
 
-Sensitivity analyses should address consequential assumptions; an arbitrary list of alternative models can encourage selective interpretation. Identify what would change the conclusion.
+## 发现、验证与重采样
 
-## Amendments and execution
+存在规则选择、模型开发或参数调优时，说明每一步使用哪些数据，哪些数据承担评价作用。变量处理、缺失处理、筛选和拟合所用的数据范围应与该步骤的用途一致。
 
-Preserve the timing and rationale of substantive changes, including whether outcomes were already examined. Link the plan to the protocol and data documentation it uses. Distinguish planned analysis from completed work, and keep unresolved team decisions visible.
+区分评价已确定的规则或模型，与评价包括重新选择在内的完整过程。前者说明保持固定的定义及仍需重新估计的部分；后者说明每次如何重做有关步骤。重采样需交代抽样单位及其保留的依赖结构；比较相关估计时，说明如何保留它们之间的关系。
+
+涉及模拟或重采样精度时，依据问题安排精度检查、可用重复及失败原因的记录，不沿用其他项目的次数或成功比例作为默认门槛。统计区间、不同样本划分的波动和模拟误差按各自含义解释。
+
+## 缺失与敏感性分析
+
+区分结局缺失、分类或预测变量缺失以及随访过程缺失，说明各自影响的对象和分析。主要处理方法应联系缺失原因与可用信息，交代处理或拟合所用人群；观测事件数与模型估计结果分别标明。
+
+敏感性分析针对可能改变判断的重要假设，说明改变了什么、其他部分如何保持可比，以及怎样理解与主要结果的差异。以同一目标量为基础检查关键假设；确需改变人群或目标量的补充分析，说明它回答的另一个问题。区分情景范围、极端界限与统计置信区间。
+
+## 推断、结果呈现与修订
+
+报告与目标量一致的估计和不确定性。存在检验家族、多个结局或数据驱动选择时，说明多重比较安排及其解释范围，区分筛选过程中的统计量与后续评价的证据。功效或精度规划依赖已知设计和有依据的输入，缺少输入时不制造计算结果。
+
+结果顺序对应研究问题，说明所需人群或样本流向、有效分母、观测事件、估计量和区间。临床或其他实际意义的判断依据来自当前研究背景；区间很宽、数据不足或模型依赖较强时，具体解释它们如何影响判断。
+
+保留所依据的方案、数据说明及实质修订的时间和理由，包括修订时哪些结果已经知晓。记录影响科学复现的软件、算法和配置；本地路径、运行状态和制作日志留在工作记录中。仍待团队决定的科学问题明确列出。

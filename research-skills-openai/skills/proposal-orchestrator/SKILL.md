@@ -1,6 +1,6 @@
 ---
 name: proposal-orchestrator
-description: Develop or revise a research proposal from an idea, call, study plan, or draft, aligning its scientific argument, methods, and resources and arranging independent review.
+description: Develop or revise research proposals and grant applications, aligning scientific aims, methods, resources, and review.
 ---
 
 # Research Proposal Development
